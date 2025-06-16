@@ -8,12 +8,16 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Build.Construction;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Utilities;
+using NuGet.Configuration;
 
 namespace Microsoft.TypeSpec.Generator
 {
@@ -24,6 +28,9 @@ namespace Microsoft.TypeSpec.Generator
         private const string GeneratedCodeProjectName = "GeneratedCode";
         private const string GeneratedTestFolder = "GeneratedTests";
         private const string NewLine = "\n";
+        private const string ApiCompatPropertyName = "ApiCompatVersion";
+        private const string TargetFrameworkPropertyName = "TargetFramework";
+        private const string TargetFrameworksPropertyName = "TargetFrameworks";
 
         private static readonly Lazy<IReadOnlyList<MetadataReference>> _assemblyMetadataReferences = new(() => new List<MetadataReference>()
             { MetadataReference.CreateFromFile(typeof(object).Assembly.Location) });
@@ -204,10 +211,10 @@ namespace Microsoft.TypeSpec.Generator
             return new GeneratedCodeWorkspace(project);
         }
 
-        internal static async Task<Compilation?> CreatePreviousContractFromDll(string xmlDocumentationpath, string dllPath)
+        private static async Task<Compilation?> CreateLastContractFromDll(string xmlDocumentationpath, string dllPath)
         {
             var workspace = new AdhocWorkspace();
-            Project project = workspace.AddProject("PreviousContract", LanguageNames.CSharp);
+            Project project = workspace.AddProject("LastContract", LanguageNames.CSharp);
             project = project
                 .AddMetadataReferences(_assemblyMetadataReferences.Value)
                 .WithCompilationOptions(new CSharpCompilationOptions(
@@ -259,6 +266,88 @@ namespace Microsoft.TypeSpec.Generator
                     _project = await postProcessor.RemoveAsync(_project);
                     break;
             }
+        }
+
+        internal static async Task<Compilation?> LoadBaselineContract()
+        {
+            var packageName = CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace;
+            string projectFilePath = Path.GetFullPath(Path.Combine(CodeModelGenerator.Instance.Configuration.ProjectDirectory, $"{packageName}.csproj"));
+
+            if (!File.Exists(projectFilePath))
+                return null;
+
+            var projectRoot = ProjectRootElement.Open(projectFilePath);
+            var baselineVersion = projectRoot.Properties.SingleOrDefault(p => p.Name == ApiCompatPropertyName)?.Value;
+            if (baselineVersion == null)
+                return null;
+
+            var targetFrameworksValue = projectRoot.Properties
+                .FirstOrDefault(p => p.Name == TargetFrameworkPropertyName || p.Name == TargetFrameworksPropertyName)?.Value;
+            HashSet<string>? parsedTargetFrameworks = ParseNetTargetFrameworks(targetFrameworksValue);
+
+            var nugetSettings = Settings.LoadDefaultSettings(projectFilePath);
+            var nugetGlobalPackageFolder = SettingsUtility.GetGlobalPackagesFolder(nugetSettings);
+
+            // Try to find or download the assembly
+            try
+            {
+                string nugetFolderPathToAssembly = string.Empty;
+                string assemblyFileFullPath = string.Empty;
+                bool foundInstalledAssembly = false;
+
+                foreach (var preferredTargetFramework in NugetPackageDownloader.PreferredDotNetFrameworkVersions)
+                {
+                    if (parsedTargetFrameworks != null && !parsedTargetFrameworks.Contains(preferredTargetFramework))
+                        continue;
+
+                    nugetFolderPathToAssembly = Path.Combine(
+                        nugetGlobalPackageFolder,
+                        packageName.ToLowerInvariant(),
+                        baselineVersion,
+                        "lib",
+                        preferredTargetFramework);
+                    assemblyFileFullPath = Path.Combine(nugetFolderPathToAssembly, $"{packageName}.dll");
+
+                    if (File.Exists(assemblyFileFullPath))
+                    {
+                        foundInstalledAssembly = true;
+                        break;
+                    }
+                }
+
+                // If assembly doesn't exist locally, download it & install it
+                if (!foundInstalledAssembly)
+                {
+                    NugetPackageDownloader downloader = new(packageName, baselineVersion, parsedTargetFrameworks, nugetSettings);
+                    nugetFolderPathToAssembly = await downloader.DownloadAndInstallPackage();
+                    assemblyFileFullPath = Path.Combine(nugetFolderPathToAssembly, $"{packageName}.dll");
+                }
+
+                string xmlDocPath = Path.Combine(nugetFolderPathToAssembly, $"{packageName}.xml");
+                return await CreateLastContractFromDll(xmlDocPath, assemblyFileFullPath);
+            }
+            catch (Exception ex)
+            {
+                CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                    DiagnosticCodes.BaselineContractMissing,
+                    $"Cannot find Baseline contract assembly ({packageName}@{baselineVersion}) from Nuget Global Package Folder. " +
+                    $"Please make sure the baseline nuget package has been installed properly. Error: {ex.Message}");
+                return null;
+            }
+        }
+
+        private static HashSet<string>? ParseNetTargetFrameworks(string? targetFrameworksValue)
+        {
+            if (string.IsNullOrEmpty(targetFrameworksValue))
+            {
+                return null;
+            }
+
+            var parsedFrameworks = targetFrameworksValue.Split(';')
+                .Where(framework => framework.StartsWith("net"))
+                .ToHashSet();
+
+            return parsedFrameworks.Count > 0 ? parsedFrameworks : null;
         }
     }
 }

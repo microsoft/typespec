@@ -165,7 +165,9 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         /// Gets or sets the name of the type.
         /// </summary>
         public string Name { get; private set; }
-        internal string FullyQualifiedName => $"{Namespace}.{Name}";
+        internal string FullyQualifiedName => DeclaringType is null
+            ? $"{Namespace}.{Name}"
+            : $"{Namespace}.{DeclaringType.Name}.{Name}";
         public CSharpType? DeclaringType { get; private init; }
         public bool IsValueType { get; private init; }
         public bool IsEnum => _underlyingType is not null;
@@ -549,10 +551,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 return false;
             }
 
-            if (Namespace != other.Namespace)
-                return false;
-
-            if (Name != other.Name)
+            if (!IsNameMatch(other))
                 return false;
 
             if (Arguments.Count != other.Arguments.Count)
@@ -565,6 +564,16 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             }
 
             return true;
+        }
+
+        private bool IsNameMatch(CSharpType other)
+        {
+            if (string.IsNullOrEmpty(Namespace))
+            {
+                return Name == other.Name;
+            }
+
+            return FullyQualifiedName == other.FullyQualifiedName;
         }
 
         // TO-DO: Implement this once SystemObjectType is implemented: https://github.com/Azure/autorest.csharp/issues/4198
@@ -654,7 +663,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         /// </summary>
         /// <param name="name">Name of the <see cref="CSharpType"/></param>
         /// <param name="namespace">Namespace of the <see cref="CSharpType"/></param>
-        public void Update(string? name = null, string? @namespace = null)
+        internal void Update(string? name = null, string? @namespace = null)
         {
             if (name != null)
             {

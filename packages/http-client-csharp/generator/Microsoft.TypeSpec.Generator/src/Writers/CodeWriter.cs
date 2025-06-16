@@ -12,6 +12,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator
@@ -823,10 +824,14 @@ namespace Microsoft.TypeSpec.Generator
             {
                 using (ScopeRaw(string.Empty, string.Empty, false))
                 {
-                    foreach (var constraint in constraints)
+                    for (int i = 0; i < constraints.Count; i++)
                     {
+                        var constraint = constraints[i];
                         constraint.Write(this);
-                        AppendRaw(" ");
+                        if (i < constraints.Count - 1)
+                        {
+                            AppendRaw(" ");
+                        }
                     }
                 }
             }

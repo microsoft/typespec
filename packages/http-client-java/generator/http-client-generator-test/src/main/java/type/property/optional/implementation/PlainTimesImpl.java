@@ -57,7 +57,7 @@ public final class PlainTimesImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "OptionalClientPlainT")
+    @ServiceInterface(name = "OptionalClientPlainTimes")
     public interface PlainTimesService {
         @Get("/type/property/optional/plainTime/all")
         @ExpectedResponses({ 200 })

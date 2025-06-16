@@ -6,6 +6,7 @@ dictionaries:
   - typescript
 words:
   - Adoptium
+  - agentic
   - aiohttp
   - alzimmer
   - amqp
@@ -59,8 +60,8 @@ words:
   - Dorg
   - Dosgi
   - dotenv
-  - duplicative
   - Dskip
+  - duplicative
   - Dyns
   - eastus
   - ecmarkup
@@ -176,6 +177,7 @@ words:
   - Packument
   - Perfolizer
   - picocolors
+  - pnpx
   - posargs
   - primitivea
   - prismjs
@@ -229,6 +231,7 @@ words:
   - swaggerui
   - syncpack
   - TCGC
+  - terlson
   - timegm
   - tomli
   - triaging

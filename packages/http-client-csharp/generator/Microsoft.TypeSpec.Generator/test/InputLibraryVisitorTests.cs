@@ -39,7 +39,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
             _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace("test library", models: [inputModel]));
 
-            _mockVisitor.Object.Visit(_mockGenerator.Object.OutputLibrary);
+            _mockVisitor.Object.VisitLibrary(_mockGenerator.Object.OutputLibrary);
 
             _mockVisitor.Protected().Verify<TypeProvider>("PreVisitModel", Times.Once(), inputModel, ItExpr.Is<ModelProvider>(m => m.Name == new ModelProvider(inputModel).Name));
             _mockVisitor.Protected().Verify<PropertyProvider>("PreVisitProperty", Times.Once(), inputModelProperty, ItExpr.Is<PropertyProvider>(m => m.Name == new PropertyProvider(inputModelProperty, TestTypeProvider.Empty).Name));
@@ -55,7 +55,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
             _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace("test library", models: [inputModel]));
 
-            _mockVisitor.Object.Visit(_mockGenerator.Object.OutputLibrary);
+            _mockVisitor.Object.VisitLibrary(_mockGenerator.Object.OutputLibrary);
 
             _mockVisitor.Protected().Verify<TypeProvider>("PreVisitEnum", Times.Once(), inputEnum, ItExpr.Is<EnumProvider>(m => m.Name == EnumProvider.Create(inputEnum, null).Name));
         }
@@ -70,7 +70,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
             _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace("test library", models: [inputModel]));
 
-            _mockVisitor.Object.Visit(_mockGenerator.Object.OutputLibrary);
+            _mockVisitor.Object.VisitLibrary(_mockGenerator.Object.OutputLibrary);
 
             _mockVisitor.Protected().Verify<TypeProvider>("PreVisitModel", Times.Once(), inputModel, ItExpr.Is<ModelProvider>(m => m.Name == new ModelProvider(inputModel).Name));
         }
@@ -89,7 +89,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
             var visitor = new PreVisitor();
             _mockGenerator.Object.AddVisitor(visitor);
-            Assert.Throws<InvalidOperationException>(() => visitor.Visit(_mockGenerator.Object.OutputLibrary));
+            Assert.Throws<InvalidOperationException>(() => visitor.VisitLibrary(_mockGenerator.Object.OutputLibrary));
         }
 
         [Test]
@@ -106,7 +106,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
             var visitor = new PreVisitor(true);
             _mockGenerator.Object.AddVisitor(visitor);
-            Assert.DoesNotThrow(() => visitor.Visit(_mockGenerator.Object.OutputLibrary));
+            Assert.DoesNotThrow(() => visitor.VisitLibrary(_mockGenerator.Object.OutputLibrary));
         }
 
         private class PreVisitor : LibraryVisitor
@@ -126,7 +126,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 return base.PreVisitModel(inputModel, typeProvider);
             }
 
-            protected internal override PropertyProvider? PreVisitProperty(InputModelProperty inputModelProperty, PropertyProvider? propertyProvider)
+            protected internal override PropertyProvider? PreVisitProperty(InputProperty inputModelProperty, PropertyProvider? propertyProvider)
             {
                 if (_cleanupReference && inputModelProperty.Type.Name == "Model1")
                 {

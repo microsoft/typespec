@@ -140,6 +140,7 @@ import {
   TemplateParameterDeclarationNode,
   TemplateableNode,
   TemplatedType,
+  TemplatedTypeBase,
   Tuple,
   TupleExpressionNode,
   Type,
@@ -283,6 +284,16 @@ export interface Checker {
   readonly nullType: NullType;
   /** @internal */
   readonly anyType: UnknownType;
+
+  /** @internal */
+  stats: CheckerStats;
+}
+
+export interface CheckerStats {
+  /** Number of types created */
+  createdTypes: number;
+  /** Number of types finished */
+  finishedTypes: number;
 }
 
 interface TypePrototype {}
@@ -309,6 +320,11 @@ const TypeInstantiationMap = class
   implements TypeInstantiationMap {};
 
 export function createChecker(program: Program, resolver: NameResolver): Checker {
+  const stats: CheckerStats = {
+    createdTypes: 0,
+    finishedTypes: 0,
+  };
+
   const stdTypes: Partial<StdTypes> = {};
   const indeterminateEntities = new WeakMap<Type, IndeterminateEntity>();
   const docFromCommentForSym = new Map<Sym, string>();
@@ -377,6 +393,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     getValueExactType,
     getTemplateParameterUsageMap,
     isTypeAssignableTo: undefined!,
+    stats,
   };
   const relation = createTypeRelationChecker(program, checker);
   checker.isTypeAssignableTo = relation.isTypeAssignableTo;
@@ -3263,7 +3280,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         const spanValue = createTemplateSpanValue(span.expression, type);
         spans.push(spanValue);
         const spanValueAsString = stringifyTypeForTemplate(type);
-        if (spanValueAsString) {
+        if (spanValueAsString !== undefined) {
           stringValue += spanValueAsString;
         } else {
           hasNonStringElement = true;
@@ -4442,7 +4459,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       );
       return undefined;
     }
-    if (heritageRef.kind !== SyntaxKind.TypeReference) {
+    if (
+      heritageRef.kind !== SyntaxKind.TypeReference &&
+      heritageRef.kind !== SyntaxKind.ArrayExpression
+    ) {
       reportCheckerDiagnostic(
         createDiagnostic({
           code: "extend-model",
@@ -5772,6 +5792,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function createType<T extends Type extends any ? CreateTypeProps : never>(
     typeDef: T,
   ): T & TypePrototype & { isFinished: boolean; entityKind: "Type" } {
+    stats.createdTypes++;
     Object.setPrototypeOf(typeDef, typePrototype);
     (typeDef as any).isFinished = false;
 
@@ -5786,6 +5807,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function finishType<T extends Type>(typeDef: T): T {
+    stats.finishedTypes++;
     return finishTypeForProgramAndChecker(program, typePrototype, typeDef);
   }
 
@@ -6377,14 +6399,10 @@ export function finishTypeForProgram<T extends Type>(program: Program, typeDef: 
   return finishTypeForProgramAndChecker(program, program.checker.typePrototype, typeDef);
 }
 
-function linkMapper<T extends Type>(typeDef: T, mapper?: TypeMapper) {
+function linkMapper<T extends Type & TemplatedTypeBase>(typeDef: T, mapper?: TypeMapper) {
   if (mapper) {
-    compilerAssert(
-      !(typeDef as any).templateArguments,
-      "Mapper provided but template arguments already set.",
-    );
-    (typeDef as any).templateMapper = mapper;
-    (typeDef as any).templateArguments = mapper.args;
+    compilerAssert(!typeDef.templateMapper, "Mapper provided but template arguments already set.");
+    typeDef.templateMapper = mapper;
   }
 }
 

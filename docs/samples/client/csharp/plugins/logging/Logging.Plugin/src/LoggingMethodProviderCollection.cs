@@ -29,18 +29,26 @@ namespace Logging.Plugin
             {
                 // Convert to a method with a body statement so we can add tracing.
                 ConvertToBodyStatementMethodProvider(method);
-                var statements = new TryCatchFinallyStatement(
-                    [
-                        InvokeConsoleWriteLine(Literal($"Entering method {method.Signature.Name}.")),
-                        method.BodyStatements!
-                    ],
+
+                var tryExp = new TryExpression(
+                [
+                    InvokeConsoleWriteLine(Literal($"Entering method {method.Signature.Name}.")),
+                    method.BodyStatements!
+                ]);
+                List<CatchExpression> catches =
+                [
                     Catch(Declare("ex", out ScopedApi<Exception> ex),
                     [
                         InvokeConsoleWriteLine(new FormattableStringExpression(
-                            $"An exception was thrown in method {method.Signature.Name}: {{0}}", new[] { ex })),
+                            $"An exception was thrown in method {method.Signature.Name}: {{0}}", [ex])),
                         Throw()
-                    ]),
-                    [InvokeConsoleWriteLine(Literal($"Exiting method {method.Signature.Name}."))]);
+                    ])
+                ];
+                var finallyStatement = new FinallyExpression(InvokeConsoleWriteLine(Literal($"Exiting method {method.Signature.Name}.")));
+                var statements = new TryCatchFinallyStatement(
+                    tryExp,
+                    catches,
+                    finallyStatement);
 
                 method.Update(bodyStatements: statements);
             }

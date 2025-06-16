@@ -216,7 +216,7 @@ public class JavaSettings {
         this.syncMethods = SyncMethodsGeneration.fromValue(getStringValue(host, "sync-methods", "essential"));
 
         // Whether to add a logger to the generated clients.
-        this.clientLogger = getBooleanValue(host, "client-logger", false);
+        this.clientLogger = getBooleanValue(host, "client-logger", true);
 
         // Whether required fields will be included in the constructor arguments for generated models.
         this.requiredFieldsAsConstructorArgs = getBooleanValue(host, "required-fields-as-ctor-args", false);

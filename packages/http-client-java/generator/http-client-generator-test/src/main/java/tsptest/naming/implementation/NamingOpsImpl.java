@@ -58,7 +58,7 @@ public final class NamingOpsImpl {
      * calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "NamingClientNamingOp")
+    @ServiceInterface(name = "NamingClientNamingOps")
     public interface NamingOpsService {
         @Post("/naming")
         @ExpectedResponses({ 200 })

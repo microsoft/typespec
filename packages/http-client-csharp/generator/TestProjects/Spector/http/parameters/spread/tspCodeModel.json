@@ -552,7 +552,7 @@
      "type": {
       "$id": "75",
       "kind": "url",
-      "name": "url",
+      "name": "endpoint",
       "crossLanguageDefinitionId": "TypeSpec.url"
      },
      "location": "Uri",
@@ -572,7 +572,8 @@
        "crossLanguageDefinitionId": "TypeSpec.string"
       },
       "value": "http://localhost:3000"
-     }
+     },
+     "serverUrlTemplate": "{endpoint}"
     }
    ],
    "decorators": [],
@@ -1357,7 +1358,7 @@
        "type": {
         "$id": "142",
         "kind": "url",
-        "name": "url",
+        "name": "endpoint",
         "crossLanguageDefinitionId": "TypeSpec.url"
        },
        "location": "Uri",
@@ -1377,7 +1378,8 @@
          "crossLanguageDefinitionId": "TypeSpec.string"
         },
         "value": "http://localhost:3000"
-       }
+       },
+       "serverUrlTemplate": "{endpoint}"
       }
      ],
      "decorators": [],
@@ -2119,18 +2121,7 @@
          "nameInRequest": "requiredIntList",
          "doc": "required int",
          "type": {
-          "$id": "206",
-          "kind": "array",
-          "name": "Array",
-          "valueType": {
-           "$id": "207",
-           "kind": "int32",
-           "name": "int32",
-           "crossLanguageDefinitionId": "TypeSpec.int32",
-           "decorators": []
-          },
-          "crossLanguageDefinitionId": "TypeSpec.Array",
-          "decorators": []
+          "$ref": "55"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -2143,23 +2134,12 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "208",
+         "$id": "206",
          "name": "optionalStringList",
          "nameInRequest": "optionalStringList",
          "doc": "optional string",
          "type": {
-          "$id": "209",
-          "kind": "array",
-          "name": "Array1",
-          "valueType": {
-           "$id": "210",
-           "kind": "string",
-           "name": "string",
-           "crossLanguageDefinitionId": "TypeSpec.string",
-           "decorators": []
-          },
-          "crossLanguageDefinitionId": "TypeSpec.Array",
-          "decorators": []
+          "$ref": "60"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -2172,7 +2152,7 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "211",
+         "$id": "207",
          "name": "contentType",
          "nameInRequest": "contentType",
          "doc": "Body parameter's content type. Known values are application/json",
@@ -2191,7 +2171,7 @@
         }
        ],
        "response": {
-        "$id": "212"
+        "$id": "208"
        },
        "isOverride": false,
        "generateConvenient": true,
@@ -2199,25 +2179,25 @@
        "crossLanguageDefinitionId": "Parameters.Spread.Alias.spreadWithMultipleParameters"
       },
       {
-       "$id": "213",
+       "$id": "209",
        "kind": "basic",
        "name": "spreadParameterWithInnerAlias",
        "accessibility": "public",
        "apiVersions": [],
        "doc": "spread an alias with contains another alias property as body.",
        "operation": {
-        "$id": "214",
+        "$id": "210",
         "name": "spreadParameterWithInnerAlias",
         "resourceName": "Alias",
         "doc": "spread an alias with contains another alias property as body.",
         "accessibility": "public",
         "parameters": [
          {
-          "$id": "215",
+          "$id": "211",
           "name": "id",
           "nameInRequest": "id",
           "type": {
-           "$id": "216",
+           "$id": "212",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2234,11 +2214,11 @@
           "skipUrlEncoding": false
          },
          {
-          "$id": "217",
+          "$id": "213",
           "name": "x-ms-test-header",
           "nameInRequest": "x-ms-test-header",
           "type": {
-           "$id": "218",
+           "$id": "214",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2255,7 +2235,7 @@
           "skipUrlEncoding": false
          },
          {
-          "$id": "219",
+          "$id": "215",
           "name": "contentType",
           "nameInRequest": "Content-Type",
           "doc": "Body parameter's content type. Known values are application/json",
@@ -2273,7 +2253,7 @@
           "skipUrlEncoding": false
          },
          {
-          "$id": "220",
+          "$id": "216",
           "name": "spreadParameterWithInnerAliasRequest",
           "nameInRequest": "spreadParameterWithInnerAliasRequest",
           "type": {
@@ -2292,7 +2272,7 @@
         ],
         "responses": [
          {
-          "$id": "221",
+          "$id": "217",
           "statusCodes": [
            204
           ],
@@ -2314,11 +2294,11 @@
        },
        "parameters": [
         {
-         "$id": "222",
+         "$id": "218",
          "name": "id",
          "nameInRequest": "id",
          "type": {
-          "$id": "223",
+          "$id": "219",
           "kind": "string",
           "name": "string",
           "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2335,12 +2315,12 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "224",
+         "$id": "220",
          "name": "name",
          "nameInRequest": "name",
          "doc": "name of the Thing",
          "type": {
-          "$id": "225",
+          "$id": "221",
           "kind": "string",
           "name": "string",
           "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2357,12 +2337,12 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "226",
+         "$id": "222",
          "name": "age",
          "nameInRequest": "age",
          "doc": "age of the Thing",
          "type": {
-          "$id": "227",
+          "$id": "223",
           "kind": "int32",
           "name": "int32",
           "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -2379,11 +2359,11 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "228",
+         "$id": "224",
          "name": "x-ms-test-header",
          "nameInRequest": "x-ms-test-header",
          "type": {
-          "$id": "229",
+          "$id": "225",
           "kind": "string",
           "name": "string",
           "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2400,7 +2380,7 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "230",
+         "$id": "226",
          "name": "contentType",
          "nameInRequest": "contentType",
          "doc": "Body parameter's content type. Known values are application/json",
@@ -2419,7 +2399,7 @@
         }
        ],
        "response": {
-        "$id": "231"
+        "$id": "227"
        },
        "isOverride": false,
        "generateConvenient": true,
@@ -2429,14 +2409,14 @@
      ],
      "parameters": [
       {
-       "$id": "232",
+       "$id": "228",
        "name": "endpoint",
        "nameInRequest": "endpoint",
        "doc": "Service host",
        "type": {
-        "$id": "233",
+        "$id": "229",
         "kind": "url",
-        "name": "url",
+        "name": "endpoint",
         "crossLanguageDefinitionId": "TypeSpec.url"
        },
        "location": "Uri",
@@ -2448,15 +2428,16 @@
        "explode": false,
        "kind": "Client",
        "defaultValue": {
-        "$id": "234",
+        "$id": "230",
         "type": {
-         "$id": "235",
+         "$id": "231",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
         },
         "value": "http://localhost:3000"
-       }
+       },
+       "serverUrlTemplate": "{endpoint}"
       }
      ],
      "decorators": [],

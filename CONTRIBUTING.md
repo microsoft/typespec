@@ -15,6 +15,7 @@ npm install -g pnpm
 
 ```bash
 pnpm install
+pnpm install-conflict # This will reset the lockfile to the upstream version and run install again making sure the lockfile is not dropping changes from main.
 ```
 
 - Build the dependencies

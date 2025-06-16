@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Common
 {
@@ -14,17 +15,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
         {
             public static InputEnumTypeValue Int32(string name, int value, InputEnumType enumType)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.Int32, enumType, "", $"{name} description");
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.Int32, "", $"{name} description", enumType);
             }
 
             public static InputEnumTypeValue Float32(string name, float value, InputEnumType enumType)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.Float32, enumType, "", $"{name} description");
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.Float32, "", $"{name} description", enumType);
             }
 
             public static InputEnumTypeValue String(string name, string value, InputEnumType enumType)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.String, enumType, "", $"{name} description");
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.String, "", $"{name} description", enumType);
             }
         }
 
@@ -77,7 +78,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             bool isContentType = false,
             bool isApiVersion = false,
             bool explode = false,
-            string? delimiter = null)
+            string? delimiter = null,
+            string? serverUrlTemplate = null)
         {
             return new InputParameter(
                 name,
@@ -95,7 +97,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 false,
                 explode,
                 delimiter,
-                null);
+                null,
+                serverUrlTemplate);
         }
 
         public static InputNamespace Namespace(
@@ -223,20 +226,87 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? wireName = null,
             string? summary = null,
             string? serializedName = null,
-            string? doc = null,
-            InputModelPropertyKind kind = InputModelPropertyKind.Property)
+            string? doc = null)
         {
             return new InputModelProperty(
-                name,
-                kind,
-                summary,
-                doc ?? $"Description for {name}",
-                type,
-                isRequired,
-                isReadOnly,
-                isDiscriminator,
-                serializedName,
-                new(json: new(wireName ?? name.ToVariableName())));
+                name: name,
+                summary: summary,
+                doc: doc ?? $"Description for {name}",
+                type: type,
+                isRequired: isRequired,
+                isReadOnly: isReadOnly,
+                access: null,
+                isDiscriminator: isDiscriminator,
+                serializedName: serializedName ?? wireName ?? name.ToVariableName(),
+                serializationOptions: new(json: new(wireName ?? name.ToVariableName())));
+        }
+
+        public static InputHeaderParameter HeaderParameter(
+            string name,
+            InputType type,
+            bool isRequired = false,
+            bool isReadOnly = false,
+            string? summary = null,
+            string? doc = null,
+            string? collectionFormat = null,
+            string? serializedName = null)
+        {
+            return new InputHeaderParameter(
+                name: name,
+                summary: summary,
+                doc: doc ?? $"Description for {name}",
+                type: type,
+                isRequired: isRequired,
+                isReadOnly: isReadOnly,
+                access: null,
+                collectionFormat: collectionFormat,
+                serializedName: serializedName ?? name);
+        }
+
+        public static InputQueryParameter QueryParameter(
+            string name,
+            InputType type,
+            bool isRequired = false,
+            bool isReadOnly = false,
+            string? summary = null,
+            string? doc = null,
+            string? collectionFormat = null,
+            string? serializedName = null,
+            bool explode = false)
+        {
+            return new InputQueryParameter(
+                name: name,
+                summary: summary,
+                doc: doc ?? $"Description for {name}",
+                type: type,
+                isRequired: isRequired,
+                isReadOnly: isReadOnly,
+                access: null,
+                serializedName: serializedName ?? name,
+                collectionFormat: collectionFormat,
+                explode: explode);
+        }
+
+        public static InputPathParameter PathParameter(
+            string name,
+            InputType type,
+            bool isRequired = false,
+            bool isReadOnly = false,
+            string? summary = null,
+            string? doc = null,
+            string? serializedName = null,
+            bool allowReserved = false)
+        {
+            return new InputPathParameter(
+                name: name,
+                summary: summary,
+                doc: doc ?? $"Description for {name}",
+                type: type,
+                isRequired: isRequired,
+                isReadOnly: isReadOnly,
+                access: null,
+                serializedName: serializedName ?? name,
+                allowReserved: allowReserved);
         }
 
         // Replace reflection with InternalsVisibleTo after fixing https://github.com/microsoft/typespec/issues/7075")]
@@ -246,7 +316,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string @namespace = "Sample.Models",
             string access = "public",
             InputModelTypeUsage usage = InputModelTypeUsage.Output | InputModelTypeUsage.Input | InputModelTypeUsage.Json,
-            IEnumerable<InputModelProperty>? properties = null,
+            IEnumerable<InputProperty>? properties = null,
             InputModelType? baseModel = null,
             bool modelAsStruct = false,
             string? discriminatedKind = null,
@@ -254,7 +324,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             IDictionary<string, InputModelType>? discriminatedModels = null,
             IEnumerable<InputModelType>? derivedModels = null)
         {
-            IEnumerable<InputModelProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
+            IEnumerable<InputProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
 
             var model = new InputModelType(
                 name,
@@ -269,7 +339,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 baseModel,
                 derivedModels is null ? [] : [.. derivedModels],
                 discriminatedKind,
-                propertiesList.FirstOrDefault(p => p.IsDiscriminator),
+                propertiesList.FirstOrDefault(p => p is InputModelProperty modelProperty && modelProperty.IsDiscriminator),
                 discriminatedModels is null ? new Dictionary<string, InputModelType>() : discriminatedModels.AsReadOnly(),
                 additionalProperties,
                 modelAsStruct,
@@ -359,7 +429,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             IEnumerable<string>? requestMediaTypes = null,
             string uri = "",
             string path = "",
-            string httpMethod = "GET")
+            string httpMethod = "GET",
+            bool generateConvenienceMethod = true)
         {
             return new InputOperation(
                 name,
@@ -377,7 +448,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 requestMediaTypes is null ? null : [.. requestMediaTypes],
                 false,
                 true,
-                true,
+                generateConvenienceMethod,
                 name);
         }
 
@@ -397,14 +468,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 continuationToken: new InputContinuationToken(parameter, [continuationTokenName], continuationTokenLocation));
         }
 
-        public static InputOperationResponse OperationResponse(IEnumerable<int>? statusCodes = null, InputType? bodytype = null, IReadOnlyList<InputOperationResponseHeader>? headers = null)
+        public static InputOperationResponse OperationResponse(
+            IEnumerable<int>? statusCodes = null,
+            InputType? bodytype = null,
+            IReadOnlyList<InputOperationResponseHeader>? headers = null,
+            IReadOnlyList<string>? contentTypes = null)
         {
             return new InputOperationResponse(
                 statusCodes is null ? [200] : [.. statusCodes],
                 bodytype,
                 headers ?? [],
                 false,
-                ["application/json"]);
+                contentTypes ?? ["application/json"]);
         }
 
         public static InputServiceMethodResponse ServiceMethodResponse(InputType? type, IReadOnlyList<string>? resultSegments)

@@ -3,7 +3,6 @@ import { EmitContext, NoTarget } from "@typespec/compiler";
 import { execSync } from "child_process";
 import fs from "fs";
 import path, { dirname } from "path";
-import process from "process";
 import { loadPyodide } from "pyodide";
 import { fileURLToPath } from "url";
 import { emitCodeModel } from "./code-model.js";
@@ -131,14 +130,6 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
   const outputDir = context.emitterOutputDir;
   addDefaultOptions(sdkContext);
   const yamlMap = emitCodeModel(sdkContext);
-  if (yamlMap.clients.length === 0) {
-    reportDiagnostic(program, {
-      code: "no-valid-client",
-      target: NoTarget,
-    });
-    return;
-  }
-
   const parsedYamlMap = walkThroughNodes(yamlMap);
 
   const yamlPath = await saveCodeModelAsYaml("python-yaml-path", parsedYamlMap);
@@ -230,7 +221,8 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
         .map(([key, value]) => `--${key}=${value}`)
         .join(" ");
       const command = `${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlags}`;
-      execSync(command, { stdio: [process.stdin, process.stdout] });
+      execSync(command);
+
       const blackExcludeDirs = [
         "__pycache__/*",
         "node_modules/*",
@@ -254,9 +246,6 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
       ];
       execSync(
         `${venvPath} -m black --line-length=120 --fast ${outputDir} --exclude "${blackExcludeDirs.join("|")}"`,
-        {
-          stdio: [process.stdin, process.stdout],
-        },
       );
       checkForPylintIssues(outputDir);
     }

@@ -8,10 +8,7 @@ import * as cl from "@typespec/http-client";
 import { getClientcontextDeclarationRef } from "../../client-context/client-context-declaration.jsx";
 import { HttpRequestOptions } from "../../http-request-options.jsx";
 import { HttpRequest } from "../../http-request.jsx";
-import {
-  getOperationOptionsParameterRefkey,
-  getOperationParameters,
-} from "../../operation-parameters.jsx";
+import { getOperationParameters } from "../../operation-parameters.jsx";
 
 export interface HttpRequestSendProps {
   httpOperation: HttpOperation;
@@ -22,20 +19,29 @@ export function getHttpRequestSendRefkey(httpOperation: HttpOperation) {
   return refkey(httpOperation, "http-request-send");
 }
 
+function getPagingOperationOptionsParameterRefkey(httpOperation: HttpOperation): Refkey {
+  return refkey(httpOperation, "paging-operation-options-parameter");
+}
+
 export function getHttpRequestSendParams(httpOperation: HttpOperation) {
+  const optionsRefkey = getPagingOperationOptionsParameterRefkey(httpOperation);
   const clientLibrary = cl.useClientLibrary();
   const client = clientLibrary.getClientForOperation(httpOperation);
   const clientContextInterfaceRef = getClientcontextDeclarationRef(client!);
   const signatureParams: ts.ParameterDescriptor[] = [
-    { name: "client", type: clientContextInterfaceRef, refkey: ay.refkey(client, "client") },
-    ...getOperationParameters(httpOperation),
+    {
+      name: "client",
+      type: clientContextInterfaceRef,
+      refkey: ay.refkey(client, "send-client-param"),
+    },
+    ...getOperationParameters(httpOperation, optionsRefkey),
   ];
   const parameters: ts.ParameterDescriptor[] = [...signatureParams];
   // re-correct the `options` parameter to Record<string, any> to accept both paging and non-paging options
   parameters[parameters.length - 1] = {
     name: "options",
     type: "Record<string, any>",
-    refkey: getOperationOptionsParameterRefkey(httpOperation),
+    refkey: optionsRefkey,
     optional: true,
   };
   return parameters;
@@ -43,8 +49,9 @@ export function getHttpRequestSendParams(httpOperation: HttpOperation) {
 
 export function HttpRequestSend(props: HttpRequestSendProps) {
   const httpOperation = props.httpOperation;
+  const optionsRefkey = getPagingOperationOptionsParameterRefkey(httpOperation);
   const operationUrlRefkey = refkey();
-  const requestOptionsRefkey = refkey();
+  const requestOptionsVarRefkey = refkey();
   const verb = props.httpOperation.verb;
   const namePolicy = ts.useTSNamePolicy();
   const functionName = namePolicy.getName(httpOperation.operation.name + "Send", "function");
@@ -59,10 +66,18 @@ export function HttpRequestSend(props: HttpRequestSendProps) {
     >
       <List>
         <StatementList>
-          <HttpRequest.Url httpOperation={props.httpOperation} refkey={operationUrlRefkey} />
+          <HttpRequest.Url
+            httpOperation={props.httpOperation}
+            pathVarRefkey={operationUrlRefkey}
+            requestOptionsParamRefkey={optionsRefkey}
+          />
 
-          <HttpRequestOptions httpOperation={props.httpOperation} refkey={requestOptionsRefkey} />
-          {code`return await client.pathUnchecked(${(<Reference refkey={operationUrlRefkey} />)}).${verb}(${(<Reference refkey={requestOptionsRefkey} />)});`}
+          <HttpRequestOptions
+            httpOperation={props.httpOperation}
+            requestOptionsVarRefkey={requestOptionsVarRefkey}
+            requestOptionsParamRefkey={optionsRefkey}
+          />
+          {code`return await client.pathUnchecked(${(<Reference refkey={operationUrlRefkey} />)}).${verb}(${(<Reference refkey={requestOptionsVarRefkey} />)});`}
         </StatementList>
       </List>
     </FunctionDeclaration>

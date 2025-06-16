@@ -3,7 +3,6 @@ package versioning.renamedfrom.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -17,7 +16,6 @@ import io.clientcore.core.http.pipeline.HttpPipeline;
 import java.lang.reflect.InvocationTargetException;
 import versioning.renamedfrom.NewModel;
 import versioning.renamedfrom.RenamedFromServiceVersion;
-import versioning.renamedfrom.Versions;
 
 /**
  * An instance of this class provides access to all the operations defined in NewInterfaces.
@@ -39,7 +37,7 @@ public final class NewInterfacesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     NewInterfacesImpl(RenamedFromClientImpl client) {
-        this.service = RestProxy.create(NewInterfacesService.class, client.getHttpPipeline());
+        this.service = NewInterfacesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -56,7 +54,9 @@ public final class NewInterfacesImpl {
      * The interface defining all the services for RenamedFromClientNewInterfaces to be used by the proxy service to
      * perform REST calls.
      */
-    @ServiceInterface(name = "RenamedFromClientNew", host = "{endpoint}/versioning/renamed-from/api-version:{version}")
+    @ServiceInterface(
+        name = "RenamedFromClientNewInterfaces",
+        host = "{endpoint}/versioning/renamed-from/api-version:{version}")
     public interface NewInterfacesService {
         static NewInterfacesService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -73,7 +73,7 @@ public final class NewInterfacesImpl {
         @HttpRequestInformation(method = HttpMethod.POST, path = "/interface/test", expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
         Response<NewModel> newOpInNewInterface(@HostParam("endpoint") String endpoint,
-            @HostParam("version") Versions version, @HeaderParam("Content-Type") String contentType,
+            @HostParam("version") String version, @HeaderParam("Content-Type") String contentType,
             @HeaderParam("Accept") String accept, @BodyParam("application/json") NewModel body,
             RequestContext requestContext);
     }
@@ -92,21 +92,7 @@ public final class NewInterfacesImpl {
     public Response<NewModel> newOpInNewInterfaceWithResponse(NewModel body, RequestContext requestContext) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.newOpInNewInterface(this.client.getEndpoint(), this.client.getVersion(), contentType, accept,
-            body, requestContext);
-    }
-
-    /**
-     * The newOpInNewInterface operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public NewModel newOpInNewInterface(NewModel body) {
-        return newOpInNewInterfaceWithResponse(body, RequestContext.none()).getValue();
+        return service.newOpInNewInterface(this.client.getEndpoint(), this.client.getServiceVersion().getVersion(),
+            contentType, accept, body, requestContext);
     }
 }

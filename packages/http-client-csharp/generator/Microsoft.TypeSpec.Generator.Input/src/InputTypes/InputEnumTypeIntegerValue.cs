@@ -5,7 +5,8 @@ namespace Microsoft.TypeSpec.Generator.Input
 {
     internal class InputEnumTypeIntegerValue : InputEnumTypeValue
     {
-        public InputEnumTypeIntegerValue(string name, int integerValue, InputPrimitiveType valueType, InputEnumType enumType, string? summary, string? doc) : base(name, integerValue, valueType, enumType, summary, doc)
+        public InputEnumTypeIntegerValue(string name, int integerValue, InputPrimitiveType valueType, string? summary, string? doc, InputEnumType? enumType = default)
+            : base(name, integerValue, valueType, summary, doc, enumType)
         {
             IntegerValue = integerValue;
         }

@@ -3,7 +3,6 @@ package type.model.inheritance.notdiscriminated.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -63,14 +62,14 @@ public final class NotDiscriminatedClientImpl {
     public NotDiscriminatedClientImpl(HttpPipeline httpPipeline, String endpoint) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.service = RestProxy.create(NotDiscriminatedClientService.class, this.httpPipeline);
+        this.service = NotDiscriminatedClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
      * The interface defining all the services for NotDiscriminatedClient to be used by the proxy service to perform
      * REST calls.
      */
-    @ServiceInterface(name = "NotDiscriminatedClie", host = "{endpoint}")
+    @ServiceInterface(name = "NotDiscriminatedClient", host = "{endpoint}")
     public interface NotDiscriminatedClientService {
         static NotDiscriminatedClientService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -129,19 +128,6 @@ public final class NotDiscriminatedClientImpl {
     }
 
     /**
-     * The postValid operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void postValid(Siamese input) {
-        postValidWithResponse(input, RequestContext.none());
-    }
-
-    /**
      * The getValid operation.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -154,18 +140,6 @@ public final class NotDiscriminatedClientImpl {
     public Response<Siamese> getValidWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
         return service.getValid(this.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * The getValid operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the third level model in the normal multiple levels inheritance.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Siamese getValid() {
-        return getValidWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -183,19 +157,5 @@ public final class NotDiscriminatedClientImpl {
         final String contentType = "application/json";
         final String accept = "application/json";
         return service.putValid(this.getEndpoint(), contentType, accept, input, requestContext);
-    }
-
-    /**
-     * The putValid operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the third level model in the normal multiple levels inheritance.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Siamese putValid(Siamese input) {
-        return putValidWithResponse(input, RequestContext.none()).getValue();
     }
 }

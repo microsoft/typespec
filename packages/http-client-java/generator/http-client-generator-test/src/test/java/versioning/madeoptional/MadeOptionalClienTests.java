@@ -5,11 +5,12 @@ package versioning.madeoptional;
 
 import org.junit.jupiter.api.Test;
 import versioning.madeoptional.models.TestModel;
-import versioning.madeoptional.models.Versions;
 
 public class MadeOptionalClienTests {
     private final MadeOptionalClient madeOptionalClient
-        = new MadeOptionalClientBuilder().endpoint("http://localhost:3000").version(Versions.V2).buildClient();
+        = new MadeOptionalClientBuilder().endpoint("http://localhost:3000")
+            .serviceVersion(MadeOptionalServiceVersion.V2)
+            .buildClient();
 
     @Test
     public void testMadeOptionalClient() {

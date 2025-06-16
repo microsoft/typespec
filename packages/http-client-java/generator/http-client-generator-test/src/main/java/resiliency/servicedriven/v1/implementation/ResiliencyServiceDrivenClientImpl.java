@@ -173,7 +173,7 @@ public final class ResiliencyServiceDrivenClientImpl {
      * perform REST calls.
      */
     @Host("{endpoint}/resiliency/service-driven/client:v1/service:{serviceDeploymentVersion}/api-version:{apiVersion}")
-    @ServiceInterface(name = "ResiliencyServiceDri")
+    @ServiceInterface(name = "ResiliencyServiceDrivenClient")
     public interface ResiliencyServiceDrivenClientService {
         @Head("/add-optional-param/from-none")
         @ExpectedResponses({ 204 })

@@ -22,7 +22,7 @@ namespace Microsoft.TypeSpec.Generator
 
         private Dictionary<InputType, CSharpType?> TypeCache { get; } = [];
 
-        private Dictionary<InputModelProperty, PropertyProvider?> PropertyCache { get; } = [];
+        private Dictionary<InputProperty, PropertyProvider?> PropertyCache { get; } = [];
 
         private IReadOnlyList<LibraryVisitor> Visitors => CodeModelGenerator.Instance.Visitors;
         private Dictionary<InputType, IReadOnlyList<TypeProvider>> SerializationsCache { get; } = [];
@@ -47,36 +47,13 @@ namespace Microsoft.TypeSpec.Generator
             return type;
         }
 
-        internal InputType GetLiteralValueType(InputLiteralType literal)
-        {
-            if (LiteralValueTypeCache.TryGetValue(literal, out var valueType))
-            {
-                return valueType;
-            }
-
-            // we only convert the literal into enum when it is not a boolean
-            if (literal.ValueType.Kind == InputPrimitiveTypeKind.Boolean)
-            {
-                valueType = literal.ValueType;
-            }
-            else
-            {
-                var values = new List<InputEnumTypeValue>();
-                var enumType = new InputEnumType(literal.Name, literal.Namespace, $"{literal.Namespace}.{literal.Name}", null, null, null, $"The {literal.Name}", InputModelTypeUsage.Input | InputModelTypeUsage.Output, literal.ValueType, values, true);
-                values.Add(new InputEnumTypeValue(literal.Value.ToString() ?? "Null", literal.Value, literal.ValueType, enumType, null, literal.Value.ToString()));
-                valueType = enumType;
-            }
-            LiteralValueTypeCache.Add(literal, valueType);
-            return valueType;
-        }
-
         protected virtual CSharpType? CreateCSharpTypeCore(InputType inputType)
         {
             CSharpType? type;
             switch (inputType)
             {
                 case InputLiteralType literalType:
-                    var input = CreateCSharpType(GetLiteralValueType(literalType));
+                    var input = CreateCSharpType(literalType.ValueType);
                     type = input != null ? CSharpType.FromLiteral(input, literalType.Value) : null;
                     break;
                 case InputEnumTypeValue enumValueType:
@@ -216,10 +193,10 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         /// <param name="parameter">The <see cref="InputParameter"/> to convert.</param>
         /// <returns>An instance of <see cref="ParameterProvider"/>.</returns>
-        public ParameterProvider CreateParameter(InputParameter parameter)
+        public ParameterProvider? CreateParameter(InputParameter parameter)
             => CreateParameterCore(parameter);
 
-        protected virtual ParameterProvider CreateParameterCore(InputParameter parameter)
+        protected virtual ParameterProvider? CreateParameterCore(InputParameter parameter)
             => new ParameterProvider(parameter);
 
         /// <summary>
@@ -227,7 +204,7 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         /// <param name="property">The input property.</param>
         /// <returns>The property provider.</returns>
-        public PropertyProvider? CreateProperty(InputModelProperty property, TypeProvider enclosingType)
+        public PropertyProvider? CreateProperty(InputProperty property, TypeProvider enclosingType)
         {
             if (PropertyCache.TryGetValue(property, out var propertyProvider))
                 return propertyProvider;
@@ -243,7 +220,7 @@ namespace Microsoft.TypeSpec.Generator
         /// <param name="property">The input model property.</param>
         /// <param name="enclosingType">The enclosing type.</param>
         /// <returns>An instance of <see cref="PropertyProvider"/>.</returns>
-        protected virtual PropertyProvider? CreatePropertyCore(InputModelProperty property, TypeProvider enclosingType)
+        protected virtual PropertyProvider? CreatePropertyCore(InputProperty property, TypeProvider enclosingType)
         {
             PropertyProvider.TryCreate(property, enclosingType, out var propertyProvider);
             if (Visitors.Count == 0)

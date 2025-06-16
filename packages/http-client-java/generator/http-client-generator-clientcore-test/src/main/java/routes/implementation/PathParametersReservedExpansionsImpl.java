@@ -3,7 +3,6 @@ package routes.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.PathParam;
@@ -35,7 +34,7 @@ public final class PathParametersReservedExpansionsImpl {
      * @param client the instance of the service client containing this operation class.
      */
     PathParametersReservedExpansionsImpl(RoutesClientImpl client) {
-        this.service = RestProxy.create(PathParametersReservedExpansionsService.class, client.getHttpPipeline());
+        this.service = PathParametersReservedExpansionsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -43,7 +42,7 @@ public final class PathParametersReservedExpansionsImpl {
      * The interface defining all the services for RoutesClientPathParametersReservedExpansions to be used by the proxy
      * service to perform REST calls.
      */
-    @ServiceInterface(name = "RoutesClientPathPara", host = "{endpoint}")
+    @ServiceInterface(name = "RoutesClientPathParametersReservedExpansions", host = "{endpoint}")
     public interface PathParametersReservedExpansionsService {
         static PathParametersReservedExpansionsService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -90,19 +89,6 @@ public final class PathParametersReservedExpansionsImpl {
     }
 
     /**
-     * The template operation.
-     * 
-     * @param param The param parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void template(String param) {
-        templateWithResponse(param, RequestContext.none());
-    }
-
-    /**
      * The annotation operation.
      * 
      * @param param The param parameter.
@@ -115,18 +101,5 @@ public final class PathParametersReservedExpansionsImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> annotationWithResponse(String param, RequestContext requestContext) {
         return service.annotation(this.client.getEndpoint(), param, requestContext);
-    }
-
-    /**
-     * The annotation operation.
-     * 
-     * @param param The param parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void annotation(String param) {
-        annotationWithResponse(param, RequestContext.none());
     }
 }

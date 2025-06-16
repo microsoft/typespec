@@ -35,13 +35,13 @@ export function DiagnosableTypekitFunction(props: DiagnosableTypekitFunctionProp
   );
   return (
     <md.Section heading={`${props.typekit.name} <Badge variant="note" text="Diagnosable" />`}>
-      <ay.List>
-        {"```ts"}
-        {props.typekit.docComment?.emitAsTsdoc().trimEnd()}
-        {fnSig}
-        {fnDiagSig}
-        {"```"}
-      </ay.List>
+      <md.Code lang="ts">
+        <ay.List>
+          {props.typekit.docComment?.emitAsTsdoc().trimEnd()}
+          {fnSig}
+          {fnDiagSig}
+        </ay.List>
+      </md.Code>
     </md.Section>
   );
 }

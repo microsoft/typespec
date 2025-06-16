@@ -22,6 +22,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Gener
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPageDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterMapping;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterSynthesizedOrigin;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformation;
@@ -830,6 +831,11 @@ abstract class ConvenienceMethodTemplateBase {
         for (MethodParameter convenienceParameter : convenienceParameters) {
             String name = convenienceParameter.getSerializedName();
             parameterMap.put(convenienceParameter, clientParameters.get(name));
+        }
+        if (convenienceMethod.isPageStreamingType()) {
+            final MethodPageDetails pageDetails = convenienceMethod.getMethodPageDetails();
+            parameterMap.entrySet()
+                .removeIf(it -> pageDetails.shouldHideParameter(it.getKey().getClientMethodParameter()));
         }
         return parameterMap;
     }

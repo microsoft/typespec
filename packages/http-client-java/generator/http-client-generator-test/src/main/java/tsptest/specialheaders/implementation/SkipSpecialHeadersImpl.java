@@ -66,7 +66,7 @@ public final class SkipSpecialHeadersImpl {
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "SpecialHeadersClient")
+    @ServiceInterface(name = "SpecialHeadersClientSkipSpecialHeaders")
     public interface SkipSpecialHeadersService {
         @Delete("/skip-special-headers/resources/{name}")
         @ExpectedResponses({ 204 })

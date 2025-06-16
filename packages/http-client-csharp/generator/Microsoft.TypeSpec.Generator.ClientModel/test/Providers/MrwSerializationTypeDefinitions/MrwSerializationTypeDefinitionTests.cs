@@ -11,26 +11,35 @@ using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializationTypeDefinitions
 {
     internal class MrwSerializationTypeDefinitionTests
     {
-        public MrwSerializationTypeDefinitionTests()
-        {
-            MockHelpers.LoadMockGenerator(createSerializationsCore: (inputType, typeProvider) =>
-                inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)] : []);
-        }
-
-        internal static (ModelProvider Model, MrwSerializationTypeDefinition Serialization) CreateModelAndSerialization(InputModelType inputModel)
+        internal static (ModelProvider Model, MrwSerializationTypeDefinition Serialization) CreateModelAndSerialization(InputModelType inputModel, bool isRootInput = true, bool isRootOutput = true)
         {
             var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel],
+                createSerializationsCore: (inputType, typeProvider) =>
+                    inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)]: []);
+            if (isRootInput)
+            {
+                generator.Object.TypeFactory.RootInputModels.Add(inputModel);
+            }
+            if (isRootOutput)
+            {
+                generator.Object.TypeFactory.RootOutputModels.Add(inputModel);
+            }
+
             var serializations = model!.SerializationProviders;
 
             Assert.AreEqual(1, serializations.Count);
@@ -655,6 +664,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public void TestImplicitToBinaryContentNotGeneratedForNonRootInputModel()
+        {
+            var inputModel = InputFactory.Model("mockInputModel");
+            var (_, serialization) = CreateModelAndSerialization(inputModel, isRootInput: false);
+            var methods = serialization.Methods;
+
+            Assert.IsTrue(methods.Count > 0);
+
+            var method = methods.FirstOrDefault(m => m.Signature.Name == nameof(BinaryContent));
+
+            Assert.IsNull(method);
+        }
+
+        [Test]
         public void TestBuildExplicitFromClientResult()
         {
             var inputModel = InputFactory.Model("mockInputModel");
@@ -671,7 +694,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsNotNull(methodSignature);
 
             var expectedModifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Explicit | MethodSignatureModifiers.Operator;
-            Assert.AreEqual(inputModel.Name.ToCleanName(), methodSignature?.Name);
+            Assert.AreEqual(inputModel.Name.ToIdentifierName(), methodSignature?.Name);
             Assert.AreEqual(expectedModifiers, methodSignature?.Modifiers);
 
             var methodParameters = methodSignature?.Parameters;
@@ -682,6 +705,61 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             var methodBody = method?.BodyStatements;
             Assert.IsNotNull(methodBody);
+        }
+
+        [Test]
+        public void TestBuildExplicitFromClientResult_ArrayOfModels()
+        {
+            var inputModel = InputFactory.Model("mockInputModel", usage: InputModelTypeUsage.Output | InputModelTypeUsage.Json);
+            var modelArray = InputFactory.Array(inputModel);
+            var inputOperation = InputFactory.Operation("bar", responses: [InputFactory.OperationResponse(bodytype: modelArray)]);
+            var inputServiceResponse = InputFactory.ServiceMethodResponse(modelArray, null);
+            var inputClient = InputFactory.Client("fooClient", methods: [InputFactory.BasicServiceMethod("bar", inputOperation, response: inputServiceResponse)]);
+            MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel],
+                clients: () => [inputClient]);
+            var outputLibrary = ScmCodeModelGenerator.Instance.OutputLibrary;
+            var modelProvider = outputLibrary.TypeProviders.OfType<ModelProvider>().FirstOrDefault(t => t.Name == "MockInputModel");
+            Assert.IsNotNull(modelProvider);
+
+            var serializationProvider = modelProvider!.SerializationProviders.FirstOrDefault();
+            Assert.IsNotNull(serializationProvider);
+            var methods = serializationProvider!.Methods;
+
+            Assert.IsTrue(methods.Count > 0);
+
+            var method = methods.FirstOrDefault(m => m.Signature.Name == "MockInputModel");
+
+            Assert.IsNotNull(method);
+
+            var methodSignature = method?.Signature;
+            Assert.IsNotNull(methodSignature);
+
+            var expectedModifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Explicit | MethodSignatureModifiers.Operator;
+            Assert.AreEqual(inputModel.Name.ToIdentifierName(), methodSignature?.Name);
+            Assert.AreEqual(expectedModifiers, methodSignature?.Modifiers);
+
+            var methodParameters = methodSignature?.Parameters;
+            Assert.AreEqual(1, methodParameters?.Count);
+            var clientResultParameter = methodParameters?[0];
+            Assert.AreEqual(new CSharpType(typeof(ClientResult)), clientResultParameter?.Type);
+
+            var methodBody = method?.BodyStatements;
+            Assert.IsNotNull(methodBody);
+        }
+
+        [Test]
+        public void TestExplicitFromClientResultNotGeneratedForNonRootOutputModel()
+        {
+            var inputModel = InputFactory.Model("mockInputModel");
+            var (model, serialization) = CreateModelAndSerialization(inputModel, isRootOutput: false);
+            var methods = serialization.Methods;
+
+            Assert.IsTrue(methods.Count > 0);
+
+            var method = methods.FirstOrDefault(m => m.Signature.Name == "MockInputModel");
+
+            Assert.IsNull(method);
         }
 
         [TestCase(true)]
@@ -704,7 +782,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             bool hasString = false;
             bool hasCollection = false;
             bool hasDictionary = false;
-            foreach (var statement in method.BodyStatements!.Flatten())
+            foreach (var statement in method.BodyStatements!)
             {
                 if (statement.ToDisplayString().Contains("readOnlyInt"))
                 {
@@ -765,7 +843,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var name = kind.ToString().ToLower();
             var properties = new List<InputModelProperty>
             {
-                new InputModelProperty("requiredInt", InputModelPropertyKind.Property, "", "", new InputPrimitiveType(kind, name, $"TypeSpec.{name}", encode), true, false, false, "requiredInt", new(json: new("requiredInt"))),
+                new InputModelProperty("requiredInt", "", "", new InputPrimitiveType(kind, name, $"TypeSpec.{name}", encode), true, false, null, false, "requiredInt", new(json: new("requiredInt"))),
              };
 
             var inputModel = new InputModelType("TestModel", "TestNamespace", "TestModel", "public", null, "", "Test model.", InputModelTypeUsage.Input, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, new());

@@ -416,7 +416,13 @@ function* emitRawServerOperation(
     const paramNameSafe = keywordSafe(paramNameCase.camelCase);
     const isBodyField = bodyFields.has(param.name) && bodyFields.get(param.name) === param.type;
     const isBodyExact = operation.parameters.body?.property === param;
-    if (isBodyField) {
+    const isPathParameter = operation.parameters.parameters.some(
+      (p) => p.type === "path" && p.param === param,
+    );
+
+    if (isPathParameter) {
+      paramBaseExpression = `${paramNameSafe}`;
+    } else if (isBodyField) {
       paramBaseExpression = `${bodyName}.${paramNameCase.camelCase}`;
     } else if (isBodyExact) {
       paramBaseExpression = bodyName!;

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Input;
@@ -794,6 +795,143 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var writer = new TypeProviderWriter(modelProvider);
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task CanChangeFrameworkTypeToCustomEnum()
+        {
+            // simulates a constant literal value that comes in from the emitter as an enum value
+            var inputEnum = InputFactory.EnumMember.String("mockInputEnum", "val1", InputFactory.StringEnum("foo", []));
+            var modelProp = InputFactory.Property("prop1", inputEnum);
+            var inputModel = InputFactory.Model("mockInputModel", properties: [modelProp], usage: InputModelTypeUsage.Json);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            Assert.AreEqual(0, modelProvider.Properties.Count);
+            Assert.AreEqual(1, modelProvider.CustomCodeView!.Properties.Count);
+            Assert.AreEqual("Prop1", modelProvider.CustomCodeView.Properties[0].Name);
+            Assert.AreEqual("CustomEnum", modelProvider.CustomCodeView.Properties[0].Type.Name);
+
+            Assert.AreEqual(1, modelProvider.CanonicalView!.Properties.Count);
+        }
+
+        [Test]
+        public async Task CanCustomizeTypeRenamedInVisitor()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var inputModel = InputFactory.Model("mockInputModel");
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            // Simulate a visitor that renames the type
+            modelTypeProvider.Update(name: "RenamedModel");
+            // Type should be renamed to the visitor value
+            Assert.AreEqual("CustomizedTypeName", modelTypeProvider.Type.Name);
+
+            Assert.IsNotNull(modelTypeProvider.CustomCodeView);
+            Assert.AreEqual("CustomizedTypeName", modelTypeProvider.CustomCodeView!.Name);
+            Assert.AreEqual("CustomizedTypeName", modelTypeProvider.Type.Name);
+            Assert.AreEqual("CustomizedTypeName", modelTypeProvider.CanonicalView.Type.Name);
+        }
+
+        [Test]
+        public async Task CanCustomizeTypeWithChangedNamespaceInVisitor()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var inputModel = InputFactory.Model("mockInputModel", properties: []);
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            // Simulate a visitor that changes the namespace of the type
+            modelTypeProvider.Update(@namespace: "NewNamespace");
+            Assert.AreEqual("CustomizedTypeName", modelTypeProvider.Type.Name);
+            Assert.AreEqual("NewNamespace", modelTypeProvider.Type.Namespace);
+
+            Assert.IsNotNull(modelTypeProvider.CustomCodeView);
+            Assert.AreEqual("CustomizedTypeName", modelTypeProvider.CustomCodeView!.Name);
+            Assert.AreEqual("CustomizedTypeName", modelTypeProvider.Type.Name);
+            Assert.AreEqual("CustomizedTypeName", modelTypeProvider.CanonicalView.Type.Name);
+            Assert.AreEqual("NewNamespace", modelTypeProvider.Type.Namespace);
+            Assert.AreEqual("NewNamespace", modelTypeProvider.CanonicalView.Type.Namespace);
+        }
+
+        [Test]
+        public async Task CanChangeTypeNameAfterTypeNamespace()
+        {
+            await MockHelpers.LoadMockGeneratorAsync();
+            var inputModel = InputFactory.Model("mockInputModel", properties: []);
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            // Simulate a visitor that changes the namespace of the type
+            modelTypeProvider.Update(@namespace: "NewNamespace");
+            Assert.AreEqual("MockInputModel", modelTypeProvider.Type.Name);
+            Assert.AreEqual("NewNamespace", modelTypeProvider.Type.Namespace);
+
+            // Simulate a visitor that changes the name of the type
+            modelTypeProvider.Update(name: "CustomizedTypeName");
+            Assert.AreEqual("CustomizedTypeName", modelTypeProvider.Type.Name);
+            Assert.AreEqual("NewNamespace", modelTypeProvider.Type.Namespace);
+
+            Assert.IsNull(modelTypeProvider.CustomCodeView);
+        }
+
+        [Test]
+        public async Task CanChangeTypeNamespaceAfterTypeName()
+        {
+            await MockHelpers.LoadMockGeneratorAsync();
+            var inputModel = InputFactory.Model("mockInputModel", properties: []);
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            // Simulate a visitor that changes the name of the type
+            modelTypeProvider.Update(name: "CustomizedTypeName");
+            Assert.AreEqual("CustomizedTypeName", modelTypeProvider.Type.Name);
+            Assert.AreEqual("Sample.Models", modelTypeProvider.Type.Namespace);
+
+            // Simulate a visitor that changes the namespace of the type
+            modelTypeProvider.Update(@namespace: "NewNamespace");
+            Assert.AreEqual("CustomizedTypeName", modelTypeProvider.Type.Name);
+            Assert.AreEqual("NewNamespace", modelTypeProvider.Type.Namespace);
+
+            Assert.IsNull(modelTypeProvider.CustomCodeView);
+        }
+
+        [Test]
+        public void CanCustomizeWithVisitor()
+        {
+            MockHelpers.LoadMockGenerator();
+            var inputModel = InputFactory.Model("mockInputModel");
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            // Ensure the relative file path is not cached with the old name
+            _ = modelTypeProvider.RelativeFilePath;
+
+            // Simulate a visitor that renames the type
+            modelTypeProvider.Update(name: "RenamedModel");
+            // Type should be renamed to the visitor value
+            Assert.AreEqual("RenamedModel", modelTypeProvider.Type.Name);
+
+            Assert.IsNull(modelTypeProvider.CustomCodeView);
+            Assert.AreEqual("RenamedModel", modelTypeProvider.Type.Name);
+            Assert.AreEqual("RenamedModel", modelTypeProvider.CanonicalView.Type.Name);
+
+            // relative file path should use the new name
+            var expected = Path.Join("src", "Generated", "Models", "RenamedModel.cs");
+            Assert.AreEqual(expected, modelTypeProvider.RelativeFilePath);
+        }
+
+        [Test]
+        public void CanCustomizeRelativeFilePath()
+        {
+            MockHelpers.LoadMockGenerator();
+            var inputModel = InputFactory.Model("mockInputModel");
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            // Simulate a visitor that modifies relative file path
+            var updatedRelativeFilePath = Path.Join("src", "Generated", "Models", "MockInputModel.cs");
+            modelTypeProvider.Update(relativeFilePath: updatedRelativeFilePath);
+
+            Assert.AreEqual(updatedRelativeFilePath, modelTypeProvider.RelativeFilePath);
         }
     }
 }

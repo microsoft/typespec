@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 using System.Linq;
-using System.Text;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Utilities;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
@@ -28,6 +28,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 ("Two", 2)
             ]);
             var enumType = EnumProvider.Create(input);
+            Assert.IsFalse(enumType is ApiVersionEnumProvider);
             var fields = enumType.Fields;
 
             Assert.AreEqual(2, fields.Count);
@@ -95,9 +96,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 "mockInputEnum",
                 apiVersions.Select((a, index) => (a, index)),
                 usage: InputModelTypeUsage.ApiVersionEnum);
-            var enumType = EnumProvider.Create(input);
-            var fields = enumType.Fields;
 
+            var enumType = EnumProvider.Create(input);
+            Assert.IsTrue(enumType is ApiVersionEnumProvider);
+
+            var fields = enumType.Fields;
             Assert.AreEqual(2, fields.Count);
             Assert.AreEqual(apiVersions[0].ToApiVersionMemberName(), fields[0].Name);
             Assert.AreEqual(apiVersions[1].ToApiVersionMemberName(), fields[1].Name);

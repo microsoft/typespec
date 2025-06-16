@@ -12,7 +12,6 @@ using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
-using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
@@ -22,6 +21,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 {
     public class ClientProviderTests
     {
+        [TestCase("Foo", "Foo", ExpectedResult = true)]
+        [TestCase("Foo", "Bar", ExpectedResult = false)]
+        [TestCase("Foo", "_Foo", ExpectedResult = false)]
+        [TestCase("_Foo", "Foo", ExpectedResult = false)]
+        [TestCase("Foo", "Bar.Foo", ExpectedResult = true)]
+        [TestCase("Bar.Foo", "Foo", ExpectedResult = true)]
+        [TestCase("Foo", "Bar._Foo", ExpectedResult = false)]
+        [TestCase("Bar._Foo", "Foo", ExpectedResult = false)]
+        [TestCase("Foo", "/Foo", ExpectedResult = false)]
+        [TestCase("/Foo", "Foo", ExpectedResult = false)]
+        [TestCase(".Foo", ".Foo", ExpectedResult = true)]
+        [TestCase("Foo", ".Foo", ExpectedResult = true)]
+        [TestCase(".Foo", "Foo", ExpectedResult = true)]
+        public bool ValidateIsLastNamespaceSegmentTheSame(string left, string right)
+        {
+            return ClientProvider.IsLastNamespaceSegmentTheSame(left, right);
+        }
+
         private const string SubClientsCategory = "WithSubClients";
         private const string KeyAuthCategory = "WithKeyAuth";
         private const string OAuth2Category = "WithOAuth2";
@@ -443,13 +460,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 // when there is any auth, the second should be auth parameter
                 var authParam = primaryCtorParams?[1];
                 Assert.IsNotNull(authParam);
-                if (authParam?.Name == "keyCredential")
+                if (authParam?.Type.Equals(typeof(ApiKeyCredential)) == true)
                 {
-                    Assert.AreEqual(new CSharpType(typeof(ApiKeyCredential)), authParam?.Type);
+                    Assert.AreEqual("credential", authParam.Name);
                 }
-                else if (authParam?.Name == "tokenCredential")
+                else if (authParam?.Type.Equals(typeof(FakeTokenCredential)) == true)
                 {
-                    Assert.AreEqual(new CSharpType(typeof(FakeTokenCredential)), authParam?.Type);
+                    Assert.AreEqual("credential", authParam.Name);
                 }
                 else
                 {
@@ -483,7 +500,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 // auth should be the only parameter if endpoint is optional when there is auth
                 if (_hasSupportedAuth)
                 {
-                    Assert.IsTrue(ctorParams?[0].Name.EndsWith("Credential"));
+                    Assert.AreEqual("credential", ctorParams?[0].Name);
                 }
                 else
                 {
@@ -497,7 +514,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 Assert.AreEqual(KnownParameters.Endpoint.Name, ctorParams?[0].Name);
                 if (_hasSupportedAuth)
                 {
-                    Assert.IsTrue(ctorParams?[1].Name.EndsWith("Credential"));
+                    Assert.AreEqual("credential", ctorParams?[1].Name);
                 }
             }
 
@@ -545,11 +562,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             if (isSubClient)
             {
-                Assert.IsNull(clientProvider.ClientOptions.Value);
+                Assert.IsNull(clientProvider.ClientOptions);
             }
             else
             {
-                Assert.IsNotNull(clientProvider.ClientOptions.Value);
+                Assert.IsNotNull(clientProvider.ClientOptions);
             }
         }
 
@@ -693,9 +710,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual(2, protocolMethods[1].Signature.Parameters.Count);
 
             Assert.AreEqual(new CSharpType(typeof(BinaryContent)), protocolMethods[0].Signature.Parameters[0].Type);
-            Assert.AreEqual(new CSharpType(typeof(RequestOptions), true), protocolMethods[0].Signature.Parameters[1].Type);
+            Assert.AreEqual(new CSharpType(typeof(RequestOptions)), protocolMethods[0].Signature.Parameters[1].Type);
             Assert.AreEqual(new CSharpType(typeof(BinaryContent)), protocolMethods[1].Signature.Parameters[0].Type);
-            Assert.AreEqual(new CSharpType(typeof(RequestOptions), true), protocolMethods[1].Signature.Parameters[1].Type);
+            Assert.AreEqual(new CSharpType(typeof(RequestOptions)), protocolMethods[1].Signature.Parameters[1].Type);
 
             var convenienceMethods = methods.Where(m => m.Signature.Parameters.Any(p => p.Type.Equals(typeof(string)))).ToList();
             Assert.AreEqual(2, convenienceMethods.Count);
@@ -716,14 +733,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             var requestOptionsParameterInSyncMethod = syncMethod!.Signature.Parameters.FirstOrDefault(p => p.Type.Name == "RequestOptions");
             Assert.IsNotNull(requestOptionsParameterInSyncMethod);
-            Assert.AreEqual(shouldBeOptional, requestOptionsParameterInSyncMethod!.Type.IsNullable);
+            Assert.AreEqual(shouldBeOptional, requestOptionsParameterInSyncMethod!.DefaultValue != null);
 
             var asyncMethod = protocolMethods.FirstOrDefault(m => m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async));
             Assert.IsNotNull(asyncMethod);
 
             var requestOptionsParameterInAsyncMethod = asyncMethod!.Signature.Parameters.FirstOrDefault(p => p.Type.Name == "RequestOptions");
             Assert.IsNotNull(requestOptionsParameterInAsyncMethod);
-            Assert.AreEqual(shouldBeOptional, requestOptionsParameterInAsyncMethod!.Type.IsNullable);
+            Assert.AreEqual(shouldBeOptional, requestOptionsParameterInAsyncMethod!.DefaultValue != null);
 
             // request options should always be last parameter
             Assert.AreEqual("RequestOptions", syncMethod.Signature.Parameters[^1].Type.Name);
@@ -940,6 +957,67 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var file = writer.Write();
 
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void EndpointFieldAssignedFromUriParameter()
+        {
+            MockHelpers.LoadMockGenerator();
+            var client = InputFactory.Client(
+                TestClientName,
+                parameters: [InputFactory.Parameter(
+                    "endpoint",
+                    InputPrimitiveType.Url,
+                    isRequired: true,
+                    kind: InputParameterKind.Client,
+                    isEndpoint: true)]);
+            var clientProvider = new ClientProvider(client);
+            var constructor = clientProvider.Constructors.FirstOrDefault(
+                c => c.Signature.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
+
+            StringAssert.Contains("_endpoint = endpoint;", constructor?.BodyStatements?.ToDisplayString());
+        }
+
+        [TestCase("{endpoint}", "endpoint")]
+        [TestCase("https://{hostName}", "hostName")]
+        public void EndpointFieldAssignedFromStringParameter(string serverTemplate, string parameterName)
+        {
+            MockHelpers.LoadMockGenerator();
+            var client = InputFactory.Client(
+                TestClientName,
+                parameters: [InputFactory.Parameter(
+                    parameterName,
+                    InputPrimitiveType.String,
+                    isRequired: true,
+                    kind: InputParameterKind.Client,
+                    serverUrlTemplate: serverTemplate,
+                    isEndpoint: true)]);
+            var clientProvider = new ClientProvider(client);
+            var constructor = clientProvider.Constructors.FirstOrDefault(
+                c => c.Signature.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
+
+            StringAssert.Contains($"_endpoint = new global::System.Uri($\"{serverTemplate}\");", constructor?.BodyStatements?.ToDisplayString());
+        }
+
+        [TestCase("{endpoint}", "endpoint")]
+        [TestCase("http://{hostName}", "hostName")]
+        [TestCase("https://{hostName}", "hostName")]
+        public void EndpointAppliedInCreateMethodRequest(string serverTemplate, string parameterName)
+        {
+            MockHelpers.LoadMockGenerator();
+            var client = InputFactory.Client(
+                TestClientName,
+                methods: [InputFactory.BasicServiceMethod("Foo", InputFactory.Operation("bar", uri: $"{serverTemplate}/foo"))],
+                parameters: [InputFactory.Parameter(
+                    parameterName,
+                    InputPrimitiveType.String,
+                    isRequired: true,
+                    kind: InputParameterKind.Client,
+                    serverUrlTemplate: serverTemplate,
+                    isEndpoint: true)]);
+            var clientProvider = new ClientProvider(client);
+            var createMethod = clientProvider.RestClient.Methods.FirstOrDefault();
+            StringAssert.Contains($"uri.Reset(_endpoint);", createMethod?.BodyStatements?.ToDisplayString());
         }
 
         private static InputClient GetEnumQueryParamClient()
@@ -1292,7 +1370,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                     "ModelWithHeader",
                                     properties:
                                     [
-                                        InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true, kind: InputModelPropertyKind.Header),
+                                        InputFactory.HeaderParameter("foo", InputPrimitiveType.String, isRequired: true),
                                         InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
                                     ]),
                                 location: InputRequestLocation.Body,
@@ -1307,7 +1385,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                 "ModelWithHeader",
                                 properties:
                                 [
-                                    InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true, kind: InputModelPropertyKind.Header),
+                                    InputFactory.HeaderParameter("foo", InputPrimitiveType.String, isRequired: true),
                                     InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
                                 ]),
                             location: InputRequestLocation.Body, isRequired: true)]
@@ -1326,7 +1404,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                     "ModelWithQuery",
                                     properties:
                                     [
-                                        InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true, kind: InputModelPropertyKind.Query),
+                                        InputFactory.QueryParameter("foo", InputPrimitiveType.String, isRequired: true),
                                         InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
                                     ]),
                                 location: InputRequestLocation.Body,
@@ -1341,7 +1419,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                 "ModelWithQuery",
                                 properties:
                                 [
-                                    InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true, kind: InputModelPropertyKind.Query),
+                                    InputFactory.QueryParameter("foo", InputPrimitiveType.String, isRequired: true),
                                     InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
                                 ]),
                             location: InputRequestLocation.Body, isRequired: true)]
@@ -1360,7 +1438,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                     "ModelWithPathParam",
                                     properties:
                                     [
-                                        InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true, kind: InputModelPropertyKind.Path),
+                                        InputFactory.QueryParameter("foo", InputPrimitiveType.String, isRequired: true),
                                         InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
                                     ]),
                                 location: InputRequestLocation.Body,
@@ -1375,7 +1453,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                 "ModelWithPathParam",
                                 properties:
                                 [
-                                    InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true, kind: InputModelPropertyKind.Path),
+                                    InputFactory.QueryParameter("foo", InputPrimitiveType.String, isRequired: true),
                                     InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
                                 ]),
                             location: InputRequestLocation.Body, isRequired: true)]
@@ -1394,9 +1472,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                     "ModelWithMixedParams",
                                     properties:
                                     [
-                                        InputFactory.Property("cat", InputPrimitiveType.String, isRequired: true, kind: InputModelPropertyKind.Path),
-                                        InputFactory.Property("dog", InputPrimitiveType.String, isRequired: true, kind: InputModelPropertyKind.Query),
-                                        InputFactory.Property("bird", InputPrimitiveType.String, isRequired: true, kind: InputModelPropertyKind.Header),
+                                        InputFactory.PathParameter("cat", InputPrimitiveType.String, isRequired: true),
+                                        InputFactory.QueryParameter("dog", InputPrimitiveType.String, isRequired: true),
+                                        InputFactory.HeaderParameter("bird", InputPrimitiveType.String, isRequired: true),
                                         InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
                                     ]),
                                 location: InputRequestLocation.Body,
@@ -1413,9 +1491,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                 "ModelWithPathParam",
                                 properties:
                                 [
-                                    InputFactory.Property("cat", InputPrimitiveType.String, isRequired: true, kind: InputModelPropertyKind.Path),
-                                    InputFactory.Property("dog", InputPrimitiveType.String, isRequired: true, kind: InputModelPropertyKind.Query),
-                                    InputFactory.Property("bird", InputPrimitiveType.String, isRequired: true, kind: InputModelPropertyKind.Header),
+                                    InputFactory.PathParameter("cat", InputPrimitiveType.String, isRequired: true),
+                                    InputFactory.QueryParameter("dog", InputPrimitiveType.String, isRequired: true),
+                                    InputFactory.HeaderParameter("bird", InputPrimitiveType.String, isRequired: true),
                                 ]),
                             location: InputRequestLocation.Body, isRequired: true)]
                     )).SetProperty("caseName", "WithMixedParametersInRequestBody");
@@ -1527,7 +1605,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                 isRequired: true),
                         ]), false, true);
 
-                // convenience method only has a body param, so RequestOptions should be optional in protocol method.
+                // convenience method only has a body param, but it is optional, so RequestOptions should be optional in protocol method.
                 yield return new TestCaseData(
                      InputFactory.BasicServiceMethod(
                         "TestServiceMethod",
@@ -1546,7 +1624,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                 "p1",
                                 InputPrimitiveType.String,
                                 location: InputRequestLocation.Body),
-                        ]), true, false);
+                        ]), false, false);
 
                 // Protocol & convenience methods will have different parameters since there is a model body param, so RequestOptions should be optional.
                 yield return new TestCaseData(
@@ -1581,8 +1659,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                 isRequired: true),
                         ]), true, false);
 
-                // Protocol & convenience methods will have different parameters since there is a model body param, so RequestOptions should be optional.
-                // One parameter is optional
+                // Protocol & convenience methods will have different parameters but since the body parameter is optional, the request options should be required in protocol method.
                 yield return new TestCaseData(
                     InputFactory.BasicServiceMethod(
                         "TestServiceMethod",
@@ -1613,7 +1690,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                 InputFactory.Model("SampleModel"),
                                 location: InputRequestLocation.Body,
                                 isRequired: false),
-                        ]), true, true);
+                        ]), false, true);
 
 
                 // Convenience method has no parameters, RequestOptions should be required in protocol method.

@@ -39,7 +39,7 @@
   "dependencies": {
     "@azure/identity": "~4.9.1",
     "@azure/storage-blob": "~12.27.0",
-    "@pnpm/workspace.find-packages": "^1000.0.17",
+    "@pnpm/workspace.find-packages": "^1000.0.24",
     "@typespec/bundler": "workspace:^",
     "json5": "^2.2.3",
     "picocolors": "~1.1.1",

@@ -77,11 +77,12 @@ function processJsonRpc(context: CSharpEmitterContext, message: string) {
       if ("crossLanguageDefinitionId" in params) {
         crossLanguageDefinitionId = params.crossLanguageDefinitionId;
       }
-      context.logger.reportDiagnostic({
+      // Use program.reportDiagnostic for diagnostics from C# so that we don't
+      // have to duplicate the codes in the emitter.
+      context.program.reportDiagnostic({
         code: params.code,
-        format: {
-          message: params.message,
-        },
+        message: params.message,
+        severity: params.severity,
         target: findTarget(crossLanguageDefinitionId) ?? NoTarget,
       });
       break;

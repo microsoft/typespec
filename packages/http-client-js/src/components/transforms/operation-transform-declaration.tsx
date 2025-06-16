@@ -9,11 +9,8 @@ export interface TransformDeclarationProps {
   refkey?: ay.Refkey;
 }
 
-export function getTransformDeclarationRef(operaion: ClientOperation) {
-  if (operaion.httpOperation.parameters.body?.bodyKind === "single") {
-    return ef.getTypeTransformerRefkey(operaion.httpOperation.parameters.body.type, "transport");
-  }
-  return ay.refkey(operaion, "transform");
+export function getTransformDeclarationRef(operation: ClientOperation) {
+  return ay.refkey(operation, "transform");
 }
 
 export function TransformDeclaration(props: TransformDeclarationProps) {

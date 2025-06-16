@@ -1,15 +1,23 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Microsoft.TypeSpec.Generator.Providers;
 
 namespace Microsoft.TypeSpec.Generator.Statements
 {
     [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
-    public abstract class MethodBodyStatement
+    public abstract class MethodBodyStatement : IEnumerable<MethodBodyStatement>
     {
         internal abstract void Write(CodeWriter writer);
+
+        internal virtual MethodBodyStatement? Accept(LibraryVisitor visitor, MethodProvider methodProvider)
+        {
+            return this;
+        }
+
         public static implicit operator MethodBodyStatement(MethodBodyStatement[] statements) => new MethodBodyStatements(statements);
         public static implicit operator MethodBodyStatement(List<MethodBodyStatement> statements) => new MethodBodyStatements(statements);
 
@@ -19,6 +27,11 @@ namespace Microsoft.TypeSpec.Generator.Statements
             {
                 writer.WriteLine();
             }
+
+            internal override MethodBodyStatement Accept(LibraryVisitor visitor, MethodProvider methodProvider)
+            {
+                return this;
+            }
         }
 
         private class PrivateEmptyStatement : MethodBodyStatement
@@ -27,6 +40,10 @@ namespace Microsoft.TypeSpec.Generator.Statements
             {
                 // Do nothing
             }
+            internal override MethodBodyStatement Accept(LibraryVisitor visitor, MethodProvider methodProvider)
+            {
+                return this;
+            }
         }
 
         public static readonly MethodBodyStatement Empty = new PrivateEmptyStatement();
@@ -34,15 +51,22 @@ namespace Microsoft.TypeSpec.Generator.Statements
 
         public string ToDisplayString() => GetDebuggerDisplay();
 
-        public IEnumerable<MethodBodyStatement> Flatten()
+        private string GetDebuggerDisplay()
+        {
+            using CodeWriter writer = new CodeWriter();
+            Write(writer);
+            return writer.ToString(false);
+        }
+
+        public IEnumerator<MethodBodyStatement> GetEnumerator()
         {
             if (this is MethodBodyStatements statements)
             {
                 foreach (var statement in statements.Statements)
                 {
-                    foreach (var subStatement in statement.Flatten())
+                    foreach (var inner in statement)
                     {
-                        yield return subStatement;
+                        yield return inner;
                     }
                 }
             }
@@ -52,11 +76,9 @@ namespace Microsoft.TypeSpec.Generator.Statements
             }
         }
 
-        private string GetDebuggerDisplay()
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            using CodeWriter writer = new CodeWriter();
-            Write(writer);
-            return writer.ToString(false);
+            return GetEnumerator();
         }
     }
 }

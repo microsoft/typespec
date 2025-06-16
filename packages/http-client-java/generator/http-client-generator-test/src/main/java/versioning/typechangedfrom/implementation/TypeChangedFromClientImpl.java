@@ -33,7 +33,6 @@ import com.azure.core.util.serializer.JacksonAdapter;
 import com.azure.core.util.serializer.SerializerAdapter;
 import reactor.core.publisher.Mono;
 import versioning.typechangedfrom.TypeChangedFromServiceVersion;
-import versioning.typechangedfrom.models.Versions;
 
 /**
  * Initializes a new instance of the TypeChangedFromClient type.
@@ -56,20 +55,6 @@ public final class TypeChangedFromClientImpl {
      */
     public String getEndpoint() {
         return this.endpoint;
-    }
-
-    /**
-     * Need to be set as 'v1' or 'v2' in client.
-     */
-    private final Versions version;
-
-    /**
-     * Gets Need to be set as 'v1' or 'v2' in client.
-     * 
-     * @return the version value.
-     */
-    public Versions getVersion() {
-        return this.version;
     }
 
     /**
@@ -118,12 +103,11 @@ public final class TypeChangedFromClientImpl {
      * Initializes an instance of TypeChangedFromClient client.
      * 
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
-     * @param version Need to be set as 'v1' or 'v2' in client.
      * @param serviceVersion Service version.
      */
-    public TypeChangedFromClientImpl(String endpoint, Versions version, TypeChangedFromServiceVersion serviceVersion) {
+    public TypeChangedFromClientImpl(String endpoint, TypeChangedFromServiceVersion serviceVersion) {
         this(new HttpPipelineBuilder().policies(new UserAgentPolicy(), new RetryPolicy()).build(),
-            JacksonAdapter.createDefaultSerializerAdapter(), endpoint, version, serviceVersion);
+            JacksonAdapter.createDefaultSerializerAdapter(), endpoint, serviceVersion);
     }
 
     /**
@@ -131,12 +115,11 @@ public final class TypeChangedFromClientImpl {
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
-     * @param version Need to be set as 'v1' or 'v2' in client.
      * @param serviceVersion Service version.
      */
-    public TypeChangedFromClientImpl(HttpPipeline httpPipeline, String endpoint, Versions version,
+    public TypeChangedFromClientImpl(HttpPipeline httpPipeline, String endpoint,
         TypeChangedFromServiceVersion serviceVersion) {
-        this(httpPipeline, JacksonAdapter.createDefaultSerializerAdapter(), endpoint, version, serviceVersion);
+        this(httpPipeline, JacksonAdapter.createDefaultSerializerAdapter(), endpoint, serviceVersion);
     }
 
     /**
@@ -145,15 +128,13 @@ public final class TypeChangedFromClientImpl {
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param serializerAdapter The serializer to serialize an object into a string.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
-     * @param version Need to be set as 'v1' or 'v2' in client.
      * @param serviceVersion Service version.
      */
     public TypeChangedFromClientImpl(HttpPipeline httpPipeline, SerializerAdapter serializerAdapter, String endpoint,
-        Versions version, TypeChangedFromServiceVersion serviceVersion) {
+        TypeChangedFromServiceVersion serviceVersion) {
         this.httpPipeline = httpPipeline;
         this.serializerAdapter = serializerAdapter;
         this.endpoint = endpoint;
-        this.version = version;
         this.serviceVersion = serviceVersion;
         this.service
             = RestProxy.create(TypeChangedFromClientService.class, this.httpPipeline, this.getSerializerAdapter());
@@ -164,7 +145,7 @@ public final class TypeChangedFromClientImpl {
      * calls.
      */
     @Host("{endpoint}/versioning/type-changed-from/api-version:{version}")
-    @ServiceInterface(name = "TypeChangedFromClien")
+    @ServiceInterface(name = "TypeChangedFromClient")
     public interface TypeChangedFromClientService {
         @Post("/test")
         @ExpectedResponses({ 200 })
@@ -172,7 +153,7 @@ public final class TypeChangedFromClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Mono<Response<BinaryData>> test(@HostParam("endpoint") String endpoint, @HostParam("version") Versions version,
+        Mono<Response<BinaryData>> test(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
             @QueryParam("param") String param, @HeaderParam("Content-Type") String contentType,
             @HeaderParam("Accept") String accept, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions, Context context);
@@ -183,7 +164,7 @@ public final class TypeChangedFromClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Response<BinaryData> testSync(@HostParam("endpoint") String endpoint, @HostParam("version") Versions version,
+        Response<BinaryData> testSync(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
             @QueryParam("param") String param, @HeaderParam("Content-Type") String contentType,
             @HeaderParam("Accept") String accept, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions, Context context);
@@ -227,8 +208,8 @@ public final class TypeChangedFromClientImpl {
         RequestOptions requestOptions) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return FluxUtil.withContext(context -> service.test(this.getEndpoint(), this.getVersion(), param, contentType,
-            accept, body, requestOptions, context));
+        return FluxUtil.withContext(context -> service.test(this.getEndpoint(), this.getServiceVersion().getVersion(),
+            param, contentType, accept, body, requestOptions, context));
     }
 
     /**
@@ -268,7 +249,7 @@ public final class TypeChangedFromClientImpl {
     public Response<BinaryData> testWithResponse(String param, BinaryData body, RequestOptions requestOptions) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.testSync(this.getEndpoint(), this.getVersion(), param, contentType, accept, body, requestOptions,
-            Context.NONE);
+        return service.testSync(this.getEndpoint(), this.getServiceVersion().getVersion(), param, contentType, accept,
+            body, requestOptions, Context.NONE);
     }
 }

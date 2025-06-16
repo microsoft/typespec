@@ -21,6 +21,6 @@ updates:
     groups:
       alloy:
         patterns:
-          - "@alloy-js/"
+          - "@alloy-js/*"
     allow:
       - dependency-name: "@alloy-js/*"

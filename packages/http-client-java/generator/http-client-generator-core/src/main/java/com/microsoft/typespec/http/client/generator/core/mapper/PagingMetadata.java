@@ -4,7 +4,10 @@
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Property;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Protocols;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel.PageableContinuationToken;
 import com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel.XmsPageable;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
@@ -21,6 +24,7 @@ import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
@@ -34,18 +38,21 @@ final class PagingMetadata {
     private final ModelPropertySegment nextLinkPropertyReference;
     private final IType lroPollResultType;
     private final List<ClientMethod> nextMethods;
+    private final ClientMethodParameter maxPageSizeParameter;
     private final MethodPageDetails.ContinuationToken continuationToken;
 
     /**
      * Creates paging meta data for an {@link Operation}.
      *
      * @param operation the operation to create the paging metadata for.
-     * @param proxyMethod the proxy method representing the paged proxy api.
+     * @param parametersDetails the details about all parameters of the page api.
+     * @param proxyMethod the proxy method representing the page api.
      * @param settings the java settings.
      *
      * @return the paged metadata, or {@code null} if the {@code operation} is not a pageable operation.
      */
-    static PagingMetadata create(Operation operation, ProxyMethod proxyMethod, JavaSettings settings) {
+    static PagingMetadata create(Operation operation, ProxyMethod proxyMethod,
+        ClientMethodParametersDetails parametersDetails, JavaSettings settings) {
         if (!operation.isPageable()) {
             return null;
         }
@@ -76,13 +83,15 @@ final class PagingMetadata {
             nextMethods = Collections.emptyList();
         }
 
-        final MethodPageDetails.ContinuationToken continuationToken = getContinuationToken(xmsPageable, responseType);
+        final MethodPageDetails.ContinuationToken continuationToken
+            = getContinuationToken(xmsPageable, responseType, parametersDetails);
+        final ClientMethodParameter maxPageSizeParameter = getPageSizeClientMethodParameter(parametersDetails);
 
         return new PagingMetadata(operation, nextOperation, itemPropertyReference, nextLinkPropertyReference,
-            nextMethods, lroPollResultType, continuationToken);
+            nextMethods, lroPollResultType, continuationToken, maxPageSizeParameter);
     }
 
-    boolean isNextMethod() {
+    boolean isMethodForNextPage() {
         return operation == nextOperation;
     }
 
@@ -99,7 +108,7 @@ final class PagingMetadata {
         final ClientMethodType nextMethodType = nextMethodType(isSync);
         final ClientMethod nextMethod = enumerateNextMethodsOfType(nextMethodType).findFirst().orElse(null);
         return new MethodPageDetails(itemPropertyReference, nextLinkPropertyReference, nextMethod, lroPollResultType,
-            continuationToken);
+            continuationToken, maxPageSizeParameter);
     }
 
     /**
@@ -127,7 +136,7 @@ final class PagingMetadata {
             return null;
         }
         return new MethodPageDetails(itemPropertyReference, nextLinkPropertyReference, nextMethodWithContext,
-            lroPollResultType, continuationToken);
+            lroPollResultType, continuationToken, maxPageSizeParameter);
     }
 
     private static ModelPropertySegment getPageableItem(XmsPageable xmsPageable, IType responseType) {
@@ -138,15 +147,53 @@ final class PagingMetadata {
         return ClientModelUtil.getModelPropertySegment(responseBodyType, xmsPageable.getNextLinkName());
     }
 
-    static MethodPageDetails.ContinuationToken getContinuationToken(XmsPageable xmsPageable, IType responseBodyType) {
-        // TODO: anu change this method to 'private' once ClientCoreClientMethodMapper is refactored.
+    /**
+     * Inspects the given {@link ClientMethodParametersDetails} for a code model query {@link Parameter} representing
+     * the page size (commonly named "maxpagesize" or "maxPageSize"), and returns the corresponding
+     * {@link ClientMethodParameter}.
+     *
+     * @param parametersDetails the {@link ClientMethodParametersDetails} to inspect.
+     * @return the {@link ClientMethodParameter} representing the page size, or {@code null} if not found.
+     */
+    private static ClientMethodParameter
+        getPageSizeClientMethodParameter(ClientMethodParametersDetails parametersDetails) {
+        return parametersDetails.getParameterTuples().filter(t -> {
+            final Parameter cmParameter = t.codeModelParameter;
+            final Protocols protocol = cmParameter.getProtocol();
+            final boolean isQuery = protocol != null
+                && protocol.getHttp() != null
+                && protocol.getHttp().getIn() == RequestParameterLocation.QUERY;
+            if (!isQuery) {
+                return false;
+            }
+            final String serializedName = cmParameter.getLanguage().getDefault().getSerializedName();
+            if (Objects.equals(serializedName, "maxpagesize")) {
+                return true;
+            }
+            //
+            // Note: The below fallback logic using Java name exists because, according to the REST API Guidelines for
+            // Swagger, the standard query parameter name for page size is "maxpagesize".
+            // However, some services were designed before this guideline and may use a different serialized name (e.g.,
+            // "$maxpagesize" or "maxPageSize").
+            // In such cases, spec authors were instructed to add directive to make it "maxpagesize" that produces
+            // "maxPageSize" Java name in the SDK.
+            //
+            final String javaName = SchemaUtil.getJavaName(cmParameter);
+            return Objects.equals(javaName, "maxPageSize");
+        }).map(t -> t.clientMethodParameter).findFirst().orElse(null);
+    }
+
+    private static MethodPageDetails.ContinuationToken getContinuationToken(XmsPageable xmsPageable,
+        IType responseBodyType, ClientMethodParametersDetails parametersDetails) {
         final PageableContinuationToken rawContinuationToken = xmsPageable.getContinuationToken();
         if (rawContinuationToken == null) {
             return null;
         }
 
-        final ProxyMethodParameter requestParameter
-            = ProxyParameterMapper.getInstance().map(rawContinuationToken.getParameter());
+        final Parameter codeModelParameter = rawContinuationToken.getParameter();
+        final ClientMethodParameter clientMethodParameter
+            = parametersDetails.getClientMethodParameter(codeModelParameter);
+        final ProxyMethodParameter requestParameter = ProxyParameterMapper.getInstance().map(codeModelParameter);
         final String responseHeaderSerializedName;
         if (rawContinuationToken.getResponseHeader() != null) {
             responseHeaderSerializedName = rawContinuationToken.getResponseHeader().getHeader();
@@ -174,8 +221,8 @@ final class PagingMetadata {
             responsePropertyReference = null;
         }
 
-        return new MethodPageDetails.ContinuationToken(requestParameter, responseHeaderSerializedName,
-            responsePropertyReference);
+        return new MethodPageDetails.ContinuationToken(requestParameter, clientMethodParameter,
+            responseHeaderSerializedName, responsePropertyReference);
     }
 
     private Stream<ClientMethod> enumerateNextMethodsOfType(ClientMethodType nextMethodType) {
@@ -188,7 +235,7 @@ final class PagingMetadata {
 
     private PagingMetadata(Operation operation, Operation nextOperation, ModelPropertySegment itemPropertyReference,
         ModelPropertySegment nextLinkPropertyReference, List<ClientMethod> nextMethods, IType lroPollResultType,
-        MethodPageDetails.ContinuationToken continuationToken) {
+        MethodPageDetails.ContinuationToken continuationToken, ClientMethodParameter maxPageSizeParameter) {
         this.operation = operation;
         this.nextOperation = nextOperation;
         this.itemPropertyReference = itemPropertyReference;
@@ -196,5 +243,6 @@ final class PagingMetadata {
         this.nextMethods = nextMethods;
         this.lroPollResultType = lroPollResultType;
         this.continuationToken = continuationToken;
+        this.maxPageSizeParameter = maxPageSizeParameter;
     }
 }

@@ -12,7 +12,7 @@ import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
 import java.io.IOException;
 import java.util.Map;
-import tsptest.armresourceprovider.models.CustomTemplateResourcePropertiesAnonymousEmptyModel;
+import tsptest.armresourceprovider.models.AnonymousEmptyModel;
 import tsptest.armresourceprovider.models.Dog;
 import tsptest.armresourceprovider.models.EmptyModel;
 import tsptest.armresourceprovider.models.ManagedServiceIdentity;
@@ -206,7 +206,7 @@ public final class CustomTemplateResourceInner extends Resource {
      * 
      * @return the anonymousEmptyModel value.
      */
-    public CustomTemplateResourcePropertiesAnonymousEmptyModel anonymousEmptyModel() {
+    public AnonymousEmptyModel anonymousEmptyModel() {
         return this.innerProperties() == null ? null : this.innerProperties().anonymousEmptyModel();
     }
 
@@ -216,8 +216,7 @@ public final class CustomTemplateResourceInner extends Resource {
      * @param anonymousEmptyModel the anonymousEmptyModel value to set.
      * @return the CustomTemplateResourceInner object itself.
      */
-    public CustomTemplateResourceInner
-        withAnonymousEmptyModel(CustomTemplateResourcePropertiesAnonymousEmptyModel anonymousEmptyModel) {
+    public CustomTemplateResourceInner withAnonymousEmptyModel(AnonymousEmptyModel anonymousEmptyModel) {
         if (this.innerProperties() == null) {
             this.innerProperties = new CustomTemplateResourceProperties();
         }

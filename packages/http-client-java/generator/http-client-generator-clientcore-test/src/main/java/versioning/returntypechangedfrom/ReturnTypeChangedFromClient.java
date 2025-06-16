@@ -56,6 +56,6 @@ public final class ReturnTypeChangedFromClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public String test(String body) {
-        return this.serviceClient.test(body);
+        return testWithResponse(body, RequestContext.none()).getValue();
     }
 }

@@ -1,5 +1,12 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.23
+
+### Features
+
+- [#7529](https://github.com/microsoft/typespec/pull/7529) Add smoke tests
+
+
 ## 0.1.0-alpha.22
 
 ### Bug Fixes

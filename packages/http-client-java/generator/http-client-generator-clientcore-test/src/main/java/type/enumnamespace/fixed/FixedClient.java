@@ -53,7 +53,7 @@ public final class FixedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public DaysOfWeekEnum getKnownValue() {
-        return this.serviceClient.getKnownValue();
+        return getKnownValueWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -83,7 +83,7 @@ public final class FixedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putKnownValue(DaysOfWeekEnum body) {
-        this.serviceClient.putKnownValue(body);
+        putKnownValueWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -113,6 +113,6 @@ public final class FixedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putUnknownValue(DaysOfWeekEnum body) {
-        this.serviceClient.putUnknownValue(body);
+        putUnknownValueWithResponse(body, RequestContext.none());
     }
 }

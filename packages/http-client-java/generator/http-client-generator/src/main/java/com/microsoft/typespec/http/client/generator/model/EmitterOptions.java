@@ -34,8 +34,10 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private Map<String, PollingSettings> polling = new HashMap<>();
     private String modelsSubpackage;
     private String apiVersion;
-    private DevOptions devOptions;
     private Boolean useRestProxy;
+    private String renameModel;
+    private Boolean useDefaultHttpStatusCodeToExceptionTypeMapping = true;
+    private DevOptions devOptions;
 
     // internal
     private String outputDir;
@@ -108,12 +110,12 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return customizationClass;
     }
 
-    public Boolean getIncludeApiViewProperties() {
-        return includeApiViewProperties;
-    }
-
     public Map<String, PollingSettings> getPolling() {
         return polling;
+    }
+
+    public Boolean getIncludeApiViewProperties() {
+        return includeApiViewProperties;
     }
 
     public Boolean getArm() {
@@ -144,9 +146,12 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return useRestProxy;
     }
 
-    public EmitterOptions setUseRestProxy(Boolean useRestProxy) {
-        this.useRestProxy = useRestProxy;
-        return this;
+    public String getRenameModel() {
+        return renameModel;
+    }
+
+    public Boolean getUseDefaultHttpStatusCodeToExceptionTypeMapping() {
+        return useDefaultHttpStatusCodeToExceptionTypeMapping;
     }
 
     @Override
@@ -203,6 +208,10 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                 options.apiVersion = emptyToNull(reader.getString());
             } else if ("use-rest-proxy".equals(fieldName)) {
                 options.useRestProxy = reader.getNullable(JsonReader::getBoolean);
+            } else if ("rename-model".equals(fieldName)) {
+                options.renameModel = reader.getNullable(EmitterOptions::getStringOrMap);
+            } else if ("use-default-http-status-code-to-exception-type-mapping".equals(fieldName)) {
+                options.useDefaultHttpStatusCodeToExceptionTypeMapping = reader.getNullable(EmitterOptions::getBoolean);
             } else {
                 reader.skipChildren();
             }
@@ -227,5 +236,24 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
 
     private static String emptyToNull(String str) {
         return CoreUtils.isNullOrEmpty(str) ? null : str;
+    }
+
+    private static String getStringOrMap(JsonReader jsonReader) throws IOException {
+        JsonToken currentToken = jsonReader.currentToken();
+        if (currentToken == JsonToken.STRING) {
+            return jsonReader.getString();
+        } else if (currentToken == JsonToken.START_OBJECT) {
+            Map<String, String> renameMap = jsonReader.readMap(JsonReader::getString);
+            if (!renameMap.isEmpty()) {
+                return renameMap.entrySet()
+                    .stream()
+                    .map(e -> e.getKey() + ":" + e.getValue())
+                    .reduce("", (s1, s2) -> s1 + "," + s2);
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
     }
 }

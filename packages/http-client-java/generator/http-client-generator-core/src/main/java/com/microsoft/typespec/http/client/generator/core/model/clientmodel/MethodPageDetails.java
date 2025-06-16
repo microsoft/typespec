@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import java.util.List;
 import java.util.Objects;
 
@@ -12,14 +13,17 @@ public final class MethodPageDetails {
     private final IType lroIntermediateType;
     private final ClientMethod nextMethod;
     private final ContinuationToken continuationToken;
+    private final ClientMethodParameter maxPageSizeParameter;
 
     public MethodPageDetails(ModelPropertySegment itemPropertyReference, ModelPropertySegment nextLinkPropertyReference,
-        ClientMethod nextMethod, IType lroIntermediateType, ContinuationToken continuationToken) {
+        ClientMethod nextMethod, IType lroIntermediateType, ContinuationToken continuationToken,
+        ClientMethodParameter maxPageSizeParameter) {
         this.itemPropertyReference = Objects.requireNonNull(itemPropertyReference);
         this.nextLinkPropertyReference = nextLinkPropertyReference;
         this.lroIntermediateType = lroIntermediateType;
         this.nextMethod = nextMethod;
         this.continuationToken = continuationToken;
+        this.maxPageSizeParameter = maxPageSizeParameter;
     }
 
     public String getNextLinkName() {
@@ -64,23 +68,42 @@ public final class MethodPageDetails {
     }
 
     public boolean nonNullNextLink() {
-        return getNextLinkName() != null && !getNextLinkName().isEmpty();
+        final String nextLinkName = getNextLinkName();
+        return nextLinkName != null && !nextLinkName.isEmpty();
+    }
+
+    public boolean shouldHideParameter(ClientMethodParameter parameter) {
+        if (continuationToken != null) {
+            if (parameter == continuationToken.getClientMethodParameter()) {
+                return true;
+            }
+        }
+        if (JavaSettings.getInstance().isPageSizeEnabled()) {
+            return parameter == maxPageSizeParameter;
+        }
+        return false;
     }
 
     public static final class ContinuationToken {
         private final ProxyMethodParameter requestParameter;
+        private final ClientMethodParameter clientMethodParameter;
         private final String responseHeaderSerializedName;
         private final List<ModelPropertySegment> responsePropertyReference;
 
-        public ContinuationToken(ProxyMethodParameter requestParameter, String responseHeaderSerializedName,
-            List<ModelPropertySegment> responsePropertyReference) {
+        public ContinuationToken(ProxyMethodParameter requestParameter, ClientMethodParameter clientMethodParameter,
+            String responseHeaderSerializedName, List<ModelPropertySegment> responsePropertyReference) {
             this.requestParameter = requestParameter;
+            this.clientMethodParameter = clientMethodParameter;
             this.responseHeaderSerializedName = responseHeaderSerializedName;
             this.responsePropertyReference = responsePropertyReference;
         }
 
         public ProxyMethodParameter getRequestParameter() {
             return requestParameter;
+        }
+
+        public ClientMethodParameter getClientMethodParameter() {
+            return clientMethodParameter;
         }
 
         public List<ModelPropertySegment> getResponsePropertyReference() {

@@ -438,7 +438,7 @@
      "type": {
       "$id": "56",
       "kind": "url",
-      "name": "url",
+      "name": "endpoint",
       "crossLanguageDefinitionId": "TypeSpec.url"
      },
      "location": "Uri",
@@ -458,7 +458,8 @@
        "crossLanguageDefinitionId": "TypeSpec.string"
       },
       "value": "http://localhost:3000"
-     }
+     },
+     "serverUrlTemplate": "{endpoint}"
     }
    ],
    "decorators": [],
@@ -706,7 +707,7 @@
        "type": {
         "$id": "79",
         "kind": "url",
-        "name": "url",
+        "name": "endpoint",
         "crossLanguageDefinitionId": "TypeSpec.url"
        },
        "location": "Uri",
@@ -726,7 +727,8 @@
          "crossLanguageDefinitionId": "TypeSpec.string"
         },
         "value": "http://localhost:3000"
-       }
+       },
+       "serverUrlTemplate": "{endpoint}"
       }
      ],
      "decorators": [],
@@ -977,7 +979,7 @@
        "type": {
         "$id": "102",
         "kind": "url",
-        "name": "url",
+        "name": "endpoint",
         "crossLanguageDefinitionId": "TypeSpec.url"
        },
        "location": "Uri",
@@ -997,7 +999,8 @@
          "crossLanguageDefinitionId": "TypeSpec.string"
         },
         "value": "http://localhost:3000"
-       }
+       },
+       "serverUrlTemplate": "{endpoint}"
       }
      ],
      "decorators": [],
@@ -1248,7 +1251,7 @@
        "type": {
         "$id": "125",
         "kind": "url",
-        "name": "url",
+        "name": "endpoint",
         "crossLanguageDefinitionId": "TypeSpec.url"
        },
        "location": "Uri",
@@ -1268,7 +1271,8 @@
          "crossLanguageDefinitionId": "TypeSpec.string"
         },
         "value": "http://localhost:3000"
-       }
+       },
+       "serverUrlTemplate": "{endpoint}"
       }
      ],
      "decorators": [],
@@ -1598,7 +1602,7 @@
        "type": {
         "$id": "156",
         "kind": "url",
-        "name": "url",
+        "name": "endpoint",
         "crossLanguageDefinitionId": "TypeSpec.url"
        },
        "location": "Uri",
@@ -1618,7 +1622,8 @@
          "crossLanguageDefinitionId": "TypeSpec.string"
         },
         "value": "http://localhost:3000"
-       }
+       },
+       "serverUrlTemplate": "{endpoint}"
       }
      ],
      "decorators": [],
@@ -1948,7 +1953,7 @@
        "type": {
         "$id": "187",
         "kind": "url",
-        "name": "url",
+        "name": "endpoint",
         "crossLanguageDefinitionId": "TypeSpec.url"
        },
        "location": "Uri",
@@ -1968,7 +1973,8 @@
          "crossLanguageDefinitionId": "TypeSpec.string"
         },
         "value": "http://localhost:3000"
-       }
+       },
+       "serverUrlTemplate": "{endpoint}"
       }
      ],
      "decorators": [],
@@ -2212,7 +2218,7 @@
        "type": {
         "$id": "210",
         "kind": "url",
-        "name": "url",
+        "name": "endpoint",
         "crossLanguageDefinitionId": "TypeSpec.url"
        },
        "location": "Uri",
@@ -2232,7 +2238,8 @@
          "crossLanguageDefinitionId": "TypeSpec.string"
         },
         "value": "http://localhost:3000"
-       }
+       },
+       "serverUrlTemplate": "{endpoint}"
       }
      ],
      "decorators": [],
@@ -2286,18 +2293,7 @@
            200
           ],
           "bodyType": {
-           "$id": "218",
-           "kind": "array",
-           "name": "Array",
-           "valueType": {
-            "$id": "219",
-            "kind": "decimal",
-            "name": "decimal",
-            "crossLanguageDefinitionId": "TypeSpec.decimal",
-            "decorators": []
-           },
-           "crossLanguageDefinitionId": "TypeSpec.Array",
-           "decorators": []
+           "$ref": "195"
           },
           "headers": [],
           "isErrorResponse": false,
@@ -2317,7 +2313,7 @@
        },
        "parameters": [
         {
-         "$id": "220",
+         "$id": "218",
          "name": "accept",
          "nameInRequest": "accept",
          "type": {
@@ -2335,9 +2331,9 @@
         }
        ],
        "response": {
-        "$id": "221",
+        "$id": "219",
         "type": {
-         "$ref": "218"
+         "$ref": "195"
         }
        },
        "isOverride": false,
@@ -2346,19 +2342,19 @@
        "crossLanguageDefinitionId": "Type.Scalar.Decimal128Verify.prepareVerify"
       },
       {
-       "$id": "222",
+       "$id": "220",
        "kind": "basic",
        "name": "verify",
        "accessibility": "public",
        "apiVersions": [],
        "operation": {
-        "$id": "223",
+        "$id": "221",
         "name": "verify",
         "resourceName": "Decimal128Verify",
         "accessibility": "public",
         "parameters": [
          {
-          "$id": "224",
+          "$id": "222",
           "name": "contentType",
           "nameInRequest": "Content-Type",
           "type": {
@@ -2375,11 +2371,11 @@
           "skipUrlEncoding": false
          },
          {
-          "$id": "225",
+          "$id": "223",
           "name": "body",
           "nameInRequest": "body",
           "type": {
-           "$id": "226",
+           "$id": "224",
            "kind": "decimal",
            "name": "decimal",
            "crossLanguageDefinitionId": "TypeSpec.decimal",
@@ -2398,7 +2394,7 @@
         ],
         "responses": [
          {
-          "$id": "227",
+          "$id": "225",
           "statusCodes": [
            204
           ],
@@ -2420,7 +2416,7 @@
        },
        "parameters": [
         {
-         "$id": "228",
+         "$id": "226",
          "name": "contentType",
          "nameInRequest": "content-type",
          "type": {
@@ -2437,11 +2433,11 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "229",
+         "$id": "227",
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$id": "230",
+          "$id": "228",
           "kind": "decimal",
           "name": "decimal",
           "crossLanguageDefinitionId": "TypeSpec.decimal",
@@ -2459,7 +2455,7 @@
         }
        ],
        "response": {
-        "$id": "231"
+        "$id": "229"
        },
        "isOverride": false,
        "generateConvenient": true,
@@ -2469,14 +2465,14 @@
      ],
      "parameters": [
       {
-       "$id": "232",
+       "$id": "230",
        "name": "endpoint",
        "nameInRequest": "endpoint",
        "doc": "Service host",
        "type": {
-        "$id": "233",
+        "$id": "231",
         "kind": "url",
-        "name": "url",
+        "name": "endpoint",
         "crossLanguageDefinitionId": "TypeSpec.url"
        },
        "location": "Uri",
@@ -2488,15 +2484,16 @@
        "explode": false,
        "kind": "Client",
        "defaultValue": {
-        "$id": "234",
+        "$id": "232",
         "type": {
-         "$id": "235",
+         "$id": "233",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
         },
         "value": "http://localhost:3000"
-       }
+       },
+       "serverUrlTemplate": "{endpoint}"
       }
      ],
      "decorators": [],

@@ -55,7 +55,7 @@ public final class EmptyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putEmpty(EmptyInput input) {
-        this.serviceClient.putEmpty(input);
+        putEmptyWithResponse(input, RequestContext.none());
     }
 
     /**
@@ -83,7 +83,7 @@ public final class EmptyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public EmptyOutput getEmpty() {
-        return this.serviceClient.getEmpty();
+        return getEmptyWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -115,6 +115,6 @@ public final class EmptyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public EmptyInputOutput postRoundTripEmpty(EmptyInputOutput body) {
-        return this.serviceClient.postRoundTripEmpty(body);
+        return postRoundTripEmptyWithResponse(body, RequestContext.none()).getValue();
     }
 }

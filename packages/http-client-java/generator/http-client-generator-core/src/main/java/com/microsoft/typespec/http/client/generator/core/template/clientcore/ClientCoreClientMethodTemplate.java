@@ -124,10 +124,14 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
             return;
         }
 
+        final MethodPageDetails pageDetails
+            = clientMethod.isPageStreamingType() ? clientMethod.getMethodPageDetails() : null;
         for (ClientMethodParameter parameter : clientMethod.getMethodParameters()) {
-            // Parameter is required and will be part of the method signature.
-            if (parameter.isRequired()
-                || MethodUtil.shouldHideParameterInPageable(clientMethod.getMethodPageDetails(), parameter)) {
+            if (parameter.isRequired()) {
+                // Parameter is required and will be part of the method signature.
+                continue;
+            }
+            if (pageDetails != null && pageDetails.shouldHideParameter(parameter)) {
                 continue;
             }
 
@@ -595,6 +599,19 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
 
     @Override
     public final void write(ClientMethod clientMethod, JavaType typeBlock) {
+        ClientMethodType methodType = clientMethod.getType();
+
+        // For LRO and paging methods, there is no ClientMethodType to indicate max overload method. So, we check if
+        // RequestContext is not present to determine if it is a convenience method. Currently, only max overloads
+        // have RequestContext as a parameter.
+        boolean isMaxOverload = !CoreUtils.isNullOrEmpty(clientMethod.getMethodInputParameters())
+            || clientMethod.getMethodInputParameters().contains(ClientMethodParameter.REQUEST_CONTEXT_PARAMETER);
+
+        if (methodType == ClientMethodType.SimpleSync
+            || (methodType == ClientMethodType.PagingSync && !isMaxOverload)
+            || (methodType == ClientMethodType.LongRunningBeginSync && !isMaxOverload)) {
+            return;
+        }
 
         final boolean writingInterface = typeBlock instanceof JavaInterface;
         if (clientMethod.getMethodVisibility() != JavaVisibility.Public && writingInterface) {
@@ -607,7 +624,7 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
 
         generateJavadoc(clientMethod, typeBlock, restAPIMethod, writingInterface);
 
-        switch (clientMethod.getType()) {
+        switch (methodType) {
             case PagingSync:
                 generatePagingPlainSync(clientMethod, typeBlock, settings);
                 break;
@@ -1012,9 +1029,7 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
         for (ClientMethodParameter parameter : methodParameters) {
             commentBlock.param(parameter.getName(), parameterDescriptionOrDefault(parameter));
         }
-        if (restAPIMethod != null
-            && clientMethod.getParametersDeclaration() != null
-            && !clientMethod.getParametersDeclaration().isEmpty()) {
+        if (restAPIMethod != null && clientMethod.hasParameterDeclaration()) {
             commentBlock.methodThrows("IllegalArgumentException", "thrown if parameters fail the validation");
         }
         generateJavadocExceptions(clientMethod, commentBlock, useFullClassName);
@@ -1269,5 +1284,12 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
             }
         }
         return serviceVersion;
+    }
+
+    @Override
+    protected String getLogExpression(String propertyName, String methodName) {
+        return "throw LOGGER.throwableAtError()" + ".addKeyValue(\"propertyName\", \"" + propertyName + "\")"
+            + ".addKeyValue(\"methodName\", \"" + methodName + "\")"
+            + ".log(\"Not a supported paging option in this API\", IllegalArgumentException::new);";
     }
 }

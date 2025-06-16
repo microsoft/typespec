@@ -31,8 +31,6 @@ namespace Payload.Pageable
 
         string IPersistableModel<Pet>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator BinaryContent(Pet pet) => throw null;
-
         public static explicit operator Pet(ClientResult result) => throw null;
     }
 }

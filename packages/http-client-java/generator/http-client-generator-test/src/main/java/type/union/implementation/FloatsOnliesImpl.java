@@ -57,7 +57,7 @@ public final class FloatsOnliesImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "UnionClientFloatsOnl")
+    @ServiceInterface(name = "UnionClientFloatsOnlies")
     public interface FloatsOnliesService {
         @Get("/type/union/floats-only")
         @ExpectedResponses({ 200 })

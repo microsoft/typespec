@@ -1,6 +1,6 @@
 {
   "name": "@typespec/events",
-  "version": "0.70.0",
+  "version": "0.71.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library providing events bindings",
   "homepage": "https://typespec.io",

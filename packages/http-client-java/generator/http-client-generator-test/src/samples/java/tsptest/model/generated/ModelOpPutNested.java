@@ -13,8 +13,8 @@ public class ModelOpPutNested {
     public static void main(String[] args) {
         ModelClient modelClient
             = new ModelClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT")).buildClient();
-        // BEGIN:tsptest.model.generated.modelopputnested.modelopputnested
+        // BEGIN:tsptest.model.generated.model-op-put-nested.model-op-put-nested
         NestedModel response = modelClient.putNested(null);
-        // END:tsptest.model.generated.modelopputnested.modelopputnested
+        // END:tsptest.model.generated.model-op-put-nested.model-op-put-nested
     }
 }

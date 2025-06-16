@@ -59,7 +59,7 @@ public final class ManagedIdentitiesClientImpl implements ManagedIdentitiesClien
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "CommonPropertiesClie")
+    @ServiceInterface(name = "CommonPropertiesClientManagedIdentities")
     public interface ManagedIdentitiesService {
         @Headers({ "Content-Type: application/json" })
         @Get("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.CommonProperties/managedIdentityTrackedResources/{managedIdentityTrackedResourceName}")

@@ -3,21 +3,26 @@ import { readFile, writeFile } from "fs/promises";
 import path from "path";
 import { inspect } from "util";
 import vscode, { QuickInputButton, Uri } from "vscode";
-import { Executable } from "vscode-languageclient/node.js";
 import { Document, isScalar, isSeq } from "yaml";
 import { StartFileName, TspConfigFileName } from "../../const.js";
+import { tspLanguageClient } from "../../extension-context.js";
 import logger from "../../log/logger.js";
 import { InstallAction, npmDependencyType, NpmUtil } from "../../npm-utils.js";
 import { getDirectoryPath } from "../../path-utils.js";
 import telemetryClient from "../../telemetry/telemetry-client.js";
 import { OperationTelemetryEvent } from "../../telemetry/telemetry-event.js";
 import { resolveTypeSpecCli } from "../../tsp-executable-resolver.js";
+import { TspLanguageClient } from "../../tsp-language-client.js";
 import { ResultCode } from "../../types.js";
-import { getEntrypointTspFile, TraverseMainTspFileInWorkspace } from "../../typespec-utils.js";
+import {
+  formatDiagnostic,
+  getEntrypointTspFile,
+  TraverseMainTspFileInWorkspace,
+} from "../../typespec-utils.js";
 import {
   ExecOutput,
+  getVscodeUriFromPath,
   isFile,
-  spawnExecutionAndLogToOutput,
   tryParseYaml,
   tryReadFile,
 } from "../../utils.js";
@@ -444,18 +449,51 @@ async function doEmit(
             emitterVersion: e.version ?? (await npmUtil.loadNpmPackage(e.package))?.version,
           });
         });
+
         telemetryClient.logOperationDetailTelemetry(tel.activityId, {
           CompileStartTime: new Date().toISOString(), // ISO format: YYYY-MM-DDTHH:mm:ss.sssZ
         });
-        const compileResult = await compile(
-          cli,
-          mainTspFile,
-          emitters.map((e) => {
-            return { name: e.package, options: {} };
-          }),
-          false,
+        if (!tspLanguageClient) {
+          logger.error("LSP client is not started.");
+          logger.error(`Emitting ${codeInfoStr}...Failed.`, [], {
+            showOutput: true,
+            showPopup: true,
+          });
+          return ResultCode.Fail;
+        }
+
+        const compileResult = await tspLanguageClient.compileProject(
+          {
+            uri: getVscodeUriFromPath(mainTspFile),
+          },
+          { emit: emitters.map((e) => e.package) },
         );
-        if (compileResult.exitCode !== 0) {
+        if (!compileResult) {
+          logger.error(`Emitting ${codeInfoStr}...Failed.`, [], {
+            showOutput: true,
+            showPopup: true,
+          });
+          return ResultCode.Fail;
+        }
+        const addSuffix = (count: number, suffix: string) =>
+          count > 1 ? `${count} ${suffix}s` : count === 1 ? `${count} ${suffix}` : undefined;
+        const warningDiagnostics = compileResult.diagnostics.filter(
+          (d) => d.severity === "warning",
+        );
+        if (warningDiagnostics.length > 0) {
+          logger.warning(`Found ${addSuffix(warningDiagnostics.length, "warning")}`);
+          for (const diag of warningDiagnostics) {
+            logger.warning(formatDiagnostic(diag));
+          }
+        }
+        const errorDiagnostics = compileResult.diagnostics.filter((d) => d.severity === "error");
+        if (errorDiagnostics.length > 0) {
+          logger.error(`Found ${addSuffix(errorDiagnostics.length, "error")}`);
+          for (const diag of errorDiagnostics) {
+            logger.error(formatDiagnostic(diag));
+          }
+        }
+        if (compileResult.hasError) {
           logger.error(`Emitting ${codeInfoStr}...Failed`, [], {
             showOutput: true,
             showPopup: true,
@@ -504,6 +542,25 @@ export async function emitCode(
   uri: vscode.Uri,
   tel: OperationTelemetryEvent,
 ): Promise<ResultCode> {
+  if (!tspLanguageClient) {
+    logger.error(
+      `LSP client is not started. Make sure typespec compiler has been installed. Emitting Cancelled.`,
+      [],
+      {
+        showOutput: true,
+        showPopup: true,
+      },
+    );
+    return ResultCode.Cancelled;
+  }
+  const isSupport = await isCompilerSupport(tspLanguageClient);
+  if (!isSupport) {
+    logger.info(
+      "Compiling project via the language server is not supported in the current version of TypeSpec Compiler. Emitting Cancelled.",
+    );
+    tel.lastStep = "Check compiler capability";
+    return ResultCode.Cancelled;
+  }
   let tspProjectFile: string = "";
   if (!uri) {
     const targetPathes = await TraverseMainTspFileInWorkspace();
@@ -762,31 +819,20 @@ export async function emitCode(
   }
 }
 
-async function compile(
-  cli: Executable,
-  startFile: string,
-  emitters: { name: string; options: Record<string, string> }[],
-  logPretty?: boolean,
-): Promise<ExecOutput> {
-  const args: string[] = cli.args ?? [];
-  args.push("compile");
-  args.push(startFile);
-  if (emitters) {
-    for (const emitter of emitters) {
-      args.push("--emit", emitter.name);
-      if (emitter.options) {
-        for (const [key, value] of Object.entries(emitter.options)) {
-          args.push("--option", `${emitter.name}.${key}=${value}`);
-        }
-      }
-    }
+async function isCompilerSupport(client: TspLanguageClient): Promise<boolean> {
+  if (
+    client.initializeResult?.serverInfo?.version === undefined ||
+    client.initializeResult?.customCapacities?.internalCompile !== true
+  ) {
+    logger.error(
+      `Compiling project via the language server is not supported in the current version of TypeSpec Compiler (ver ${client.initializeResult?.serverInfo?.version ?? "<= 1.0.0"}). Please upgrade to a version later than 1.0.0 (by npm install @typespec/compiler) and try again.`,
+      [],
+      {
+        showOutput: true,
+        showPopup: true,
+      },
+    );
+    return false;
   }
-  if (logPretty !== undefined) {
-    args.push("--pretty");
-    args.push(logPretty ? "true" : "false");
-  }
-
-  return await spawnExecutionAndLogToOutput(cli.command, args, getDirectoryPath(startFile), {
-    NO_COLOR: "true",
-  });
+  return true;
 }

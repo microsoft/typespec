@@ -42,3 +42,55 @@ extends:
           LanguageShortName: "csharp"
           HasNugetPackages: true
           CadlRanchName: "@typespec/http-client-csharp"
+          AdditionalInitializeSteps:
+            - task: UseDotNet@2
+              inputs:
+                useGlobalJson: true
+                workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+
+      - stage: CreateAzureSdkForNetPR
+        displayName: Create PR for azure-sdk-for-net
+        dependsOn:
+          - CSharp_Publish
+          - CSharp_Build
+        condition: and(succeeded(), and(ne(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranchName'], 'main')))
+        variables:
+          PackageVersion: $[ stageDependencies.CSharp_Build.Build_linux_20.outputs['ci_build.emitterVersion'] ]
+        pool:
+          name: $(LINUXPOOL)
+          image: $(LINUXVMIMAGE)
+          os: linux
+        jobs:
+          - job: CreatePR
+            steps:
+              - checkout: self
+              - pwsh: |
+                  # Determine the TypeSpec PR URL 
+                  $sourceBranch = '$(Build.SourceBranch)'
+                  $repoUrl = '$(Build.Repository.Uri)'
+
+                  if ($sourceBranch -match "^refs/pull/(\d+)/(head|merge)$") {
+                    $typeSpecPRUrl = "$repoUrl/pull/$($Matches[1])"
+                  } elseif ($sourceBranch -match "^refs/heads/(.+)$") {
+                    $typeSpecPRUrl = "$repoUrl/tree/$($Matches[1])"
+                  } else {
+                    $typeSpecPRUrl = "$repoUrl/tree/$sourceBranch"
+                  }
+                  Write-Host "TypeSpec PR URL: $typeSpecPRUrl"
+                  Write-Host "##vso[task.setvariable variable=TypeSpecPRUrl]$typeSpecPRUrl"
+                displayName: Set variables for PR creation
+
+              - task: UseDotNet@2
+                inputs:
+                  useGlobalJson: true
+                  workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+
+              - task: PowerShell@2
+                displayName: Create PR in azure-sdk-for-net
+                inputs:
+                  pwsh: true
+                  filePath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Submit-AzureSdkForNetPr.ps1
+                  arguments: >
+                    -PackageVersion '$(PackageVersion)'
+                    -TypeSpecPRUrl '$(TypeSpecPRUrl)'
+                    -AuthToken '$(azuresdk-github-pat)'

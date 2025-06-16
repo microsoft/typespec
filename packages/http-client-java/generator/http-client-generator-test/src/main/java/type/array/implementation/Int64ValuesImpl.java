@@ -57,7 +57,7 @@ public final class Int64ValuesImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArrayClientInt64Valu")
+    @ServiceInterface(name = "ArrayClientInt64Values")
     public interface Int64ValuesService {
         @Get("/type/array/int64")
         @ExpectedResponses({ 200 })

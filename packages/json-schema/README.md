@@ -26,7 +26,7 @@ model Car {
 }
 ```
 
-## Usage
+## Emitter usage
 
 1. Via the command line
 

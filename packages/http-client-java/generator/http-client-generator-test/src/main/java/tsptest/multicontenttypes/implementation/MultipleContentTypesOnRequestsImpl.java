@@ -56,7 +56,7 @@ public final class MultipleContentTypesOnRequestsImpl {
      * the proxy service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "MultiContentTypesCli")
+    @ServiceInterface(name = "MultiContentTypesClientMultipleContentTypesOnRequests")
     public interface MultipleContentTypesOnRequestsService {
         @Post("/multiple/sharedroute/request/upload/single-body-type")
         @ExpectedResponses({ 204 })

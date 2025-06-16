@@ -1,5 +1,24 @@
 # Change Log - @typespec/http-client-python
 
+## 0.12.1
+
+### Bump dependencies
+
+- [#7613](https://github.com/microsoft/typespec/pull/7613) bump typespec
+
+
+## 0.12.0
+
+### Features
+
+- [#7359](https://github.com/microsoft/typespec/pull/7359) store apiVersion info in `_metadata.json`
+
+### Bug Fixes
+
+- [#7325](https://github.com/microsoft/typespec/pull/7325) Fix response type of paging operations from `Iterable` to `ItemPaged`
+- [#7348](https://github.com/microsoft/typespec/pull/7348) Reallow models-only packages
+
+
 ## 0.11.3
 
 ### Bump dependencies

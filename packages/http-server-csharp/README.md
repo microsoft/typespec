@@ -8,7 +8,7 @@ TypeSpec service code generator for c-sharp
 npm install @typespec/http-server-csharp
 ```
 
-## Usage
+## Emitter usage
 
 1. Via the command line
 

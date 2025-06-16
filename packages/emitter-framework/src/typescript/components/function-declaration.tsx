@@ -1,5 +1,6 @@
 import * as ts from "@alloy-js/typescript";
 import { Model, Operation } from "@typespec/compiler";
+import { useTsp } from "../../core/index.js";
 import { buildParameterDescriptors, getReturnType } from "../utils/operation.js";
 import { declarationRefkeys } from "../utils/refkey.js";
 import { TypeExpression } from "./type-expression.js";
@@ -21,6 +22,8 @@ export type FunctionDeclarationProps =
  * provided will take precedence.
  */
 export function FunctionDeclaration(props: FunctionDeclarationProps) {
+  const { $ } = useTsp();
+
   if (!isTypedFunctionDeclarationProps(props)) {
     return <ts.FunctionDeclaration {...props} />;
   }
@@ -40,8 +43,10 @@ export function FunctionDeclaration(props: FunctionDeclarationProps) {
     params: props.parameters,
     mode: props.parametersMode,
   });
+  const doc = props.doc ?? $.type.getDoc(props.type);
   return (
     <ts.FunctionDeclaration
+      doc={doc}
       refkey={refkeys}
       name={name}
       async={props.async}
@@ -49,8 +54,8 @@ export function FunctionDeclaration(props: FunctionDeclarationProps) {
       export={props.export}
       kind={props.kind}
       returnType={returnType}
+      parameters={allParameters}
     >
-      <ts.FunctionDeclaration.Parameters parameters={allParameters} />
       {props.children}
     </ts.FunctionDeclaration>
   );

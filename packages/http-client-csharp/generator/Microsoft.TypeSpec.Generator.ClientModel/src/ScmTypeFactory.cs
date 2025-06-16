@@ -4,6 +4,7 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
@@ -37,6 +38,68 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         public virtual IStatusCodeClassifierApi StatusCodeClassifierApi => PipelineMessageClassifierProvider.Instance;
 
         public virtual IRequestContentApi RequestContentApi => BinaryContentProvider.Instance;
+
+        internal HashSet<InputModelType> RootInputModels
+        {
+            get
+            {
+                if (_rootInputModels == null)
+                {
+                    PopulateRootModels();
+                }
+                return _rootInputModels!;
+            }
+        }
+
+        private HashSet<InputModelType>? _rootInputModels;
+
+        internal HashSet<InputModelType> RootOutputModels
+        {
+            get
+            {
+                if (_rootOutputModels == null)
+                {
+                    PopulateRootModels();
+                }
+                return _rootOutputModels!;
+            }
+        }
+        private HashSet<InputModelType>? _rootOutputModels;
+
+        private void PopulateRootModels()
+        {
+            _rootInputModels = new HashSet<InputModelType>();
+            _rootOutputModels = new HashSet<InputModelType>();
+            foreach (var client in ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Clients)
+            {
+                foreach (var method in client.Methods)
+                {
+                    var operation = method.Operation;
+                    var response = operation.Responses.FirstOrDefault(r => !r.IsErrorResponse);
+                    // Include both service method and operation responses for output types
+                    // Service methods will have the public response type for things like LROs, while operation responses
+                    // will have the internal response types for paging operations
+                    if (response?.BodyType is { } bodyType)
+                    {
+                        AddRootModel(bodyType, _rootOutputModels);
+                    }
+
+                    if (method.Response.Type is { } responseType)
+                    {
+                        AddRootModel(responseType, _rootOutputModels);
+                    }
+
+                    if (operation.GenerateConvenienceMethod)
+                    {
+                        // For parameters, the operation parameters are sufficient.
+                        foreach (var parameter in operation.Parameters)
+                        {
+                            AddRootModel(parameter.Type, _rootInputModels);
+                        }
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// Returns the serialization type providers for the given input type.
@@ -112,7 +175,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         /// <returns>An instance of <see cref="MethodProviderCollection"/> containing the chain of methods
         /// associated with the input service method, or <c>null</c> if no methods are constructed.
         /// </returns>
-        internal ScmMethodProviderCollection? CreateMethods(InputServiceMethod serviceMethod, TypeProvider enclosingType)
+        internal ScmMethodProviderCollection? CreateMethods(InputServiceMethod serviceMethod, ClientProvider enclosingType)
         {
             ScmMethodProviderCollection? methods = new ScmMethodProviderCollection(serviceMethod, enclosingType);
             var visitors = ScmCodeModelGenerator.Instance.Visitors;
@@ -137,5 +200,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter,
             SerializationFormat serializationFormat)
             => MrwSerializationTypeDefinition.SerializeJsonValueCore(valueType, value, utf8JsonWriter, mrwOptionsParameter, serializationFormat);
+
+        private static void AddRootModel(InputType type, HashSet<InputModelType> rootModels)
+        {
+            InputModelType? modelToAdd = type switch
+            {
+                InputModelType model => model,
+                InputArrayType { ValueType: InputModelType model } => model,
+                InputDictionaryType { ValueType: InputModelType model } => model,
+                _ => null
+            };
+
+            if (modelToAdd != null)
+            {
+                rootModels.Add(modelToAdd);
+            }
+        }
     }
 }

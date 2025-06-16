@@ -27,7 +27,7 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   const rootApiVersions =
     sdkApiVersionEnums.length > 0
       ? sdkApiVersionEnums[0].values.map((v) => v.value as string).flat()
-      : rootClients[0].apiVersions;
+      : (rootClients[0]?.apiVersions ?? []);
 
   const inputClients = fromSdkClients(sdkContext, rootClients, rootApiVersions);
 

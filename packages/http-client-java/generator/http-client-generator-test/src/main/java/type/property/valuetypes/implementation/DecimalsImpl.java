@@ -56,7 +56,7 @@ public final class DecimalsImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ValueTypesClientDeci")
+    @ServiceInterface(name = "ValueTypesClientDecimals")
     public interface DecimalsService {
         @Get("/type/property/value-types/decimal")
         @ExpectedResponses({ 200 })

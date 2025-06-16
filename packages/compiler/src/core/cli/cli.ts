@@ -91,6 +91,11 @@ async function main() {
             default: false,
             describe: "Watch project files for changes and recompile.",
           })
+          .option("stats", {
+            type: "boolean",
+            default: false,
+            describe: "Print statistics about the compilation.",
+          })
           .option("emit", {
             type: "array",
             string: true,

@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-client",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "type": "module",
   "main": "dist/src/index.js",
   "license": "MIT",
@@ -19,17 +19,17 @@
     }
   },
   "peerDependencies": {
-    "@alloy-js/core": "^0.15.0",
-    "@alloy-js/typescript": "^0.15.0",
+    "@alloy-js/core": "^0.17.0",
+    "@alloy-js/typescript": "^0.17.0",
     "@typespec/compiler": "workspace:^",
     "@typespec/emitter-framework": "workspace:^",
     "@typespec/http": "workspace:^"
   },
   "devDependencies": {
-    "@alloy-js/cli": "^0.15.0",
+    "@alloy-js/cli": "^0.17.0",
     "@alloy-js/rollup-plugin": "^0.1.0",
-    "@alloy-js/core": "^0.15.0",
-    "@alloy-js/typescript": "^0.15.0",
+    "@alloy-js/core": "^0.17.0",
+    "@alloy-js/typescript": "^0.17.0",
     "@types/node": "~22.13.11",
     "@typespec/compiler": "workspace:^",
     "@typespec/emitter-framework": "workspace:^",

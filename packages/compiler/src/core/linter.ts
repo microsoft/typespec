@@ -7,6 +7,7 @@ import { createDiagnostic } from "./messages.js";
 import { NameResolver } from "./name-resolver.js";
 import type { Program } from "./program.js";
 import { EventEmitter, mapEventEmitterToNodeListener, navigateProgram } from "./semantic-walker.js";
+import { startTimer, time } from "./stats.js";
 import {
   Diagnostic,
   DiagnosticMessages,
@@ -26,7 +27,18 @@ type LinterLibraryInstance = { linter: LinterResolvedDefinition };
 export interface Linter {
   extendRuleSet(ruleSet: LinterRuleSet): Promise<readonly Diagnostic[]>;
   registerLinterLibrary(name: string, lib?: LinterLibraryInstance): void;
-  lint(): readonly Diagnostic[];
+  lint(): LinterResult;
+}
+
+export interface LinterStats {
+  runtime: {
+    total: number;
+    rules: Record<string, number>;
+  };
+}
+export interface LinterResult {
+  readonly diagnostics: readonly Diagnostic[];
+  readonly stats: LinterStats;
 }
 
 /**
@@ -146,23 +158,37 @@ export function createLinter(
     return diagnostics.diagnostics;
   }
 
-  function lint(): readonly Diagnostic[] {
+  function lint(): LinterResult {
     const diagnostics = createDiagnosticCollector();
     const eventEmitter = new EventEmitter<SemanticNodeListener>();
+    const stats: LinterStats = {
+      runtime: {
+        total: 0,
+        rules: {},
+      },
+    };
     tracer.trace(
       "lint",
       `Running linter with following rules:\n` +
         [...enabledRules.keys()].map((x) => ` - ${x}`).join("\n"),
     );
 
+    const timer = startTimer();
     for (const rule of enabledRules.values()) {
+      const createTiming = startTimer();
       const listener = rule.create(createLinterRuleContext(program, rule, diagnostics));
+      stats.runtime.rules[rule.id] = createTiming.end();
       for (const [name, cb] of Object.entries(listener)) {
-        eventEmitter.on(name as any, cb as any);
+        const timedCb = (...args: any[]) => {
+          const duration = time(() => (cb as any)(...args));
+          stats.runtime.rules[rule.id] += duration;
+        };
+        eventEmitter.on(name as any, timedCb);
       }
     }
     navigateProgram(program, mapEventEmitterToNodeListener(eventEmitter));
-    return diagnostics.diagnostics;
+    stats.runtime.total = timer.end();
+    return { diagnostics: diagnostics.diagnostics, stats };
   }
 
   async function resolveLibrary(name: string): Promise<LinterLibraryInstance | undefined> {

@@ -11,6 +11,7 @@ using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
@@ -22,7 +23,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
     public class ScmMethodProviderCollection : IReadOnlyList<ScmMethodProvider>
     {
-        private readonly string _cleanOperationName;
         private readonly MethodProvider _createRequestMethod;
         private static readonly ClientPipelineExtensionsDefinition _clientPipelineExtensionsDefinition = new();
         private IReadOnlyList<ParameterProvider> ProtocolMethodParameters => _protocolMethodParameters ??= RestClientProvider.GetMethodParameters(ServiceMethod, RestClientProvider.MethodType.Protocol);
@@ -32,6 +32,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private IReadOnlyList<ParameterProvider>? _convenienceMethodParameters;
         private readonly InputPagingServiceMethod? _pagingServiceMethod;
         private IReadOnlyList<ScmMethodProvider>? _methods;
+        private readonly bool _generateConvenienceMethod;
 
         private ClientProvider Client { get; }
         protected InputServiceMethod ServiceMethod { get; }
@@ -62,9 +63,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             ServiceMethod = serviceMethod;
             EnclosingType = enclosingType;
-            _cleanOperationName = serviceMethod.Operation.Name.ToCleanName();
+
+            var updatedOperationName = GetCleanOperationName(serviceMethod);
+            ServiceMethod.Update(name: updatedOperationName);
+            ServiceMethod.Operation.Update(name: updatedOperationName);
+
             Client = enclosingType as ClientProvider ?? throw new InvalidOperationException("Scm methods can only be built for client types.");
             _createRequestMethod = Client.RestClient.GetCreateRequestMethod(ServiceMethod.Operation);
+            _generateConvenienceMethod = ServiceMethod.Operation is
+                { GenerateConvenienceMethod: true, IsMultipartFormData: false };
 
             if (serviceMethod is InputPagingServiceMethod pagingServiceMethod)
             {
@@ -72,12 +79,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
+        private static string GetCleanOperationName(InputServiceMethod serviceMethod)
+        {
+            var operationName = serviceMethod.Operation.Name.ToIdentifierName();
+            // Replace List with Get as .NET convention is to use Get for list operations.
+            if (operationName.StartsWith("List", StringComparison.Ordinal))
+            {
+                operationName = $"Get{operationName.Substring(4)}";
+            }
+            return operationName;
+        }
+
         protected virtual IReadOnlyList<ScmMethodProvider> BuildMethods()
         {
             var syncProtocol = BuildProtocolMethod(_createRequestMethod, false);
             var asyncProtocol = BuildProtocolMethod(_createRequestMethod, true);
 
-            if (ServiceMethod.Operation.GenerateConvenienceMethod && !ServiceMethod.Operation.IsMultipartFormData)
+            if (_generateConvenienceMethod)
             {
                 return
                 [
@@ -103,7 +121,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var methodSignature = new MethodSignature(
-                isAsync ? _cleanOperationName + "Async" : _cleanOperationName,
+                isAsync ? ServiceMethod.Name + "Async" : ServiceMethod.Name,
                 DocHelpers.GetFormattableDescription(ServiceMethod.Operation.Summary, ServiceMethod.Operation.Doc) ?? FormattableStringHelpers.FromString(ServiceMethod.Operation.Name),
                 protocolMethod.Signature.Modifiers,
                 GetResponseType(ServiceMethod.Operation.Responses, true, isAsync, out var responseBodyType),
@@ -115,7 +133,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (_pagingServiceMethod != null)
             {
                 collection = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, _pagingServiceMethod, responseBodyType, isAsync);
-                methodBody = GetPagingMethodBody(collection, ConvenienceMethodParameters, true);
+                methodBody = [.. GetPagingMethodBody(collection, ConvenienceMethodParameters, true)];
             }
             else if (responseBodyType is null)
             {
@@ -163,7 +181,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     if (parameter.Type.IsReadOnlyMemory)
                     {
-                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromReadOnlyMemory(parameter), out var content));
+                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromEnumerable(parameter.Property("Span")), out var content));
                         declarations["content"] = content;
                     }
                     else if (parameter.Type.IsList)
@@ -250,7 +268,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     [
                         valueDeclaration,
                         UsingDeclare("document", JsonDocumentSnippets.Parse(result.GetRawResponse().ContentStream(), isAsync), out var document),
-                        ForeachStatement.Create("item", document.RootElement().EnumerateArray(), out ScopedApi<JsonElement> item)
+                        ForEachStatement.Create("item", document.RootElement().EnumerateArray(), out ScopedApi<JsonElement> item)
                             .Add(GetElementConversion(elementType, item, value))
                     ];
                     declarations = new Dictionary<string, ValueExpression>
@@ -271,7 +289,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     [
                         valueDeclaration,
                         UsingDeclare("document", JsonDocumentSnippets.Parse(result.GetRawResponse().ContentStream(), isAsync), out var document),
-                        ForeachStatement.Create("item", document.RootElement().EnumerateObject(), out ScopedApi<JsonProperty> item)
+                        ForEachStatement.Create("item", document.RootElement().EnumerateObject(), out ScopedApi<JsonProperty> item)
                             .Add(GetElementConversion(valueType, item.Value(), value, item.Name()))
                     ];
                     declarations = new Dictionary<string, ValueExpression>
@@ -524,20 +542,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 // If there are optional parameters, but the request options parameter is not optional, make the optional parameters nullable required.
                 // This is to ensure that the request options parameter is always the last parameter.
+                var newlyRequiredParameters = new List<ParameterProvider>(optionalParameters.Count);
                 foreach (var parameter in optionalParameters)
                 {
+                    // don't mutate the static request content parameter
+                    if (parameter.Equals(ScmKnownParameters.OptionalRequestContent))
+                    {
+                        newlyRequiredParameters.Add(ScmKnownParameters.NullableRequiredRequestContent);
+                        continue;
+                    }
                     parameter.DefaultValue = null;
                     parameter.Type = parameter.Type.WithNullable(true);
+                    newlyRequiredParameters.Add(parameter);
                 }
 
-                requiredParameters.AddRange(optionalParameters);
+                requiredParameters.AddRange(newlyRequiredParameters);
                 optionalParameters.Clear();
             }
 
             ParameterProvider[] parameters = [.. requiredParameters, .. optionalParameters, requestOptionsParameter];
 
             var methodSignature = new MethodSignature(
-                isAsync ? _cleanOperationName + "Async" : _cleanOperationName,
+                isAsync ? ServiceMethod.Name + "Async" : ServiceMethod.Name,
                 DocHelpers.GetFormattableDescription(ServiceMethod.Operation.Summary, ServiceMethod.Operation.Doc) ?? FormattableStringHelpers.FromString(ServiceMethod.Operation.Name),
                 methodModifiers,
                 GetResponseType(ServiceMethod.Operation.Responses, false, isAsync, out _),
@@ -549,7 +575,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (_pagingServiceMethod != null)
             {
                 collection = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, _pagingServiceMethod, null, isAsync);
-                methodBody = GetPagingMethodBody(collection, parameters, false);
+                methodBody = [.. GetPagingMethodBody(collection, parameters, false)];
             }
             else
             {
@@ -584,54 +610,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return protocolMethod;
         }
 
-        private MethodBodyStatement[] GetPagingMethodBody(
+        private IEnumerable<MethodBodyStatement> GetPagingMethodBody(
             TypeProvider collection,
             IReadOnlyList<ParameterProvider> parameters,
             bool isConvenience)
         {
-            return (_pagingServiceMethod!.PagingMetadata.NextLink, isConvenience) switch
+            if (isConvenience)
             {
-                (not null, true) =>
-                [
-                    Return(New.Instance(
+                return
+                    [
+                        .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var declarations),
+                        Return(New.Instance(
                         collection.Type,
                         [
                             This,
-                            Null,
-                            .. parameters,
-                            IHttpRequestOptionsApiSnippets.FromCancellationToken(ScmKnownParameters.CancellationToken)
+                            .. GetProtocolMethodArguments(declarations)
                         ]))
-                ],
-                (not null, false) =>
+                    ];
+            }
+
+            return Return(New.Instance(
+                collection.Type,
                 [
-                    Return(New.Instance(
-                        collection.Type,
-                        [
-                            This,
-                            Null,
-                            .. parameters
-                        ]))
-                ],
-                (null, true) =>
-                [
-                    Return(New.Instance(
-                        collection.Type,
-                        [
-                            This,
-                            .. parameters,
-                            IHttpRequestOptionsApiSnippets.FromCancellationToken(ScmKnownParameters.CancellationToken)
-                        ]))
-                ],
-                (null, false) =>
-                [
-                    Return(New.Instance(
-                        collection.Type,
-                        [
-                            This,
-                            .. parameters
-                        ]))
-                ]
-            };
+                    This,
+                    .. parameters
+                ]));
         }
 
         private CSharpType GetResponseType(IReadOnlyList<InputOperationResponse> responses, bool isConvenience, bool isAsync, out CSharpType? responseBodyType)
@@ -663,7 +666,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var type = (response?.BodyType as InputModelType)?.Properties.FirstOrDefault(p =>
                     p.SerializedName == _pagingServiceMethod.PagingMetadata.ItemPropertySegments[0]);
 
-                responseBodyType = response?.BodyType is null || type is null ? null : ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType((type.Type as InputArrayType)!.ValueType);
+                responseBodyType = response?.BodyType is null || type is null ? null : GetResponseBodyType((type.Type as InputArrayType)!.ValueType);
 
                 if (response == null || responseBodyType == null)
                 {
@@ -679,7 +682,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     responseBodyType);
             }
 
-            responseBodyType = response?.BodyType is null ? null : ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(response.BodyType);
+            responseBodyType = response?.BodyType is null ? null : GetResponseBodyType(response.BodyType);
 
             var returnType = response == null || responseBodyType == null
                 ? ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseType
@@ -688,22 +691,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return isAsync ? new CSharpType(typeof(Task<>), returnType) : returnType;
         }
 
+        private static CSharpType? GetResponseBodyType(InputType inputType)
+        {
+            if (inputType is InputModelType inputModelType)
+            {
+                var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModelType);
+                return model?.Type;
+            }
+
+            return ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputType);
+        }
+
         private bool ShouldAddOptionalRequestOptionsParameter()
         {
             var convenienceMethodParameterCount = ConvenienceMethodParameters.Count;
+            if (!_generateConvenienceMethod)
+            {
+                return true;
+            }
             if (convenienceMethodParameterCount == 0)
             {
                 return false;
             }
 
-            // the request options parameter is optional if the methods have different parameters.
-            if (ProtocolMethodParameters.Count != convenienceMethodParameterCount)
-            {
-                return true;
-            }
-
             for (int i = 0; i < convenienceMethodParameterCount; i++)
             {
+                // Once we hit an optional parameter, then we need to make the request options required
+                // to prevent ambiguous callsites.
+                if (ConvenienceMethodParameters[i].DefaultValue != null)
+                {
+                    return false;
+                }
                 if (!ProtocolMethodParameters[i].Type.Equals(ConvenienceMethodParameters[i].Type))
                 {
                     return true;
