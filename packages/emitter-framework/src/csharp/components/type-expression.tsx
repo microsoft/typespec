@@ -52,12 +52,12 @@ const intrinsicNameToCSharpType = new Map<string, string | null>([
   // Date and time types
   ["plainDate", "DateOnly"], // Use .NET 6+ DateOnly for plain calendar dates
   ["plainTime", "TimeOnly"], // Use .NET 6+ TimeOnly for plain clock times
-  ["utcDateTime", "DateTime"], // Use DateTime for UTC date-times
+  ["utcDateTime", "DateTimeOffset"], // Use DateTimeOffset for UTC date-times
   ["offsetDateTime", "DateTimeOffset"], // Use DateTimeOffset for timezone-specific date-times
   ["duration", "TimeSpan"], // Duration as TimeSpan
 
   // String types
-  ["url", "Uri"], // Matches C#'s `string` (could also be Uri)
+  ["url", "Uri"], // Matches C#'s `Uri`
 ]);
 
 export function getScalarIntrinsicExpression(
@@ -65,35 +65,24 @@ export function getScalarIntrinsicExpression(
   type: Scalar | IntrinsicType,
 ): string | null {
   let intrinsicName: string;
+
+  if ($.scalar.isUtcDateTime(type) || $.scalar.extendsUtcDateTime(type)) {
+    return "DateTimeOffset";
+  }
   if ($.scalar.is(type)) {
-    if ($.scalar.isUtcDateTime(type) || $.scalar.extendsUtcDateTime(type)) {
-      const encoding = $.scalar.getEncoding(type);
-      let emittedType = "DateTime";
-      switch (encoding?.encoding) {
-        case "unixTimestamp":
-        case "rfc7231":
-        case "rfc3339":
-        default:
-          emittedType = `Date`;
-          break;
-      }
-
-      return emittedType;
-    }
-
     intrinsicName = $.scalar.getStdBase(type)?.name ?? "";
   } else {
     intrinsicName = type.name;
   }
 
-  const tsType = intrinsicNameToCSharpType.get(intrinsicName);
+  const csType = intrinsicNameToCSharpType.get(intrinsicName);
 
-  if (!tsType) {
+  if (!csType) {
     reportTypescriptDiagnostic($.program, { code: "typescript-unsupported-scalar", target: type });
     return "object"; // Fallback to object if unsupported
   }
 
-  return tsType;
+  return csType;
 }
 
 function isDeclaration($: Typekit, type: Type): boolean {
