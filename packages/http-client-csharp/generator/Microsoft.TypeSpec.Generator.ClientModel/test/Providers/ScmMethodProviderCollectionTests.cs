@@ -191,9 +191,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsTrue(signature.ReturnType!.Equals(expectedReturnType));
         }
 
-        [TestCase(true)]
-        [TestCase(false)]
-        public void RequestOptionsOptionality(bool inBody)
+        [TestCase(true, false, true)]
+        [TestCase(true, true, false)]
+        [TestCase(false, false, false)]
+        [TestCase(false, true, false)]
+        public void RequestOptionsOptionality(bool inBody, bool hasOptionalParameter, bool shouldBeOptional)
         {
             MockHelpers.LoadMockGenerator();
             List<InputParameter> parameters =
@@ -201,7 +203,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 InputFactory.Parameter(
                     "message",
                     InputPrimitiveType.Boolean,
-                    isRequired: true,
+                    isRequired: !hasOptionalParameter,
                     location: inBody ? InputRequestLocation.Body : InputRequestLocation.Query)
             ];
             var inputOperation = InputFactory.Operation(
@@ -217,17 +219,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(inputServiceMethod, protocolMethod!.ServiceMethod);
 
             var optionsParameter = protocolMethod!.Signature.Parameters.Single(p => p.Name == "options");
-            if (inBody)
-            {
-                // When the parameter is in the body, the signatures of the protocol and convenience methods
-                // will differ due to the presence of the BinaryContent parameter, which means the options parameter
-                // can remain optional.
-                Assert.IsNotNull(optionsParameter.DefaultValue);
-            }
-            else
-            {
-                Assert.IsNull(optionsParameter.DefaultValue);
-            }
+            Assert.AreEqual(shouldBeOptional, optionsParameter.DefaultValue != null);
         }
 
         [Test]

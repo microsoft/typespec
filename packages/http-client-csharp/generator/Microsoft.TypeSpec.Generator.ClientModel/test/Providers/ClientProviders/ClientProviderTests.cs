@@ -1605,7 +1605,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                 isRequired: true),
                         ]), false, true);
 
-                // convenience method only has a body param, so RequestOptions should be optional in protocol method.
+                // convenience method only has a body param, but it is optional, so RequestOptions should be optional in protocol method.
                 yield return new TestCaseData(
                      InputFactory.BasicServiceMethod(
                         "TestServiceMethod",
@@ -1624,7 +1624,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                 "p1",
                                 InputPrimitiveType.String,
                                 location: InputRequestLocation.Body),
-                        ]), true, false);
+                        ]), false, false);
 
                 // Protocol & convenience methods will have different parameters since there is a model body param, so RequestOptions should be optional.
                 yield return new TestCaseData(
@@ -1659,8 +1659,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                 isRequired: true),
                         ]), true, false);
 
-                // Protocol & convenience methods will have different parameters since there is a model body param, so RequestOptions should be optional.
-                // One parameter is optional
+                // Protocol & convenience methods will have different parameters but since the body parameter is optional, the request options should be required in protocol method.
                 yield return new TestCaseData(
                     InputFactory.BasicServiceMethod(
                         "TestServiceMethod",
@@ -1691,7 +1690,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                 InputFactory.Model("SampleModel"),
                                 location: InputRequestLocation.Body,
                                 isRequired: false),
-                        ]), true, true);
+                        ]), false, true);
 
 
                 // Convenience method has no parameters, RequestOptions should be required in protocol method.

@@ -696,14 +696,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return false;
             }
 
-            // the request options parameter is optional if the methods have different parameters.
-            if (ProtocolMethodParameters.Count != convenienceMethodParameterCount)
-            {
-                return true;
-            }
-
             for (int i = 0; i < convenienceMethodParameterCount; i++)
             {
+                // Once we hit an optional parameter, then we need to make the request options required
+                // to prevent ambiguous callsites.
+                if (ConvenienceMethodParameters[i].DefaultValue != null)
+                {
+                    return false;
+                }
                 if (!ProtocolMethodParameters[i].Type.Equals(ConvenienceMethodParameters[i].Type))
                 {
                     return true;
