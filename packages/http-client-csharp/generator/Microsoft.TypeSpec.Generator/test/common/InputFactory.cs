@@ -429,7 +429,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             IEnumerable<string>? requestMediaTypes = null,
             string uri = "",
             string path = "",
-            string httpMethod = "GET")
+            string httpMethod = "GET",
+            bool generateConvenienceMethod = true)
         {
             return new InputOperation(
                 name,
@@ -447,7 +448,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 requestMediaTypes is null ? null : [.. requestMediaTypes],
                 false,
                 true,
-                true,
+                generateConvenienceMethod,
                 name);
         }
 

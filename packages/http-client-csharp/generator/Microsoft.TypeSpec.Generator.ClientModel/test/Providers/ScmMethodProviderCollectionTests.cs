@@ -276,9 +276,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             }
         }
 
-        [TestCase(true)]
-        [TestCase(false)]
-        public void RequestOptionsOptionality(bool inBody)
+        [TestCase(true, false, true)]
+        [TestCase(true, true, false)]
+        [TestCase(false, false, false)]
+        [TestCase(false, true, false)]
+        public void RequestOptionsOptionality(bool inBody, bool hasOptionalParameter, bool shouldBeOptional)
         {
             MockHelpers.LoadMockGenerator();
             List<InputParameter> parameters =
@@ -286,7 +288,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 InputFactory.Parameter(
                     "message",
                     InputPrimitiveType.Boolean,
-                    isRequired: true,
+                    isRequired: !hasOptionalParameter,
                     location: inBody ? InputRequestLocation.Body : InputRequestLocation.Query)
             ];
             var inputOperation = InputFactory.Operation(
@@ -302,17 +304,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(inputServiceMethod, protocolMethod!.ServiceMethod);
 
             var optionsParameter = protocolMethod!.Signature.Parameters.Single(p => p.Name == "options");
-            if (inBody)
+            Assert.AreEqual(shouldBeOptional, optionsParameter.DefaultValue != null);
+
+            if (!shouldBeOptional)
             {
-                // When the parameter is in the body, the signatures of the protocol and convenience methods
-                // will differ due to the presence of the BinaryContent parameter, which means the options parameter
-                // can remain optional.
-                Assert.IsNotNull(optionsParameter.DefaultValue);
+                Assert.IsTrue(protocolMethod.Signature.Parameters.All(p => p.DefaultValue == null));
             }
-            else
-            {
-                Assert.IsNull(optionsParameter.DefaultValue);
-            }
+        }
+
+        [Test]
+        public void RequestOptionsIsOptionalWhenNoConvenience()
+        {
+            MockHelpers.LoadMockGenerator();
+            var inputOperation = InputFactory.Operation(
+                "TestOperation",
+                generateConvenienceMethod: false);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("Test", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            var protocolMethod = methodCollection.FirstOrDefault(
+                m => m.Signature.Parameters.Any(p => p.Name == "options") && m.Signature.Name == "TestOperation");
+            Assert.IsNotNull(protocolMethod);
+            Assert.AreEqual(inputServiceMethod, protocolMethod!.ServiceMethod);
+
+            var optionsParameter = protocolMethod!.Signature.Parameters.Single(p => p.Name == "options");
+            Assert.IsNotNull(optionsParameter.DefaultValue);
         }
 
         [Test]
