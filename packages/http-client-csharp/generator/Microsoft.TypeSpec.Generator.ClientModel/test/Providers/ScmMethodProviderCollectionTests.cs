@@ -276,9 +276,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             }
         }
 
-        [TestCase(true)]
-        [TestCase(false)]
-        public void RequestOptionsOptionality(bool inBody)
         [TestCase(true, false, true)]
         [TestCase(true, true, false)]
         [TestCase(false, false, false)]
