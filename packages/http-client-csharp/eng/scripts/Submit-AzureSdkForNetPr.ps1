@@ -18,7 +18,7 @@ param(
   [string]$PackageVersion,
 
   [Parameter(Mandatory = $true)]
-  [string]$TypeSpecPRUrl,
+  [string]$TypeSpecCommitUrl,
 
   [Parameter(Mandatory = $true)]
   [string]$AuthToken,
@@ -34,7 +34,6 @@ Import-Module (Join-Path $PSScriptRoot "Generation.psm1") -DisableNameChecking -
 $RepoOwner = "Azure"
 $RepoName = "azure-sdk-for-net"
 $BaseBranch = "main"
-$PROwner = "azure-sdk"
 $PRBranch = $BranchName
 
 $PRTitle = "Update UnbrandedGeneratorVersion to $PackageVersion"
@@ -43,7 +42,7 @@ This PR updates the UnbrandedGeneratorVersion property in eng/Packages.Data.prop
 
 ## Details
 
-- Original TypeSpec PR: $TypeSpecPRUrl
+- TypeSpec Commit that triggered this PR: $TypeSpecCommitUrl
 
 ## Changes
 
