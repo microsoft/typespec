@@ -41,4 +41,9 @@ public class PageTests {
     public void testPageRequestBody() {
         client.listWithParameters(new ListItemInputBody("Madge"), ListItemInputExtensibleEnum.SECOND).stream().count();
     }
+
+    @Test
+    public void testPageNextLinkReInjectedParameters() {
+        client.withParameterizedNextLink("name", true).stream().count();
+    }
 }
