@@ -78,7 +78,7 @@
     "@microsoft/api-extractor-model": "^7.30.6",
     "@types/js-yaml": "~4.0.9",
     "@types/lodash": "~4.17.17",
-    "@types/node": "~24.0.0",
+    "@types/node": "~24.0.3",
     "@typespec/compiler": "1.1.0",
     "@typespec/http": "1.1.0",
     "@typespec/openapi": "1.1.0",
