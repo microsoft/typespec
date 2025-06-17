@@ -708,6 +708,47 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public void TestBuildExplicitFromClientResult_ArrayOfModels()
+        {
+            var inputModel = InputFactory.Model("mockInputModel", usage: InputModelTypeUsage.Output | InputModelTypeUsage.Json);
+            var modelArray = InputFactory.Array(inputModel);
+            var inputOperation = InputFactory.Operation("bar", responses: [InputFactory.OperationResponse(bodytype: modelArray)]);
+            var inputServiceResponse = InputFactory.ServiceMethodResponse(modelArray, null);
+            var inputClient = InputFactory.Client("fooClient", methods: [InputFactory.BasicServiceMethod("bar", inputOperation, response: inputServiceResponse)]);
+            MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel],
+                clients: () => [inputClient]);
+            var outputLibrary = ScmCodeModelGenerator.Instance.OutputLibrary;
+            var modelProvider = outputLibrary.TypeProviders.OfType<ModelProvider>().FirstOrDefault(t => t.Name == "MockInputModel");
+            Assert.IsNotNull(modelProvider);
+
+            var serializationProvider = modelProvider!.SerializationProviders.FirstOrDefault();
+            Assert.IsNotNull(serializationProvider);
+            var methods = serializationProvider!.Methods;
+
+            Assert.IsTrue(methods.Count > 0);
+
+            var method = methods.FirstOrDefault(m => m.Signature.Name == "MockInputModel");
+
+            Assert.IsNotNull(method);
+
+            var methodSignature = method?.Signature;
+            Assert.IsNotNull(methodSignature);
+
+            var expectedModifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Explicit | MethodSignatureModifiers.Operator;
+            Assert.AreEqual(inputModel.Name.ToIdentifierName(), methodSignature?.Name);
+            Assert.AreEqual(expectedModifiers, methodSignature?.Modifiers);
+
+            var methodParameters = methodSignature?.Parameters;
+            Assert.AreEqual(1, methodParameters?.Count);
+            var clientResultParameter = methodParameters?[0];
+            Assert.AreEqual(new CSharpType(typeof(ClientResult)), clientResultParameter?.Type);
+
+            var methodBody = method?.BodyStatements;
+            Assert.IsNotNull(methodBody);
+        }
+
+        [Test]
         public void TestExplicitFromClientResultNotGeneratedForNonRootOutputModel()
         {
             var inputModel = InputFactory.Model("mockInputModel");

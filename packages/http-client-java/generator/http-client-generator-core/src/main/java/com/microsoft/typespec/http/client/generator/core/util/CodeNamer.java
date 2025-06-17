@@ -155,11 +155,8 @@ public class CodeNamer {
         return result.toUpperCase();
     }
 
-    private static final Set<String> RESERVED_CLIENT_METHOD_PARAMETER_NAME = Set.of("service",      // the
-                                                                                                    // ServiceInterface
-                                                                                                    // local variable
-        "client"        // the ManagementClient local variable
-    );
+    // the ServiceInterface local variable and the ManagementClient local variable
+    private static final Set<String> RESERVED_CLIENT_METHOD_PARAMETER_NAME = Set.of("service", "client");
 
     public static String getEscapedReservedClientMethodParameterName(String name) {
         if (RESERVED_CLIENT_METHOD_PARAMETER_NAME.contains(name)) {
