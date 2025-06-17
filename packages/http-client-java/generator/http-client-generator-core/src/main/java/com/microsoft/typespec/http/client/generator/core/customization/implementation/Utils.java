@@ -29,10 +29,6 @@ public class Utils {
         return (iterable == null || !iterable.iterator().hasNext());
     }
 
-    public static void writeLine(StringBuilder stringBuilder, String text) {
-        stringBuilder.append(text).append(System.lineSeparator());
-    }
-
     public static boolean isWindows() {
         String osName = System.getProperty("os.name");
         return osName != null && osName.startsWith("Windows");

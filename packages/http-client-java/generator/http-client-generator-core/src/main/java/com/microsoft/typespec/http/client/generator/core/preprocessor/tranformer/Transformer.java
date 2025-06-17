@@ -689,9 +689,7 @@ public class Transformer {
 
     private static void renameOdataParameterNames(Request request) {
         List<Parameter> parameters = request.getParameters();
-        ListIterator<Parameter> iter = parameters.listIterator();
-        while (iter.hasNext()) {
-            Parameter parameter = iter.next();
+        for (Parameter parameter : parameters) {
             if (parameter.getProtocol() != null
                 && parameter.getProtocol().getHttp() != null
                 && (parameter.getProtocol().getHttp().getIn() == RequestParameterLocation.QUERY
