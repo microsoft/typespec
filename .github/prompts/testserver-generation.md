@@ -51,8 +51,6 @@
    - Structure namespaces and interfaces carefully - this path becomes the dashboard scenario name
    - Make scenario names clear, descriptive, and concise
    - Keep route names consistent with scenario themes
-   - Choose appropriate operation grouping (single vs. collection)
-   - Group operations into interfaces when it makes sense (e.g., by `path`, `query`, etc.)
 
 3. **VALIDATION & QUALITY CHECKS** (MUST PERFORM ALL OF THESE CHECKS IN THIS EXACT ORDER)
 
