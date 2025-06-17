@@ -170,7 +170,9 @@ try {
     # Commit the changes
     Write-Host "Committing changes..."
     git add eng/Packages.Data.props
-    git add eng/packages/http-client-csharp/generator/TestProjects
+    git add eng/packages/http-client-csharp/package.json
+    git add eng/packages/http-client-csharp/package-lock.json
+    git add eng/packages/http-client-csharp/generator/TestProjects/
     
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to add changes"
