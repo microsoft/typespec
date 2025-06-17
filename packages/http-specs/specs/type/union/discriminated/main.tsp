@@ -33,50 +33,103 @@ union PetWithEnvelope {
 }
 
 @route("/envelope")
-interface EnvelopeDiscriminated {
-  @scenario
-  @scenarioDoc("""
-    Test discriminated union with envelope serialization.
-    When value of query parameter "kind" is "cat" or no query parameter input, the expected response is:
-    ```json
-    {
-      "kind": "cat",
-      "value": {
-        "name": "Whiskers",
-        "meow": true
-      }
-    }
-    ```
-    When it is "dog", expected response is:
-    ```json
-    {
-      "kind": "dog",
-      "value": {
-        "name": "Rex",
-        "bark": false
-      }
-    }
-    ```
-    """)
-  @get
-  getEnvelope(@query kind?: string): PetWithEnvelope;
+namespace Envelope {
+  @route("/object")
+  namespace Object {
+    @route("/default")
+    interface Default {
+      @scenario
+      @scenarioDoc("""
+        Test discriminated union with envelope serialization.
+        When value of query parameter "kind" is "cat" or no query parameter input, the expected response is:
+        ```json
+        {
+          "kind": "cat",
+          "value": {
+            "name": "Whiskers",
+            "meow": true
+          }
+        }
+        ```
+        When it is "dog", expected response is:
+        ```json
+        {
+          "kind": "dog",
+          "value": {
+            "name": "Rex",
+            "bark": false
+          }
+        }
+        ```
+        """)
+      @get
+      getDefault(@query kind?: string): PetWithEnvelope;
 
-  @scenario
-  @scenarioDoc("""
-    Test discriminated union with envelope serialization.
-    Send the union as:
-    ```json
-    {
-      "kind": "cat", 
-      "value": {
-        "name": "Whiskers",
-        "meow": true
-      }
+      @scenario
+      @scenarioDoc("""
+        Test discriminated union with envelope serialization.
+        Send the union as:
+        ```json
+        {
+          "kind": "cat", 
+          "value": {
+            "name": "Whiskers",
+            "meow": true
+          }
+        }
+        ```
+        """)
+      @put
+      putDefault(@body input: PetWithEnvelope): PetWithEnvelope;
     }
-    ```
-    """)
-  @put
-  putEnvelope(@body input: PetWithEnvelope): PetWithEnvelope;
+
+    @route("/custom-properties")
+    interface CustomProperties {
+      @scenario
+      @scenarioDoc("""
+        Test discriminated union with custom property names.
+        When value of query parameter "petType" is "cat" or no query parameter input, the expected response is:
+        ```json
+        {
+          "petType": "cat",
+          "petData": {
+            "name": "Whiskers", 
+            "meow": true
+          }
+        }
+        ```
+        When it is "dog", expected response is:
+        ```json
+        {
+          "petType": "dog",
+          "petData": {
+            "name": "Rex",
+            "bark": false
+          }
+        }
+        ```
+        """)
+      @get
+      getCustomProperties(@query petType?: string): PetWithCustomNames;
+
+      @scenario
+      @scenarioDoc("""
+        Test discriminated union with custom property names.
+        Send the union as:
+        ```json
+        {
+          "petType": "cat",
+          "petData": {
+            "name": "Whiskers",
+            "meow": true
+          }
+        }
+        ```
+        """)
+      @put
+      putCustomProperties(@body input: PetWithCustomNames): PetWithCustomNames;
+    }
+  }
 }
 
 /**
@@ -90,53 +143,6 @@ union PetWithCustomNames {
   dog: Dog,
 }
 
-@route("/custom-names")
-interface CustomNamesDiscriminated {
-  @scenario
-  @scenarioDoc("""
-    Test discriminated union with custom property names.
-    When value of query parameter "petType" is "cat" or no query parameter input, the expected response is:
-    ```json
-    {
-      "petType": "cat",
-      "petData": {
-        "name": "Whiskers", 
-        "meow": true
-      }
-    }
-    ```
-    When it is "dog", expected response is:
-    ```json
-    {
-      "petType": "dog",
-      "petData": {
-        "name": "Rex",
-        "bark": false
-      }
-    }
-    ```
-    """)
-  @get
-  getCustomNames(@query petType?: string): PetWithCustomNames;
-
-  @scenario
-  @scenarioDoc("""
-    Test discriminated union with custom property names.
-    Send the union as:
-    ```json
-    {
-      "petType": "cat",
-      "petData": {
-        "name": "Whiskers",
-        "meow": true
-      }
-    }
-    ```
-    """)
-  @put
-  putCustomNames(@body input: PetWithCustomNames): PetWithCustomNames;
-}
-
 /**
  * Test discriminated union with inline discriminator (no envelope).
  * The discriminated union should serialize with discriminator property
@@ -148,8 +154,8 @@ union PetInline {
   dog: Dog,
 }
 
-@route("/inline")
-interface InlineDiscriminated {
+@route("/no-envelope")
+interface NoEnvelope {
   @scenario
   @scenarioDoc("""
     Test discriminated union with inline discriminator.
@@ -171,7 +177,7 @@ interface InlineDiscriminated {
     ```
     """)
   @get
-  getInline(@query kind?: string): PetInline;
+  getNoEnvelope(@query kind?: string): PetInline;
 
   @scenario
   @scenarioDoc("""
@@ -186,5 +192,5 @@ interface InlineDiscriminated {
     ```
     """)
   @put
-  putInline(@body input: PetInline): PetInline;
+  putNoEnvelope(@body input: PetInline): PetInline;
 }

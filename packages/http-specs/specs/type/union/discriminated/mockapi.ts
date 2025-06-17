@@ -24,8 +24,8 @@ const envelopeDogBody = {
   value: dogData,
 };
 
-Scenarios.Type_Union_Discriminated_EnvelopeDiscriminated_getEnvelope = passOnSuccess({
-  uri: "/type/union/discriminated/envelope",
+Scenarios.Type_Union_Discriminated_Envelope_Object_Default_getDefault = passOnSuccess({
+  uri: "/type/union/discriminated/envelope/object/default",
   method: "get",
   request: {},
   response: {
@@ -53,8 +53,8 @@ Scenarios.Type_Union_Discriminated_EnvelopeDiscriminated_getEnvelope = passOnSuc
   kind: "MockApiDefinition",
 });
 
-Scenarios.Type_Union_Discriminated_EnvelopeDiscriminated_putEnvelope = passOnSuccess({
-  uri: "/type/union/discriminated/envelope",
+Scenarios.Type_Union_Discriminated_Envelope_Object_Default_putDefault = passOnSuccess({
+  uri: "/type/union/discriminated/envelope/object/default",
   method: "put",
   request: {
     body: json(envelopeCatBody),
@@ -77,8 +77,8 @@ const customNamesDogBody = {
   petData: dogData,
 };
 
-Scenarios.Type_Union_Discriminated_CustomNamesDiscriminated_getCustomNames = passOnSuccess({
-  uri: "/type/union/discriminated/custom-names",
+Scenarios.Type_Union_Discriminated_Envelope_Object_CustomProperties_getCustomProperties = passOnSuccess({
+  uri: "/type/union/discriminated/envelope/object/custom-properties",
   method: "get",
   request: {},
   response: {
@@ -106,8 +106,8 @@ Scenarios.Type_Union_Discriminated_CustomNamesDiscriminated_getCustomNames = pas
   kind: "MockApiDefinition",
 });
 
-Scenarios.Type_Union_Discriminated_CustomNamesDiscriminated_putCustomNames = passOnSuccess({
-  uri: "/type/union/discriminated/custom-names",
+Scenarios.Type_Union_Discriminated_Envelope_Object_CustomProperties_putCustomProperties = passOnSuccess({
+  uri: "/type/union/discriminated/envelope/object/custom-properties",
   method: "put",
   request: {
     body: json(customNamesCatBody),
@@ -132,8 +132,8 @@ const inlineDogBody = {
   bark: false,
 };
 
-Scenarios.Type_Union_Discriminated_InlineDiscriminated_getInline = passOnSuccess({
-  uri: "/type/union/discriminated/inline",
+Scenarios.Type_Union_Discriminated_NoEnvelope_getNoEnvelope = passOnSuccess({
+  uri: "/type/union/discriminated/no-envelope",
   method: "get",
   request: {},
   response: {
@@ -161,8 +161,8 @@ Scenarios.Type_Union_Discriminated_InlineDiscriminated_getInline = passOnSuccess
   kind: "MockApiDefinition",
 });
 
-Scenarios.Type_Union_Discriminated_InlineDiscriminated_putInline = passOnSuccess({
-  uri: "/type/union/discriminated/inline",
+Scenarios.Type_Union_Discriminated_NoEnvelope_putNoEnvelope = passOnSuccess({
+  uri: "/type/union/discriminated/no-envelope",
   method: "put",
   request: {
     body: json(inlineCatBody),
