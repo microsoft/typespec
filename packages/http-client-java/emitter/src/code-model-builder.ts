@@ -610,7 +610,6 @@ export class CodeModelBuilder {
     if (this.isArm()) {
       if (
         this.options["service-name"] &&
-        client.__raw.type &&
         !getClientNameOverride(this.sdkContext, client.__raw.type)
       ) {
         // When no `@clientName` override, use "service-name" to infer the client name
