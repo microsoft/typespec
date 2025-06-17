@@ -48,4 +48,11 @@ public class CodeNamerTests {
         Assertions.assertEquals("ONE_ZERO_ZERO_GIFT_CARD", CodeNamer.getEnumMemberName("$100 Gift Card"));
         Assertions.assertEquals("ONE_ZERO_ZERO_GIFT_CARD", CodeNamer.getEnumMemberName("$$100 Gift Card"));
     }
+
+    @Test
+    public void testEscapeComment() {
+        Assertions.assertEquals("doc has no comment", CodeNamer.escapeComment("doc has no comment"));
+        Assertions.assertEquals("doc*&#47;has comment", CodeNamer.escapeComment("doc*/has comment"));
+        Assertions.assertEquals("doc*&#47;has*&#47;comment", CodeNamer.escapeComment("doc*/has*/comment"));
+    }
 }
