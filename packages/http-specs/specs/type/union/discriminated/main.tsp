@@ -37,7 +37,7 @@ interface EnvelopeDiscriminated {
   @scenario
   @scenarioDoc("""
     Test discriminated union with envelope serialization.
-    When query parameter "kind" is null or "cat", the expected response is:
+    When value of query parameter "kind" is "cat" or no query parameter input, the expected response is:
     ```json
     {
       "kind": "cat",
@@ -95,7 +95,7 @@ interface CustomNamesDiscriminated {
   @scenario
   @scenarioDoc("""
     Test discriminated union with custom property names.
-    When query parameter "petType" is null or "cat", the expected response is:
+    When value of query parameter "petType" is "cat" or no query parameter input, the expected response is:
     ```json
     {
       "petType": "cat",
@@ -153,7 +153,7 @@ interface InlineDiscriminated {
   @scenario
   @scenarioDoc("""
     Test discriminated union with inline discriminator.
-    When query parameter "kind" is null or "cat", the expected response is:
+    When value of query parameter "kind" is "cat" or no query parameter input, the expected response is:
     ```json
     {
       "kind": "cat",

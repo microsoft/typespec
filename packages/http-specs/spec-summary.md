@@ -7132,7 +7132,7 @@ Expect to send a string value. Mock api expect to receive 'test'
 - Endpoint: `get /type/union/discriminated/custom-names`
 
 Test discriminated union with custom property names.
-When query parameter "petType" is null or "cat", the expected response is:
+When value of query parameter "petType" is "cat" or no query parameter input, the expected response is:
 
 ```json
 {
@@ -7178,7 +7178,7 @@ Send the union as:
 - Endpoint: `get /type/union/discriminated/envelope`
 
 Test discriminated union with envelope serialization.
-When query parameter "kind" is null or "cat", the expected response is:
+When value of query parameter "kind" is "cat" or no query parameter input, the expected response is:
 
 ```json
 {
@@ -7224,7 +7224,7 @@ Send the union as:
 - Endpoint: `get /type/union/discriminated/inline`
 
 Test discriminated union with inline discriminator.
-When query parameter "kind" is null or "cat", the expected response is:
+When value of query parameter "kind" is "cat" or no query parameter input, the expected response is:
 
 ```json
 {
