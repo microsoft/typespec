@@ -40,6 +40,7 @@ final class PagingMetadata {
     private final List<ClientMethod> nextMethods;
     private final ClientMethodParameter maxPageSizeParameter;
     private final MethodPageDetails.ContinuationToken continuationToken;
+    private final List<String> nextLinkReInjectedParameterNames;
 
     /**
      * Creates paging meta data for an {@link Operation}.
@@ -87,8 +88,18 @@ final class PagingMetadata {
             = getContinuationToken(xmsPageable, responseType, parametersDetails);
         final ClientMethodParameter maxPageSizeParameter = getPageSizeClientMethodParameter(parametersDetails);
 
+        List<String> nextLinkReInjectedParameterNames = null;
+        if (xmsPageable.getNextLinkReInjectedParameters() != null) {
+            nextLinkReInjectedParameterNames = new ArrayList<>();
+            for (Parameter p : xmsPageable.getNextLinkReInjectedParameters()) {
+                if (p.getLanguage() != null && p.getLanguage().getDefault() != null) {
+                    nextLinkReInjectedParameterNames.add(p.getLanguage().getDefault().getName());
+                }
+            }
+        }
+
         return new PagingMetadata(operation, nextOperation, itemPropertyReference, nextLinkPropertyReference,
-            nextMethods, lroPollResultType, continuationToken, maxPageSizeParameter);
+            nextMethods, lroPollResultType, continuationToken, maxPageSizeParameter, nextLinkReInjectedParameterNames);
     }
 
     boolean isMethodForNextPage() {
@@ -108,7 +119,7 @@ final class PagingMetadata {
         final ClientMethodType nextMethodType = nextMethodType(isSync);
         final ClientMethod nextMethod = enumerateNextMethodsOfType(nextMethodType).findFirst().orElse(null);
         return new MethodPageDetails(itemPropertyReference, nextLinkPropertyReference, nextMethod, lroPollResultType,
-            continuationToken, maxPageSizeParameter);
+            continuationToken, maxPageSizeParameter, nextLinkReInjectedParameterNames);
     }
 
     /**
@@ -136,7 +147,7 @@ final class PagingMetadata {
             return null;
         }
         return new MethodPageDetails(itemPropertyReference, nextLinkPropertyReference, nextMethodWithContext,
-            lroPollResultType, continuationToken, maxPageSizeParameter);
+            lroPollResultType, continuationToken, maxPageSizeParameter, nextLinkReInjectedParameterNames);
     }
 
     private static ModelPropertySegment getPageableItem(XmsPageable xmsPageable, IType responseType) {
@@ -235,7 +246,8 @@ final class PagingMetadata {
 
     private PagingMetadata(Operation operation, Operation nextOperation, ModelPropertySegment itemPropertyReference,
         ModelPropertySegment nextLinkPropertyReference, List<ClientMethod> nextMethods, IType lroPollResultType,
-        MethodPageDetails.ContinuationToken continuationToken, ClientMethodParameter maxPageSizeParameter) {
+        MethodPageDetails.ContinuationToken continuationToken, ClientMethodParameter maxPageSizeParameter,
+        List<String> nextLinkReInjectedParameterNames) {
         this.operation = operation;
         this.nextOperation = nextOperation;
         this.itemPropertyReference = itemPropertyReference;
@@ -244,5 +256,6 @@ final class PagingMetadata {
         this.lroPollResultType = lroPollResultType;
         this.continuationToken = continuationToken;
         this.maxPageSizeParameter = maxPageSizeParameter;
+        this.nextLinkReInjectedParameterNames = nextLinkReInjectedParameterNames;
     }
 }

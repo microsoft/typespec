@@ -998,6 +998,13 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                         "requestOptionsForNextPage.setContext(requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : "
                             + TemplateUtil.getContextNone() + ");");
                 }
+
+                List<String> reinjectedParamNames
+                    = clientMethod.getMethodPageDetails().getNextLinkReInjectedParameterNames();
+                if (reinjectedParamNames != null && !reinjectedParamNames.isEmpty()) {
+                    addQueryParameterReInjectionLogic(reinjectedParamNames, function);
+                }
+
                 function.line("return new PagedIterable<>(");
 
                 String nextMethodArgs = clientMethod.getMethodPageDetails()
@@ -1041,6 +1048,13 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                         "requestOptionsForNextPage.setContext(requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : "
                             + TemplateUtil.getContextNone() + ");");
                 }
+
+                List<String> reinjectedParams
+                    = clientMethod.getMethodPageDetails().getNextLinkReInjectedParameterNames();
+                if (reinjectedParams != null && !reinjectedParams.isEmpty()) {
+                    addQueryParameterReInjectionLogic(reinjectedParams, function);
+                }
+
                 function.line("return new PagedFlux<>(");
                 function.indent(() -> {
                     function.line(this.getPagingSinglePageExpression(clientMethod,
@@ -1067,6 +1081,28 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
     private static void addServiceMethodAnnotation(JavaType typeBlock, ReturnType returnType) {
         typeBlock.annotation("ServiceMethod(returns = ReturnType." + returnType.name() + ")");
+    }
+
+    private static void addQueryParameterReInjectionLogic(List<String> reinjectedParamNames, JavaBlock javaBlock) {
+        javaBlock.line("if (requestOptions != null) {");
+        javaBlock.indent(() -> {
+            javaBlock.line("requestOptions.addRequestCallback(httpRequest -> {");
+            javaBlock.indent(() -> {
+                javaBlock.line("UrlBuilder urlBuilder = UrlBuilder.parse(httpRequest.getUrl().toString());");
+                javaBlock.line("Map<String, String> queryParams = urlBuilder.getQuery();");
+                for (String paramName : reinjectedParamNames) {
+                    javaBlock.line("if (queryParams.containsKey(\"" + paramName + "\")) {");
+                    javaBlock.indent(() -> {
+                        javaBlock.line("requestOptionsForNextPage.addQueryParam(\"" + paramName
+                            + "\", queryParams.get(\"" + paramName + "\"));");
+                    });
+                    javaBlock.line("}");
+                }
+            });
+            javaBlock.line("});");
+        });
+        javaBlock.line("}");
+
     }
 
     protected void generateResumable(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {

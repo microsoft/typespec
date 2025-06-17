@@ -14,16 +14,18 @@ public final class MethodPageDetails {
     private final ClientMethod nextMethod;
     private final ContinuationToken continuationToken;
     private final ClientMethodParameter maxPageSizeParameter;
+    private final List<String> nextLinkReInjectedParameterNames;
 
     public MethodPageDetails(ModelPropertySegment itemPropertyReference, ModelPropertySegment nextLinkPropertyReference,
         ClientMethod nextMethod, IType lroIntermediateType, ContinuationToken continuationToken,
-        ClientMethodParameter maxPageSizeParameter) {
+        ClientMethodParameter maxPageSizeParameter, List<String> nextLinkReInjectedParameterNames) {
         this.itemPropertyReference = Objects.requireNonNull(itemPropertyReference);
         this.nextLinkPropertyReference = nextLinkPropertyReference;
         this.lroIntermediateType = lroIntermediateType;
         this.nextMethod = nextMethod;
         this.continuationToken = continuationToken;
         this.maxPageSizeParameter = maxPageSizeParameter;
+        this.nextLinkReInjectedParameterNames = nextLinkReInjectedParameterNames;
     }
 
     public String getNextLinkName() {
@@ -82,6 +84,10 @@ public final class MethodPageDetails {
             return parameter == maxPageSizeParameter;
         }
         return false;
+    }
+
+    public List<String> getNextLinkReInjectedParameterNames() {
+        return nextLinkReInjectedParameterNames;
     }
 
     public static final class ContinuationToken {
