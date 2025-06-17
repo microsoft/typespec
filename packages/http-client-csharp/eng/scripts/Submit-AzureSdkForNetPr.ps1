@@ -28,7 +28,7 @@ param(
 )
 
 # Import the Generation module to use the Invoke helper function
-Import-Module (Join-Path $PSScriptRoot "Generation.psm1")
+Import-Module (Join-Path $PSScriptRoot "Generation.psm1") -DisableNameChecking -Force
 
 # Set up variables for the PR
 $RepoOwner = "Azure"
@@ -152,9 +152,9 @@ try {
             throw "npm run build failed"
         }
         
-        # Run Generate.ps1 from the repository root
-        Write-Host "Running eng/scripts/Generate.ps1..."
-        Invoke "eng/scripts/Generate.ps1" $tempDir
+        # Run Generate.ps1 from the package root
+        Write-Host "Running eng/packages/http-client-csharp/eng/scripts/Generate.ps1..."
+        & (Join-Path $tempDir "eng/packages/http-client-csharp/eng/scripts/Generate.ps1")
         if ($LASTEXITCODE -ne 0) {
             throw "Generate.ps1 failed"
         }
