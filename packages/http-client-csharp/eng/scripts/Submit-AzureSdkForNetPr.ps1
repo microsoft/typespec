@@ -169,26 +169,15 @@ try {
 
     # Commit the changes
     Write-Host "Committing changes..."
-    if ($propsFileUpdated) {
-        git add eng/Packages.Data.props
-    }
-    if ($packageJsonUpdated) {
-        git add eng/packages/http-client-csharp/package.json
-        git add eng/packages/http-client-csharp/package-lock.json
-    }
+    git add eng/Packages.Data.props
+    git add eng/packages/http-client-csharp/
+    
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to add changes"
     }
 
     # Build commit message based on what was updated
-    $commitMessage = "Update UnbrandedGeneratorVersion to $PackageVersion`n"
-    if ($propsFileUpdated) {
-        $commitMessage += "`n- Updated eng/Packages.Data.props"
-    }
-    if ($packageJsonUpdated) {
-        $commitMessage += "`n- Updated eng/packages/http-client-csharp/package.json"
-        $commitMessage += "`n- Ran npm install to update package-lock.json"
-    }
+    $commitMessage = "Update UnbrandedGeneratorVersion to $PackageVersion"
     
     git commit -m $commitMessage
     if ($LASTEXITCODE -ne 0) {
