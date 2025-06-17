@@ -1005,12 +1005,6 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                             + TemplateUtil.getContextNone() + ");");
                 }
 
-                List<String> reinjectedParamNames
-                    = clientMethod.getMethodPageDetails().getNextLinkReInjectedParameterNames();
-                if (reinjectedParamNames != null && !reinjectedParamNames.isEmpty()) {
-                    addQueryParameterReInjectionLogic(reinjectedParamNames, function);
-                }
-
                 function.line("return new PagedIterable<>(");
 
                 String nextMethodArgs = clientMethod.getMethodPageDetails()
