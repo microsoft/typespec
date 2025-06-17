@@ -79,13 +79,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                     // Include both service method and operation responses for output types
                     // Service methods will have the public response type for things like LROs, while operation responses
                     // will have the internal response types for paging operations
-                    if (response?.BodyType is InputModelType inputModelType)
+                    if (response?.BodyType is { } bodyType)
                     {
-                        _rootOutputModels.Add(inputModelType);
+                        AddRootModel(bodyType, _rootOutputModels);
                     }
-                    if (method.Response.Type is InputModelType outputModelType)
+
+                    if (method.Response.Type is { } responseType)
                     {
-                        _rootOutputModels.Add(outputModelType);
+                        AddRootModel(responseType, _rootOutputModels);
                     }
 
                     if (operation.GenerateConvenienceMethod)
@@ -93,10 +94,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                         // For parameters, the operation parameters are sufficient.
                         foreach (var parameter in operation.Parameters)
                         {
-                            if (parameter.Type is InputModelType modelType)
-                            {
-                                _rootInputModels.Add(modelType);
-                            }
+                            AddRootModel(parameter.Type, _rootInputModels);
                         }
                     }
                 }
@@ -202,5 +200,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter,
             SerializationFormat serializationFormat)
             => MrwSerializationTypeDefinition.SerializeJsonValueCore(valueType, value, utf8JsonWriter, mrwOptionsParameter, serializationFormat);
+
+        private static void AddRootModel(InputType type, HashSet<InputModelType> rootModels)
+        {
+            InputModelType? modelToAdd = type switch
+            {
+                InputModelType model => model,
+                InputArrayType { ValueType: InputModelType model } => model,
+                InputDictionaryType { ValueType: InputModelType model } => model,
+                _ => null
+            };
+
+            if (modelToAdd != null)
+            {
+                rootModels.Add(modelToAdd);
+            }
+        }
     }
 }
