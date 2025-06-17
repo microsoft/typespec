@@ -608,11 +608,7 @@ export class CodeModelBuilder {
     }
 
     if (this.isArm()) {
-      if (
-        this.options["service-name"] &&
-        client.__raw.type &&
-        !getClientNameOverride(this.sdkContext, client.__raw.type)
-      ) {
+      if (this.options["service-name"]) {
         // When no `@clientName` override, use "service-name" to infer the client name
         clientName = this.options["service-name"].replace(/\s+/g, "") + "ManagementClient";
       }
