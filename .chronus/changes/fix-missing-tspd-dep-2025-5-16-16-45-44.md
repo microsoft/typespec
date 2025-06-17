@@ -5,4 +5,4 @@ packages:
   - "@typespec/tspd"
 ---
 
-Add missing depedendency on `@microsoft/api-extractor`
+Add missing dependency on `@microsoft/api-extractor`
