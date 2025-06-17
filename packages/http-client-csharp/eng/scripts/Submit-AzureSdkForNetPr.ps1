@@ -42,7 +42,7 @@ This PR updates the UnbrandedGeneratorVersion property in eng/Packages.Data.prop
 
 ## Details
 
-- TypeSpec Commit that triggered this PR: $TypeSpecCommitUrl
+- TypeSpec commit that triggered this PR: $TypeSpecCommitUrl
 
 ## Changes
 
