@@ -63,6 +63,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             [
                 BuildAssertNotNull(),
                 BuildAssertNotNullStruct(),
+                BuildAssertNotNullOrEmptyCollection(),
                 BuildAssertNotNullOrEmptyString(),
             ];
         }

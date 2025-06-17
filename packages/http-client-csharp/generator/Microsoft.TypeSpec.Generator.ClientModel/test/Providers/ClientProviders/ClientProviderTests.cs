@@ -710,9 +710,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual(2, protocolMethods[1].Signature.Parameters.Count);
 
             Assert.AreEqual(new CSharpType(typeof(BinaryContent)), protocolMethods[0].Signature.Parameters[0].Type);
-            Assert.AreEqual(new CSharpType(typeof(RequestOptions), true), protocolMethods[0].Signature.Parameters[1].Type);
+            Assert.AreEqual(new CSharpType(typeof(RequestOptions)), protocolMethods[0].Signature.Parameters[1].Type);
             Assert.AreEqual(new CSharpType(typeof(BinaryContent)), protocolMethods[1].Signature.Parameters[0].Type);
-            Assert.AreEqual(new CSharpType(typeof(RequestOptions), true), protocolMethods[1].Signature.Parameters[1].Type);
+            Assert.AreEqual(new CSharpType(typeof(RequestOptions)), protocolMethods[1].Signature.Parameters[1].Type);
 
             var convenienceMethods = methods.Where(m => m.Signature.Parameters.Any(p => p.Type.Equals(typeof(string)))).ToList();
             Assert.AreEqual(2, convenienceMethods.Count);
@@ -733,14 +733,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             var requestOptionsParameterInSyncMethod = syncMethod!.Signature.Parameters.FirstOrDefault(p => p.Type.Name == "RequestOptions");
             Assert.IsNotNull(requestOptionsParameterInSyncMethod);
-            Assert.AreEqual(shouldBeOptional, requestOptionsParameterInSyncMethod!.Type.IsNullable);
+            Assert.AreEqual(shouldBeOptional, requestOptionsParameterInSyncMethod!.DefaultValue != null);
 
             var asyncMethod = protocolMethods.FirstOrDefault(m => m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async));
             Assert.IsNotNull(asyncMethod);
 
             var requestOptionsParameterInAsyncMethod = asyncMethod!.Signature.Parameters.FirstOrDefault(p => p.Type.Name == "RequestOptions");
             Assert.IsNotNull(requestOptionsParameterInAsyncMethod);
-            Assert.AreEqual(shouldBeOptional, requestOptionsParameterInAsyncMethod!.Type.IsNullable);
+            Assert.AreEqual(shouldBeOptional, requestOptionsParameterInAsyncMethod!.DefaultValue != null);
 
             // request options should always be last parameter
             Assert.AreEqual("RequestOptions", syncMethod.Signature.Parameters[^1].Type.Name);
@@ -843,6 +843,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(method);
             /* verify that the method does not have apiVersion parameter */
             Assert.IsNull(method?.Signature.Parameters.FirstOrDefault(p => p.Name.Equals("apiVersion")));
+        }
+
+        [Test]
+        public void SubClientFieldsAreStoredOnRootClient()
+        {
+            var rootClient = InputFactory.Client(
+                "RootClient");
+            var subClient = InputFactory.Client(
+                "SubClient",
+                parent: rootClient,
+                parameters:
+                [
+                    InputFactory.Parameter("apiVersion", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Path, kind: InputParameterKind.Client, isApiVersion: true),
+                    InputFactory.Parameter("someOtherParameter", InputPrimitiveType.Url, isRequired: true, kind: InputParameterKind.Client)
+                ]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [rootClient]);
+
+            var rootClientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(rootClient);
+            Assert.IsNotNull(rootClientProvider);
+            Assert.IsTrue(rootClientProvider!.Fields.Any(f => f.Name.Equals("_apiVersion")));
+            Assert.IsTrue(rootClientProvider.Fields.Any(f => f.Name.Equals("_someOtherParameter")));
         }
 
         [TestCase]
@@ -1605,7 +1627,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                 isRequired: true),
                         ]), false, true);
 
-                // convenience method only has a body param, so RequestOptions should be optional in protocol method.
+                // convenience method only has a body param, but it is optional, so RequestOptions should be optional in protocol method.
                 yield return new TestCaseData(
                      InputFactory.BasicServiceMethod(
                         "TestServiceMethod",
@@ -1624,7 +1646,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                 "p1",
                                 InputPrimitiveType.String,
                                 location: InputRequestLocation.Body),
-                        ]), true, false);
+                        ]), false, false);
 
                 // Protocol & convenience methods will have different parameters since there is a model body param, so RequestOptions should be optional.
                 yield return new TestCaseData(
@@ -1659,8 +1681,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                 isRequired: true),
                         ]), true, false);
 
-                // Protocol & convenience methods will have different parameters since there is a model body param, so RequestOptions should be optional.
-                // One parameter is optional
+                // Protocol & convenience methods will have different parameters but since the body parameter is optional, the request options should be required in protocol method.
                 yield return new TestCaseData(
                     InputFactory.BasicServiceMethod(
                         "TestServiceMethod",
@@ -1691,7 +1712,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                 InputFactory.Model("SampleModel"),
                                 location: InputRequestLocation.Body,
                                 isRequired: false),
-                        ]), true, true);
+                        ]), false, true);
 
 
                 // Convenience method has no parameters, RequestOptions should be required in protocol method.

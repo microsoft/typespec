@@ -11,7 +11,7 @@ import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
 import java.io.IOException;
-import tsptest.armstreamstyleserialization.models.Dog;
+import tsptest.armstreamstyleserialization.models.Golden;
 
 /**
  * The OutputOnlyModelProperties model.
@@ -26,7 +26,7 @@ public final class OutputOnlyModelProperties implements JsonSerializable<OutputO
     /*
      * The dog property.
      */
-    private Dog dog;
+    private Golden dog;
 
     /**
      * Creates an instance of OutputOnlyModelProperties class.
@@ -48,7 +48,7 @@ public final class OutputOnlyModelProperties implements JsonSerializable<OutputO
      * 
      * @return the dog value.
      */
-    public Dog dog() {
+    public Golden dog() {
         return this.dog;
     }
 
@@ -103,7 +103,7 @@ public final class OutputOnlyModelProperties implements JsonSerializable<OutputO
                 if ("title".equals(fieldName)) {
                     deserializedOutputOnlyModelProperties.title = reader.getString();
                 } else if ("dog".equals(fieldName)) {
-                    deserializedOutputOnlyModelProperties.dog = Dog.fromJson(reader);
+                    deserializedOutputOnlyModelProperties.dog = Golden.fromJson(reader);
                 } else {
                     reader.skipChildren();
                 }
