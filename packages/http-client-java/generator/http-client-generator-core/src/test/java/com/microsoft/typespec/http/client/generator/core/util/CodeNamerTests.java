@@ -85,5 +85,9 @@ public class CodeNamerTests {
             CodeNamer.escapeIllegalUnicodeEscape("domain\\\\username\\unicode"));
         Assertions.assertEquals("domain{@code \\}username\\u0041code",
             CodeNamer.escapeIllegalUnicodeEscape("domain\\username\\u0041code"));
+        Assertions.assertEquals("domain\\\\username\\u00AF{@code \\}unicode",
+            CodeNamer.escapeIllegalUnicodeEscape("domain\\\\username\\u00AF\\unicode"));
+        Assertions.assertEquals("domain{@code \\}username\\u00AF{@code \\}unicode",
+            CodeNamer.escapeIllegalUnicodeEscape("domain\\username\\u00AF\\unicode"));
     }
 }

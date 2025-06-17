@@ -81,7 +81,7 @@ public class CodeNamer {
 
         StringBuilder sb = null;
         int prevStart = 0;
-        int prevProcessedStart = 0;
+        int prevProcessedStart = 0; // the start index of the last replacement, or 0 if no replacement has been made
         int commentLength = comment.length();
         int replacementIndex;
 
