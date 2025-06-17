@@ -796,6 +796,12 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     "requestOptionsForNextPage.setContext(requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : "
                         + TemplateUtil.getContextNone() + ");");
 
+                List<String> reinjectedParams
+                    = clientMethod.getMethodPageDetails().getNextLinkReInjectedParameterNames();
+                if (reinjectedParams != null && !reinjectedParams.isEmpty()) {
+                    addQueryParameterReInjectionLogic(reinjectedParams, function);
+                }
+
                 function.line("return new PagedIterable<>(");
                 function.indent(() -> {
                     function.line("%s,",
