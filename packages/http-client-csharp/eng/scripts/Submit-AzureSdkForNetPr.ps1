@@ -50,6 +50,7 @@ This PR updates the UnbrandedGeneratorVersion property in eng/Packages.Data.prop
 - Updated eng/Packages.Data.props UnbrandedGeneratorVersion property
 - Updated eng/packages/http-client-csharp/package.json dependency version
 - Ran npm install to update package-lock.json
+- Ran eng/packages/http-client-csharp/eng/scripts/Generate.ps1 to regenerate test projects
 
 This is an automated PR created by the TypeSpec publish pipeline.
 "@
