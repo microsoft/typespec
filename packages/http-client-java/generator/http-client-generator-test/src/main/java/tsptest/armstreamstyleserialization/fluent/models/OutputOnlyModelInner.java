@@ -11,7 +11,7 @@ import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
 import java.io.IOException;
-import tsptest.armstreamstyleserialization.models.Dog;
+import tsptest.armstreamstyleserialization.models.Golden;
 import tsptest.armstreamstyleserialization.models.OutputOnlyModelChild;
 
 /**
@@ -128,7 +128,7 @@ public class OutputOnlyModelInner implements JsonSerializable<OutputOnlyModelInn
      * 
      * @return the dog value.
      */
-    public Dog dog() {
+    public Golden dog() {
         return this.innerProperties() == null ? null : this.innerProperties().dog();
     }
 
