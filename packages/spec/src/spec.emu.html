@@ -157,15 +157,15 @@ StringLiteral :
     StringTemplate
 
 StringTemplate :
-  StringTemplateHead Expression StringTemplateSpans
+    StringTemplateHead Expression StringTemplateSpans
 
 StringTemplateSpans :
-  StringTemplateTail
-  StringTemplateMiddleList StringTemplateTail
+    StringTemplateTail
+    StringTemplateMiddleList StringTemplateTail
 
 StringTemplateMiddleList :
-  StringTemplateMiddle Expression
-  StringTemplateMiddle Expression StringTemplateMiddleList
+    StringTemplateMiddle Expression
+    StringTemplateMiddle Expression StringTemplateMiddleList
 
 StringTemplateHead :
     `"` StringCharacters? `${`
