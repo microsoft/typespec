@@ -7127,9 +7127,9 @@ Expect to handle a unknown type value. Mock api will return 'test'
 
 Expect to send a string value. Mock api expect to receive 'test'
 
-### Type_Union_Discriminated_CustomNamesDiscriminated_getCustomNames
+### Type_Union_Discriminated_Envelope_Object_CustomProperties_getCustomProperties
 
-- Endpoint: `get /type/union/discriminated/custom-names`
+- Endpoint: `get /type/union/discriminated/envelope/object/custom-properties`
 
 Test discriminated union with custom property names.
 When value of query parameter "petType" is "cat" or no query parameter input, the expected response is:
@@ -7156,9 +7156,9 @@ When it is "dog", expected response is:
 }
 ```
 
-### Type_Union_Discriminated_CustomNamesDiscriminated_putCustomNames
+### Type_Union_Discriminated_Envelope_Object_CustomProperties_putCustomProperties
 
-- Endpoint: `put /type/union/discriminated/custom-names`
+- Endpoint: `put /type/union/discriminated/envelope/object/custom-properties`
 
 Test discriminated union with custom property names.
 Send the union as:
@@ -7173,9 +7173,9 @@ Send the union as:
 }
 ```
 
-### Type_Union_Discriminated_EnvelopeDiscriminated_getEnvelope
+### Type_Union_Discriminated_Envelope_Object_Default_getDefault
 
-- Endpoint: `get /type/union/discriminated/envelope`
+- Endpoint: `get /type/union/discriminated/envelope/object/default`
 
 Test discriminated union with envelope serialization.
 When value of query parameter "kind" is "cat" or no query parameter input, the expected response is:
@@ -7202,9 +7202,9 @@ When it is "dog", expected response is:
 }
 ```
 
-### Type_Union_Discriminated_EnvelopeDiscriminated_putEnvelope
+### Type_Union_Discriminated_Envelope_Object_Default_putDefault
 
-- Endpoint: `put /type/union/discriminated/envelope`
+- Endpoint: `put /type/union/discriminated/envelope/object/default`
 
 Test discriminated union with envelope serialization.
 Send the union as:
@@ -7219,9 +7219,9 @@ Send the union as:
 }
 ```
 
-### Type_Union_Discriminated_InlineDiscriminated_getInline
+### Type_Union_Discriminated_NoEnvelope_getNoEnvelope
 
-- Endpoint: `get /type/union/discriminated/inline`
+- Endpoint: `get /type/union/discriminated/no-envelope`
 
 Test discriminated union with inline discriminator.
 When value of query parameter "kind" is "cat" or no query parameter input, the expected response is:
@@ -7244,9 +7244,9 @@ When it is "dog", expected response is:
 }
 ```
 
-### Type_Union_Discriminated_InlineDiscriminated_putInline
+### Type_Union_Discriminated_NoEnvelope_putNoEnvelope
 
-- Endpoint: `put /type/union/discriminated/inline`
+- Endpoint: `put /type/union/discriminated/no-envelope`
 
 Test discriminated union with inline discriminator.
 Send the union as:
