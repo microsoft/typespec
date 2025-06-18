@@ -40,7 +40,7 @@ it("renders a basic enum declaration", async () => {
     d`
       namespace TestNamespace
       {
-          public enum TestEnum
+          enum TestEnum
           {
               Value1,
               Value2,
@@ -71,7 +71,7 @@ it("renders an empty enum declaration", async () => {
     d`
       namespace TestNamespace
       {
-          public enum TestEnum
+          enum TestEnum
           {
 
           }
@@ -103,7 +103,7 @@ it("can override enum name", async () => {
     d`
       namespace TestNamespace
       {
-          public enum CustomEnumName
+          enum CustomEnumName
           {
               Value1,
               Value2
@@ -170,7 +170,7 @@ it("renders enum with C# naming conventions", async () => {
     d`
       namespace TestNamespace
       {
-          public enum TestEnum
+          enum TestEnum
           {
               ValueOne,
               ValueTwo,
@@ -203,7 +203,7 @@ it("renders enum with single value", async () => {
     d`
       namespace TestNamespace
       {
-          public enum TestEnum
+          enum TestEnum
           {
               OnlyValue
           }
@@ -237,7 +237,7 @@ it("renders enum with numeric-like member names", async () => {
     d`
       namespace TestNamespace
       {
-          public enum TestEnum
+          enum TestEnum
           {
               Value0,
               Value1,
@@ -279,16 +279,57 @@ it("renders multiple enums in the same namespace", async () => {
     d`
       namespace TestNamespace
       {
-          public enum TestEnum1
+          enum TestEnum1
           {
               Value1,
               Value2
           }
-          public enum TestEnum2
+          enum TestEnum2
           {
               OptionA,
               OptionB,
               OptionC
+          }
+      }
+    `,
+  );
+});
+
+it("renders an enum with doc comments", async () => {
+  const { TestEnum } = (await runner.compile(`
+    @test enum TestEnum {
+      @doc("This is value one")
+      Value1;
+      /** This is value two */
+      Value2;
+    }
+  `)) as { TestEnum: Enum };
+
+  const res = render(
+    <Output program={runner.program}>
+      <Namespace name="TestNamespace">
+        <SourceFile path="test.cs">
+          <EnumDeclaration type={TestEnum} />
+        </SourceFile>
+      </Namespace>
+    </Output>,
+  );
+
+  assertFileContents(
+    res,
+    d`
+      namespace TestNamespace
+      {
+          enum TestEnum
+          {
+              /// <summary>
+              /// This is value one
+              /// </summary>
+              Value1,
+              /// <summary>
+              /// This is value two
+              /// </summary>
+              Value2
           }
       }
     `,

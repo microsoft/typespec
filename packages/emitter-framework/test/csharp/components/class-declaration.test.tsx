@@ -200,7 +200,7 @@ describe("from an interface", () => {
       {
           class TestInterface
           {
-              public abstract string GetName(string id) {}
+              public abstract string GetName(string id);
           }
       }
     `,
@@ -279,7 +279,7 @@ it("renders a class with enum members", async () => {
     d`
       namespace TestNamespace
       {
-          public enum TestEnum
+          enum TestEnum
           {
               Value1,
               Value2
@@ -325,7 +325,7 @@ it("renders a class with string enums", async () => {
     d`
       namespace TestNamespace
       {
-          public enum TestEnum
+          enum TestEnum
           {
               Value1,
               Value2
@@ -341,4 +341,94 @@ it("renders a class with string enums", async () => {
       }
     `,
   );
+});
+
+describe("with doc comments", () => {
+  it("renders a model with docs", async () => {
+    const { TestModel } = (await runner.compile(`
+    @doc("This is a test model")
+    @test model TestModel {
+      @doc("This is a test property")
+        prop1: string;
+      }
+    
+  `)) as { TestModel: Model };
+
+    const res = render(
+      <Output program={runner.program} namePolicy={cs.createCSharpNamePolicy()}>
+        <Namespace name="TestNamespace">
+          <SourceFile path="test.cs">
+            <ClassDeclaration type={TestModel} />
+          </SourceFile>
+        </Namespace>
+      </Output>,
+    );
+
+    assertFileContents(
+      res,
+      d`
+      namespace TestNamespace
+      {
+          /// <summary>
+          /// This is a test model
+          /// </summary>
+          class TestModel
+          {
+              /// <summary>
+              /// This is a test property
+              /// </summary>
+              public string Prop1
+              {
+                  get;
+                  set;
+              }
+          }
+      }
+    `,
+    );
+  });
+
+  it("renders an interface with docs", async () => {
+    const { TestInterface } = (await runner.compile(`
+    @doc("This is a test interface")
+    @test interface TestInterface {
+      @doc("This is a test operation")
+      @returnsDoc("The name of the item")
+      op getName(id: string): string;
+    }
+  `)) as { TestInterface: Interface };
+
+    const res = render(
+      <Output program={runner.program} namePolicy={cs.createCSharpNamePolicy()}>
+        <Namespace name="TestNamespace">
+          <SourceFile path="test.cs">
+            <ClassDeclaration type={TestInterface} />
+          </SourceFile>
+        </Namespace>
+      </Output>,
+    );
+
+    assertFileContents(
+      res,
+      d`
+      namespace TestNamespace
+      {
+          /// <summary>
+          /// This is a test interface
+          /// </summary>
+          class TestInterface
+          {
+              /// <summary>
+              /// This is a test operation
+              /// </summary>
+              ///
+              /// <returns>
+              /// The name of the item
+              /// </returns>
+              public abstract string GetName(string id);
+          }
+      }
+    `,
+    );
+  });
 });
