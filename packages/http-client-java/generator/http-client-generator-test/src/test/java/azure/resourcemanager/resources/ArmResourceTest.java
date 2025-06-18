@@ -59,17 +59,17 @@ public class ArmResourceTest {
         = "/providers/Azure.ResourceManager.Resources/extensionsResources/extension";
     private final ResourcesManager manager
         = ResourcesManager.authenticate(ArmUtils.createTestHttpPipeline(), ArmUtils.getAzureProfile());
+    private ExtensionsResourceProperties createProperties
+        = new ExtensionsResourceProperties().withDescription(RESOURCE_DESCRIPTION_VALID);
+    private ExtensionsResourceProperties updateProperties
+        = new ExtensionsResourceProperties().withDescription(RESOURCE_DESCRIPTION_VALID2);
+    private ExtensionsResource extensionResource;
+    private List<ExtensionsResource> extensionResources;
 
     @Test
-    public void testExtensionResources() {
-        ExtensionsResourceProperties createProperties
-            = new ExtensionsResourceProperties().withDescription(RESOURCE_DESCRIPTION_VALID);
-        ExtensionsResourceProperties updateProperties
-            = new ExtensionsResourceProperties().withDescription(RESOURCE_DESCRIPTION_VALID2);
-        // Tenant extension resource
-        // resource uri: blank
+    public void testTenantExtensionResources() {
         // Create
-        ExtensionsResource extensionResource = manager.extensionsResources()
+        extensionResource = manager.extensionsResources()
             .define(EXTENSION_RESOURCE_NAME)
             .withExistingResourceUri(EXTENSION_RESOURCE_TENANT_SCOPE_URI)
             .withProperties(createProperties)
@@ -82,7 +82,7 @@ public class ArmResourceTest {
         Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, createProperties.description());
         Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
         // List
-        List<ExtensionsResource> extensionResources = manager.extensionsResources()
+        extensionResources = manager.extensionsResources()
             .listByScope(EXTENSION_RESOURCE_TENANT_SCOPE_URI)
             .stream()
             .collect(Collectors.toList());
@@ -118,8 +118,10 @@ public class ArmResourceTest {
         // Delete
         manager.extensionsResources()
             .deleteByResourceGroup(EXTENSION_RESOURCE_TENANT_SCOPE_URI, EXTENSION_RESOURCE_NAME);
+    }
 
-        // Subscription extension resource
+    @Test
+    public void testSubscriptionExtensionResources() {
         // resource url format: /subscriptions/00000000-0000-0000-0000-000000000000
         // Create
         extensionResource = manager.extensionsResources()
@@ -229,8 +231,10 @@ public class ArmResourceTest {
         // Delete
         manager.extensionsResources()
             .deleteByResourceGroup(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI.substring(1), EXTENSION_RESOURCE_NAME);
+    }
 
-        // Resource group extension resource
+    @Test
+    public void testResourceGroupExtensionResources() {
         // resource uri format: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg
         // Create
         extensionResource = manager.extensionsResources()
@@ -340,8 +344,10 @@ public class ArmResourceTest {
         // Delete
         manager.extensionsResources()
             .deleteByResourceGroup(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI.substring(1), EXTENSION_RESOURCE_NAME);
+    }
 
-        // Resource extension resource
+    @Test
+    public void testResourceExtensionResources() {
         // resource uri format:
         // /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/top
         // Create
