@@ -2,6 +2,7 @@ import * as ay from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
 import { Interface, Model } from "@typespec/compiler";
 import { useTsp } from "../../core/index.js";
+import { ClassMethod } from "./class-method.jsx";
 import { TypeExpression } from "./type-expression.jsx";
 import { getDocComments } from "./utils/doc-comments.jsx";
 import { declarationRefkeys } from "./utils/refkey.js";
@@ -71,27 +72,12 @@ function ClassProperties(props: ClassPropertiesProps): ay.Children {
 }
 
 function ClassMethods(props: ClassMethodsProps): ay.Children {
-  const { $ } = useTsp();
-  const namePolicy = cs.useCSharpNamePolicy();
-
-  const abstractMethods: ay.Children = [];
-  for (const [name, method] of props.type.operations) {
-    abstractMethods.push(
-      <cs.ClassMethod
-        name={namePolicy.getName(name, "class-method")}
-        abstract
-        parameters={[...method.parameters.properties.entries()].map(([name, prop]) => {
-          return {
-            name: namePolicy.getName(name, "type-parameter"),
-            type: <TypeExpression type={prop.type} />,
-          };
-        })}
-        public
-        doc={getDocComments($, method)}
-        returns={<TypeExpression type={method.returnType} />}
-      />,
+  const classMethods: ay.Children = [];
+  for (const method of props.type.operations.values()) {
+    classMethods.push(
+      <ClassMethod type={method} public abstract />, // TODO: this probably ain't right, will revisit tomorrow!
     );
   }
 
-  return <>{abstractMethods}</>;
+  return <>{classMethods}</>;
 }
