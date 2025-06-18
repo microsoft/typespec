@@ -294,3 +294,44 @@ it("renders multiple enums in the same namespace", async () => {
     `,
   );
 });
+
+it("renders an enum with doc comments", async () => {
+  const { TestEnum } = (await runner.compile(`
+    @test enum TestEnum {
+      @doc("This is value one")
+      Value1;
+      /** This is value two */
+      Value2;
+    }
+  `)) as { TestEnum: Enum };
+
+  const res = render(
+    <Output program={runner.program}>
+      <Namespace name="TestNamespace">
+        <SourceFile path="test.cs">
+          <EnumDeclaration type={TestEnum} />
+        </SourceFile>
+      </Namespace>
+    </Output>,
+  );
+
+  assertFileContents(
+    res,
+    d`
+      namespace TestNamespace
+      {
+          enum TestEnum
+          {
+              /// <summary>
+              /// This is value one
+              /// </summary>
+              Value1,
+              /// <summary>
+              /// This is value two
+              /// </summary>
+              Value2
+          }
+      }
+    `,
+  );
+});

@@ -39,17 +39,17 @@
   "description": "",
   "peerDependencies": {
     "@alloy-js/core": "^0.17.0",
-    "@alloy-js/typescript": "^0.17.0",
     "@alloy-js/csharp": "^0.17.0",
+    "@alloy-js/typescript": "^0.17.0",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
     "@typespec/rest": "workspace:^"
   },
   "devDependencies": {
     "@alloy-js/cli": "^0.17.0",
+    "@alloy-js/core": "0.18.0-dev.5",
     "@alloy-js/rollup-plugin": "^0.1.0",
-    "@alloy-js/core": "^0.17.0",
-    "@alloy-js/typescript": "^0.17.0",
+    "@alloy-js/typescript": "0.18.0-dev.4",
     "@types/minimist": "^1.2.5",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
@@ -57,13 +57,13 @@
     "concurrently": "^9.1.2",
     "minimist": "^1.2.8",
     "prettier": "~3.5.3",
-    "web-tree-sitter": "^0.25.4",
     "tree-sitter-c-sharp": "^0.23.0",
     "tree-sitter-java": "^0.23.2",
     "tree-sitter-javascript": "^0.23.0",
     "tree-sitter-python": "^0.23.2",
     "tree-sitter-typescript": "^0.23.0",
     "typescript": "~5.8.2",
-    "vitest": "^3.1.2"
+    "vitest": "^3.1.2",
+    "web-tree-sitter": "^0.25.4"
   }
 }
