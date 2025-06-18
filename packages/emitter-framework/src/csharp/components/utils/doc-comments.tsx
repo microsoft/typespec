@@ -6,10 +6,10 @@ import { Typekit } from "@typespec/compiler/typekit";
 /**
  * Helper to render a doc string for a given TypeSpec type.
  *
- * This is not a JSX component as it is need to returns null if the doc is undefined.
+ * This is not a JSX component as it needs to return undefined if there is no doc.
  *
- * @param doc The doc string to render.
- *
+ * @param $ The Typekit instance
+ * @param type The TypeSpec type to generate documentation for
  * @returns A DocSummary component containing the rendered doc string, or undefined if no doc is available.
  */
 export function getDocComments($: Typekit, type: Type): ay.Children {
@@ -18,42 +18,43 @@ export function getDocComments($: Typekit, type: Type): ay.Children {
     return undefined;
   }
 
-  const typeDocElement = (
+  const docElements: ay.Children[] = [];
+
+  // Add main type documentation
+  docElements.push(
     <cs.DocSummary>
-      <cs.DocFromMarkdown markdown={typeDoc}></cs.DocFromMarkdown>
-    </cs.DocSummary>
+      <cs.DocFromMarkdown markdown={typeDoc} />
+    </cs.DocSummary>,
   );
 
-  const paramDocs =
-    $.operation.is(type) &&
-    Array.from(type.parameters.properties.values())
-      .map((p) => {
-        const paramDoc = $.type.getDoc(p);
+  // Add operation-specific documentation if applicable
+  if ($.operation.is(type)) {
+    // Add parameter documentation
+    const paramDocs = Array.from(type.parameters.properties.values())
+      .map((param) => {
+        const paramDoc = $.type.getDoc(param);
         return paramDoc ? (
-          <cs.DocParam name={p.name}>
-            <cs.DocFromMarkdown markdown={paramDoc}></cs.DocFromMarkdown>
+          <cs.DocParam name={param.name}>
+            <cs.DocFromMarkdown markdown={paramDoc} />
           </cs.DocParam>
-        ) : undefined;
+        ) : null;
       })
-      .filter(Boolean);
+      .filter((doc) => doc !== null);
 
-  let returnDocs = undefined;
-  if ($.operation.is(type) && type.returnType) {
-    const returnDoc = $.type.getDoc(type.returnType);
-    if (returnDoc) {
-      returnDocs = (
-        <cs.DocReturns>
-          <cs.DocFromMarkdown markdown={returnDoc}></cs.DocFromMarkdown>
-        </cs.DocReturns>
-      );
+    docElements.push(...paramDocs);
+
+    // Add return documentation
+    if (type.returnType) {
+      const returnDoc = $.type.getDoc(type.returnType);
+      if (returnDoc) {
+        docElements.push(
+          <cs.DocReturns>
+            <cs.DocFromMarkdown markdown={returnDoc} />
+          </cs.DocReturns>,
+        );
+      }
     }
   }
 
-  return (
-    <ay.List>
-      {typeDocElement}
-      {paramDocs}
-      {returnDocs}
-    </ay.List>
-  );
+  return <ay.List doubleHardline>{docElements}</ay.List>;
 }
