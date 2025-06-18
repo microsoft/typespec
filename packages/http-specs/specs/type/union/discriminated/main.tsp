@@ -28,8 +28,8 @@ model Dog {
  */
 @discriminated
 union PetWithEnvelope {
-  cat: Cat,
-  dog: Dog,
+  cat: Cat;
+  dog: Dog;
 }
 
 @route("/envelope")
@@ -137,10 +137,13 @@ namespace Envelope {
  * The discriminated union should serialize with custom discriminator
  * and envelope property names.
  */
-@discriminated(#{ discriminatorPropertyName: "petType", envelopePropertyName: "petData" })
+@discriminated(#{
+  discriminatorPropertyName: "petType",
+  envelopePropertyName: "petData",
+})
 union PetWithCustomNames {
-  cat: Cat,
-  dog: Dog,
+  cat: Cat;
+  dog: Dog;
 }
 
 /**
@@ -150,8 +153,8 @@ union PetWithCustomNames {
  */
 @discriminated(#{ envelope: "none" })
 union PetInline {
-  cat: Cat,
-  dog: Dog,
+  cat: Cat;
+  dog: Dog;
 }
 
 @route("/no-envelope")
