@@ -120,13 +120,13 @@
     "temporal-polyfill": "^0.3.0",
     "vscode-languageserver": "~9.0.1",
     "vscode-languageserver-textdocument": "~1.0.12",
-    "yaml": "~2.7.0",
-    "yargs": "~17.7.2"
+    "yaml": "~2.8.0",
+    "yargs": "~18.0.0"
   },
   "devDependencies": {
     "@types/babel__code-frame": "~7.0.6",
     "@types/mustache": "~4.2.5",
-    "@types/node": "~22.13.11",
+    "@types/node": "~24.0.3",
     "@types/semver": "^7.5.8",
     "@types/yargs": "~17.0.33",
     "@typespec/internal-build-utils": "workspace:^",

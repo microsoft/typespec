@@ -59,10 +59,10 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@apidevtools/swagger-parser": "~10.1.1",
+    "@apidevtools/swagger-parser": "~12.0.0",
     "@typespec/asset-emitter": "workspace:^",
     "openapi-types": "~12.1.3",
-    "yaml": "~2.7.0"
+    "yaml": "~2.8.0"
   },
   "peerDependencies": {
     "@typespec/compiler": "workspace:^",
@@ -83,7 +83,7 @@
     }
   },
   "devDependencies": {
-    "@types/node": "~22.13.11",
+    "@types/node": "~24.0.3",
     "@types/yargs": "~17.0.33",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
