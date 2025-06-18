@@ -177,6 +177,9 @@ package-deps.json
 # Default TypeSpec output
 tsp-output/
 
+# Story book output
+storybook-static/
+
 # Visual Studio / C#
 bin/
 obj/
