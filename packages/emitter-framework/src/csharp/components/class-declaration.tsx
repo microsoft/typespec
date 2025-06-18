@@ -28,7 +28,7 @@ export function ClassDeclaration(props: ClassDeclarationProps): ay.Children {
 
   return (
     <>
-      <cs.ClassDeclaration {...props} name={className}  refkey={refkeys}>
+      <cs.ClassDeclaration {...props} name={className} refkey={refkeys}>
         {$.model.is(props.type) && <ClassProperties type={props.type} />}
         {props.type.kind === "Interface" && <ClassMethods type={props.type} />}
       </cs.ClassDeclaration>

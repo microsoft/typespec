@@ -200,7 +200,7 @@ describe("from an interface", () => {
       {
           class TestInterface
           {
-              public abstract string GetName(string id) {}
+              public abstract string GetName(string id);
           }
       }
     `,
@@ -279,7 +279,7 @@ it("renders a class with enum members", async () => {
     d`
       namespace TestNamespace
       {
-          public enum TestEnum
+          enum TestEnum
           {
               Value1,
               Value2
@@ -325,7 +325,7 @@ it("renders a class with string enums", async () => {
     d`
       namespace TestNamespace
       {
-          public enum TestEnum
+          enum TestEnum
           {
               Value1,
               Value2
