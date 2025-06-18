@@ -51,8 +51,9 @@ public class SchemaCleanup {
     }
 
     private static boolean tryCleanup(CodeModel codeModel, Set<String> javaNamesForPreserveModel) {
-        Set<ObjectSchema> schemasNotInUse = codeModel.getSchemas().getObjects().stream()
-//                .filter(SchemaCleanup::hasFlattenedExtension)
+        Set<ObjectSchema> schemasNotInUse = codeModel.getSchemas()
+            .getObjects()
+            .stream()
             .filter(schema -> schema.getChildren() == null
                 || schema.getChildren().getImmediate() == null
                 || schema.getChildren().getImmediate().isEmpty())   // no children
@@ -76,14 +77,16 @@ public class SchemaCleanup {
             Set<Schema> propertiesOfObject = codeModel.getSchemas().getObjects().stream().filter(o -> {
                 String name = Utils.getJavaName(o);
                 return FluentType.nonSystemData(name) && FluentType.nonManagementError(name);
-            }).flatMap(s -> s.getProperties().stream()
-//                                    .filter(Utils::nonFlattenedProperty)
-                .map(Property::getSchema)
-                .map(SchemaCleanup::schemaOrElementInCollection)
-                .filter(Objects::nonNull)
-                .filter(s1 -> !Objects.equals(s, s1))   // schema of property is not the same of itself, solve the
-                                                        // simplest recursive reference case
-            ).collect(Collectors.toSet());
+            })
+                .flatMap(s -> s.getProperties()
+                    .stream()
+                    .map(Property::getSchema)
+                    .map(SchemaCleanup::schemaOrElementInCollection)
+                    .filter(Objects::nonNull)
+                    .filter(s1 -> !Objects.equals(s, s1))   // schema of property is not the same of itself, solve the
+                                                            // simplest recursive reference case
+                )
+                .collect(Collectors.toSet());
             schemasNotInUse.removeAll(propertiesOfObject);
             choicesSchemasNotInUse.removeAll(propertiesOfObject);
             schemasInUse.addAll(propertiesOfObject);
@@ -132,7 +135,7 @@ public class SchemaCleanup {
             schemasInUse.addAll(exceptions);
         }
         if (!schemasNotInUse.isEmpty() || !choicesSchemasNotInUse.isEmpty()) {
-            // parent schema as Dictionary or Array
+            // parent schema, or parent schema as Dictionary or Array
             Set<Schema> elementsInParentCollection = schemasInUse.stream().flatMap(s -> {
                 if (s instanceof ObjectSchema) {
                     ObjectSchema objectSchema = (ObjectSchema) s;
@@ -142,13 +145,15 @@ public class SchemaCleanup {
                     return objectSchema.getParents()
                         .getAll()
                         .stream()
-                        .filter(p -> p instanceof DictionarySchema || p instanceof ArraySchema)
+                        .filter(
+                            p -> p instanceof DictionarySchema || p instanceof ArraySchema || p instanceof ObjectSchema)
                         .map(SchemaCleanup::schemaOrElementInCollection);
                 }
                 return Stream.empty();
             }).collect(Collectors.toSet());
             schemasNotInUse.removeAll(elementsInParentCollection);
             choicesSchemasNotInUse.removeAll(elementsInParentCollection);
+            schemasInUse.addAll(elementsInParentCollection);
 
             // discriminators
             Set<Schema> discriminators = schemasInUse.stream().map(s -> {
@@ -160,6 +165,7 @@ public class SchemaCleanup {
             }).filter(Objects::nonNull).collect(Collectors.toSet());
             schemasNotInUse.removeAll(discriminators);
             choicesSchemasNotInUse.removeAll(discriminators);
+            schemasInUse.addAll(discriminators);
         }
 
         AtomicBoolean codeModelModified = new AtomicBoolean(false);
@@ -209,8 +215,4 @@ public class SchemaCleanup {
             return null;
         }
     }
-
-//    private static boolean hasFlattenedExtension(Schema schema) {
-//        return schema.getExtensions() != null && schema.getExtensions().isXmsFlattened();
-//    }
 }
