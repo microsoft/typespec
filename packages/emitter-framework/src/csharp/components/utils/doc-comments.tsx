@@ -30,20 +30,17 @@ export function getDocComments($: Typekit, type: Type): ay.Children {
   // Add operation-specific documentation if applicable
   if ($.operation.is(type)) {
     // Add parameter documentation
-    const paramDocs = Array.from(type.parameters.properties.values()).reduce((allDocs, param) => {
+    const paramDocs = [];
+    for (const param of type.parameters.properties.values()) {
       const paramDoc = $.type.getDoc(param);
-
       if (paramDoc) {
-        allDocs.push(
+        paramDocs.push(
           <cs.DocParam name={param.name}>
             <cs.DocFromMarkdown markdown={paramDoc} />
           </cs.DocParam>,
         );
       }
-
-      return allDocs;
-    }, [] as ay.Children[]);
-
+    }
     docElements.push(...paramDocs);
 
     // Add return documentation
