@@ -393,6 +393,7 @@ describe("with doc comments", () => {
     @doc("This is a test interface")
     @test interface TestInterface {
       @doc("This is a test operation")
+      @returnsDoc("The name of the item")
       op getName(id: string): string;
     }
   `)) as { TestInterface: Interface };
@@ -422,7 +423,7 @@ describe("with doc comments", () => {
               /// </summary>
               ///
               /// <returns>
-              /// A sequence of textual characters.
+              /// The name of the item
               /// </returns>
               public abstract string GetName(string id);
           }

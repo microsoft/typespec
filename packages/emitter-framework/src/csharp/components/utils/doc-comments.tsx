@@ -1,6 +1,6 @@
 import * as ay from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
-import { Type } from "@typespec/compiler";
+import { getReturnsDoc, Type } from "@typespec/compiler";
 import { Typekit } from "@typespec/compiler/typekit";
 
 /**
@@ -44,15 +44,13 @@ export function getDocComments($: Typekit, type: Type): ay.Children {
     docElements.push(...paramDocs);
 
     // Add return documentation
-    if (type.returnType) {
-      const returnDoc = $.type.getDoc(type.returnType);
-      if (returnDoc) {
-        docElements.push(
-          <cs.DocReturns>
-            <cs.DocFromMarkdown markdown={returnDoc} />
-          </cs.DocReturns>,
-        );
-      }
+    const returnDoc = getReturnsDoc($.program, type);
+    if (returnDoc) {
+      docElements.push(
+        <cs.DocReturns>
+          <cs.DocFromMarkdown markdown={returnDoc} />
+        </cs.DocReturns>,
+      );
     }
   }
 
