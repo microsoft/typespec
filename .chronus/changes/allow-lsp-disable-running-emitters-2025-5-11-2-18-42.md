@@ -6,4 +6,4 @@ packages:
   - typespec-vscode
 ---
 
-Allow LSP to run emitters configured by users in the settings
+Allow LSP to configure which emitters to include for live checks

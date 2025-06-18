@@ -146,7 +146,7 @@ export function createCompileService({
     // If emit is set in additionalOptions, use this setting first
     // otherwise, obtain the `typespec.lsp.emit` configuration from clientConfigsProvider
     if (additionalOptions?.emit === undefined) {
-      const configEmits = clientConfigsProvider?.get<string[]>("typespec.lsp.emit");
+      const configEmits = clientConfigsProvider?.config?.lsp?.emit;
       if (configEmits) {
         options.emit = configEmits;
       }

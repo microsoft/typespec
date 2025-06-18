@@ -101,7 +101,7 @@
           "typespec.lsp.emit": {
             "type": "array",
             "default": null,
-            "description": "List of emitters that should be included in compilation in typespec LSP server when supporting LSP related functionalities.\n\nExample:\n\"typespec.lsp.emit\": [\n  \"@typespec/openapi3\"\n]",
+            "description": "List of emitters that should be included in compilation in typespec LSP server when supporting LSP related functionalities. And only supports emitter running in dry mode.\n\nExample:\n\"typespec.lsp.emit\": [\n  \"@typespec/openapi3\"\n]",
             "scope": "machine-overridable",
             "items": {
               "type": "string"
