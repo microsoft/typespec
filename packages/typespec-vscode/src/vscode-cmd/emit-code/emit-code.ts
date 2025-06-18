@@ -266,12 +266,8 @@ async function doEmit(
   );
 
   if (installPackageQuickPickItemsResult.code !== ResultCode.Success) {
-    logger.error("Failed to calculate packages to install. Emitting cancelled by user.", [], {
-      showOutput: true,
-      showPopup: true,
-    });
-    tel.lastStep = "The calculation installation package was canceled by the user";
-    return ResultCode.Fail;
+    tel.lastStep = "Calculating packages to install or upgrade";
+    return installPackageQuickPickItemsResult.code;
   }
 
   const installPackageQuickPickItems = installPackageQuickPickItemsResult.value;
@@ -344,12 +340,8 @@ async function doEmit(
       );
 
       if (installResultUi.code !== ResultCode.Success) {
-        logger.error("Package installation was cancelled by user. Emitting cancelled.", [], {
-          showOutput: true,
-          showPopup: true,
-        });
-        tel.lastStep = "Package installation was cancelled by user";
-        return ResultCode.Fail;
+        tel.lastStep = "Installing packages";
+        return installResultUi.code;
       }
 
       const installResult = installResultUi.value;
@@ -569,12 +561,8 @@ async function doEmit(
   );
 
   if (emitResultUi.code !== ResultCode.Success) {
-    logger.error("Emit code was canceled by the user. Emitting Cancelled.", [], {
-      showOutput: true,
-      showPopup: true,
-    });
-    tel.lastStep = "Emit code was canceled by the user";
-    return ResultCode.Fail;
+    tel.lastStep = "Emitting coder";
+    return emitResultUi.code;
   }
 
   return emitResultUi.value;
