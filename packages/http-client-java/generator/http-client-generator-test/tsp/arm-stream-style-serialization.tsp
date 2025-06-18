@@ -155,7 +155,7 @@ model OutputOnlyModel {
 
 model OutputOnlyModelProperties {
   title: string;
-  dog: Dog;
+  dog: Golden;
 }
 
 @doc("extensible enum type for discriminator")
