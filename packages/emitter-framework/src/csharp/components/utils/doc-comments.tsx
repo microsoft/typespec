@@ -13,13 +13,47 @@ import { Typekit } from "@typespec/compiler/typekit";
  * @returns A DocSummary component containing the rendered doc string, or undefined if no doc is available.
  */
 export function getDocComments($: Typekit, type: Type): ay.Children {
-  const doc = $.type.getDoc(type);
-  if (!doc) {
+  const typeDoc = $.type.getDoc(type);
+  if (!typeDoc) {
     return undefined;
   }
-  return (
+
+  const typeDocElement = (
     <cs.DocSummary>
-      <cs.DocFromMarkdown markdown={doc}></cs.DocFromMarkdown>
+      <cs.DocFromMarkdown markdown={typeDoc}></cs.DocFromMarkdown>
     </cs.DocSummary>
+  );
+
+  const paramDocs =
+    $.operation.is(type) &&
+    Array.from(type.parameters.properties.values())
+      .map((p) => {
+        const paramDoc = $.type.getDoc(p);
+        return paramDoc ? (
+          <cs.DocParam name={p.name}>
+            <cs.DocFromMarkdown markdown={paramDoc}></cs.DocFromMarkdown>
+          </cs.DocParam>
+        ) : undefined;
+      })
+      .filter(Boolean);
+
+  let returnDocs = undefined;
+  if ($.operation.is(type) && type.returnType) {
+    const returnDoc = $.type.getDoc(type.returnType);
+    if (returnDoc) {
+      returnDocs = (
+        <cs.DocReturns>
+          <cs.DocFromMarkdown markdown={returnDoc}></cs.DocFromMarkdown>
+        </cs.DocReturns>
+      );
+    }
+  }
+
+  return (
+    <ay.List>
+      {typeDocElement}
+      {paramDocs}
+      {returnDocs}
+    </ay.List>
   );
 }

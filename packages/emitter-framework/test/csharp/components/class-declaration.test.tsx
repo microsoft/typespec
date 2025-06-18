@@ -420,6 +420,10 @@ describe("with doc comments", () => {
               /// <summary>
               /// This is a test operation
               /// </summary>
+              ///
+              /// <returns>
+              /// A sequence of textual characters.
+              /// </returns>
               public abstract string GetName(string id);
           }
       }
