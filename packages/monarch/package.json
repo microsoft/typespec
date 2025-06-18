@@ -42,7 +42,7 @@
     "!dist/test/**"
   ],
   "devDependencies": {
-    "@types/node": "~22.13.11",
+    "@types/node": "~24.0.3",
     "@vitest/coverage-v8": "^3.1.2",
     "@vitest/ui": "^3.1.2",
     "c8": "^10.1.3",

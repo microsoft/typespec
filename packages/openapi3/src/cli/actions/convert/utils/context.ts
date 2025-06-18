@@ -34,7 +34,7 @@ export function createContext(parser: Parser, openApi3Doc: OpenAPI3Document): Co
       return this.getByRef(ref);
     },
     getByRef(ref) {
-      return parser.$refs.get(ref);
+      return parser.$refs.get(ref) as any;
     },
   };
 
