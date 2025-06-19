@@ -41,9 +41,9 @@ final class PagingMetadata {
     private final ClientMethodParameter maxPageSizeParameter;
     private final MethodPageDetails.ContinuationToken continuationToken;
     /**
-     * Represents the nextLink re-injected parameters for paging. This is a legacy feature and currently only
+     * Represents the next link re-injected parameters for paging. This is a legacy feature and currently only
      * query parameters are included.
-     * If there is no nextLink reinjection parameters, this field will be null.
+     * If there is no next link re-injected parameters, this field will be null.
      */
     private final MethodPageDetails.NextLinkReInjection nextLinkReInjection;
 
