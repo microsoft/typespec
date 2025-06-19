@@ -481,7 +481,7 @@ model WidgetData1 {
 }
 
 model WidgetData2 {
-  kind: "kind1";
+  kind: "kind2";
   start: string;
 }
 
