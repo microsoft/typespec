@@ -10,6 +10,7 @@ import com.azure.core.http.netty.NettyAsyncHttpClientProvider;
 import com.azure.core.test.http.AssertingHttpClientBuilder;
 import com.azure.core.util.HttpClientOptions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Assertions;
 
 public class PageTests {
 
@@ -44,6 +45,6 @@ public class PageTests {
 
     @Test
     public void testPageNextLinkReInjectedParameters() {
-        client.withParameterizedNextLink("name", true).stream().count();
+        Assertions.assertEquals(2, client.withParameterizedNextLink("name", true).stream().count());
     }
 }
