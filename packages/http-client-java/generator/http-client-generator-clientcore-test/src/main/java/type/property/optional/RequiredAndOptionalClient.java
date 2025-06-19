@@ -45,7 +45,7 @@ public final class RequiredAndOptionalClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<RequiredAndOptionalProperty> getAllWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("RequiredAndOptional.getAll", requestContext,
+        return this.instrumentation.instrumentWithResponse("OptionalClient.getAll", requestContext,
             updatedContext -> this.serviceClient.getAllWithResponse(updatedContext));
     }
 
@@ -74,7 +74,7 @@ public final class RequiredAndOptionalClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<RequiredAndOptionalProperty> getRequiredOnlyWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("RequiredAndOptional.getRequiredOnly", requestContext,
+        return this.instrumentation.instrumentWithResponse("OptionalClient.getRequiredOnly", requestContext,
             updatedContext -> this.serviceClient.getRequiredOnlyWithResponse(updatedContext));
     }
 
@@ -104,7 +104,7 @@ public final class RequiredAndOptionalClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putAllWithResponse(RequiredAndOptionalProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("RequiredAndOptional.putAll", requestContext,
+        return this.instrumentation.instrumentWithResponse("OptionalClient.putAll", requestContext,
             updatedContext -> this.serviceClient.putAllWithResponse(body, updatedContext));
     }
 
@@ -135,7 +135,7 @@ public final class RequiredAndOptionalClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putRequiredOnlyWithResponse(RequiredAndOptionalProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("RequiredAndOptional.putRequiredOnly", requestContext,
+        return this.instrumentation.instrumentWithResponse("OptionalClient.putRequiredOnly", requestContext,
             updatedContext -> this.serviceClient.putRequiredOnlyWithResponse(body, updatedContext));
     }
 

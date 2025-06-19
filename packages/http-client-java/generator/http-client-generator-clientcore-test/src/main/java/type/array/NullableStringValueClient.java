@@ -46,7 +46,7 @@ public final class NullableStringValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<List<String>> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("NullableStringValue.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("ArrayClient.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -76,7 +76,7 @@ public final class NullableStringValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(List<String> body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("NullableStringValue.put", requestContext,
+        return this.instrumentation.instrumentWithResponse("ArrayClient.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 

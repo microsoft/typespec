@@ -45,7 +45,7 @@ public final class MixedTypesClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<GetResponse9> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("MixedTypes.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("UnionClient.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -75,7 +75,7 @@ public final class MixedTypesClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> sendWithResponse(MixedTypesCases prop, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("MixedTypes.send", requestContext,
+        return this.instrumentation.instrumentWithResponse("UnionClient.send", requestContext,
             updatedContext -> this.serviceClient.sendWithResponse(prop, updatedContext));
     }
 

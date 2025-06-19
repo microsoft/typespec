@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 package com.microsoft.typespec.http.client.generator.core.implementation;
 
 import com.azure.core.util.CoreUtils;
@@ -12,11 +15,8 @@ public class OperationInstrumentationInfo {
 
     public OperationInstrumentationInfo(Operation operation) {
         String clientName = null;
-        if (operation.getOperationGroup() != null) {
-            clientName = getName(operation.getOperationGroup().getLanguage());
-        }
 
-        if (CoreUtils.isNullOrEmpty(clientName) && operation.getOperationGroup().getCodeModel() != null) {
+        if (operation.getOperationGroup().getCodeModel() != null) {
             clientName = getName(operation.getOperationGroup().getCodeModel().getLanguage());
         }
 
@@ -35,9 +35,6 @@ public class OperationInstrumentationInfo {
     }
 
     private static String getName(Languages languages) {
-        if (languages != null && languages.getDefault() != null) {
-            return languages.getDefault().getName();
-        }
-        return null;
+        return (languages != null && languages.getDefault() != null) ? languages.getDefault().getName() : null;
     }
 }

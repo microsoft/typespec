@@ -45,7 +45,7 @@ public final class BytesClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BytesProperty> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Bytes.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("ValueTypesClient.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -75,7 +75,7 @@ public final class BytesClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(BytesProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Bytes.put", requestContext,
+        return this.instrumentation.instrumentWithResponse("ValueTypesClient.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 

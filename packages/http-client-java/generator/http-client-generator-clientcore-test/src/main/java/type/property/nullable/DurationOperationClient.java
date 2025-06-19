@@ -45,7 +45,7 @@ public final class DurationOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<DurationProperty> getNonNullWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Duration.getNonNull", requestContext,
+        return this.instrumentation.instrumentWithResponse("NullableClient.getNonNull", requestContext,
             updatedContext -> this.serviceClient.getNonNullWithResponse(updatedContext));
     }
 
@@ -74,7 +74,7 @@ public final class DurationOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<DurationProperty> getNullWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Duration.getNull", requestContext,
+        return this.instrumentation.instrumentWithResponse("NullableClient.getNull", requestContext,
             updatedContext -> this.serviceClient.getNullWithResponse(updatedContext));
     }
 
@@ -104,7 +104,7 @@ public final class DurationOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> patchNonNullWithResponse(DurationProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Duration.patchNonNull", requestContext,
+        return this.instrumentation.instrumentWithResponse("NullableClient.patchNonNull", requestContext,
             updatedContext -> this.serviceClient.patchNonNullWithResponse(body, updatedContext));
     }
 
@@ -135,7 +135,7 @@ public final class DurationOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> patchNullWithResponse(DurationProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Duration.patchNull", requestContext,
+        return this.instrumentation.instrumentWithResponse("NullableClient.patchNull", requestContext,
             updatedContext -> this.serviceClient.patchNullWithResponse(body, updatedContext));
     }
 

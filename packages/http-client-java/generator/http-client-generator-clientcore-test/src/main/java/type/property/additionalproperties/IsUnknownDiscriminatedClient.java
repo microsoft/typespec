@@ -45,7 +45,7 @@ public final class IsUnknownDiscriminatedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<IsUnknownAdditionalPropertiesDiscriminated> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("IsUnknownDiscriminated.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("AdditionalPropertiesClient.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -76,7 +76,7 @@ public final class IsUnknownDiscriminatedClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(IsUnknownAdditionalPropertiesDiscriminated body,
         RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("IsUnknownDiscriminated.put", requestContext,
+        return this.instrumentation.instrumentWithResponse("AdditionalPropertiesClient.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 

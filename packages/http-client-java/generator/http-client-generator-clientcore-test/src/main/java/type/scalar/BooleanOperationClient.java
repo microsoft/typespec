@@ -45,7 +45,7 @@ public final class BooleanOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Boolean> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Boolean.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("ScalarClient.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -75,7 +75,7 @@ public final class BooleanOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(boolean body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Boolean.put", requestContext,
+        return this.instrumentation.instrumentWithResponse("ScalarClient.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 

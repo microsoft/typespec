@@ -46,7 +46,7 @@ public final class StringValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<List<String>> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("StringValue.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("ArrayClient.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -76,7 +76,7 @@ public final class StringValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(List<String> body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("StringValue.put", requestContext,
+        return this.instrumentation.instrumentWithResponse("ArrayClient.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 

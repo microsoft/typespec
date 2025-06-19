@@ -45,7 +45,7 @@ public final class StringLiteralClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<StringLiteralProperty> getAllWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("StringLiteral.getAll", requestContext,
+        return this.instrumentation.instrumentWithResponse("OptionalClient.getAll", requestContext,
             updatedContext -> this.serviceClient.getAllWithResponse(updatedContext));
     }
 
@@ -74,7 +74,7 @@ public final class StringLiteralClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<StringLiteralProperty> getDefaultWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("StringLiteral.getDefault", requestContext,
+        return this.instrumentation.instrumentWithResponse("OptionalClient.getDefault", requestContext,
             updatedContext -> this.serviceClient.getDefaultWithResponse(updatedContext));
     }
 
@@ -104,7 +104,7 @@ public final class StringLiteralClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putAllWithResponse(StringLiteralProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("StringLiteral.putAll", requestContext,
+        return this.instrumentation.instrumentWithResponse("OptionalClient.putAll", requestContext,
             updatedContext -> this.serviceClient.putAllWithResponse(body, updatedContext));
     }
 
@@ -135,7 +135,7 @@ public final class StringLiteralClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putDefaultWithResponse(StringLiteralProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("StringLiteral.putDefault", requestContext,
+        return this.instrumentation.instrumentWithResponse("OptionalClient.putDefault", requestContext,
             updatedContext -> this.serviceClient.putDefaultWithResponse(body, updatedContext));
     }
 

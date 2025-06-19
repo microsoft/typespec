@@ -45,7 +45,7 @@ public final class SpreadDifferentFloatClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<DifferentSpreadFloatRecord> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpreadDifferentFloat.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("AdditionalPropertiesClient.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -75,7 +75,7 @@ public final class SpreadDifferentFloatClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(DifferentSpreadFloatRecord body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpreadDifferentFloat.put", requestContext,
+        return this.instrumentation.instrumentWithResponse("AdditionalPropertiesClient.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 

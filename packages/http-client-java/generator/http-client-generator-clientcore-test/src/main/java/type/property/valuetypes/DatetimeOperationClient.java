@@ -45,7 +45,7 @@ public final class DatetimeOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<DatetimeProperty> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Datetime.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("ValueTypesClient.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -75,7 +75,7 @@ public final class DatetimeOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(DatetimeProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Datetime.put", requestContext,
+        return this.instrumentation.instrumentWithResponse("ValueTypesClient.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 

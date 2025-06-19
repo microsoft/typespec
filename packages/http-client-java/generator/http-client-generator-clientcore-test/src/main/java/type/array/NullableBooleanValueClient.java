@@ -46,7 +46,7 @@ public final class NullableBooleanValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<List<Boolean>> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("NullableBooleanValue.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("ArrayClient.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -76,7 +76,7 @@ public final class NullableBooleanValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(List<Boolean> body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("NullableBooleanValue.put", requestContext,
+        return this.instrumentation.instrumentWithResponse("ArrayClient.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 

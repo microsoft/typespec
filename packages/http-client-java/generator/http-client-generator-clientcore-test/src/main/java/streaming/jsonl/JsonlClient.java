@@ -48,7 +48,7 @@ public final class JsonlClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> sendWithResponse(BinaryData body, long contentLength, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Basic.send", requestContext,
+        return this.instrumentation.instrumentWithResponse("JsonlClient.send", requestContext,
             updatedContext -> this.serviceClient.sendWithResponse(body, contentLength, updatedContext));
     }
 
@@ -79,7 +79,7 @@ public final class JsonlClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> receiveWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Basic.receive", requestContext,
+        return this.instrumentation.instrumentWithResponse("JsonlClient.receive", requestContext,
             updatedContext -> this.serviceClient.receiveWithResponse(updatedContext));
     }
 

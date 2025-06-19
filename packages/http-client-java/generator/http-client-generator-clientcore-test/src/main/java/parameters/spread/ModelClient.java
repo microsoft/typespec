@@ -47,7 +47,7 @@ public final class ModelClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> spreadAsRequestBodyWithResponse(String name, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Model.spreadAsRequestBody", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpreadClient.spreadAsRequestBody", requestContext,
             updatedContext -> this.serviceClient.spreadAsRequestBodyWithResponse(name, updatedContext));
     }
 
@@ -79,7 +79,8 @@ public final class ModelClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> spreadCompositeRequestOnlyWithBodyWithResponse(BodyParameter body,
         RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Model.spreadCompositeRequestOnlyWithBody", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpreadClient.spreadCompositeRequestOnlyWithBody",
+            requestContext,
             updatedContext -> this.serviceClient.spreadCompositeRequestOnlyWithBodyWithResponse(body, updatedContext));
     }
 
@@ -112,9 +113,9 @@ public final class ModelClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> spreadCompositeRequestWithoutBodyWithResponse(String name, String testHeader,
         RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Model.spreadCompositeRequestWithoutBody", requestContext,
-            updatedContext -> this.serviceClient.spreadCompositeRequestWithoutBodyWithResponse(name, testHeader,
-                updatedContext));
+        return this.instrumentation.instrumentWithResponse("SpreadClient.spreadCompositeRequestWithoutBody",
+            requestContext, updatedContext -> this.serviceClient.spreadCompositeRequestWithoutBodyWithResponse(name,
+                testHeader, updatedContext));
     }
 
     /**
@@ -148,7 +149,7 @@ public final class ModelClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> spreadCompositeRequestWithResponse(String name, String testHeader, BodyParameter body,
         RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Model.spreadCompositeRequest", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpreadClient.spreadCompositeRequest", requestContext,
             updatedContext -> this.serviceClient.spreadCompositeRequestWithResponse(name, testHeader, body,
                 updatedContext));
     }
@@ -185,7 +186,7 @@ public final class ModelClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> spreadCompositeRequestMixWithResponse(String name, String testHeader, String prop,
         RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Model.spreadCompositeRequestMix", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpreadClient.spreadCompositeRequestMix", requestContext,
             updatedContext -> this.serviceClient.spreadCompositeRequestMixWithResponse(name, testHeader, prop,
                 updatedContext));
     }

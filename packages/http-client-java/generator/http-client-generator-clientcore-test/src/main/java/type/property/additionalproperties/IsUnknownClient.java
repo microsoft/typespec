@@ -45,7 +45,7 @@ public final class IsUnknownClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<IsUnknownAdditionalProperties> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("IsUnknown.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("AdditionalPropertiesClient.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -75,7 +75,7 @@ public final class IsUnknownClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(IsUnknownAdditionalProperties body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("IsUnknown.put", requestContext,
+        return this.instrumentation.instrumentWithResponse("AdditionalPropertiesClient.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 

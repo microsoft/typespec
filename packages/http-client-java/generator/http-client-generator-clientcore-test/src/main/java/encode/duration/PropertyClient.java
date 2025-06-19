@@ -53,7 +53,7 @@ public final class PropertyClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<DefaultDurationProperty> defaultMethodWithResponse(DefaultDurationProperty body,
         RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Property.default", requestContext,
+        return this.instrumentation.instrumentWithResponse("DurationClient.default", requestContext,
             updatedContext -> this.serviceClient.defaultMethodWithResponse(body, updatedContext));
     }
 
@@ -86,7 +86,7 @@ public final class PropertyClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ISO8601DurationProperty> iso8601WithResponse(ISO8601DurationProperty body,
         RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Property.iso8601", requestContext,
+        return this.instrumentation.instrumentWithResponse("DurationClient.iso8601", requestContext,
             updatedContext -> this.serviceClient.iso8601WithResponse(body, updatedContext));
     }
 
@@ -119,7 +119,7 @@ public final class PropertyClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Int32SecondsDurationProperty> int32SecondsWithResponse(Int32SecondsDurationProperty body,
         RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Property.int32Seconds", requestContext,
+        return this.instrumentation.instrumentWithResponse("DurationClient.int32Seconds", requestContext,
             updatedContext -> this.serviceClient.int32SecondsWithResponse(body, updatedContext));
     }
 
@@ -152,7 +152,7 @@ public final class PropertyClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<FloatSecondsDurationProperty> floatSecondsWithResponse(FloatSecondsDurationProperty body,
         RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Property.floatSeconds", requestContext,
+        return this.instrumentation.instrumentWithResponse("DurationClient.floatSeconds", requestContext,
             updatedContext -> this.serviceClient.floatSecondsWithResponse(body, updatedContext));
     }
 
@@ -185,7 +185,7 @@ public final class PropertyClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Float64SecondsDurationProperty> float64SecondsWithResponse(Float64SecondsDurationProperty body,
         RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Property.float64Seconds", requestContext,
+        return this.instrumentation.instrumentWithResponse("DurationClient.float64Seconds", requestContext,
             updatedContext -> this.serviceClient.float64SecondsWithResponse(body, updatedContext));
     }
 
@@ -218,7 +218,7 @@ public final class PropertyClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<FloatSecondsDurationArrayProperty>
         floatSecondsArrayWithResponse(FloatSecondsDurationArrayProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Property.floatSecondsArray", requestContext,
+        return this.instrumentation.instrumentWithResponse("DurationClient.floatSecondsArray", requestContext,
             updatedContext -> this.serviceClient.floatSecondsArrayWithResponse(body, updatedContext));
     }
 

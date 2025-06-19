@@ -46,7 +46,7 @@ public final class OptionalExplicitClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> setWithResponse(BodyModel body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("OptionalExplicit.set", requestContext,
+        return this.instrumentation.instrumentWithResponse("BodyOptionalityClient.set", requestContext,
             updatedContext -> this.serviceClient.setWithResponse(body, updatedContext));
     }
 
@@ -90,7 +90,7 @@ public final class OptionalExplicitClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> omitWithResponse(BodyModel body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("OptionalExplicit.omit", requestContext,
+        return this.instrumentation.instrumentWithResponse("BodyOptionalityClient.omit", requestContext,
             updatedContext -> this.serviceClient.omitWithResponse(body, updatedContext));
     }
 

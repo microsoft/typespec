@@ -45,7 +45,7 @@ public final class StringAndArrayClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<GetResponse7> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("StringAndArray.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("UnionClient.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -75,7 +75,7 @@ public final class StringAndArrayClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> sendWithResponse(StringAndArrayCases prop, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("StringAndArray.send", requestContext,
+        return this.instrumentation.instrumentWithResponse("UnionClient.send", requestContext,
             updatedContext -> this.serviceClient.sendWithResponse(prop, updatedContext));
     }
 

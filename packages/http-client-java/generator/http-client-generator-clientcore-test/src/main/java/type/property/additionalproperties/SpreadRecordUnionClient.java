@@ -45,7 +45,7 @@ public final class SpreadRecordUnionClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<SpreadRecordForUnion> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpreadRecordUnion.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("AdditionalPropertiesClient.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -75,7 +75,7 @@ public final class SpreadRecordUnionClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(SpreadRecordForUnion body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpreadRecordUnion.put", requestContext,
+        return this.instrumentation.instrumentWithResponse("AdditionalPropertiesClient.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 

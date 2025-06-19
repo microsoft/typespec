@@ -45,7 +45,7 @@ public final class ExtendsUnknownClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ExtendsUnknownAdditionalProperties> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("ExtendsUnknown.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("AdditionalPropertiesClient.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -75,7 +75,7 @@ public final class ExtendsUnknownClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(ExtendsUnknownAdditionalProperties body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("ExtendsUnknown.put", requestContext,
+        return this.instrumentation.instrumentWithResponse("AdditionalPropertiesClient.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 

@@ -45,7 +45,7 @@ public final class StringExtensibleClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<GetResponse1> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("StringExtensible.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("UnionClient.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -75,7 +75,7 @@ public final class StringExtensibleClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> sendWithResponse(GetResponseProp1 prop, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("StringExtensible.send", requestContext,
+        return this.instrumentation.instrumentWithResponse("UnionClient.send", requestContext,
             updatedContext -> this.serviceClient.sendWithResponse(prop, updatedContext));
     }
 

@@ -45,7 +45,7 @@ public final class CollectionsModelClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<CollectionsModelProperty> getNonNullWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("CollectionsModel.getNonNull", requestContext,
+        return this.instrumentation.instrumentWithResponse("NullableClient.getNonNull", requestContext,
             updatedContext -> this.serviceClient.getNonNullWithResponse(updatedContext));
     }
 
@@ -74,7 +74,7 @@ public final class CollectionsModelClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<CollectionsModelProperty> getNullWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("CollectionsModel.getNull", requestContext,
+        return this.instrumentation.instrumentWithResponse("NullableClient.getNull", requestContext,
             updatedContext -> this.serviceClient.getNullWithResponse(updatedContext));
     }
 
@@ -104,7 +104,7 @@ public final class CollectionsModelClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> patchNonNullWithResponse(CollectionsModelProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("CollectionsModel.patchNonNull", requestContext,
+        return this.instrumentation.instrumentWithResponse("NullableClient.patchNonNull", requestContext,
             updatedContext -> this.serviceClient.patchNonNullWithResponse(body, updatedContext));
     }
 
@@ -135,7 +135,7 @@ public final class CollectionsModelClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> patchNullWithResponse(CollectionsModelProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("CollectionsModel.patchNull", requestContext,
+        return this.instrumentation.instrumentWithResponse("NullableClient.patchNull", requestContext,
             updatedContext -> this.serviceClient.patchNullWithResponse(body, updatedContext));
     }
 

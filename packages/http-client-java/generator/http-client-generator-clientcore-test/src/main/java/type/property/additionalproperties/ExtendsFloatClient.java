@@ -45,7 +45,7 @@ public final class ExtendsFloatClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ExtendsFloatAdditionalProperties> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("ExtendsFloat.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("AdditionalPropertiesClient.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -75,7 +75,7 @@ public final class ExtendsFloatClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(ExtendsFloatAdditionalProperties body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("ExtendsFloat.put", requestContext,
+        return this.instrumentation.instrumentWithResponse("AdditionalPropertiesClient.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 

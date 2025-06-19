@@ -50,8 +50,7 @@ public final class FormDataHttpPartsContentTypeClient {
         RequestContext requestContext) {
         // Operation 'imageJpegContentType' is of content-type 'multipart/form-data'. Protocol API is not usable and
         // hence not generated.
-        return this.instrumentation.instrumentWithResponse("FormDataHttpPartsContentType.imageJpegContentType",
-            requestContext,
+        return this.instrumentation.instrumentWithResponse("MultiPartClient.imageJpegContentType", requestContext,
             updatedContext -> this.serviceClient.imageJpegContentTypeWithResponse(body, updatedContext));
     }
 
@@ -85,8 +84,8 @@ public final class FormDataHttpPartsContentTypeClient {
         RequestContext requestContext) {
         // Operation 'requiredContentType' is of content-type 'multipart/form-data'. Protocol API is not usable and
         // hence not generated.
-        return this.instrumentation.instrumentWithResponse("FormDataHttpPartsContentType.requiredContentType",
-            requestContext, updatedContext -> this.serviceClient.requiredContentTypeWithResponse(body, updatedContext));
+        return this.instrumentation.instrumentWithResponse("MultiPartClient.requiredContentType", requestContext,
+            updatedContext -> this.serviceClient.requiredContentTypeWithResponse(body, updatedContext));
     }
 
     /**
@@ -119,8 +118,8 @@ public final class FormDataHttpPartsContentTypeClient {
         RequestContext requestContext) {
         // Operation 'optionalContentType' is of content-type 'multipart/form-data'. Protocol API is not usable and
         // hence not generated.
-        return this.instrumentation.instrumentWithResponse("FormDataHttpPartsContentType.optionalContentType",
-            requestContext, updatedContext -> this.serviceClient.optionalContentTypeWithResponse(body, updatedContext));
+        return this.instrumentation.instrumentWithResponse("MultiPartClient.optionalContentType", requestContext,
+            updatedContext -> this.serviceClient.optionalContentTypeWithResponse(body, updatedContext));
     }
 
     /**

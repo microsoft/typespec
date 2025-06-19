@@ -47,7 +47,7 @@ public final class PathParametersReservedExpansionClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> templateWithResponse(String param, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("PathParametersReservedExpansion.template", requestContext,
+        return this.instrumentation.instrumentWithResponse("RoutesClient.template", requestContext,
             updatedContext -> this.serviceClient.templateWithResponse(param, updatedContext));
     }
 
@@ -78,7 +78,7 @@ public final class PathParametersReservedExpansionClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> annotationWithResponse(String param, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("PathParametersReservedExpansion.annotation", requestContext,
+        return this.instrumentation.instrumentWithResponse("RoutesClient.annotation", requestContext,
             updatedContext -> this.serviceClient.annotationWithResponse(param, updatedContext));
     }
 

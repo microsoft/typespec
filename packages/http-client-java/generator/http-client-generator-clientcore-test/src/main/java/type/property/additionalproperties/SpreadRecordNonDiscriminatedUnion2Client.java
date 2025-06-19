@@ -46,7 +46,7 @@ public final class SpreadRecordNonDiscriminatedUnion2Client {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<SpreadRecordForNonDiscriminatedUnion2> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpreadRecordNonDiscriminatedUnion2.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("AdditionalPropertiesClient.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -76,7 +76,7 @@ public final class SpreadRecordNonDiscriminatedUnion2Client {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(SpreadRecordForNonDiscriminatedUnion2 body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpreadRecordNonDiscriminatedUnion2.put", requestContext,
+        return this.instrumentation.instrumentWithResponse("AdditionalPropertiesClient.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 

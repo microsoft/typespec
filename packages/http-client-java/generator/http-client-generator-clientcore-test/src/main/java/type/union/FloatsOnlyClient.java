@@ -45,7 +45,7 @@ public final class FloatsOnlyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<GetResponse4> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("FloatsOnly.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("UnionClient.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -75,7 +75,7 @@ public final class FloatsOnlyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> sendWithResponse(GetResponseProp3 prop, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("FloatsOnly.send", requestContext,
+        return this.instrumentation.instrumentWithResponse("UnionClient.send", requestContext,
             updatedContext -> this.serviceClient.sendWithResponse(prop, updatedContext));
     }
 

@@ -45,7 +45,7 @@ public final class IsUnknownDerivedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<IsUnknownAdditionalPropertiesDerived> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("IsUnknownDerived.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("AdditionalPropertiesClient.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -75,7 +75,7 @@ public final class IsUnknownDerivedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(IsUnknownAdditionalPropertiesDerived body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("IsUnknownDerived.put", requestContext,
+        return this.instrumentation.instrumentWithResponse("AdditionalPropertiesClient.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 

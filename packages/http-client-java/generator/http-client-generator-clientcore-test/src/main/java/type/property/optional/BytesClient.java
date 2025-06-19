@@ -45,7 +45,7 @@ public final class BytesClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BytesProperty> getAllWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Bytes.getAll", requestContext,
+        return this.instrumentation.instrumentWithResponse("OptionalClient.getAll", requestContext,
             updatedContext -> this.serviceClient.getAllWithResponse(updatedContext));
     }
 
@@ -74,7 +74,7 @@ public final class BytesClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BytesProperty> getDefaultWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Bytes.getDefault", requestContext,
+        return this.instrumentation.instrumentWithResponse("OptionalClient.getDefault", requestContext,
             updatedContext -> this.serviceClient.getDefaultWithResponse(updatedContext));
     }
 
@@ -104,7 +104,7 @@ public final class BytesClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putAllWithResponse(BytesProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Bytes.putAll", requestContext,
+        return this.instrumentation.instrumentWithResponse("OptionalClient.putAll", requestContext,
             updatedContext -> this.serviceClient.putAllWithResponse(body, updatedContext));
     }
 
@@ -135,7 +135,7 @@ public final class BytesClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putDefaultWithResponse(BytesProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Bytes.putDefault", requestContext,
+        return this.instrumentation.instrumentWithResponse("OptionalClient.putDefault", requestContext,
             updatedContext -> this.serviceClient.putDefaultWithResponse(body, updatedContext));
     }
 

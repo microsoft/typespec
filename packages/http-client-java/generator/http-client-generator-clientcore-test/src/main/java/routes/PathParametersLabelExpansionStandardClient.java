@@ -49,8 +49,8 @@ public final class PathParametersLabelExpansionStandardClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> primitiveWithResponse(String param, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("PathParametersLabelExpansionStandard.primitive",
-            requestContext, updatedContext -> this.serviceClient.primitiveWithResponse(param, updatedContext));
+        return this.instrumentation.instrumentWithResponse("RoutesClient.primitive", requestContext,
+            updatedContext -> this.serviceClient.primitiveWithResponse(param, updatedContext));
     }
 
     /**
@@ -80,7 +80,7 @@ public final class PathParametersLabelExpansionStandardClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> arrayWithResponse(List<String> param, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("PathParametersLabelExpansionStandard.array", requestContext,
+        return this.instrumentation.instrumentWithResponse("RoutesClient.array", requestContext,
             updatedContext -> this.serviceClient.arrayWithResponse(param, updatedContext));
     }
 
@@ -111,8 +111,8 @@ public final class PathParametersLabelExpansionStandardClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> recordWithResponse(Map<String, Integer> param, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("PathParametersLabelExpansionStandard.record",
-            requestContext, updatedContext -> this.serviceClient.recordWithResponse(param, updatedContext));
+        return this.instrumentation.instrumentWithResponse("RoutesClient.record", requestContext,
+            updatedContext -> this.serviceClient.recordWithResponse(param, updatedContext));
     }
 
     /**

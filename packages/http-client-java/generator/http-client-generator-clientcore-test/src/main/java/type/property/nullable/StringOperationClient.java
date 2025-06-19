@@ -45,7 +45,7 @@ public final class StringOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<StringProperty> getNonNullWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("String.getNonNull", requestContext,
+        return this.instrumentation.instrumentWithResponse("NullableClient.getNonNull", requestContext,
             updatedContext -> this.serviceClient.getNonNullWithResponse(updatedContext));
     }
 
@@ -74,7 +74,7 @@ public final class StringOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<StringProperty> getNullWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("String.getNull", requestContext,
+        return this.instrumentation.instrumentWithResponse("NullableClient.getNull", requestContext,
             updatedContext -> this.serviceClient.getNullWithResponse(updatedContext));
     }
 
@@ -104,7 +104,7 @@ public final class StringOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> patchNonNullWithResponse(StringProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("String.patchNonNull", requestContext,
+        return this.instrumentation.instrumentWithResponse("NullableClient.patchNonNull", requestContext,
             updatedContext -> this.serviceClient.patchNonNullWithResponse(body, updatedContext));
     }
 
@@ -135,7 +135,7 @@ public final class StringOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> patchNullWithResponse(StringProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("String.patchNull", requestContext,
+        return this.instrumentation.instrumentWithResponse("NullableClient.patchNull", requestContext,
             updatedContext -> this.serviceClient.patchNullWithResponse(body, updatedContext));
     }
 

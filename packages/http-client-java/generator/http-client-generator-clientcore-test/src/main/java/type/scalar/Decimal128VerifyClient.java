@@ -47,7 +47,7 @@ public final class Decimal128VerifyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<List<BigDecimal>> prepareVerifyWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Decimal128Verify.prepareVerify", requestContext,
+        return this.instrumentation.instrumentWithResponse("ScalarClient.prepareVerify", requestContext,
             updatedContext -> this.serviceClient.prepareVerifyWithResponse(updatedContext));
     }
 
@@ -77,7 +77,7 @@ public final class Decimal128VerifyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> verifyWithResponse(BigDecimal body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Decimal128Verify.verify", requestContext,
+        return this.instrumentation.instrumentWithResponse("ScalarClient.verify", requestContext,
             updatedContext -> this.serviceClient.verifyWithResponse(body, updatedContext));
     }
 

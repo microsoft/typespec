@@ -50,7 +50,7 @@ public final class NumericClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<SafeintAsStringProperty> safeintAsStringWithResponse(SafeintAsStringProperty value,
         RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Property.safeintAsString", requestContext,
+        return this.instrumentation.instrumentWithResponse("NumericClient.safeintAsString", requestContext,
             updatedContext -> this.serviceClient.safeintAsStringWithResponse(value, updatedContext));
     }
 
@@ -83,7 +83,7 @@ public final class NumericClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Uint32AsStringProperty> uint32AsStringOptionalWithResponse(Uint32AsStringProperty value,
         RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Property.uint32AsStringOptional", requestContext,
+        return this.instrumentation.instrumentWithResponse("NumericClient.uint32AsStringOptional", requestContext,
             updatedContext -> this.serviceClient.uint32AsStringOptionalWithResponse(value, updatedContext));
     }
 
@@ -116,7 +116,7 @@ public final class NumericClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Uint8AsStringProperty> uint8AsStringWithResponse(Uint8AsStringProperty value,
         RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Property.uint8AsString", requestContext,
+        return this.instrumentation.instrumentWithResponse("NumericClient.uint8AsString", requestContext,
             updatedContext -> this.serviceClient.uint8AsStringWithResponse(value, updatedContext));
     }
 

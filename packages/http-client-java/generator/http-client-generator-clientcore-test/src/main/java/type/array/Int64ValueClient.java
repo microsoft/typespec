@@ -46,7 +46,7 @@ public final class Int64ValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<List<Long>> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Int64Value.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("ArrayClient.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -76,7 +76,7 @@ public final class Int64ValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(List<Long> body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Int64Value.put", requestContext,
+        return this.instrumentation.instrumentWithResponse("ArrayClient.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 

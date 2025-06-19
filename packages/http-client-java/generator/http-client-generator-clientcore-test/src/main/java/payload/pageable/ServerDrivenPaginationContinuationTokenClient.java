@@ -79,8 +79,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestQueryResponseBody(String foo, String bar, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "ServerDrivenPaginationContinuationToken.requestQueryResponseBody", requestContext,
+        return this.instrumentation.instrumentWithResponse("PageableClient.requestQueryResponseBody", requestContext,
             updatedContext -> this.serviceClient.requestQueryResponseBody(foo, bar, updatedContext));
     }
 
@@ -129,8 +128,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestHeaderResponseBody(String foo, String bar, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "ServerDrivenPaginationContinuationToken.requestHeaderResponseBody", requestContext,
+        return this.instrumentation.instrumentWithResponse("PageableClient.requestHeaderResponseBody", requestContext,
             updatedContext -> this.serviceClient.requestHeaderResponseBody(foo, bar, updatedContext));
     }
 
@@ -179,8 +177,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestQueryResponseHeader(String foo, String bar, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "ServerDrivenPaginationContinuationToken.requestQueryResponseHeader", requestContext,
+        return this.instrumentation.instrumentWithResponse("PageableClient.requestQueryResponseHeader", requestContext,
             updatedContext -> this.serviceClient.requestQueryResponseHeader(foo, bar, updatedContext));
     }
 
@@ -229,8 +226,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestHeaderResponseHeader(String foo, String bar, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "ServerDrivenPaginationContinuationToken.requestHeaderResponseHeader", requestContext,
+        return this.instrumentation.instrumentWithResponse("PageableClient.requestHeaderResponseHeader", requestContext,
             updatedContext -> this.serviceClient.requestHeaderResponseHeader(foo, bar, updatedContext));
     }
 }

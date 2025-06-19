@@ -47,7 +47,7 @@ public final class QueryClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> multiWithResponse(List<String> colors, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Query.multi", requestContext,
+        return this.instrumentation.instrumentWithResponse("CollectionFormatClient.multi", requestContext,
             updatedContext -> this.serviceClient.multiWithResponse(colors, updatedContext));
     }
 
@@ -78,7 +78,7 @@ public final class QueryClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> ssvWithResponse(List<String> colors, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Query.ssv", requestContext,
+        return this.instrumentation.instrumentWithResponse("CollectionFormatClient.ssv", requestContext,
             updatedContext -> this.serviceClient.ssvWithResponse(colors, updatedContext));
     }
 
@@ -109,7 +109,7 @@ public final class QueryClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> pipesWithResponse(List<String> colors, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Query.pipes", requestContext,
+        return this.instrumentation.instrumentWithResponse("CollectionFormatClient.pipes", requestContext,
             updatedContext -> this.serviceClient.pipesWithResponse(colors, updatedContext));
     }
 
@@ -140,7 +140,7 @@ public final class QueryClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> csvWithResponse(List<String> colors, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Query.csv", requestContext,
+        return this.instrumentation.instrumentWithResponse("CollectionFormatClient.csv", requestContext,
             updatedContext -> this.serviceClient.csvWithResponse(colors, updatedContext));
     }
 

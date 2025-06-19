@@ -45,7 +45,7 @@ public final class MultipleSpreadClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<MultipleSpreadRecord> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("MultipleSpread.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("AdditionalPropertiesClient.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -75,7 +75,7 @@ public final class MultipleSpreadClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(MultipleSpreadRecord body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("MultipleSpread.put", requestContext,
+        return this.instrumentation.instrumentWithResponse("AdditionalPropertiesClient.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 

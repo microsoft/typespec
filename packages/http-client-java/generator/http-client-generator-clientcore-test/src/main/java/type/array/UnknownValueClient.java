@@ -47,7 +47,7 @@ public final class UnknownValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<List<BinaryData>> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("UnknownValue.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("ArrayClient.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -77,7 +77,7 @@ public final class UnknownValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(List<BinaryData> body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("UnknownValue.put", requestContext,
+        return this.instrumentation.instrumentWithResponse("ArrayClient.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 

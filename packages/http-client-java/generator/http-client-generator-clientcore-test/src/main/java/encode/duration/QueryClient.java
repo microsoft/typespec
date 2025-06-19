@@ -48,7 +48,7 @@ public final class QueryClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> defaultMethodWithResponse(Duration input, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Query.default", requestContext,
+        return this.instrumentation.instrumentWithResponse("DurationClient.default", requestContext,
             updatedContext -> this.serviceClient.defaultMethodWithResponse(input, updatedContext));
     }
 
@@ -79,7 +79,7 @@ public final class QueryClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> iso8601WithResponse(Duration input, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Query.iso8601", requestContext,
+        return this.instrumentation.instrumentWithResponse("DurationClient.iso8601", requestContext,
             updatedContext -> this.serviceClient.iso8601WithResponse(input, updatedContext));
     }
 
@@ -110,7 +110,7 @@ public final class QueryClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> int32SecondsWithResponse(Duration input, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Query.int32Seconds", requestContext,
+        return this.instrumentation.instrumentWithResponse("DurationClient.int32Seconds", requestContext,
             updatedContext -> this.serviceClient.int32SecondsWithResponse(input, updatedContext));
     }
 
@@ -141,7 +141,7 @@ public final class QueryClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> floatSecondsWithResponse(Duration input, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Query.floatSeconds", requestContext,
+        return this.instrumentation.instrumentWithResponse("DurationClient.floatSeconds", requestContext,
             updatedContext -> this.serviceClient.floatSecondsWithResponse(input, updatedContext));
     }
 
@@ -172,7 +172,7 @@ public final class QueryClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> float64SecondsWithResponse(Duration input, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Query.float64Seconds", requestContext,
+        return this.instrumentation.instrumentWithResponse("DurationClient.float64Seconds", requestContext,
             updatedContext -> this.serviceClient.float64SecondsWithResponse(input, updatedContext));
     }
 
@@ -203,7 +203,7 @@ public final class QueryClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> int32SecondsArrayWithResponse(List<Duration> input, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Query.int32SecondsArray", requestContext,
+        return this.instrumentation.instrumentWithResponse("DurationClient.int32SecondsArray", requestContext,
             updatedContext -> this.serviceClient.int32SecondsArrayWithResponse(input, updatedContext));
     }
 

@@ -46,7 +46,7 @@ public final class Int32ValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Map<String, Integer>> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Int32Value.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("DictionaryClient.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -76,7 +76,7 @@ public final class Int32ValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(Map<String, Integer> body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Int32Value.put", requestContext,
+        return this.instrumentation.instrumentWithResponse("DictionaryClient.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 

@@ -47,7 +47,7 @@ public final class DurationValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Map<String, Duration>> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("DurationValue.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("DictionaryClient.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -77,7 +77,7 @@ public final class DurationValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(Map<String, Duration> body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("DurationValue.put", requestContext,
+        return this.instrumentation.instrumentWithResponse("DictionaryClient.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 
