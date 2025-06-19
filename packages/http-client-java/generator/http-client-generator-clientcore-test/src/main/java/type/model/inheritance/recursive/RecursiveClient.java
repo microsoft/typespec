@@ -46,7 +46,7 @@ public final class RecursiveClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(Extension input, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(".put", requestContext,
+        return this.instrumentation.instrumentWithResponse("RecursiveClient.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(input, updatedContext));
     }
 
@@ -76,7 +76,7 @@ public final class RecursiveClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Extension> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(".get", requestContext,
+        return this.instrumentation.instrumentWithResponse("RecursiveClient.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 

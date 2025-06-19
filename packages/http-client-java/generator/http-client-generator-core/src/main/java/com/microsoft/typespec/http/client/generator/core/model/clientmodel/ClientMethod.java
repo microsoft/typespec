@@ -7,9 +7,9 @@ import com.azure.core.http.rest.SimpleResponse;
 import com.azure.core.util.CoreUtils;
 import com.azure.core.util.UrlBuilder;
 import com.azure.core.util.serializer.TypeReference;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.implementation.OperationInstrumentationInfo;
 import com.microsoft.typespec.http.client.generator.core.mapper.CollectionUtil;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
@@ -116,7 +116,7 @@ public class ClientMethod {
     private final boolean hasWithContextOverload;
     private final String parametersDeclaration;
     private final String argumentList;
-    private final Operation operation;
+    private final OperationInstrumentationInfo instrumentationInfo;
 
     public ClientMethod.Builder newBuilder() {
         return new ClientMethod.Builder().description(description)
@@ -138,7 +138,7 @@ public class ClientMethod {
             .implementationDetails(implementationDetails)
             .methodPollingDetails(methodPollingDetails)
             .methodDocumentation(externalDocumentation)
-            .operation(operation)
+            .operationInstrumentationInfo(instrumentationInfo)
             .setCrossLanguageDefinitionId(crossLanguageDefinitionId)
             .hasWithContextOverload(hasWithContextOverload);
     }
@@ -163,7 +163,7 @@ public class ClientMethod {
      * @param parameterTransformations The parameter transformations before calling ProxyMethod.
      * @param externalDocumentation The external documentation.
      * @param hasWithContextOverload Whether this method has a corresponding {@code Context}-based overload.
-     * @param operation The operation associated with this ClientMethod.
+     * @param instrumentationInfo The instrumentation information for this ClientMethod.
      */
     protected ClientMethod(String description, ReturnValue returnValue, String name,
         List<ClientMethodParameter> parameters, boolean onlyRequiredParameters, ClientMethodType type,
@@ -173,7 +173,8 @@ public class ClientMethod {
         ParameterTransformations parameterTransformations, JavaVisibility methodVisibility,
         JavaVisibility methodVisibilityInWrapperClient, ImplementationDetails implementationDetails,
         MethodPollingDetails methodPollingDetails, ExternalDocumentation externalDocumentation,
-        String crossLanguageDefinitionId, boolean hasWithContextOverload, Operation operation) {
+        String crossLanguageDefinitionId, boolean hasWithContextOverload,
+        OperationInstrumentationInfo instrumentationInfo) {
         this.description = description;
         this.returnValue = returnValue;
         this.name = name;
@@ -217,7 +218,7 @@ public class ClientMethod {
         }
         this.argumentList
             = getMethodParameters().stream().map(ClientMethodParameter::getName).collect(Collectors.joining(", "));
-        this.operation = operation;
+        this.instrumentationInfo = instrumentationInfo;
     }
 
     @Override
@@ -437,12 +438,12 @@ public class ClientMethod {
     }
 
     /**
-     * Get the operation associated with this ClientMethod.
+     * Get the instrumentation information for this ClientMethod.
      *
-     * @return the operation associated with this ClientMethod.
+     * @return the instrumentation information for this ClientMethod.
      */
-    public Operation getOperation() {
-        return operation;
+    public OperationInstrumentationInfo getOperationInstrumentationInfo() {
+        return instrumentationInfo;
     }
 
     /**
@@ -634,7 +635,7 @@ public class ClientMethod {
         protected String crossLanguageDefinitionId;
         protected boolean hasWithContextOverload;
         protected boolean hidePageableParams;
-        protected Operation operation;
+        protected OperationInstrumentationInfo instrumentationInfo;
 
         public Builder setCrossLanguageDefinitionId(String crossLanguageDefinitionId) {
             this.crossLanguageDefinitionId = crossLanguageDefinitionId;
@@ -876,11 +877,11 @@ public class ClientMethod {
         /**
          * Sets the operation associated with this ClientMethod.
          *
-         * @param operation the operation associated with this ClientMethod
+         * @param instrumentationInfo the operation instrumentation information
          * @return the Builder itself
          */
-        public Builder operation(Operation operation) {
-            this.operation = operation;
+        public Builder operationInstrumentationInfo(OperationInstrumentationInfo instrumentationInfo) {
+            this.instrumentationInfo = instrumentationInfo;
             return this;
         }
 
@@ -893,7 +894,7 @@ public class ClientMethod {
                 clientReference, CollectionUtil.toImmutableList(requiredNullableParameterExpressions),
                 isGroupedParameterRequired, groupedParameterTypeName, methodPageDetails, parameterTransformations,
                 methodVisibility, methodVisibilityInWrapperClient, implementationDetails, methodPollingDetails,
-                externalDocumentation, crossLanguageDefinitionId, hasWithContextOverload, operation);
+                externalDocumentation, crossLanguageDefinitionId, hasWithContextOverload, instrumentationInfo);
         }
     }
 }

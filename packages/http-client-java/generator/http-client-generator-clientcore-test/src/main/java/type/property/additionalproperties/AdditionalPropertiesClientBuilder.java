@@ -260,7 +260,8 @@ public final class AdditionalPropertiesClientBuilder
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new ExtendsUnknownClient(buildInnerClient().getExtendsUnknowns(), instrumentation);
@@ -278,7 +279,8 @@ public final class AdditionalPropertiesClientBuilder
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new ExtendsUnknownDerivedClient(buildInnerClient().getExtendsUnknownDeriveds(), instrumentation);
@@ -296,7 +298,8 @@ public final class AdditionalPropertiesClientBuilder
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new ExtendsUnknownDiscriminatedClient(buildInnerClient().getExtendsUnknownDiscriminateds(),
@@ -315,7 +318,8 @@ public final class AdditionalPropertiesClientBuilder
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new IsUnknownClient(buildInnerClient().getIsUnknowns(), instrumentation);
@@ -333,7 +337,8 @@ public final class AdditionalPropertiesClientBuilder
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new IsUnknownDerivedClient(buildInnerClient().getIsUnknownDeriveds(), instrumentation);
@@ -351,7 +356,8 @@ public final class AdditionalPropertiesClientBuilder
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new IsUnknownDiscriminatedClient(buildInnerClient().getIsUnknownDiscriminateds(), instrumentation);
@@ -369,7 +375,8 @@ public final class AdditionalPropertiesClientBuilder
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new ExtendsStringClient(buildInnerClient().getExtendsStrings(), instrumentation);
@@ -387,7 +394,8 @@ public final class AdditionalPropertiesClientBuilder
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new IsStringClient(buildInnerClient().getIsStrings(), instrumentation);
@@ -405,7 +413,8 @@ public final class AdditionalPropertiesClientBuilder
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new SpreadStringClient(buildInnerClient().getSpreadStrings(), instrumentation);
@@ -423,7 +432,8 @@ public final class AdditionalPropertiesClientBuilder
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new ExtendsFloatClient(buildInnerClient().getExtendsFloats(), instrumentation);
@@ -441,7 +451,8 @@ public final class AdditionalPropertiesClientBuilder
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new IsFloatClient(buildInnerClient().getIsFloats(), instrumentation);
@@ -459,7 +470,8 @@ public final class AdditionalPropertiesClientBuilder
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new SpreadFloatClient(buildInnerClient().getSpreadFloats(), instrumentation);
@@ -477,7 +489,8 @@ public final class AdditionalPropertiesClientBuilder
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new ExtendsModelClient(buildInnerClient().getExtendsModels(), instrumentation);
@@ -495,7 +508,8 @@ public final class AdditionalPropertiesClientBuilder
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new IsModelClient(buildInnerClient().getIsModels(), instrumentation);
@@ -513,7 +527,8 @@ public final class AdditionalPropertiesClientBuilder
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new SpreadModelClient(buildInnerClient().getSpreadModels(), instrumentation);
@@ -531,7 +546,8 @@ public final class AdditionalPropertiesClientBuilder
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new ExtendsModelArrayClient(buildInnerClient().getExtendsModelArrays(), instrumentation);
@@ -549,7 +565,8 @@ public final class AdditionalPropertiesClientBuilder
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new IsModelArrayClient(buildInnerClient().getIsModelArrays(), instrumentation);
@@ -567,7 +584,8 @@ public final class AdditionalPropertiesClientBuilder
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new SpreadModelArrayClient(buildInnerClient().getSpreadModelArrays(), instrumentation);
@@ -585,7 +603,8 @@ public final class AdditionalPropertiesClientBuilder
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new SpreadDifferentStringClient(buildInnerClient().getSpreadDifferentStrings(), instrumentation);
@@ -603,7 +622,8 @@ public final class AdditionalPropertiesClientBuilder
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new SpreadDifferentFloatClient(buildInnerClient().getSpreadDifferentFloats(), instrumentation);
@@ -621,7 +641,8 @@ public final class AdditionalPropertiesClientBuilder
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new SpreadDifferentModelClient(buildInnerClient().getSpreadDifferentModels(), instrumentation);
@@ -639,7 +660,8 @@ public final class AdditionalPropertiesClientBuilder
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new SpreadDifferentModelArrayClient(buildInnerClient().getSpreadDifferentModelArrays(), instrumentation);
@@ -657,7 +679,8 @@ public final class AdditionalPropertiesClientBuilder
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new ExtendsDifferentSpreadStringClient(buildInnerClient().getExtendsDifferentSpreadStrings(),
@@ -676,7 +699,8 @@ public final class AdditionalPropertiesClientBuilder
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new ExtendsDifferentSpreadFloatClient(buildInnerClient().getExtendsDifferentSpreadFloats(),
@@ -695,7 +719,8 @@ public final class AdditionalPropertiesClientBuilder
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new ExtendsDifferentSpreadModelClient(buildInnerClient().getExtendsDifferentSpreadModels(),
@@ -714,7 +739,8 @@ public final class AdditionalPropertiesClientBuilder
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new ExtendsDifferentSpreadModelArrayClient(buildInnerClient().getExtendsDifferentSpreadModelArrays(),
@@ -733,7 +759,8 @@ public final class AdditionalPropertiesClientBuilder
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new MultipleSpreadClient(buildInnerClient().getMultipleSpreads(), instrumentation);
@@ -751,7 +778,8 @@ public final class AdditionalPropertiesClientBuilder
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new SpreadRecordUnionClient(buildInnerClient().getSpreadRecordUnions(), instrumentation);
@@ -769,7 +797,8 @@ public final class AdditionalPropertiesClientBuilder
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new SpreadRecordNonDiscriminatedUnionClient(buildInnerClient().getSpreadRecordNonDiscriminatedUnions(),
@@ -788,7 +817,8 @@ public final class AdditionalPropertiesClientBuilder
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new SpreadRecordNonDiscriminatedUnion2Client(buildInnerClient().getSpreadRecordNonDiscriminatedUnion2s(),
@@ -807,7 +837,8 @@ public final class AdditionalPropertiesClientBuilder
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new SpreadRecordNonDiscriminatedUnion3Client(buildInnerClient().getSpreadRecordNonDiscriminatedUnion3s(),

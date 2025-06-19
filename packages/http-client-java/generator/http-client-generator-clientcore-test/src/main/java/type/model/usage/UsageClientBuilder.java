@@ -225,7 +225,8 @@ public final class UsageClientBuilder implements HttpTrait<UsageClientBuilder>, 
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new UsageClient(buildInnerClient(), instrumentation);

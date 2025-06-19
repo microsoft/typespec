@@ -245,7 +245,8 @@ public final class AddedClientBuilder implements HttpTrait<AddedClientBuilder>, 
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint);
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new AddedClient(buildInnerClient(), instrumentation);
@@ -263,7 +264,8 @@ public final class AddedClientBuilder implements HttpTrait<AddedClientBuilder>, 
             : this.httpInstrumentationOptions;
         SdkInstrumentationOptions sdkInstrumentationOptions
             = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint);
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         return new InterfaceV2Client(buildInnerClient().getInterfaceV2s(), instrumentation);

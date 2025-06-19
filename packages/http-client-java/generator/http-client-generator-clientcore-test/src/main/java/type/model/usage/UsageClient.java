@@ -46,7 +46,7 @@ public final class UsageClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> inputWithResponse(InputRecord input, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(".input", requestContext,
+        return this.instrumentation.instrumentWithResponse("UsageClient.input", requestContext,
             updatedContext -> this.serviceClient.inputWithResponse(input, updatedContext));
     }
 
@@ -76,7 +76,7 @@ public final class UsageClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<OutputRecord> outputWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(".output", requestContext,
+        return this.instrumentation.instrumentWithResponse("UsageClient.output", requestContext,
             updatedContext -> this.serviceClient.outputWithResponse(updatedContext));
     }
 
@@ -107,7 +107,7 @@ public final class UsageClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<InputOutputRecord> inputAndOutputWithResponse(InputOutputRecord body,
         RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(".inputAndOutput", requestContext,
+        return this.instrumentation.instrumentWithResponse("UsageClient.inputAndOutput", requestContext,
             updatedContext -> this.serviceClient.inputAndOutputWithResponse(body, updatedContext));
     }
 

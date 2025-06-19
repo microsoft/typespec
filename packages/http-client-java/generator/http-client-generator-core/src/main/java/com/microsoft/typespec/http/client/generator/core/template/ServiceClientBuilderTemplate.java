@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -478,15 +479,29 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
             function.line(
                 "HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null ? new HttpInstrumentationOptions() : this.httpInstrumentationOptions;");
 
-            boolean hasEndpoint = syncClient.getClientBuilder()
+            Optional<ServiceClientProperty> endpointProperty = syncClient.getClientBuilder()
                 .getBuilderTraits()
                 .stream()
-                .anyMatch(trait -> trait instanceof EndpointTrait);
+                .filter(trait -> trait.getTraitInterfaceName().equals(EndpointTrait.class.getSimpleName()))
+                .flatMap(trait -> trait.getTraitMethods().stream())
+                .map(ClientBuilderTraitMethod::getProperty)
+                .filter(p -> p.getName().equals("endpoint"))
+                .findFirst();
+
+            String endpointExpression = "null";
+            if (endpointProperty.isPresent()) {
+                if (endpointProperty.get().getDefaultValueExpression() != null) {
+                    endpointExpression = String.format("this.endpoint != null ? this.endpoint : %s",
+                        endpointProperty.get().getDefaultValueExpression());
+                } else {
+                    endpointExpression = "this.endpoint";
+                }
+            }
 
             function.line(
-                "SdkInstrumentationOptions sdkInstrumentationOptions = new SdkInstrumentationOptions(%1$s).setSdkVersion(%2$s)%3$s;",
+                "SdkInstrumentationOptions sdkInstrumentationOptions = new SdkInstrumentationOptions(%1$s).setSdkVersion(%2$s).setEndpoint(%3$s);",
                 "PROPERTIES.getOrDefault(SDK_NAME, \"UnknownName\")", "PROPERTIES.get(SDK_VERSION)",
-                hasEndpoint ? ".setEndpoint(this.endpoint)" : "");
+                endpointExpression);
 
             function.line(
                 "Instrumentation instrumentation = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);");

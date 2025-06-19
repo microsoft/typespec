@@ -45,7 +45,7 @@ public final class NotDefinedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> validWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(".valid", requestContext,
+        return this.instrumentation.instrumentWithResponse("NotDefinedClient.valid", requestContext,
             updatedContext -> this.serviceClient.validWithResponse(updatedContext));
     }
 

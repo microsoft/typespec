@@ -9,6 +9,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Request;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings.SyncMethodsGeneration;
+import com.microsoft.typespec.http.client.generator.core.implementation.OperationInstrumentationInfo;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
@@ -129,7 +130,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         final ClientMethod.Builder builder = new ClientMethod.Builder()
             .clientReference((operation.getOperationGroup() == null
                 || operation.getOperationGroup().getLanguage().getJava().getName().isEmpty()) ? "this" : "this.client")
-            .operation(operation)
+            .operationInstrumentationInfo(new OperationInstrumentationInfo(operation))
             .setCrossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(operation));
 
         setJavaDoc(builder, operation);

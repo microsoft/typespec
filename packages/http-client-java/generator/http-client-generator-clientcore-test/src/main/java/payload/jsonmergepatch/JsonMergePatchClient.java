@@ -46,7 +46,7 @@ public final class JsonMergePatchClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Resource> createResourceWithResponse(Resource body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(".createResource", requestContext,
+        return this.instrumentation.instrumentWithResponse("JsonMergePatchClient.createResource", requestContext,
             updatedContext -> this.serviceClient.createResourceWithResponse(body, updatedContext));
     }
 
@@ -78,7 +78,7 @@ public final class JsonMergePatchClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Resource> updateResourceWithResponse(ResourcePatch body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(".updateResource", requestContext,
+        return this.instrumentation.instrumentWithResponse("JsonMergePatchClient.updateResource", requestContext,
             updatedContext -> this.serviceClient.updateResourceWithResponse(body, updatedContext));
     }
 
@@ -110,7 +110,8 @@ public final class JsonMergePatchClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Resource> updateOptionalResourceWithResponse(ResourcePatch body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(".updateOptionalResource", requestContext,
+        return this.instrumentation.instrumentWithResponse("JsonMergePatchClient.updateOptionalResource",
+            requestContext,
             updatedContext -> this.serviceClient.updateOptionalResourceWithResponse(body, updatedContext));
     }
 

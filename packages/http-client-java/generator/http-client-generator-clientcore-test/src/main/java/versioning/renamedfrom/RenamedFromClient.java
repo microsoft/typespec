@@ -47,7 +47,7 @@ public final class RenamedFromClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<NewModel> newOpWithResponse(String newQuery, NewModel body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(".newOp", requestContext,
+        return this.instrumentation.instrumentWithResponse("RenamedFromClient.newOp", requestContext,
             updatedContext -> this.serviceClient.newOpWithResponse(newQuery, body, updatedContext));
     }
 

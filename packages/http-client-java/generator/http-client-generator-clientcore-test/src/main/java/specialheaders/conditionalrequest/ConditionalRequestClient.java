@@ -47,7 +47,7 @@ public final class ConditionalRequestClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> postIfMatchWithResponse(String ifMatch, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(".postIfMatch", requestContext,
+        return this.instrumentation.instrumentWithResponse("ConditionalRequestClient.postIfMatch", requestContext,
             updatedContext -> this.serviceClient.postIfMatchWithResponse(ifMatch, updatedContext));
     }
 
@@ -91,7 +91,7 @@ public final class ConditionalRequestClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> postIfNoneMatchWithResponse(String ifNoneMatch, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(".postIfNoneMatch", requestContext,
+        return this.instrumentation.instrumentWithResponse("ConditionalRequestClient.postIfNoneMatch", requestContext,
             updatedContext -> this.serviceClient.postIfNoneMatchWithResponse(ifNoneMatch, updatedContext));
     }
 
@@ -138,7 +138,8 @@ public final class ConditionalRequestClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> headIfModifiedSinceWithResponse(OffsetDateTime ifModifiedSince,
         RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(".headIfModifiedSince", requestContext,
+        return this.instrumentation.instrumentWithResponse("ConditionalRequestClient.headIfModifiedSince",
+            requestContext,
             updatedContext -> this.serviceClient.headIfModifiedSinceWithResponse(ifModifiedSince, updatedContext));
     }
 
@@ -187,7 +188,8 @@ public final class ConditionalRequestClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> postIfUnmodifiedSinceWithResponse(OffsetDateTime ifUnmodifiedSince,
         RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(".postIfUnmodifiedSince", requestContext,
+        return this.instrumentation.instrumentWithResponse("ConditionalRequestClient.postIfUnmodifiedSince",
+            requestContext,
             updatedContext -> this.serviceClient.postIfUnmodifiedSinceWithResponse(ifUnmodifiedSince, updatedContext));
     }
 

@@ -45,7 +45,7 @@ public final class UnionClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> validKeyWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(".validKey", requestContext,
+        return this.instrumentation.instrumentWithResponse("UnionClient.validKey", requestContext,
             updatedContext -> this.serviceClient.validKeyWithResponse(updatedContext));
     }
 
@@ -73,7 +73,7 @@ public final class UnionClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> validTokenWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(".validToken", requestContext,
+        return this.instrumentation.instrumentWithResponse("UnionClient.validToken", requestContext,
             updatedContext -> this.serviceClient.validTokenWithResponse(updatedContext));
     }
 

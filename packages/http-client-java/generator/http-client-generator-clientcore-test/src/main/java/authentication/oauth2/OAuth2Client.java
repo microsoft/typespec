@@ -45,7 +45,7 @@ public final class OAuth2Client {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> validWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(".valid", requestContext,
+        return this.instrumentation.instrumentWithResponse("OAuth2Client.valid", requestContext,
             updatedContext -> this.serviceClient.validWithResponse(updatedContext));
     }
 
@@ -73,7 +73,7 @@ public final class OAuth2Client {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> invalidWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(".invalid", requestContext,
+        return this.instrumentation.instrumentWithResponse("OAuth2Client.invalid", requestContext,
             updatedContext -> this.serviceClient.invalidWithResponse(updatedContext));
     }
 

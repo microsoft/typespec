@@ -45,7 +45,7 @@ public final class SingleClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> myOpWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(".myOp", requestContext,
+        return this.instrumentation.instrumentWithResponse("SingleClient.myOp", requestContext,
             updatedContext -> this.serviceClient.myOpWithResponse(updatedContext));
     }
 
