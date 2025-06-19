@@ -561,7 +561,7 @@ async function doEmit(
   );
 
   if (emitResultUi.code !== ResultCode.Success) {
-    tel.lastStep = "Emitting coder";
+    tel.lastStep = "Emitting code";
     return emitResultUi.code;
   }
 
