@@ -58,7 +58,7 @@ public final class JsonlClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void send(BinaryData body, long contentLength) {
-        this.serviceClient.send(body, contentLength);
+        sendWithResponse(body, contentLength, RequestContext.none());
     }
 
     /**
@@ -86,6 +86,6 @@ public final class JsonlClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public BinaryData receive() {
-        return this.serviceClient.receive();
+        return receiveWithResponse(RequestContext.none()).getValue();
     }
 }

@@ -52,7 +52,7 @@ public final class VersionedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withoutApiVersion() {
-        this.serviceClient.withoutApiVersion();
+        withoutApiVersionWithResponse(RequestContext.none());
     }
 
     /**
@@ -79,7 +79,7 @@ public final class VersionedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withQueryApiVersion() {
-        this.serviceClient.withQueryApiVersion();
+        withQueryApiVersionWithResponse(RequestContext.none());
     }
 
     /**
@@ -106,7 +106,7 @@ public final class VersionedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withPathApiVersion() {
-        this.serviceClient.withPathApiVersion();
+        withPathApiVersionWithResponse(RequestContext.none());
     }
 
     /**
@@ -133,6 +133,6 @@ public final class VersionedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withQueryOldApiVersion() {
-        this.serviceClient.withQueryOldApiVersion();
+        withQueryOldApiVersionWithResponse(RequestContext.none());
     }
 }

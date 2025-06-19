@@ -91,18 +91,6 @@ public final class DifferentBodiesImpl {
     }
 
     /**
-     * The getAvatarAsPng operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData getAvatarAsPng() {
-        return getAvatarAsPngWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * The getAvatarAsJson operation.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -115,17 +103,5 @@ public final class DifferentBodiesImpl {
     public Response<PngImageAsJson> getAvatarAsJsonWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
         return service.getAvatarAsJson(this.client.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * The getAvatarAsJson operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public PngImageAsJson getAvatarAsJson() {
-        return getAvatarAsJsonWithResponse(RequestContext.none()).getValue();
     }
 }

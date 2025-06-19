@@ -92,18 +92,6 @@ public final class Decimal128VerifiesImpl {
     }
 
     /**
-     * The prepareVerify operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public List<BigDecimal> prepareVerify() {
-        return prepareVerifyWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * The verify operation.
      * 
      * @param body The body parameter.
@@ -117,18 +105,5 @@ public final class Decimal128VerifiesImpl {
     public Response<Void> verifyWithResponse(BigDecimal body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.verify(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The verify operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void verify(BigDecimal body) {
-        verifyWithResponse(body, RequestContext.none());
     }
 }

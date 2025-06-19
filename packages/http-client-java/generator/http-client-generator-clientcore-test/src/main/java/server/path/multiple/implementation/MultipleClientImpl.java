@@ -124,17 +124,6 @@ public final class MultipleClientImpl {
     }
 
     /**
-     * The noOperationParams operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void noOperationParams() {
-        noOperationParamsWithResponse(RequestContext.none());
-    }
-
-    /**
      * The withOperationPathParam operation.
      * 
      * @param keyword The keyword parameter.
@@ -148,18 +137,5 @@ public final class MultipleClientImpl {
     public Response<Void> withOperationPathParamWithResponse(String keyword, RequestContext requestContext) {
         return service.withOperationPathParam(this.getEndpoint(), this.getServiceVersion().getVersion(), keyword,
             requestContext);
-    }
-
-    /**
-     * The withOperationPathParam operation.
-     * 
-     * @param keyword The keyword parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withOperationPathParam(String keyword) {
-        withOperationPathParamWithResponse(keyword, RequestContext.none());
     }
 }

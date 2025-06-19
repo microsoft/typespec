@@ -150,18 +150,6 @@ public final class NestedDiscriminatorClientImpl {
     }
 
     /**
-     * The getModel operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return this is base model for polymorphic multiple levels inheritance with a discriminator.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Fish getModel() {
-        return getModelWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * The putModel operation.
      * 
      * @param input The input parameter.
@@ -178,19 +166,6 @@ public final class NestedDiscriminatorClientImpl {
     }
 
     /**
-     * The putModel operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putModel(Fish input) {
-        putModelWithResponse(input, RequestContext.none());
-    }
-
-    /**
      * The getRecursiveModel operation.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -203,18 +178,6 @@ public final class NestedDiscriminatorClientImpl {
     public Response<Fish> getRecursiveModelWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
         return service.getRecursiveModel(this.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * The getRecursiveModel operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return this is base model for polymorphic multiple levels inheritance with a discriminator.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Fish getRecursiveModel() {
-        return getRecursiveModelWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -234,19 +197,6 @@ public final class NestedDiscriminatorClientImpl {
     }
 
     /**
-     * The putRecursiveModel operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putRecursiveModel(Fish input) {
-        putRecursiveModelWithResponse(input, RequestContext.none());
-    }
-
-    /**
      * The getMissingDiscriminator operation.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -262,18 +212,6 @@ public final class NestedDiscriminatorClientImpl {
     }
 
     /**
-     * The getMissingDiscriminator operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return this is base model for polymorphic multiple levels inheritance with a discriminator.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Fish getMissingDiscriminator() {
-        return getMissingDiscriminatorWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * The getWrongDiscriminator operation.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -286,17 +224,5 @@ public final class NestedDiscriminatorClientImpl {
     public Response<Fish> getWrongDiscriminatorWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
         return service.getWrongDiscriminator(this.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * The getWrongDiscriminator operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return this is base model for polymorphic multiple levels inheritance with a discriminator.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Fish getWrongDiscriminator() {
-        return getWrongDiscriminatorWithResponse(RequestContext.none()).getValue();
     }
 }

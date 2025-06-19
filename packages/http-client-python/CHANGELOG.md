@@ -1,5 +1,12 @@
 # Change Log - @typespec/http-client-python
 
+## 0.12.2
+
+### Bump dependencies
+
+- [#7667](https://github.com/microsoft/typespec/pull/7667) bump typespec
+
+
 ## 0.12.1
 
 ### Bump dependencies

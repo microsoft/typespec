@@ -110,19 +110,6 @@ public final class QueriesImpl {
     }
 
     /**
-     * The multi operation.
-     * 
-     * @param colors Possible values for colors are [blue,red,green].
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void multi(List<String> colors) {
-        multiWithResponse(colors, RequestContext.none());
-    }
-
-    /**
      * The ssv operation.
      * 
      * @param colors Possible values for colors are [blue,red,green].
@@ -138,19 +125,6 @@ public final class QueriesImpl {
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
             .collect(Collectors.joining(" "));
         return service.ssv(this.client.getEndpoint(), colorsConverted, requestContext);
-    }
-
-    /**
-     * The ssv operation.
-     * 
-     * @param colors Possible values for colors are [blue,red,green].
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void ssv(List<String> colors) {
-        ssvWithResponse(colors, RequestContext.none());
     }
 
     /**
@@ -172,19 +146,6 @@ public final class QueriesImpl {
     }
 
     /**
-     * The pipes operation.
-     * 
-     * @param colors Possible values for colors are [blue,red,green].
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void pipes(List<String> colors) {
-        pipesWithResponse(colors, RequestContext.none());
-    }
-
-    /**
      * The csv operation.
      * 
      * @param colors Possible values for colors are [blue,red,green].
@@ -200,18 +161,5 @@ public final class QueriesImpl {
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
             .collect(Collectors.joining(","));
         return service.csv(this.client.getEndpoint(), colorsConverted, requestContext);
-    }
-
-    /**
-     * The csv operation.
-     * 
-     * @param colors Possible values for colors are [blue,red,green].
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void csv(List<String> colors) {
-        csvWithResponse(colors, RequestContext.none());
     }
 }
