@@ -72,12 +72,9 @@ function ClassProperties(props: ClassPropertiesProps): ay.Children {
 }
 
 function ClassMethods(props: ClassMethodsProps): ay.Children {
-  const classMethods: ay.Children = [];
-  for (const method of props.type.operations.values()) {
-    classMethods.push(
-      <ClassMethod type={method} public abstract />, // TODO: this probably ain't right, will revisit tomorrow!
-    );
-  }
+  const operations = Array.from(props.type.operations.values());
 
-  return <>{classMethods}</>;
+  return operations.map((o) => (
+    <ClassMethod type={o} public abstract /> // TODO: this probably ain't right, will revisit tomorrow!
+  ));
 }

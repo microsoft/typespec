@@ -27,7 +27,7 @@ export function ClassMethod(props: ClassMethodProps): ay.Children {
   const [efProps, updateProps, forwardProps] = ay.splitProps(
     props,
     ["type"],
-    ["async", "name", "refkey"],
+    ["async", "name", "refkey", "doc"],
   );
 
   const namePolicy = cs.useCSharpNamePolicy();
@@ -35,6 +35,7 @@ export function ClassMethod(props: ClassMethodProps): ay.Children {
   // Generate method name
   const methodName = updateProps.name ?? namePolicy.getName(props.type.name, "class-method");
   const refkeys = declarationRefkeys(updateProps.refkey, props.type)[0]; // TODO: support multiple refkeys for declarations in alloy
+  const doc = updateProps.doc ?? getDocComments($, efProps.type);
 
   // Generate parameters from operation
   const operationParameters = [...efProps.type.parameters.properties.entries()].map(
@@ -70,7 +71,7 @@ export function ClassMethod(props: ClassMethodProps): ay.Children {
       parameters={operationParameters}
       returns={returnType}
       async={updateProps.async}
-      doc={getDocComments($, efProps.type)}
+      doc={doc}
     ></cs.ClassMethod>
   );
 }

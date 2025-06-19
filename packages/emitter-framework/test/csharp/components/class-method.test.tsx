@@ -17,17 +17,16 @@ beforeEach(async () => {
 });
 
 it("renders a void method with no parameters", async () => {
-  const result = await runner.compile(`
+  const { TestOp } = (await runner.compile(`
       @test op TestOp(): void;
-    `);
-  const testOp = result.TestOp as Operation;
+    `)) as { TestOp: Operation };
 
   const res = render(
     <Output program={runner.program}>
       <Namespace name="TestNamespace">
         <SourceFile path="test.cs">
           <cs.ClassDeclaration name="TestClass">
-            <ClassMethod type={testOp} public />
+            <ClassMethod type={TestOp} public />
           </cs.ClassDeclaration>
         </SourceFile>
       </Namespace>
@@ -49,17 +48,16 @@ it("renders a void method with no parameters", async () => {
 });
 
 it("renders a method with return type and parameters", async () => {
-  const result = await runner.compile(`
+  const { GetUserById } = (await runner.compile(`
       @test op GetUserById(id: string, includeProfile?: boolean): string;
-    `);
-  const getUserById = result.GetUserById as Operation;
+    `)) as { GetUserById: Operation };
 
   const res = render(
     <Output program={runner.program}>
       <Namespace name="TestNamespace">
         <SourceFile path="test.cs">
           <cs.ClassDeclaration name="TestClass">
-            <ClassMethod type={getUserById} public />
+            <ClassMethod type={GetUserById} public />
           </cs.ClassDeclaration>
         </SourceFile>
       </Namespace>
@@ -81,17 +79,16 @@ it("renders a method with return type and parameters", async () => {
 });
 
 it("renders an async method with Task return type", async () => {
-  const result = await runner.compile(`
+  const { FetchData } = (await runner.compile(`
       @test op FetchData(): string;
-    `);
-  const fetchData = result.FetchData as Operation;
+    `)) as { FetchData: Operation };
 
   const res = render(
     <Output program={runner.program}>
       <Namespace name="TestNamespace">
         <SourceFile path="test.cs">
           <cs.ClassDeclaration name="TestClass">
-            <ClassMethod type={fetchData} async public />
+            <ClassMethod type={FetchData} async public />
           </cs.ClassDeclaration>
         </SourceFile>
       </Namespace>
@@ -113,17 +110,16 @@ it("renders an async method with Task return type", async () => {
 });
 
 it("renders an async void method with Task return type", async () => {
-  const result = await runner.compile(`
+  const { ProcessData } = (await runner.compile(`
       @test op ProcessData(): void;
-    `);
-  const processData = result.ProcessData as Operation;
+    `)) as { ProcessData: Operation };
 
   const res = render(
     <Output program={runner.program}>
       <Namespace name="TestNamespace">
         <SourceFile path="test.cs">
           <cs.ClassDeclaration name="TestClass">
-            <ClassMethod type={processData} async public />
+            <ClassMethod type={ProcessData} async public />
           </cs.ClassDeclaration>
         </SourceFile>
       </Namespace>
@@ -145,17 +141,16 @@ it("renders an async void method with Task return type", async () => {
 });
 
 it("renders a method with custom name", async () => {
-  const result = await runner.compile(`
+  const { SomeMethod } = (await runner.compile(`
       @test op SomeMethod(): string;
-    `);
-  const someMethod = result.SomeMethod as Operation;
+    `)) as { SomeMethod: Operation };
 
   const res = render(
     <Output program={runner.program}>
       <Namespace name="TestNamespace">
         <SourceFile path="test.cs">
           <cs.ClassDeclaration name="TestClass">
-            <ClassMethod type={someMethod} name="CustomMethodName" public />
+            <ClassMethod type={SomeMethod} name="CustomMethodName" public />
           </cs.ClassDeclaration>
         </SourceFile>
       </Namespace>
@@ -177,17 +172,16 @@ it("renders a method with custom name", async () => {
 });
 
 it("renders an abstract method", async () => {
-  const result = await runner.compile(`
+  const { AbstractMethod } = (await runner.compile(`
       @test op AbstractMethod(data: string): boolean;
-    `);
-  const abstractMethod = result.AbstractMethod as Operation;
+    `)) as { AbstractMethod: Operation };
 
   const res = render(
     <Output program={runner.program}>
       <Namespace name="TestNamespace">
         <SourceFile path="test.cs">
           <cs.ClassDeclaration name="TestClass" abstract>
-            <ClassMethod type={abstractMethod} abstract public />
+            <ClassMethod type={AbstractMethod} abstract public />
           </cs.ClassDeclaration>
         </SourceFile>
       </Namespace>
@@ -209,17 +203,16 @@ it("renders an abstract method", async () => {
 });
 
 it("renders a method with body content", async () => {
-  const result = await runner.compile(`
+  const { Calculate } = (await runner.compile(`
       @test op Calculate(x: int32, y: int32): int32;
-    `);
-  const calculate = result.Calculate as Operation;
+    `)) as { Calculate: Operation };
 
   const res = render(
     <Output program={runner.program}>
       <Namespace name="TestNamespace">
         <SourceFile path="test.cs">
           <cs.ClassDeclaration name="TestClass">
-            <ClassMethod type={calculate} public>
+            <ClassMethod type={Calculate} public>
               return x + y;
             </ClassMethod>
           </cs.ClassDeclaration>
@@ -246,18 +239,17 @@ it("renders a method with body content", async () => {
 });
 
 it("renders a method with docs", async () => {
-  const result = await runner.compile(`
+  const { GetInfo } = (await runner.compile(`
       @doc("Gets information.")
       @test op GetInfo(): string;
-    `);
-  const getInfo = result.GetInfo as Operation;
+    `)) as { GetInfo: Operation };
 
   const res = render(
     <Output program={runner.program}>
       <Namespace name="TestNamespace">
         <SourceFile path="test.cs">
           <cs.ClassDeclaration name="TestClass">
-            <ClassMethod type={getInfo} public />
+            <ClassMethod type={GetInfo} public />
           </cs.ClassDeclaration>
         </SourceFile>
       </Namespace>
