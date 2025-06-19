@@ -9,8 +9,8 @@ import com.azure.core.http.HttpClient;
 import com.azure.core.http.netty.NettyAsyncHttpClientProvider;
 import com.azure.core.test.http.AssertingHttpClientBuilder;
 import com.azure.core.util.HttpClientOptions;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class PageTests {
 
