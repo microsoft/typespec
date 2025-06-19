@@ -796,10 +796,10 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     "requestOptionsForNextPage.setContext(requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : "
                         + TemplateUtil.getContextNone() + ");");
 
-                List<String> reinjectedParams
-                    = clientMethod.getMethodPageDetails().getNextLinkReInjectedParameterNames();
-                if (reinjectedParams != null && !reinjectedParams.isEmpty()) {
-                    addQueryParameterReInjectionLogic(reinjectedParams, function);
+                MethodPageDetails.NextLinkReInjection nextLinkReInjection
+                    = clientMethod.getMethodPageDetails().getNextLinkReInjection();
+                if (nextLinkReInjection != null) {
+                    addQueryParameterReInjectionLogic(nextLinkReInjection, function);
                 }
 
                 function.line("return new PagedIterable<>(");
@@ -1049,9 +1049,9 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                             + TemplateUtil.getContextNone() + ");");
                 }
 
-                List<String> reinjectedParams
-                    = clientMethod.getMethodPageDetails().getNextLinkReInjectedParameterNames();
-                if (reinjectedParams != null && !reinjectedParams.isEmpty()) {
+                MethodPageDetails.NextLinkReInjection reinjectedParams
+                    = clientMethod.getMethodPageDetails().getNextLinkReInjection();
+                if (reinjectedParams != null) {
                     addQueryParameterReInjectionLogic(reinjectedParams, function);
                 }
 
@@ -1083,18 +1083,19 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         typeBlock.annotation("ServiceMethod(returns = ReturnType." + returnType.name() + ")");
     }
 
-    private static void addQueryParameterReInjectionLogic(List<String> reinjectedParamNames, JavaBlock javaBlock) {
+    protected void addQueryParameterReInjectionLogic(MethodPageDetails.NextLinkReInjection nextLinkReInjection,
+        JavaBlock javaBlock) {
         javaBlock.line("if (requestOptions != null) {");
         javaBlock.indent(() -> {
             javaBlock.line("requestOptions.addRequestCallback(httpRequest -> {");
             javaBlock.indent(() -> {
                 javaBlock.line("UrlBuilder urlBuilder = UrlBuilder.parse(httpRequest.getUrl().toString());");
                 javaBlock.line("Map<String, String> queryParams = urlBuilder.getQuery();");
-                for (String paramName : reinjectedParamNames) {
-                    javaBlock.line("if (queryParams.containsKey(\"" + paramName + "\")) {");
+                for (String paramSerializedName : nextLinkReInjection.getQueryParameterSerializedNames()) {
+                    javaBlock.line("if (queryParams.containsKey(\"" + paramSerializedName + "\")) {");
                     javaBlock.indent(() -> {
-                        javaBlock.line("requestOptionsForNextPage.addQueryParam(\"" + paramName
-                            + "\", queryParams.get(\"" + paramName + "\"));");
+                        javaBlock.line("requestOptionsForNextPage.addQueryParam(\"" + paramSerializedName
+                            + "\", queryParams.get(\"" + paramSerializedName + "\"));");
                     });
                     javaBlock.line("}");
                 }

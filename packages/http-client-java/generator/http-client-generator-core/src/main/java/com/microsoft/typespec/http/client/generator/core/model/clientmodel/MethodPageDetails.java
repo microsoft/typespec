@@ -4,6 +4,7 @@
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -14,18 +15,18 @@ public final class MethodPageDetails {
     private final ClientMethod nextMethod;
     private final ContinuationToken continuationToken;
     private final ClientMethodParameter maxPageSizeParameter;
-    private final List<String> nextLinkReInjectedParameterNames;
+    private final NextLinkReInjection nextLinkReInjection;
 
     public MethodPageDetails(ModelPropertySegment itemPropertyReference, ModelPropertySegment nextLinkPropertyReference,
         ClientMethod nextMethod, IType lroIntermediateType, ContinuationToken continuationToken,
-        ClientMethodParameter maxPageSizeParameter, List<String> nextLinkReInjectedParameterNames) {
+        ClientMethodParameter maxPageSizeParameter, NextLinkReInjection nextLinkReInjectedParameterNames) {
         this.itemPropertyReference = Objects.requireNonNull(itemPropertyReference);
         this.nextLinkPropertyReference = nextLinkPropertyReference;
         this.lroIntermediateType = lroIntermediateType;
         this.nextMethod = nextMethod;
         this.continuationToken = continuationToken;
         this.maxPageSizeParameter = maxPageSizeParameter;
-        this.nextLinkReInjectedParameterNames = nextLinkReInjectedParameterNames;
+        this.nextLinkReInjection = nextLinkReInjectedParameterNames;
     }
 
     public String getNextLinkName() {
@@ -86,8 +87,8 @@ public final class MethodPageDetails {
         return false;
     }
 
-    public List<String> getNextLinkReInjectedParameterNames() {
-        return nextLinkReInjectedParameterNames;
+    public NextLinkReInjection getNextLinkReInjection() {
+        return nextLinkReInjection;
     }
 
     public static final class ContinuationToken {
@@ -118,6 +119,22 @@ public final class MethodPageDetails {
 
         public String getResponseHeaderSerializedName() {
             return responseHeaderSerializedName;
+        }
+    }
+
+    /**
+     * Represents the nextLink re-injected parameters for paging. Legacy feature.
+     * Only query parameters are included.
+     */
+    public static final class NextLinkReInjection {
+        private final List<String> queryParameterSerializedNames;
+
+        public NextLinkReInjection(List<String> queryParameterNames) {
+            this.queryParameterSerializedNames = Collections.unmodifiableList(queryParameterNames);
+        }
+
+        public List<String> getQueryParameterSerializedNames() {
+            return queryParameterSerializedNames;
         }
     }
 }

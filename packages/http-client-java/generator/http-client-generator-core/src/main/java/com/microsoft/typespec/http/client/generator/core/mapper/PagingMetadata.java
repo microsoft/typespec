@@ -40,7 +40,12 @@ final class PagingMetadata {
     private final List<ClientMethod> nextMethods;
     private final ClientMethodParameter maxPageSizeParameter;
     private final MethodPageDetails.ContinuationToken continuationToken;
-    private final List<String> nextLinkReInjectedParameterNames;
+    /**
+     * Represents the nextLink re-injected parameters for paging. This is a legacy feature and currently only
+     * query parameters are included.
+     * If there is no nextLink reinjection parameters, this field will be null.
+     */
+    private final MethodPageDetails.NextLinkReInjection nextLinkReInjection;
 
     /**
      * Creates paging meta data for an {@link Operation}.
@@ -88,18 +93,27 @@ final class PagingMetadata {
             = getContinuationToken(xmsPageable, responseType, parametersDetails);
         final ClientMethodParameter maxPageSizeParameter = getPageSizeClientMethodParameter(parametersDetails);
 
-        List<String> nextLinkReInjectedParameterNames = null;
+        MethodPageDetails.NextLinkReInjection nextLinkReInjection = null;
         if (xmsPageable.getNextLinkReInjectedParameters() != null) {
-            nextLinkReInjectedParameterNames = new ArrayList<>();
+            List<String> queryParamSerializedNames = new ArrayList<>();
             for (Parameter p : xmsPageable.getNextLinkReInjectedParameters()) {
-                if (p.getLanguage() != null && p.getLanguage().getDefault() != null) {
-                    nextLinkReInjectedParameterNames.add(p.getLanguage().getDefault().getName());
+                if (p.getProtocol() != null
+                    && p.getProtocol().getHttp() != null
+                    && p.getProtocol().getHttp().getIn() == RequestParameterLocation.QUERY) {
+                    if (p.getLanguage() != null && p.getLanguage().getDefault() != null) {
+                        if (p.getLanguage().getDefault().getSerializedName() != null) {
+                            queryParamSerializedNames.add(p.getLanguage().getDefault().getSerializedName());
+                        }
+                    }
                 }
+            }
+            if (!queryParamSerializedNames.isEmpty()) {
+                nextLinkReInjection = new MethodPageDetails.NextLinkReInjection(queryParamSerializedNames);
             }
         }
 
         return new PagingMetadata(operation, nextOperation, itemPropertyReference, nextLinkPropertyReference,
-            nextMethods, lroPollResultType, continuationToken, maxPageSizeParameter, nextLinkReInjectedParameterNames);
+            nextMethods, lroPollResultType, continuationToken, maxPageSizeParameter, nextLinkReInjection);
     }
 
     boolean isMethodForNextPage() {
@@ -119,7 +133,7 @@ final class PagingMetadata {
         final ClientMethodType nextMethodType = nextMethodType(isSync);
         final ClientMethod nextMethod = enumerateNextMethodsOfType(nextMethodType).findFirst().orElse(null);
         return new MethodPageDetails(itemPropertyReference, nextLinkPropertyReference, nextMethod, lroPollResultType,
-            continuationToken, maxPageSizeParameter, nextLinkReInjectedParameterNames);
+            continuationToken, maxPageSizeParameter, nextLinkReInjection);
     }
 
     /**
@@ -147,7 +161,7 @@ final class PagingMetadata {
             return null;
         }
         return new MethodPageDetails(itemPropertyReference, nextLinkPropertyReference, nextMethodWithContext,
-            lroPollResultType, continuationToken, maxPageSizeParameter, nextLinkReInjectedParameterNames);
+            lroPollResultType, continuationToken, maxPageSizeParameter, nextLinkReInjection);
     }
 
     private static ModelPropertySegment getPageableItem(XmsPageable xmsPageable, IType responseType) {
@@ -247,7 +261,7 @@ final class PagingMetadata {
     private PagingMetadata(Operation operation, Operation nextOperation, ModelPropertySegment itemPropertyReference,
         ModelPropertySegment nextLinkPropertyReference, List<ClientMethod> nextMethods, IType lroPollResultType,
         MethodPageDetails.ContinuationToken continuationToken, ClientMethodParameter maxPageSizeParameter,
-        List<String> nextLinkReInjectedParameterNames) {
+        MethodPageDetails.NextLinkReInjection nextLinkReInjection) {
         this.operation = operation;
         this.nextOperation = nextOperation;
         this.itemPropertyReference = itemPropertyReference;
@@ -256,6 +270,7 @@ final class PagingMetadata {
         this.lroPollResultType = lroPollResultType;
         this.continuationToken = continuationToken;
         this.maxPageSizeParameter = maxPageSizeParameter;
-        this.nextLinkReInjectedParameterNames = nextLinkReInjectedParameterNames;
+        this.nextLinkReInjection = nextLinkReInjection;
     }
+
 }
