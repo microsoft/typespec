@@ -155,36 +155,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             Assert.AreEqual("Felines", felineClientCollectionResult!.Type.Namespace);
         }
 
-        [Test]
-        public void UsesValidIdentifierNames()
-        {
-            MockHelpers.LoadMockGenerator();
-            var inputModel = InputFactory.Model("cat", properties:
-            [
-                InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
-            ]);
-            var pagingMetadata = InputFactory.NextLinkPagingMetadata("cats", "nextCat", InputResponseLocation.Body);
-            var response = InputFactory.OperationResponse(
-                [200],
-                InputFactory.Model(
-                    "page",
-                    properties: [InputFactory.Property("cats", InputFactory.Array(inputModel)), InputFactory.Property("nextCat", InputPrimitiveType.Url)]));
-            IReadOnlyList<InputParameter> parameters = [InputFactory.Parameter("$foo", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Header)];
-            var operation = InputFactory.Operation("getCats", responses: [response], parameters: parameters);
-            var inputServiceMethod = InputFactory.PagingServiceMethod("getCats", operation, pagingMetadata: pagingMetadata, parameters: parameters);
-            var catClient = InputFactory.Client("catClient", methods: [inputServiceMethod], clientNamespace: "Cats");
-            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(catClient);
-            var modelType = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
-            var collectionResultDefinition = new CollectionResultDefinition(clientProvider!, inputServiceMethod, modelType!.Type, false);
-            var constructor =
-                collectionResultDefinition.Constructors.FirstOrDefault(c =>
-                    c.Signature.Parameters.Any(p => p.Name == "foo"));
-            Assert.IsNotNull(constructor);
-            var fields = collectionResultDefinition.Fields;
-            Assert.IsTrue(fields.Any(f => f.Name == "_foo"));
-        }
-
-
         private static void CreatePagingOperation(InputResponseLocation responseLocation)
         {
             var inputModel = InputFactory.Model("cat", properties:

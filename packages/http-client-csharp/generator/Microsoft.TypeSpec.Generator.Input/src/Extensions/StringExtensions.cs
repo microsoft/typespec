@@ -78,8 +78,5 @@ namespace Microsoft.TypeSpec.Generator.Input.Extensions
 
         [return: NotNullIfNotNull(nameof(name))]
         public static string ToVariableName(this string name) => name.ToIdentifierName(useCamelCase: true);
-
-        [return: NotNullIfNotNull(nameof(name))]
-        public static string ToParameterName(this string name) => name.ToIdentifierName(useCamelCase: true);
     }
 }
