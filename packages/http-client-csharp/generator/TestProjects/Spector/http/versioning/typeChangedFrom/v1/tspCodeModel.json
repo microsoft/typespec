@@ -386,13 +386,23 @@
       "$ref": "2"
      },
      "location": "Uri",
-     "isApiVersion": false,
+     "isApiVersion": true,
      "isContentType": false,
      "isRequired": true,
      "isEndpoint": false,
      "skipUrlEncoding": false,
      "explode": false,
      "kind": "Client",
+     "defaultValue": {
+      "$id": "37",
+      "type": {
+       "$id": "38",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "value": "v1"
+     },
      "serverUrlTemplate": "{endpoint}/versioning/type-changed-from/api-version:{version}"
     }
    ],

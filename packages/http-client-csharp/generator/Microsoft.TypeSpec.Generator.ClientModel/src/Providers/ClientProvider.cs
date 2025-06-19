@@ -68,6 +68,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public ClientProvider(InputClient inputClient)
         {
+            CleanOperationNames(inputClient);
+
             _inputClient = inputClient;
             _inputAuth = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Auth;
             _endpointParameter = BuildClientEndpointParameter();
@@ -152,6 +154,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _clientParameters = new(GetClientParameters);
             _subClients = new(GetSubClients);
             _allClientParameters = GetAllClientParameters();
+        }
+
+        private static void CleanOperationNames(InputClient inputClient)
+        {
+            foreach (var serviceMethod in inputClient.Methods)
+            {
+                var updatedOperationName = GetCleanOperationName(serviceMethod);
+                serviceMethod.Update(name: updatedOperationName);
+                serviceMethod.Operation.Update(name: updatedOperationName);
+            }
+        }
+
+        private static string GetCleanOperationName(InputServiceMethod serviceMethod)
+        {
+            var operationName = serviceMethod.Operation.Name.ToIdentifierName();
+            // Replace List with Get as .NET convention is to use Get for list operations.
+            if (operationName.StartsWith("List", StringComparison.Ordinal))
+            {
+                operationName = $"Get{operationName.Substring(4)}";
+            }
+            return operationName;
         }
 
         private string? _namespace;

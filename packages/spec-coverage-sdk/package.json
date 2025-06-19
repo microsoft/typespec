@@ -24,9 +24,9 @@
   },
   "homepage": "https://github.com/microsoft/typespec#readme",
   "dependencies": {
-    "@azure/identity": "~4.9.1",
+    "@azure/identity": "~4.10.1",
     "@azure/storage-blob": "~12.27.0",
-    "@types/node": "~22.13.11"
+    "@types/node": "~24.0.3"
   },
   "devDependencies": {
     "rimraf": "~6.0.1",

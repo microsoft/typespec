@@ -18,7 +18,7 @@ param(
   [string]$PackageVersion,
 
   [Parameter(Mandatory = $true)]
-  [string]$TypeSpecPRUrl,
+  [string]$TypeSpecCommitUrl,
 
   [Parameter(Mandatory = $true)]
   [string]$AuthToken,
@@ -28,13 +28,12 @@ param(
 )
 
 # Import the Generation module to use the Invoke helper function
-Import-Module (Join-Path $PSScriptRoot "Generation.psm1")
+Import-Module (Join-Path $PSScriptRoot "Generation.psm1") -DisableNameChecking -Force
 
 # Set up variables for the PR
 $RepoOwner = "Azure"
 $RepoName = "azure-sdk-for-net"
 $BaseBranch = "main"
-$PROwner = "azure-sdk"
 $PRBranch = $BranchName
 
 $PRTitle = "Update UnbrandedGeneratorVersion to $PackageVersion"
@@ -43,13 +42,14 @@ This PR updates the UnbrandedGeneratorVersion property in eng/Packages.Data.prop
 
 ## Details
 
-- Original TypeSpec PR: $TypeSpecPRUrl
+- TypeSpec commit that triggered this PR: $TypeSpecCommitUrl
 
 ## Changes
 
 - Updated eng/Packages.Data.props UnbrandedGeneratorVersion property
 - Updated eng/packages/http-client-csharp/package.json dependency version
 - Ran npm install to update package-lock.json
+- Ran eng/packages/http-client-csharp/eng/scripts/Generate.ps1 to regenerate test projects
 
 This is an automated PR created by the TypeSpec publish pipeline.
 "@
@@ -154,7 +154,7 @@ try {
         
         # Run Generate.ps1 from the package root
         Write-Host "Running eng/packages/http-client-csharp/eng/scripts/Generate.ps1..."
-        Invoke "eng/packages/http-client-csharp/eng/scripts/Generate.ps1" $tempDir
+        & (Join-Path $tempDir "eng/packages/http-client-csharp/eng/scripts/Generate.ps1")
         if ($LASTEXITCODE -ne 0) {
             throw "Generate.ps1 failed"
         }
@@ -169,26 +169,17 @@ try {
 
     # Commit the changes
     Write-Host "Committing changes..."
-    if ($propsFileUpdated) {
-        git add eng/Packages.Data.props
-    }
-    if ($packageJsonUpdated) {
-        git add eng/packages/http-client-csharp/package.json
-        git add eng/packages/http-client-csharp/package-lock.json
-    }
+    git add eng/Packages.Data.props
+    git add eng/packages/http-client-csharp/package.json
+    git add eng/packages/http-client-csharp/package-lock.json
+    git add eng/packages/http-client-csharp/generator/TestProjects/
+    
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to add changes"
     }
 
     # Build commit message based on what was updated
-    $commitMessage = "Update UnbrandedGeneratorVersion to $PackageVersion`n"
-    if ($propsFileUpdated) {
-        $commitMessage += "`n- Updated eng/Packages.Data.props"
-    }
-    if ($packageJsonUpdated) {
-        $commitMessage += "`n- Updated eng/packages/http-client-csharp/package.json"
-        $commitMessage += "`n- Ran npm install to update package-lock.json"
-    }
+    $commitMessage = "Update UnbrandedGeneratorVersion to $PackageVersion"
     
     git commit -m $commitMessage
     if ($LASTEXITCODE -ne 0) {
