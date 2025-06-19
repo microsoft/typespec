@@ -7219,9 +7219,49 @@ Send the union as:
 }
 ```
 
-### Type_Union_Discriminated_NoEnvelope_getNoEnvelope
+### Type_Union_Discriminated_NoEnvelope_CustomDiscriminator_getCustomDiscriminator
 
-- Endpoint: `get /type/union/discriminated/no-envelope`
+- Endpoint: `get /type/union/discriminated/no-envelope/custom-discriminator`
+
+Test discriminated union with inline discriminator and custom discriminator property name.
+When value of query parameter "type" is "cat" or no query parameter input, the expected response is:
+
+```json
+{
+  "type": "cat",
+  "name": "Whiskers",
+  "meow": true
+}
+```
+
+When it is "dog", expected response is:
+
+```json
+{
+  "type": "dog",
+  "name": "Rex",
+  "bark": false
+}
+```
+
+### Type_Union_Discriminated_NoEnvelope_CustomDiscriminator_putCustomDiscriminator
+
+- Endpoint: `put /type/union/discriminated/no-envelope/custom-discriminator`
+
+Test discriminated union with inline discriminator and custom discriminator property name.
+Send the union as:
+
+```json
+{
+  "type": "cat",
+  "name": "Whiskers",
+  "meow": true
+}
+```
+
+### Type_Union_Discriminated_NoEnvelope_Default_getDefault
+
+- Endpoint: `get /type/union/discriminated/no-envelope/default`
 
 Test discriminated union with inline discriminator.
 When value of query parameter "kind" is "cat" or no query parameter input, the expected response is:
@@ -7244,9 +7284,9 @@ When it is "dog", expected response is:
 }
 ```
 
-### Type_Union_Discriminated_NoEnvelope_putNoEnvelope
+### Type_Union_Discriminated_NoEnvelope_Default_putDefault
 
-- Endpoint: `put /type/union/discriminated/no-envelope`
+- Endpoint: `put /type/union/discriminated/no-envelope/default`
 
 Test discriminated union with inline discriminator.
 Send the union as:
