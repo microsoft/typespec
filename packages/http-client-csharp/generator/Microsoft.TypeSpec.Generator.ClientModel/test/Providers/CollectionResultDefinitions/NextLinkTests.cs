@@ -154,7 +154,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             Assert.AreEqual("Felines", felineClientCollectionResult!.Type.Namespace);
         }
 
-
         private static void CreatePagingOperation(InputResponseLocation responseLocation)
         {
             var inputModel = InputFactory.Model("cat", properties:

@@ -1042,6 +1042,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             StringAssert.Contains($"uri.Reset(_endpoint);", createMethod?.BodyStatements?.ToDisplayString());
         }
 
+        [Test]
+        public void ListMethodsAreRenamedToGet()
+        {
+            MockHelpers.LoadMockGenerator();
+
+            var inputOperation = InputFactory.Operation(
+                "ListCats");
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod("ListCats", inputOperation);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            foreach (var method in client!.Methods)
+            {
+                Assert.IsTrue(method.Signature.Name.StartsWith("Get", StringComparison.OrdinalIgnoreCase));
+            }
+
+            foreach (var method in client.RestClient.Methods)
+            {
+                Assert.IsTrue(method.Signature.Name.StartsWith("CreateGet", StringComparison.OrdinalIgnoreCase));
+            }
+        }
+
         private static InputClient GetEnumQueryParamClient()
         {
             return InputFactory.Client(
