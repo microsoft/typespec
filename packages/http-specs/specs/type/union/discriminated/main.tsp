@@ -63,7 +63,7 @@ namespace Envelope {
         ```
         """)
       @get
-      getDefault(@query kind?: string): PetWithEnvelope;
+      get(@query kind?: string): PetWithEnvelope;
 
       @scenario
       @scenarioDoc("""
@@ -80,7 +80,7 @@ namespace Envelope {
         ```
         """)
       @put
-      putDefault(@body input: PetWithEnvelope): PetWithEnvelope;
+      put(@body input: PetWithEnvelope): PetWithEnvelope;
     }
 
     @route("/custom-properties")
@@ -110,7 +110,7 @@ namespace Envelope {
         ```
         """)
       @get
-      getCustomProperties(@query petType?: string): PetWithCustomNames;
+      get(@query petType?: string): PetWithCustomNames;
 
       @scenario
       @scenarioDoc("""
@@ -127,7 +127,7 @@ namespace Envelope {
         ```
         """)
       @put
-      putCustomProperties(@body input: PetWithCustomNames): PetWithCustomNames;
+      put(@body input: PetWithCustomNames): PetWithCustomNames;
     }
   }
 }
@@ -190,7 +190,7 @@ namespace NoEnvelope {
       ```
       """)
     @get
-    getDefault(@query kind?: string): PetInline;
+    get(@query kind?: string): PetInline;
 
     @scenario
     @scenarioDoc("""
@@ -205,7 +205,7 @@ namespace NoEnvelope {
       ```
       """)
     @put
-    putDefault(@body input: PetInline): PetInline;
+    put(@body input: PetInline): PetInline;
   }
 
   @route("/custom-discriminator")
@@ -231,7 +231,7 @@ namespace NoEnvelope {
       ```
       """)
     @get
-    getCustomDiscriminator(@query type?: string): PetInlineWithCustomDiscriminator;
+    get(@query type?: string): PetInlineWithCustomDiscriminator;
 
     @scenario
     @scenarioDoc("""
@@ -246,8 +246,6 @@ namespace NoEnvelope {
       ```
       """)
     @put
-    putCustomDiscriminator(
-      @body input: PetInlineWithCustomDiscriminator,
-    ): PetInlineWithCustomDiscriminator;
+    put(@body input: PetInlineWithCustomDiscriminator): PetInlineWithCustomDiscriminator;
   }
 }

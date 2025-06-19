@@ -7127,7 +7127,7 @@ Expect to handle a unknown type value. Mock api will return 'test'
 
 Expect to send a string value. Mock api expect to receive 'test'
 
-### Type_Union_Discriminated_Envelope_Object_CustomProperties_getCustomProperties
+### Type_Union_Discriminated_Envelope_Object_CustomProperties_get
 
 - Endpoint: `get /type/union/discriminated/envelope/object/custom-properties`
 
@@ -7156,7 +7156,7 @@ When it is "dog", expected response is:
 }
 ```
 
-### Type_Union_Discriminated_Envelope_Object_CustomProperties_putCustomProperties
+### Type_Union_Discriminated_Envelope_Object_CustomProperties_put
 
 - Endpoint: `put /type/union/discriminated/envelope/object/custom-properties`
 
@@ -7173,7 +7173,7 @@ Send the union as:
 }
 ```
 
-### Type_Union_Discriminated_Envelope_Object_Default_getDefault
+### Type_Union_Discriminated_Envelope_Object_Default_get
 
 - Endpoint: `get /type/union/discriminated/envelope/object/default`
 
@@ -7202,7 +7202,7 @@ When it is "dog", expected response is:
 }
 ```
 
-### Type_Union_Discriminated_Envelope_Object_Default_putDefault
+### Type_Union_Discriminated_Envelope_Object_Default_put
 
 - Endpoint: `put /type/union/discriminated/envelope/object/default`
 
@@ -7219,7 +7219,7 @@ Send the union as:
 }
 ```
 
-### Type_Union_Discriminated_NoEnvelope_CustomDiscriminator_getCustomDiscriminator
+### Type_Union_Discriminated_NoEnvelope_CustomDiscriminator_get
 
 - Endpoint: `get /type/union/discriminated/no-envelope/custom-discriminator`
 
@@ -7244,7 +7244,7 @@ When it is "dog", expected response is:
 }
 ```
 
-### Type_Union_Discriminated_NoEnvelope_CustomDiscriminator_putCustomDiscriminator
+### Type_Union_Discriminated_NoEnvelope_CustomDiscriminator_put
 
 - Endpoint: `put /type/union/discriminated/no-envelope/custom-discriminator`
 
@@ -7259,7 +7259,7 @@ Send the union as:
 }
 ```
 
-### Type_Union_Discriminated_NoEnvelope_Default_getDefault
+### Type_Union_Discriminated_NoEnvelope_Default_get
 
 - Endpoint: `get /type/union/discriminated/no-envelope/default`
 
@@ -7284,7 +7284,7 @@ When it is "dog", expected response is:
 }
 ```
 
-### Type_Union_Discriminated_NoEnvelope_Default_putDefault
+### Type_Union_Discriminated_NoEnvelope_Default_put
 
 - Endpoint: `put /type/union/discriminated/no-envelope/default`
 
