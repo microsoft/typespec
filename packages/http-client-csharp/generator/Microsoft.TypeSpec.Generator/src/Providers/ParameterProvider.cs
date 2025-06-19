@@ -53,7 +53,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <param name="inputParameter">The <see cref="InputParameter"/> to convert.</param>
         public ParameterProvider(InputParameter inputParameter)
         {
-            Name = inputParameter.Name;
+            Name = inputParameter.Name.ToParameterName();
             Description = DocHelpers.GetFormattableDescription(inputParameter.Summary, inputParameter.Doc) ?? FormattableStringHelpers.Empty;
             var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParameter.Type) ?? throw new InvalidOperationException($"Failed to create CSharpType for {inputParameter.Type}");
             if (!inputParameter.IsRequired)
