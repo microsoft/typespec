@@ -30,12 +30,27 @@
      - Add a `@scenario` and `@scenarioDoc` decorator
      - Make the `@scenarioDoc` explicit about input values and expected output
      - Add a corresponding mockapi implementation in `mockapi.ts`
+   - **Scenario naming requirements:**
+     - Scenario names are automatically derived from the namespace path + optional interface + operation name
+     - The complete scenario name (namespace + interface + operation name) should form a clear, descriptive identifier
+     - Choose explicit namespaces that describe the feature area (e.g., `Authentication.ApiKey` or `Encode.Bytes`)
+     - Use interfaces to create logical groupings within a namespace (e.g., `Header`, `Query`)
+     - Use clear, descriptive operation names that explain the specific behavior being tested
+     - Avoid vague terms like "test" or generic descriptions like "success" when possible
+     - Include key parameters or conditions in the name when relevant (e.g., `base64url`)
+     - Keep names concise while still being descriptive
+     - Use interfaces to organize related scenarios logically:
+       - For example, in `Encode.Bytes` namespace, create separate interfaces for `Header`, `Query` to group header-related and query-related scenarios respectively
+       - This creates scenario names like `Encode.Bytes.Header.base64url` and
+         `Encode.Bytes.Query.base64url`
+     - Examples of well-formed full scenario names:
+       - `Encode.Bytes.Header.base64url` (testing base64url encoding of headers)
+       - `Type.Array.BooleanValue.get` (testing getting of arrays with boolean value types)
+       - `Type.Array.DatetimeValue.get` (testing getting of arrays with datetime value types)
    - Use existing spec files when possible, create new files/folders only when needed
    - Structure namespaces and interfaces carefully - this path becomes the dashboard scenario name
    - Make scenario names clear, descriptive, and concise
-   - Keep route names consistent with scenario names
-   - Choose appropriate operation grouping (single vs. collection)
-   - Group operations into interfaces when it makes sense (e.g., by `path`, `query`, etc.)
+   - Keep route names consistent with scenario themes
 
 3. **VALIDATION & QUALITY CHECKS** (MUST PERFORM ALL OF THESE CHECKS IN THIS EXACT ORDER)
 
