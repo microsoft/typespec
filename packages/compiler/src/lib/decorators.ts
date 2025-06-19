@@ -78,6 +78,7 @@ import {
   DiagnosticTarget,
   Enum,
   EnumValue,
+  IndeterminateEntity,
   Interface,
   Model,
   ModelProperty,
@@ -928,9 +929,42 @@ export const $withPickedProperties: WithPickedPropertiesDecorator = (
     }
   }
 
+  // Validate that all picked properties exist
+  for (const name of pickedNames) {
+    validatePropertyName(context, target, name);
+  }
+
   // Remove all properties not picked
   filterModelPropertiesInPlace(target, (prop) => pickedNames.has(prop.name));
 };
+
+function validatePropertyName(context: DecoratorContext, target: Model, name: string) {
+  const source = target.templateMapper?.args[0] as Model;
+  const entity = target.templateMapper?.args[1];
+  if (source && entity && !target.properties.has(name)) {
+    reportDiagnostic(context.program, {
+      code: "unexpected-property",
+      format: {
+        propertyName: name,
+        type: getTypeName(source),
+      },
+      messageId: "typeMissingProperty",
+      target: getExactDiagnosticTarget(entity, name),
+    });
+  }
+}
+
+function getExactDiagnosticTarget(
+  entity: Type | Value | IndeterminateEntity,
+  name: string,
+): DiagnosticTarget {
+  if ("kind" in entity && entity.kind === "Union") {
+    return (
+      entity.node.options.find((option) => "value" in option && option.value === name) ?? entity
+    );
+  }
+  return entity;
+}
 
 // -- @withoutDefaultValues decorator ----------------------
 
