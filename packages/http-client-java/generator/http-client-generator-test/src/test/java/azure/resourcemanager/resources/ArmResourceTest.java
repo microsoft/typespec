@@ -59,9 +59,9 @@ public class ArmResourceTest {
         = "/providers/Azure.ResourceManager.Resources/extensionsResources/extension";
     private final ResourcesManager manager
         = ResourcesManager.authenticate(ArmUtils.createTestHttpPipeline(), ArmUtils.getAzureProfile());
-    private ExtensionsResourceProperties createProperties
+    private final static ExtensionsResourceProperties CREATE_PROPERTIES
         = new ExtensionsResourceProperties().withDescription(RESOURCE_DESCRIPTION_VALID);
-    private ExtensionsResourceProperties updateProperties
+    private final static ExtensionsResourceProperties UPDATE_PROPERTIES
         = new ExtensionsResourceProperties().withDescription(RESOURCE_DESCRIPTION_VALID2);
     private ExtensionsResource extensionResource;
     private List<ExtensionsResource> extensionResources;
@@ -72,15 +72,15 @@ public class ArmResourceTest {
         extensionResource = manager.extensionsResources()
             .define(EXTENSION_RESOURCE_NAME)
             .withExistingResourceUri(EXTENSION_RESOURCE_TENANT_SCOPE_URI)
-            .withProperties(createProperties)
+            .withProperties(CREATE_PROPERTIES)
             .create();
         Assertions.assertEquals(EXTENSION_RESOURCE_BASE_ID, extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
-        createProperties = extensionResource.properties();
-        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, createProperties.description());
-        Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
+        ExtensionsResourceProperties properties = extensionResource.properties();
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
         // List
         extensionResources = manager.extensionsResources()
             .listByScope(EXTENSION_RESOURCE_TENANT_SCOPE_URI)
@@ -92,9 +92,9 @@ public class ArmResourceTest {
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
-        createProperties = extensionResource.properties();
-        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, createProperties.description());
-        Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
+        properties = extensionResource.properties();
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
         // Get
         extensionResource
             = manager.extensionsResources().get(EXTENSION_RESOURCE_TENANT_SCOPE_URI, EXTENSION_RESOURCE_NAME);
@@ -102,9 +102,9 @@ public class ArmResourceTest {
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
-        createProperties = extensionResource.properties();
-        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, createProperties.description());
-        Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
+        properties = extensionResource.properties();
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
         // IllegalArgument Parameter resourceUri is required and cannot be null.
         // // Update
         // extensionResource.update().withProperties(updateProperties).apply();
@@ -127,16 +127,16 @@ public class ArmResourceTest {
         extensionResource = manager.extensionsResources()
             .define(EXTENSION_RESOURCE_NAME)
             .withExistingResourceUri(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI)
-            .withProperties(createProperties)
+            .withProperties(CREATE_PROPERTIES)
             .create();
         Assertions.assertEquals(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
             extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
-        createProperties = extensionResource.properties();
-        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, createProperties.description());
-        Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
+        ExtensionsResourceProperties properties = extensionResource.properties();
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
         // List
         extensionResources = manager.extensionsResources()
             .listByScope(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI)
@@ -149,9 +149,9 @@ public class ArmResourceTest {
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
-        createProperties = extensionResource.properties();
-        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, createProperties.description());
-        Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
+        properties = extensionResource.properties();
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
         // Get
         extensionResource
             = manager.extensionsResources().get(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI, EXTENSION_RESOURCE_NAME);
@@ -160,19 +160,19 @@ public class ArmResourceTest {
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
-        createProperties = extensionResource.properties();
-        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, createProperties.description());
-        Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
+        properties = extensionResource.properties();
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
         // Update
-        extensionResource.update().withProperties(updateProperties).apply();
+        extensionResource.update().withProperties(UPDATE_PROPERTIES).apply();
         Assertions.assertEquals(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
             extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
-        updateProperties = extensionResource.properties();
-        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID2, updateProperties.description());
-        Assertions.assertEquals(ProvisioningState.SUCCEEDED, updateProperties.provisioningState());
+        properties = extensionResource.properties();
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID2, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
         // Delete
         manager.extensionsResources()
             .deleteByResourceGroup(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI, EXTENSION_RESOURCE_NAME);
@@ -182,16 +182,16 @@ public class ArmResourceTest {
         extensionResource = manager.extensionsResources()
             .define(EXTENSION_RESOURCE_NAME)
             .withExistingResourceUri(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI.substring(1))
-            .withProperties(createProperties)
+            .withProperties(CREATE_PROPERTIES)
             .create();
         Assertions.assertEquals(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
             extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
-        createProperties = extensionResource.properties();
-        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, createProperties.description());
-        Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
+        properties = extensionResource.properties();
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
         // List
         extensionResources = manager.extensionsResources()
             .listByScope(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI.substring(1))
@@ -204,9 +204,9 @@ public class ArmResourceTest {
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
-        createProperties = extensionResource.properties();
-        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, createProperties.description());
-        Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
+        properties = extensionResource.properties();
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
         // Get
         extensionResource = manager.extensionsResources()
             .get(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI.substring(1), EXTENSION_RESOURCE_NAME);
@@ -215,19 +215,19 @@ public class ArmResourceTest {
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
-        createProperties = extensionResource.properties();
-        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, createProperties.description());
-        Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
+        properties = extensionResource.properties();
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
         // Update
-        extensionResource.update().withProperties(updateProperties).apply();
+        extensionResource.update().withProperties(UPDATE_PROPERTIES).apply();
         Assertions.assertEquals(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
             extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
-        updateProperties = extensionResource.properties();
-        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID2, updateProperties.description());
-        Assertions.assertEquals(ProvisioningState.SUCCEEDED, updateProperties.provisioningState());
+        properties = extensionResource.properties();
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID2, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
         // Delete
         manager.extensionsResources()
             .deleteByResourceGroup(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI.substring(1), EXTENSION_RESOURCE_NAME);
@@ -240,16 +240,16 @@ public class ArmResourceTest {
         extensionResource = manager.extensionsResources()
             .define(EXTENSION_RESOURCE_NAME)
             .withExistingResourceUri(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI)
-            .withProperties(createProperties)
+            .withProperties(CREATE_PROPERTIES)
             .create();
         Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
             extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
-        createProperties = extensionResource.properties();
-        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, createProperties.description());
-        Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
+        ExtensionsResourceProperties properties = extensionResource.properties();
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
         // List
         extensionResources = manager.extensionsResources()
             .listByScope(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI)
@@ -262,9 +262,9 @@ public class ArmResourceTest {
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
-        createProperties = extensionResource.properties();
-        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, createProperties.description());
-        Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
+        properties = extensionResource.properties();
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
         // Get
         extensionResource
             = manager.extensionsResources().get(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI, EXTENSION_RESOURCE_NAME);
@@ -273,19 +273,19 @@ public class ArmResourceTest {
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
-        createProperties = extensionResource.properties();
-        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, createProperties.description());
-        Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
+        properties = extensionResource.properties();
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
         // Update
-        extensionResource.update().withProperties(updateProperties).apply();
+        extensionResource.update().withProperties(UPDATE_PROPERTIES).apply();
         Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
             extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
-        updateProperties = extensionResource.properties();
-        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID2, updateProperties.description());
-        Assertions.assertEquals(ProvisioningState.SUCCEEDED, updateProperties.provisioningState());
+        properties = extensionResource.properties();
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID2, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
         // Delete
         manager.extensionsResources()
             .deleteByResourceGroup(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI, EXTENSION_RESOURCE_NAME);
@@ -295,16 +295,16 @@ public class ArmResourceTest {
         extensionResource = manager.extensionsResources()
             .define(EXTENSION_RESOURCE_NAME)
             .withExistingResourceUri(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI.substring(1))
-            .withProperties(createProperties)
+            .withProperties(CREATE_PROPERTIES)
             .create();
         Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
             extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
-        createProperties = extensionResource.properties();
-        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, createProperties.description());
-        Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
+        properties = extensionResource.properties();
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
         // List
         extensionResources = manager.extensionsResources()
             .listByScope(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI)
@@ -317,9 +317,9 @@ public class ArmResourceTest {
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
-        createProperties = extensionResource.properties();
-        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, createProperties.description());
-        Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
+        properties = extensionResource.properties();
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
         // Get
         extensionResource = manager.extensionsResources()
             .get(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI.substring(1), EXTENSION_RESOURCE_NAME);
@@ -328,19 +328,19 @@ public class ArmResourceTest {
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
-        createProperties = extensionResource.properties();
-        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, createProperties.description());
-        Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
+        properties = extensionResource.properties();
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
         // Update
-        extensionResource.update().withProperties(updateProperties).apply();
+        extensionResource.update().withProperties(UPDATE_PROPERTIES).apply();
         Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
             extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
-        updateProperties = extensionResource.properties();
-        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID2, updateProperties.description());
-        Assertions.assertEquals(ProvisioningState.SUCCEEDED, updateProperties.provisioningState());
+        properties = extensionResource.properties();
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID2, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
         // Delete
         manager.extensionsResources()
             .deleteByResourceGroup(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI.substring(1), EXTENSION_RESOURCE_NAME);
@@ -354,16 +354,16 @@ public class ArmResourceTest {
         extensionResource = manager.extensionsResources()
             .define(EXTENSION_RESOURCE_NAME)
             .withExistingResourceUri(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI)
-            .withProperties(createProperties)
+            .withProperties(CREATE_PROPERTIES)
             .create();
         Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
             extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
-        createProperties = extensionResource.properties();
-        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, createProperties.description());
-        Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
+        ExtensionsResourceProperties properties = extensionResource.properties();
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
         // List
         extensionResources = manager.extensionsResources()
             .listByScope(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI)
@@ -376,9 +376,9 @@ public class ArmResourceTest {
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
-        createProperties = extensionResource.properties();
-        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, createProperties.description());
-        Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
+        properties = extensionResource.properties();
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
         // Get
         extensionResource
             = manager.extensionsResources().get(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI, EXTENSION_RESOURCE_NAME);
@@ -387,19 +387,19 @@ public class ArmResourceTest {
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
-        createProperties = extensionResource.properties();
-        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, createProperties.description());
-        Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
+        properties = extensionResource.properties();
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
         // Update
-        extensionResource.update().withProperties(updateProperties).apply();
+        extensionResource.update().withProperties(UPDATE_PROPERTIES).apply();
         Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
             extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
-        updateProperties = extensionResource.properties();
-        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID2, updateProperties.description());
-        Assertions.assertEquals(ProvisioningState.SUCCEEDED, updateProperties.provisioningState());
+        properties = extensionResource.properties();
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID2, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
         // Delete
         manager.extensionsResources()
             .deleteByResourceGroup(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI, EXTENSION_RESOURCE_NAME);
@@ -410,16 +410,16 @@ public class ArmResourceTest {
         extensionResource = manager.extensionsResources()
             .define(EXTENSION_RESOURCE_NAME)
             .withExistingResourceUri(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI.substring(1))
-            .withProperties(createProperties)
+            .withProperties(CREATE_PROPERTIES)
             .create();
         Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
             extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
-        createProperties = extensionResource.properties();
-        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, createProperties.description());
-        Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
+        properties = extensionResource.properties();
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
         // List
         extensionResources = manager.extensionsResources()
             .listByScope(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI.substring(1))
@@ -432,9 +432,9 @@ public class ArmResourceTest {
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
-        createProperties = extensionResource.properties();
-        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, createProperties.description());
-        Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
+        properties = extensionResource.properties();
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
         // Get
         extensionResource = manager.extensionsResources()
             .get(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI.substring(1), EXTENSION_RESOURCE_NAME);
@@ -443,19 +443,19 @@ public class ArmResourceTest {
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
-        createProperties = extensionResource.properties();
-        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, createProperties.description());
-        Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
+        properties = extensionResource.properties();
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
         // Update
-        extensionResource.update().withProperties(updateProperties).apply();
+        extensionResource.update().withProperties(UPDATE_PROPERTIES).apply();
         Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
             extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
-        updateProperties = extensionResource.properties();
-        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID2, updateProperties.description());
-        Assertions.assertEquals(ProvisioningState.SUCCEEDED, updateProperties.provisioningState());
+        properties = extensionResource.properties();
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID2, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
         // Delete
         manager.extensionsResources()
             .deleteByResourceGroup(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI.substring(1), EXTENSION_RESOURCE_NAME);
