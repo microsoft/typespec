@@ -29,7 +29,11 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
 
   const inputClients = fromSdkClients(sdkContext, rootClients, rootApiVersions);
 
-  const enums = fromSdkEnums(sdkContext, sdkPackage.enums);
+  // TODO -- because of an implementation bug in autorest.csharp,
+  // we have to do this in this way instead the nicer way of
+  // const enums = fromSdkEnums(sdkContext, sdkPackage.enums);
+  // we could change it back once autorest.csharp is deprecated for DPG.
+  const enums = Array.from(sdkContext.__typeCache.enums.values());
   const models = fromSdkModels(sdkContext, sdkPackage.models);
   // TODO -- TCGC now does not have constants field in its sdkPackage, they might add it in the future.
   const constants = Array.from(sdkContext.__typeCache.constants.values());
