@@ -16,24 +16,25 @@ beforeEach(async () => {
   runner = await createEmitterFrameworkTestRunner();
 });
 
-it("renders an empty class declaration", async () => {
-  const { TestModel } = (await runner.compile(`
+describe("from a model", () => {
+  it("renders an empty class declaration", async () => {
+    const { TestModel } = (await runner.compile(`
     @test model TestModel {}
   `)) as { TestModel: Model };
 
-  const res = render(
-    <Output program={runner.program}>
-      <Namespace name="TestNamespace">
-        <SourceFile path="test.cs">
-          <ClassDeclaration type={TestModel} />
-        </SourceFile>
-      </Namespace>
-    </Output>,
-  );
+    const res = render(
+      <Output program={runner.program}>
+        <Namespace name="TestNamespace">
+          <SourceFile path="test.cs">
+            <ClassDeclaration type={TestModel} />
+          </SourceFile>
+        </Namespace>
+      </Output>,
+    );
 
-  assertFileContents(
-    res,
-    d`
+    assertFileContents(
+      res,
+      d`
       namespace TestNamespace
       {
           class TestModel
@@ -42,30 +43,30 @@ it("renders an empty class declaration", async () => {
           }
       }
     `,
-  );
-});
+    );
+  });
 
-it("renders a class declaration with properties", async () => {
-  const { TestModel } = (await runner.compile(`
+  it("renders a class declaration with properties", async () => {
+    const { TestModel } = (await runner.compile(`
     @test model TestModel {
       @test Prop1: string;
       @test Prop2: int32;
     }
   `)) as { TestModel: Model };
 
-  const res = render(
-    <Output program={runner.program}>
-      <Namespace name="TestNamespace">
-        <SourceFile path="test.cs">
-          <ClassDeclaration type={TestModel} />
-        </SourceFile>
-      </Namespace>
-    </Output>,
-  );
+    const res = render(
+      <Output program={runner.program}>
+        <Namespace name="TestNamespace">
+          <SourceFile path="test.cs">
+            <ClassDeclaration type={TestModel} />
+          </SourceFile>
+        </Namespace>
+      </Output>,
+    );
 
-  assertFileContents(
-    res,
-    d`
+    assertFileContents(
+      res,
+      d`
       namespace TestNamespace
       {
           class TestModel
@@ -83,27 +84,27 @@ it("renders a class declaration with properties", async () => {
           }
       }
     `,
-  );
-});
+    );
+  });
 
-it("can override class name", async () => {
-  const { TestModel } = (await runner.compile(`
+  it("can override class name", async () => {
+    const { TestModel } = (await runner.compile(`
     @test model TestModel {}
   `)) as { TestModel: Model };
 
-  const res = render(
-    <Output program={runner.program}>
-      <Namespace name="TestNamespace">
-        <SourceFile path="test.cs">
-          <ClassDeclaration type={TestModel} name="CustomClassName" />
-        </SourceFile>
-      </Namespace>
-    </Output>,
-  );
+    const res = render(
+      <Output program={runner.program}>
+        <Namespace name="TestNamespace">
+          <SourceFile path="test.cs">
+            <ClassDeclaration type={TestModel} name="CustomClassName" />
+          </SourceFile>
+        </Namespace>
+      </Output>,
+    );
 
-  assertFileContents(
-    res,
-    d`
+    assertFileContents(
+      res,
+      d`
       namespace TestNamespace
       {
           class CustomClassName
@@ -112,28 +113,28 @@ it("can override class name", async () => {
           }
       }
     `,
-  );
-});
+    );
+  });
 
-it("renders a class with access modifiers", async () => {
-  const { TestModel } = (await runner.compile(`
+  it("renders a class with access modifiers", async () => {
+    const { TestModel } = (await runner.compile(`
     @test model TestModel {
     }
   `)) as { TestModel: Model };
 
-  const res = render(
-    <Output program={runner.program}>
-      <Namespace name="TestNamespace">
-        <SourceFile path="test.cs">
-          <ClassDeclaration type={TestModel} protected />
-        </SourceFile>
-      </Namespace>
-    </Output>,
-  );
+    const res = render(
+      <Output program={runner.program}>
+        <Namespace name="TestNamespace">
+          <SourceFile path="test.cs">
+            <ClassDeclaration type={TestModel} protected />
+          </SourceFile>
+        </Namespace>
+      </Output>,
+    );
 
-  assertFileContents(
-    res,
-    d`
+    assertFileContents(
+      res,
+      d`
       namespace TestNamespace
       {
           protected class TestModel
@@ -142,74 +143,11 @@ it("renders a class with access modifiers", async () => {
           }
       }
     `,
-  );
-});
-
-describe("from an interface", () => {
-  it("renders an empty class", async () => {
-    const { TestInterface } = (await runner.compile(`
-    @test interface TestInterface {
-    }
-  `)) as { TestInterface: Interface };
-
-    const res = render(
-      <Output program={runner.program}>
-        <Namespace name="TestNamespace">
-          <SourceFile path="test.cs">
-            <ClassDeclaration type={TestInterface} />
-          </SourceFile>
-        </Namespace>
-      </Output>,
-    );
-
-    assertFileContents(
-      res,
-      d`
-      namespace TestNamespace
-      {
-          class TestInterface
-          {
-
-          }
-      }
-    `,
     );
   });
 
-  it("renders a class with operations", async () => {
-    const { TestInterface } = (await runner.compile(`
-    @test interface TestInterface {
-      op getName(id: string): string;
-    }
-  `)) as { TestInterface: Interface };
-
-    const res = render(
-      <Output program={runner.program} namePolicy={cs.createCSharpNamePolicy()}>
-        <Namespace name="TestNamespace">
-          <SourceFile path="test.cs">
-            <ClassDeclaration type={TestInterface} />
-          </SourceFile>
-        </Namespace>
-      </Output>,
-    );
-
-    assertFileContents(
-      res,
-      d`
-      namespace TestNamespace
-      {
-          class TestInterface
-          {
-              public string GetName(string id) {}
-          }
-      }
-    `,
-    );
-  });
-});
-
-it("renders a class with model members", async () => {
-  const { TestModel, TestReference } = (await runner.compile(`
+  it("renders a class with model members", async () => {
+    const { TestModel, TestReference } = (await runner.compile(`
     @test model TestReference {
     }
     @test model TestModel {
@@ -217,21 +155,21 @@ it("renders a class with model members", async () => {
     }
   `)) as { TestModel: Model; TestReference: Model };
 
-  const res = render(
-    <Output program={runner.program} namePolicy={cs.createCSharpNamePolicy()}>
-      <Namespace name="TestNamespace">
-        <SourceFile path="test.cs">
-          <ClassDeclaration type={TestReference} />
-          <hbr />
-          <ClassDeclaration type={TestModel} />
-        </SourceFile>
-      </Namespace>
-    </Output>,
-  );
+    const res = render(
+      <Output program={runner.program} namePolicy={cs.createCSharpNamePolicy()}>
+        <Namespace name="TestNamespace">
+          <SourceFile path="test.cs">
+            <ClassDeclaration type={TestReference} />
+            <hbr />
+            <ClassDeclaration type={TestModel} />
+          </SourceFile>
+        </Namespace>
+      </Output>,
+    );
 
-  assertFileContents(
-    res,
-    d`
+    assertFileContents(
+      res,
+      d`
       namespace TestNamespace
       {
           class TestReference
@@ -248,11 +186,11 @@ it("renders a class with model members", async () => {
           }
       }
     `,
-  );
-});
+    );
+  });
 
-it("renders a class with enum members", async () => {
-  const { TestModel, TestEnum } = (await runner.compile(`
+  it("renders a class with enum members", async () => {
+    const { TestModel, TestEnum } = (await runner.compile(`
     @test enum TestEnum {
       Value1;
       Value2;
@@ -262,21 +200,21 @@ it("renders a class with enum members", async () => {
     }
   `)) as { TestModel: Model; TestEnum: Enum };
 
-  const res = render(
-    <Output program={runner.program} namePolicy={cs.createCSharpNamePolicy()}>
-      <Namespace name="TestNamespace">
-        <SourceFile path="test.cs">
-          <EnumDeclaration type={TestEnum} />
-          <hbr />
-          <ClassDeclaration type={TestModel} />
-        </SourceFile>
-      </Namespace>
-    </Output>,
-  );
+    const res = render(
+      <Output program={runner.program} namePolicy={cs.createCSharpNamePolicy()}>
+        <Namespace name="TestNamespace">
+          <SourceFile path="test.cs">
+            <EnumDeclaration type={TestEnum} />
+            <hbr />
+            <ClassDeclaration type={TestModel} />
+          </SourceFile>
+        </Namespace>
+      </Output>,
+    );
 
-  assertFileContents(
-    res,
-    d`
+    assertFileContents(
+      res,
+      d`
       namespace TestNamespace
       {
           enum TestEnum
@@ -294,11 +232,11 @@ it("renders a class with enum members", async () => {
           }
       }
     `,
-  );
-});
+    );
+  });
 
-it("renders a class with string enums", async () => {
-  const { TestModel, TestEnum } = (await runner.compile(`
+  it("renders a class with string enums", async () => {
+    const { TestModel, TestEnum } = (await runner.compile(`
     @test enum TestEnum {
       Value1;
       Value2;
@@ -308,21 +246,21 @@ it("renders a class with string enums", async () => {
     }
   `)) as { TestModel: Model; TestEnum: Enum };
 
-  const res = render(
-    <Output program={runner.program} namePolicy={cs.createCSharpNamePolicy()}>
-      <Namespace name="TestNamespace">
-        <SourceFile path="test.cs">
-          <EnumDeclaration type={TestEnum} />
-          <hbr />
-          <ClassDeclaration type={TestModel} />
-        </SourceFile>
-      </Namespace>
-    </Output>,
-  );
+    const res = render(
+      <Output program={runner.program} namePolicy={cs.createCSharpNamePolicy()}>
+        <Namespace name="TestNamespace">
+          <SourceFile path="test.cs">
+            <EnumDeclaration type={TestEnum} />
+            <hbr />
+            <ClassDeclaration type={TestModel} />
+          </SourceFile>
+        </Namespace>
+      </Output>,
+    );
 
-  assertFileContents(
-    res,
-    d`
+    assertFileContents(
+      res,
+      d`
       namespace TestNamespace
       {
           enum TestEnum
@@ -340,10 +278,9 @@ it("renders a class with string enums", async () => {
           }
       }
     `,
-  );
-});
+    );
+  });
 
-describe("with doc comments", () => {
   it("renders a model with docs", async () => {
     const { TestModel } = (await runner.compile(`
     @doc("This is a test model")
@@ -387,6 +324,69 @@ describe("with doc comments", () => {
     `,
     );
   });
+});
+
+describe("from an interface", () => {
+  it("renders an empty class", async () => {
+    const { TestInterface } = (await runner.compile(`
+    @test interface TestInterface {
+    }
+  `)) as { TestInterface: Interface };
+
+    const res = render(
+      <Output program={runner.program}>
+        <Namespace name="TestNamespace">
+          <SourceFile path="test.cs">
+            <ClassDeclaration type={TestInterface} />
+          </SourceFile>
+        </Namespace>
+      </Output>,
+    );
+
+    assertFileContents(
+      res,
+      d`
+      namespace TestNamespace
+      {
+          abstract class TestInterface
+          {
+
+          }
+      }
+    `,
+    );
+  });
+
+  it("renders a class with operations", async () => {
+    const { TestInterface } = (await runner.compile(`
+    @test interface TestInterface {
+      op getName(id: string): string;
+    }
+  `)) as { TestInterface: Interface };
+
+    const res = render(
+      <Output program={runner.program} namePolicy={cs.createCSharpNamePolicy()}>
+        <Namespace name="TestNamespace">
+          <SourceFile path="test.cs">
+            <ClassDeclaration type={TestInterface} />
+          </SourceFile>
+        </Namespace>
+      </Output>,
+    );
+
+    assertFileContents(
+      res,
+      d`
+      namespace TestNamespace
+      {
+          abstract class TestInterface
+          {
+              public abstract string GetName(string id);
+          }
+      }
+    `,
+    );
+  });
 
   it("renders an interface with docs", async () => {
     const { TestInterface } = (await runner.compile(`
@@ -416,7 +416,7 @@ describe("with doc comments", () => {
           /// <summary>
           /// This is a test interface
           /// </summary>
-          class TestInterface
+          abstract class TestInterface
           {
               /// <summary>
               /// This is a test operation
@@ -425,7 +425,38 @@ describe("with doc comments", () => {
               /// <returns>
               /// The name of the item
               /// </returns>
-              public string GetName(string id) {}
+              public abstract string GetName(string id);
+          }
+      }
+    `,
+    );
+  });
+
+  it("renders a non-abstract class", async () => {
+    const { TestInterface } = (await runner.compile(`
+    @test interface TestInterface {
+      op getName(id: string): string;
+    }
+  `)) as { TestInterface: Interface };
+
+    const res = render(
+      <Output program={runner.program} namePolicy={cs.createCSharpNamePolicy()}>
+        <Namespace name="TestNamespace">
+          <SourceFile path="test.cs">
+            <ClassDeclaration type={TestInterface} abstract={false} />
+          </SourceFile>
+        </Namespace>
+      </Output>,
+    );
+
+    assertFileContents(
+      res,
+      d`
+      namespace TestNamespace
+      {
+          class TestInterface
+          {
+              public abstract string GetName(string id);
           }
       }
     `,

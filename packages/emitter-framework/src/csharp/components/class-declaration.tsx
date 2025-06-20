@@ -23,7 +23,11 @@ interface ClassMethodsProps {
 export function ClassDeclaration(props: ClassDeclarationProps): ay.Children {
   const { $ } = useTsp();
 
-  const [efProps, updateProps, forwardProps] = ay.splitProps(props, ["type"], ["name", "refkey"]);
+  const [efProps, updateProps, forwardProps] = ay.splitProps(
+    props,
+    ["type"],
+    ["name", "refkey", "abstract"],
+  );
 
   const namePolicy = cs.useCSharpNamePolicy();
   const className = updateProps.name ?? namePolicy.getName(efProps.type.name, "class");
@@ -34,6 +38,7 @@ export function ClassDeclaration(props: ClassDeclarationProps): ay.Children {
     <>
       <cs.ClassDeclaration
         {...forwardProps}
+        abstract={updateProps.abstract ?? efProps.type.kind === "Interface"}
         name={className}
         refkey={refkeys}
         doc={getDocComments($, props.type)}
@@ -76,5 +81,5 @@ function ClassProperties(props: ClassPropertiesProps): ay.Children {
 function ClassMethods(props: ClassMethodsProps): ay.Children {
   const operations = Array.from(props.type.operations.values());
 
-  return operations.map((o) => <ClassMethod type={o} public />);
+  return operations.map((o) => <ClassMethod type={o} public abstract />);
 }
