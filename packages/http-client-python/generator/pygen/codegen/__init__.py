@@ -108,6 +108,10 @@ class OptionsRetriever:
     @property
     def package_pprint_name(self) -> str:
         return self.options.get("package-pprint-name") or _default_pprint(str(self.package_name))
+    
+    @property
+    def validate_versioning(self) -> bool:
+        return self.options.get("validate-versioning", True)
 
     @property
     def default_optional_constants_to_none(self) -> bool:
