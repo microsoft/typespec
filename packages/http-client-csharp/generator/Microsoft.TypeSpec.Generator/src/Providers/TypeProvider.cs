@@ -17,7 +17,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
     public abstract class TypeProvider
     {
         private Lazy<TypeProvider?> _customCodeView;
-        private readonly Lazy<TypeProvider?> _lastContractView;
+        private Lazy<TypeProvider?> _lastContractView;
         private Lazy<CanonicalTypeProvider> _canonicalView;
         private readonly InputType? _inputType;
 
@@ -350,6 +350,33 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected abstract string BuildRelativeFilePath();
         protected abstract string BuildName();
+
+        /// <summary>
+        /// Resets the type provider to its initial state, clearing all cached properties and fields.
+        /// This allows for the type provider to rebuild its state on subsequent calls to its properties.
+        /// </summary>
+        public void Reset()
+        {
+            _methods = null;
+            _properties = null;
+            _fields = null;
+            _constructors = null;
+            _serializationProviders = null;
+            _nestedTypes = null;
+            _xmlDocs = null;
+            _declarationModifiers = null;
+            _relativeFilePath = null;
+            _customCodeView = new(() => GetCustomCodeView());
+            _canonicalView = new(BuildCanonicalView);
+            _lastContractView = new(GetLastContractView);
+            _enumValues = null;
+            _enumUnderlyingType = null;
+            _attributes = null;
+            _deprecated = null;
+            _description = null;
+            _type = null;
+            _arguments = null;
+        }
 
         public void Update(
             IEnumerable<MethodProvider>? methods = null,

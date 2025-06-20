@@ -1,5 +1,5 @@
 import { KeyRegular } from "@fluentui/react-icons";
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { createBrowserHost } from "../src/browser-host.js";
 import { Playground } from "../src/react/playground.js";
 import type { ProgramViewer } from "../src/react/types.js";
