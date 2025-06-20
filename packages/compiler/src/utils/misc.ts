@@ -443,23 +443,23 @@ class RekeyableMapImpl<K, V> implements RekeyableMap<K, V> {
     return this.#values.size;
   }
 
-  *entries(): IterableIterator<[K, V]> {
+  *entries(): MapIterator<[K, V]> {
     for (const [k, v] of this.#values) {
       yield [k.key, v];
     }
   }
 
-  *keys(): IterableIterator<K> {
+  *keys(): MapIterator<K> {
     for (const k of this.#values.keys()) {
       yield k.key;
     }
   }
 
-  values(): IterableIterator<V> {
+  values(): MapIterator<V> {
     return this.#values.values();
   }
 
-  [Symbol.iterator](): IterableIterator<[K, V]> {
+  [Symbol.iterator](): MapIterator<[K, V]> {
     return this.entries();
   }
 

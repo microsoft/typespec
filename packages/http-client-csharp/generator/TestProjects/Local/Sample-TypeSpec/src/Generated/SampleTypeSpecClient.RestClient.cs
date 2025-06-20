@@ -336,7 +336,7 @@ namespace SampleTypeSpec
             return message;
         }
 
-        internal PipelineMessage CreateListWithNextLinkRequest(RequestOptions options)
+        internal PipelineMessage CreateGetWithNextLinkRequest(RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
@@ -351,7 +351,7 @@ namespace SampleTypeSpec
             return message;
         }
 
-        internal PipelineMessage CreateNextListWithNextLinkRequest(Uri nextPage, RequestOptions options)
+        internal PipelineMessage CreateNextGetWithNextLinkRequest(Uri nextPage, RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
@@ -365,7 +365,7 @@ namespace SampleTypeSpec
             return message;
         }
 
-        internal PipelineMessage CreateListWithContinuationTokenRequest(string token, RequestOptions options)
+        internal PipelineMessage CreateGetWithContinuationTokenRequest(string token, RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
@@ -384,7 +384,7 @@ namespace SampleTypeSpec
             return message;
         }
 
-        internal PipelineMessage CreateListWithContinuationTokenHeaderResponseRequest(string token, RequestOptions options)
+        internal PipelineMessage CreateGetWithContinuationTokenHeaderResponseRequest(string token, RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
@@ -403,7 +403,7 @@ namespace SampleTypeSpec
             return message;
         }
 
-        internal PipelineMessage CreateListWithPagingRequest(RequestOptions options)
+        internal PipelineMessage CreateGetWithPagingRequest(RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
