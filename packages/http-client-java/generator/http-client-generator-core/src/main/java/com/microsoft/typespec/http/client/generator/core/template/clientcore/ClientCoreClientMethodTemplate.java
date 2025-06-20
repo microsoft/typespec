@@ -1292,4 +1292,9 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
             + ".addKeyValue(\"methodName\", \"" + methodName + "\")"
             + ".log(\"Not a supported paging option in this API\", IllegalArgumentException::new);";
     }
+
+    @Override
+    protected void addQueryParameterReInjectionLogic(MethodPageDetails.NextLinkReInjection nextLinkReInjection,
+        JavaBlock javaBlock) {
+    }
 }

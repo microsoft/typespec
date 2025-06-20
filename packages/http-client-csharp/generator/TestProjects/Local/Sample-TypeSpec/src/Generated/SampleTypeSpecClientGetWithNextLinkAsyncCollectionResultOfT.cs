@@ -31,7 +31,7 @@ namespace SampleTypeSpec
         /// <returns> The raw pages of the collection. </returns>
         public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
         {
-            PipelineMessage message = _client.CreateListWithNextLinkRequest(_options);
+            PipelineMessage message = _client.CreateGetWithNextLinkRequest(_options);
             Uri nextPageUri = null;
             while (true)
             {
@@ -43,7 +43,7 @@ namespace SampleTypeSpec
                 {
                     yield break;
                 }
-                message = _client.CreateNextListWithNextLinkRequest(nextPageUri, _options);
+                message = _client.CreateNextGetWithNextLinkRequest(nextPageUri, _options);
             }
         }
 

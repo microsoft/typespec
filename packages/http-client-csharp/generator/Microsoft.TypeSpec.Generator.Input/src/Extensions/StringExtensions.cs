@@ -12,7 +12,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Extensions
         private static bool IsWordSeparator(char c) => !SyntaxFacts.IsIdentifierPartCharacter(c) || c == '_';
 
         [return: NotNullIfNotNull("name")]
-        public static string ToIdentifierName(this string name, bool isCamelCase = true)
+        public static string ToIdentifierName(this string name, bool useCamelCase = false)
         {
             if (string.IsNullOrEmpty(name))
             {
@@ -45,12 +45,12 @@ namespace Microsoft.TypeSpec.Generator.Input.Extensions
                     continue;
                 }
 
-                if (nameBuilder.Length == 0 && isCamelCase)
+                if (nameBuilder.Length == 0 && !useCamelCase)
                 {
                     c = char.ToUpper(c);
                     upperCase = false;
                 }
-                else if (nameBuilder.Length < firstWordLength && !isCamelCase)
+                else if (nameBuilder.Length < firstWordLength && useCamelCase)
                 {
                     c = char.ToLower(c);
                     upperCase = false;
@@ -77,6 +77,6 @@ namespace Microsoft.TypeSpec.Generator.Input.Extensions
         }
 
         [return: NotNullIfNotNull(nameof(name))]
-        public static string ToVariableName(this string name) => name.ToIdentifierName(isCamelCase: false);
+        public static string ToVariableName(this string name) => name.ToIdentifierName(useCamelCase: true);
     }
 }
