@@ -1,6 +1,7 @@
 # Should handle a request with an optional body
 
 ```tsp
+@service
 namespace Test;
 model BodyModel {
   name: string;

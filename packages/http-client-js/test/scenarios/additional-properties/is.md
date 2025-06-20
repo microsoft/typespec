@@ -5,6 +5,7 @@
 Defines a model with Additional Properties modeled as model is Record<>
 
 ```tsp
+@service
 namespace Test;
 
 model Widget is Record<string>;

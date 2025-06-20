@@ -5,6 +5,8 @@ This tests that the emitter can handle a spec that has no top-level namespace de
 ## TypeSpec
 
 ```tsp
+@service
+namespace Test;
 op foo(): void;
 ```
 
@@ -12,12 +14,15 @@ op foo(): void;
 
 It should generate an interface and factory for the client context.
 
-```ts src/api/clientContext.ts interface ClientContext
-export interface ClientContext extends Client {}
+```ts src/api/testClientContext.ts interface TestClientContext
+export interface TestClientContext extends Client {}
 ```
 
-```ts src/api/clientContext.ts function createClientContext
-export function createClientContext(endpoint: string, options?: ClientOptions): ClientContext {
+```ts src/api/testClientContext.ts function createTestClientContext
+export function createTestClientContext(
+  endpoint: string,
+  options?: TestClientOptions,
+): TestClientContext {
   const params: Record<string, any> = {
     endpoint: endpoint,
   };
@@ -36,12 +41,12 @@ export function createClientContext(endpoint: string, options?: ClientOptions): 
 
 It should generate a client for the Global Namespace with a single operation `foo` matching the spec and no sub-clients.
 
-```ts src/client.ts class Client
-export class Client {
-  #context: ClientContext;
+```ts src/testClient.ts class TestClient
+export class TestClient {
+  #context: TestClientContext;
 
-  constructor(endpoint: string, options?: ClientOptions) {
-    this.#context = createClientContext(endpoint, options);
+  constructor(endpoint: string, options?: TestClientOptions) {
+    this.#context = createTestClientContext(endpoint, options);
   }
   async foo(options?: FooOptions) {
     return foo(this.#context, options);
@@ -51,8 +56,8 @@ export class Client {
 
 It should generate an operation for foo
 
-```ts src/api/clientOperations.ts function foo
-export async function foo(client: ClientContext, options?: FooOptions): Promise<void> {
+```ts src/api/testClientOperations.ts function foo
+export async function foo(client: TestClientContext, options?: FooOptions): Promise<void> {
   const path = parse("/").expand({});
   const httpRequestOptions = {
     headers: {},
