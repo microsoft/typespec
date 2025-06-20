@@ -268,9 +268,8 @@
     "package-vsix": "vsce package",
     "deploy": "vsce publish",
     "open-in-browser": "vscode-test-web --extensionDevelopmentPath=. .",
-    "test:e2e": "pnpm test:web",
-    "test:web": "vscode-test-web --quality stable --extensionDevelopmentPath=. --headless --extensionTestsPath=dist/test/web/suite.js ./test/web/data",
-    "test:extension": "vitest --root test/extension"
+    "test:e2e": "pnpm test:web && vitest --root test/extension",
+    "test:web": "vscode-test-web --quality stable --extensionDevelopmentPath=. --headless --extensionTestsPath=dist/test/web/suite.js ./test/web/data"
   },
   "devDependencies": {
     "@nut-tree-fork/nut-js": "^4.2.6",
@@ -305,7 +304,7 @@
     "vitest": "^3.1.2",
     "vscode-languageclient": "~9.0.1",
     "which": "^5.0.0",
-    "yaml": "~2.8.0"
+    "yaml": "~2.8.0",
     "moment": "^2.30.1"
   }
 }

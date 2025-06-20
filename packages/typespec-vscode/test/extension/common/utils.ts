@@ -5,9 +5,11 @@ import path, { resolve } from "node:path"
 import { test as baseTest, inject } from "vitest"
 import screenshot from "screenshot-desktop"
 import moment from "moment"
+import { closeVscode } from "./commonSteps"
 
 interface Context {
   page: Page
+  extensionDir: string
 }
 
 type LaunchFixture = (options: {
@@ -34,7 +36,11 @@ const test = baseTest.extend<{
     await use(async (options) => {
       const executablePath = inject("executablePath")
       const workspacePath = options.workspacePath
-
+      let envOverrides = {}
+      const codePath = path.join(executablePath, "../bin")
+      envOverrides = {
+        PATH: `${codePath}${path.delimiter}${process.env.PATH}`,
+      }
       const tempDir = await fs.promises.mkdtemp(
         path.join(os.tmpdir(), "typespec-automation")
       )
@@ -43,6 +49,7 @@ const test = baseTest.extend<{
         executablePath,
         env: {
           ...process.env,
+          ...envOverrides,
           VITEST_VSCODE_E2E_LOG_FILE: logPath,
           VITEST_VSCODE_LOG: "verbose",
         },
@@ -59,8 +66,24 @@ const test = baseTest.extend<{
         ].filter((v): v is string => !!v),
       })
       const page = await app.firstWindow()
-
-      return { page }
+      const userSettingsPath = path.join(
+        tempDir,
+        "user-data",
+        "User",
+        "settings.json"
+      )
+      fs.writeFileSync(
+        userSettingsPath,
+        JSON.stringify({
+          "typespec.initTemplatesUrls": [
+            {
+              name: "Azure",
+              url: "https://aka.ms/typespec/azure-init",
+            },
+          ],
+        })
+      )
+      return { page, extensionDir: path.join(tempDir, "extensions") }
     })
 
     for (const teardown of teardowns) await teardown()
@@ -93,6 +116,7 @@ async function retry(
   }
   await screenShot.screenShot("error.png")
   screenShot.save()
+  await closeVscode()
   throw new Error(errMessage)
 }
 
@@ -107,11 +131,9 @@ async function retry(
  * @method setCreateType - Set the screenshot type. Different types correspond to different folders.
  * @method setDir - Set the directory where the screenshots are saved. Each case has its own directory.
  * @method screenShot - Screenshot method
- * @method save - Save Screenshot
- * @method setIsLocalSave: - If you need to save the screenshot locally, you need to call this method
  */
 class Screenshot {
-  private createType: "create" | "emit" | "import" = "create"
+  private createType: "create" | "emit" | "import" | "preview" = "create"
   private currentDir = ""
   private fileList: {
     fullPath: string
@@ -122,27 +144,36 @@ class Screenshot {
     create: "CreateTypeSpecProject",
     emit: "EmitFromTypeSpec",
     import: "ImportTypeSpecFromOpenAPI3",
-  }
-  private isLocalSave = process.env.CI || false
-
-  setIsLocalSave(isLocalSave: boolean) {
-    this.isLocalSave = isLocalSave
+    preview: "PreviewAPIDocument",
   }
 
-  setCreateType(createType: "create" | "emit" | "import") {
+  setCreateType(createType: "create" | "emit" | "import" | "preview") {
     this.createType = createType
   }
 
   save() {
-    if (this.fileList.length === 0 || !this.isLocalSave) {
+    if (this.fileList.length === 0) {
       return
     }
     // Smaller dates are placed first to keep the files in order
     this.fileList.sort((a, b) => a.date - b.date)
     for (let i = 0; i < this.fileList.length; i++) {
       const fullPathItem = this.fileList[i].fullPath.split("\\")
-      fullPathItem[fullPathItem.length - 1] =
-        `${i}_${fullPathItem[fullPathItem.length - 1]}`
+      if (os.platform() === "win32") {
+        fullPathItem[fullPathItem.length - 1] = `${i}_${
+          fullPathItem[fullPathItem.length - 1]
+        }`
+      } else {
+        const lastslashIdx = fullPathItem[fullPathItem.length - 1].lastIndexOf("/")
+        const fileName = fullPathItem[fullPathItem.length - 1];
+        if (lastslashIdx !== -1) {
+          const prefix = fileName.substring(0, lastslashIdx + 1);
+          const suffix = fileName.substring(lastslashIdx + 1);
+          fullPathItem[fullPathItem.length - 1] = `${prefix}${i}_${suffix}`;
+        } else {
+          fullPathItem[fullPathItem.length - 1] = `${i}_${fileName}`;
+        }
+      }
       fs.mkdirSync(path.dirname(path.join(...fullPathItem)), {
         recursive: true,
       })
@@ -157,9 +188,10 @@ class Screenshot {
     let rootDir =
       process.env.BUILD_ARTIFACT_STAGING_DIRECTORY ||
       path.resolve(__dirname, "../..")
-    let fullPath = path.join(
+    const platformDir = os.platform() === "win32" ? "/images-windows" : "/images-linux"
+    const fullPath = path.join(
       rootDir,
-      "/images",
+      platformDir,
       this.typeMenu[this.createType],
       this.currentDir,
       fileName
