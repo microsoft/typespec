@@ -6,7 +6,7 @@ import { CSharpEmitterContext } from "../sdk-context.js";
 import { CodeModel } from "../type/code-model.js";
 import { fromSdkClients } from "./client-converter.js";
 import { processServiceAuthentication } from "./service-authentication.js";
-import { fromSdkModels } from "./type-converter.js";
+import { fromSdkEnums, fromSdkModels } from "./type-converter.js";
 import { firstLetterToUpperCase, getClientNamespaceString } from "./utils.js";
 
 /**
@@ -29,6 +29,9 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
 
   const inputClients = fromSdkClients(sdkContext, rootClients, rootApiVersions);
 
+  // TODO -- we should find a way to remove this.
+  // but now we have to convert them explicitly because these enums are not directly referenced anywhere.
+  fromSdkEnums(sdkContext, sdkApiVersionEnums);
   // TODO -- because of an implementation bug in autorest.csharp,
   // we have to do this in this way instead the nicer way of
   // const enums = fromSdkEnums(sdkContext, sdkPackage.enums);
