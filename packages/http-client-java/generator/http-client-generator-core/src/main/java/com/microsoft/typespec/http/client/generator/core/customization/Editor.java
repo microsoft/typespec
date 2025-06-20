@@ -25,8 +25,8 @@ public final class Editor {
     public Editor(Map<String, String> contents) {
         this.contents = new HashMap<>(contents);
         this.lines = new HashMap<>();
-        for (Map.Entry<String, String> content : contents.entrySet()) {
-            addFile(content.getKey(), content.getValue());
+        for (Map.Entry<String, String> entry : contents.entrySet()) {
+            lines.put(entry.getKey(), splitContentIntoLines(entry.getValue()));
         }
     }
 

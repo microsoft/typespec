@@ -9,6 +9,7 @@ import com.azure.core.http.HttpClient;
 import com.azure.core.http.netty.NettyAsyncHttpClientProvider;
 import com.azure.core.test.http.AssertingHttpClientBuilder;
 import com.azure.core.util.HttpClientOptions;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class PageTests {
@@ -40,5 +41,10 @@ public class PageTests {
     @Test
     public void testPageRequestBody() {
         client.listWithParameters(new ListItemInputBody("Madge"), ListItemInputExtensibleEnum.SECOND).stream().count();
+    }
+
+    @Test
+    public void testPageNextLinkReInjectedParameters() {
+        Assertions.assertEquals(2, client.withParameterizedNextLink("name", true).stream().count());
     }
 }

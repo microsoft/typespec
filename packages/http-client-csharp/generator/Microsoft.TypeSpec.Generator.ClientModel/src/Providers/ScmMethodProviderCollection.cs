@@ -32,6 +32,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private IReadOnlyList<ParameterProvider>? _convenienceMethodParameters;
         private readonly InputPagingServiceMethod? _pagingServiceMethod;
         private IReadOnlyList<ScmMethodProvider>? _methods;
+        private readonly bool _generateConvenienceMethod;
 
         private ClientProvider Client { get; }
         protected InputServiceMethod ServiceMethod { get; }
@@ -63,12 +64,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ServiceMethod = serviceMethod;
             EnclosingType = enclosingType;
 
-            var updatedOperationName = GetCleanOperationName(serviceMethod);
-            ServiceMethod.Update(name: updatedOperationName);
-            ServiceMethod.Operation.Update(name: updatedOperationName);
-
             Client = enclosingType as ClientProvider ?? throw new InvalidOperationException("Scm methods can only be built for client types.");
             _createRequestMethod = Client.RestClient.GetCreateRequestMethod(ServiceMethod.Operation);
+            _generateConvenienceMethod = ServiceMethod.Operation is
+                { GenerateConvenienceMethod: true, IsMultipartFormData: false };
 
             if (serviceMethod is InputPagingServiceMethod pagingServiceMethod)
             {
@@ -76,23 +75,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private static string GetCleanOperationName(InputServiceMethod serviceMethod)
-        {
-            var operationName = serviceMethod.Operation.Name.ToIdentifierName();
-            // Replace List with Get as .NET convention is to use Get for list operations.
-            if (operationName.StartsWith("List", StringComparison.Ordinal))
-            {
-                operationName = $"Get{operationName.Substring(4)}";
-            }
-            return operationName;
-        }
-
         protected virtual IReadOnlyList<ScmMethodProvider> BuildMethods()
         {
             var syncProtocol = BuildProtocolMethod(_createRequestMethod, false);
             var asyncProtocol = BuildProtocolMethod(_createRequestMethod, true);
 
-            if (ServiceMethod.Operation.GenerateConvenienceMethod && !ServiceMethod.Operation.IsMultipartFormData)
+            if (_generateConvenienceMethod)
             {
                 return
                 [
@@ -539,13 +527,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 // If there are optional parameters, but the request options parameter is not optional, make the optional parameters nullable required.
                 // This is to ensure that the request options parameter is always the last parameter.
+                var newlyRequiredParameters = new List<ParameterProvider>(optionalParameters.Count);
                 foreach (var parameter in optionalParameters)
                 {
+                    // don't mutate the static request content parameter
+                    if (parameter.Equals(ScmKnownParameters.OptionalRequestContent))
+                    {
+                        newlyRequiredParameters.Add(ScmKnownParameters.NullableRequiredRequestContent);
+                        continue;
+                    }
                     parameter.DefaultValue = null;
                     parameter.Type = parameter.Type.WithNullable(true);
+                    newlyRequiredParameters.Add(parameter);
                 }
 
-                requiredParameters.AddRange(optionalParameters);
+                requiredParameters.AddRange(newlyRequiredParameters);
                 optionalParameters.Clear();
             }
 
@@ -599,20 +595,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return protocolMethod;
         }
 
-        private MethodBodyStatement GetPagingMethodBody(
+        private IEnumerable<MethodBodyStatement> GetPagingMethodBody(
             TypeProvider collection,
             IReadOnlyList<ParameterProvider> parameters,
             bool isConvenience)
         {
             if (isConvenience)
             {
-                return Return(New.Instance(
-                    collection.Type,
+                return
                     [
-                        This,
-                        .. parameters,
-                        IHttpRequestOptionsApiSnippets.FromCancellationToken(ScmKnownParameters.CancellationToken)
-                    ]));
+                        .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var declarations),
+                        Return(New.Instance(
+                        collection.Type,
+                        [
+                            This,
+                            .. GetProtocolMethodArguments(declarations)
+                        ]))
+                    ];
             }
 
             return Return(New.Instance(
@@ -691,19 +690,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private bool ShouldAddOptionalRequestOptionsParameter()
         {
             var convenienceMethodParameterCount = ConvenienceMethodParameters.Count;
+            if (!_generateConvenienceMethod)
+            {
+                return true;
+            }
             if (convenienceMethodParameterCount == 0)
             {
                 return false;
             }
 
-            // the request options parameter is optional if the methods have different parameters.
-            if (ProtocolMethodParameters.Count != convenienceMethodParameterCount)
-            {
-                return true;
-            }
-
             for (int i = 0; i < convenienceMethodParameterCount; i++)
             {
+                // Once we hit an optional parameter, then we need to make the request options required
+                // to prevent ambiguous callsites.
+                if (ConvenienceMethodParameters[i].DefaultValue != null)
+                {
+                    return false;
+                }
                 if (!ProtocolMethodParameters[i].Type.Equals(ConvenienceMethodParameters[i].Type))
                 {
                     return true;

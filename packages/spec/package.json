@@ -20,8 +20,8 @@
     "watch": "node scripts/watch-spec.js"
   },
   "devDependencies": {
-    "@types/node": "~22.13.11",
+    "@types/node": "~24.0.3",
     "@typespec/internal-build-utils": "workspace:^",
-    "ecmarkup": "~21.2.1"
+    "ecmarkup": "~21.3.0"
   }
 }

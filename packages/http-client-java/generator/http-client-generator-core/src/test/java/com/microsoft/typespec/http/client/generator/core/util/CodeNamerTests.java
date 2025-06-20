@@ -48,4 +48,46 @@ public class CodeNamerTests {
         Assertions.assertEquals("ONE_ZERO_ZERO_GIFT_CARD", CodeNamer.getEnumMemberName("$100 Gift Card"));
         Assertions.assertEquals("ONE_ZERO_ZERO_GIFT_CARD", CodeNamer.getEnumMemberName("$$100 Gift Card"));
     }
+
+    @Test
+    public void testEscapeComment() {
+        Assertions.assertEquals("doc has no comment", CodeNamer.escapeComment("doc has no comment"));
+        Assertions.assertEquals("doc*&#47;has comment", CodeNamer.escapeComment("doc*/has comment"));
+        Assertions.assertEquals("doc*&#47;has*&#47;comment", CodeNamer.escapeComment("doc*/has*/comment"));
+    }
+
+    @Test
+    public void testEscapeIllegalUnicodeEscape() {
+        // simple cases
+        Assertions.assertEquals("domain{@code \\}username", CodeNamer.escapeIllegalUnicodeEscape("domain\\username"));
+
+        // invalid hex
+        Assertions.assertEquals("{@code \\}u004=", CodeNamer.escapeIllegalUnicodeEscape("\\u004="));
+        // incomplete unicode escape (less than 4 hex digits)
+        Assertions.assertEquals("{@code \\}u41", CodeNamer.escapeIllegalUnicodeEscape("\\u41"));
+        // incomplete unicode escape (\\u at end of string)
+        Assertions.assertEquals("data{@code \\}u", CodeNamer.escapeIllegalUnicodeEscape("data\\u"));
+
+        // already escaped
+        Assertions.assertEquals("domain\\\\username", CodeNamer.escapeIllegalUnicodeEscape("domain\\\\username"));
+        Assertions.assertEquals("\\\\username", CodeNamer.escapeIllegalUnicodeEscape("\\\\username"));
+
+        // valid unicode escape
+        Assertions.assertEquals("\\u0041", CodeNamer.escapeIllegalUnicodeEscape("\\u0041"));
+        Assertions.assertEquals("\\u00af", CodeNamer.escapeIllegalUnicodeEscape("\\u00af"));
+        Assertions.assertEquals("\\u00AF", CodeNamer.escapeIllegalUnicodeEscape("\\u00AF"));
+        Assertions.assertEquals("data\\u0041item", CodeNamer.escapeIllegalUnicodeEscape("data\\u0041item"));
+
+        // multiple/mixed cases
+        Assertions.assertEquals("domain{@code \\}username{@code \\}unicode",
+            CodeNamer.escapeIllegalUnicodeEscape("domain\\username\\unicode"));
+        Assertions.assertEquals("domain\\\\username{@code \\}unicode",
+            CodeNamer.escapeIllegalUnicodeEscape("domain\\\\username\\unicode"));
+        Assertions.assertEquals("domain{@code \\}username\\u0041code",
+            CodeNamer.escapeIllegalUnicodeEscape("domain\\username\\u0041code"));
+        Assertions.assertEquals("domain\\\\username\\u00AF{@code \\}unicode",
+            CodeNamer.escapeIllegalUnicodeEscape("domain\\\\username\\u00AF\\unicode"));
+        Assertions.assertEquals("domain{@code \\}username\\u00AF{@code \\}unicode",
+            CodeNamer.escapeIllegalUnicodeEscape("domain\\username\\u00AF\\unicode"));
+    }
 }
