@@ -305,6 +305,7 @@ class CodeGenerator(Plugin):
             "from_typespec",
             "flavor",
             "emit_cross_language_definition_file",
+            "validate_versioning",
         ]
         return {f: getattr(self.options_retriever, f) for f in flags}
 
