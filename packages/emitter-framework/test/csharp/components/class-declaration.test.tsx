@@ -358,7 +358,6 @@ describe("with doc comments", () => {
               /// This is a test property
               /// </summary>
               public string Prop1 { get; set; }
-              public string Prop1 { get; set; }
           }
       }
     `,
