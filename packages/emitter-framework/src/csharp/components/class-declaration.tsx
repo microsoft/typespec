@@ -46,26 +46,18 @@ function ClassProperties(props: ClassPropertiesProps): ay.Children {
   const { $ } = useTsp();
   const namePolicy = cs.useCSharpNamePolicy();
 
-  const classProperties: ay.Children = [];
-  for (const [name, property] of props.type.properties) {
-    classProperties.push(
-      <>
-        <cs.ClassMember
+  return (
+    <ay.For each={props.type.properties.entries()} hardline>
+      {([name, property]) => (
+        <cs.ClassProperty
           name={namePolicy.getName(name, "class-member-public")}
           type={<TypeExpression type={property.type} />}
           public
           doc={getDocComments($, property)}
-        />{" "}
-        <ay.Block newline>
-          <ay.StatementList children={["get", "set"]} />
-        </ay.Block>
-      </>,
-    );
-  }
-
-  return (
-    <ay.For each={classProperties} hardline>
-      {(c) => c}
+          get
+          set
+        />
+      )}
     </ay.For>
   );
 }

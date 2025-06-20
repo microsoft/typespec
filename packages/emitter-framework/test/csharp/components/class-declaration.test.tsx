@@ -70,16 +70,8 @@ it("renders a class declaration with properties", async () => {
       {
           class TestModel
           {
-              public string Prop1
-              {
-                  get;
-                  set;
-              }
-              public int Prop2
-              {
-                  get;
-                  set;
-              }
+              public string Prop1 { get; set; }
+              public int Prop2 { get; set; }
           }
       }
     `,
@@ -240,11 +232,7 @@ it("renders a class with model members", async () => {
           }
           class TestModel
           {
-              public TestReference Prop1
-              {
-                  get;
-                  set;
-              }
+              public TestReference Prop1 { get; set; }
           }
       }
     `,
@@ -286,11 +274,7 @@ it("renders a class with enum members", async () => {
           }
           class TestModel
           {
-              public TestEnum Prop1
-              {
-                  get;
-                  set;
-              }
+              public TestEnum Prop1 { get; set; }
           }
       }
     `,
@@ -332,11 +316,7 @@ it("renders a class with string enums", async () => {
           }
           class TestModel
           {
-              public TestEnum Prop1
-              {
-                  get;
-                  set;
-              }
+              public TestEnum Prop1 { get; set; }
           }
       }
     `,
@@ -377,11 +357,8 @@ describe("with doc comments", () => {
               /// <summary>
               /// This is a test property
               /// </summary>
-              public string Prop1
-              {
-                  get;
-                  set;
-              }
+              public string Prop1 { get; set; }
+              public string Prop1 { get; set; }
           }
       }
     `,
