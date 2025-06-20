@@ -27,7 +27,7 @@ export function ClassMethod(props: ClassMethodProps): ay.Children {
   const [efProps, updateProps, forwardProps] = ay.splitProps(
     props,
     ["type"],
-    ["async", "name", "refkey", "doc"],
+    ["async", "name", "refkey", "doc", "returns"],
   );
 
   const namePolicy = cs.useCSharpNamePolicy();
@@ -50,7 +50,9 @@ export function ClassMethod(props: ClassMethodProps): ay.Children {
 
   // Generate return type
   let returnType: ay.Children;
-  if (updateProps.async) {
+  if (updateProps.returns) {
+    returnType = updateProps.returns;
+  } else if (updateProps.async) {
     const baseReturnType = <TypeExpression type={efProps.type.returnType} />;
     if (isVoidType(efProps.type.returnType)) {
       returnType = "Task";

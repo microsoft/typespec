@@ -76,5 +76,5 @@ function ClassProperties(props: ClassPropertiesProps): ay.Children {
 function ClassMethods(props: ClassMethodsProps): ay.Children {
   const operations = Array.from(props.type.operations.values());
 
-  return operations.map((o) => <ClassMethod type={o} />);
+  return operations.map((o) => <ClassMethod type={o} public />);
 }

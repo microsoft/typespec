@@ -272,3 +272,34 @@ it("renders a method with docs", async () => {
       `,
   );
 });
+
+it("renders a method with a custom return type", async () => {
+  const { GetCustomData } = (await runner.compile(`
+      @test op GetCustomData(): string;
+    `)) as { GetCustomData: Operation };
+
+  const res = render(
+    <Output program={runner.program}>
+      <Namespace name="TestNamespace">
+        <SourceFile path="test.cs">
+          <cs.ClassDeclaration name="TestClass">
+            <ClassMethod type={GetCustomData} public returns="Custom" />
+          </cs.ClassDeclaration>
+        </SourceFile>
+      </Namespace>
+    </Output>,
+  );
+
+  assertFileContents(
+    res,
+    d`
+        namespace TestNamespace
+        {
+            class TestClass
+            {
+                public Custom GetCustomData() {}
+            }
+        }
+      `,
+  );
+});

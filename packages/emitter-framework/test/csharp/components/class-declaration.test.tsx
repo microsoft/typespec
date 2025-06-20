@@ -200,7 +200,7 @@ describe("from an interface", () => {
       {
           class TestInterface
           {
-              string GetName(string id) {}
+              public string GetName(string id) {}
           }
       }
     `,
@@ -425,7 +425,7 @@ describe("with doc comments", () => {
               /// <returns>
               /// The name of the item
               /// </returns>
-              string GetName(string id) {}
+              public string GetName(string id) {}
           }
       }
     `,
