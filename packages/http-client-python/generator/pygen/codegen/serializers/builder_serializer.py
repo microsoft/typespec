@@ -606,6 +606,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 params_added_on[parameter.added_on].append(parameter.client_name)
         if params_added_on:
             retval.append(f"    params_added_on={dict(params_added_on)},")
+        retval.append(f"   api_versions_list={builder.api_versions},")
         if retval:
             retval_str = "\n".join(retval)
             return f"@api_version_validation(\n{retval_str}\n)"
