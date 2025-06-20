@@ -268,18 +268,23 @@
     "package-vsix": "vsce package",
     "deploy": "vsce publish",
     "open-in-browser": "vscode-test-web --extensionDevelopmentPath=. .",
-    "test:e2e": "pnpm test:web",
+    "test:e2e": "pnpm test:web && vitest --root test/extension",
     "test:web": "vscode-test-web --quality stable --extensionDevelopmentPath=. --headless --extensionTestsPath=dist/test/web/suite.js ./test/web/data"
   },
   "devDependencies": {
+    "@nut-tree-fork/nut-js": "^4.2.6",
     "@types/cross-spawn": "~6.0.6",
-    "@types/mocha": "^10.0.9",
+    "@types/mocha": "10.0.10",
+    "@types/screenshot-desktop": "^1.12.3",
     "@types/node": "~24.0.3",
     "@types/semver": "^7.5.8",
     "@types/vscode": "~1.100.0",
     "@types/which": "^3.0.4",
     "@typespec/compiler": "workspace:^",
+    "@typespec/http": "latest",
     "@typespec/internal-build-utils": "workspace:^",
+    "@typespec/openapi3": "latest",
+    "@vscode/test-electron": "^2.3.9",
     "@vitest/coverage-v8": "^3.1.2",
     "@vitest/ui": "^3.1.2",
     "@vscode/extension-telemetry": "^1.0.0",
@@ -292,12 +297,14 @@
     "mocha": "^11.1.0",
     "playwright": "^1.51.1",
     "rimraf": "~6.0.1",
+    "screenshot-desktop": "^1.15.1",
     "semver": "^7.7.1",
     "swagger-ui-dist": "^5.20.1",
     "typescript": "~5.8.2",
     "vitest": "^3.1.2",
     "vscode-languageclient": "~9.0.1",
     "which": "^5.0.0",
-    "yaml": "~2.8.0"
+    "yaml": "~2.8.0",
+    "moment": "^2.30.1"
   }
 }
