@@ -389,12 +389,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             TypeSignatureModifiers? modifiers = null,
             string? name = null,
             string? @namespace = null,
-            string? relativeFilePath = null,
-            bool allowNulls = false)
+            string? relativeFilePath = null)
         {
-            if (methods != null || allowNulls)
+            if (methods != null)
             {
-                _methods = (methods as IReadOnlyList<MethodProvider>) ?? methods?.ToList();
+                _methods = (methods as IReadOnlyList<MethodProvider>) ?? methods.ToList();
             }
             if (properties != null)
             {
