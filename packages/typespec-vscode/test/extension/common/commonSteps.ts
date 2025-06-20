@@ -261,11 +261,6 @@ async function installExtensionForCommand(page: Page, extensionDir: string) {
   };
   const vsixPath =
     process.env.VSIX_PATH || findVsix()
-  // await page.getByRole("menuitem", { name: "More" }).locator("div").click()
-  // await screenShot.screenShot("click_more.png")
-  // await page.getByRole("menuitem", { name: "Terminal", exact: true }).click()
-  // await screenShot.screenShot("click_terminal.png")
-  // await page.getByRole("menuitem", { name: /New Terminal/ }).click()
   await sleep(5)
   await page.keyboard.press("Control+Backquote")
   await screenShot.screenShot("open_terminal.png")
