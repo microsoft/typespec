@@ -6,7 +6,7 @@ import { CSharpEmitterContext } from "../sdk-context.js";
 import { CodeModel } from "../type/code-model.js";
 import { fromSdkClients } from "./client-converter.js";
 import { processServiceAuthentication } from "./service-authentication.js";
-import { fromSdkEnums, fromSdkModels } from "./type-converter.js";
+import { fromSdkModels } from "./type-converter.js";
 import { firstLetterToUpperCase, getClientNamespaceString } from "./utils.js";
 
 /**
