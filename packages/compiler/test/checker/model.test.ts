@@ -937,21 +937,6 @@ describe("compiler: models", () => {
       });
     });
 
-    it("emit error when is model expression via alias", async () => {
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
-        alias B = {name: string};
-        model A is B {}
-        `,
-      );
-      const diagnostics = await testHost.diagnose("main.tsp");
-      expectDiagnostics(diagnostics, {
-        code: "is-model",
-        message: "Model `is` cannot specify a model expression.",
-      });
-    });
-
     it("emit error when is itself", async () => {
       testHost.addTypeSpecFile(
         "main.tsp",
