@@ -9,8 +9,8 @@
     {
       "$id": "1",
       "kind": "enum",
-      "name": "EnumV2",
-      "crossLanguageDefinitionId": "Versioning.Removed.EnumV2",
+      "name": "Versions",
+      "crossLanguageDefinitionId": "Versioning.Removed.Versions",
       "valueType": {
         "$id": "2",
         "kind": "string",
@@ -22,120 +22,41 @@
         {
           "$id": "3",
           "kind": "enumvalue",
-          "name": "enumMemberV2",
-          "value": "enumMemberV2",
+          "name": "v1",
+          "value": "v1",
           "valueType": {
             "$ref": "2"
           },
           "enumType": {
             "$ref": "1"
           },
-          "decorators": []
-        }
-      ],
-      "namespace": "Versioning.Removed",
-      "isFixed": true,
-      "isFlags": false,
-      "usage": "Input,Output,Json",
-      "decorators": []
-    },
-    {
-      "$id": "4",
-      "kind": "enum",
-      "name": "EnumV3",
-      "crossLanguageDefinitionId": "Versioning.Removed.EnumV3",
-      "valueType": {
-        "$id": "5",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-      },
-      "values": [
-        {
-          "$id": "6",
-          "kind": "enumvalue",
-          "name": "enumMemberV1",
-          "value": "enumMemberV1",
-          "valueType": {
-            "$ref": "5"
-          },
-          "enumType": {
-            "$ref": "4"
-          },
-          "decorators": []
-        },
-        {
-          "$id": "7",
-          "kind": "enumvalue",
-          "name": "enumMemberV2Preview",
-          "value": "enumMemberV2Preview",
-          "valueType": {
-            "$ref": "5"
-          },
-          "enumType": {
-            "$ref": "4"
-          },
-          "decorators": []
-        }
-      ],
-      "namespace": "Versioning.Removed",
-      "isFixed": true,
-      "isFlags": false,
-      "usage": "Input,Output,Json",
-      "decorators": []
-    },
-    {
-      "$id": "8",
-      "kind": "enum",
-      "name": "Versions",
-      "crossLanguageDefinitionId": "Versioning.Removed.Versions",
-      "valueType": {
-        "$id": "9",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-      },
-      "values": [
-        {
-          "$id": "10",
-          "kind": "enumvalue",
-          "name": "v1",
-          "value": "v1",
-          "valueType": {
-            "$ref": "9"
-          },
-          "enumType": {
-            "$ref": "8"
-          },
           "doc": "The version v1.",
           "decorators": []
         },
         {
-          "$id": "11",
+          "$id": "4",
           "kind": "enumvalue",
           "name": "v2preview",
           "value": "v2preview",
           "valueType": {
-            "$ref": "9"
+            "$ref": "2"
           },
           "enumType": {
-            "$ref": "8"
+            "$ref": "1"
           },
           "doc": "The V2 Preview version.",
           "decorators": []
         },
         {
-          "$id": "12",
+          "$id": "5",
           "kind": "enumvalue",
           "name": "v2",
           "value": "v2",
           "valueType": {
-            "$ref": "9"
+            "$ref": "2"
           },
           "enumType": {
-            "$ref": "8"
+            "$ref": "1"
           },
           "doc": "The version v2.",
           "decorators": []
@@ -146,6 +67,85 @@
       "isFixed": true,
       "isFlags": false,
       "usage": "Input,ApiVersionEnum",
+      "decorators": []
+    },
+    {
+      "$id": "6",
+      "kind": "enum",
+      "name": "EnumV2",
+      "crossLanguageDefinitionId": "Versioning.Removed.EnumV2",
+      "valueType": {
+        "$id": "7",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+      },
+      "values": [
+        {
+          "$id": "8",
+          "kind": "enumvalue",
+          "name": "enumMemberV2",
+          "value": "enumMemberV2",
+          "valueType": {
+            "$ref": "7"
+          },
+          "enumType": {
+            "$ref": "6"
+          },
+          "decorators": []
+        }
+      ],
+      "namespace": "Versioning.Removed",
+      "isFixed": true,
+      "isFlags": false,
+      "usage": "Input,Output,Json",
+      "decorators": []
+    },
+    {
+      "$id": "9",
+      "kind": "enum",
+      "name": "EnumV3",
+      "crossLanguageDefinitionId": "Versioning.Removed.EnumV3",
+      "valueType": {
+        "$id": "10",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+      },
+      "values": [
+        {
+          "$id": "11",
+          "kind": "enumvalue",
+          "name": "enumMemberV1",
+          "value": "enumMemberV1",
+          "valueType": {
+            "$ref": "10"
+          },
+          "enumType": {
+            "$ref": "9"
+          },
+          "decorators": []
+        },
+        {
+          "$id": "12",
+          "kind": "enumvalue",
+          "name": "enumMemberV2Preview",
+          "value": "enumMemberV2Preview",
+          "valueType": {
+            "$ref": "10"
+          },
+          "enumType": {
+            "$ref": "9"
+          },
+          "decorators": []
+        }
+      ],
+      "namespace": "Versioning.Removed",
+      "isFixed": true,
+      "isFlags": false,
+      "usage": "Input,Output,Json",
       "decorators": []
     }
   ],
@@ -255,7 +255,7 @@
           "name": "enumProp",
           "serializedName": "enumProp",
           "type": {
-            "$ref": "1"
+            "$ref": "6"
           },
           "optional": false,
           "readOnly": false,
@@ -350,7 +350,7 @@
           "name": "enumProp",
           "serializedName": "enumProp",
           "type": {
-            "$ref": "4"
+            "$ref": "9"
           },
           "optional": false,
           "readOnly": false,
@@ -726,7 +726,7 @@
           "nameInRequest": "version",
           "doc": "Need to be set as 'v1', 'v2preview' or 'v2' in client.",
           "type": {
-            "$ref": "8"
+            "$ref": "1"
           },
           "location": "Uri",
           "isApiVersion": true,
