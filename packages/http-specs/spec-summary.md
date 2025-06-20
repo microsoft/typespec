@@ -7127,6 +7127,178 @@ Expect to handle a unknown type value. Mock api will return 'test'
 
 Expect to send a string value. Mock api expect to receive 'test'
 
+### Type_Union_Discriminated_Envelope_Object_CustomProperties_get
+
+- Endpoint: `get /type/union/discriminated/envelope/object/custom-properties`
+
+Test discriminated union with custom property names.
+When value of query parameter "petType" is "cat" or no query parameter input, the expected response is:
+
+```json
+{
+  "petType": "cat",
+  "petData": {
+    "name": "Whiskers",
+    "meow": true
+  }
+}
+```
+
+When it is "dog", expected response is:
+
+```json
+{
+  "petType": "dog",
+  "petData": {
+    "name": "Rex",
+    "bark": false
+  }
+}
+```
+
+### Type_Union_Discriminated_Envelope_Object_CustomProperties_put
+
+- Endpoint: `put /type/union/discriminated/envelope/object/custom-properties`
+
+Test discriminated union with custom property names.
+Send the union as:
+
+```json
+{
+  "petType": "cat",
+  "petData": {
+    "name": "Whiskers",
+    "meow": true
+  }
+}
+```
+
+### Type_Union_Discriminated_Envelope_Object_Default_get
+
+- Endpoint: `get /type/union/discriminated/envelope/object/default`
+
+Test discriminated union with envelope serialization.
+When value of query parameter "kind" is "cat" or no query parameter input, the expected response is:
+
+```json
+{
+  "kind": "cat",
+  "value": {
+    "name": "Whiskers",
+    "meow": true
+  }
+}
+```
+
+When it is "dog", expected response is:
+
+```json
+{
+  "kind": "dog",
+  "value": {
+    "name": "Rex",
+    "bark": false
+  }
+}
+```
+
+### Type_Union_Discriminated_Envelope_Object_Default_put
+
+- Endpoint: `put /type/union/discriminated/envelope/object/default`
+
+Test discriminated union with envelope serialization.
+Send the union as:
+
+```json
+{
+  "kind": "cat",
+  "value": {
+    "name": "Whiskers",
+    "meow": true
+  }
+}
+```
+
+### Type_Union_Discriminated_NoEnvelope_CustomDiscriminator_get
+
+- Endpoint: `get /type/union/discriminated/no-envelope/custom-discriminator`
+
+Test discriminated union with inline discriminator and custom discriminator property name.
+When value of query parameter "type" is "cat" or no query parameter input, the expected response is:
+
+```json
+{
+  "type": "cat",
+  "name": "Whiskers",
+  "meow": true
+}
+```
+
+When it is "dog", expected response is:
+
+```json
+{
+  "type": "dog",
+  "name": "Rex",
+  "bark": false
+}
+```
+
+### Type_Union_Discriminated_NoEnvelope_CustomDiscriminator_put
+
+- Endpoint: `put /type/union/discriminated/no-envelope/custom-discriminator`
+
+Test discriminated union with inline discriminator and custom discriminator property name.
+Send the union as:
+
+```json
+{
+  "type": "cat",
+  "name": "Whiskers",
+  "meow": true
+}
+```
+
+### Type_Union_Discriminated_NoEnvelope_Default_get
+
+- Endpoint: `get /type/union/discriminated/no-envelope/default`
+
+Test discriminated union with inline discriminator.
+When value of query parameter "kind" is "cat" or no query parameter input, the expected response is:
+
+```json
+{
+  "kind": "cat",
+  "name": "Whiskers",
+  "meow": true
+}
+```
+
+When it is "dog", expected response is:
+
+```json
+{
+  "kind": "dog",
+  "name": "Rex",
+  "bark": false
+}
+```
+
+### Type_Union_Discriminated_NoEnvelope_Default_put
+
+- Endpoint: `put /type/union/discriminated/no-envelope/default`
+
+Test discriminated union with inline discriminator.
+Send the union as:
+
+```json
+{
+  "kind": "cat",
+  "name": "Whiskers",
+  "meow": true
+}
+```
+
 ### Type_Union_EnumsOnly_get
 
 - Endpoint: `get /type/union/enums-only`

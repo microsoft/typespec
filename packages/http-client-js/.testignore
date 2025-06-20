@@ -5,3 +5,7 @@ type/model/usage
 # Streams
 
 streaming
+
+# discriminated union issue - https://github.com/microsoft/typespec/issues/7134
+
+type/union/discriminated
