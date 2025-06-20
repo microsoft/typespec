@@ -3,8 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-"""The preprocessing autorest plugin.
-"""
+"""The preprocessing autorest plugin."""
 import copy
 from typing import Callable, Dict, Any, List, Optional
 
