@@ -227,6 +227,7 @@ packages/http-client-python/generator/test/**/generated/
 packages/http-client-python/generator/test/**/cadl-ranch-coverage.json
 !packages/http-client-python/package-lock.json
 packages/http-client-python/micropip.lock
+packages/http-client-python/venv_build_wheel/
 
 # http-server-js emitter
 packages/http-server-js/test/e2e/generated
