@@ -259,14 +259,14 @@ async function createEmitterTesterInstance<Result>(
     code: string | Record<string, string>,
     options?: TestCompileOptions,
   ): Promise<[Result, readonly Diagnostic[]]> {
-    if (options?.options?.emit !== undefined) {
+    if (options?.compilerOptions?.emit !== undefined) {
       throw new Error("Cannot set emit in options.");
     }
     const resolvedOptions: TestCompileOptions = {
       ...options,
-      options: {
+      compilerOptions: {
         ...params.compilerOptions,
-        ...options?.options,
+        ...options?.compilerOptions,
         outputDir: "tsp-output",
         emit: [params.emitter],
       },
@@ -274,7 +274,7 @@ async function createEmitterTesterInstance<Result>(
     const [result, diagnostics] = await tester.compileAndDiagnose(code, resolvedOptions);
     const outputs: Record<string, string> = {};
     const outputDir =
-      resolvedOptions.options?.options?.[params.emitter]?.["emitter-output-dir"] ??
+      resolvedOptions.compilerOptions?.options?.[params.emitter]?.["emitter-output-dir"] ??
       resolveVirtualPath(resolvePath("tsp-output", params.emitter));
     for (const [name, value] of result.fs.fs) {
       if (name.startsWith(outputDir)) {
@@ -375,7 +375,7 @@ async function createTesterInstance(params: TesterInternalParams): Promise<Teste
     const program = await coreCompile(
       fs.compilerHost,
       resolveVirtualPath("main.tsp"),
-      options?.options,
+      options?.compilerOptions,
     );
     savedProgram = program;
 

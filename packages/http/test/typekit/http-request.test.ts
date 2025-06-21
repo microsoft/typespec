@@ -10,7 +10,7 @@ describe("HttpRequest Body Parameters", () => {
     const { program, get } = await Tester.compile(t.code`
       model EmbeddingVector<Element extends numeric = float32> is Array<Element>;
 
-      @test op ${t.op("get")}(): EmbeddingVector<int32>;
+      op ${t.op("get")}(): EmbeddingVector<int32>;
     `);
     const tk = $(program);
     const httpOperation = tk.httpOperation.get(get);

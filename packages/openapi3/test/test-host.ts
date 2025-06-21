@@ -44,7 +44,7 @@ export async function emitOpenApiWithDiagnostics(
   const fileType = options["file-type"] || "yaml";
   const outputFile = resolveVirtualPath("openapi" + fileType === "json" ? ".json" : ".yaml");
   const diagnostics = await runner.diagnose(code, {
-    options: {
+    compilerOptions: {
       options: {
         "@typespec/openapi3": { ...options, "output-file": outputFile },
       },
@@ -58,7 +58,7 @@ export async function emitOpenApiWithDiagnostics(
 
 export async function diagnoseOpenApiFor(code: string, options: OpenAPI3EmitterOptions = {}) {
   const diagnostics = await SimpleTester.diagnose(code, {
-    options: { options: { "@typespec/openapi3": options as any } },
+    compilerOptions: { options: { "@typespec/openapi3": options as any } },
   });
   return diagnostics;
 }
@@ -67,7 +67,7 @@ export async function openApiFor(code: string, options: OpenAPI3EmitterOptions =
   const host = await SimpleTester.createInstance();
   const outPath = "{emitter-output-dir}/openapi.json";
   const { outputs } = await host.compile(code, {
-    options: {
+    compilerOptions: {
       options: { "@typespec/openapi3": { ...options, "output-file": outPath } },
     },
   });
@@ -82,7 +82,7 @@ export async function openApiForVersions<T extends string>(
   const host = await TesterWithVersioning.createInstance();
   const outPath = "{emitter-output-dir}/{version}.openapi.json";
   const { outputs } = await host.compile(code, {
-    options: {
+    compilerOptions: {
       options: { "@typespec/openapi3": { "output-file": outPath } },
     },
   });
@@ -131,7 +131,7 @@ export async function openapiWithOptions(
 
   const runner = await SimpleTester.createInstance();
   const diagnostics = await runner.diagnose(code, {
-    options: { options: { "@typespec/openapi3": { ...options, "output-file": outPath } } },
+    compilerOptions: { options: { "@typespec/openapi3": { ...options, "output-file": outPath } } },
   });
 
   expectDiagnosticEmpty(diagnostics);

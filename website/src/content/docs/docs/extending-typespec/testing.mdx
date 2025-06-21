@@ -8,6 +8,10 @@ import { Steps } from '@astrojs/starlight/components';
  
 TypeSpec provides a testing framework to assist in testing libraries. The examples here are shown using vitest, but any other JS test framework can be used that will provide more advanced features like vitest, which is used in this project.
 
+:::note
+This is a documentation for the new Testing framework. To migrate from the old one see the [migration guide](#migrate-from-test-host)
+:::
+
 ## Setting up vitest
 
 This step is a basic explanation of how to setup vitest. Please refer to the [vitest documentation](https://vitest.dev/) for more details.
@@ -58,6 +62,10 @@ const MyTester = createTester({
   libraries: ["@typespec/http", "@typespec/openapi", "my-library"], // Add other libraries you depend on in your tests
 });
 ```
+
+:::note
+Unlike the old test wrapper this will not auto import anything. You can pipe with .importLibraries() to import all the libraries you defined in the `createTester` call.
+:::
 
 ### Write your first test
 
@@ -257,6 +265,9 @@ strictEqual(Foo.name, "Foo");
 
 3. Using the `@test` decorator
 
+This is mostly kept for backwards compatibility with the old test host. It has the limitation of only being to target decorable types.
+It is preferable to use the `t` helper when possible or the flourslash syntax for more complex cases.
+
 ```ts
 const { Foo } = await MyTester.compile(t.code`
   @test model Foo {}
@@ -264,4 +275,48 @@ const { Foo } = await MyTester.compile(t.code`
 strictEqual(Foo.entityKind, "Type");
 strictEqual(Foo.type, "Model");
 strictEqual(Foo.name, "Foo");
+```
+
+## Migrate from test host
+
+PR with examples https://github.com/microsoft/typespec/pull/7151
+
+```diff lang=ts title="test-host.ts"
+- import { createTestHost, createTestWrapper } from "@typespec/compiler/testing";
+- import { HttpTestLibrary } from "@typespec/http/testing";
+- import { RestTestLibrary } from "@typespec/rest/testing";
+- import { MyTestLibrary } from "../src/testing/index.js";
+-
+- export async function createMyTestHost() {
+-   return createTestHost({
+-     libraries: [HttpTestLibrary, RestTestLibrary, MyTestLibrary],
+-   });
+- }
+- export async function createMyTestRunner() {
+-   const host = await createOpenAPITestHost();
+-   return createTestWrapper(host, { autoUsings: ["TypeSpec.My"] });
+- }
+
++ import { resolvePath } from "@typespec/compiler";
++ import { createTester } from "@typespec/compiler/testing";
++
++ export const Tester = createTester(resolvePath(import.meta.dirname, ".."), {
++   libraries: ["@typespec/http", "@typespec/rest", "@typespec/my"],
++ })
++   .importLibraries()
++   .using("My");
+```
+
+In test files
+
+```diff lang=ts title="test/my-library.test.ts"
+ it("mark property as being an attribute", async () => {
+-   const { id } = (await runner.compile(`model Blob {
+-     @test @Xml.attribute id : string
+-   }`)) as { id: ModelProperty };
++   const { id } = await Tester.compile(t.code`model Blob {
++      @Xml.attribute ${t.modelProperty("id")} : string
++   }`);
+   expect(isAttribute(runner.program, id)).toBe(true);
+ });
 ```

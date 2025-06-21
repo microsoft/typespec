@@ -58,7 +58,7 @@ export type TestCompileResult<T extends Record<string, Entity>> = T & {
 
 export interface TestCompileOptions {
   /** Optional compiler options */
-  readonly options?: CompilerOptions;
+  readonly compilerOptions?: CompilerOptions;
 }
 
 interface Testable {
