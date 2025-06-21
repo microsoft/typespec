@@ -293,7 +293,7 @@ function emitHttpOperation(
     discriminator: "basic",
     isOverload: false,
     overloads: [],
-    apiVersions: [],
+    apiVersions: method.apiVersions,
     wantTracing: true,
     exposeStreamKeyword: true,
     crossLanguageDefinitionId: method?.crossLanguageDefinitionId,

@@ -249,6 +249,7 @@ function emitProperty(
     optional: property.optional,
     description: property.summary ? property.summary : property.doc,
     addedOn: getAddedOn(context, property),
+    apiVersions: property.apiVersions,
     visibility: visibilityMapping(property.visibility),
     isDiscriminator: property.discriminator,
     flatten: property.flatten,
