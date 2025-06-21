@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { getDoc, getSummary } from "@typespec/compiler";
+import { getClientType } from "@azure-tools/typespec-client-generator-core";
+import { getDoc, getSummary, Value } from "@typespec/compiler";
 import { HttpServer } from "@typespec/http";
 import { getExtensions } from "@typespec/openapi";
 import { CSharpEmitterContext } from "../sdk-context.js";
@@ -10,7 +11,7 @@ import { InputParameterKind } from "../type/input-parameter-kind.js";
 import { InputParameter } from "../type/input-parameter.js";
 import { InputType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
-import { getDefaultValue, getInputType } from "./model.js";
+import { fromSdkType } from "./type-converter.js";
 
 export interface TypeSpecServer {
   url: string;
@@ -36,7 +37,7 @@ export function resolveServers(
             name: "url",
             crossLanguageDefinitionId: "TypeSpec.url",
           }
-        : getInputType(sdkContext, prop);
+        : fromSdkType(sdkContext, getClientType(sdkContext, prop));
 
       if (value) {
         defaultValue = {
@@ -102,4 +103,19 @@ export function resolveServers(
       parameters,
     };
   });
+}
+
+function getDefaultValue(value: Value): any {
+  switch (value.valueKind) {
+    case "StringValue":
+      return value.value;
+    case "NumericValue":
+      return value.value;
+    case "BooleanValue":
+      return value.value;
+    case "ArrayValue":
+      return value.values.map(getDefaultValue);
+    default:
+      return undefined;
+  }
 }

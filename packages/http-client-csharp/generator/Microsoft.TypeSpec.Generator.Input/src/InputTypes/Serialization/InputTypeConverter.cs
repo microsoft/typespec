@@ -18,22 +18,21 @@ namespace Microsoft.TypeSpec.Generator.Input
 
         public override InputType? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            return reader.ReadReferenceAndResolve<InputType>(_referenceHandler.CurrentResolver) ?? CreateInputType(ref reader, options);
+            return reader.ReadReferenceAndResolve<InputType>(_referenceHandler.CurrentResolver) ?? CreateInputType(ref reader, options, _referenceHandler.CurrentResolver);
         }
 
         public override void Write(Utf8JsonWriter writer, InputType value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        private InputType CreateInputType(ref Utf8JsonReader reader, JsonSerializerOptions options)
+        private static InputType CreateInputType(ref Utf8JsonReader reader, JsonSerializerOptions options, ReferenceResolver resolver)
         {
             string? id = null;
             string? kind = null;
             string? name = null;
             InputType? result = null;
-            var isFirstProperty = true;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
-                var isIdOrNameOrKind = reader.TryReadReferenceId(ref isFirstProperty, ref id)
+                var isIdOrNameOrKind = reader.TryReadReferenceId(ref id)
                     || reader.TryReadString("kind", ref kind)
                     || reader.TryReadString("name", ref name);
 
@@ -41,10 +40,10 @@ namespace Microsoft.TypeSpec.Generator.Input
                 {
                     continue;
                 }
-                result = CreateDerivedType(ref reader, id, kind, name, options);
+                result = CreateDerivedType(ref reader, id, kind, name, options, resolver);
             }
 
-            return result ?? CreateDerivedType(ref reader, id, kind, name, options);
+            return result ?? CreateDerivedType(ref reader, id, kind, name, options, resolver);
         }
 
         private const string LiteralKind = "constant";
@@ -59,20 +58,20 @@ namespace Microsoft.TypeSpec.Generator.Input
         private const string OffsetDateTimeKind = "offsetDateTime";
         private const string DurationKind = "duration";
 
-        private InputType CreateDerivedType(ref Utf8JsonReader reader, string? id, string? kind, string? name, JsonSerializerOptions options) => kind switch
+        private static InputType CreateDerivedType(ref Utf8JsonReader reader, string? id, string? kind, string? name, JsonSerializerOptions options, ReferenceResolver resolver) => kind switch
         {
             null => throw new JsonException($"InputType (id: '{id}', name: '{name}') must have a 'Kind' property"),
-            LiteralKind => InputLiteralTypeConverter.CreateInputLiteralType(ref reader, id, name, options, _referenceHandler.CurrentResolver),
-            UnionKind => InputUnionTypeConverter.CreateInputUnionType(ref reader, id, name, options, _referenceHandler.CurrentResolver),
-            ModelKind => InputModelTypeConverter.CreateModelType(ref reader, id, name, options, _referenceHandler.CurrentResolver),
-            EnumKind => InputEnumTypeConverter.CreateEnumType(ref reader, id, name, options, _referenceHandler.CurrentResolver),
-            EnumValueKind => InputEnumTypeValueConverter.CreateEnumTypeValue(ref reader, id, name, options, _referenceHandler.CurrentResolver),
-            ArrayKind => InputArrayTypeConverter.CreateListType(ref reader, id, name, options, _referenceHandler.CurrentResolver),
-            DictionaryKind => InputDictionaryTypeConverter.CreateDictionaryType(ref reader, id, options, _referenceHandler.CurrentResolver),
-            UtcDateTimeKind or OffsetDateTimeKind => InputDateTimeTypeConverter.CreateDateTimeType(ref reader, id, name, options, _referenceHandler.CurrentResolver),
-            DurationKind => InputDurationTypeConverter.CreateDurationType(ref reader, id, name, options, _referenceHandler.CurrentResolver),
-            NullableKind => TypeSpecInputNullableTypeConverter.CreateNullableType(ref reader, id, name, options, _referenceHandler.CurrentResolver),
-            _ => InputPrimitiveTypeConverter.CreatePrimitiveType(ref reader, id, kind, name, options, _referenceHandler.CurrentResolver),
+            LiteralKind => InputLiteralTypeConverter.CreateInputLiteralType(ref reader, id, name, options, resolver),
+            UnionKind => InputUnionTypeConverter.CreateInputUnionType(ref reader, id, name, options, resolver),
+            ModelKind => InputModelTypeConverter.CreateModelType(ref reader, id, name, options, resolver),
+            EnumKind => InputEnumTypeConverter.CreateEnumType(ref reader, id, name, options, resolver),
+            EnumValueKind => InputEnumTypeValueConverter.CreateEnumTypeValue(ref reader, id, name, options, resolver),
+            ArrayKind => InputArrayTypeConverter.CreateListType(ref reader, id, name, options, resolver),
+            DictionaryKind => InputDictionaryTypeConverter.CreateDictionaryType(ref reader, id, options, resolver),
+            UtcDateTimeKind or OffsetDateTimeKind => InputDateTimeTypeConverter.CreateDateTimeType(ref reader, id, name, options, resolver),
+            DurationKind => InputDurationTypeConverter.CreateDurationType(ref reader, id, name, options, resolver),
+            NullableKind => TypeSpecInputNullableTypeConverter.CreateNullableType(ref reader, id, name, options, resolver),
+            _ => InputPrimitiveTypeConverter.CreatePrimitiveType(ref reader, id, kind, name, options, resolver),
         };
     }
 }

@@ -10,25 +10,22 @@ namespace Microsoft.TypeSpec.Generator.Input
 {
     internal sealed class InputContinuationTokenConverter : JsonConverter<InputContinuationToken>
     {
-        private readonly TypeSpecReferenceHandler _referenceHandler;
-
-        public InputContinuationTokenConverter(TypeSpecReferenceHandler referenceHandler)
+        public InputContinuationTokenConverter()
         {
-            _referenceHandler = referenceHandler;
         }
 
         public override InputContinuationToken? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            => reader.ReadReferenceAndResolve<InputContinuationToken>(_referenceHandler.CurrentResolver) ?? CreateContinuationToken(ref reader, options, _referenceHandler.CurrentResolver);
+            => CreateContinuationToken(ref reader, options);
 
         public override void Write(Utf8JsonWriter writer, InputContinuationToken value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        internal static InputContinuationToken CreateContinuationToken(ref Utf8JsonReader reader, JsonSerializerOptions options, ReferenceResolver resolver)
+        internal static InputContinuationToken CreateContinuationToken(ref Utf8JsonReader reader, JsonSerializerOptions options)
         {
-            string? id = null;
-            reader.TryReadReferenceId(ref id);
-
-            id = id ?? throw new JsonException();
+            if (reader.TokenType == JsonTokenType.StartObject)
+            {
+                reader.Read();
+            }
 
             InputParameter? parameter = null;
             IReadOnlyList<string>? responseSegments = null;
@@ -52,7 +49,6 @@ namespace Microsoft.TypeSpec.Generator.Input
                 responseSegments ?? throw new JsonException("Continuation token response segments must be defined."),
                 responseLocation ?? throw new JsonException("Continuation token response location must be defined."));
 
-            resolver.AddReference(id, continuationToken);
             return continuationToken;
         }
     }

@@ -9,31 +9,22 @@ namespace Microsoft.TypeSpec.Generator.Input
 {
     internal sealed class InputXmlSerializationOptionsConverter : JsonConverter<InputXmlSerializationOptions>
     {
-        private readonly TypeSpecReferenceHandler _referenceHandler;
-
-        public InputXmlSerializationOptionsConverter(TypeSpecReferenceHandler referenceHandler)
+        public InputXmlSerializationOptionsConverter()
         {
-            _referenceHandler = referenceHandler;
         }
 
         public override InputXmlSerializationOptions Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            => reader.ReadReferenceAndResolve<InputXmlSerializationOptions>(_referenceHandler.CurrentResolver) ?? ReadInputXmlSerializationOptions(ref reader, null, options, _referenceHandler.CurrentResolver);
+            => ReadInputXmlSerializationOptions(ref reader, options);
 
         public override void Write(Utf8JsonWriter writer, InputXmlSerializationOptions value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        private static InputXmlSerializationOptions ReadInputXmlSerializationOptions(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options, ReferenceResolver resolver)
+        private static InputXmlSerializationOptions ReadInputXmlSerializationOptions(ref Utf8JsonReader reader, JsonSerializerOptions options)
         {
-            if (id == null)
+            if (reader.TokenType == JsonTokenType.StartObject)
             {
-                reader.TryReadReferenceId(ref id);
+                reader.Read();
             }
-
-            id = id ?? throw new JsonException();
-
-            // create an empty options to resolve circular references
-            var xmlOptions = new InputXmlSerializationOptions(null!);
-            resolver.AddReference(id, xmlOptions);
 
             string? name = null;
             bool? attribute = null;
@@ -57,14 +48,13 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
             }
 
-            xmlOptions.Name = name ?? throw new JsonException("XmlSerializationOptions must have name");
-            xmlOptions.Attribute = attribute;
-            xmlOptions.Namespace = ns;
-            xmlOptions.Unwrapped = unwrapped;
-            xmlOptions.ItemsName = itemsName;
-            xmlOptions.ItemsNamespace = itemsNs;
-
-            return xmlOptions;
+            return new InputXmlSerializationOptions(
+                name ?? throw new JsonException("XmlSerializationOptions must have name"),
+                attribute,
+                ns,
+                unwrapped,
+                itemsName,
+                itemsNs);
         }
     }
 }

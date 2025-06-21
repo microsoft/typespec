@@ -9,31 +9,22 @@ namespace Microsoft.TypeSpec.Generator.Input
 {
     internal sealed class InputJsonSerializationOptionsConverter : JsonConverter<InputJsonSerializationOptions>
     {
-        private readonly TypeSpecReferenceHandler _referenceHandler;
-
-        public InputJsonSerializationOptionsConverter(TypeSpecReferenceHandler referenceHandler)
+        public InputJsonSerializationOptionsConverter()
         {
-            _referenceHandler = referenceHandler;
         }
 
         public override InputJsonSerializationOptions Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            => reader.ReadReferenceAndResolve<InputJsonSerializationOptions>(_referenceHandler.CurrentResolver) ?? ReadInputJsonSerializationOptions(ref reader, null, options, _referenceHandler.CurrentResolver);
+            => ReadInputJsonSerializationOptions(ref reader, options);
 
         public override void Write(Utf8JsonWriter writer, InputJsonSerializationOptions value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        private static InputJsonSerializationOptions ReadInputJsonSerializationOptions(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options, ReferenceResolver resolver)
+        private static InputJsonSerializationOptions ReadInputJsonSerializationOptions(ref Utf8JsonReader reader, JsonSerializerOptions options)
         {
-            if (id == null)
+            if (reader.TokenType == JsonTokenType.StartObject)
             {
-                reader.TryReadReferenceId(ref id);
+                reader.Read();
             }
-
-            id = id ?? throw new JsonException();
-
-            // create an empty options to resolve circular references
-            var jsonOptions = new InputJsonSerializationOptions(null!);
-            resolver.AddReference(id, jsonOptions);
 
             string? name = null;
 
@@ -47,9 +38,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
             }
 
-            jsonOptions.Name = name ?? throw new JsonException("JsonSerializationOptions must have name");
-
-            return jsonOptions;
+            return new InputJsonSerializationOptions(name ?? throw new JsonException("JsonSerializationOptions must have name"));
         }
     }
 }

@@ -225,10 +225,6 @@ export interface InputNullableType extends InputTypeBase {
   namespace: string;
 }
 
-export function isInputEnumType(type: InputType): type is InputEnumType {
-  return type.kind === "enum";
-}
-
 export interface InputArrayType extends InputTypeBase {
   kind: "array";
   name: string;
@@ -236,16 +232,8 @@ export interface InputArrayType extends InputTypeBase {
   crossLanguageDefinitionId: string;
 }
 
-export function isInputArrayType(type: InputType): type is InputArrayType {
-  return type.kind === "array";
-}
-
 export interface InputDictionaryType extends InputTypeBase {
   kind: "dict";
   keyType: InputType;
   valueType: InputType;
-}
-
-export function isInputDictionaryType(type: InputType): type is InputDictionaryType {
-  return type.kind === "dict";
 }

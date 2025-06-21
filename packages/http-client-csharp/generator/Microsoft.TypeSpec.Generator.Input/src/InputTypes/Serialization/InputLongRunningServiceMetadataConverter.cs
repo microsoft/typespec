@@ -9,31 +9,29 @@ namespace Microsoft.TypeSpec.Generator.Input
 {
     internal sealed class InputLongRunningServiceMetadataConverter : JsonConverter<InputLongRunningServiceMetadata>
     {
-        private readonly TypeSpecReferenceHandler _referenceHandler;
-
-        public InputLongRunningServiceMetadataConverter(TypeSpecReferenceHandler referenceHandler)
+        public InputLongRunningServiceMetadataConverter()
         {
-            _referenceHandler = referenceHandler;
         }
 
         public override InputLongRunningServiceMetadata? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            return reader.ReadReferenceAndResolve<InputLongRunningServiceMetadata>(_referenceHandler.CurrentResolver) ?? CreateOperationLongRunning(ref reader, null, options);
-        }
+            => CreateOperationLongRunning(ref reader, options);
 
         public override void Write(Utf8JsonWriter writer, InputLongRunningServiceMetadata value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        private InputLongRunningServiceMetadata CreateOperationLongRunning(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options)
+        private InputLongRunningServiceMetadata CreateOperationLongRunning(ref Utf8JsonReader reader, JsonSerializerOptions options)
         {
-            var isFirstProperty = id == null;
+            if (reader.TokenType == JsonTokenType.StartObject)
+            {
+                reader.Read();
+            }
+
             int finalStateVia = default;
             InputOperationResponse? finalResponse = null;
             string? resultPath = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
-                var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
-                    || reader.TryReadInt32("finalStateVia", ref finalStateVia)
+                var isKnownProperty = reader.TryReadInt32("finalStateVia", ref finalStateVia)
                     || reader.TryReadComplexType("finalResponse", options, ref finalResponse)
                     || reader.TryReadString("resultPath", ref resultPath);
 
@@ -44,11 +42,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             }
 
             var result = new InputLongRunningServiceMetadata(finalStateVia, finalResponse ?? new InputOperationResponse(), resultPath);
-
-            if (id != null)
-            {
-                _referenceHandler.CurrentResolver.AddReference(id, result);
-            }
 
             return result;
         }

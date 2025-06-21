@@ -1,4 +1,7 @@
+using System.IO;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -7,43 +10,50 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
     public class TypeSpecInputConverterTests
     {
         [Test]
-        public void LoadsTypeSpecPagingInput()
+        public void LoadsPagingWithNextLink()
         {
-            var inputLibrary = new InputLibrary(Helpers.GetAssetFileOrDirectoryPath(false));
-            var inputNamespace = inputLibrary.Load();
-
-            var nextLinkMethod = inputNamespace.RootClients.First().Methods.FirstOrDefault(x => x.Operation.Name == "ListWithNextLink");
-            Assert.IsNotNull(nextLinkMethod);
-
-            InputPagingServiceMetadata? nextLinkPaging = null;
-            if (nextLinkMethod is InputPagingServiceMethod pagingServiceMethod)
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            // this tspCodeModel.json contains a partial part of the full tspCodeModel.json
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var options = new JsonSerializerOptions
             {
-                nextLinkPaging = pagingServiceMethod.PagingMetadata;
-            }
-            else
-            {
-                Assert.Fail("Expected InputPagingServiceMethod");
-            }
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputPagingServiceMetadataConverter(),
+                    new InputNextLinkConverter(),
+                }
+            };
+            var pagingMetadata = JsonSerializer.Deserialize<InputPagingServiceMetadata>(content, options);
+            Assert.IsNotNull(pagingMetadata);
+            Assert.IsNotNull(pagingMetadata?.NextLink);
+            Assert.AreEqual(1, pagingMetadata!.NextLink!.ResponseSegments.Count);
+            Assert.AreEqual("next", pagingMetadata.NextLink.ResponseSegments[0]);
+            Assert.AreEqual(InputResponseLocation.Body, pagingMetadata.NextLink.ResponseLocation);
+        }
 
-            Assert.IsNotNull(nextLinkPaging);
-            var nextLink = nextLinkPaging!.NextLink;
-            Assert.IsNotNull(nextLink);
-            Assert.AreEqual(1, nextLink!.ResponseSegments.Count);
-            Assert.AreEqual("next", nextLink.ResponseSegments[0]);
-            Assert.AreEqual(InputResponseLocation.Body, nextLink.ResponseLocation);
-
-            var continuationMethod = inputNamespace.RootClients.First().Methods.FirstOrDefault(x => x.Operation.Name == "ListWithContinuationTokenHeaderResponse");
-            Assert.IsNotNull(continuationMethod);
-
-            InputPagingServiceMetadata? continuationPaging = null;
-            if (continuationMethod is InputPagingServiceMethod continuationPagingServiceMethod)
+        [Test]
+        public void LoadsPagingWithContinuationToken()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            // this tspCodeModel.json contains a partial part of the full tspCodeModel.json
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
             {
-                continuationPaging = continuationPagingServiceMethod.PagingMetadata;
-            }
-            else
-            {
-                Assert.Fail("Expected InputPagingServiceMethod");
-            }
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputPagingServiceMetadataConverter(),
+                    new InputContinuationTokenConverter(),
+                    new InputParameterConverter(referenceHandler),
+                    new InputTypeConverter(referenceHandler),
+                    new InputPrimitiveTypeConverter(referenceHandler),
+                }
+            };
+            var continuationPaging = JsonSerializer.Deserialize<InputPagingServiceMetadata>(content, options);
             Assert.IsNotNull(continuationPaging);
 
             var continuation = continuationPaging!.ContinuationToken;
