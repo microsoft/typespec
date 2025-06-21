@@ -42,7 +42,7 @@ describe("openapi3: output file", () => {
   });
   async function compileOpenAPI(options: OpenAPI3EmitterOptions, code: string = ""): Promise<void> {
     const diagnostics = await runner.diagnose(code, {
-      options: {
+      compilerOptions: {
         emit: ["@typespec/openapi3"],
         options: { "@typespec/openapi3": { ...options, "emitter-output-dir": outputDir } },
       },
