@@ -23,6 +23,7 @@ import {
   ExecOutput,
   getVscodeUriFromPath,
   isFile,
+  loadModule,
   tryParseYaml,
   tryReadFile,
 } from "../../utils.js";
@@ -415,6 +416,17 @@ async function doEmit(
     }
     const newYamlContent = configYaml.toString();
     await writeFile(tspConfigFile, newYamlContent);
+
+    let newCommentYamlContent = newYamlContent;
+    for (const emitter of emitters) {
+      newCommentYamlContent = await generateAnnotatedYamlFileContent(
+        newCommentYamlContent,
+        emitter.package,
+        baseDir,
+      );
+    }
+
+    await writeFile(tspConfigFile, newCommentYamlContent);
   } catch (error: any) {
     logger.error(error);
   }
@@ -835,4 +847,144 @@ async function isCompilerSupport(client: TspLanguageClient): Promise<boolean> {
     return false;
   }
   return true;
+}
+
+function getConfigEntriesFromEmitterOptions(
+  emitterOptions: Record<string, any>,
+  configYamlContent: string,
+): Record<string, any> {
+  const configEntries: Record<string, any> = {};
+  if (!emitterOptions.properties) {
+    return configEntries;
+  }
+
+  for (const [propertyName, propertySchema] of Object.entries(emitterOptions.properties)) {
+    if (configYamlContent.includes(propertyName)) {
+      continue;
+    }
+    if (propertyName === "emitter-output-dir") {
+      continue;
+    }
+
+    const propSchema = propertySchema as any;
+    let comment = "";
+    if (propSchema.description) {
+      comment = propSchema.description;
+    }
+    if (propSchema.type) {
+      comment += ` (Type: ${propSchema.type})`;
+    }
+    if (propSchema.enum) {
+      comment += ` (Options: ${propSchema.enum.join(", ")})`;
+    }
+
+    let defaultValue: any;
+    if (propSchema.default !== undefined) {
+      defaultValue = propSchema.default;
+    } else {
+      switch (propSchema.type) {
+        case "string":
+          defaultValue = propSchema.enum ? propSchema.enum[0] : '""';
+          break;
+        case "boolean":
+          defaultValue = false;
+          break;
+        case "number":
+        case "integer":
+          defaultValue = 0;
+          break;
+        case "array":
+          defaultValue = [];
+          break;
+        case "object":
+          defaultValue = {};
+          break;
+        default:
+          defaultValue = null;
+      }
+    }
+
+    configEntries[propertyName] = {
+      value: defaultValue,
+      comment: comment,
+    };
+  }
+
+  return configEntries;
+}
+
+async function extractEmitterOptions(
+  baseDir: string,
+  packageName: string,
+): Promise<Record<string, any> | undefined> {
+  try {
+    const moduleResult = await loadModule(baseDir, packageName);
+    if (!moduleResult) {
+      logger.debug(`Failed to resolve module ${packageName}`);
+      return undefined;
+    }
+
+    const mainFilePath = moduleResult.type === "file" ? moduleResult.path : moduleResult.mainFile;
+    const moduleExports = await import(Uri.file(mainFilePath).toString());
+    if (moduleExports.$lib?.emitter?.options) {
+      return moduleExports.$lib.emitter.options;
+    }
+
+    logger.debug(`No emitter options schema found in ${packageName}`);
+    return undefined;
+  } catch (error) {
+    logger.debug(`Error extracting schema from ${packageName}:`, [error]);
+    return undefined;
+  }
+}
+
+async function generateAnnotatedYamlFileContent(
+  configYamlContent: string,
+  packageName: string,
+  baseDir: string,
+): Promise<string> {
+  try {
+    const emitterOptions = await extractEmitterOptions(baseDir, packageName);
+    if (emitterOptions === undefined) {
+      logger.debug(`No emitter options found for ${packageName}, using basic configuration`);
+      return configYamlContent;
+    }
+    const configEntries = getConfigEntriesFromEmitterOptions(emitterOptions, configYamlContent);
+    if (Object.keys(configEntries).length === 0) {
+      logger.debug(`No configuration entries found for ${packageName}`);
+      return configYamlContent;
+    }
+
+    const commentLines: string[] = [];
+    for (const [key, config] of Object.entries(configEntries)) {
+      commentLines.push(`# ${key}: ${config.value} # ${config.comment}`);
+    }
+
+    let docString = configYamlContent;
+    if (commentLines.length > 0) {
+      const indent = "  ".repeat(["options", packageName].length);
+      const allComments = commentLines.map((line) => `${indent}${line}`).join("\n");
+
+      // Find the position after `packName: \n emitter-output-dir: "{output-dir}/{emitter-name}"` line to insert comments
+      const emitterOutputDirPattern = new RegExp(
+        `"${packageName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}":\\n\\s+emitter-output-dir:\\s+"\\{output-dir\\}\\/\\{emitter-name\\}"\\n`,
+        "g",
+      );
+      const match = emitterOutputDirPattern.exec(docString);
+      if (match) {
+        const insertPosition = match.index + match[0].length;
+        docString =
+          docString.slice(0, insertPosition) + allComments + "\n" + docString.slice(insertPosition);
+      } else {
+        logger.debug(
+          `Could not find emitter-output-dir entry for ${packageName} to insert comments`,
+        );
+      }
+    }
+
+    return docString;
+  } catch (error) {
+    logger.error(`Error generating annotated yaml file content for ${packageName}:`, [error]);
+    return configYamlContent;
+  }
 }
