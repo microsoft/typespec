@@ -275,7 +275,9 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
     @property
     def need_validation(self) -> bool:
         """Whether we need parameter / operation validation. For API version."""
-        return bool(self.added_on) or any(p for p in self.parameters if p.added_on)
+        return self.code_model.options["validate_versioning"] and (
+            bool(self.added_on) or any(p for p in self.parameters if p.added_on)
+        )
 
     def get_request_builder_import(
         self,

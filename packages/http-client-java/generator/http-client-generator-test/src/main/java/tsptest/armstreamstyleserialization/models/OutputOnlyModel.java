@@ -43,7 +43,7 @@ public interface OutputOnlyModel {
      * 
      * @return the dog value.
      */
-    Dog dog();
+    Golden dog();
 
     /**
      * Gets the inner tsptest.armstreamstyleserialization.fluent.models.OutputOnlyModelInner object.

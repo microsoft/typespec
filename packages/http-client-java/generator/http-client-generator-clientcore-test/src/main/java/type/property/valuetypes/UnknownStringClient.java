@@ -53,7 +53,7 @@ public final class UnknownStringClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public UnknownStringProperty get() {
-        return this.serviceClient.get();
+        return getWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -83,6 +83,6 @@ public final class UnknownStringClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void put(UnknownStringProperty body) {
-        this.serviceClient.put(body);
+        putWithResponse(body, RequestContext.none());
     }
 }

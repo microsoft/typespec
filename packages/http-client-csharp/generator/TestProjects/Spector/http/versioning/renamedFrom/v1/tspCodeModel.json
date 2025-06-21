@@ -478,7 +478,7 @@
      "type": {
       "$id": "49",
       "kind": "url",
-      "name": "url",
+      "name": "endpoint",
       "crossLanguageDefinitionId": "TypeSpec.url"
      },
      "location": "Uri",
@@ -488,7 +488,8 @@
      "isEndpoint": true,
      "skipUrlEncoding": false,
      "explode": false,
-     "kind": "Client"
+     "kind": "Client",
+     "serverUrlTemplate": "{endpoint}/versioning/renamed-from/api-version:{version}"
     },
     {
      "$id": "50",
@@ -499,13 +500,24 @@
       "$ref": "6"
      },
      "location": "Uri",
-     "isApiVersion": false,
+     "isApiVersion": true,
      "isContentType": false,
      "isRequired": true,
      "isEndpoint": false,
      "skipUrlEncoding": false,
      "explode": false,
-     "kind": "Client"
+     "kind": "Client",
+     "defaultValue": {
+      "$id": "51",
+      "type": {
+       "$id": "52",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "value": "v1"
+     },
+     "serverUrlTemplate": "{endpoint}/versioning/renamed-from/api-version:{version}"
     }
    ],
    "decorators": [],
@@ -515,13 +527,13 @@
    ],
    "children": [
     {
-     "$id": "51",
+     "$id": "53",
      "kind": "client",
      "name": "OldInterface",
      "namespace": "Versioning.RenamedFrom",
      "methods": [
       {
-       "$id": "52",
+       "$id": "54",
        "kind": "basic",
        "name": "newOpInNewInterface",
        "accessibility": "public",
@@ -529,13 +541,13 @@
         "v1"
        ],
        "operation": {
-        "$id": "53",
+        "$id": "55",
         "name": "newOpInNewInterface",
         "resourceName": "OldInterface",
         "accessibility": "public",
         "parameters": [
          {
-          "$id": "54",
+          "$id": "56",
           "name": "contentType",
           "nameInRequest": "Content-Type",
           "doc": "Body parameter's content type. Known values are application/json",
@@ -553,7 +565,7 @@
           "skipUrlEncoding": false
          },
          {
-          "$id": "55",
+          "$id": "57",
           "name": "accept",
           "nameInRequest": "Accept",
           "type": {
@@ -570,7 +582,7 @@
           "skipUrlEncoding": false
          },
          {
-          "$id": "56",
+          "$id": "58",
           "name": "body",
           "nameInRequest": "body",
           "type": {
@@ -589,7 +601,7 @@
         ],
         "responses": [
          {
-          "$id": "57",
+          "$id": "59",
           "statusCodes": [
            200
           ],
@@ -617,7 +629,7 @@
        },
        "parameters": [
         {
-         "$id": "58",
+         "$id": "60",
          "name": "body",
          "nameInRequest": "body",
          "type": {
@@ -634,7 +646,7 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "59",
+         "$id": "61",
          "name": "contentType",
          "nameInRequest": "contentType",
          "doc": "Body parameter's content type. Known values are application/json",
@@ -652,7 +664,7 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "60",
+         "$id": "62",
          "name": "accept",
          "nameInRequest": "accept",
          "type": {
@@ -670,7 +682,7 @@
         }
        ],
        "response": {
-        "$id": "61",
+        "$id": "63",
         "type": {
          "$ref": "18"
         }
@@ -683,14 +695,14 @@
      ],
      "parameters": [
       {
-       "$id": "62",
+       "$id": "64",
        "name": "endpoint",
        "nameInRequest": "endpoint",
        "doc": "Need to be set as 'http://localhost:3000' in client.",
        "type": {
-        "$id": "63",
+        "$id": "65",
         "kind": "url",
-        "name": "url",
+        "name": "endpoint",
         "crossLanguageDefinitionId": "TypeSpec.url"
        },
        "location": "Uri",
@@ -700,10 +712,11 @@
        "isEndpoint": true,
        "skipUrlEncoding": false,
        "explode": false,
-       "kind": "Client"
+       "kind": "Client",
+       "serverUrlTemplate": "{endpoint}/versioning/renamed-from/api-version:{version}"
       },
       {
-       "$id": "64",
+       "$id": "66",
        "name": "version",
        "nameInRequest": "version",
        "doc": "Need to be set as 'v1' or 'v2' in client.",
@@ -711,13 +724,24 @@
         "$ref": "6"
        },
        "location": "Uri",
-       "isApiVersion": false,
+       "isApiVersion": true,
        "isContentType": false,
        "isRequired": true,
        "isEndpoint": false,
        "skipUrlEncoding": false,
        "explode": false,
-       "kind": "Client"
+       "kind": "Client",
+       "defaultValue": {
+        "$id": "67",
+        "type": {
+         "$id": "68",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "value": "v1"
+       },
+       "serverUrlTemplate": "{endpoint}/versioning/renamed-from/api-version:{version}"
       }
      ],
      "decorators": [],

@@ -53,7 +53,7 @@ public final class Decimal128Client {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Decimal128Property get() {
-        return this.serviceClient.get();
+        return getWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -83,6 +83,6 @@ public final class Decimal128Client {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void put(Decimal128Property body) {
-        this.serviceClient.put(body);
+        putWithResponse(body, RequestContext.none());
     }
 }

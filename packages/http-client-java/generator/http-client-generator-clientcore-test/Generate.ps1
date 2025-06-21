@@ -62,7 +62,7 @@ $generateScript = {
 }
 
 function Generate-Compile ($folder) {
-  npx --no-install tsp compile "specs/$folder/main.tsp" --option "@typespec/http-client-java.emitter-output-dir={project-root}/$folder"
+  npx --no-install tsp compile "smoke/$folder/main.tsp" --option "@typespec/http-client-java.emitter-output-dir={project-root}/$folder"
 
   Push-Location $folder
   mvn package
@@ -118,13 +118,10 @@ try {
   }
 
   # smoke test, generate Java project and verify compilation pass
-  git fetch origin pull/6981/head:smoke-test-branch
-  git restore --source smoke-test-branch --worktree -- ../../../smoke-http-specs
-  Copy-Item -Path ../../../smoke-http-specs/specs -Destination ./ -Recurse -Force
+  Copy-Item -Path node_modules/@typespec/http-specs/smoke -Destination ./smoke -Recurse -Force
   Generate-Compile todoapp
   Generate-Compile petstore
-  Remove-Item ./specs -Recurse -Force
-  Remove-Item ../../../smoke-http-specs -Recurse -Force
+  Remove-Item ./smoke -Recurse -Force
 
   if ($ExitCode -ne 0) {
     throw "Failed to generate from tsp"

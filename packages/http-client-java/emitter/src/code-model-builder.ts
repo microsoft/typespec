@@ -152,6 +152,7 @@ import {
   DiagnosticError,
   escapeJavaKeywords,
   getNamespace,
+  optionBoolean,
   pascalCase,
   removeClientSuffix,
   stringArrayContainsIgnoreCase,
@@ -181,6 +182,7 @@ export interface EmitterOptionsDev {
   "custom-types"?: string;
   "custom-types-subpackage"?: string;
   "customization-class"?: string;
+  "use-default-http-status-code-to-exception-type-mapping"?: boolean;
 
   // configure
   "skip-special-headers"?: string[];
@@ -608,6 +610,8 @@ export class CodeModelBuilder {
     if (this.isArm()) {
       if (
         this.options["service-name"] &&
+        client.__raw &&
+        client.__raw.type &&
         !getClientNameOverride(this.sdkContext, client.__raw.type)
       ) {
         // When no `@clientName` override, use "service-name" to infer the client name
@@ -697,7 +701,7 @@ export class CodeModelBuilder {
       codeModelClient.apiVersions,
     );
 
-    const enableSubclient: boolean = Boolean(this.options["enable-subclient"]);
+    const enableSubclient: boolean = optionBoolean(this.options["enable-subclient"]) ?? false;
 
     // preprocess operation groups and operations
     // operations without operation group
@@ -834,7 +838,7 @@ export class CodeModelBuilder {
    * Whether we support advanced versioning in non-breaking fashion.
    */
   private supportsAdvancedVersioning(): boolean {
-    return Boolean(this.options["advanced-versioning"]);
+    return optionBoolean(this.options["advanced-versioning"]) ?? false;
   }
 
   private getOperationExample(
@@ -1169,6 +1173,40 @@ export class CodeModelBuilder {
       }
     }
 
+    // nextLinkReInjectedParameters
+    let nextLinkReInjectedParameters: Parameter[] | undefined;
+    if (this.isBranded()) {
+      // nextLinkReInjectedParameters is only supported in Azure
+      if (
+        sdkMethod.pagingMetadata.nextLinkReInjectedParametersSegments &&
+        sdkMethod.pagingMetadata.nextLinkReInjectedParametersSegments.length > 0
+      ) {
+        nextLinkReInjectedParameters = [];
+        for (const parameterSegments of sdkMethod.pagingMetadata
+          .nextLinkReInjectedParametersSegments) {
+          const nextLinkReInjectedParameterSegment = getLastSegment(parameterSegments);
+          if (nextLinkReInjectedParameterSegment && op.parameters) {
+            const parameter = getHttpOperationParameter(
+              sdkMethod,
+              nextLinkReInjectedParameterSegment,
+            );
+            if (parameter) {
+              // find the corresponding parameter in the code model operation
+              for (const opParam of op.parameters) {
+                if (
+                  opParam.protocol.http?.in === parameter.kind &&
+                  opParam.language.default.serializedName === parameter.serializedName
+                ) {
+                  nextLinkReInjectedParameters.push(opParam);
+                  break;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
     op.extensions = op.extensions ?? {};
     op.extensions["x-ms-pageable"] = {
       itemName: itemSerializedName,
@@ -1180,6 +1218,7 @@ export class CodeModelBuilder {
             continuationTokenResponseHeader,
           )
         : undefined,
+      nextLinkReInjectedParameters: nextLinkReInjectedParameters,
     };
   }
 
@@ -2174,10 +2213,27 @@ export class CodeModelBuilder {
       if (response instanceof SchemaResponse) {
         this.trackSchemaUsage(response.schema, { usage: [SchemaContext.Exception] });
 
-        if (trackConvenienceApi && !this.isBranded()) {
-          this.trackSchemaUsage(response.schema, {
-            usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
-          });
+        if (trackConvenienceApi) {
+          let outputErrorModel = false;
+          if (!this.isBranded()) {
+            outputErrorModel = true;
+          }
+          if (
+            this.isBranded() &&
+            !(
+              optionBoolean(
+                this.options["use-default-http-status-code-to-exception-type-mapping"],
+              ) ?? true
+            )
+          ) {
+            outputErrorModel = true;
+          }
+
+          if (outputErrorModel) {
+            this.trackSchemaUsage(response.schema, {
+              usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
+            });
+          }
         }
       }
     } else {

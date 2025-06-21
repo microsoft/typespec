@@ -48,7 +48,7 @@ def _json_serialize_imports(
                 ],
             ],
         ],
-    ]
+    ],
 ) -> str:
     if not imports:
         return ""

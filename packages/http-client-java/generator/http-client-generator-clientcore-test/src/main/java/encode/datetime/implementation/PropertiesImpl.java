@@ -8,7 +8,6 @@ import encode.datetime.UnixTimestampDatetimeProperty;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -41,7 +40,7 @@ public final class PropertiesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     PropertiesImpl(DatetimeClientImpl client) {
-        this.service = RestProxy.create(PropertiesService.class, client.getHttpPipeline());
+        this.service = PropertiesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -49,7 +48,7 @@ public final class PropertiesImpl {
      * The interface defining all the services for DatetimeClientProperties to be used by the proxy service to perform
      * REST calls.
      */
-    @ServiceInterface(name = "DatetimeClientProper", host = "{endpoint}")
+    @ServiceInterface(name = "DatetimeClientProperties", host = "{endpoint}")
     public interface PropertiesService {
         static PropertiesService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -127,20 +126,6 @@ public final class PropertiesImpl {
     }
 
     /**
-     * The defaultMethod operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public DefaultDatetimeProperty defaultMethod(DefaultDatetimeProperty body) {
-        return defaultMethodWithResponse(body, RequestContext.none()).getValue();
-    }
-
-    /**
      * The rfc3339 operation.
      * 
      * @param body The body parameter.
@@ -156,20 +141,6 @@ public final class PropertiesImpl {
         final String contentType = "application/json";
         final String accept = "application/json";
         return service.rfc3339(this.client.getEndpoint(), contentType, accept, body, requestContext);
-    }
-
-    /**
-     * The rfc3339 operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Rfc3339DatetimeProperty rfc3339(Rfc3339DatetimeProperty body) {
-        return rfc3339WithResponse(body, RequestContext.none()).getValue();
     }
 
     /**
@@ -191,20 +162,6 @@ public final class PropertiesImpl {
     }
 
     /**
-     * The rfc7231 operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Rfc7231DatetimeProperty rfc7231(Rfc7231DatetimeProperty body) {
-        return rfc7231WithResponse(body, RequestContext.none()).getValue();
-    }
-
-    /**
      * The unixTimestamp operation.
      * 
      * @param body The body parameter.
@@ -223,20 +180,6 @@ public final class PropertiesImpl {
     }
 
     /**
-     * The unixTimestamp operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public UnixTimestampDatetimeProperty unixTimestamp(UnixTimestampDatetimeProperty body) {
-        return unixTimestampWithResponse(body, RequestContext.none()).getValue();
-    }
-
-    /**
      * The unixTimestampArray operation.
      * 
      * @param body The body parameter.
@@ -252,19 +195,5 @@ public final class PropertiesImpl {
         final String contentType = "application/json";
         final String accept = "application/json";
         return service.unixTimestampArray(this.client.getEndpoint(), contentType, accept, body, requestContext);
-    }
-
-    /**
-     * The unixTimestampArray operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public UnixTimestampArrayDatetimeProperty unixTimestampArray(UnixTimestampArrayDatetimeProperty body) {
-        return unixTimestampArrayWithResponse(body, RequestContext.none()).getValue();
     }
 }

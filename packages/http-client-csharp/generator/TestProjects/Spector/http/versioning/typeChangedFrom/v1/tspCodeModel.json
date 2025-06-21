@@ -364,7 +364,7 @@
      "type": {
       "$id": "35",
       "kind": "url",
-      "name": "url",
+      "name": "endpoint",
       "crossLanguageDefinitionId": "TypeSpec.url"
      },
      "location": "Uri",
@@ -374,7 +374,8 @@
      "isEndpoint": true,
      "skipUrlEncoding": false,
      "explode": false,
-     "kind": "Client"
+     "kind": "Client",
+     "serverUrlTemplate": "{endpoint}/versioning/type-changed-from/api-version:{version}"
     },
     {
      "$id": "36",
@@ -385,13 +386,24 @@
       "$ref": "2"
      },
      "location": "Uri",
-     "isApiVersion": false,
+     "isApiVersion": true,
      "isContentType": false,
      "isRequired": true,
      "isEndpoint": false,
      "skipUrlEncoding": false,
      "explode": false,
-     "kind": "Client"
+     "kind": "Client",
+     "defaultValue": {
+      "$id": "37",
+      "type": {
+       "$id": "38",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "value": "v1"
+     },
+     "serverUrlTemplate": "{endpoint}/versioning/type-changed-from/api-version:{version}"
     }
    ],
    "decorators": [],

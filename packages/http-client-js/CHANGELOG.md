@@ -1,5 +1,23 @@
 # Changelog - @typespec/http-client-js
 
+## 0.6.0
+
+### Features
+
+- [#7039](https://github.com/microsoft/typespec/pull/7039) Export some of the components for reuse.
+- [#7409](https://github.com/microsoft/typespec/pull/7409) Emit TypeSpec comments as JSDoc in TypeScript components
+
+### Bump dependencies
+
+- [#7605](https://github.com/microsoft/typespec/pull/7605) Updates alloy to 0.17
+- [#7363](https://github.com/microsoft/typespec/pull/7363) Upgrade alloy 16
+- [#7323](https://github.com/microsoft/typespec/pull/7323) Upgrade dependencies
+
+### Bug Fixes
+
+- [#7194](https://github.com/microsoft/typespec/pull/7194) Emit correct diagnostic for unsupported API key auth
+
+
 ## 0.5.0
 
 ### Bump dependencies

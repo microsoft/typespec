@@ -3,7 +3,6 @@ package versioning.returntypechangedfrom.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -16,7 +15,6 @@ import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import java.lang.reflect.InvocationTargetException;
 import versioning.returntypechangedfrom.ReturnTypeChangedFromServiceVersion;
-import versioning.returntypechangedfrom.Versions;
 
 /**
  * Initializes a new instance of the ReturnTypeChangedFromClient type.
@@ -39,20 +37,6 @@ public final class ReturnTypeChangedFromClientImpl {
      */
     public String getEndpoint() {
         return this.endpoint;
-    }
-
-    /**
-     * Need to be set as 'v1' or 'v2' in client.
-     */
-    private final Versions version;
-
-    /**
-     * Gets Need to be set as 'v1' or 'v2' in client.
-     * 
-     * @return the version value.
-     */
-    public Versions getVersion() {
-        return this.version;
     }
 
     /**
@@ -88,16 +72,14 @@ public final class ReturnTypeChangedFromClientImpl {
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
-     * @param version Need to be set as 'v1' or 'v2' in client.
      * @param serviceVersion Service version.
      */
-    public ReturnTypeChangedFromClientImpl(HttpPipeline httpPipeline, String endpoint, Versions version,
+    public ReturnTypeChangedFromClientImpl(HttpPipeline httpPipeline, String endpoint,
         ReturnTypeChangedFromServiceVersion serviceVersion) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.version = version;
         this.serviceVersion = serviceVersion;
-        this.service = RestProxy.create(ReturnTypeChangedFromClientService.class, this.httpPipeline);
+        this.service = ReturnTypeChangedFromClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -105,7 +87,7 @@ public final class ReturnTypeChangedFromClientImpl {
      * perform REST calls.
      */
     @ServiceInterface(
-        name = "ReturnTypeChangedFro",
+        name = "ReturnTypeChangedFromClient",
         host = "{endpoint}/versioning/return-type-changed-from/api-version:{version}")
     public interface ReturnTypeChangedFromClientService {
         static ReturnTypeChangedFromClientService getNewInstance(HttpPipeline pipeline) {
@@ -123,7 +105,7 @@ public final class ReturnTypeChangedFromClientImpl {
 
         @HttpRequestInformation(method = HttpMethod.POST, path = "/test", expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<String> test(@HostParam("endpoint") String endpoint, @HostParam("version") Versions version,
+        Response<String> test(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
             @HeaderParam("content-type") String contentType, @HeaderParam("Accept") String accept,
             @BodyParam("application/json") String body, RequestContext requestContext);
     }
@@ -142,20 +124,7 @@ public final class ReturnTypeChangedFromClientImpl {
     public Response<String> testWithResponse(String body, RequestContext requestContext) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.test(this.getEndpoint(), this.getVersion(), contentType, accept, body, requestContext);
-    }
-
-    /**
-     * The test operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public String test(String body) {
-        return testWithResponse(body, RequestContext.none()).getValue();
+        return service.test(this.getEndpoint(), this.getServiceVersion().getVersion(), contentType, accept, body,
+            requestContext);
     }
 }

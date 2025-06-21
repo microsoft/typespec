@@ -124,5 +124,10 @@ namespace Microsoft.TypeSpec.Generator.Tests
                     this)
             ];
         }
+
+        protected override TypeProvider[] BuildNestedTypes()
+        {
+            return [new TestTypeProvider("Foo")];
+        }
     }
 }

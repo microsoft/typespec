@@ -21,13 +21,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private const string AdditionalBinaryDataPropsFieldDescription = "Keeps track of any properties unknown to the library.";
         private readonly InputModelType _inputModel;
 
-        protected override FormattableString Description => _description ??= BuildDescription();
-
-        private FormattableString? _description;
-
         // Note the description cannot be built from the constructor as it would lead to a circular dependency between the base
         // and derived models resulting in a stack overflow.
-        private FormattableString BuildDescription()
+        protected override FormattableString BuildDescription()
         {
             var description = DocHelpers.GetFormattableDescription(_inputModel.Summary, _inputModel.Doc) ??
                               $"The {Name}.";

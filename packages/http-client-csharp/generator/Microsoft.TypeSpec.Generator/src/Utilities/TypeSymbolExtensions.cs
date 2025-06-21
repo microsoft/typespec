@@ -201,12 +201,21 @@ namespace Microsoft.TypeSpec.Generator
                 pieces = GetFullyQualifiedName(typeArg).Split('.');
             }
 
+            string ns = string.Join('.', pieces.Take(pieces.Length - 1));
+            CSharpType? containingType = null;
+
+            if (typeSymbol.ContainingType != null)
+            {
+                containingType = GetCSharpType(typeSymbol.ContainingType);
+                ns = string.Join('.', pieces.Take(pieces.Length - 2));
+            }
+
             return new CSharpType(
                 name,
-                string.Join('.', pieces.Take(pieces.Length - 1)),
+                ns,
                 isValueType,
                 isNullable,
-                typeSymbol.ContainingType is not null ? GetCSharpType(typeSymbol.ContainingType) : null,
+                containingType,
                 arguments,
                 typeSymbol.DeclaredAccessibility == Accessibility.Public,
                 isValueType && !isEnum,

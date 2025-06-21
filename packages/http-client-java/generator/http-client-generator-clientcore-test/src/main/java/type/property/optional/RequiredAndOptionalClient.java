@@ -53,7 +53,7 @@ public final class RequiredAndOptionalClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public RequiredAndOptionalProperty getAll() {
-        return this.serviceClient.getAll();
+        return getAllWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -81,7 +81,7 @@ public final class RequiredAndOptionalClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public RequiredAndOptionalProperty getRequiredOnly() {
-        return this.serviceClient.getRequiredOnly();
+        return getRequiredOnlyWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -111,7 +111,7 @@ public final class RequiredAndOptionalClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putAll(RequiredAndOptionalProperty body) {
-        this.serviceClient.putAll(body);
+        putAllWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -141,6 +141,6 @@ public final class RequiredAndOptionalClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putRequiredOnly(RequiredAndOptionalProperty body) {
-        this.serviceClient.putRequiredOnly(body);
+        putRequiredOnlyWithResponse(body, RequestContext.none());
     }
 }

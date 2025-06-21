@@ -63,7 +63,7 @@ public final class PropertyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public DefaultDurationProperty defaultMethod(DefaultDurationProperty body) {
-        return this.serviceClient.defaultMethod(body);
+        return defaultMethodWithResponse(body, RequestContext.none()).getValue();
     }
 
     /**
@@ -95,7 +95,7 @@ public final class PropertyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ISO8601DurationProperty iso8601(ISO8601DurationProperty body) {
-        return this.serviceClient.iso8601(body);
+        return iso8601WithResponse(body, RequestContext.none()).getValue();
     }
 
     /**
@@ -127,7 +127,7 @@ public final class PropertyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Int32SecondsDurationProperty int32Seconds(Int32SecondsDurationProperty body) {
-        return this.serviceClient.int32Seconds(body);
+        return int32SecondsWithResponse(body, RequestContext.none()).getValue();
     }
 
     /**
@@ -159,7 +159,7 @@ public final class PropertyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public FloatSecondsDurationProperty floatSeconds(FloatSecondsDurationProperty body) {
-        return this.serviceClient.floatSeconds(body);
+        return floatSecondsWithResponse(body, RequestContext.none()).getValue();
     }
 
     /**
@@ -191,7 +191,7 @@ public final class PropertyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Float64SecondsDurationProperty float64Seconds(Float64SecondsDurationProperty body) {
-        return this.serviceClient.float64Seconds(body);
+        return float64SecondsWithResponse(body, RequestContext.none()).getValue();
     }
 
     /**
@@ -223,6 +223,6 @@ public final class PropertyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public FloatSecondsDurationArrayProperty floatSecondsArray(FloatSecondsDurationArrayProperty body) {
-        return this.serviceClient.floatSecondsArray(body);
+        return floatSecondsArrayWithResponse(body, RequestContext.none()).getValue();
     }
 }

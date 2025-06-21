@@ -336,30 +336,36 @@ namespace SampleTypeSpec
             return message;
         }
 
-        internal PipelineMessage CreateListWithNextLinkRequest(Uri nextPage, RequestOptions options)
+        internal PipelineMessage CreateGetWithNextLinkRequest(RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
             request.Method = "GET";
             ClientUriBuilder uri = new ClientUriBuilder();
-            if (nextPage != null)
-            {
-                uri.Reset(nextPage);
-                request.Uri = uri.ToUri();
-            }
-            else
-            {
-                uri.Reset(_endpoint);
-                uri.AppendPath("/link", false);
-                request.Uri = uri.ToUri();
-                request.Headers.Set("Accept", "application/json");
-            }
+            uri.Reset(_endpoint);
+            uri.AppendPath("/link", false);
+            request.Uri = uri.ToUri();
+            request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
         }
 
-        internal PipelineMessage CreateListWithContinuationTokenRequest(string token, RequestOptions options)
+        internal PipelineMessage CreateNextGetWithNextLinkRequest(Uri nextPage, RequestOptions options)
+        {
+            PipelineMessage message = Pipeline.CreateMessage();
+            message.ResponseClassifier = PipelineMessageClassifier200;
+            PipelineRequest request = message.Request;
+            request.Method = "GET";
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(nextPage);
+            request.Uri = uri.ToUri();
+            request.Headers.Set("Accept", "application/json");
+            message.Apply(options);
+            return message;
+        }
+
+        internal PipelineMessage CreateGetWithContinuationTokenRequest(string token, RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
@@ -378,7 +384,7 @@ namespace SampleTypeSpec
             return message;
         }
 
-        internal PipelineMessage CreateListWithContinuationTokenHeaderResponseRequest(string token, RequestOptions options)
+        internal PipelineMessage CreateGetWithContinuationTokenHeaderResponseRequest(string token, RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
@@ -397,7 +403,7 @@ namespace SampleTypeSpec
             return message;
         }
 
-        internal PipelineMessage CreateListWithPagingRequest(RequestOptions options)
+        internal PipelineMessage CreateGetWithPagingRequest(RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;

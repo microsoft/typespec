@@ -171,24 +171,6 @@ public final class RemovedClientBuilder implements HttpTrait<RemovedClientBuilde
     }
 
     /*
-     * Need to be set as 'v1', 'v2preview' or 'v2' in client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private Versions version;
-
-    /**
-     * Sets Need to be set as 'v1', 'v2preview' or 'v2' in client.
-     * 
-     * @param version the version value.
-     * @return the RemovedClientBuilder.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public RemovedClientBuilder version(Versions version) {
-        this.version = version;
-        return this;
-    }
-
-    /*
      * Service version
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -216,8 +198,7 @@ public final class RemovedClientBuilder implements HttpTrait<RemovedClientBuilde
         this.validateClient();
         RemovedServiceVersion localServiceVersion
             = (serviceVersion != null) ? serviceVersion : RemovedServiceVersion.getLatest();
-        RemovedClientImpl client
-            = new RemovedClientImpl(createHttpPipeline(), this.endpoint, this.version, localServiceVersion);
+        RemovedClientImpl client = new RemovedClientImpl(createHttpPipeline(), this.endpoint, localServiceVersion);
         return client;
     }
 
@@ -226,7 +207,6 @@ public final class RemovedClientBuilder implements HttpTrait<RemovedClientBuilde
         // This method is invoked from 'buildInnerClient'/'buildClient' method.
         // Developer can customize this method, to validate that the necessary conditions are met for the new client.
         Objects.requireNonNull(endpoint, "'endpoint' cannot be null.");
-        Objects.requireNonNull(version, "'version' cannot be null.");
     }
 
     @Metadata(properties = { MetadataProperties.GENERATED })

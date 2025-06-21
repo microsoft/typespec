@@ -20,6 +20,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
         protected override string BuildNamespace() => "Test";
 
         protected override MethodProvider[] BuildMethods() => _methods;
+        protected override TypeProvider[] BuildNestedTypes() => NestedTypesInternal ?? base.BuildNestedTypes();
 
         public static readonly TypeProvider Empty = new TestTypeProvider();
 
@@ -32,6 +33,8 @@ namespace Microsoft.TypeSpec.Generator.Tests
             _methods = methods?.ToArray() ?? [];
             _name = name ?? "TestName";
         }
+
+        internal TypeProvider[]? NestedTypesInternal { get; set; }
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => _declarationModifiers ?? base.BuildDeclarationModifiers();
     }

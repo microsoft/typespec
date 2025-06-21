@@ -67,7 +67,7 @@ public final class EtagHeadersOptionalBodiesImpl {
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "SpecialHeadersClient")
+    @ServiceInterface(name = "SpecialHeadersClientEtagHeadersOptionalBodies")
     public interface EtagHeadersOptionalBodiesService {
         @Put("/etag-headers-optional-body")
         @ExpectedResponses({ 200 })

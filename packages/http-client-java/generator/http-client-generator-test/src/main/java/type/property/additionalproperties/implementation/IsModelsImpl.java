@@ -56,7 +56,7 @@ public final class IsModelsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "AdditionalProperties")
+    @ServiceInterface(name = "AdditionalPropertiesClientIsModels")
     public interface IsModelsService {
         @Get("/type/property/additionalProperties/isRecordModel")
         @ExpectedResponses({ 200 })

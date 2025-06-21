@@ -3,7 +3,6 @@ package versioning.renamedfrom.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -18,7 +17,6 @@ import io.clientcore.core.http.pipeline.HttpPipeline;
 import java.lang.reflect.InvocationTargetException;
 import versioning.renamedfrom.NewModel;
 import versioning.renamedfrom.RenamedFromServiceVersion;
-import versioning.renamedfrom.Versions;
 
 /**
  * Initializes a new instance of the RenamedFromClient type.
@@ -41,20 +39,6 @@ public final class RenamedFromClientImpl {
      */
     public String getEndpoint() {
         return this.endpoint;
-    }
-
-    /**
-     * Need to be set as 'v1' or 'v2' in client.
-     */
-    private final Versions version;
-
-    /**
-     * Gets Need to be set as 'v1' or 'v2' in client.
-     * 
-     * @return the version value.
-     */
-    public Versions getVersion() {
-        return this.version;
     }
 
     /**
@@ -104,17 +88,14 @@ public final class RenamedFromClientImpl {
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
-     * @param version Need to be set as 'v1' or 'v2' in client.
      * @param serviceVersion Service version.
      */
-    public RenamedFromClientImpl(HttpPipeline httpPipeline, String endpoint, Versions version,
-        RenamedFromServiceVersion serviceVersion) {
+    public RenamedFromClientImpl(HttpPipeline httpPipeline, String endpoint, RenamedFromServiceVersion serviceVersion) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.version = version;
         this.serviceVersion = serviceVersion;
         this.newInterfaces = new NewInterfacesImpl(this);
-        this.service = RestProxy.create(RenamedFromClientService.class, this.httpPipeline);
+        this.service = RenamedFromClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -137,7 +118,7 @@ public final class RenamedFromClientImpl {
 
         @HttpRequestInformation(method = HttpMethod.POST, path = "/test", expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<NewModel> newOp(@HostParam("endpoint") String endpoint, @HostParam("version") Versions version,
+        Response<NewModel> newOp(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
             @QueryParam("newQuery") String newQuery, @HeaderParam("Content-Type") String contentType,
             @HeaderParam("Accept") String accept, @BodyParam("application/json") NewModel body,
             RequestContext requestContext);
@@ -158,22 +139,7 @@ public final class RenamedFromClientImpl {
     public Response<NewModel> newOpWithResponse(String newQuery, NewModel body, RequestContext requestContext) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.newOp(this.getEndpoint(), this.getVersion(), newQuery, contentType, accept, body,
-            requestContext);
-    }
-
-    /**
-     * The newOp operation.
-     * 
-     * @param newQuery The newQuery parameter.
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public NewModel newOp(String newQuery, NewModel body) {
-        return newOpWithResponse(newQuery, body, RequestContext.none()).getValue();
+        return service.newOp(this.getEndpoint(), this.getServiceVersion().getVersion(), newQuery, contentType, accept,
+            body, requestContext);
     }
 }
