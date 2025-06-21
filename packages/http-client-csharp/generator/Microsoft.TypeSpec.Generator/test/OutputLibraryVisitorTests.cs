@@ -198,6 +198,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             testMethod.Accept(new MethodVisitor());
 
             Assert.AreEqual("newName", testMethod.Signature.Parameters.First().Name);
+            Assert.AreEqual("/// <param name=\"newName\"></param>\n", testMethod.XmlDocs.Parameters[0].ToDisplayString());
             Assert.AreEqual("return newName;\n", testMethod?.BodyStatements!.ToDisplayString());
         }
 
