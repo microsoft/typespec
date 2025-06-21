@@ -3,9 +3,10 @@ import * as cs from "@alloy-js/csharp";
 import { Enum, Union } from "@typespec/compiler";
 import { useTsp } from "../../core/index.js";
 import { reportDiagnostic } from "../../lib.js";
+import { getDocComments } from "./utils/doc-comments.jsx";
 import { declarationRefkeys, efRefkey } from "./utils/refkey.js";
 
-export interface EnumDeclarationProps extends Omit<cs.EnumProps, "name"> {
+export interface EnumDeclarationProps extends Omit<cs.EnumDeclarationProps, "name"> {
   name?: string;
   type: Union | Enum;
 }
@@ -30,19 +31,26 @@ export function EnumDeclaration(props: EnumDeclarationProps): ay.Children {
   const members = Array.from(type.members.entries());
 
   return (
-    <cs.Enum name={name} refkey={refkeys} accessModifier={props.accessModifier ?? "public"}>
-      <ay.For each={members} joiner={",\n"}>
-        {([key, value]) => {
-          return (
-            <cs.EnumMember
-              name={cs.useCSharpNamePolicy().getName(key, "enum-member")}
-              refkey={
-                $.union.is(props.type) ? efRefkey(props.type.variants.get(key)) : efRefkey(value)
-              }
-            />
-          );
-        }}
-      </ay.For>
-    </cs.Enum>
+    <>
+      <cs.EnumDeclaration name={name} refkey={refkeys} {...props}>
+        <ay.For each={members} joiner={",\n"}>
+          {([key, value]) => {
+            return (
+              <>
+                <cs.DocWhen doc={getDocComments($, value)} />
+                <cs.EnumMember
+                  name={cs.useCSharpNamePolicy().getName(key, "enum-member")}
+                  refkey={
+                    $.union.is(props.type)
+                      ? efRefkey(props.type.variants.get(key))
+                      : efRefkey(value)
+                  }
+                />
+              </>
+            );
+          }}
+        </ay.For>
+      </cs.EnumDeclaration>
+    </>
   );
 }

@@ -3,9 +3,10 @@ import * as cs from "@alloy-js/csharp";
 import { Interface, Model } from "@typespec/compiler";
 import { useTsp } from "../../core/index.js";
 import { TypeExpression } from "./type-expression.jsx";
+import { getDocComments } from "./utils/doc-comments.jsx";
 import { declarationRefkeys } from "./utils/refkey.js";
 
-export interface ClassDeclarationProps extends Omit<cs.ClassProps, "name"> {
+export interface ClassDeclarationProps extends Omit<cs.ClassDeclarationProps, "name"> {
   name?: string;
   type: Model | Interface;
 }
@@ -28,57 +29,58 @@ export function ClassDeclaration(props: ClassDeclarationProps): ay.Children {
 
   return (
     <>
-      <cs.Class name={className} accessModifier={props.accessModifier} refkey={refkeys}>
+      <cs.ClassDeclaration
+        {...props}
+        name={className}
+        refkey={refkeys}
+        doc={getDocComments($, props.type)}
+      >
         {$.model.is(props.type) && <ClassProperties type={props.type} />}
         {props.type.kind === "Interface" && <ClassMethods type={props.type} />}
-      </cs.Class>
+      </cs.ClassDeclaration>
     </>
   );
 }
 
 function ClassProperties(props: ClassPropertiesProps): ay.Children {
+  const { $ } = useTsp();
   const namePolicy = cs.useCSharpNamePolicy();
 
-  const classProperties: ay.Children = [];
-  for (const [name, prop] of props.type.properties) {
-    classProperties.push(
-      <>
-        <cs.ClassMember
-          name={namePolicy.getName(name, "class-member-public")}
-          type={<TypeExpression type={prop.type} />}
-          accessModifier="public"
-        />{" "}
-        <ay.Block newline>
-          <ay.StatementList children={["get", "set"]} />
-        </ay.Block>
-      </>,
-    );
-  }
-
   return (
-    <ay.For each={classProperties} hardline>
-      {(c) => c}
+    <ay.For each={props.type.properties.entries()} hardline>
+      {([name, property]) => (
+        <cs.ClassProperty
+          name={namePolicy.getName(name, "class-member-public")}
+          type={<TypeExpression type={property.type} />}
+          public
+          doc={getDocComments($, property)}
+          get
+          set
+        />
+      )}
     </ay.For>
   );
 }
 
 function ClassMethods(props: ClassMethodsProps): ay.Children {
+  const { $ } = useTsp();
   const namePolicy = cs.useCSharpNamePolicy();
 
   const abstractMethods: ay.Children = [];
-  for (const [name, prop] of props.type.operations) {
+  for (const [name, method] of props.type.operations) {
     abstractMethods.push(
       <cs.ClassMethod
         name={namePolicy.getName(name, "class-method")}
-        methodModifier="abstract"
-        parameters={[...prop.parameters.properties.entries()].map(([name, prop]) => {
+        abstract
+        parameters={[...method.parameters.properties.entries()].map(([name, prop]) => {
           return {
             name: namePolicy.getName(name, "type-parameter"),
             type: <TypeExpression type={prop.type} />,
           };
         })}
-        accessModifier="public"
-        returns={<TypeExpression type={prop.returnType} />}
+        public
+        doc={getDocComments($, method)}
+        returns={<TypeExpression type={method.returnType} />}
       />,
     );
   }
