@@ -1,17 +1,8 @@
-import {
-  createTestHost,
-  createTestWrapper,
-  type BasicTestRunner,
-  type TestHost,
-} from "@typespec/compiler/testing";
-import { VersioningTestLibrary } from "../src/testing/index.js";
+import { resolvePath } from "@typespec/compiler";
+import { createTester } from "@typespec/compiler/testing";
 
-export async function createVersioningTestHost(): Promise<TestHost> {
-  return createTestHost({
-    libraries: [VersioningTestLibrary],
-  });
-}
-export async function createVersioningTestRunner(): Promise<BasicTestRunner> {
-  const host = await createVersioningTestHost();
-  return createTestWrapper(host, { autoUsings: ["TypeSpec.Versioning"] });
-}
+export const Tester = createTester(resolvePath(import.meta.dirname, ".."), {
+  libraries: ["@typespec/versioning"],
+})
+  .importLibraries()
+  .using("Versioning");

@@ -1,13 +1,8 @@
-import { createTestHost, createTestWrapper } from "@typespec/compiler/testing";
-import { StreamsTestLibrary } from "../src/testing/index.js";
+import { resolvePath } from "@typespec/compiler";
+import { createTester } from "@typespec/compiler/testing";
 
-export async function createStreamsTestHost() {
-  return createTestHost({
-    libraries: [StreamsTestLibrary],
-  });
-}
-
-export async function createStreamsTestRunner() {
-  const host = await createStreamsTestHost();
-  return createTestWrapper(host, { autoUsings: ["TypeSpec.Streams"] });
-}
+export const Tester = createTester(resolvePath(import.meta.dirname, ".."), {
+  libraries: ["@typespec/streams"],
+})
+  .importLibraries()
+  .using("Streams");

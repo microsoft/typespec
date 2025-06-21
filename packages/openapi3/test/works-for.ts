@@ -1,7 +1,6 @@
 import { describe } from "vitest";
 import { OpenAPIVersion } from "../src/lib.js";
 import {
-  checkFor,
   diagnoseOpenApiFor,
   emitOpenApiWithDiagnostics,
   oapiForModel,
@@ -21,7 +20,7 @@ export type SpecHelper = {
   oapiForModel: typeof oapiForModel;
   openApiFor: typeof openApiFor;
   openapiWithOptions: typeof openapiWithOptions;
-  checkFor: typeof checkFor;
+  checkFor: typeof diagnoseOpenApiFor;
   diagnoseOpenApiFor: typeof diagnoseOpenApiFor;
   emitOpenApiWithDiagnostics: typeof emitOpenApiWithDiagnostics;
   objectSchemaIndexer: ObjectSchemaIndexer;
@@ -34,12 +33,12 @@ function createSpecHelpers(version: OpenAPIVersion): SpecHelper {
     version,
     oapiForModel: (...[name, modelDef, options]: Parameters<typeof oapiForModel>) =>
       oapiForModel(name, modelDef, { ...options, "openapi-versions": [version] }),
-    openApiFor: (...[code, versions, options]: Parameters<typeof openApiFor>) =>
-      openApiFor(code, versions, { ...options, "openapi-versions": [version] }),
+    openApiFor: (...[code, options]: Parameters<typeof openApiFor>) =>
+      openApiFor(code, { ...options, "openapi-versions": [version] }),
     openapiWithOptions: (...[code, options]: Parameters<typeof openapiWithOptions>) =>
       openapiWithOptions(code, { ...options, "openapi-versions": [version] }),
-    checkFor: (...[code, options]: Parameters<typeof checkFor>) =>
-      checkFor(code, { ...options, "openapi-versions": [version] }),
+    checkFor: (...[code, options]: Parameters<typeof diagnoseOpenApiFor>) =>
+      diagnoseOpenApiFor(code, { ...options, "openapi-versions": [version] }),
     diagnoseOpenApiFor: (...[code, options]: Parameters<typeof diagnoseOpenApiFor>) =>
       diagnoseOpenApiFor(code, { ...options, "openapi-versions": [version] }),
     emitOpenApiWithDiagnostics: (

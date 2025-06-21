@@ -1,30 +1,19 @@
 import {
-  createTestWrapper,
   expectDiagnosticEmpty,
   expectDiagnostics,
-  type BasicTestRunner,
-  type TestHost,
+  type TesterInstance,
 } from "@typespec/compiler/testing";
 import { ok } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { createVersioningTestHost, createVersioningTestRunner } from "./test-host.js";
+import { Tester } from "./test-host.js";
 
 describe("versioning: incompatible use of decorators", () => {
-  let runner: BasicTestRunner;
-  let host: TestHost;
+  let runner: TesterInstance;
   const imports: string[] = [];
 
   beforeEach(async () => {
-    host = await createVersioningTestHost();
-    runner = createTestWrapper(host, {
-      wrapper: (code) => `
-      import "@typespec/versioning";
-      ${imports.map((i) => `import "${i}";`).join("\n")}
-      using Versioning;
-      ${code}`,
-    });
+    runner = await Tester.import(...imports).createInstance();
   });
-
   it("emit diagnostic when version enum has duplicate values", async () => {
     const diagnostics = await runner.diagnose(`
     @versioned(Versions)
@@ -64,24 +53,17 @@ describe("versioning: incompatible use of decorators", () => {
 });
 
 describe("versioning: validate incompatible references", () => {
-  let runner: BasicTestRunner;
-  let host: TestHost;
-  const imports: string[] = [];
+  let runner: TesterInstance;
 
   beforeEach(async () => {
-    host = await createVersioningTestHost();
-    runner = createTestWrapper(host, {
-      wrapper: (code) => `
-      import "@typespec/versioning";
-      ${imports.map((i) => `import "${i}";`).join("\n")}
-      using Versioning;
-
+    runner = await Tester.wrap(
+      (code) => `
       @versioned(Versions)
       namespace TestService {
         enum Versions {v1, v2, v3, v4}
         ${code}
       }`,
-    });
+    ).createInstance();
   });
 
   describe("operation", () => {
@@ -850,18 +832,27 @@ describe("versioning: validate incompatible references", () => {
   });
 
   describe("interface templates", () => {
-    beforeEach(() => {
-      imports.push("./lib.tsp");
-      host.addTypeSpecFile(
-        "lib.tsp",
-        `
-        namespace Lib;
-        interface Ops<T extends {}> {
-          get(): T[];
-        }
+    beforeEach(async () => {
+      runner = await Tester.import("./lib.tsp")
+        .files({
+          "lib.tsp": `
+            namespace Lib;
+            interface Ops<T extends {}> {
+              get(): T[];
+            }
         `,
-      );
+        })
+        .wrap(
+          (code) => `
+            @versioned(Versions)
+            namespace TestService {
+              enum Versions {v1, v2, v3, v4}
+              ${code}
+            }`,
+        )
+        .createInstance();
     });
+
     it("emit diagnostic when extending interface with versioned type argument from unversioned interface", async () => {
       const diagnostics = await runner.diagnose(
         `
@@ -915,15 +906,9 @@ describe("versioning: validate incompatible references", () => {
   });
 
   describe("with @useDependency", () => {
-    let runner: BasicTestRunner;
-
-    beforeEach(async () => {
-      runner = await createVersioningTestRunner();
-    });
-
     it("emit diagnostic when referencing incompatible version addition via version dependency", async () => {
       // Here Foo was added in v2 which makes it only available in 1 & 2.
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         @versioned(Versions)
         namespace VersionedLib {
           enum Versions {l1, l2}
@@ -957,7 +942,7 @@ describe("versioning: validate incompatible references", () => {
 
     it("emit diagnostic when referencing incompatible version removal via version dependency", async () => {
       // Here Foo was added in v2 which makes it only available in 1 & 2.
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         @versioned(Versions)
         namespace VersionedLib {
           enum Versions {l1, l2, l3}
@@ -991,7 +976,7 @@ describe("versioning: validate incompatible references", () => {
 
     it("doesn't emit diagnostic if all version use the same one", async () => {
       // Here Foo was added in v2 which makes it only available in 1 & 2.
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         @versioned(Versions)
         namespace VersionedLib {
           enum Versions {l1, l2}
@@ -1019,7 +1004,7 @@ describe("versioning: validate incompatible references", () => {
 
     it("emit diagnostic when using item that was added in a later version of library", async () => {
       // Here Foo was added in v2 but version 1 was selected.
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         @versioned(Versions)
         namespace VersionedLib {
           enum Versions {l1, l2}
@@ -1041,7 +1026,7 @@ describe("versioning: validate incompatible references", () => {
 
     it("emit diagnostic when using item that was removed in an earlier version of library", async () => {
       // Here Foo was removed in v2 but version 2 was selected.
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         @versioned(Versions)
         namespace VersionedLib {
           enum Versions {l1, l2}

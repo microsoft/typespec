@@ -238,6 +238,7 @@ const sidebar: SidebarItem[] = [
       "extending-typespec/create-decorators",
       "extending-typespec/linters",
       "extending-typespec/codefixes",
+      "extending-typespec/testing",
       "extending-typespec/emitters-basics",
       "extending-typespec/emitter-framework",
       "extending-typespec/emitter-metadata-handling",

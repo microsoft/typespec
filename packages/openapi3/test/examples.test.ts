@@ -287,7 +287,6 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
                 @route("/")
                 op getColors(${param}): void;
               `,
-          undefined,
           { "experimental-parameter-examples": "data" },
         );
         expect((res.paths[path].get?.parameters[0] as OpenAPI3Parameter).example).toEqual(
@@ -419,7 +418,6 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
           @route("/")
           op getColors(${param}): void;
           `,
-        undefined,
         { "experimental-parameter-examples": "serialized" },
       );
       expect((res.paths[`/`].get?.parameters[0] as OpenAPI3Parameter).example).toEqual(
@@ -567,7 +565,6 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
           @route("${route}")
           op getColors(${param}): void;
           `,
-        undefined,
         { "experimental-parameter-examples": "serialized" },
       );
       expect((res.paths[`/{color}`].get?.parameters[0] as OpenAPI3Parameter).example).toEqual(
@@ -625,7 +622,6 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
           @route("/")
           op getColors(${param}): void;
           `,
-        undefined,
         { "experimental-parameter-examples": "serialized" },
       );
       expect((res.paths[`/`].get?.parameters[0] as OpenAPI3Parameter).example).toEqual(
@@ -671,7 +667,6 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
           @route("/")
           op getColors(${param}): void;
           `,
-        undefined,
         { "experimental-parameter-examples": "serialized" },
       );
       expect((res.paths[`/`].get?.parameters[0] as OpenAPI3Parameter).example).toEqual(
@@ -696,7 +691,6 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
           @route("/")
           op getColors(@query color: string): void;
           `,
-      undefined,
       { "experimental-parameter-examples": "serialized" },
     );
     expect((res.paths[`/`].get?.parameters[0] as OpenAPI3Parameter).examples).toEqual({
@@ -727,7 +721,6 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
           @route("/")
           op getColors(@query color: string): void;
           `,
-      undefined,
       { "experimental-parameter-examples": "data" },
     );
     expect((res.paths[`/`].get?.parameters[0] as OpenAPI3Parameter).examples).toEqual({
@@ -781,7 +774,6 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
         encodedHeader: utcDateTime;
       }
     `,
-      undefined,
       { "experimental-parameter-examples": "data" },
     );
     expect((res.components.parameters["Test.dob"] as OpenAPI3Parameter).examples).toEqual({
@@ -847,7 +839,6 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
         encodedHeader: utcDateTime;
       }
     `,
-      undefined,
       { "experimental-parameter-examples": "data" },
     );
     expect((res.components.parameters["Test.dob"] as OpenAPI3Parameter).example).toEqual(

@@ -1,25 +1,26 @@
 import { resolvePath } from "@typespec/compiler";
 import {
-  BasicTestRunner,
   expectDiagnosticEmpty,
   resolveVirtualPath,
+  TesterInstance,
 } from "@typespec/compiler/testing";
 import { ok } from "assert";
 import { beforeEach, expect, it } from "vitest";
 import { OpenAPI3EmitterOptions } from "../src/lib.js";
-import { createOpenAPITestRunner } from "./test-host.js";
+import { ApiTester } from "./test-host.js";
 
 const outputDir = resolveVirtualPath("test-output");
-let runner: BasicTestRunner;
+let runner: TesterInstance;
 beforeEach(async () => {
-  runner = await createOpenAPITestRunner();
+  runner = await ApiTester.createInstance();
 });
 
 async function compileOpenAPI(options: OpenAPI3EmitterOptions, code: string = ""): Promise<void> {
   const diagnostics = await runner.diagnose(code, {
-    noEmit: false,
-    emit: ["@typespec/openapi3"],
-    options: { "@typespec/openapi3": { ...options, "emitter-output-dir": outputDir } },
+    compilerOptions: {
+      emit: ["@typespec/openapi3"],
+      options: { "@typespec/openapi3": { ...options, "emitter-output-dir": outputDir } },
+    },
   });
 
   expectDiagnosticEmpty(diagnostics);
@@ -27,7 +28,7 @@ async function compileOpenAPI(options: OpenAPI3EmitterOptions, code: string = ""
 
 function expectHasOutput(filename: string) {
   const outPath = resolvePath(outputDir, filename);
-  const content = runner.fs.get(outPath);
+  const content = runner.fs.fs.get(outPath);
   ok(content, `Expected ${outPath} to exist.`);
 }
 
@@ -45,7 +46,7 @@ it("does not create nested directory if only 1 spec version is specified", async
 it("defaults to 3.0.0 if not specified", async () => {
   await compileOpenAPI({ "file-type": "json" });
   const outPath = resolvePath(outputDir, "openapi.json");
-  const content = runner.fs.get(outPath);
+  const content = runner.fs.fs.get(outPath);
   ok(content, `Expected ${outPath} to exist.`);
   const doc = JSON.parse(content);
   expect(doc.openapi).toBe("3.0.0");
@@ -54,7 +55,7 @@ it("defaults to 3.0.0 if not specified", async () => {
 it("supports 3.1.0", async () => {
   await compileOpenAPI({ "openapi-versions": ["3.1.0"], "file-type": "json" });
   const outPath = resolvePath(outputDir, "openapi.json");
-  const content = runner.fs.get(outPath);
+  const content = runner.fs.fs.get(outPath);
   ok(content, `Expected ${outPath} to exist.`);
   const doc = JSON.parse(content);
   expect(doc.openapi).toBe("3.1.0");

@@ -53,7 +53,6 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, openApiFor }) => {
         `
       model Pet { name: safeint };
       `,
-        undefined,
         { "safeint-strategy": "double-int" },
       );
 
@@ -66,7 +65,6 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, openApiFor }) => {
         `
       model Pet { name: safeint };
       `,
-        undefined,
         { "safeint-strategy": "int64" },
       );
 

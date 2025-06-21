@@ -1,7 +1,7 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
 import { describe, expect, it } from "vitest";
-import { createOpenAPITestRunner } from "./test-host.js";
+import { SimpleTester } from "./test-host.js";
 import { worksFor } from "./works-for.js";
 
 worksFor(["3.0.0", "3.1.0"], ({ emitOpenApiWithDiagnostics, oapiForModel }) => {
@@ -229,8 +229,7 @@ worksFor(["3.0.0", "3.1.0"], ({ emitOpenApiWithDiagnostics, oapiForModel }) => {
 
   describe("@unwrapped", () => {
     it("warning if unwrapped not array", async () => {
-      const runner = await createOpenAPITestRunner();
-      const diagnostics = await runner.diagnose(
+      const diagnostics = await SimpleTester.diagnose(
         `model Book {
           @unwrapped
           id: string;

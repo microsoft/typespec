@@ -1,0 +1,322 @@
+---
+title: Testing
+tableOfContents:
+  maxHeadingLevel: 4
+---
+
+import { Steps } from '@astrojs/starlight/components';
+ 
+TypeSpec provides a testing framework to assist in testing libraries. The examples here are shown using vitest, but any other JS test framework can be used that will provide more advanced features like vitest, which is used in this project.
+
+:::note
+This is a documentation for the new Testing framework. To migrate from the old one see the [migration guide](#migrate-from-test-host)
+:::
+
+## Setting up vitest
+
+This step is a basic explanation of how to setup vitest. Please refer to the [vitest documentation](https://vitest.dev/) for more details.
+
+<Steps>
+
+1. Add vitest to your dependencies
+
+   ```diff lang=json title="package.json"
+   {
+     "name": "my-library",
+     "scripts": {
+   +    "test": "vitest run",
+   +    "test:watch": "vitest"
+     },
+     "devDependencies": {
+   +    "vitest": "^3.1.4"
+     }
+   }
+   ```
+
+2. Add a `vitest.config.ts` file at the root of your project.
+
+   ```ts title="vitest.config.ts"
+   import { defineConfig, mergeConfig } from "vitest/config";
+
+   export default defineConfig({
+     test: {
+       environment: "node",
+       // testTimeout: 10000, // Uncomment to increase the default timeout
+       isolate: false, // Your test shouldn't have side effects doing this will improve performance.
+     },
+   });
+   ```
+
+</Steps>
+
+## Quick start
+
+### Define the tester
+
+Define a tester for your library. This should be a root level file. It will ensure that file system calls are cached in between tests.
+
+```ts title="test/tester.ts"
+import { createTester } from "@typespec/compiler/testing";
+
+const MyTester = createTester({
+  libraries: ["@typespec/http", "@typespec/openapi", "my-library"], // Add other libraries you depend on in your tests
+});
+```
+
+:::note
+Unlike the old test wrapper this will not auto import anything. You can pipe with .importLibraries() to import all the libraries you defined in the `createTester` call.
+:::
+
+### Write your first test
+
+```ts title="test/my-library.test.ts"
+import { t } from "@typespec/compiler/testing";
+import { MyTester } from "./tester.js";
+import { it } from "vitest";
+
+// Check everything works fine
+it("does this", async () => {
+  const { Foo } = await MyTester.compile(t.code`
+    model ${t.model("Foo")} {}
+  `);
+  strictEqual(Foo.name, "Foo");
+});
+
+// Check diagnostics are emitted
+it("errors", async () => {
+  const diagnostics = await MyTester.diagnose(`
+      model Bar {}
+  `);
+  expectDiagnostics(diagnostics, { code: "...", message: "..." });
+});
+```
+
+## Tester API
+
+### `compile`
+
+Compile the given code and assert no diagnostics were emitted.
+
+```ts title="test/my-library.test.ts"
+// Check everything works fine
+it("does this", async () => {
+  const { Foo } = await MyTester.compile(t.code`
+    model ${t.model("Foo")} {}
+  `);
+  strictEqual(Foo.name, "Foo");
+});
+```
+
+### `diagnose`
+
+Compile the given code and return the diagnostics.
+
+```ts title="test/my-library.test.ts"
+it("errors", async () => {
+  const diagnostics = await MyTester.diagnose(`
+      model Bar {}
+  `);
+  expectDiagnostics(diagnostics, { code: "...", message: "..." });
+});
+```
+
+### `compileAndDiagnose`
+
+Returns a tuple of the result (same as `compile`) and the diagnostics (same as `diagnose`).
+
+```ts title="test/my-library.test.ts"
+it("does this", async () => {
+  const [diagnostics, { Foo }] = await MyTester.compileAndDiagnose(t.code`
+    model ${t.model("Foo")} {}
+  `);
+  strictEqual(Foo.name, "Foo");
+  expectDiagnostics(diagnostics, { code: "...", message: "..." });
+});
+```
+
+## Tester chains
+
+The tester uses a builder pattern to allow you to configure a tester. Each pipe provides a clone of the tester allowing you to create different testers without modifying the original one.
+
+### `files`
+
+This will inject the given files in the tester.
+
+```ts
+import { mockFile } from "@typespec/compiler/testing";
+
+const TesterWithFoo = MyTester.files({
+  "foo.tsp": `
+    model Foo {}
+  `,
+  "bar.js": mockFile.js({
+    $myDec: () => {},
+  }),
+});
+
+await TesterWithFoo.compile(`
+  import "./foo.tsp";
+  import "./bar.js";
+`);
+```
+
+### `import`
+
+Import the given path or libraries
+
+```ts
+import { mockFile } from "@typespec/compiler/testing";
+
+const TesterWithFoo = MyTester.import("my-library", "./foo.tsp");
+
+await TesterWithFoo.compile(`
+  model Bar is Foo; 
+`);
+```
+
+Example combining with `files`
+
+```ts
+import { mockFile } from "@typespec/compiler/testing";
+
+const TesterWithFoo = MyTester.files({
+  "foo.tsp": `
+    model Foo {}
+  `,
+}).import("./foo.tsp");
+
+await TesterWithFoo.compile(`
+  model Bar is Foo; 
+`);
+```
+
+### `importLibraries`
+
+Import all the libraries originally defined in the `createTester` call.
+
+```ts
+const MyTester = createTester({
+  libraries: ["@typespec/http", "@typespec/openapi", "my-library"], // Add other libraries you depend on in your tests
+});
+
+MyTester.importLibraries();
+
+// equivalent to
+MyTester.import("@typespec/http", "@typespec/openapi", "my-library");
+```
+
+### `using`
+
+Add the given using
+
+```ts
+import { mockFile } from "@typespec/compiler/testing";
+
+const TesterWithFoo = MyTester.using("Http", "MyOrg.MyLibrary");
+```
+
+### `wrap`
+
+Wrap the source of the main file.
+
+```ts
+import { mockFile } from "@typespec/compiler/testing";
+
+const TesterWithFoo = MyTester.wrap(x=> `
+    model Common {}
+    ${x}
+  `);
+});
+
+await TesterWithFoo.compile(`
+  model Bar is Common;
+`);
+```
+
+## Collecting types
+
+The base tester provides a way to easily collect types from the test code in order to use them in the test. There are 3 ways this can be achieved:
+
+| Option                                       | Type inferred/validated |
+| -------------------------------------------- | ----------------------- |
+| 1. `t` helper with `t.code` and `t.<entity>` | ✅                      |
+| 2. Flourslash syntax (`/*foo*/`)             |                         |
+| 3. `@test` decorator                         |                         |
+
+1. Using the `t` helper with `t.code` and `t.<entity>`
+
+```ts
+const { Foo } = await MyTester.compile(t.code`
+  model ${t.model("Foo")} {}
+`); // type of Foo is automatically inferred and validated to be a Model
+strictEqual(Foo.name, "Foo");
+```
+
+2. Using flourslash syntax to mark the types you want to collect (`/*foo*/`)
+
+```ts
+const { Foo } = await MyTester.compile(t.code`
+  model /*foo*/Foo {}
+`); // Foo is typed as an Entity
+strictEqual(Foo.entityKind, "Type");
+strictEqual(Foo.type, "Model");
+strictEqual(Foo.name, "Foo");
+```
+
+3. Using the `@test` decorator
+
+This is mostly kept for backwards compatibility with the old test host. It has the limitation of only being to target decorable types.
+It is preferable to use the `t` helper when possible or the flourslash syntax for more complex cases.
+
+```ts
+const { Foo } = await MyTester.compile(t.code`
+  @test model Foo {}
+`); // Foo is typed as an Entity
+strictEqual(Foo.entityKind, "Type");
+strictEqual(Foo.type, "Model");
+strictEqual(Foo.name, "Foo");
+```
+
+## Migrate from test host
+
+PR with examples https://github.com/microsoft/typespec/pull/7151
+
+```diff lang=ts title="test-host.ts"
+- import { createTestHost, createTestWrapper } from "@typespec/compiler/testing";
+- import { HttpTestLibrary } from "@typespec/http/testing";
+- import { RestTestLibrary } from "@typespec/rest/testing";
+- import { MyTestLibrary } from "../src/testing/index.js";
+-
+- export async function createMyTestHost() {
+-   return createTestHost({
+-     libraries: [HttpTestLibrary, RestTestLibrary, MyTestLibrary],
+-   });
+- }
+- export async function createMyTestRunner() {
+-   const host = await createOpenAPITestHost();
+-   return createTestWrapper(host, { autoUsings: ["TypeSpec.My"] });
+- }
+
++ import { resolvePath } from "@typespec/compiler";
++ import { createTester } from "@typespec/compiler/testing";
++
++ export const Tester = createTester(resolvePath(import.meta.dirname, ".."), {
++   libraries: ["@typespec/http", "@typespec/rest", "@typespec/my"],
++ })
++   .importLibraries()
++   .using("My");
+```
+
+In test files
+
+```diff lang=ts title="test/my-library.test.ts"
+ it("mark property as being an attribute", async () => {
+-   const { id } = (await runner.compile(`model Blob {
+-     @test @Xml.attribute id : string
+-   }`)) as { id: ModelProperty };
++   const { id } = await Tester.compile(t.code`model Blob {
++      @Xml.attribute ${t.modelProperty("id")} : string
++   }`);
+   expect(isAttribute(runner.program, id)).toBe(true);
+ });
+```

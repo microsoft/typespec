@@ -1,11 +1,7 @@
-import { ModelProperty, Namespace } from "@typespec/compiler";
-import {
-  BasicTestRunner,
-  expectDiagnosticEmpty,
-  expectDiagnostics,
-} from "@typespec/compiler/testing";
+import { ModelProperty } from "@typespec/compiler";
+import { expectDiagnosticEmpty, expectDiagnostics, t } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   getAuthentication,
   getCookieParamOptions,
@@ -27,18 +23,13 @@ import {
   isStatusCode,
 } from "../src/decorators.js";
 import { includeInapplicableMetadataInPayload } from "../src/private.decorators.js";
-import { createHttpTestRunner } from "./test-host.js";
+import { Tester } from "./test-host.js";
+
 describe("http: decorators", () => {
-  let runner: BasicTestRunner;
-
-  beforeEach(async () => {
-    runner = await createHttpTestRunner();
-  });
-
   describe("emit diagnostic if passing arguments to verb decorators", () => {
     ["get", "post", "put", "delete", "head"].forEach((verb) => {
       it(`@${verb}`, async () => {
-        const diagnostics = await runner.diagnose(`
+        const diagnostics = await Tester.diagnose(`
           @${verb}("/test") op test(): string;
         `);
 
@@ -50,7 +41,7 @@ describe("http: decorators", () => {
     });
 
     it(`@patch`, async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         @patch("/test") op test(): string;
         `);
 
@@ -63,7 +54,7 @@ describe("http: decorators", () => {
 
   describe("@header", () => {
     it("emit diagnostics when @header is not used on model property", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
           @header op test(): string;
 
           @header model Foo {}
@@ -84,7 +75,7 @@ describe("http: decorators", () => {
     });
 
     it("emit diagnostics when header name is not a string or of value HeaderOptions", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
           op test(@header(123) MyHeader: string): string;
           op test2(@header(#{ name: 123 }) MyHeader: string): string;
           op test3(@header(#{ format: "invalid" }) MyHeader: string): string;
@@ -108,51 +99,51 @@ describe("http: decorators", () => {
     });
 
     it("generate header name from property name", async () => {
-      const { MyHeader } = await runner.compile(`
-          op test(@test @header MyHeader: string): string;
+      const { MyHeader, program } = await Tester.compile(t.code`
+          op test(@header ${t.modelProperty("MyHeader")}: string): string;
         `);
 
-      ok(isHeader(runner.program, MyHeader));
-      strictEqual(getHeaderFieldName(runner.program, MyHeader), "my-header");
+      ok(isHeader(program, MyHeader));
+      strictEqual(getHeaderFieldName(program, MyHeader), "my-header");
     });
 
     it("override header name with 1st parameter", async () => {
-      const { MyHeader } = await runner.compile(`
-          op test(@test @header("x-my-header") MyHeader: string): string;
+      const { MyHeader, program } = await Tester.compile(t.code`
+          op test( @header("x-my-header") ${t.modelProperty("MyHeader")}: string): string;
         `);
 
-      strictEqual(getHeaderFieldName(runner.program, MyHeader), "x-my-header");
+      strictEqual(getHeaderFieldName(program, MyHeader), "x-my-header");
     });
 
     it("override header with HeaderOptions", async () => {
-      const { SingleString } = await runner.compile(`
-          @put op test(@test @header(#{name: "x-single-string"}) SingleString: string): string;
+      const { SingleString, program } = await Tester.compile(t.code`
+          @put op test(@header(#{name: "x-single-string"}) ${t.modelProperty("SingleString")}: string): string;
         `);
 
-      deepStrictEqual(getHeaderFieldOptions(runner.program, SingleString), {
+      deepStrictEqual(getHeaderFieldOptions(program, SingleString), {
         type: "header",
         name: "x-single-string",
       });
-      strictEqual(getHeaderFieldName(runner.program, SingleString), "x-single-string");
+      strictEqual(getHeaderFieldName(program, SingleString), "x-single-string");
     });
 
     it("specify explode", async () => {
-      const { MyHeader } = await runner.compile(`
-        @put op test(@test @header(#{ explode: true }) MyHeader: string): string;
+      const { MyHeader, program } = await Tester.compile(t.code`
+        @put op test(@header(#{ explode: true }) ${t.modelProperty("MyHeader")}: string): string;
       `);
 
-      deepStrictEqual(getHeaderFieldOptions(runner.program, MyHeader), {
+      deepStrictEqual(getHeaderFieldOptions(program, MyHeader), {
         type: "header",
         name: "my-header",
         explode: true,
       });
-      strictEqual(getHeaderFieldName(runner.program, MyHeader), "my-header");
+      strictEqual(getHeaderFieldName(program, MyHeader), "my-header");
     });
   });
 
   describe("@cookie", () => {
     it("emit diagnostics when @cookie is not used on model property", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
           @cookie op test(): string;
 
           @cookie model Foo {}
@@ -173,10 +164,10 @@ describe("http: decorators", () => {
     });
 
     it("emit diagnostics when cookie name is not a string or of type CookieOptions", async () => {
-      const diagnostics = await runner.diagnose(`
-          op test(@cookie(123) MyCookie: string): string;
-          op test2(@cookie(#{ name: 123 }) MyCookie: string): string;
-          op test3(@cookie(#{ format: "invalid" }) MyCookie: string): string;
+      const diagnostics = await Tester.diagnose(`
+          op test(@cookie(123) myCookie: string): string;
+          op test2(@cookie(#{ name: 123 })myCookie: string): string;
+          op test3(@cookie(#{ format: "invalid" }) myCookie: string): string;
         `);
 
       expectDiagnostics(diagnostics, [
@@ -193,34 +184,34 @@ describe("http: decorators", () => {
     });
 
     it("generate cookie name from property name", async () => {
-      const { myCookie } = await runner.compile(`
-          op test(@test @cookie myCookie: string): string;
+      const { myCookie, program } = await Tester.compile(t.code`
+          op test(@cookie ${t.modelProperty("myCookie")}: string): string;
         `);
 
-      ok(isCookieParam(runner.program, myCookie));
-      strictEqual(getCookieParamOptions(runner.program, myCookie)?.name, "my_cookie");
+      ok(isCookieParam(program, myCookie));
+      strictEqual(getCookieParamOptions(program, myCookie)?.name, "my_cookie");
     });
 
     it("override cookie name with 1st parameter", async () => {
-      const { myCookie } = await runner.compile(`
-          op test(@test @cookie("my-cookie") myCookie: string): string;
+      const { myCookie, program } = await Tester.compile(t.code`
+          op test(@cookie("my-cookie") ${t.modelProperty("myCookie")}: string): string;
         `);
 
-      strictEqual(getCookieParamOptions(runner.program, myCookie)?.name, "my-cookie");
+      strictEqual(getCookieParamOptions(program, myCookie)?.name, "my-cookie");
     });
 
     it("override cookie with CookieOptions", async () => {
-      const { myCookie } = await runner.compile(`
-          op test(@test @cookie(#{name: "my-cookie"}) myCookie: string): string;
+      const { myCookie, program } = await Tester.compile(t.code`
+          op test(@cookie(#{name: "my-cookie"}) ${t.modelProperty("myCookie")}: string): string;
         `);
 
-      strictEqual(getCookieParamOptions(runner.program, myCookie)?.name, "my-cookie");
+      strictEqual(getCookieParamOptions(program, myCookie)?.name, "my-cookie");
     });
   });
 
   describe("@query", () => {
     it("emit diagnostics when @query is not used on model property", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
           @query op test(): string;
 
           @query model Foo {}
@@ -241,7 +232,7 @@ describe("http: decorators", () => {
     });
 
     it("emit diagnostics when query name is not a string or of type QueryOptions", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
           op test(@query(123) MyQuery: string): string;
           op test2(@query(#{name: 123}) MyQuery: string): string;
           op test3(@query(#{format: "invalid"}) MyQuery: string): string;
@@ -261,27 +252,27 @@ describe("http: decorators", () => {
     });
 
     it("generate query name from property name", async () => {
-      const { select } = await runner.compile(`
-          op test(@test @query select: string): string;
+      const { select, program } = await Tester.compile(t.code`
+          op test(@query ${t.modelProperty("select")}: string): string;
         `);
 
-      ok(isQueryParam(runner.program, select));
-      strictEqual(getQueryParamName(runner.program, select), "select");
+      ok(isQueryParam(program, select));
+      strictEqual(getQueryParamName(program, select), "select");
     });
 
     it("override query name with 1st parameter", async () => {
-      const { select } = await runner.compile(`
-          op test(@test @query("$select") select: string): string;
+      const { select, program } = await Tester.compile(t.code`
+          op test(@query("$select") ${t.modelProperty("select")}: string): string;
         `);
 
-      strictEqual(getQueryParamName(runner.program, select), "$select");
+      strictEqual(getQueryParamName(program, select), "$select");
     });
 
     it("specify explode: true", async () => {
-      const { selects } = await runner.compile(`
-        op test(@test @query(#{ explode: true }) selects: string[]): string;
+      const { selects, program } = await Tester.compile(t.code`
+        op test(@query(#{ explode: true }) ${t.modelProperty("selects")}: string[]): string;
       `);
-      expect(getQueryParamOptions(runner.program, selects)).toEqual({
+      expect(getQueryParamOptions(program, selects)).toEqual({
         type: "query",
         name: "selects",
         explode: true,
@@ -291,7 +282,7 @@ describe("http: decorators", () => {
 
   describe("@route", () => {
     it("emit diagnostics when duplicated unshared routes are applied", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         @route("/test") op test(): string;
         @route("/test") op test2(): string;
       `);
@@ -309,7 +300,7 @@ describe("http: decorators", () => {
     });
 
     it("emit diagnostics when not all duplicated routes are declared shared on each op conflicting", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         @route("/test") @sharedRoute op test(): string;
         @route("/test") @sharedRoute op test2(): string;
         @route("/test") op test3(): string;
@@ -331,7 +322,7 @@ describe("http: decorators", () => {
     });
 
     it("do not emit diagnostics when duplicated shared routes are applied", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         @route("/test") @sharedRoute op test(): string;
         @route("/test") @sharedRoute op test2(): string;
       `);
@@ -340,7 +331,7 @@ describe("http: decorators", () => {
     });
 
     it("do not emit diagnostics routes sharing path but not same verb", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         @route("/test") @sharedRoute op test(): string;
         @route("/test") @sharedRoute op test2(): string;
         @route("/test") @post op test3(): string;
@@ -351,7 +342,7 @@ describe("http: decorators", () => {
 
   describe("@path", () => {
     it("emit diagnostics when @path is not used on model property", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
           @path op test(): string;
 
           @path model Foo {}
@@ -372,7 +363,7 @@ describe("http: decorators", () => {
     });
 
     it("accept optional path when specified at the root of @route", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         @route("{/myPath}") op test(@path myPath?: string): string;
       `);
 
@@ -380,7 +371,7 @@ describe("http: decorators", () => {
     });
 
     it("accept optional path when specified in route", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         @route("base{/myPath}") op test(@path myPath?: string): string;
       `);
 
@@ -388,7 +379,7 @@ describe("http: decorators", () => {
     });
 
     it("accept optional path when not used as operation parameter", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         @route("/") op test(): {@path myPath?: string};
       `);
 
@@ -396,7 +387,7 @@ describe("http: decorators", () => {
     });
 
     it("emit diagnostics when path name is not a string", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
           op test(@path(123) MyPath: string): string;
         `);
 
@@ -408,33 +399,33 @@ describe("http: decorators", () => {
     });
 
     it("generate path name from property name", async () => {
-      const { select } = await runner.compile(`
-          op test(@test @path select: string): string;
+      const { select, program } = await Tester.compile(t.code`
+          op test(@path ${t.modelProperty("select")}: string): string;
         `);
 
-      ok(isPathParam(runner.program, select));
-      strictEqual(getPathParamName(runner.program, select), "select");
+      ok(isPathParam(program, select));
+      strictEqual(getPathParamName(program, select), "select");
     });
 
     it("override path name with 1st parameter", async () => {
-      const { select } = await runner.compile(`
-          op test(@test @path("$select") select: string): string;
+      const { select, program } = await Tester.compile(t.code`
+          op test(@path("$select") ${t.modelProperty("select")}: string): string;
         `);
 
-      deepStrictEqual(getPathParamOptions(runner.program, select), {
+      deepStrictEqual(getPathParamOptions(program, select), {
         type: "path",
         name: "$select",
         allowReserved: false,
         explode: false,
         style: "simple",
       });
-      strictEqual(getPathParamName(runner.program, select), "$select");
+      strictEqual(getPathParamName(program, select), "$select");
     });
   });
 
   describe("@body", () => {
     it("emit diagnostics when @body is not used on model property", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
           @body op test(): string;
 
           @body model Foo {}
@@ -455,17 +446,17 @@ describe("http: decorators", () => {
     });
 
     it("set the body with @body", async () => {
-      const { body } = await runner.compile(`
-          @post op test(@test @body body: string): string;
+      const { body, program } = await Tester.compile(t.code`
+          @post op test(@body ${t.modelProperty("body")}: string): string;
         `);
 
-      ok(isBody(runner.program, body));
+      ok(isBody(program, body));
     });
   });
 
   describe("@bodyRoot", () => {
     it("emit diagnostics when @body is not used on model property", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
           @bodyRoot op test(): string;
 
           @bodyRoot model Foo {}
@@ -486,17 +477,17 @@ describe("http: decorators", () => {
     });
 
     it("set the body root with @bodyRoot", async () => {
-      const { body } = (await runner.compile(`
-          @post op test(@test @bodyRoot body: string): string;
-        `)) as { body: ModelProperty };
+      const { body, program } = await Tester.compile(t.code`
+          @post op test(@bodyRoot ${t.modelProperty("body")}: string): string;
+        `);
 
-      ok(isBodyRoot(runner.program, body));
+      ok(isBodyRoot(program, body));
     });
   });
 
   describe("@bodyIgnore", () => {
     it("emit diagnostics when @body is not used on model property", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
           @bodyIgnore op test(): string;
 
           @bodyIgnore model Foo {}
@@ -517,17 +508,17 @@ describe("http: decorators", () => {
     });
 
     it("isBodyIgnore returns true on property decorated", async () => {
-      const { body } = await runner.compile(`
-          @post op test(@test @bodyIgnore body: string): string;
+      const { body, program } = await Tester.compile(t.code`
+          @post op test(@bodyIgnore ${t.modelProperty("body")}: string): string;
         `);
 
-      ok(isBodyIgnore(runner.program, body as ModelProperty));
+      ok(isBodyIgnore(program, body));
     });
   });
 
   describe("@statusCode", () => {
     it("emit diagnostics when @statusCode is not used on model property", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
           @statusCode op test(): string;
 
           @statusCode model Foo {}
@@ -548,7 +539,7 @@ describe("http: decorators", () => {
     });
 
     it("emits error if multiple properties are decorated with `@statusCode` in return type", async () => {
-      const diagnostics = await runner.diagnose(
+      const diagnostics = await Tester.diagnose(
         `
         model CreatedOrUpdatedResponse {
           @statusCode ok: "200";
@@ -567,7 +558,7 @@ describe("http: decorators", () => {
     });
 
     it("emits error if multiple `@statusCode` decorators are composed together", async () => {
-      const diagnostics = await runner.diagnose(
+      const diagnostics = await Tester.diagnose(
         `      
         model CustomUnauthorizedResponse {
           @statusCode _: 401;
@@ -590,30 +581,30 @@ describe("http: decorators", () => {
     });
 
     it("set numeric statusCode with @statusCode", async () => {
-      const { code } = (await runner.compile(`
+      const { code, program } = await Tester.compile(t.code`
           op test(): {
-            @test @statusCode code: 201
+            @statusCode ${t.modelProperty("code")}: 201
           };
-        `)) as { code: ModelProperty };
+        `);
 
-      ok(isStatusCode(runner.program, code));
-      deepStrictEqual(getStatusCodes(runner.program, code), [201]);
+      ok(isStatusCode(program, code));
+      deepStrictEqual(getStatusCodes(program, code), [201]);
     });
 
     it("set range statusCode with @statusCode", async () => {
-      const { code } = (await runner.compile(`
+      const { code, program } = await Tester.compile(t.code`
           op test(): {
-            @test @statusCode @minValue(200) @maxValue(299) code: int32;
+            @statusCode @minValue(200) @maxValue(299) ${t.modelProperty("code")}: int32;
           };
-        `)) as { code: ModelProperty };
+        `);
 
-      ok(isStatusCode(runner.program, code));
-      deepStrictEqual(getStatusCodes(runner.program, code), [{ start: 200, end: 299 }]);
+      ok(isStatusCode(program, code));
+      deepStrictEqual(getStatusCodes(program, code), [{ start: 200, end: 299 }]);
     });
 
     describe("invalid status codes", () => {
       async function checkInvalid(code: string, message: string) {
-        const diagnostics = await runner.diagnose(`
+        const diagnostics = await Tester.diagnose(`
         op test(): {
           @statusCode code: ${code}
         };
@@ -633,7 +624,7 @@ describe("http: decorators", () => {
 
   describe("@server", () => {
     it("emit diagnostics when @server is not used on namespace", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
           @server("https://example.com", "MyServer") op test(): string;
 
           @server("https://example.com", "MyServer") model Foo {}
@@ -652,7 +643,7 @@ describe("http: decorators", () => {
     });
 
     it("emit diagnostics when url is not a string", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
           @server(123, "MyServer")
           namespace MyService {}
         `);
@@ -663,7 +654,7 @@ describe("http: decorators", () => {
     });
 
     it("emit diagnostics when description is not a string", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         @server("https://example.com", 123)
         namespace MyService {}
       `);
@@ -674,7 +665,7 @@ describe("http: decorators", () => {
     });
 
     it("emit diagnostics when parameters is not a model", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         @server("https://example.com", "My service url", 123)
         namespace MyService {}
       `);
@@ -685,7 +676,7 @@ describe("http: decorators", () => {
     });
 
     it("emit diagnostics if url has parameters that is not specified in model", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         @server("https://example.com/{name}/foo", "My service url", {other: string})
         namespace MyService {}
       `);
@@ -697,12 +688,12 @@ describe("http: decorators", () => {
     });
 
     it("define a simple server without description", async () => {
-      const { MyService } = (await runner.compile(`
+      const { MyService, program } = await Tester.compile(t.code`
         @server("https://example.com")
-        @test namespace MyService {}
-      `)) as { MyService: Namespace };
+        namespace ${t.namespace("MyService")} {}
+      `);
 
-      const servers = getServers(runner.program, MyService);
+      const servers = getServers(program, MyService);
       deepStrictEqual(servers, [
         {
           description: undefined,
@@ -713,12 +704,12 @@ describe("http: decorators", () => {
     });
 
     it("define a simple server with a fixed url", async () => {
-      const { MyService } = (await runner.compile(`
+      const { MyService, program } = await Tester.compile(t.code`
         @server("https://example.com", "My service url")
-        @test namespace MyService {}
-      `)) as { MyService: Namespace };
+        namespace ${t.namespace("MyService")} {}
+      `);
 
-      const servers = getServers(runner.program, MyService);
+      const servers = getServers(program, MyService);
       deepStrictEqual(servers, [
         {
           description: "My service url",
@@ -729,16 +720,16 @@ describe("http: decorators", () => {
     });
 
     it("define a server with parameters", async () => {
-      const { MyService, NameParam } = (await runner.compile(`
+      const { MyService, NameParam, program } = await Tester.compile(t.code`
         @server("https://example.com/{name}/foo", "My service url", {@test("NameParam") name: string })
-        @test namespace MyService {}
-      `)) as { MyService: Namespace; NameParam: ModelProperty };
+        namespace ${t.namespace("MyService")} {}
+      `);
 
-      const servers = getServers(runner.program, MyService);
+      const servers = getServers(program, MyService);
       deepStrictEqual(servers, [
         {
           description: "My service url",
-          parameters: new Map<string, ModelProperty>([["name", NameParam]]),
+          parameters: new Map<string, ModelProperty>([["name", NameParam as any]]),
           url: "https://example.com/{name}/foo",
         },
       ]);
@@ -747,7 +738,7 @@ describe("http: decorators", () => {
 
   describe("@useAuth", () => {
     it("emit diagnostics when config is not a model, tuple or union", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
           @useAuth(anOp)
           namespace Foo {}
 
@@ -760,7 +751,7 @@ describe("http: decorators", () => {
     });
 
     it("emit diagnostic when OAuth2 flow is not a valid model", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         @useAuth(OAuth2Auth<["foo"]>)
         namespace Foo {}
 
@@ -780,12 +771,12 @@ describe("http: decorators", () => {
     });
 
     it("can specify BasicAuth", async () => {
-      const { Foo } = (await runner.compile(`
+      const { Foo, program } = await Tester.compile(t.code`
         @useAuth(BasicAuth)
-        @test namespace Foo {}
-      `)) as { Foo: Namespace };
+        namespace ${t.namespace("Foo")} {}
+      `);
 
-      expect(getAuthentication(runner.program, Foo)).toEqual({
+      expect(getAuthentication(program, Foo)).toEqual({
         options: [
           {
             schemes: [
@@ -802,14 +793,14 @@ describe("http: decorators", () => {
     });
 
     it("can specify custom auth name with description", async () => {
-      const { Foo } = (await runner.compile(`
+      const { Foo, program } = await Tester.compile(t.code`
         @doc("My custom basic auth")
         model MyAuth is BasicAuth;
         @useAuth(MyAuth)
-        @test namespace Foo {}
-      `)) as { Foo: Namespace };
+        namespace ${t.namespace("Foo")} {}
+      `);
 
-      expect(getAuthentication(runner.program, Foo)).toEqual({
+      expect(getAuthentication(program, Foo)).toEqual({
         options: [
           {
             schemes: [
@@ -827,12 +818,12 @@ describe("http: decorators", () => {
     });
 
     it("can specify BearerAuth", async () => {
-      const { Foo } = (await runner.compile(`
+      const { Foo, program } = await Tester.compile(t.code`
         @useAuth(BearerAuth)
-        @test namespace Foo {}
-      `)) as { Foo: Namespace };
+        namespace ${t.namespace("Foo")} {}
+      `);
 
-      expect(getAuthentication(runner.program, Foo)).toEqual({
+      expect(getAuthentication(program, Foo)).toEqual({
         options: [
           {
             schemes: [
@@ -849,12 +840,12 @@ describe("http: decorators", () => {
     });
 
     it("can specify ApiKeyAuth", async () => {
-      const { Foo } = (await runner.compile(`
+      const { Foo, program } = await Tester.compile(t.code`
         @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-my-header">)
-        @test namespace Foo {}
-      `)) as { Foo: Namespace };
+        namespace ${t.namespace("Foo")} {}
+      `);
 
-      expect(getAuthentication(runner.program, Foo)).toEqual({
+      expect(getAuthentication(program, Foo)).toEqual({
         options: [
           {
             schemes: [
@@ -872,7 +863,7 @@ describe("http: decorators", () => {
     });
 
     it("can specify OAuth2", async () => {
-      const { Foo } = (await runner.compile(`
+      const { Foo, program } = await Tester.compile(t.code`
         model MyFlow {
           type: OAuth2FlowType.implicit;
           authorizationUrl: "https://api.example.com/oauth2/authorize";
@@ -880,10 +871,10 @@ describe("http: decorators", () => {
           scopes: ["read", "write"];
         }
         @useAuth(OAuth2Auth<[MyFlow]>)
-        @test namespace Foo {}
-      `)) as { Foo: Namespace };
+        namespace ${t.namespace("Foo")} {}
+      `);
 
-      expect(getAuthentication(runner.program, Foo)).toEqual({
+      expect(getAuthentication(program, Foo)).toEqual({
         options: [
           {
             schemes: [
@@ -907,7 +898,7 @@ describe("http: decorators", () => {
     });
 
     it("can specify OAuth2 with scopes, which are default for every flow", async () => {
-      const { Foo } = (await runner.compile(`
+      const { Foo, program } = await Tester.compile(t.code`
         alias MyAuth<T extends string[]> = OAuth2Auth<Flows=[{
           type: OAuth2FlowType.implicit;
           authorizationUrl: "https://api.example.com/oauth2/authorize";
@@ -915,10 +906,10 @@ describe("http: decorators", () => {
         }], Scopes=T>;
 
         @useAuth(MyAuth<["read", "write"]>)
-        @test namespace Foo {}
-      `)) as { Foo: Namespace };
+        namespace ${t.namespace("Foo")} {}
+      `);
 
-      expect(getAuthentication(runner.program, Foo)).toEqual({
+      expect(getAuthentication(program, Foo)).toEqual({
         options: [
           {
             schemes: [
@@ -942,12 +933,12 @@ describe("http: decorators", () => {
     });
 
     it("can specify NoAuth", async () => {
-      const { Foo } = (await runner.compile(`
+      const { Foo, program } = await Tester.compile(t.code`
         @useAuth(NoAuth)
-        @test namespace Foo {}
-      `)) as { Foo: Namespace };
+        namespace ${t.namespace("Foo")} {}
+      `);
 
-      expect(getAuthentication(runner.program, Foo)).toEqual({
+      expect(getAuthentication(program, Foo)).toEqual({
         options: [
           {
             schemes: [
@@ -963,12 +954,12 @@ describe("http: decorators", () => {
     });
 
     it("can specify multiple auth options", async () => {
-      const { Foo } = (await runner.compile(`
+      const { Foo, program } = await Tester.compile(t.code`
         @useAuth(BasicAuth | BearerAuth)
-        @test namespace Foo {}
-      `)) as { Foo: Namespace };
+        namespace ${t.namespace("Foo")} {}
+      `);
 
-      expect(getAuthentication(runner.program, Foo)).toEqual({
+      expect(getAuthentication(program, Foo)).toEqual({
         options: [
           {
             schemes: [
@@ -995,12 +986,12 @@ describe("http: decorators", () => {
     });
 
     it("can specify multiple auth schemes to be used together", async () => {
-      const { Foo } = (await runner.compile(`
+      const { Foo, program } = await Tester.compile(t.code`
         @useAuth([BasicAuth, BearerAuth])
-        @test namespace Foo {}
-      `)) as { Foo: Namespace };
+        namespace ${t.namespace("Foo")} {}
+      `);
 
-      expect(getAuthentication(runner.program, Foo)).toEqual({
+      expect(getAuthentication(program, Foo)).toEqual({
         options: [
           {
             schemes: [
@@ -1023,12 +1014,12 @@ describe("http: decorators", () => {
     });
 
     it("can specify multiple auth schemes to be used together and multiple options", async () => {
-      const { Foo } = (await runner.compile(`
+      const { Foo, program } = await Tester.compile(t.code`
         @useAuth(BearerAuth | [ApiKeyAuth<ApiKeyLocation.header, "x-my-header">, BasicAuth])
-        @test namespace Foo {}
-      `)) as { Foo: Namespace };
+        namespace ${t.namespace("Foo")} {}
+      `);
 
-      expect(getAuthentication(runner.program, Foo)).toEqual({
+      expect(getAuthentication(program, Foo)).toEqual({
         options: [
           {
             schemes: [
@@ -1062,16 +1053,16 @@ describe("http: decorators", () => {
     });
 
     it("can override auth schemes on interface", async () => {
-      const { Foo } = (await runner.compile(`
+      const { Foo, program } = await Tester.compile(t.code`
         alias ServiceKeyAuth = ApiKeyAuth<ApiKeyLocation.header, "X-API-KEY">;
         @useAuth(ServiceKeyAuth)
-        @test namespace Foo {
+        namespace ${t.namespace("Foo")} {
           @useAuth(BasicAuth | BearerAuth)
           interface Bar { }
         }
-      `)) as { Foo: Namespace };
+      `);
 
-      expect(getAuthentication(runner.program, Foo.interfaces.get("Bar")!)).toEqual({
+      expect(getAuthentication(program, Foo.interfaces.get("Bar")!)).toEqual({
         options: [
           {
             schemes: [
@@ -1098,16 +1089,16 @@ describe("http: decorators", () => {
     });
 
     it("can override auth schemes on operation", async () => {
-      const { Foo } = (await runner.compile(`
+      const { Foo, program } = await Tester.compile(t.code`
         alias ServiceKeyAuth = ApiKeyAuth<ApiKeyLocation.header, "X-API-KEY">;
         @useAuth(ServiceKeyAuth)
-        @test namespace Foo {
+        namespace ${t.namespace("Foo")} {
           @useAuth([BasicAuth, BearerAuth])
           op bar(): void;
         }
-      `)) as { Foo: Namespace };
+      `);
 
-      expect(getAuthentication(runner.program, Foo.operations.get("bar")!)).toEqual({
+      expect(getAuthentication(program, Foo.operations.get("bar")!)).toEqual({
         options: [
           {
             schemes: [
@@ -1132,67 +1123,52 @@ describe("http: decorators", () => {
 
   describe("@includeInapplicableMetadataInPayload", () => {
     it("defaults to true", async () => {
-      const { M } = await runner.compile(`
+      const { M, program } = await Tester.compile(t.code`
         namespace Foo;
-        @test model M {p: string; }
+        model ${t.model("M")} {p: string; }
       `);
 
       strictEqual(M.kind, "Model" as const);
-      strictEqual(
-        includeInapplicableMetadataInPayload(runner.program, M.properties.get("p")!),
-        true,
-      );
+      strictEqual(includeInapplicableMetadataInPayload(program, M.properties.get("p")!), true);
     });
     it("can specify at namespace level", async () => {
-      const { M } = await runner.compile(`
+      const { M, program } = await Tester.compile(t.code`
         @Private.includeInapplicableMetadataInPayload(false)
         namespace Foo;
-        @test model M {p: string; }
+        model ${t.model("M")} {p: string; }
       `);
 
       strictEqual(M.kind, "Model" as const);
-      strictEqual(
-        includeInapplicableMetadataInPayload(runner.program, M.properties.get("p")!),
-        false,
-      );
+      strictEqual(includeInapplicableMetadataInPayload(program, M.properties.get("p")!), false);
     });
     it("can specify at model level", async () => {
-      const { M } = await runner.compile(`
+      const { M, program } = await Tester.compile(t.code`
       namespace Foo;
-      @Private.includeInapplicableMetadataInPayload(false) @test model M { p: string; }
+      @Private.includeInapplicableMetadataInPayload(false) model ${t.model("M")} { p: string; }
     `);
 
       strictEqual(M.kind, "Model" as const);
-      strictEqual(
-        includeInapplicableMetadataInPayload(runner.program, M.properties.get("p")!),
-        false,
-      );
+      strictEqual(includeInapplicableMetadataInPayload(program, M.properties.get("p")!), false);
     });
     it("can specify at property level", async () => {
-      const { M } = await runner.compile(`
+      const { M, program } = await Tester.compile(t.code`
       namespace Foo;
-      @test model M { @Private.includeInapplicableMetadataInPayload(false) p: string; }
+      model ${t.model("M")} { @Private.includeInapplicableMetadataInPayload(false) p: string; }
     `);
 
       strictEqual(M.kind, "Model" as const);
-      strictEqual(
-        includeInapplicableMetadataInPayload(runner.program, M.properties.get("p")!),
-        false,
-      );
+      strictEqual(includeInapplicableMetadataInPayload(program, M.properties.get("p")!), false);
     });
 
     it("can be overridden", async () => {
-      const { M } = await runner.compile(`
+      const { M, program } = await Tester.compile(t.code`
       @Private.includeInapplicableMetadataInPayload(false)
       namespace Foo;
-      @Private.includeInapplicableMetadataInPayload(true) @test model M { p: string; }
+      @Private.includeInapplicableMetadataInPayload(true) model ${t.model("M")} { p: string; }
     `);
 
       strictEqual(M.kind, "Model" as const);
-      strictEqual(
-        includeInapplicableMetadataInPayload(runner.program, M.properties.get("p")!),
-        true,
-      );
+      strictEqual(includeInapplicableMetadataInPayload(program, M.properties.get("p")!), true);
     });
   });
 });
