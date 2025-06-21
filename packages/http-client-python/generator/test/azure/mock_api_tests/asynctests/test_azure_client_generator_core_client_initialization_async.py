@@ -10,6 +10,7 @@ from specs.azure.clientgenerator.core.clientinitialization.aio import (
     MixedParamsClient,
     PathParamClient,
     ParamAliasClient,
+    ParentClient,
 )
 from specs.azure.clientgenerator.core.clientinitialization.models import Input
 
@@ -48,3 +49,11 @@ async def test_param_alias_client():
     async with ParamAliasClient("sample-blob") as client:
         await client.with_aliased_name()
         await client.with_original_name()
+
+
+# @pytest.mark.asyncio
+# async def test_parent_child_client():
+#     async with ParentClient() as client:
+#         await client.child_client.with_query()
+#         await client.child_client.get_standalone()
+#         await client.child_client.delete_standalone()
