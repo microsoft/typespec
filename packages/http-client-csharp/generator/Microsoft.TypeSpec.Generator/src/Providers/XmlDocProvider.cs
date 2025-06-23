@@ -10,6 +10,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
     {
         public static XmlDocProvider Empty => new XmlDocProvider();
 
+        public bool IsEmpty =>
+            Summary == null &&
+            (Parameters == null || Parameters.Count == 0) &&
+            (Exceptions == null || Exceptions.Count == 0) &&
+            Returns == null &&
+            Inherit == null;
+
         public XmlDocProvider(
             XmlDocSummaryStatement? summary = null,
             IReadOnlyList<XmlDocParamStatement>? parameters = null,

@@ -18,6 +18,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public XmlDocProvider XmlDocs { get; private set; }
 
+        private XmlDocProvider? _xmlDocs;
+
         public TypeProvider EnclosingType { get; }
 
         // for mocking
@@ -40,6 +42,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var paramHash = MethodProviderHelpers.GetParamHash(signature);
             BodyStatements = MethodProviderHelpers.GetBodyStatementWithValidation(signature.Parameters, bodyStatements, paramHash);
             XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature);
+            _xmlDocs = xmlDocProvider;
             EnclosingType = enclosingType;
         }
 
@@ -55,6 +58,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             Signature = signature;
             BodyExpression = bodyExpression;
             XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature);
+            _xmlDocs = xmlDocProvider;
             EnclosingType = enclosingType;
         }
 
@@ -83,6 +87,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (xmlDocProvider != null)
             {
                 XmlDocs = xmlDocProvider;
+                _xmlDocs = xmlDocProvider;
             }
         }
 
@@ -100,7 +105,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             Signature = updated.Signature;
-            if (XmlDocs is not null)
+            if (_xmlDocs is null || _xmlDocs.IsEmpty)
             {
                 XmlDocs =  MethodProviderHelpers.BuildXmlDocs(Signature);
             }
