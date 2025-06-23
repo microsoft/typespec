@@ -1,20 +1,16 @@
 # Template installing linux dependencies
 steps:
-    - script: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          libgtk-3-0 libxss1 libasound2t64 libnss3 libx11-xcb1 \
-          libxcomposite1 libxrandr2 libxcb-dri3-0 libdrm2 libgbm1 \
-          libxdamage1 libatk-bridge2.0-0 libcups2 libxkbcommon0 \
-          xvfb x11-apps imagemagick x11-utils x11-xserver-utils
-      displayName: "Install Linux Dependencies"
+  - script: |
+      sudo apt-get update
+      sudo apt-get install -y \
+        libgtk-3-0 libxss1 libasound2t64 libnss3 libx11-xcb1 \
+        libxcomposite1 libxrandr2 libxcb-dri3-0 libdrm2 libgbm1 \
+        libxdamage1 libatk-bridge2.0-0 libcups2 libxkbcommon0 \
+        xvfb x11-apps imagemagick x11-utils x11-xserver-utils
+    displayName: "Install Linux Dependencies"
 
-    - script: |
-        export DISPLAY=:99
-        /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-        echo ">>> Started xvfb"
-      displayName: "Start xvfb and Set DISPLAY"
-
-    - script: |
-        sudo snap install code --classic
-      displayName: "Install deps and download VSCode"
+  - script: |
+      sudo snap install code --classic
+      /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+      echo ">>> Started xvfb"
+    displayName: "Download VSCode Start xvfb for GUI applications"

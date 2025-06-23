@@ -9,6 +9,7 @@ jobs:
     variables:
       TYPESPEC_VS_CI_BUILD: false # Enable official Visual Studio extension build
       TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
+      DISPLAY: ":99" # Set DISPLAY for Linux GUI applications
 
     pool:
       name: $(LINUXPOOL)
@@ -28,13 +29,9 @@ jobs:
               azureSubscription: "Azure SDK Engineering System"
               scriptLocation: inlineScript
               inlineScript: pnpm run test:e2e
-            env:
-              DISPLAY: ":99"
       - ${{ else }}:
           - script: pnpm run test:e2e
             displayName: E2E Tests
-            env:
-              DISPLAY: ":99"
 
       - task: 1ES.PublishPipelineArtifact@1
         inputs:
