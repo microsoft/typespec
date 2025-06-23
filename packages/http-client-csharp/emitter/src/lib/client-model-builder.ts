@@ -31,7 +31,7 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
 
   // TODO -- we should find a way to remove this.
   // but now we have to convert them explicitly because these enums are not directly referenced anywhere.
-  fromSdkEnums(sdkContext, sdkApiVersionEnums);
+  fromSdkEnums(sdkContext, sdkPackage.enums);
   // TODO -- because of an implementation bug in autorest.csharp,
   // we have to do this in this way instead the nicer way of
   // const enums = fromSdkEnums(sdkContext, sdkPackage.enums);
