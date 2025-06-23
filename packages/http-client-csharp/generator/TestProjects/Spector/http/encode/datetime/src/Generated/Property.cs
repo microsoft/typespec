@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -16,44 +17,134 @@ namespace Encode.Datetime._Property
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Default. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Default(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Default. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> DefaultAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Default. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         public virtual ClientResult<DefaultDatetimeProperty> Default(DefaultDatetimeProperty body, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Default. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         public virtual Task<ClientResult<DefaultDatetimeProperty>> DefaultAsync(DefaultDatetimeProperty body, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Rfc3339. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Rfc3339(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Rfc3339. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> Rfc3339Async(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Rfc3339. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         public virtual ClientResult<Rfc3339DatetimeProperty> Rfc3339(Rfc3339DatetimeProperty body, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Rfc3339. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         public virtual Task<ClientResult<Rfc3339DatetimeProperty>> Rfc3339Async(Rfc3339DatetimeProperty body, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Rfc7231. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Rfc7231(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Rfc7231. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> Rfc7231Async(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Rfc7231. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         public virtual ClientResult<Rfc7231DatetimeProperty> Rfc7231(Rfc7231DatetimeProperty body, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Rfc7231. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         public virtual Task<ClientResult<Rfc7231DatetimeProperty>> Rfc7231Async(Rfc7231DatetimeProperty body, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> UnixTimestamp. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult UnixTimestamp(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> UnixTimestamp. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> UnixTimestampAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> UnixTimestamp. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         public virtual ClientResult<UnixTimestampDatetimeProperty> UnixTimestamp(UnixTimestampDatetimeProperty body, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> UnixTimestamp. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         public virtual Task<ClientResult<UnixTimestampDatetimeProperty>> UnixTimestampAsync(UnixTimestampDatetimeProperty body, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> UnixTimestampArray. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult UnixTimestampArray(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> UnixTimestampArray. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> UnixTimestampArrayAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> UnixTimestampArray. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         public virtual ClientResult<UnixTimestampArrayDatetimeProperty> UnixTimestampArray(UnixTimestampArrayDatetimeProperty body, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> UnixTimestampArray. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         public virtual Task<ClientResult<UnixTimestampArrayDatetimeProperty>> UnixTimestampArrayAsync(UnixTimestampArrayDatetimeProperty body, CancellationToken cancellationToken = default) => throw null;
     }
 }

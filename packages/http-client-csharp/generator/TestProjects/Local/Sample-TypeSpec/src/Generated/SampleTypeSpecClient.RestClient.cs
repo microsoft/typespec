@@ -21,6 +21,10 @@ namespace SampleTypeSpec
 
         private static PipelineMessageClassifier PipelineMessageClassifier204 => _pipelineMessageClassifier204 = PipelineMessageClassifier.Create(stackalloc ushort[] { 204 });
 
+        /// <param name="headParameter"></param>
+        /// <param name="queryParameter"></param>
+        /// <param name="optionalQuery"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         internal PipelineMessage CreateSayHiRequest(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
@@ -42,6 +46,10 @@ namespace SampleTypeSpec
             return message;
         }
 
+        /// <param name="p2"></param>
+        /// <param name="p1"></param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         internal PipelineMessage CreateHelloAgainRequest(string p2, string p1, BinaryContent content, RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
@@ -61,6 +69,10 @@ namespace SampleTypeSpec
             return message;
         }
 
+        /// <param name="p2"></param>
+        /// <param name="p1"></param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         internal PipelineMessage CreateNoContentTypeRequest(string p2, string p1, BinaryContent content, RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
@@ -80,6 +92,7 @@ namespace SampleTypeSpec
             return message;
         }
 
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         internal PipelineMessage CreateHelloDemo2Request(RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
@@ -95,6 +108,8 @@ namespace SampleTypeSpec
             return message;
         }
 
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         internal PipelineMessage CreateCreateLiteralRequest(BinaryContent content, RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
@@ -112,6 +127,7 @@ namespace SampleTypeSpec
             return message;
         }
 
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         internal PipelineMessage CreateHelloLiteralRequest(RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
@@ -130,6 +146,8 @@ namespace SampleTypeSpec
             return message;
         }
 
+        /// <param name="action"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         internal PipelineMessage CreateTopActionRequest(DateTimeOffset action, RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
@@ -146,6 +164,7 @@ namespace SampleTypeSpec
             return message;
         }
 
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         internal PipelineMessage CreateTopAction2Request(RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
@@ -161,6 +180,8 @@ namespace SampleTypeSpec
             return message;
         }
 
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         internal PipelineMessage CreatePatchActionRequest(BinaryContent content, RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
@@ -178,6 +199,8 @@ namespace SampleTypeSpec
             return message;
         }
 
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         internal PipelineMessage CreateAnonymousBodyRequest(BinaryContent content, RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
@@ -195,6 +218,8 @@ namespace SampleTypeSpec
             return message;
         }
 
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         internal PipelineMessage CreateFriendlyModelRequest(BinaryContent content, RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
@@ -212,6 +237,7 @@ namespace SampleTypeSpec
             return message;
         }
 
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         internal PipelineMessage CreateAddTimeHeaderRequest(RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
@@ -227,6 +253,8 @@ namespace SampleTypeSpec
             return message;
         }
 
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         internal PipelineMessage CreateProjectedNameModelRequest(BinaryContent content, RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
@@ -244,6 +272,7 @@ namespace SampleTypeSpec
             return message;
         }
 
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         internal PipelineMessage CreateReturnsAnonymousModelRequest(RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
@@ -259,6 +288,8 @@ namespace SampleTypeSpec
             return message;
         }
 
+        /// <param name="accept"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         internal PipelineMessage CreateGetUnknownValueRequest(string accept, RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
@@ -274,6 +305,8 @@ namespace SampleTypeSpec
             return message;
         }
 
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         internal PipelineMessage CreateInternalProtocolRequest(BinaryContent content, RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
@@ -291,6 +324,7 @@ namespace SampleTypeSpec
             return message;
         }
 
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         internal PipelineMessage CreateStillConvenientRequest(RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
@@ -305,6 +339,8 @@ namespace SampleTypeSpec
             return message;
         }
 
+        /// <param name="id"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         internal PipelineMessage CreateHeadAsBooleanRequest(string id, RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
@@ -320,6 +356,8 @@ namespace SampleTypeSpec
             return message;
         }
 
+        /// <param name="p1"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         internal PipelineMessage CreateWithApiVersionRequest(string p1, RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
@@ -336,6 +374,7 @@ namespace SampleTypeSpec
             return message;
         }
 
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         internal PipelineMessage CreateGetWithNextLinkRequest(RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
@@ -351,6 +390,8 @@ namespace SampleTypeSpec
             return message;
         }
 
+        /// <param name="nextPage"> The url of the next page of responses. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         internal PipelineMessage CreateNextGetWithNextLinkRequest(Uri nextPage, RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
@@ -365,6 +406,8 @@ namespace SampleTypeSpec
             return message;
         }
 
+        /// <param name="token"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         internal PipelineMessage CreateGetWithContinuationTokenRequest(string token, RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
@@ -384,6 +427,8 @@ namespace SampleTypeSpec
             return message;
         }
 
+        /// <param name="token"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         internal PipelineMessage CreateGetWithContinuationTokenHeaderResponseRequest(string token, RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
@@ -403,6 +448,7 @@ namespace SampleTypeSpec
             return message;
         }
 
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         internal PipelineMessage CreateGetWithPagingRequest(RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
@@ -418,6 +464,12 @@ namespace SampleTypeSpec
             return message;
         }
 
+        /// <param name="requiredHeader"> required header parameter. </param>
+        /// <param name="requiredQuery"> required query parameter. </param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="optionalHeader"> optional header parameter. </param>
+        /// <param name="optionalQuery"> optional query parameter. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         internal PipelineMessage CreateEmbeddedParametersRequest(string requiredHeader, string requiredQuery, BinaryContent content, string optionalHeader, string optionalQuery, RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();

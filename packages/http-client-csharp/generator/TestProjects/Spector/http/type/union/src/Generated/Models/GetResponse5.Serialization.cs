@@ -13,24 +13,40 @@ namespace _Type.Union
     {
         internal GetResponse5() => throw null;
 
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<GetResponse5>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         GetResponse5 IJsonModel<GetResponse5>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual GetResponse5 JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         BinaryData IPersistableModel<GetResponse5>.Write(ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         GetResponse5 IPersistableModel<GetResponse5>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual GetResponse5 PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         string IPersistableModel<GetResponse5>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="GetResponse5"/> from. </param>
         public static explicit operator GetResponse5(ClientResult result) => throw null;
     }
 }

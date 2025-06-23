@@ -20,12 +20,32 @@ namespace Versioning.ReturnTypeChangedFrom
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Test. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Test(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Test. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> TestAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Test. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="body"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual ClientResult<string> Test(string body, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Test. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="body"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual Task<ClientResult<string>> TestAsync(string body, CancellationToken cancellationToken = default) => throw null;
     }
 }

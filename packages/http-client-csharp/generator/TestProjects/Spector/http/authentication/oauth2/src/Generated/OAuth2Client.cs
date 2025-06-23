@@ -13,20 +13,40 @@ namespace Authentication.OAuth2
     {
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Check whether client is authenticated. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Valid(RequestOptions options) => throw null;
 
+        /// <summary> Check whether client is authenticated. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> ValidAsync(RequestOptions options) => throw null;
 
+        /// <summary> Check whether client is authenticated. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Valid(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Check whether client is authenticated. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> ValidAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Check whether client is authenticated. Will return an invalid bearer error. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Invalid(RequestOptions options) => throw null;
 
+        /// <summary> Check whether client is authenticated. Will return an invalid bearer error. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> InvalidAsync(RequestOptions options) => throw null;
 
+        /// <summary> Check whether client is authenticated. Will return an invalid bearer error. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Invalid(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Check whether client is authenticated. Will return an invalid bearer error. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> InvalidAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

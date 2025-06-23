@@ -12,6 +12,7 @@ namespace Client.Structure.Service._Baz
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Initializes a new instance of BazFoo. </summary>
         public virtual BazFoo GetBazFooClient() => throw null;
     }
 }

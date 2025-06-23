@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
@@ -16,12 +17,30 @@ namespace Parameters.CollectionFormat._Header
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Csv. </summary>
+        /// <param name="colors"> Possible values for colors are [blue,red,green]. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="colors"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Csv(IEnumerable<string> colors, RequestOptions options) => throw null;
 
+        /// <summary> Csv. </summary>
+        /// <param name="colors"> Possible values for colors are [blue,red,green]. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="colors"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> CsvAsync(IEnumerable<string> colors, RequestOptions options) => throw null;
 
+        /// <summary> Csv. </summary>
+        /// <param name="colors"> Possible values for colors are [blue,red,green]. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="colors"/> is null. </exception>
         public virtual ClientResult Csv(IEnumerable<string> colors, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Csv. </summary>
+        /// <param name="colors"> Possible values for colors are [blue,red,green]. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="colors"/> is null. </exception>
         public virtual Task<ClientResult> CsvAsync(IEnumerable<string> colors, CancellationToken cancellationToken = default) => throw null;
     }
 }

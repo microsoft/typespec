@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -15,12 +16,30 @@ namespace Versioning.Added
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> V2InInterface. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult V2InInterface(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> V2InInterface. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> V2InInterfaceAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> V2InInterface. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         public virtual ClientResult<ModelV2> V2InInterface(ModelV2 body, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> V2InInterface. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         public virtual Task<ClientResult<ModelV2>> V2InInterfaceAsync(ModelV2 body, CancellationToken cancellationToken = default) => throw null;
     }
 }

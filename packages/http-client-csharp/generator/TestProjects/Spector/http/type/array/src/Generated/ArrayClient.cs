@@ -15,32 +15,46 @@ namespace _Type._Array
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Initializes a new instance of Int32Value. </summary>
         public virtual Int32Value GetInt32ValueClient() => throw null;
 
+        /// <summary> Initializes a new instance of Int64Value. </summary>
         public virtual Int64Value GetInt64ValueClient() => throw null;
 
+        /// <summary> Initializes a new instance of BooleanValue. </summary>
         public virtual BooleanValue GetBooleanValueClient() => throw null;
 
+        /// <summary> Initializes a new instance of StringValue. </summary>
         public virtual StringValue GetStringValueClient() => throw null;
 
+        /// <summary> Initializes a new instance of Float32Value. </summary>
         public virtual Float32Value GetFloat32ValueClient() => throw null;
 
+        /// <summary> Initializes a new instance of DatetimeValue. </summary>
         public virtual DatetimeValue GetDatetimeValueClient() => throw null;
 
+        /// <summary> Initializes a new instance of DurationValue. </summary>
         public virtual DurationValue GetDurationValueClient() => throw null;
 
+        /// <summary> Initializes a new instance of UnknownValue. </summary>
         public virtual UnknownValue GetUnknownValueClient() => throw null;
 
+        /// <summary> Initializes a new instance of ModelValue. </summary>
         public virtual ModelValue GetModelValueClient() => throw null;
 
+        /// <summary> Initializes a new instance of NullableFloatValue. </summary>
         public virtual NullableFloatValue GetNullableFloatValueClient() => throw null;
 
+        /// <summary> Initializes a new instance of NullableInt32Value. </summary>
         public virtual NullableInt32Value GetNullableInt32ValueClient() => throw null;
 
+        /// <summary> Initializes a new instance of NullableBooleanValue. </summary>
         public virtual NullableBooleanValue GetNullableBooleanValueClient() => throw null;
 
+        /// <summary> Initializes a new instance of NullableStringValue. </summary>
         public virtual NullableStringValue GetNullableStringValueClient() => throw null;
 
+        /// <summary> Initializes a new instance of NullableModelValue. </summary>
         public virtual NullableModelValue GetNullableModelValueClient() => throw null;
     }
 }

@@ -9,78 +9,205 @@ namespace _Type.Property.AdditionalProperties
 {
     public static partial class TypePropertyAdditionalPropertiesModelFactory
     {
+        /// <param name="name"> The name property. </param>
+        /// <param name="additionalProperties"></param>
+        /// <returns> A new <see cref="AdditionalProperties.ExtendsUnknownAdditionalProperties"/> instance for mocking. </returns>
         public static ExtendsUnknownAdditionalProperties ExtendsUnknownAdditionalProperties(string name = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
 
+        /// <param name="name"> The name property. </param>
+        /// <param name="additionalProperties"></param>
+        /// <param name="index"> The index property. </param>
+        /// <param name="age"> The age property. </param>
+        /// <returns> A new <see cref="AdditionalProperties.ExtendsUnknownAdditionalPropertiesDerived"/> instance for mocking. </returns>
         public static ExtendsUnknownAdditionalPropertiesDerived ExtendsUnknownAdditionalPropertiesDerived(string name = default, IDictionary<string, BinaryData> additionalProperties = default, int index = default, float? age = default) => throw null;
 
+        /// <param name="name"> The name property. </param>
+        /// <param name="kind"> The discriminator. </param>
+        /// <param name="additionalProperties"></param>
+        /// <returns> A new <see cref="AdditionalProperties.ExtendsUnknownAdditionalPropertiesDiscriminated"/> instance for mocking. </returns>
         public static ExtendsUnknownAdditionalPropertiesDiscriminated ExtendsUnknownAdditionalPropertiesDiscriminated(string name = default, string kind = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
 
+        /// <param name="name"> The name property. </param>
+        /// <param name="additionalProperties"></param>
+        /// <param name="index"> The index property. </param>
+        /// <param name="age"> The age property. </param>
+        /// <returns> A new <see cref="AdditionalProperties.ExtendsUnknownAdditionalPropertiesDiscriminatedDerived"/> instance for mocking. </returns>
         public static ExtendsUnknownAdditionalPropertiesDiscriminatedDerived ExtendsUnknownAdditionalPropertiesDiscriminatedDerived(string name = default, IDictionary<string, BinaryData> additionalProperties = default, int index = default, float? age = default) => throw null;
 
+        /// <param name="name"> The name property. </param>
+        /// <param name="additionalProperties"></param>
+        /// <returns> A new <see cref="AdditionalProperties.IsUnknownAdditionalProperties"/> instance for mocking. </returns>
         public static IsUnknownAdditionalProperties IsUnknownAdditionalProperties(string name = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
 
+        /// <param name="name"> The name property. </param>
+        /// <param name="additionalProperties"></param>
+        /// <param name="index"> The index property. </param>
+        /// <param name="age"> The age property. </param>
+        /// <returns> A new <see cref="AdditionalProperties.IsUnknownAdditionalPropertiesDerived"/> instance for mocking. </returns>
         public static IsUnknownAdditionalPropertiesDerived IsUnknownAdditionalPropertiesDerived(string name = default, IDictionary<string, BinaryData> additionalProperties = default, int index = default, float? age = default) => throw null;
 
+        /// <param name="name"> The name property. </param>
+        /// <param name="kind"> The discriminator. </param>
+        /// <param name="additionalProperties"></param>
+        /// <returns> A new <see cref="AdditionalProperties.IsUnknownAdditionalPropertiesDiscriminated"/> instance for mocking. </returns>
         public static IsUnknownAdditionalPropertiesDiscriminated IsUnknownAdditionalPropertiesDiscriminated(string name = default, string kind = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
 
+        /// <param name="name"> The name property. </param>
+        /// <param name="additionalProperties"></param>
+        /// <param name="index"> The index property. </param>
+        /// <param name="age"> The age property. </param>
+        /// <returns> A new <see cref="AdditionalProperties.IsUnknownAdditionalPropertiesDiscriminatedDerived"/> instance for mocking. </returns>
         public static IsUnknownAdditionalPropertiesDiscriminatedDerived IsUnknownAdditionalPropertiesDiscriminatedDerived(string name = default, IDictionary<string, BinaryData> additionalProperties = default, int index = default, float? age = default) => throw null;
 
+        /// <param name="name"> The name property. </param>
+        /// <param name="additionalProperties"></param>
+        /// <returns> A new <see cref="AdditionalProperties.ExtendsStringAdditionalProperties"/> instance for mocking. </returns>
         public static ExtendsStringAdditionalProperties ExtendsStringAdditionalProperties(string name = default, IDictionary<string, string> additionalProperties = default) => throw null;
 
+        /// <param name="name"> The name property. </param>
+        /// <param name="additionalProperties"></param>
+        /// <returns> A new <see cref="AdditionalProperties.IsStringAdditionalProperties"/> instance for mocking. </returns>
         public static IsStringAdditionalProperties IsStringAdditionalProperties(string name = default, IDictionary<string, string> additionalProperties = default) => throw null;
 
+        /// <param name="name"> The name property. </param>
+        /// <param name="additionalProperties"></param>
+        /// <returns> A new <see cref="AdditionalProperties.SpreadStringRecord"/> instance for mocking. </returns>
         public static SpreadStringRecord SpreadStringRecord(string name = default, IDictionary<string, string> additionalProperties = default) => throw null;
 
+        /// <param name="id"> The id property. </param>
+        /// <param name="additionalProperties"></param>
+        /// <returns> A new <see cref="AdditionalProperties.ExtendsFloatAdditionalProperties"/> instance for mocking. </returns>
         public static ExtendsFloatAdditionalProperties ExtendsFloatAdditionalProperties(float id = default, IDictionary<string, float> additionalProperties = default) => throw null;
 
+        /// <param name="id"> The id property. </param>
+        /// <param name="additionalProperties"></param>
+        /// <returns> A new <see cref="AdditionalProperties.IsFloatAdditionalProperties"/> instance for mocking. </returns>
         public static IsFloatAdditionalProperties IsFloatAdditionalProperties(float id = default, IDictionary<string, float> additionalProperties = default) => throw null;
 
+        /// <param name="id"> The id property. </param>
+        /// <param name="additionalProperties"></param>
+        /// <returns> A new <see cref="AdditionalProperties.SpreadFloatRecord"/> instance for mocking. </returns>
         public static SpreadFloatRecord SpreadFloatRecord(float id = default, IDictionary<string, float> additionalProperties = default) => throw null;
 
+        /// <param name="knownProp"></param>
+        /// <param name="additionalProperties"></param>
+        /// <returns> A new <see cref="AdditionalProperties.ExtendsModelAdditionalProperties"/> instance for mocking. </returns>
         public static ExtendsModelAdditionalProperties ExtendsModelAdditionalProperties(ModelForRecord knownProp = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
 
+        /// <param name="state"> The state property. </param>
+        /// <returns> A new <see cref="AdditionalProperties.ModelForRecord"/> instance for mocking. </returns>
         public static ModelForRecord ModelForRecord(string state = default) => throw null;
 
+        /// <param name="knownProp"></param>
+        /// <param name="additionalProperties"></param>
+        /// <returns> A new <see cref="AdditionalProperties.IsModelAdditionalProperties"/> instance for mocking. </returns>
         public static IsModelAdditionalProperties IsModelAdditionalProperties(ModelForRecord knownProp = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
 
+        /// <param name="knownProp"></param>
+        /// <param name="additionalProperties"></param>
+        /// <returns> A new <see cref="AdditionalProperties.SpreadModelRecord"/> instance for mocking. </returns>
         public static SpreadModelRecord SpreadModelRecord(ModelForRecord knownProp = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
 
+        /// <param name="knownProp"></param>
+        /// <param name="additionalProperties"></param>
+        /// <returns> A new <see cref="AdditionalProperties.ExtendsModelArrayAdditionalProperties"/> instance for mocking. </returns>
         public static ExtendsModelArrayAdditionalProperties ExtendsModelArrayAdditionalProperties(IEnumerable<ModelForRecord> knownProp = default, IDictionary<string, IList<BinaryData>> additionalProperties = default) => throw null;
 
+        /// <param name="knownProp"></param>
+        /// <param name="additionalProperties"></param>
+        /// <returns> A new <see cref="AdditionalProperties.IsModelArrayAdditionalProperties"/> instance for mocking. </returns>
         public static IsModelArrayAdditionalProperties IsModelArrayAdditionalProperties(IEnumerable<ModelForRecord> knownProp = default, IDictionary<string, IList<BinaryData>> additionalProperties = default) => throw null;
 
+        /// <param name="knownProp"></param>
+        /// <param name="additionalProperties"></param>
+        /// <returns> A new <see cref="AdditionalProperties.SpreadModelArrayRecord"/> instance for mocking. </returns>
         public static SpreadModelArrayRecord SpreadModelArrayRecord(IEnumerable<ModelForRecord> knownProp = default, IDictionary<string, IList<BinaryData>> additionalProperties = default) => throw null;
 
+        /// <param name="id"> The name property. </param>
+        /// <param name="additionalProperties"></param>
+        /// <returns> A new <see cref="AdditionalProperties.DifferentSpreadStringRecord"/> instance for mocking. </returns>
         public static DifferentSpreadStringRecord DifferentSpreadStringRecord(float id = default, IDictionary<string, string> additionalProperties = default) => throw null;
 
+        /// <param name="name"> The id property. </param>
+        /// <param name="additionalProperties"></param>
+        /// <returns> A new <see cref="AdditionalProperties.DifferentSpreadFloatRecord"/> instance for mocking. </returns>
         public static DifferentSpreadFloatRecord DifferentSpreadFloatRecord(string name = default, IDictionary<string, float> additionalProperties = default) => throw null;
 
+        /// <param name="knownProp"></param>
+        /// <param name="additionalProperties"></param>
+        /// <returns> A new <see cref="AdditionalProperties.DifferentSpreadModelRecord"/> instance for mocking. </returns>
         public static DifferentSpreadModelRecord DifferentSpreadModelRecord(string knownProp = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
 
+        /// <param name="knownProp"></param>
+        /// <param name="additionalProperties"></param>
+        /// <returns> A new <see cref="AdditionalProperties.DifferentSpreadModelArrayRecord"/> instance for mocking. </returns>
         public static DifferentSpreadModelArrayRecord DifferentSpreadModelArrayRecord(string knownProp = default, IDictionary<string, IList<BinaryData>> additionalProperties = default) => throw null;
 
+        /// <param name="id"> The name property. </param>
+        /// <param name="additionalProperties"></param>
+        /// <param name="derivedProp"> The index property. </param>
+        /// <returns> A new <see cref="AdditionalProperties.DifferentSpreadStringDerived"/> instance for mocking. </returns>
         public static DifferentSpreadStringDerived DifferentSpreadStringDerived(float id = default, IDictionary<string, string> additionalProperties = default, string derivedProp = default) => throw null;
 
+        /// <param name="name"> The id property. </param>
+        /// <param name="additionalProperties"></param>
+        /// <param name="derivedProp"> The index property. </param>
+        /// <returns> A new <see cref="AdditionalProperties.DifferentSpreadFloatDerived"/> instance for mocking. </returns>
         public static DifferentSpreadFloatDerived DifferentSpreadFloatDerived(string name = default, IDictionary<string, float> additionalProperties = default, float derivedProp = default) => throw null;
 
+        /// <param name="knownProp"></param>
+        /// <param name="additionalProperties"></param>
+        /// <param name="derivedProp"> The index property. </param>
+        /// <returns> A new <see cref="AdditionalProperties.DifferentSpreadModelDerived"/> instance for mocking. </returns>
         public static DifferentSpreadModelDerived DifferentSpreadModelDerived(string knownProp = default, IDictionary<string, BinaryData> additionalProperties = default, ModelForRecord derivedProp = default) => throw null;
 
+        /// <param name="knownProp"></param>
+        /// <param name="additionalProperties"></param>
+        /// <param name="derivedProp"> The index property. </param>
+        /// <returns> A new <see cref="AdditionalProperties.DifferentSpreadModelArrayDerived"/> instance for mocking. </returns>
         public static DifferentSpreadModelArrayDerived DifferentSpreadModelArrayDerived(string knownProp = default, IDictionary<string, IList<BinaryData>> additionalProperties = default, IEnumerable<ModelForRecord> derivedProp = default) => throw null;
 
+        /// <param name="flag"> The name property. </param>
+        /// <param name="additionalProperties"></param>
+        /// <param name="additionalSingleProperties"></param>
+        /// <returns> A new <see cref="AdditionalProperties.MultipleSpreadRecord"/> instance for mocking. </returns>
         public static MultipleSpreadRecord MultipleSpreadRecord(bool flag = default, IDictionary<string, string> additionalProperties = default, IDictionary<string, float> additionalSingleProperties = default) => throw null;
 
+        /// <param name="flag"> The name property. </param>
+        /// <param name="additionalProperties"></param>
+        /// <param name="additionalSingleProperties"></param>
+        /// <returns> A new <see cref="AdditionalProperties.SpreadRecordForUnion"/> instance for mocking. </returns>
         public static SpreadRecordForUnion SpreadRecordForUnion(bool flag = default, IDictionary<string, string> additionalProperties = default, IDictionary<string, float> additionalSingleProperties = default) => throw null;
 
+        /// <param name="name"> The name property. </param>
+        /// <param name="additionalProperties"></param>
+        /// <returns> A new <see cref="AdditionalProperties.SpreadRecordForNonDiscriminatedUnion"/> instance for mocking. </returns>
         public static SpreadRecordForNonDiscriminatedUnion SpreadRecordForNonDiscriminatedUnion(string name = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
 
+        /// <param name="kind"></param>
+        /// <param name="fooProp"></param>
+        /// <returns> A new <see cref="AdditionalProperties.WidgetData0"/> instance for mocking. </returns>
         public static WidgetData0 WidgetData0(string kind = default, string fooProp = default) => throw null;
 
+        /// <param name="kind"></param>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <returns> A new <see cref="AdditionalProperties.WidgetData1"/> instance for mocking. </returns>
         public static WidgetData1 WidgetData1(string kind = default, DateTimeOffset start = default, DateTimeOffset? end = default) => throw null;
 
+        /// <param name="name"> The name property. </param>
+        /// <param name="additionalProperties"></param>
+        /// <returns> A new <see cref="AdditionalProperties.SpreadRecordForNonDiscriminatedUnion2"/> instance for mocking. </returns>
         public static SpreadRecordForNonDiscriminatedUnion2 SpreadRecordForNonDiscriminatedUnion2(string name = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
 
+        /// <param name="kind"></param>
+        /// <param name="start"></param>
+        /// <returns> A new <see cref="AdditionalProperties.WidgetData2"/> instance for mocking. </returns>
         public static WidgetData2 WidgetData2(string kind = default, string start = default) => throw null;
 
+        /// <param name="name"> The name property. </param>
+        /// <param name="additionalProperties"></param>
+        /// <returns> A new <see cref="AdditionalProperties.SpreadRecordForNonDiscriminatedUnion3"/> instance for mocking. </returns>
         public static SpreadRecordForNonDiscriminatedUnion3 SpreadRecordForNonDiscriminatedUnion3(string name = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
     }
 }

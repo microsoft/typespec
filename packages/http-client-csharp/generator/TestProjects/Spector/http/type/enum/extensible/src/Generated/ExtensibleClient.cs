@@ -15,6 +15,7 @@ namespace _Type._Enum.Extensible
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Initializes a new instance of String. </summary>
         public virtual String GetStringClient() => throw null;
     }
 }

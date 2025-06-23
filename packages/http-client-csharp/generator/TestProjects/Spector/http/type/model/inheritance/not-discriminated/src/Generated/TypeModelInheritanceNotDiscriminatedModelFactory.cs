@@ -6,10 +6,19 @@ namespace _Type.Model.Inheritance.NotDiscriminated
 {
     public static partial class TypeModelInheritanceNotDiscriminatedModelFactory
     {
+        /// <param name="name"></param>
+        /// <param name="age"></param>
+        /// <param name="smart"></param>
+        /// <returns> A new <see cref="NotDiscriminated.Siamese"/> instance for mocking. </returns>
         public static Siamese Siamese(string name = default, int age = default, bool smart = default) => throw null;
 
+        /// <param name="name"></param>
+        /// <param name="age"></param>
+        /// <returns> A new <see cref="NotDiscriminated.Cat"/> instance for mocking. </returns>
         public static Cat Cat(string name = default, int age = default) => throw null;
 
+        /// <param name="name"></param>
+        /// <returns> A new <see cref="NotDiscriminated.Pet"/> instance for mocking. </returns>
         public static Pet Pet(string name = default) => throw null;
     }
 }

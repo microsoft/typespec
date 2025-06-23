@@ -6,10 +6,16 @@ namespace _Type.Model.Usage
 {
     public static partial class TypeModelUsageModelFactory
     {
+        /// <param name="requiredProp"></param>
+        /// <returns> A new <see cref="Usage.InputRecord"/> instance for mocking. </returns>
         public static InputRecord InputRecord(string requiredProp = default) => throw null;
 
+        /// <param name="requiredProp"></param>
+        /// <returns> A new <see cref="Usage.OutputRecord"/> instance for mocking. </returns>
         public static OutputRecord OutputRecord(string requiredProp = default) => throw null;
 
+        /// <param name="requiredProp"></param>
+        /// <returns> A new <see cref="Usage.InputOutputRecord"/> instance for mocking. </returns>
         public static InputOutputRecord InputOutputRecord(string requiredProp = default) => throw null;
     }
 }

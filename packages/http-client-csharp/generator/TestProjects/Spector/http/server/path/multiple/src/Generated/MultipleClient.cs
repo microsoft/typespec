@@ -20,20 +20,52 @@ namespace Server.Path.Multiple
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> NoOperationParams. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult NoOperationParams(RequestOptions options) => throw null;
 
+        /// <summary> NoOperationParams. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> NoOperationParamsAsync(RequestOptions options) => throw null;
 
+        /// <summary> NoOperationParams. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult NoOperationParams(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> NoOperationParams. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> NoOperationParamsAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> WithOperationPathParam. </summary>
+        /// <param name="keyword"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="keyword"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="keyword"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult WithOperationPathParam(string keyword, RequestOptions options) => throw null;
 
+        /// <summary> WithOperationPathParam. </summary>
+        /// <param name="keyword"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="keyword"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="keyword"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> WithOperationPathParamAsync(string keyword, RequestOptions options) => throw null;
 
+        /// <summary> WithOperationPathParam. </summary>
+        /// <param name="keyword"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="keyword"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="keyword"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual ClientResult WithOperationPathParam(string keyword, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> WithOperationPathParam. </summary>
+        /// <param name="keyword"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="keyword"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="keyword"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual Task<ClientResult> WithOperationPathParamAsync(string keyword, CancellationToken cancellationToken = default) => throw null;
     }
 }

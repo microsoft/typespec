@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -15,12 +16,30 @@ namespace Parameters.Basic._ExplicitBody
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Simple. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Simple(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Simple. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> SimpleAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Simple. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         public virtual ClientResult Simple(User body, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Simple. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         public virtual Task<ClientResult> SimpleAsync(User body, CancellationToken cancellationToken = default) => throw null;
     }
 }

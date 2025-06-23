@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -15,28 +16,70 @@ namespace _Type._Enum.Fixed
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> getKnownValue. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult GetKnownValue(RequestOptions options) => throw null;
 
+        /// <summary> getKnownValue. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> GetKnownValueAsync(RequestOptions options) => throw null;
 
+        /// <summary> getKnownValue. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult<DaysOfWeekEnum> GetKnownValue(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> getKnownValue. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult<DaysOfWeekEnum>> GetKnownValueAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> putKnownValue. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult PutKnownValue(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> putKnownValue. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> PutKnownValueAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> putKnownValue. </summary>
+        /// <param name="body"> _. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult PutKnownValue(DaysOfWeekEnum body, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> putKnownValue. </summary>
+        /// <param name="body"> _. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> PutKnownValueAsync(DaysOfWeekEnum body, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> putUnknownValue. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult PutUnknownValue(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> putUnknownValue. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> PutUnknownValueAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> putUnknownValue. </summary>
+        /// <param name="body"> _. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult PutUnknownValue(DaysOfWeekEnum body, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> putUnknownValue. </summary>
+        /// <param name="body"> _. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> PutUnknownValueAsync(DaysOfWeekEnum body, CancellationToken cancellationToken = default) => throw null;
     }
 }

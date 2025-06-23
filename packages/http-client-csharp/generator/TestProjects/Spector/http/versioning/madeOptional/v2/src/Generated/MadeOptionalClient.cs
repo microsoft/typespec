@@ -20,12 +20,34 @@ namespace Versioning.MadeOptional
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Test. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="param"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Test(BinaryContent content, string @param = default, RequestOptions options = null) => throw null;
 
+        /// <summary> Test. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="param"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> TestAsync(BinaryContent content, string @param = default, RequestOptions options = null) => throw null;
 
+        /// <summary> Test. </summary>
+        /// <param name="body"></param>
+        /// <param name="param"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         public virtual ClientResult<TestModel> Test(TestModel body, string @param = default, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Test. </summary>
+        /// <param name="body"></param>
+        /// <param name="param"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         public virtual Task<ClientResult<TestModel>> TestAsync(TestModel body, string @param = default, CancellationToken cancellationToken = default) => throw null;
     }
 }

@@ -20,12 +20,22 @@ namespace Server.Endpoint.NotDefined
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Valid. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Valid(RequestOptions options) => throw null;
 
+        /// <summary> Valid. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> ValidAsync(RequestOptions options) => throw null;
 
+        /// <summary> Valid. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Valid(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Valid. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> ValidAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

@@ -13,24 +13,40 @@ namespace SpecialWords._Models
     {
         internal Assert() => throw null;
 
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<Assert>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         Assert IJsonModel<Assert>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual Assert JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         BinaryData IPersistableModel<Assert>.Write(ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         Assert IPersistableModel<Assert>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual Assert PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         string IPersistableModel<Assert>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="assert"> The <see cref="Assert"/> to serialize into <see cref="BinaryContent"/>. </param>
         public static implicit operator BinaryContent(Assert assert) => throw null;
     }
 }

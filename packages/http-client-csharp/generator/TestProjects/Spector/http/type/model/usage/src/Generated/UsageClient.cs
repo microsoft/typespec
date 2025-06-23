@@ -18,28 +18,74 @@ namespace _Type.Model.Usage
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Input. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Input(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Input. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> InputAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Input. </summary>
+        /// <param name="input"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="input"/> is null. </exception>
         public virtual ClientResult Input(InputRecord input, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Input. </summary>
+        /// <param name="input"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="input"/> is null. </exception>
         public virtual Task<ClientResult> InputAsync(InputRecord input, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Output. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Output(RequestOptions options) => throw null;
 
+        /// <summary> Output. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> OutputAsync(RequestOptions options) => throw null;
 
+        /// <summary> Output. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult<OutputRecord> Output(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Output. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult<OutputRecord>> OutputAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> InputAndOutput. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult InputAndOutput(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> InputAndOutput. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> InputAndOutputAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> InputAndOutput. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         public virtual ClientResult<InputOutputRecord> InputAndOutput(InputOutputRecord body, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> InputAndOutput. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         public virtual Task<ClientResult<InputOutputRecord>> InputAndOutputAsync(InputOutputRecord body, CancellationToken cancellationToken = default) => throw null;
     }
 }

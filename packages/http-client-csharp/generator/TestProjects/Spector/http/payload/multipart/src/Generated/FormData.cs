@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading.Tasks;
@@ -15,34 +16,119 @@ namespace Payload.MultiPart._FormData
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Test content-type: multipart/form-data. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="contentType"> The contentType to use which has the multipart/form-data boundary. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Basic(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
+        /// <summary> Test content-type: multipart/form-data. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="contentType"> The contentType to use which has the multipart/form-data boundary. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> BasicAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
+        /// <summary> Test content-type: multipart/form-data for mixed scenarios. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="contentType"> The contentType to use which has the multipart/form-data boundary. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult FileArrayAndBasic(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
+        /// <summary> Test content-type: multipart/form-data for mixed scenarios. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="contentType"> The contentType to use which has the multipart/form-data boundary. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> FileArrayAndBasicAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
+        /// <summary> Test content-type: multipart/form-data for scenario contains json part and binary part . </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="contentType"> The contentType to use which has the multipart/form-data boundary. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult JsonPart(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
+        /// <summary> Test content-type: multipart/form-data for scenario contains json part and binary part . </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="contentType"> The contentType to use which has the multipart/form-data boundary. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> JsonPartAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
+        /// <summary> Test content-type: multipart/form-data for scenario contains multi binary parts. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="contentType"> The contentType to use which has the multipart/form-data boundary. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult BinaryArrayParts(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
+        /// <summary> Test content-type: multipart/form-data for scenario contains multi binary parts. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="contentType"> The contentType to use which has the multipart/form-data boundary. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> BinaryArrayPartsAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
+        /// <summary> Test content-type: multipart/form-data for scenario contains multi binary parts. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="contentType"> The contentType to use which has the multipart/form-data boundary. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult MultiBinaryParts(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
+        /// <summary> Test content-type: multipart/form-data for scenario contains multi binary parts. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="contentType"> The contentType to use which has the multipart/form-data boundary. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> MultiBinaryPartsAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
+        /// <summary> Test content-type: multipart/form-data. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="contentType"> The contentType to use which has the multipart/form-data boundary. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult CheckFileNameAndContentType(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
+        /// <summary> Test content-type: multipart/form-data. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="contentType"> The contentType to use which has the multipart/form-data boundary. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> CheckFileNameAndContentTypeAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
+        /// <summary> Test content-type: multipart/form-data. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="contentType"> The contentType to use which has the multipart/form-data boundary. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult AnonymousModel(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
+        /// <summary> Test content-type: multipart/form-data. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="contentType"> The contentType to use which has the multipart/form-data boundary. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> AnonymousModelAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
+        /// <summary> Initializes a new instance of FormDataHttpParts. </summary>
         public virtual FormDataHttpParts GetFormDataHttpPartsClient() => throw null;
     }
 }

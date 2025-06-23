@@ -8,6 +8,9 @@ namespace _Type.Dictionary
 {
     public static partial class TypeDictionaryModelFactory
     {
+        /// <param name="property"> Required string property. </param>
+        /// <param name="children"></param>
+        /// <returns> A new <see cref="Dictionary.InnerModel"/> instance for mocking. </returns>
         public static InnerModel InnerModel(string @property = default, IDictionary<string, InnerModel> children = default) => throw null;
     }
 }

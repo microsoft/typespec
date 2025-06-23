@@ -12,6 +12,9 @@ namespace Payload.Pageable
     public static partial class PayloadPageableModelFactory
     {
 
+        /// <param name="id"></param>
+        /// <param name="name"></param>
+        /// <returns> A new <see cref="Pageable.Pet"/> instance for mocking. </returns>
         public static Pet Pet(string id = default, string name = default) => throw null;
     }
 }

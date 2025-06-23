@@ -28,6 +28,7 @@ namespace SampleTypeSpec
 
         private StringBuilder QueryBuilder => _queryBuilder  ??=  new StringBuilder(UriBuilder.Query);
 
+        /// <param name="uri"> The uri. </param>
         public void Reset(Uri uri)
         {
             _uriBuilder = new UriBuilder(uri);
@@ -35,6 +36,8 @@ namespace SampleTypeSpec
             _queryBuilder = new StringBuilder(UriBuilder.Query);
         }
 
+        /// <param name="value"> The value. </param>
+        /// <param name="escape"> The escape. </param>
         public void AppendPath(string value, bool escape)
         {
             if (escape)
@@ -49,24 +52,49 @@ namespace SampleTypeSpec
             UriBuilder.Path = PathBuilder.ToString();
         }
 
+        /// <param name="value"> The value. </param>
+        /// <param name="escape"> The escape. </param>
         public void AppendPath(bool value, bool escape = false) => AppendPath(TypeFormatters.ConvertToString(value), escape);
 
+        /// <param name="value"> The value. </param>
+        /// <param name="escape"> The escape. </param>
         public void AppendPath(float value, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value), escape);
 
+        /// <param name="value"> The value. </param>
+        /// <param name="escape"> The escape. </param>
         public void AppendPath(double value, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value), escape);
 
+        /// <param name="value"> The value. </param>
+        /// <param name="escape"> The escape. </param>
         public void AppendPath(int value, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value), escape);
 
+        /// <param name="value"> The value. </param>
+        /// <param name="format"> The format. </param>
+        /// <param name="escape"> The escape. </param>
         public void AppendPath(byte[] value, string format, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value, format), escape);
 
+        /// <param name="value"> The value. </param>
+        /// <param name="format"> The format. </param>
+        /// <param name="escape"> The escape. </param>
         public void AppendPath(DateTimeOffset value, string format, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value, format), escape);
 
+        /// <param name="value"> The value. </param>
+        /// <param name="format"> The format. </param>
+        /// <param name="escape"> The escape. </param>
         public void AppendPath(TimeSpan value, string format, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value, format), escape);
 
+        /// <param name="value"> The value. </param>
+        /// <param name="escape"> The escape. </param>
         public void AppendPath(Guid value, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value), escape);
 
+        /// <param name="value"> The value. </param>
+        /// <param name="escape"> The escape. </param>
         public void AppendPath(long value, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value), escape);
 
+        /// <param name="value"> The value. </param>
+        /// <param name="delimiter"> The delimiter. </param>
+        /// <param name="format"> The format. </param>
+        /// <param name="escape"> The escape. </param>
         public void AppendPathDelimited<T>(IEnumerable<T> value, string delimiter, string format = null, bool escape = true)
         {
             delimiter ??= ",";
@@ -74,6 +102,9 @@ namespace SampleTypeSpec
             AppendPath(string.Join(delimiter, stringValues), escape);
         }
 
+        /// <param name="name"> The name. </param>
+        /// <param name="value"> The value. </param>
+        /// <param name="escape"> The escape. </param>
         public void AppendQuery(string name, string value, bool escape)
         {
             if (QueryBuilder.Length > 0)
@@ -89,28 +120,69 @@ namespace SampleTypeSpec
             QueryBuilder.Append(value);
         }
 
+        /// <param name="name"> The name. </param>
+        /// <param name="value"> The value. </param>
+        /// <param name="escape"> The escape. </param>
         public void AppendQuery(string name, bool value, bool escape = false) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
 
+        /// <param name="name"> The name. </param>
+        /// <param name="value"> The value. </param>
+        /// <param name="escape"> The escape. </param>
         public void AppendQuery(string name, float value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
 
+        /// <param name="name"> The name. </param>
+        /// <param name="value"> The value. </param>
+        /// <param name="format"> The format. </param>
+        /// <param name="escape"> The escape. </param>
         public void AppendQuery(string name, DateTimeOffset value, string format, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value, format), escape);
 
+        /// <param name="name"> The name. </param>
+        /// <param name="value"> The value. </param>
+        /// <param name="format"> The format. </param>
+        /// <param name="escape"> The escape. </param>
         public void AppendQuery(string name, TimeSpan value, string format, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value, format), escape);
 
+        /// <param name="name"> The name. </param>
+        /// <param name="value"> The value. </param>
+        /// <param name="escape"> The escape. </param>
         public void AppendQuery(string name, double value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
 
+        /// <param name="name"> The name. </param>
+        /// <param name="value"> The value. </param>
+        /// <param name="escape"> The escape. </param>
         public void AppendQuery(string name, decimal value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
 
+        /// <param name="name"> The name. </param>
+        /// <param name="value"> The value. </param>
+        /// <param name="escape"> The escape. </param>
         public void AppendQuery(string name, int value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
 
+        /// <param name="name"> The name. </param>
+        /// <param name="value"> The value. </param>
+        /// <param name="escape"> The escape. </param>
         public void AppendQuery(string name, long value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
 
+        /// <param name="name"> The name. </param>
+        /// <param name="value"> The value. </param>
+        /// <param name="escape"> The escape. </param>
         public void AppendQuery(string name, TimeSpan value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
 
+        /// <param name="name"> The name. </param>
+        /// <param name="value"> The value. </param>
+        /// <param name="format"> The format. </param>
+        /// <param name="escape"> The escape. </param>
         public void AppendQuery(string name, byte[] value, string format, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value, format), escape);
 
+        /// <param name="name"> The name. </param>
+        /// <param name="value"> The value. </param>
+        /// <param name="escape"> The escape. </param>
         public void AppendQuery(string name, Guid value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
 
+        /// <param name="name"> The name. </param>
+        /// <param name="value"> The value. </param>
+        /// <param name="delimiter"> The delimiter. </param>
+        /// <param name="format"> The format. </param>
+        /// <param name="escape"> The escape. </param>
         public void AppendQueryDelimited<T>(string name, IEnumerable<T> value, string delimiter, string format = null, bool escape = true)
         {
             delimiter ??= ",";

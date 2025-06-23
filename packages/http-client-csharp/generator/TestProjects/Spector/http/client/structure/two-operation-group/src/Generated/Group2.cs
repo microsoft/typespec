@@ -15,28 +15,58 @@ namespace Client.Structure.TwoOperationGroup
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Two. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Two(RequestOptions options) => throw null;
 
+        /// <summary> Two. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> TwoAsync(RequestOptions options) => throw null;
 
+        /// <summary> Two. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Two(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Two. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> TwoAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Five. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Five(RequestOptions options) => throw null;
 
+        /// <summary> Five. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> FiveAsync(RequestOptions options) => throw null;
 
+        /// <summary> Five. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Five(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Five. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> FiveAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Six. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Six(RequestOptions options) => throw null;
 
+        /// <summary> Six. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> SixAsync(RequestOptions options) => throw null;
 
+        /// <summary> Six. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Six(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Six. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> SixAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

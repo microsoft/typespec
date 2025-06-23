@@ -18,52 +18,128 @@ namespace _Type.Model.Inheritance.NestedDiscriminator
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> GetModel. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult GetModel(RequestOptions options) => throw null;
 
+        /// <summary> GetModel. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> GetModelAsync(RequestOptions options) => throw null;
 
+        /// <summary> GetModel. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult<Fish> GetModel(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> GetModel. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult<Fish>> GetModelAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> PutModel. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult PutModel(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> PutModel. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> PutModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> PutModel. </summary>
+        /// <param name="input"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="input"/> is null. </exception>
         public virtual ClientResult PutModel(Fish input, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> PutModel. </summary>
+        /// <param name="input"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="input"/> is null. </exception>
         public virtual Task<ClientResult> PutModelAsync(Fish input, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> GetRecursiveModel. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult GetRecursiveModel(RequestOptions options) => throw null;
 
+        /// <summary> GetRecursiveModel. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> GetRecursiveModelAsync(RequestOptions options) => throw null;
 
+        /// <summary> GetRecursiveModel. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult<Fish> GetRecursiveModel(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> GetRecursiveModel. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult<Fish>> GetRecursiveModelAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> PutRecursiveModel. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult PutRecursiveModel(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> PutRecursiveModel. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> PutRecursiveModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> PutRecursiveModel. </summary>
+        /// <param name="input"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="input"/> is null. </exception>
         public virtual ClientResult PutRecursiveModel(Fish input, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> PutRecursiveModel. </summary>
+        /// <param name="input"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="input"/> is null. </exception>
         public virtual Task<ClientResult> PutRecursiveModelAsync(Fish input, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> GetMissingDiscriminator. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult GetMissingDiscriminator(RequestOptions options) => throw null;
 
+        /// <summary> GetMissingDiscriminator. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> GetMissingDiscriminatorAsync(RequestOptions options) => throw null;
 
+        /// <summary> GetMissingDiscriminator. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult<Fish> GetMissingDiscriminator(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> GetMissingDiscriminator. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult<Fish>> GetMissingDiscriminatorAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> GetWrongDiscriminator. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult GetWrongDiscriminator(RequestOptions options) => throw null;
 
+        /// <summary> GetWrongDiscriminator. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> GetWrongDiscriminatorAsync(RequestOptions options) => throw null;
 
+        /// <summary> GetWrongDiscriminator. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult<Fish> GetWrongDiscriminator(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> GetWrongDiscriminator. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult<Fish>> GetWrongDiscriminatorAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

@@ -8,6 +8,9 @@ namespace Versioning.Added.V1
 {
     public static partial class VersioningAddedV1ModelFactory
     {
+        /// <param name="prop"></param>
+        /// <param name="enumProp"></param>
+        /// <returns> A new <see cref="Added.ModelV1"/> instance for mocking. </returns>
         public static ModelV1 ModelV1(string prop = default, EnumV1 enumProp = default) => throw null;
     }
 }

@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -15,36 +16,96 @@ namespace Payload.MediaType._StringBody
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> SendAsText. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult SendAsText(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> SendAsText. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> SendAsTextAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> SendAsText. </summary>
+        /// <param name="text"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="text"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="text"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual ClientResult SendAsText(string text, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> SendAsText. </summary>
+        /// <param name="text"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="text"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="text"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual Task<ClientResult> SendAsTextAsync(string text, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> GetAsText. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult GetAsText(RequestOptions options) => throw null;
 
+        /// <summary> GetAsText. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> GetAsTextAsync(RequestOptions options) => throw null;
 
+        /// <summary> GetAsText. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult<string> GetAsText(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> GetAsText. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult<string>> GetAsTextAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> SendAsJson. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult SendAsJson(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> SendAsJson. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> SendAsJsonAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> SendAsJson. </summary>
+        /// <param name="text"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="text"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="text"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual ClientResult SendAsJson(string text, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> SendAsJson. </summary>
+        /// <param name="text"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="text"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="text"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual Task<ClientResult> SendAsJsonAsync(string text, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> GetAsJson. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult GetAsJson(RequestOptions options) => throw null;
 
+        /// <summary> GetAsJson. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> GetAsJsonAsync(RequestOptions options) => throw null;
 
+        /// <summary> GetAsJson. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult<string> GetAsJson(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> GetAsJson. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult<string>> GetAsJsonAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

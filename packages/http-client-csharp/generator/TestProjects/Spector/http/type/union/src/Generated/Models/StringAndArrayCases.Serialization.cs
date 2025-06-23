@@ -12,22 +12,37 @@ namespace _Type.Union
     {
         internal StringAndArrayCases() => throw null;
 
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<StringAndArrayCases>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         StringAndArrayCases IJsonModel<StringAndArrayCases>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual StringAndArrayCases JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         BinaryData IPersistableModel<StringAndArrayCases>.Write(ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         StringAndArrayCases IPersistableModel<StringAndArrayCases>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual StringAndArrayCases PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         string IPersistableModel<StringAndArrayCases>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
     }
 }

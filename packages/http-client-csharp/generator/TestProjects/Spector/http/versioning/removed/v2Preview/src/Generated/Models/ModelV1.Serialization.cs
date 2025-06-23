@@ -13,26 +13,43 @@ namespace Versioning.Removed
     {
         internal ModelV1() => throw null;
 
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<ModelV1>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         ModelV1 IJsonModel<ModelV1>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual ModelV1 JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         BinaryData IPersistableModel<ModelV1>.Write(ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         ModelV1 IPersistableModel<ModelV1>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual ModelV1 PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         string IPersistableModel<ModelV1>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="modelV1"> The <see cref="ModelV1"/> to serialize into <see cref="BinaryContent"/>. </param>
         public static implicit operator BinaryContent(ModelV1 modelV1) => throw null;
 
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ModelV1"/> from. </param>
         public static explicit operator ModelV1(ClientResult result) => throw null;
     }
 }

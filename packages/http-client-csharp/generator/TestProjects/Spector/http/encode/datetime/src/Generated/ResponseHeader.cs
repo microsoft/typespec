@@ -15,36 +15,76 @@ namespace Encode.Datetime._ResponseHeader
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Default. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Default(RequestOptions options) => throw null;
 
+        /// <summary> Default. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> DefaultAsync(RequestOptions options) => throw null;
 
+        /// <summary> Default. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Default(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Default. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> DefaultAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Rfc3339. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Rfc3339(RequestOptions options) => throw null;
 
+        /// <summary> Rfc3339. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> Rfc3339Async(RequestOptions options) => throw null;
 
+        /// <summary> Rfc3339. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Rfc3339(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Rfc3339. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> Rfc3339Async(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Rfc7231. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Rfc7231(RequestOptions options) => throw null;
 
+        /// <summary> Rfc7231. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> Rfc7231Async(RequestOptions options) => throw null;
 
+        /// <summary> Rfc7231. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Rfc7231(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Rfc7231. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> Rfc7231Async(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> UnixTimestamp. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult UnixTimestamp(RequestOptions options) => throw null;
 
+        /// <summary> UnixTimestamp. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> UnixTimestampAsync(RequestOptions options) => throw null;
 
+        /// <summary> UnixTimestamp. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult UnixTimestamp(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> UnixTimestamp. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> UnixTimestampAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

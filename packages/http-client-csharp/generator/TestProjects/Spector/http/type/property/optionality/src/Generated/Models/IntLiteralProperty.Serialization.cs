@@ -11,26 +11,43 @@ namespace _Type.Property.Optional
 {
     public partial class IntLiteralProperty : IJsonModel<IntLiteralProperty>
     {
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<IntLiteralProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         IntLiteralProperty IJsonModel<IntLiteralProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual IntLiteralProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         BinaryData IPersistableModel<IntLiteralProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         IntLiteralProperty IPersistableModel<IntLiteralProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual IntLiteralProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         string IPersistableModel<IntLiteralProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="intLiteralProperty"> The <see cref="IntLiteralProperty"/> to serialize into <see cref="BinaryContent"/>. </param>
         public static implicit operator BinaryContent(IntLiteralProperty intLiteralProperty) => throw null;
 
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="IntLiteralProperty"/> from. </param>
         public static explicit operator IntLiteralProperty(ClientResult result) => throw null;
     }
 }

@@ -8,6 +8,9 @@ namespace Versioning.TypeChangedFrom.V2
 {
     public static partial class VersioningTypeChangedFromV2ModelFactory
     {
+        /// <param name="prop"></param>
+        /// <param name="changedProp"></param>
+        /// <returns> A new <see cref="TypeChangedFrom.TestModel"/> instance for mocking. </returns>
         public static TestModel TestModel(string prop = default, string changedProp = default) => throw null;
     }
 }

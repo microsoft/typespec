@@ -18,20 +18,56 @@ namespace Payload.JsonMergePatch
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Test content-type: application/merge-patch+json with required body. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult CreateResource(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Test content-type: application/merge-patch+json with required body. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> CreateResourceAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Test content-type: application/merge-patch+json with required body. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         public virtual ClientResult<Resource> CreateResource(Resource body, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Test content-type: application/merge-patch+json with required body. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         public virtual Task<ClientResult<Resource>> CreateResourceAsync(Resource body, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Test content-type: application/merge-patch+json with required body. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult UpdateResource(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Test content-type: application/merge-patch+json with required body. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> UpdateResourceAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Test content-type: application/merge-patch+json with optional body. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult UpdateOptionalResource(BinaryContent content = null, RequestOptions options = null) => throw null;
 
+        /// <summary> Test content-type: application/merge-patch+json with optional body. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> UpdateOptionalResourceAsync(BinaryContent content = null, RequestOptions options = null) => throw null;
     }
 }

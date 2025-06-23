@@ -15,36 +15,124 @@ namespace Payload.Pageable._ServerDrivenPagination.ContinuationToken
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> RequestQueryResponseBody. </summary>
+        /// <param name="token"></param>
+        /// <param name="foo"></param>
+        /// <param name="bar"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual CollectionResult RequestQueryResponseBody(string token, string foo, string bar, RequestOptions options) => throw null;
 
+        /// <summary> RequestQueryResponseBody. </summary>
+        /// <param name="token"></param>
+        /// <param name="foo"></param>
+        /// <param name="bar"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual AsyncCollectionResult RequestQueryResponseBodyAsync(string token, string foo, string bar, RequestOptions options) => throw null;
 
+        /// <summary> RequestQueryResponseBody. </summary>
+        /// <param name="token"></param>
+        /// <param name="foo"></param>
+        /// <param name="bar"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual CollectionResult<Pet> RequestQueryResponseBody(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> RequestQueryResponseBody. </summary>
+        /// <param name="token"></param>
+        /// <param name="foo"></param>
+        /// <param name="bar"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual AsyncCollectionResult<Pet> RequestQueryResponseBodyAsync(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> RequestHeaderResponseBody. </summary>
+        /// <param name="token"></param>
+        /// <param name="foo"></param>
+        /// <param name="bar"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual CollectionResult RequestHeaderResponseBody(string token, string foo, string bar, RequestOptions options) => throw null;
 
+        /// <summary> RequestHeaderResponseBody. </summary>
+        /// <param name="token"></param>
+        /// <param name="foo"></param>
+        /// <param name="bar"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual AsyncCollectionResult RequestHeaderResponseBodyAsync(string token, string foo, string bar, RequestOptions options) => throw null;
 
+        /// <summary> RequestHeaderResponseBody. </summary>
+        /// <param name="token"></param>
+        /// <param name="foo"></param>
+        /// <param name="bar"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual CollectionResult<Pet> RequestHeaderResponseBody(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> RequestHeaderResponseBody. </summary>
+        /// <param name="token"></param>
+        /// <param name="foo"></param>
+        /// <param name="bar"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual AsyncCollectionResult<Pet> RequestHeaderResponseBodyAsync(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> RequestQueryResponseHeader. </summary>
+        /// <param name="token"></param>
+        /// <param name="foo"></param>
+        /// <param name="bar"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual CollectionResult RequestQueryResponseHeader(string token, string foo, string bar, RequestOptions options) => throw null;
 
+        /// <summary> RequestQueryResponseHeader. </summary>
+        /// <param name="token"></param>
+        /// <param name="foo"></param>
+        /// <param name="bar"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual AsyncCollectionResult RequestQueryResponseHeaderAsync(string token, string foo, string bar, RequestOptions options) => throw null;
 
+        /// <summary> RequestQueryResponseHeader. </summary>
+        /// <param name="token"></param>
+        /// <param name="foo"></param>
+        /// <param name="bar"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual CollectionResult<Pet> RequestQueryResponseHeader(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> RequestQueryResponseHeader. </summary>
+        /// <param name="token"></param>
+        /// <param name="foo"></param>
+        /// <param name="bar"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual AsyncCollectionResult<Pet> RequestQueryResponseHeaderAsync(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> RequestHeaderResponseHeader. </summary>
+        /// <param name="token"></param>
+        /// <param name="foo"></param>
+        /// <param name="bar"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual CollectionResult RequestHeaderResponseHeader(string token, string foo, string bar, RequestOptions options) => throw null;
 
+        /// <summary> RequestHeaderResponseHeader. </summary>
+        /// <param name="token"></param>
+        /// <param name="foo"></param>
+        /// <param name="bar"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual AsyncCollectionResult RequestHeaderResponseHeaderAsync(string token, string foo, string bar, RequestOptions options) => throw null;
 
+        /// <summary> RequestHeaderResponseHeader. </summary>
+        /// <param name="token"></param>
+        /// <param name="foo"></param>
+        /// <param name="bar"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual CollectionResult<Pet> RequestHeaderResponseHeader(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> RequestHeaderResponseHeader. </summary>
+        /// <param name="token"></param>
+        /// <param name="foo"></param>
+        /// <param name="bar"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual AsyncCollectionResult<Pet> RequestHeaderResponseHeaderAsync(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
     }
 }

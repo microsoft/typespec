@@ -8,6 +8,9 @@ namespace _Type._Array
 {
     public static partial class TypeArrayModelFactory
     {
+        /// <param name="property"> Required string property. </param>
+        /// <param name="children"></param>
+        /// <returns> A new <see cref="_Array.InnerModel"/> instance for mocking. </returns>
         public static InnerModel InnerModel(string @property = default, IEnumerable<InnerModel> children = default) => throw null;
     }
 }

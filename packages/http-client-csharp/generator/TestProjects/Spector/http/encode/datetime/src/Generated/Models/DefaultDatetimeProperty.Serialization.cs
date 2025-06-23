@@ -13,26 +13,43 @@ namespace Encode.Datetime
     {
         internal DefaultDatetimeProperty() => throw null;
 
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<DefaultDatetimeProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         DefaultDatetimeProperty IJsonModel<DefaultDatetimeProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual DefaultDatetimeProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         BinaryData IPersistableModel<DefaultDatetimeProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         DefaultDatetimeProperty IPersistableModel<DefaultDatetimeProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual DefaultDatetimeProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         string IPersistableModel<DefaultDatetimeProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="defaultDatetimeProperty"> The <see cref="DefaultDatetimeProperty"/> to serialize into <see cref="BinaryContent"/>. </param>
         public static implicit operator BinaryContent(DefaultDatetimeProperty defaultDatetimeProperty) => throw null;
 
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="DefaultDatetimeProperty"/> from. </param>
         public static explicit operator DefaultDatetimeProperty(ClientResult result) => throw null;
     }
 }

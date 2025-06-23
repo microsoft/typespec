@@ -16,14 +16,25 @@ namespace Payload.Pageable._ServerDrivenPagination
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Link. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual CollectionResult Link(RequestOptions options) => throw null;
 
+        /// <summary> Link. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual AsyncCollectionResult LinkAsync(RequestOptions options) => throw null;
 
+        /// <summary> Link. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual CollectionResult<Pet> Link(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Link. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual AsyncCollectionResult<Pet> LinkAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Initializes a new instance of ServerDrivenPaginationContinuationToken. </summary>
         public virtual ServerDrivenPaginationContinuationToken GetServerDrivenPaginationContinuationTokenClient() => throw null;
     }
 }

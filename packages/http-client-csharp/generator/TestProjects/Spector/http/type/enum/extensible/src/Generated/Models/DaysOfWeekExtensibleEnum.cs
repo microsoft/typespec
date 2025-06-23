@@ -25,20 +25,34 @@ namespace _Type._Enum.Extensible
 
         public static DaysOfWeekExtensibleEnum Sunday => throw null;
 
+        /// <summary> Determines if two <see cref="DaysOfWeekExtensibleEnum"/> values are the same. </summary>
+        /// <param name="left"> The left value to compare. </param>
+        /// <param name="right"> The right value to compare. </param>
         public static bool operator ==(DaysOfWeekExtensibleEnum left, DaysOfWeekExtensibleEnum right) => throw null;
 
+        /// <summary> Determines if two <see cref="DaysOfWeekExtensibleEnum"/> values are not the same. </summary>
+        /// <param name="left"> The left value to compare. </param>
+        /// <param name="right"> The right value to compare. </param>
         public static bool operator !=(DaysOfWeekExtensibleEnum left, DaysOfWeekExtensibleEnum right) => throw null;
 
+        /// <summary> Converts a string to a <see cref="DaysOfWeekExtensibleEnum"/>. </summary>
+        /// <param name="value"> The value. </param>
         public static implicit operator DaysOfWeekExtensibleEnum(string value) => throw null;
 
+        /// <summary></summary>
+        /// <param name="obj"> The object to compare. </param>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj) => throw null;
 
+        /// <summary></summary>
+        /// <param name="other"> The instance to compare. </param>
         public bool Equals(DaysOfWeekExtensibleEnum other) => throw null;
 
+        /// <summary></summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode() => throw null;
 
+        /// <summary></summary>
         public override string ToString() => throw null;
     }
 }

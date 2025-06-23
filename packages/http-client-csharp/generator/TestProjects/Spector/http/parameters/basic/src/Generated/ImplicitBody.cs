@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -15,12 +16,32 @@ namespace Parameters.Basic._ImplicitBody
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Simple. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Simple(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Simple. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> SimpleAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Simple. </summary>
+        /// <param name="name"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="name"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual ClientResult Simple(string name, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Simple. </summary>
+        /// <param name="name"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="name"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual Task<ClientResult> SimpleAsync(string name, CancellationToken cancellationToken = default) => throw null;
     }
 }

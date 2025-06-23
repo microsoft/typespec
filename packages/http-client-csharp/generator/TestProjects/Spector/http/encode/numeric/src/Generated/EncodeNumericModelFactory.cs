@@ -8,10 +8,16 @@ namespace Encode.Numeric
 {
     public static partial class EncodeNumericModelFactory
     {
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="_Property.SafeintAsStringProperty"/> instance for mocking. </returns>
         public static SafeintAsStringProperty SafeintAsStringProperty(long value = default) => throw null;
 
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="_Property.Uint32AsStringProperty"/> instance for mocking. </returns>
         public static Uint32AsStringProperty Uint32AsStringProperty(object value = default) => throw null;
 
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="_Property.Uint8AsStringProperty"/> instance for mocking. </returns>
         public static Uint8AsStringProperty Uint8AsStringProperty(byte value = default) => throw null;
     }
 }

@@ -15,12 +15,22 @@ namespace Client.Structure.Service._Qux
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Nine. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Nine(RequestOptions options) => throw null;
 
+        /// <summary> Nine. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> NineAsync(RequestOptions options) => throw null;
 
+        /// <summary> Nine. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Nine(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Nine. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> NineAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

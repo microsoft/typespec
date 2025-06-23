@@ -20,30 +20,93 @@ namespace Versioning.Removed
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> This operation should not be generated with latest version's signature. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult V1(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> This operation should not be generated with latest version's signature. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> V1Async(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> This operation should not be generated with latest version's signature. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         public virtual ClientResult<ModelV1> V1(ModelV1 body, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> This operation should not be generated with latest version's signature. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         public virtual Task<ClientResult<ModelV1>> V1Async(ModelV1 body, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> V2. </summary>
+        /// <param name="param"></param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult V2(string @param, BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> V2. </summary>
+        /// <param name="param"></param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> V2Async(string @param, BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> V2. </summary>
+        /// <param name="param"></param>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> or <paramref name="body"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual ClientResult<ModelV2> V2(string @param, ModelV2 body, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> V2. </summary>
+        /// <param name="param"></param>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> or <paramref name="body"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual Task<ClientResult<ModelV2>> V2Async(string @param, ModelV2 body, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> This operation will pass different paths and different request bodies based on different versions. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult ModelV3(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> This operation will pass different paths and different request bodies based on different versions. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> ModelV3Async(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> This operation will pass different paths and different request bodies based on different versions. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         public virtual ClientResult<ModelV3> ModelV3(ModelV3 body, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> This operation will pass different paths and different request bodies based on different versions. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         public virtual Task<ClientResult<ModelV3>> ModelV3Async(ModelV3 body, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Initializes a new instance of InterfaceV1. </summary>
         public virtual InterfaceV1 GetInterfaceV1Client() => throw null;
     }
 }

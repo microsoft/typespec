@@ -16,44 +16,134 @@ namespace Encode.Bytes._RequestBody
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Default. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Default(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Default. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> DefaultAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Default. </summary>
+        /// <param name="value"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
         public virtual ClientResult Default(BinaryData value, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Default. </summary>
+        /// <param name="value"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
         public virtual Task<ClientResult> DefaultAsync(BinaryData value, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> OctetStream. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult OctetStream(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> OctetStream. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> OctetStreamAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> OctetStream. </summary>
+        /// <param name="value"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
         public virtual ClientResult OctetStream(BinaryData value, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> OctetStream. </summary>
+        /// <param name="value"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
         public virtual Task<ClientResult> OctetStreamAsync(BinaryData value, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> CustomContentType. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult CustomContentType(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> CustomContentType. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> CustomContentTypeAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> CustomContentType. </summary>
+        /// <param name="value"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
         public virtual ClientResult CustomContentType(BinaryData value, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> CustomContentType. </summary>
+        /// <param name="value"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
         public virtual Task<ClientResult> CustomContentTypeAsync(BinaryData value, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Base64. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Base64(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Base64. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> Base64Async(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Base64. </summary>
+        /// <param name="value"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
         public virtual ClientResult Base64(BinaryData value, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Base64. </summary>
+        /// <param name="value"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
         public virtual Task<ClientResult> Base64Async(BinaryData value, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Base64url. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Base64url(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Base64url. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> Base64urlAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Base64url. </summary>
+        /// <param name="value"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
         public virtual ClientResult Base64url(BinaryData value, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Base64url. </summary>
+        /// <param name="value"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
         public virtual Task<ClientResult> Base64urlAsync(BinaryData value, CancellationToken cancellationToken = default) => throw null;
     }
 }

@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -15,28 +16,68 @@ namespace _Type.Property.Nullable
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Get models that will return all properties in the model. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult GetNonNull(RequestOptions options) => throw null;
 
+        /// <summary> Get models that will return all properties in the model. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> GetNonNullAsync(RequestOptions options) => throw null;
 
+        /// <summary> Get models that will return all properties in the model. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult<CollectionsModelProperty> GetNonNull(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Get models that will return all properties in the model. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult<CollectionsModelProperty>> GetNonNullAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Get models that will return the default object. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult GetNull(RequestOptions options) => throw null;
 
+        /// <summary> Get models that will return the default object. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> GetNullAsync(RequestOptions options) => throw null;
 
+        /// <summary> Get models that will return the default object. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult<CollectionsModelProperty> GetNull(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Get models that will return the default object. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult<CollectionsModelProperty>> GetNullAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Put a body with all properties present. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult PatchNonNull(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Put a body with all properties present. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> PatchNonNullAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Put a body with default properties. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult PatchNull(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Put a body with default properties. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> PatchNullAsync(BinaryContent content, RequestOptions options = null) => throw null;
     }
 }

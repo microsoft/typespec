@@ -15,66 +15,97 @@ namespace _Type.Property.AdditionalProperties
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Initializes a new instance of ExtendsUnknown. </summary>
         public virtual ExtendsUnknown GetExtendsUnknownClient() => throw null;
 
+        /// <summary> Initializes a new instance of ExtendsUnknownDerived. </summary>
         public virtual ExtendsUnknownDerived GetExtendsUnknownDerivedClient() => throw null;
 
+        /// <summary> Initializes a new instance of ExtendsUnknownDiscriminated. </summary>
         public virtual ExtendsUnknownDiscriminated GetExtendsUnknownDiscriminatedClient() => throw null;
 
+        /// <summary> Initializes a new instance of IsUnknown. </summary>
         public virtual IsUnknown GetIsUnknownClient() => throw null;
 
+        /// <summary> Initializes a new instance of IsUnknownDerived. </summary>
         public virtual IsUnknownDerived GetIsUnknownDerivedClient() => throw null;
 
+        /// <summary> Initializes a new instance of IsUnknownDiscriminated. </summary>
         public virtual IsUnknownDiscriminated GetIsUnknownDiscriminatedClient() => throw null;
 
+        /// <summary> Initializes a new instance of ExtendsString. </summary>
         public virtual ExtendsString GetExtendsStringClient() => throw null;
 
+        /// <summary> Initializes a new instance of IsString. </summary>
         public virtual IsString GetIsStringClient() => throw null;
 
+        /// <summary> Initializes a new instance of SpreadString. </summary>
         public virtual SpreadString GetSpreadStringClient() => throw null;
 
+        /// <summary> Initializes a new instance of ExtendsFloat. </summary>
         public virtual ExtendsFloat GetExtendsFloatClient() => throw null;
 
+        /// <summary> Initializes a new instance of IsFloat. </summary>
         public virtual IsFloat GetIsFloatClient() => throw null;
 
+        /// <summary> Initializes a new instance of SpreadFloat. </summary>
         public virtual SpreadFloat GetSpreadFloatClient() => throw null;
 
+        /// <summary> Initializes a new instance of ExtendsModel. </summary>
         public virtual ExtendsModel GetExtendsModelClient() => throw null;
 
+        /// <summary> Initializes a new instance of IsModel. </summary>
         public virtual IsModel GetIsModelClient() => throw null;
 
+        /// <summary> Initializes a new instance of SpreadModel. </summary>
         public virtual SpreadModel GetSpreadModelClient() => throw null;
 
+        /// <summary> Initializes a new instance of ExtendsModelArray. </summary>
         public virtual ExtendsModelArray GetExtendsModelArrayClient() => throw null;
 
+        /// <summary> Initializes a new instance of IsModelArray. </summary>
         public virtual IsModelArray GetIsModelArrayClient() => throw null;
 
+        /// <summary> Initializes a new instance of SpreadModelArray. </summary>
         public virtual SpreadModelArray GetSpreadModelArrayClient() => throw null;
 
+        /// <summary> Initializes a new instance of SpreadDifferentString. </summary>
         public virtual SpreadDifferentString GetSpreadDifferentStringClient() => throw null;
 
+        /// <summary> Initializes a new instance of SpreadDifferentFloat. </summary>
         public virtual SpreadDifferentFloat GetSpreadDifferentFloatClient() => throw null;
 
+        /// <summary> Initializes a new instance of SpreadDifferentModel. </summary>
         public virtual SpreadDifferentModel GetSpreadDifferentModelClient() => throw null;
 
+        /// <summary> Initializes a new instance of SpreadDifferentModelArray. </summary>
         public virtual SpreadDifferentModelArray GetSpreadDifferentModelArrayClient() => throw null;
 
+        /// <summary> Initializes a new instance of ExtendsDifferentSpreadString. </summary>
         public virtual ExtendsDifferentSpreadString GetExtendsDifferentSpreadStringClient() => throw null;
 
+        /// <summary> Initializes a new instance of ExtendsDifferentSpreadFloat. </summary>
         public virtual ExtendsDifferentSpreadFloat GetExtendsDifferentSpreadFloatClient() => throw null;
 
+        /// <summary> Initializes a new instance of ExtendsDifferentSpreadModel. </summary>
         public virtual ExtendsDifferentSpreadModel GetExtendsDifferentSpreadModelClient() => throw null;
 
+        /// <summary> Initializes a new instance of ExtendsDifferentSpreadModelArray. </summary>
         public virtual ExtendsDifferentSpreadModelArray GetExtendsDifferentSpreadModelArrayClient() => throw null;
 
+        /// <summary> Initializes a new instance of MultipleSpread. </summary>
         public virtual MultipleSpread GetMultipleSpreadClient() => throw null;
 
+        /// <summary> Initializes a new instance of SpreadRecordUnion. </summary>
         public virtual SpreadRecordUnion GetSpreadRecordUnionClient() => throw null;
 
+        /// <summary> Initializes a new instance of SpreadRecordNonDiscriminatedUnion. </summary>
         public virtual SpreadRecordNonDiscriminatedUnion GetSpreadRecordNonDiscriminatedUnionClient() => throw null;
 
+        /// <summary> Initializes a new instance of SpreadRecordNonDiscriminatedUnion2. </summary>
         public virtual SpreadRecordNonDiscriminatedUnion2 GetSpreadRecordNonDiscriminatedUnion2Client() => throw null;
 
+        /// <summary> Initializes a new instance of SpreadRecordNonDiscriminatedUnion3. </summary>
         public virtual SpreadRecordNonDiscriminatedUnion3 GetSpreadRecordNonDiscriminatedUnion3Client() => throw null;
     }
 }

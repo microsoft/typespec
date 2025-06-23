@@ -9,10 +9,22 @@ namespace Versioning.Removed.V1
 {
     public static partial class VersioningRemovedV1ModelFactory
     {
+        /// <param name="prop"></param>
+        /// <param name="enumProp"></param>
+        /// <param name="unionProp"></param>
+        /// <returns> A new <see cref="Removed.ModelV1"/> instance for mocking. </returns>
         public static ModelV1 ModelV1(string prop = default, EnumV1 enumProp = default, BinaryData unionProp = default) => throw null;
 
+        /// <param name="prop"></param>
+        /// <param name="removedProp"></param>
+        /// <param name="enumProp"></param>
+        /// <param name="unionProp"></param>
+        /// <returns> A new <see cref="Removed.ModelV2"/> instance for mocking. </returns>
         public static ModelV2 ModelV2(string prop = default, string removedProp = default, EnumV2 enumProp = default, BinaryData unionProp = default) => throw null;
 
+        /// <param name="id"></param>
+        /// <param name="enumProp"></param>
+        /// <returns> A new <see cref="Removed.ModelV3"/> instance for mocking. </returns>
         public static ModelV3 ModelV3(string id = default, EnumV3 enumProp = default) => throw null;
     }
 }

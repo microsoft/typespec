@@ -15,18 +15,25 @@ namespace _Type.Scalar
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Initializes a new instance of String. </summary>
         public virtual String GetStringClient() => throw null;
 
+        /// <summary> Initializes a new instance of Boolean. </summary>
         public virtual Boolean GetBooleanClient() => throw null;
 
+        /// <summary> Initializes a new instance of Unknown. </summary>
         public virtual Unknown GetUnknownClient() => throw null;
 
+        /// <summary> Initializes a new instance of DecimalType. </summary>
         public virtual DecimalType GetDecimalTypeClient() => throw null;
 
+        /// <summary> Initializes a new instance of Decimal128Type. </summary>
         public virtual Decimal128Type GetDecimal128TypeClient() => throw null;
 
+        /// <summary> Initializes a new instance of DecimalVerify. </summary>
         public virtual DecimalVerify GetDecimalVerifyClient() => throw null;
 
+        /// <summary> Initializes a new instance of Decimal128Verify. </summary>
         public virtual Decimal128Verify GetDecimal128VerifyClient() => throw null;
     }
 }

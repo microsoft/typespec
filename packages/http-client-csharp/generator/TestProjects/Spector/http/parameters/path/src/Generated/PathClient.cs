@@ -18,20 +18,56 @@ namespace Parameters.Path
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Normal. </summary>
+        /// <param name="name"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="name"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Normal(string name, RequestOptions options) => throw null;
 
+        /// <summary> Normal. </summary>
+        /// <param name="name"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="name"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> NormalAsync(string name, RequestOptions options) => throw null;
 
+        /// <summary> Normal. </summary>
+        /// <param name="name"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="name"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual ClientResult Normal(string name, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Normal. </summary>
+        /// <param name="name"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="name"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual Task<ClientResult> NormalAsync(string name, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Optional. </summary>
+        /// <param name="name"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Optional(string name, RequestOptions options) => throw null;
 
+        /// <summary> Optional. </summary>
+        /// <param name="name"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> OptionalAsync(string name, RequestOptions options) => throw null;
 
+        /// <summary> Optional. </summary>
+        /// <param name="name"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Optional(string name = default, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Optional. </summary>
+        /// <param name="name"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> OptionalAsync(string name = default, CancellationToken cancellationToken = default) => throw null;
     }
 }

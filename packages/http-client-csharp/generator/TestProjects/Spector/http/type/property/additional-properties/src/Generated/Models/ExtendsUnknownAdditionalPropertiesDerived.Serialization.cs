@@ -13,26 +13,43 @@ namespace _Type.Property.AdditionalProperties
     {
         internal ExtendsUnknownAdditionalPropertiesDerived() => throw null;
 
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<ExtendsUnknownAdditionalPropertiesDerived>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         ExtendsUnknownAdditionalPropertiesDerived IJsonModel<ExtendsUnknownAdditionalPropertiesDerived>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected override ExtendsUnknownAdditionalProperties JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         BinaryData IPersistableModel<ExtendsUnknownAdditionalPropertiesDerived>.Write(ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         ExtendsUnknownAdditionalPropertiesDerived IPersistableModel<ExtendsUnknownAdditionalPropertiesDerived>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected override ExtendsUnknownAdditionalProperties PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         string IPersistableModel<ExtendsUnknownAdditionalPropertiesDerived>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="extendsUnknownAdditionalPropertiesDerived"> The <see cref="ExtendsUnknownAdditionalPropertiesDerived"/> to serialize into <see cref="BinaryContent"/>. </param>
         public static implicit operator BinaryContent(ExtendsUnknownAdditionalPropertiesDerived extendsUnknownAdditionalPropertiesDerived) => throw null;
 
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ExtendsUnknownAdditionalPropertiesDerived"/> from. </param>
         public static explicit operator ExtendsUnknownAdditionalPropertiesDerived(ClientResult result) => throw null;
     }
 }

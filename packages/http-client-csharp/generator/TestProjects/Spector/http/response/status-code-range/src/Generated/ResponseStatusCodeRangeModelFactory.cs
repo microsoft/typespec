@@ -6,8 +6,14 @@ namespace Response.StatusCodeRange
 {
     public static partial class ResponseStatusCodeRangeModelFactory
     {
+        /// <param name="code"></param>
+        /// <param name="message"></param>
+        /// <returns> A new <see cref="StatusCodeRange.ErrorInRange"/> instance for mocking. </returns>
         public static ErrorInRange ErrorInRange(string code = default, string message = default) => throw null;
 
+        /// <param name="code"></param>
+        /// <param name="resourceId"></param>
+        /// <returns> A new <see cref="StatusCodeRange.NotFoundError"/> instance for mocking. </returns>
         public static NotFoundError NotFoundError(string code = default, string resourceId = default) => throw null;
     }
 }

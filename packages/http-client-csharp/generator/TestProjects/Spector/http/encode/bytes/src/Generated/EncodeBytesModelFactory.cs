@@ -9,12 +9,20 @@ namespace Encode.Bytes
 {
     public static partial class EncodeBytesModelFactory
     {
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="Bytes.DefaultBytesProperty"/> instance for mocking. </returns>
         public static DefaultBytesProperty DefaultBytesProperty(BinaryData value = default) => throw null;
 
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="Bytes.Base64BytesProperty"/> instance for mocking. </returns>
         public static Base64BytesProperty Base64BytesProperty(BinaryData value = default) => throw null;
 
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="Bytes.Base64urlBytesProperty"/> instance for mocking. </returns>
         public static Base64urlBytesProperty Base64urlBytesProperty(BinaryData value = default) => throw null;
 
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="Bytes.Base64urlArrayBytesProperty"/> instance for mocking. </returns>
         public static Base64urlArrayBytesProperty Base64urlArrayBytesProperty(IEnumerable<BinaryData> value = default) => throw null;
     }
 }

@@ -16,44 +16,94 @@ namespace Encode.Bytes._ResponseBody
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Default. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Default(RequestOptions options) => throw null;
 
+        /// <summary> Default. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> DefaultAsync(RequestOptions options) => throw null;
 
+        /// <summary> Default. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult<BinaryData> Default(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Default. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult<BinaryData>> DefaultAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> OctetStream. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult OctetStream(RequestOptions options) => throw null;
 
+        /// <summary> OctetStream. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> OctetStreamAsync(RequestOptions options) => throw null;
 
+        /// <summary> OctetStream. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult<BinaryData> OctetStream(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> OctetStream. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult<BinaryData>> OctetStreamAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> CustomContentType. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult CustomContentType(RequestOptions options) => throw null;
 
+        /// <summary> CustomContentType. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> CustomContentTypeAsync(RequestOptions options) => throw null;
 
+        /// <summary> CustomContentType. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult<BinaryData> CustomContentType(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> CustomContentType. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult<BinaryData>> CustomContentTypeAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Base64. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Base64(RequestOptions options) => throw null;
 
+        /// <summary> Base64. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> Base64Async(RequestOptions options) => throw null;
 
+        /// <summary> Base64. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult<BinaryData> Base64(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Base64. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult<BinaryData>> Base64Async(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Base64url. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Base64url(RequestOptions options) => throw null;
 
+        /// <summary> Base64url. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> Base64urlAsync(RequestOptions options) => throw null;
 
+        /// <summary> Base64url. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult<BinaryData> Base64url(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Base64url. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult<BinaryData>> Base64urlAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

@@ -14,8 +14,10 @@ namespace Routes._QueryParameters.QueryContinuation
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Initializes a new instance of QueryParametersQueryContinuationStandard. </summary>
         public virtual QueryParametersQueryContinuationStandard GetQueryParametersQueryContinuationStandardClient() => throw null;
 
+        /// <summary> Initializes a new instance of QueryParametersQueryContinuationExplode. </summary>
         public virtual QueryParametersQueryContinuationExplode GetQueryParametersQueryContinuationExplodeClient() => throw null;
     }
 }

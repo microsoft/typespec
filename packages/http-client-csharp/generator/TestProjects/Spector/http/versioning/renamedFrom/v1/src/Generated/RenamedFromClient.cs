@@ -20,14 +20,41 @@ namespace Versioning.RenamedFrom
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> OldOp. </summary>
+        /// <param name="oldQuery"></param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="oldQuery"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="oldQuery"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult OldOp(string oldQuery, BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> OldOp. </summary>
+        /// <param name="oldQuery"></param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="oldQuery"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="oldQuery"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> OldOpAsync(string oldQuery, BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> OldOp. </summary>
+        /// <param name="oldQuery"></param>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="oldQuery"/> or <paramref name="body"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="oldQuery"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual ClientResult<OldModel> OldOp(string oldQuery, OldModel body, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> OldOp. </summary>
+        /// <param name="oldQuery"></param>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="oldQuery"/> or <paramref name="body"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="oldQuery"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual Task<ClientResult<OldModel>> OldOpAsync(string oldQuery, OldModel body, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Initializes a new instance of OldInterface. </summary>
         public virtual OldInterface GetOldInterfaceClient() => throw null;
     }
 }

@@ -8,8 +8,13 @@ namespace _Type.Model.Inheritance.Recursive
 {
     public static partial class TypeModelInheritanceRecursiveModelFactory
     {
+        /// <param name="extension"></param>
+        /// <param name="level"></param>
+        /// <returns> A new <see cref="Recursive.Extension"/> instance for mocking. </returns>
         public static Extension Extension(IEnumerable<Extension> extension = default, sbyte level = default) => throw null;
 
+        /// <param name="extension"></param>
+        /// <returns> A new <see cref="Recursive.Element"/> instance for mocking. </returns>
         public static Element Element(IEnumerable<Extension> extension = default) => throw null;
     }
 }

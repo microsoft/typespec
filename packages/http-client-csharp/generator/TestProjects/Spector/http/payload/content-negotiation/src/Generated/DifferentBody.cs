@@ -16,20 +16,40 @@ namespace Payload.ContentNegotiation._DifferentBody
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> GetAvatarAsPng. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult GetAvatarAsPng(RequestOptions options) => throw null;
 
+        /// <summary> GetAvatarAsPng. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> GetAvatarAsPngAsync(RequestOptions options) => throw null;
 
+        /// <summary> GetAvatarAsPng. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult<BinaryData> GetAvatarAsPng(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> GetAvatarAsPng. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult<BinaryData>> GetAvatarAsPngAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> GetAvatarAsJson. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult GetAvatarAsJson(RequestOptions options) => throw null;
 
+        /// <summary> GetAvatarAsJson. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> GetAvatarAsJsonAsync(RequestOptions options) => throw null;
 
+        /// <summary> GetAvatarAsJson. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult<PngImageAsJson> GetAvatarAsJson(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> GetAvatarAsJson. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult<PngImageAsJson>> GetAvatarAsJsonAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

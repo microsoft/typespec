@@ -20,28 +20,82 @@ namespace Server.Versions.NotVersioned
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> WithoutApiVersion. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult WithoutApiVersion(RequestOptions options) => throw null;
 
+        /// <summary> WithoutApiVersion. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> WithoutApiVersionAsync(RequestOptions options) => throw null;
 
+        /// <summary> WithoutApiVersion. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult WithoutApiVersion(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> WithoutApiVersion. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> WithoutApiVersionAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> WithQueryApiVersion. </summary>
+        /// <param name="apiVersion"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="apiVersion"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="apiVersion"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult WithQueryApiVersion(string apiVersion, RequestOptions options) => throw null;
 
+        /// <summary> WithQueryApiVersion. </summary>
+        /// <param name="apiVersion"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="apiVersion"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="apiVersion"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> WithQueryApiVersionAsync(string apiVersion, RequestOptions options) => throw null;
 
+        /// <summary> WithQueryApiVersion. </summary>
+        /// <param name="apiVersion"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="apiVersion"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="apiVersion"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual ClientResult WithQueryApiVersion(string apiVersion, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> WithQueryApiVersion. </summary>
+        /// <param name="apiVersion"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="apiVersion"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="apiVersion"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual Task<ClientResult> WithQueryApiVersionAsync(string apiVersion, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> WithPathApiVersion. </summary>
+        /// <param name="apiVersion"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="apiVersion"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="apiVersion"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult WithPathApiVersion(string apiVersion, RequestOptions options) => throw null;
 
+        /// <summary> WithPathApiVersion. </summary>
+        /// <param name="apiVersion"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="apiVersion"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="apiVersion"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> WithPathApiVersionAsync(string apiVersion, RequestOptions options) => throw null;
 
+        /// <summary> WithPathApiVersion. </summary>
+        /// <param name="apiVersion"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="apiVersion"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="apiVersion"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual ClientResult WithPathApiVersion(string apiVersion, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> WithPathApiVersion. </summary>
+        /// <param name="apiVersion"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="apiVersion"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="apiVersion"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual Task<ClientResult> WithPathApiVersionAsync(string apiVersion, CancellationToken cancellationToken = default) => throw null;
     }
 }

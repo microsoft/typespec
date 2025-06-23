@@ -9,6 +9,10 @@ namespace Versioning.RenamedFrom.V1
 {
     public static partial class VersioningRenamedFromV1ModelFactory
     {
+        /// <param name="oldProp"></param>
+        /// <param name="enumProp"></param>
+        /// <param name="unionProp"></param>
+        /// <returns> A new <see cref="RenamedFrom.OldModel"/> instance for mocking. </returns>
         public static OldModel OldModel(string oldProp = default, OldEnum enumProp = default, BinaryData unionProp = default) => throw null;
     }
 }

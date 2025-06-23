@@ -17,8 +17,10 @@ namespace Parameters.Spread
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Initializes a new instance of Model. </summary>
         public virtual Model GetModelClient() => throw null;
 
+        /// <summary> Initializes a new instance of Alias. </summary>
         public virtual Alias GetAliasClient() => throw null;
     }
 }

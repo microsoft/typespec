@@ -16,6 +16,7 @@ namespace Payload.MultiPart
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Initializes a new instance of FormData. </summary>
         public virtual FormData GetFormDataClient() => throw null;
     }
 }

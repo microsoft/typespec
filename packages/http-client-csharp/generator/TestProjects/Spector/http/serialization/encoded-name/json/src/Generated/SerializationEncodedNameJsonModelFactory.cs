@@ -8,6 +8,8 @@ namespace Serialization.EncodedName.Json
 {
     public static partial class SerializationEncodedNameJsonModelFactory
     {
+        /// <param name="defaultName"> Pass in true. </param>
+        /// <returns> A new <see cref="_Property.JsonEncodedNameModel"/> instance for mocking. </returns>
         public static JsonEncodedNameModel JsonEncodedNameModel(bool defaultName = default) => throw null;
     }
 }

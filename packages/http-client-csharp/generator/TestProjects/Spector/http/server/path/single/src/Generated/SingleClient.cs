@@ -20,12 +20,22 @@ namespace Server.Path.Single
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> MyOp. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult MyOp(RequestOptions options) => throw null;
 
+        /// <summary> MyOp. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> MyOpAsync(RequestOptions options) => throw null;
 
+        /// <summary> MyOp. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult MyOp(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> MyOp. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> MyOpAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

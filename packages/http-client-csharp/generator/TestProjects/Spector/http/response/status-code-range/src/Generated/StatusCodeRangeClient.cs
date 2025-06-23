@@ -18,20 +18,40 @@ namespace Response.StatusCodeRange
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> ErrorResponseStatusCodeInRange. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult ErrorResponseStatusCodeInRange(RequestOptions options) => throw null;
 
+        /// <summary> ErrorResponseStatusCodeInRange. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> ErrorResponseStatusCodeInRangeAsync(RequestOptions options) => throw null;
 
+        /// <summary> ErrorResponseStatusCodeInRange. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult ErrorResponseStatusCodeInRange(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> ErrorResponseStatusCodeInRange. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> ErrorResponseStatusCodeInRangeAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> ErrorResponseStatusCode404. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult ErrorResponseStatusCode404(RequestOptions options) => throw null;
 
+        /// <summary> ErrorResponseStatusCode404. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> ErrorResponseStatusCode404Async(RequestOptions options) => throw null;
 
+        /// <summary> ErrorResponseStatusCode404. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult ErrorResponseStatusCode404(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> ErrorResponseStatusCode404. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> ErrorResponseStatusCode404Async(CancellationToken cancellationToken = default) => throw null;
     }
 }

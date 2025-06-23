@@ -18,8 +18,10 @@ namespace Client.Structure.TwoOperationGroup
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Initializes a new instance of Group1. </summary>
         public virtual Group1 GetGroup1Client() => throw null;
 
+        /// <summary> Initializes a new instance of Group2. </summary>
         public virtual Group2 GetGroup2Client() => throw null;
     }
 }

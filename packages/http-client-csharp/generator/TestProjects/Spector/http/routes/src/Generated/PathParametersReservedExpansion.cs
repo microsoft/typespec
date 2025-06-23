@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -15,20 +16,64 @@ namespace Routes._PathParameters.ReservedExpansion
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Template. </summary>
+        /// <param name="param"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Template(string @param, RequestOptions options) => throw null;
 
+        /// <summary> Template. </summary>
+        /// <param name="param"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> TemplateAsync(string @param, RequestOptions options) => throw null;
 
+        /// <summary> Template. </summary>
+        /// <param name="param"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual ClientResult Template(string @param, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Template. </summary>
+        /// <param name="param"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual Task<ClientResult> TemplateAsync(string @param, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Annotation. </summary>
+        /// <param name="param"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Annotation(string @param, RequestOptions options) => throw null;
 
+        /// <summary> Annotation. </summary>
+        /// <param name="param"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> AnnotationAsync(string @param, RequestOptions options) => throw null;
 
+        /// <summary> Annotation. </summary>
+        /// <param name="param"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual ClientResult Annotation(string @param, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Annotation. </summary>
+        /// <param name="param"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual Task<ClientResult> AnnotationAsync(string @param, CancellationToken cancellationToken = default) => throw null;
     }
 }

@@ -100,6 +100,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             Signature = updated.Signature;
+            if (XmlDocs is not null)
+            {
+                XmlDocs =  MethodProviderHelpers.BuildXmlDocs(Signature);
+            }
 
             if (BodyExpression != null)
             {

@@ -18,36 +18,124 @@ namespace SpecialHeaders.ConditionalRequest
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Check when only If-Match in header is defined. </summary>
+        /// <param name="ifMatch"> The request should only proceed if an entity matches this string. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult PostIfMatch(string ifMatch, RequestOptions options) => throw null;
 
+        /// <summary> Check when only If-Match in header is defined. </summary>
+        /// <param name="ifMatch"> The request should only proceed if an entity matches this string. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> PostIfMatchAsync(string ifMatch, RequestOptions options) => throw null;
 
+        /// <summary> Check when only If-Match in header is defined. </summary>
+        /// <param name="ifMatch"> The request should only proceed if an entity matches this string. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult PostIfMatch(string ifMatch = default, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Check when only If-Match in header is defined. </summary>
+        /// <param name="ifMatch"> The request should only proceed if an entity matches this string. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> PostIfMatchAsync(string ifMatch = default, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Check when only If-None-Match in header is defined. </summary>
+        /// <param name="ifNoneMatch"> The request should only proceed if no entity matches this string. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult PostIfNoneMatch(string ifNoneMatch, RequestOptions options) => throw null;
 
+        /// <summary> Check when only If-None-Match in header is defined. </summary>
+        /// <param name="ifNoneMatch"> The request should only proceed if no entity matches this string. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> PostIfNoneMatchAsync(string ifNoneMatch, RequestOptions options) => throw null;
 
+        /// <summary> Check when only If-None-Match in header is defined. </summary>
+        /// <param name="ifNoneMatch"> The request should only proceed if no entity matches this string. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult PostIfNoneMatch(string ifNoneMatch = default, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Check when only If-None-Match in header is defined. </summary>
+        /// <param name="ifNoneMatch"> The request should only proceed if no entity matches this string. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> PostIfNoneMatchAsync(string ifNoneMatch = default, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Check when only If-Modified-Since in header is defined. </summary>
+        /// <param name="ifModifiedSince">
+        /// A timestamp indicating the last modified time of the resource known to the
+        /// client. The operation will be performed only if the resource on the service has
+        /// been modified since the specified time.
+        /// </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult HeadIfModifiedSince(DateTimeOffset? ifModifiedSince, RequestOptions options) => throw null;
 
+        /// <summary> Check when only If-Modified-Since in header is defined. </summary>
+        /// <param name="ifModifiedSince">
+        /// A timestamp indicating the last modified time of the resource known to the
+        /// client. The operation will be performed only if the resource on the service has
+        /// been modified since the specified time.
+        /// </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> HeadIfModifiedSinceAsync(DateTimeOffset? ifModifiedSince, RequestOptions options) => throw null;
 
+        /// <summary> Check when only If-Modified-Since in header is defined. </summary>
+        /// <param name="ifModifiedSince">
+        /// A timestamp indicating the last modified time of the resource known to the
+        /// client. The operation will be performed only if the resource on the service has
+        /// been modified since the specified time.
+        /// </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult HeadIfModifiedSince(DateTimeOffset? ifModifiedSince = default, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Check when only If-Modified-Since in header is defined. </summary>
+        /// <param name="ifModifiedSince">
+        /// A timestamp indicating the last modified time of the resource known to the
+        /// client. The operation will be performed only if the resource on the service has
+        /// been modified since the specified time.
+        /// </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> HeadIfModifiedSinceAsync(DateTimeOffset? ifModifiedSince = default, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Check when only If-Unmodified-Since in header is defined. </summary>
+        /// <param name="ifUnmodifiedSince">
+        /// A timestamp indicating the last modified time of the resource known to the
+        /// client. The operation will be performed only if the resource on the service has
+        /// not been modified since the specified time.
+        /// </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult PostIfUnmodifiedSince(DateTimeOffset? ifUnmodifiedSince, RequestOptions options) => throw null;
 
+        /// <summary> Check when only If-Unmodified-Since in header is defined. </summary>
+        /// <param name="ifUnmodifiedSince">
+        /// A timestamp indicating the last modified time of the resource known to the
+        /// client. The operation will be performed only if the resource on the service has
+        /// not been modified since the specified time.
+        /// </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> PostIfUnmodifiedSinceAsync(DateTimeOffset? ifUnmodifiedSince, RequestOptions options) => throw null;
 
+        /// <summary> Check when only If-Unmodified-Since in header is defined. </summary>
+        /// <param name="ifUnmodifiedSince">
+        /// A timestamp indicating the last modified time of the resource known to the
+        /// client. The operation will be performed only if the resource on the service has
+        /// not been modified since the specified time.
+        /// </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult PostIfUnmodifiedSince(DateTimeOffset? ifUnmodifiedSince = default, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Check when only If-Unmodified-Since in header is defined. </summary>
+        /// <param name="ifUnmodifiedSince">
+        /// A timestamp indicating the last modified time of the resource known to the
+        /// client. The operation will be performed only if the resource on the service has
+        /// not been modified since the specified time.
+        /// </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> PostIfUnmodifiedSinceAsync(DateTimeOffset? ifUnmodifiedSince = default, CancellationToken cancellationToken = default) => throw null;
     }
 }

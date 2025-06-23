@@ -15,14 +15,25 @@ namespace Client.Structure.Service._Qux
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Eight. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Eight(RequestOptions options) => throw null;
 
+        /// <summary> Eight. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> EightAsync(RequestOptions options) => throw null;
 
+        /// <summary> Eight. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Eight(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Eight. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> EightAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Initializes a new instance of QuxBar. </summary>
         public virtual QuxBar GetQuxBarClient() => throw null;
     }
 }

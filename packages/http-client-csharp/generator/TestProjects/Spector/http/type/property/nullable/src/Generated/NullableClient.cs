@@ -15,18 +15,25 @@ namespace _Type.Property.Nullable
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Initializes a new instance of String. </summary>
         public virtual String GetStringClient() => throw null;
 
+        /// <summary> Initializes a new instance of Bytes. </summary>
         public virtual Bytes GetBytesClient() => throw null;
 
+        /// <summary> Initializes a new instance of Datetime. </summary>
         public virtual Datetime GetDatetimeClient() => throw null;
 
+        /// <summary> Initializes a new instance of Duration. </summary>
         public virtual Duration GetDurationClient() => throw null;
 
+        /// <summary> Initializes a new instance of CollectionsByte. </summary>
         public virtual CollectionsByte GetCollectionsByteClient() => throw null;
 
+        /// <summary> Initializes a new instance of CollectionsModel. </summary>
         public virtual CollectionsModel GetCollectionsModelClient() => throw null;
 
+        /// <summary> Initializes a new instance of CollectionsString. </summary>
         public virtual CollectionsString GetCollectionsStringClient() => throw null;
     }
 }

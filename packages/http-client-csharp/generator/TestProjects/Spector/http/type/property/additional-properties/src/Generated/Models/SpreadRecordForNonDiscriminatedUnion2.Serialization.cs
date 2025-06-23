@@ -13,26 +13,43 @@ namespace _Type.Property.AdditionalProperties
     {
         internal SpreadRecordForNonDiscriminatedUnion2() => throw null;
 
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<SpreadRecordForNonDiscriminatedUnion2>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         SpreadRecordForNonDiscriminatedUnion2 IJsonModel<SpreadRecordForNonDiscriminatedUnion2>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual SpreadRecordForNonDiscriminatedUnion2 JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         BinaryData IPersistableModel<SpreadRecordForNonDiscriminatedUnion2>.Write(ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         SpreadRecordForNonDiscriminatedUnion2 IPersistableModel<SpreadRecordForNonDiscriminatedUnion2>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual SpreadRecordForNonDiscriminatedUnion2 PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         string IPersistableModel<SpreadRecordForNonDiscriminatedUnion2>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="spreadRecordForNonDiscriminatedUnion2"> The <see cref="SpreadRecordForNonDiscriminatedUnion2"/> to serialize into <see cref="BinaryContent"/>. </param>
         public static implicit operator BinaryContent(SpreadRecordForNonDiscriminatedUnion2 spreadRecordForNonDiscriminatedUnion2) => throw null;
 
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="SpreadRecordForNonDiscriminatedUnion2"/> from. </param>
         public static explicit operator SpreadRecordForNonDiscriminatedUnion2(ClientResult result) => throw null;
     }
 }

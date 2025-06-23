@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -20,38 +21,109 @@ namespace Routes._PathParameters
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> TemplateOnly. </summary>
+        /// <param name="param"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult TemplateOnly(string @param, RequestOptions options) => throw null;
 
+        /// <summary> TemplateOnly. </summary>
+        /// <param name="param"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> TemplateOnlyAsync(string @param, RequestOptions options) => throw null;
 
+        /// <summary> TemplateOnly. </summary>
+        /// <param name="param"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual ClientResult TemplateOnly(string @param, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> TemplateOnly. </summary>
+        /// <param name="param"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual Task<ClientResult> TemplateOnlyAsync(string @param, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Explicit. </summary>
+        /// <param name="param"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Explicit(string @param, RequestOptions options) => throw null;
 
+        /// <summary> Explicit. </summary>
+        /// <param name="param"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> ExplicitAsync(string @param, RequestOptions options) => throw null;
 
+        /// <summary> Explicit. </summary>
+        /// <param name="param"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual ClientResult Explicit(string @param, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Explicit. </summary>
+        /// <param name="param"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual Task<ClientResult> ExplicitAsync(string @param, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> AnnotationOnly. </summary>
+        /// <param name="param"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult AnnotationOnly(string @param, RequestOptions options) => throw null;
 
+        /// <summary> AnnotationOnly. </summary>
+        /// <param name="param"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> AnnotationOnlyAsync(string @param, RequestOptions options) => throw null;
 
+        /// <summary> AnnotationOnly. </summary>
+        /// <param name="param"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual ClientResult AnnotationOnly(string @param, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> AnnotationOnly. </summary>
+        /// <param name="param"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual Task<ClientResult> AnnotationOnlyAsync(string @param, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Initializes a new instance of PathParametersReservedExpansion. </summary>
         public virtual PathParametersReservedExpansion GetPathParametersReservedExpansionClient() => throw null;
 
+        /// <summary> Initializes a new instance of PathParametersSimpleExpansion. </summary>
         public virtual PathParametersSimpleExpansion GetPathParametersSimpleExpansionClient() => throw null;
 
+        /// <summary> Initializes a new instance of PathParametersPathExpansion. </summary>
         public virtual PathParametersPathExpansion GetPathParametersPathExpansionClient() => throw null;
 
+        /// <summary> Initializes a new instance of PathParametersLabelExpansion. </summary>
         public virtual PathParametersLabelExpansion GetPathParametersLabelExpansionClient() => throw null;
 
+        /// <summary> Initializes a new instance of PathParametersMatrixExpansion. </summary>
         public virtual PathParametersMatrixExpansion GetPathParametersMatrixExpansionClient() => throw null;
     }
 }

@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading.Tasks;
@@ -14,8 +15,20 @@ namespace Payload.MultiPart._FormData.HttpParts.NonString
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Test content-type: multipart/form-data for non string. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="contentType"> The contentType to use which has the multipart/form-data boundary. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Float(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
+        /// <summary> Test content-type: multipart/form-data for non string. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="contentType"> The contentType to use which has the multipart/form-data boundary. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> FloatAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
     }
 }

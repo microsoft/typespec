@@ -20,18 +20,31 @@ namespace Routes
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Fixed. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Fixed(RequestOptions options) => throw null;
 
+        /// <summary> Fixed. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> FixedAsync(RequestOptions options) => throw null;
 
+        /// <summary> Fixed. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Fixed(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Fixed. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> FixedAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Initializes a new instance of PathParameters. </summary>
         public virtual PathParameters GetPathParametersClient() => throw null;
 
+        /// <summary> Initializes a new instance of QueryParameters. </summary>
         public virtual QueryParameters GetQueryParametersClient() => throw null;
 
+        /// <summary> Initializes a new instance of InInterface. </summary>
         public virtual InInterface GetInInterfaceClient() => throw null;
     }
 }

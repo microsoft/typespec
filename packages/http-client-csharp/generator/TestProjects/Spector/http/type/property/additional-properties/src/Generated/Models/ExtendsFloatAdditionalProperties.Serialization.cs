@@ -13,26 +13,43 @@ namespace _Type.Property.AdditionalProperties
     {
         internal ExtendsFloatAdditionalProperties() => throw null;
 
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<ExtendsFloatAdditionalProperties>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         ExtendsFloatAdditionalProperties IJsonModel<ExtendsFloatAdditionalProperties>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual ExtendsFloatAdditionalProperties JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         BinaryData IPersistableModel<ExtendsFloatAdditionalProperties>.Write(ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         ExtendsFloatAdditionalProperties IPersistableModel<ExtendsFloatAdditionalProperties>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual ExtendsFloatAdditionalProperties PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         string IPersistableModel<ExtendsFloatAdditionalProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="extendsFloatAdditionalProperties"> The <see cref="ExtendsFloatAdditionalProperties"/> to serialize into <see cref="BinaryContent"/>. </param>
         public static implicit operator BinaryContent(ExtendsFloatAdditionalProperties extendsFloatAdditionalProperties) => throw null;
 
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ExtendsFloatAdditionalProperties"/> from. </param>
         public static explicit operator ExtendsFloatAdditionalProperties(ClientResult result) => throw null;
     }
 }

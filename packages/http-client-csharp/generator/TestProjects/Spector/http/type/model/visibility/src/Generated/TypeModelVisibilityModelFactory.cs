@@ -8,8 +8,17 @@ namespace _Type.Model.Visibility
 {
     public static partial class TypeModelVisibilityModelFactory
     {
+        /// <param name="readProp"> Required string, illustrating a readonly property. </param>
+        /// <param name="queryProp"> Required int32, illustrating a query property. </param>
+        /// <param name="createProp"> Required string[], illustrating a create property. </param>
+        /// <param name="updateProp"> Required int32[], illustrating a update property. </param>
+        /// <param name="deleteProp"> Required bool, illustrating a delete property. </param>
+        /// <returns> A new <see cref="Visibility.VisibilityModel"/> instance for mocking. </returns>
         public static VisibilityModel VisibilityModel(string readProp = default, int queryProp = default, IEnumerable<string> createProp = default, IEnumerable<int> updateProp = default, bool deleteProp = default) => throw null;
 
+        /// <param name="optionalNullableIntList"> Optional readonly nullable int list. </param>
+        /// <param name="optionalStringRecord"> Optional readonly string dictionary. </param>
+        /// <returns> A new <see cref="Visibility.ReadOnlyModel"/> instance for mocking. </returns>
         public static ReadOnlyModel ReadOnlyModel(IEnumerable<int> optionalNullableIntList = default, IReadOnlyDictionary<string, string> optionalStringRecord = default) => throw null;
     }
 }

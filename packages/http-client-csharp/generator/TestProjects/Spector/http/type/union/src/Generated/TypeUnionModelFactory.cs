@@ -9,36 +9,77 @@ namespace _Type.Union
 {
     public static partial class TypeUnionModelFactory
     {
+        /// <param name="prop"></param>
+        /// <returns> A new <see cref="Union.GetResponse"/> instance for mocking. </returns>
         public static GetResponse GetResponse(GetResponseProp prop = default) => throw null;
 
+        /// <param name="prop"></param>
+        /// <returns> A new <see cref="Union.GetResponse1"/> instance for mocking. </returns>
         public static GetResponse1 GetResponse1(GetResponseProp1 prop = default) => throw null;
 
+        /// <param name="prop"></param>
+        /// <returns> A new <see cref="Union.GetResponse2"/> instance for mocking. </returns>
         public static GetResponse2 GetResponse2(StringExtensibleNamedUnion prop = default) => throw null;
 
+        /// <param name="prop"></param>
+        /// <returns> A new <see cref="Union.GetResponse3"/> instance for mocking. </returns>
         public static GetResponse3 GetResponse3(GetResponseProp2 prop = default) => throw null;
 
+        /// <param name="prop"></param>
+        /// <returns> A new <see cref="Union.GetResponse4"/> instance for mocking. </returns>
         public static GetResponse4 GetResponse4(GetResponseProp3 prop = default) => throw null;
 
+        /// <param name="prop"></param>
+        /// <returns> A new <see cref="Union.GetResponse5"/> instance for mocking. </returns>
         public static GetResponse5 GetResponse5(BinaryData prop = default) => throw null;
 
+        /// <param name="name"></param>
+        /// <returns> A new <see cref="Union.Cat"/> instance for mocking. </returns>
         public static Cat Cat(string name = default) => throw null;
 
+        /// <param name="bark"></param>
+        /// <returns> A new <see cref="Union.Dog"/> instance for mocking. </returns>
         public static Dog Dog(string bark = default) => throw null;
 
+        /// <param name="prop"></param>
+        /// <returns> A new <see cref="Union.GetResponse6"/> instance for mocking. </returns>
         public static GetResponse6 GetResponse6(EnumsOnlyCases prop = default) => throw null;
 
+        /// <param name="lr"> This should be receive/send the left variant. </param>
+        /// <param name="ud"> This should be receive/send the up variant. </param>
+        /// <returns> A new <see cref="Union.EnumsOnlyCases"/> instance for mocking. </returns>
         public static EnumsOnlyCases EnumsOnlyCases(EnumsOnlyCasesLr lr = default, EnumsOnlyCasesUd ud = default) => throw null;
 
+        /// <param name="prop"></param>
+        /// <returns> A new <see cref="Union.GetResponse7"/> instance for mocking. </returns>
         public static GetResponse7 GetResponse7(StringAndArrayCases prop = default) => throw null;
 
+        /// <param name="string"> This should be receive/send the string variant. </param>
+        /// <param name="array"> This should be receive/send the array variant. </param>
+        /// <returns> A new <see cref="Union.StringAndArrayCases"/> instance for mocking. </returns>
         public static StringAndArrayCases StringAndArrayCases(BinaryData @string = default, BinaryData array = default) => throw null;
 
+        /// <param name="prop"></param>
+        /// <returns> A new <see cref="Union.GetResponse8"/> instance for mocking. </returns>
         public static GetResponse8 GetResponse8(MixedLiteralsCases prop = default) => throw null;
 
+        /// <param name="stringLiteral"> This should be receive/send the "a" variant. </param>
+        /// <param name="intLiteral"> This should be receive/send the 2 variant. </param>
+        /// <param name="floatLiteral"> This should be receive/send the 3.3 variant. </param>
+        /// <param name="booleanLiteral"> This should be receive/send the true variant. </param>
+        /// <returns> A new <see cref="Union.MixedLiteralsCases"/> instance for mocking. </returns>
         public static MixedLiteralsCases MixedLiteralsCases(BinaryData stringLiteral = default, BinaryData intLiteral = default, BinaryData floatLiteral = default, BinaryData booleanLiteral = default) => throw null;
 
+        /// <param name="prop"></param>
+        /// <returns> A new <see cref="Union.GetResponse9"/> instance for mocking. </returns>
         public static GetResponse9 GetResponse9(MixedTypesCases prop = default) => throw null;
 
+        /// <param name="model"> This should be receive/send the Cat variant. </param>
+        /// <param name="literal"> This should be receive/send the "a" variant. </param>
+        /// <param name="int"> This should be receive/send the int variant. </param>
+        /// <param name="boolean"> This should be receive/send the boolean variant. </param>
+        /// <param name="array"> This should be receive/send 4 element with Cat, "a", int, and boolean. </param>
+        /// <returns> A new <see cref="Union.MixedTypesCases"/> instance for mocking. </returns>
         public static MixedTypesCases MixedTypesCases(BinaryData model = default, BinaryData literal = default, BinaryData @int = default, BinaryData boolean = default, IEnumerable<BinaryData> array = default) => throw null;
     }
 }

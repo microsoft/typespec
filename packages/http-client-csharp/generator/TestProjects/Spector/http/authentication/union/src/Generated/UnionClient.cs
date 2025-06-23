@@ -20,20 +20,40 @@ namespace Authentication.Union
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Check whether client is authenticated. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult ValidKey(RequestOptions options) => throw null;
 
+        /// <summary> Check whether client is authenticated. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> ValidKeyAsync(RequestOptions options) => throw null;
 
+        /// <summary> Check whether client is authenticated. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult ValidKey(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Check whether client is authenticated. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> ValidKeyAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Check whether client is authenticated. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult ValidToken(RequestOptions options) => throw null;
 
+        /// <summary> Check whether client is authenticated. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> ValidTokenAsync(RequestOptions options) => throw null;
 
+        /// <summary> Check whether client is authenticated. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult ValidToken(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Check whether client is authenticated. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> ValidTokenAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

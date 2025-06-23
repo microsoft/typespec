@@ -51,18 +51,20 @@ namespace SampleTypeSpec
         /// <param name="value"> The value. </param>
         public static implicit operator StringExtensibleEnum(string value) => new StringExtensibleEnum(value);
 
-        /// <inheritdoc/>
+        /// <summary></summary>
+        /// <param name="obj"> The object to compare. </param>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj) => obj is StringExtensibleEnum other && Equals(other);
 
-        /// <inheritdoc/>
+        /// <summary></summary>
+        /// <param name="other"> The instance to compare. </param>
         public bool Equals(StringExtensibleEnum other) => string.Equals(_value, other._value, StringComparison.InvariantCultureIgnoreCase);
 
-        /// <inheritdoc/>
+        /// <summary></summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode() => _value != null ? StringComparer.InvariantCultureIgnoreCase.GetHashCode(_value) : 0;
 
-        /// <inheritdoc/>
+        /// <summary></summary>
         public override string ToString() => _value;
     }
 }

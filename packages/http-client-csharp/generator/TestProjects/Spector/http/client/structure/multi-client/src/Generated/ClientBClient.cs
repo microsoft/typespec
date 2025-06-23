@@ -21,28 +21,58 @@ namespace Client.Structure.MultiClient
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> RenamedTwo. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult RenamedTwo(RequestOptions options) => throw null;
 
+        /// <summary> RenamedTwo. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> RenamedTwoAsync(RequestOptions options) => throw null;
 
+        /// <summary> RenamedTwo. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult RenamedTwo(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> RenamedTwo. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> RenamedTwoAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> RenamedFour. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult RenamedFour(RequestOptions options) => throw null;
 
+        /// <summary> RenamedFour. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> RenamedFourAsync(RequestOptions options) => throw null;
 
+        /// <summary> RenamedFour. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult RenamedFour(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> RenamedFour. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> RenamedFourAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> RenamedSix. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult RenamedSix(RequestOptions options) => throw null;
 
+        /// <summary> RenamedSix. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> RenamedSixAsync(RequestOptions options) => throw null;
 
+        /// <summary> RenamedSix. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult RenamedSix(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> RenamedSix. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> RenamedSixAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

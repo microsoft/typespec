@@ -8,6 +8,9 @@ namespace Versioning.MadeOptional.V1
 {
     public static partial class VersioningMadeOptionalV1ModelFactory
     {
+        /// <param name="prop"></param>
+        /// <param name="changedProp"></param>
+        /// <returns> A new <see cref="MadeOptional.TestModel"/> instance for mocking. </returns>
         public static TestModel TestModel(string prop = default, string changedProp = default) => throw null;
     }
 }

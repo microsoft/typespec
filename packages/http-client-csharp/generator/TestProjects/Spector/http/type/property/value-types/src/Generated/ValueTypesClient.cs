@@ -15,62 +15,91 @@ namespace _Type.Property.ValueTypes
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Initializes a new instance of Boolean. </summary>
         public virtual Boolean GetBooleanClient() => throw null;
 
+        /// <summary> Initializes a new instance of String. </summary>
         public virtual String GetStringClient() => throw null;
 
+        /// <summary> Initializes a new instance of Bytes. </summary>
         public virtual Bytes GetBytesClient() => throw null;
 
+        /// <summary> Initializes a new instance of Int. </summary>
         public virtual Int GetIntClient() => throw null;
 
+        /// <summary> Initializes a new instance of Float. </summary>
         public virtual Float GetFloatClient() => throw null;
 
+        /// <summary> Initializes a new instance of Decimal. </summary>
         public virtual Decimal GetDecimalClient() => throw null;
 
+        /// <summary> Initializes a new instance of Decimal128. </summary>
         public virtual Decimal128 GetDecimal128Client() => throw null;
 
+        /// <summary> Initializes a new instance of Datetime. </summary>
         public virtual Datetime GetDatetimeClient() => throw null;
 
+        /// <summary> Initializes a new instance of Duration. </summary>
         public virtual Duration GetDurationClient() => throw null;
 
+        /// <summary> Initializes a new instance of Enum. </summary>
         public virtual Enum GetEnumClient() => throw null;
 
+        /// <summary> Initializes a new instance of ExtensibleEnum. </summary>
         public virtual ExtensibleEnum GetExtensibleEnumClient() => throw null;
 
+        /// <summary> Initializes a new instance of Model. </summary>
         public virtual Model GetModelClient() => throw null;
 
+        /// <summary> Initializes a new instance of CollectionsString. </summary>
         public virtual CollectionsString GetCollectionsStringClient() => throw null;
 
+        /// <summary> Initializes a new instance of CollectionsInt. </summary>
         public virtual CollectionsInt GetCollectionsIntClient() => throw null;
 
+        /// <summary> Initializes a new instance of CollectionsModel. </summary>
         public virtual CollectionsModel GetCollectionsModelClient() => throw null;
 
+        /// <summary> Initializes a new instance of DictionaryString. </summary>
         public virtual DictionaryString GetDictionaryStringClient() => throw null;
 
+        /// <summary> Initializes a new instance of Never. </summary>
         public virtual Never GetNeverClient() => throw null;
 
+        /// <summary> Initializes a new instance of UnknownString. </summary>
         public virtual UnknownString GetUnknownStringClient() => throw null;
 
+        /// <summary> Initializes a new instance of UnknownInt. </summary>
         public virtual UnknownInt GetUnknownIntClient() => throw null;
 
+        /// <summary> Initializes a new instance of UnknownDict. </summary>
         public virtual UnknownDict GetUnknownDictClient() => throw null;
 
+        /// <summary> Initializes a new instance of UnknownArray. </summary>
         public virtual UnknownArray GetUnknownArrayClient() => throw null;
 
+        /// <summary> Initializes a new instance of StringLiteral. </summary>
         public virtual StringLiteral GetStringLiteralClient() => throw null;
 
+        /// <summary> Initializes a new instance of IntLiteral. </summary>
         public virtual IntLiteral GetIntLiteralClient() => throw null;
 
+        /// <summary> Initializes a new instance of FloatLiteral. </summary>
         public virtual FloatLiteral GetFloatLiteralClient() => throw null;
 
+        /// <summary> Initializes a new instance of BooleanLiteral. </summary>
         public virtual BooleanLiteral GetBooleanLiteralClient() => throw null;
 
+        /// <summary> Initializes a new instance of UnionStringLiteral. </summary>
         public virtual UnionStringLiteral GetUnionStringLiteralClient() => throw null;
 
+        /// <summary> Initializes a new instance of UnionIntLiteral. </summary>
         public virtual UnionIntLiteral GetUnionIntLiteralClient() => throw null;
 
+        /// <summary> Initializes a new instance of UnionFloatLiteral. </summary>
         public virtual UnionFloatLiteral GetUnionFloatLiteralClient() => throw null;
 
+        /// <summary> Initializes a new instance of UnionEnumValue. </summary>
         public virtual UnionEnumValue GetUnionEnumValueClient() => throw null;
     }
 }

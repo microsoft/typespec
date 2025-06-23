@@ -14,8 +14,10 @@ namespace Routes._PathParameters.MatrixExpansion
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Initializes a new instance of PathParametersMatrixExpansionStandard. </summary>
         public virtual PathParametersMatrixExpansionStandard GetPathParametersMatrixExpansionStandardClient() => throw null;
 
+        /// <summary> Initializes a new instance of PathParametersMatrixExpansionExplode. </summary>
         public virtual PathParametersMatrixExpansionExplode GetPathParametersMatrixExpansionExplodeClient() => throw null;
     }
 }

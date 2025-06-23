@@ -20,36 +20,104 @@ namespace Resiliency.ServiceDriven
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Added operation. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult AddOperation(RequestOptions options) => throw null;
 
+        /// <summary> Added operation. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> AddOperationAsync(RequestOptions options) => throw null;
 
+        /// <summary> Added operation. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult AddOperation(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Added operation. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> AddOperationAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Test that grew up from accepting no parameters to an optional input parameter. </summary>
+        /// <param name="newParameter"> I'm a new input optional parameter. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult FromNone(string newParameter, RequestOptions options) => throw null;
 
+        /// <summary> Test that grew up from accepting no parameters to an optional input parameter. </summary>
+        /// <param name="newParameter"> I'm a new input optional parameter. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> FromNoneAsync(string newParameter, RequestOptions options) => throw null;
 
+        /// <summary> Test that grew up from accepting no parameters to an optional input parameter. </summary>
+        /// <param name="newParameter"> I'm a new input optional parameter. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult FromNone(string newParameter = default, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Test that grew up from accepting no parameters to an optional input parameter. </summary>
+        /// <param name="newParameter"> I'm a new input optional parameter. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> FromNoneAsync(string newParameter = default, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Operation that grew up from accepting one required parameter to accepting a required parameter and an optional parameter. </summary>
+        /// <param name="parameter"> I am a required parameter. </param>
+        /// <param name="newParameter"> I'm a new input optional parameter. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="parameter"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="parameter"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult FromOneRequired(string parameter, string newParameter, RequestOptions options) => throw null;
 
+        /// <summary> Operation that grew up from accepting one required parameter to accepting a required parameter and an optional parameter. </summary>
+        /// <param name="parameter"> I am a required parameter. </param>
+        /// <param name="newParameter"> I'm a new input optional parameter. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="parameter"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="parameter"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> FromOneRequiredAsync(string parameter, string newParameter, RequestOptions options) => throw null;
 
+        /// <summary> Operation that grew up from accepting one required parameter to accepting a required parameter and an optional parameter. </summary>
+        /// <param name="parameter"> I am a required parameter. </param>
+        /// <param name="newParameter"> I'm a new input optional parameter. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="parameter"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="parameter"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual ClientResult FromOneRequired(string parameter, string newParameter = default, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Operation that grew up from accepting one required parameter to accepting a required parameter and an optional parameter. </summary>
+        /// <param name="parameter"> I am a required parameter. </param>
+        /// <param name="newParameter"> I'm a new input optional parameter. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="parameter"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="parameter"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual Task<ClientResult> FromOneRequiredAsync(string parameter, string newParameter = default, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Tests that we can grow up an operation from accepting one optional parameter to accepting two optional parameters. </summary>
+        /// <param name="parameter"> I am an optional parameter. </param>
+        /// <param name="newParameter"> I'm a new input optional parameter. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult FromOneOptional(string parameter, string newParameter, RequestOptions options) => throw null;
 
+        /// <summary> Tests that we can grow up an operation from accepting one optional parameter to accepting two optional parameters. </summary>
+        /// <param name="parameter"> I am an optional parameter. </param>
+        /// <param name="newParameter"> I'm a new input optional parameter. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> FromOneOptionalAsync(string parameter, string newParameter, RequestOptions options) => throw null;
 
+        /// <summary> Tests that we can grow up an operation from accepting one optional parameter to accepting two optional parameters. </summary>
+        /// <param name="parameter"> I am an optional parameter. </param>
+        /// <param name="newParameter"> I'm a new input optional parameter. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult FromOneOptional(string parameter = default, string newParameter = default, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Tests that we can grow up an operation from accepting one optional parameter to accepting two optional parameters. </summary>
+        /// <param name="parameter"> I am an optional parameter. </param>
+        /// <param name="newParameter"> I'm a new input optional parameter. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> FromOneOptionalAsync(string parameter = default, string newParameter = default, CancellationToken cancellationToken = default) => throw null;
     }
 }

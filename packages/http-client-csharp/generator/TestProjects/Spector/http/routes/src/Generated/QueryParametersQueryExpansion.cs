@@ -14,8 +14,10 @@ namespace Routes._QueryParameters.QueryExpansion
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Initializes a new instance of QueryParametersQueryExpansionStandard. </summary>
         public virtual QueryParametersQueryExpansionStandard GetQueryParametersQueryExpansionStandardClient() => throw null;
 
+        /// <summary> Initializes a new instance of QueryParametersQueryExpansionExplode. </summary>
         public virtual QueryParametersQueryExpansionExplode GetQueryParametersQueryExpansionExplodeClient() => throw null;
     }
 }

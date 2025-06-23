@@ -16,6 +16,7 @@ namespace Payload.MediaType
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Initializes a new instance of StringBody. </summary>
         public virtual StringBody GetStringBodyClient() => throw null;
     }
 }

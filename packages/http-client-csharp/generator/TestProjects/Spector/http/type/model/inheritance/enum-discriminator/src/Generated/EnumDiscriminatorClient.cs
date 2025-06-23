@@ -18,68 +18,164 @@ namespace _Type.Model.Inheritance.EnumDiscriminator
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Receive model with extensible enum discriminator type. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult GetExtensibleModel(RequestOptions options) => throw null;
 
+        /// <summary> Receive model with extensible enum discriminator type. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> GetExtensibleModelAsync(RequestOptions options) => throw null;
 
+        /// <summary> Receive model with extensible enum discriminator type. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult<Dog> GetExtensibleModel(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Receive model with extensible enum discriminator type. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult<Dog>> GetExtensibleModelAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Send model with extensible enum discriminator type. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult PutExtensibleModel(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Send model with extensible enum discriminator type. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> PutExtensibleModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Send model with extensible enum discriminator type. </summary>
+        /// <param name="input"> Dog to create. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="input"/> is null. </exception>
         public virtual ClientResult PutExtensibleModel(Dog input, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Send model with extensible enum discriminator type. </summary>
+        /// <param name="input"> Dog to create. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="input"/> is null. </exception>
         public virtual Task<ClientResult> PutExtensibleModelAsync(Dog input, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Get a model omitting the discriminator. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult GetExtensibleModelMissingDiscriminator(RequestOptions options) => throw null;
 
+        /// <summary> Get a model omitting the discriminator. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> GetExtensibleModelMissingDiscriminatorAsync(RequestOptions options) => throw null;
 
+        /// <summary> Get a model omitting the discriminator. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult<Dog> GetExtensibleModelMissingDiscriminator(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Get a model omitting the discriminator. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult<Dog>> GetExtensibleModelMissingDiscriminatorAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Get a model containing discriminator value never defined. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult GetExtensibleModelWrongDiscriminator(RequestOptions options) => throw null;
 
+        /// <summary> Get a model containing discriminator value never defined. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> GetExtensibleModelWrongDiscriminatorAsync(RequestOptions options) => throw null;
 
+        /// <summary> Get a model containing discriminator value never defined. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult<Dog> GetExtensibleModelWrongDiscriminator(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Get a model containing discriminator value never defined. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult<Dog>> GetExtensibleModelWrongDiscriminatorAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Receive model with fixed enum discriminator type. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult GetFixedModel(RequestOptions options) => throw null;
 
+        /// <summary> Receive model with fixed enum discriminator type. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> GetFixedModelAsync(RequestOptions options) => throw null;
 
+        /// <summary> Receive model with fixed enum discriminator type. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult<Snake> GetFixedModel(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Receive model with fixed enum discriminator type. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult<Snake>> GetFixedModelAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Send model with fixed enum discriminator type. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult PutFixedModel(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Send model with fixed enum discriminator type. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> PutFixedModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Send model with fixed enum discriminator type. </summary>
+        /// <param name="input"> Snake to create. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="input"/> is null. </exception>
         public virtual ClientResult PutFixedModel(Snake input, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Send model with fixed enum discriminator type. </summary>
+        /// <param name="input"> Snake to create. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="input"/> is null. </exception>
         public virtual Task<ClientResult> PutFixedModelAsync(Snake input, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Get a model omitting the discriminator. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult GetFixedModelMissingDiscriminator(RequestOptions options) => throw null;
 
+        /// <summary> Get a model omitting the discriminator. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> GetFixedModelMissingDiscriminatorAsync(RequestOptions options) => throw null;
 
+        /// <summary> Get a model omitting the discriminator. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult<Snake> GetFixedModelMissingDiscriminator(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Get a model omitting the discriminator. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult<Snake>> GetFixedModelMissingDiscriminatorAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Get a model containing discriminator value never defined. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult GetFixedModelWrongDiscriminator(RequestOptions options) => throw null;
 
+        /// <summary> Get a model containing discriminator value never defined. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> GetFixedModelWrongDiscriminatorAsync(RequestOptions options) => throw null;
 
+        /// <summary> Get a model containing discriminator value never defined. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult<Snake> GetFixedModelWrongDiscriminator(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Get a model containing discriminator value never defined. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult<Snake>> GetFixedModelWrongDiscriminatorAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

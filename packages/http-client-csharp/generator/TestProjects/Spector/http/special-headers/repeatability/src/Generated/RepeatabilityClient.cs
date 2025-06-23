@@ -18,12 +18,22 @@ namespace SpecialHeaders.Repeatability
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Check we recognize Repeatability-Request-ID and Repeatability-First-Sent. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult ImmediateSuccess(RequestOptions options) => throw null;
 
+        /// <summary> Check we recognize Repeatability-Request-ID and Repeatability-First-Sent. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> ImmediateSuccessAsync(RequestOptions options) => throw null;
 
+        /// <summary> Check we recognize Repeatability-Request-ID and Repeatability-First-Sent. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult ImmediateSuccess(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Check we recognize Repeatability-Request-ID and Repeatability-First-Sent. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> ImmediateSuccessAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

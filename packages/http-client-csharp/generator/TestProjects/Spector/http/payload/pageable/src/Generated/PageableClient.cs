@@ -16,6 +16,7 @@ namespace Payload.Pageable
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Initializes a new instance of ServerDrivenPagination. </summary>
         public virtual ServerDrivenPagination GetServerDrivenPaginationClient() => throw null;
     }
 }

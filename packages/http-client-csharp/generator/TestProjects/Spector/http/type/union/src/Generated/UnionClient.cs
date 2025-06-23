@@ -15,24 +15,34 @@ namespace _Type.Union
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Initializes a new instance of StringsOnly. </summary>
         public virtual StringsOnly GetStringsOnlyClient() => throw null;
 
+        /// <summary> Initializes a new instance of StringExtensible. </summary>
         public virtual StringExtensible GetStringExtensibleClient() => throw null;
 
+        /// <summary> Initializes a new instance of StringExtensibleNamed. </summary>
         public virtual StringExtensibleNamed GetStringExtensibleNamedClient() => throw null;
 
+        /// <summary> Initializes a new instance of IntsOnly. </summary>
         public virtual IntsOnly GetIntsOnlyClient() => throw null;
 
+        /// <summary> Initializes a new instance of FloatsOnly. </summary>
         public virtual FloatsOnly GetFloatsOnlyClient() => throw null;
 
+        /// <summary> Initializes a new instance of ModelsOnly. </summary>
         public virtual ModelsOnly GetModelsOnlyClient() => throw null;
 
+        /// <summary> Initializes a new instance of EnumsOnly. </summary>
         public virtual EnumsOnly GetEnumsOnlyClient() => throw null;
 
+        /// <summary> Initializes a new instance of StringAndArray. </summary>
         public virtual StringAndArray GetStringAndArrayClient() => throw null;
 
+        /// <summary> Initializes a new instance of MixedLiterals. </summary>
         public virtual MixedLiterals GetMixedLiteralsClient() => throw null;
 
+        /// <summary> Initializes a new instance of MixedTypes. </summary>
         public virtual MixedTypes GetMixedTypesClient() => throw null;
     }
 }

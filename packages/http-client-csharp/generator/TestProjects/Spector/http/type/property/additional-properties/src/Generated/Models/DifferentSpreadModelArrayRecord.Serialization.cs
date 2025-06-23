@@ -13,26 +13,43 @@ namespace _Type.Property.AdditionalProperties
     {
         internal DifferentSpreadModelArrayRecord() => throw null;
 
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<DifferentSpreadModelArrayRecord>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         DifferentSpreadModelArrayRecord IJsonModel<DifferentSpreadModelArrayRecord>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual DifferentSpreadModelArrayRecord JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         BinaryData IPersistableModel<DifferentSpreadModelArrayRecord>.Write(ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         DifferentSpreadModelArrayRecord IPersistableModel<DifferentSpreadModelArrayRecord>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual DifferentSpreadModelArrayRecord PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         string IPersistableModel<DifferentSpreadModelArrayRecord>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="differentSpreadModelArrayRecord"> The <see cref="DifferentSpreadModelArrayRecord"/> to serialize into <see cref="BinaryContent"/>. </param>
         public static implicit operator BinaryContent(DifferentSpreadModelArrayRecord differentSpreadModelArrayRecord) => throw null;
 
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="DifferentSpreadModelArrayRecord"/> from. </param>
         public static explicit operator DifferentSpreadModelArrayRecord(ClientResult result) => throw null;
     }
 }

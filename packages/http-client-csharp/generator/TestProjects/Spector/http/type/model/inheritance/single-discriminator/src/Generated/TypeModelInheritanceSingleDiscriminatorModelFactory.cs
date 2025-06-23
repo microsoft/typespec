@@ -8,18 +8,37 @@ namespace _Type.Model.Inheritance.SingleDiscriminator
 {
     public static partial class TypeModelInheritanceSingleDiscriminatorModelFactory
     {
+        /// <param name="kind"></param>
+        /// <param name="wingspan"></param>
+        /// <returns> A new <see cref="SingleDiscriminator.Bird"/> instance for mocking. </returns>
         public static Bird Bird(string kind = default, int wingspan = default) => throw null;
 
+        /// <param name="wingspan"></param>
+        /// <returns> A new <see cref="SingleDiscriminator.SeaGull"/> instance for mocking. </returns>
         public static SeaGull SeaGull(int wingspan = default) => throw null;
 
+        /// <param name="wingspan"></param>
+        /// <returns> A new <see cref="SingleDiscriminator.Sparrow"/> instance for mocking. </returns>
         public static Sparrow Sparrow(int wingspan = default) => throw null;
 
+        /// <param name="wingspan"></param>
+        /// <returns> A new <see cref="SingleDiscriminator.Goose"/> instance for mocking. </returns>
         public static Goose Goose(int wingspan = default) => throw null;
 
+        /// <param name="wingspan"></param>
+        /// <param name="friends"></param>
+        /// <param name="hate"></param>
+        /// <param name="partner"></param>
+        /// <returns> A new <see cref="SingleDiscriminator.Eagle"/> instance for mocking. </returns>
         public static Eagle Eagle(int wingspan = default, IEnumerable<Bird> friends = default, IDictionary<string, Bird> hate = default, Bird partner = default) => throw null;
 
+        /// <param name="kind"> Discriminator property for Dinosaur. </param>
+        /// <param name="size"></param>
+        /// <returns> A new <see cref="SingleDiscriminator.Dinosaur"/> instance for mocking. </returns>
         public static Dinosaur Dinosaur(string kind = default, int size = default) => throw null;
 
+        /// <param name="size"></param>
+        /// <returns> A new <see cref="SingleDiscriminator.TRex"/> instance for mocking. </returns>
         public static TRex TRex(int size = default) => throw null;
     }
 }

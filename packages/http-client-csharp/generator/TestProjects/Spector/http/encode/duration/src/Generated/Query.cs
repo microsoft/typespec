@@ -17,52 +17,140 @@ namespace Encode.Duration._Query
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Default. </summary>
+        /// <param name="input"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Default(TimeSpan input, RequestOptions options) => throw null;
 
+        /// <summary> Default. </summary>
+        /// <param name="input"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> DefaultAsync(TimeSpan input, RequestOptions options) => throw null;
 
+        /// <summary> Default. </summary>
+        /// <param name="input"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Default(TimeSpan input, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Default. </summary>
+        /// <param name="input"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> DefaultAsync(TimeSpan input, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Iso8601. </summary>
+        /// <param name="input"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Iso8601(TimeSpan input, RequestOptions options) => throw null;
 
+        /// <summary> Iso8601. </summary>
+        /// <param name="input"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> Iso8601Async(TimeSpan input, RequestOptions options) => throw null;
 
+        /// <summary> Iso8601. </summary>
+        /// <param name="input"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Iso8601(TimeSpan input, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Iso8601. </summary>
+        /// <param name="input"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> Iso8601Async(TimeSpan input, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Int32Seconds. </summary>
+        /// <param name="input"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Int32Seconds(TimeSpan input, RequestOptions options) => throw null;
 
+        /// <summary> Int32Seconds. </summary>
+        /// <param name="input"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> Int32SecondsAsync(TimeSpan input, RequestOptions options) => throw null;
 
+        /// <summary> Int32Seconds. </summary>
+        /// <param name="input"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Int32Seconds(TimeSpan input, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Int32Seconds. </summary>
+        /// <param name="input"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> Int32SecondsAsync(TimeSpan input, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> FloatSeconds. </summary>
+        /// <param name="input"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult FloatSeconds(TimeSpan input, RequestOptions options) => throw null;
 
+        /// <summary> FloatSeconds. </summary>
+        /// <param name="input"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> FloatSecondsAsync(TimeSpan input, RequestOptions options) => throw null;
 
+        /// <summary> FloatSeconds. </summary>
+        /// <param name="input"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult FloatSeconds(TimeSpan input, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> FloatSeconds. </summary>
+        /// <param name="input"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> FloatSecondsAsync(TimeSpan input, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Float64Seconds. </summary>
+        /// <param name="input"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Float64Seconds(TimeSpan input, RequestOptions options) => throw null;
 
+        /// <summary> Float64Seconds. </summary>
+        /// <param name="input"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> Float64SecondsAsync(TimeSpan input, RequestOptions options) => throw null;
 
+        /// <summary> Float64Seconds. </summary>
+        /// <param name="input"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Float64Seconds(TimeSpan input, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Float64Seconds. </summary>
+        /// <param name="input"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> Float64SecondsAsync(TimeSpan input, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Int32SecondsArray. </summary>
+        /// <param name="input"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="input"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Int32SecondsArray(IEnumerable<TimeSpan> input, RequestOptions options) => throw null;
 
+        /// <summary> Int32SecondsArray. </summary>
+        /// <param name="input"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="input"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> Int32SecondsArrayAsync(IEnumerable<TimeSpan> input, RequestOptions options) => throw null;
 
+        /// <summary> Int32SecondsArray. </summary>
+        /// <param name="input"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="input"/> is null. </exception>
         public virtual ClientResult Int32SecondsArray(IEnumerable<TimeSpan> input, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Int32SecondsArray. </summary>
+        /// <param name="input"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="input"/> is null. </exception>
         public virtual Task<ClientResult> Int32SecondsArrayAsync(IEnumerable<TimeSpan> input, CancellationToken cancellationToken = default) => throw null;
     }
 }

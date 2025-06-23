@@ -20,28 +20,74 @@ namespace Resiliency.ServiceDriven
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Test that currently accepts no parameters, will be updated in next spec to accept a new optional parameter as well. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult FromNone(RequestOptions options) => throw null;
 
+        /// <summary> Test that currently accepts no parameters, will be updated in next spec to accept a new optional parameter as well. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> FromNoneAsync(RequestOptions options) => throw null;
 
+        /// <summary> Test that currently accepts no parameters, will be updated in next spec to accept a new optional parameter as well. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult FromNone(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Test that currently accepts no parameters, will be updated in next spec to accept a new optional parameter as well. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> FromNoneAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Test that currently accepts one required parameter, will be updated in next spec to accept a new optional parameter as well. </summary>
+        /// <param name="parameter"> I am a required parameter. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="parameter"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="parameter"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult FromOneRequired(string parameter, RequestOptions options) => throw null;
 
+        /// <summary> Test that currently accepts one required parameter, will be updated in next spec to accept a new optional parameter as well. </summary>
+        /// <param name="parameter"> I am a required parameter. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="parameter"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="parameter"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> FromOneRequiredAsync(string parameter, RequestOptions options) => throw null;
 
+        /// <summary> Test that currently accepts one required parameter, will be updated in next spec to accept a new optional parameter as well. </summary>
+        /// <param name="parameter"> I am a required parameter. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="parameter"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="parameter"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual ClientResult FromOneRequired(string parameter, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Test that currently accepts one required parameter, will be updated in next spec to accept a new optional parameter as well. </summary>
+        /// <param name="parameter"> I am a required parameter. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="parameter"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="parameter"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual Task<ClientResult> FromOneRequiredAsync(string parameter, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Test that currently accepts one optional parameter, will be updated in next spec to accept a new optional parameter as well. </summary>
+        /// <param name="parameter"> I am an optional parameter. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult FromOneOptional(string parameter, RequestOptions options) => throw null;
 
+        /// <summary> Test that currently accepts one optional parameter, will be updated in next spec to accept a new optional parameter as well. </summary>
+        /// <param name="parameter"> I am an optional parameter. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> FromOneOptionalAsync(string parameter, RequestOptions options) => throw null;
 
+        /// <summary> Test that currently accepts one optional parameter, will be updated in next spec to accept a new optional parameter as well. </summary>
+        /// <param name="parameter"> I am an optional parameter. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult FromOneOptional(string parameter = default, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Test that currently accepts one optional parameter, will be updated in next spec to accept a new optional parameter as well. </summary>
+        /// <param name="parameter"> I am an optional parameter. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> FromOneOptionalAsync(string parameter = default, CancellationToken cancellationToken = default) => throw null;
     }
 }

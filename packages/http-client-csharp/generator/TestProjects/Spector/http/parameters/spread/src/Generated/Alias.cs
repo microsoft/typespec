@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
@@ -16,44 +17,192 @@ namespace Parameters.Spread._Alias
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> SpreadAsRequestBody. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult SpreadAsRequestBody(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> SpreadAsRequestBody. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> SpreadAsRequestBodyAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> SpreadAsRequestBody. </summary>
+        /// <param name="name"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="name"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual ClientResult SpreadAsRequestBody(string name, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> SpreadAsRequestBody. </summary>
+        /// <param name="name"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="name"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual Task<ClientResult> SpreadAsRequestBodyAsync(string name, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> SpreadParameterWithInnerModel. </summary>
+        /// <param name="id"></param>
+        /// <param name="xMsTestHeader"></param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="id"/>, <paramref name="xMsTestHeader"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="id"/> or <paramref name="xMsTestHeader"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult SpreadParameterWithInnerModel(string id, string xMsTestHeader, BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> SpreadParameterWithInnerModel. </summary>
+        /// <param name="id"></param>
+        /// <param name="xMsTestHeader"></param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="id"/>, <paramref name="xMsTestHeader"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="id"/> or <paramref name="xMsTestHeader"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> SpreadParameterWithInnerModelAsync(string id, string xMsTestHeader, BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> SpreadParameterWithInnerModel. </summary>
+        /// <param name="id"></param>
+        /// <param name="xMsTestHeader"></param>
+        /// <param name="name"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="id"/>, <paramref name="xMsTestHeader"/> or <paramref name="name"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="id"/>, <paramref name="xMsTestHeader"/> or <paramref name="name"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual ClientResult SpreadParameterWithInnerModel(string id, string xMsTestHeader, string name, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> SpreadParameterWithInnerModel. </summary>
+        /// <param name="id"></param>
+        /// <param name="xMsTestHeader"></param>
+        /// <param name="name"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="id"/>, <paramref name="xMsTestHeader"/> or <paramref name="name"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="id"/>, <paramref name="xMsTestHeader"/> or <paramref name="name"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual Task<ClientResult> SpreadParameterWithInnerModelAsync(string id, string xMsTestHeader, string name, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> SpreadAsRequestParameter. </summary>
+        /// <param name="id"></param>
+        /// <param name="xMsTestHeader"></param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="id"/>, <paramref name="xMsTestHeader"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="id"/> or <paramref name="xMsTestHeader"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult SpreadAsRequestParameter(string id, string xMsTestHeader, BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> SpreadAsRequestParameter. </summary>
+        /// <param name="id"></param>
+        /// <param name="xMsTestHeader"></param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="id"/>, <paramref name="xMsTestHeader"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="id"/> or <paramref name="xMsTestHeader"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> SpreadAsRequestParameterAsync(string id, string xMsTestHeader, BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> SpreadAsRequestParameter. </summary>
+        /// <param name="id"></param>
+        /// <param name="xMsTestHeader"></param>
+        /// <param name="name"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="id"/>, <paramref name="xMsTestHeader"/> or <paramref name="name"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="id"/>, <paramref name="xMsTestHeader"/> or <paramref name="name"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual ClientResult SpreadAsRequestParameter(string id, string xMsTestHeader, string name, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> SpreadAsRequestParameter. </summary>
+        /// <param name="id"></param>
+        /// <param name="xMsTestHeader"></param>
+        /// <param name="name"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="id"/>, <paramref name="xMsTestHeader"/> or <paramref name="name"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="id"/>, <paramref name="xMsTestHeader"/> or <paramref name="name"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual Task<ClientResult> SpreadAsRequestParameterAsync(string id, string xMsTestHeader, string name, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> SpreadWithMultipleParameters. </summary>
+        /// <param name="id"></param>
+        /// <param name="xMsTestHeader"></param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="id"/>, <paramref name="xMsTestHeader"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="id"/> or <paramref name="xMsTestHeader"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult SpreadWithMultipleParameters(string id, string xMsTestHeader, BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> SpreadWithMultipleParameters. </summary>
+        /// <param name="id"></param>
+        /// <param name="xMsTestHeader"></param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="id"/>, <paramref name="xMsTestHeader"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="id"/> or <paramref name="xMsTestHeader"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> SpreadWithMultipleParametersAsync(string id, string xMsTestHeader, BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> SpreadWithMultipleParameters. </summary>
+        /// <param name="id"></param>
+        /// <param name="xMsTestHeader"></param>
+        /// <param name="requiredString"> required string. </param>
+        /// <param name="requiredIntList"> required int. </param>
+        /// <param name="optionalInt"> optional int. </param>
+        /// <param name="optionalStringList"> optional string. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="id"/>, <paramref name="xMsTestHeader"/>, <paramref name="requiredString"/> or <paramref name="requiredIntList"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="id"/>, <paramref name="xMsTestHeader"/> or <paramref name="requiredString"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual ClientResult SpreadWithMultipleParameters(string id, string xMsTestHeader, string requiredString, IEnumerable<int> requiredIntList, int? optionalInt = default, IEnumerable<string> optionalStringList = default, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> SpreadWithMultipleParameters. </summary>
+        /// <param name="id"></param>
+        /// <param name="xMsTestHeader"></param>
+        /// <param name="requiredString"> required string. </param>
+        /// <param name="requiredIntList"> required int. </param>
+        /// <param name="optionalInt"> optional int. </param>
+        /// <param name="optionalStringList"> optional string. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="id"/>, <paramref name="xMsTestHeader"/>, <paramref name="requiredString"/> or <paramref name="requiredIntList"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="id"/>, <paramref name="xMsTestHeader"/> or <paramref name="requiredString"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual Task<ClientResult> SpreadWithMultipleParametersAsync(string id, string xMsTestHeader, string requiredString, IEnumerable<int> requiredIntList, int? optionalInt = default, IEnumerable<string> optionalStringList = default, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> spread an alias with contains another alias property as body. </summary>
+        /// <param name="id"></param>
+        /// <param name="xMsTestHeader"></param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="id"/>, <paramref name="xMsTestHeader"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="id"/> or <paramref name="xMsTestHeader"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult SpreadParameterWithInnerAlias(string id, string xMsTestHeader, BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> spread an alias with contains another alias property as body. </summary>
+        /// <param name="id"></param>
+        /// <param name="xMsTestHeader"></param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="id"/>, <paramref name="xMsTestHeader"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="id"/> or <paramref name="xMsTestHeader"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> SpreadParameterWithInnerAliasAsync(string id, string xMsTestHeader, BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> spread an alias with contains another alias property as body. </summary>
+        /// <param name="id"></param>
+        /// <param name="xMsTestHeader"></param>
+        /// <param name="name"> name of the Thing. </param>
+        /// <param name="age"> age of the Thing. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="id"/>, <paramref name="xMsTestHeader"/> or <paramref name="name"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="id"/>, <paramref name="xMsTestHeader"/> or <paramref name="name"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual ClientResult SpreadParameterWithInnerAlias(string id, string xMsTestHeader, string name, int age, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> spread an alias with contains another alias property as body. </summary>
+        /// <param name="id"></param>
+        /// <param name="xMsTestHeader"></param>
+        /// <param name="name"> name of the Thing. </param>
+        /// <param name="age"> age of the Thing. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="id"/>, <paramref name="xMsTestHeader"/> or <paramref name="name"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="id"/>, <paramref name="xMsTestHeader"/> or <paramref name="name"/> is an empty string, and was expected to be non-empty. </exception>
         public virtual Task<ClientResult> SpreadParameterWithInnerAliasAsync(string id, string xMsTestHeader, string name, int age, CancellationToken cancellationToken = default) => throw null;
     }
 }

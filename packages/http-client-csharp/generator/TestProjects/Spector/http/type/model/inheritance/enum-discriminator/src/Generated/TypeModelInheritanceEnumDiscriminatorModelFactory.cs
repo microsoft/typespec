@@ -6,12 +6,22 @@ namespace _Type.Model.Inheritance.EnumDiscriminator
 {
     public static partial class TypeModelInheritanceEnumDiscriminatorModelFactory
     {
+        /// <param name="kind"> discriminator property. </param>
+        /// <param name="weight"> Weight of the dog. </param>
+        /// <returns> A new <see cref="EnumDiscriminator.Dog"/> instance for mocking. </returns>
         public static Dog Dog(string kind = default, int weight = default) => throw null;
 
+        /// <param name="weight"> Weight of the dog. </param>
+        /// <returns> A new <see cref="EnumDiscriminator.Golden"/> instance for mocking. </returns>
         public static Golden Golden(int weight = default) => throw null;
 
+        /// <param name="kind"> discriminator property. </param>
+        /// <param name="length"> Length of the snake. </param>
+        /// <returns> A new <see cref="EnumDiscriminator.Snake"/> instance for mocking. </returns>
         public static Snake Snake(string kind = default, int length = default) => throw null;
 
+        /// <param name="length"> Length of the snake. </param>
+        /// <returns> A new <see cref="EnumDiscriminator.Cobra"/> instance for mocking. </returns>
         public static Cobra Cobra(int length = default) => throw null;
     }
 }

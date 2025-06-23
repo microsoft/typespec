@@ -17,8 +17,10 @@ namespace Payload.ContentNegotiation
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Initializes a new instance of SameBody. </summary>
         public virtual SameBody GetSameBodyClient() => throw null;
 
+        /// <summary> Initializes a new instance of DifferentBody. </summary>
         public virtual DifferentBody GetDifferentBodyClient() => throw null;
     }
 }

@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -15,36 +16,92 @@ namespace _Type.Property.Optional
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Get models that will return all properties in the model. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult GetAll(RequestOptions options) => throw null;
 
+        /// <summary> Get models that will return all properties in the model. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> GetAllAsync(RequestOptions options) => throw null;
 
+        /// <summary> Get models that will return all properties in the model. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult<RequiredAndOptionalProperty> GetAll(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Get models that will return all properties in the model. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult<RequiredAndOptionalProperty>> GetAllAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Get models that will return only the required properties. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult GetRequiredOnly(RequestOptions options) => throw null;
 
+        /// <summary> Get models that will return only the required properties. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> GetRequiredOnlyAsync(RequestOptions options) => throw null;
 
+        /// <summary> Get models that will return only the required properties. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult<RequiredAndOptionalProperty> GetRequiredOnly(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Get models that will return only the required properties. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult<RequiredAndOptionalProperty>> GetRequiredOnlyAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Put a body with all properties present. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult PutAll(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Put a body with all properties present. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> PutAllAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Put a body with all properties present. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         public virtual ClientResult PutAll(RequiredAndOptionalProperty body, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Put a body with all properties present. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         public virtual Task<ClientResult> PutAllAsync(RequiredAndOptionalProperty body, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Put a body with only required properties. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult PutRequiredOnly(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Put a body with only required properties. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> PutRequiredOnlyAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> Put a body with only required properties. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         public virtual ClientResult PutRequiredOnly(RequiredAndOptionalProperty body, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Put a body with only required properties. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         public virtual Task<ClientResult> PutRequiredOnlyAsync(RequiredAndOptionalProperty body, CancellationToken cancellationToken = default) => throw null;
     }
 }

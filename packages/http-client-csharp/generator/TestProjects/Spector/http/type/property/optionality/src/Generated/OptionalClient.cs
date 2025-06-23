@@ -15,36 +15,52 @@ namespace _Type.Property.Optional
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Initializes a new instance of String. </summary>
         public virtual String GetStringClient() => throw null;
 
+        /// <summary> Initializes a new instance of Bytes. </summary>
         public virtual Bytes GetBytesClient() => throw null;
 
+        /// <summary> Initializes a new instance of Datetime. </summary>
         public virtual Datetime GetDatetimeClient() => throw null;
 
+        /// <summary> Initializes a new instance of Duration. </summary>
         public virtual Duration GetDurationClient() => throw null;
 
+        /// <summary> Initializes a new instance of PlainDate. </summary>
         public virtual PlainDate GetPlainDateClient() => throw null;
 
+        /// <summary> Initializes a new instance of PlainTime. </summary>
         public virtual PlainTime GetPlainTimeClient() => throw null;
 
+        /// <summary> Initializes a new instance of CollectionsByte. </summary>
         public virtual CollectionsByte GetCollectionsByteClient() => throw null;
 
+        /// <summary> Initializes a new instance of CollectionsModel. </summary>
         public virtual CollectionsModel GetCollectionsModelClient() => throw null;
 
+        /// <summary> Initializes a new instance of StringLiteral. </summary>
         public virtual StringLiteral GetStringLiteralClient() => throw null;
 
+        /// <summary> Initializes a new instance of IntLiteral. </summary>
         public virtual IntLiteral GetIntLiteralClient() => throw null;
 
+        /// <summary> Initializes a new instance of FloatLiteral. </summary>
         public virtual FloatLiteral GetFloatLiteralClient() => throw null;
 
+        /// <summary> Initializes a new instance of BooleanLiteral. </summary>
         public virtual BooleanLiteral GetBooleanLiteralClient() => throw null;
 
+        /// <summary> Initializes a new instance of UnionStringLiteral. </summary>
         public virtual UnionStringLiteral GetUnionStringLiteralClient() => throw null;
 
+        /// <summary> Initializes a new instance of UnionIntLiteral. </summary>
         public virtual UnionIntLiteral GetUnionIntLiteralClient() => throw null;
 
+        /// <summary> Initializes a new instance of UnionFloatLiteral. </summary>
         public virtual UnionFloatLiteral GetUnionFloatLiteralClient() => throw null;
 
+        /// <summary> Initializes a new instance of RequiredAndOptional. </summary>
         public virtual RequiredAndOptional GetRequiredAndOptionalClient() => throw null;
     }
 }

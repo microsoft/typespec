@@ -9,6 +9,8 @@ namespace Parameters.Basic
 {
     public static partial class ParametersBasicModelFactory
     {
+        /// <param name="name"></param>
+        /// <returns> A new <see cref="_ExplicitBody.User"/> instance for mocking. </returns>
         public static User User(string name = default) => throw null;
     }
 }

@@ -8,14 +8,28 @@ namespace _Type.Model.Inheritance.NestedDiscriminator
 {
     public static partial class TypeModelInheritanceNestedDiscriminatorModelFactory
     {
+        /// <param name="kind"> Discriminator property for Fish. </param>
+        /// <param name="age"></param>
+        /// <returns> A new <see cref="NestedDiscriminator.Fish"/> instance for mocking. </returns>
         public static Fish Fish(string kind = default, int age = default) => throw null;
 
+        /// <param name="age"></param>
+        /// <returns> A new <see cref="NestedDiscriminator.Shark"/> instance for mocking. </returns>
         public static Shark Shark(int age = default) => throw null;
 
+        /// <param name="age"></param>
+        /// <returns> A new <see cref="NestedDiscriminator.SawShark"/> instance for mocking. </returns>
         public static SawShark SawShark(int age = default) => throw null;
 
+        /// <param name="age"></param>
+        /// <returns> A new <see cref="NestedDiscriminator.GoblinShark"/> instance for mocking. </returns>
         public static GoblinShark GoblinShark(int age = default) => throw null;
 
+        /// <param name="age"></param>
+        /// <param name="friends"></param>
+        /// <param name="hate"></param>
+        /// <param name="partner"></param>
+        /// <returns> A new <see cref="NestedDiscriminator.Salmon"/> instance for mocking. </returns>
         public static Salmon Salmon(int age = default, IEnumerable<Fish> friends = default, IDictionary<string, Fish> hate = default, Fish partner = default) => throw null;
     }
 }

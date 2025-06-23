@@ -17,12 +17,16 @@ namespace SpecialWords
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Initializes a new instance of Models. </summary>
         public virtual Models GetModelsClient() => throw null;
 
+        /// <summary> Initializes a new instance of ModelProperties. </summary>
         public virtual ModelProperties GetModelPropertiesClient() => throw null;
 
+        /// <summary> Initializes a new instance of Operations. </summary>
         public virtual Operations GetOperationsClient() => throw null;
 
+        /// <summary> Initializes a new instance of Parameters. </summary>
         public virtual Parameters GetParametersClient() => throw null;
     }
 }

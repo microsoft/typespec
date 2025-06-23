@@ -9,14 +9,24 @@ namespace Encode.Datetime
 {
     public static partial class EncodeDatetimeModelFactory
     {
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="Datetime.DefaultDatetimeProperty"/> instance for mocking. </returns>
         public static DefaultDatetimeProperty DefaultDatetimeProperty(DateTimeOffset value = default) => throw null;
 
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="Datetime.Rfc3339DatetimeProperty"/> instance for mocking. </returns>
         public static Rfc3339DatetimeProperty Rfc3339DatetimeProperty(DateTimeOffset value = default) => throw null;
 
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="Datetime.Rfc7231DatetimeProperty"/> instance for mocking. </returns>
         public static Rfc7231DatetimeProperty Rfc7231DatetimeProperty(DateTimeOffset value = default) => throw null;
 
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="Datetime.UnixTimestampDatetimeProperty"/> instance for mocking. </returns>
         public static UnixTimestampDatetimeProperty UnixTimestampDatetimeProperty(DateTimeOffset value = default) => throw null;
 
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="Datetime.UnixTimestampArrayDatetimeProperty"/> instance for mocking. </returns>
         public static UnixTimestampArrayDatetimeProperty UnixTimestampArrayDatetimeProperty(IEnumerable<DateTimeOffset> value = default) => throw null;
     }
 }

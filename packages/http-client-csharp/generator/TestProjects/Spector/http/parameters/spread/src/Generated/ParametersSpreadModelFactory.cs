@@ -10,6 +10,8 @@ namespace Parameters.Spread
 {
     public static partial class ParametersSpreadModelFactory
     {
+        /// <param name="name"></param>
+        /// <returns> A new <see cref="_Model.BodyParameter"/> instance for mocking. </returns>
         public static BodyParameter BodyParameter(string name = default) => throw null;
     }
 }

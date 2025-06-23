@@ -16,20 +16,48 @@ namespace Parameters.BodyOptionality._OptionalExplicit
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Set. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Set(BinaryContent content, RequestOptions options) => throw null;
 
+        /// <summary> Set. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> SetAsync(BinaryContent content, RequestOptions options) => throw null;
 
+        /// <summary> Set. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Set(BodyModel body = default, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Set. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> SetAsync(BodyModel body = default, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Omit. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Omit(BinaryContent content, RequestOptions options) => throw null;
 
+        /// <summary> Omit. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> OmitAsync(BinaryContent content, RequestOptions options) => throw null;
 
+        /// <summary> Omit. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Omit(BodyModel body = default, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Omit. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> OmitAsync(BodyModel body = default, CancellationToken cancellationToken = default) => throw null;
     }
 }

@@ -18,10 +18,13 @@ namespace Encode.Duration
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Initializes a new instance of Query. </summary>
         public virtual Query GetQueryClient() => throw null;
 
+        /// <summary> Initializes a new instance of Property. </summary>
         public virtual Property GetPropertyClient() => throw null;
 
+        /// <summary> Initializes a new instance of Header. </summary>
         public virtual Header GetHeaderClient() => throw null;
     }
 }

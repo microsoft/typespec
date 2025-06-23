@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -15,28 +16,68 @@ namespace _Type.Scalar
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> ResponseBody. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult ResponseBody(RequestOptions options) => throw null;
 
+        /// <summary> ResponseBody. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> ResponseBodyAsync(RequestOptions options) => throw null;
 
+        /// <summary> ResponseBody. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult<decimal> ResponseBody(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> ResponseBody. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult<decimal>> ResponseBodyAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> RequestBody. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult RequestBody(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> RequestBody. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> RequestBodyAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> RequestBody. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult RequestBody(decimal body, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> RequestBody. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> RequestBodyAsync(decimal body, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> RequestParameter. </summary>
+        /// <param name="value"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult RequestParameter(decimal value, RequestOptions options) => throw null;
 
+        /// <summary> RequestParameter. </summary>
+        /// <param name="value"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> RequestParameterAsync(decimal value, RequestOptions options) => throw null;
 
+        /// <summary> RequestParameter. </summary>
+        /// <param name="value"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult RequestParameter(decimal value, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> RequestParameter. </summary>
+        /// <param name="value"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> RequestParameterAsync(decimal value, CancellationToken cancellationToken = default) => throw null;
     }
 }

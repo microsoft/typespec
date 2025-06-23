@@ -10,16 +10,28 @@ namespace Encode.Duration
 {
     public static partial class EncodeDurationModelFactory
     {
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="_Property.DefaultDurationProperty"/> instance for mocking. </returns>
         public static DefaultDurationProperty DefaultDurationProperty(TimeSpan value = default) => throw null;
 
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="_Property.ISO8601DurationProperty"/> instance for mocking. </returns>
         public static ISO8601DurationProperty ISO8601DurationProperty(TimeSpan value = default) => throw null;
 
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="_Property.Int32SecondsDurationProperty"/> instance for mocking. </returns>
         public static Int32SecondsDurationProperty Int32SecondsDurationProperty(TimeSpan value = default) => throw null;
 
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="_Property.FloatSecondsDurationProperty"/> instance for mocking. </returns>
         public static FloatSecondsDurationProperty FloatSecondsDurationProperty(TimeSpan value = default) => throw null;
 
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="_Property.Float64SecondsDurationProperty"/> instance for mocking. </returns>
         public static Float64SecondsDurationProperty Float64SecondsDurationProperty(TimeSpan value = default) => throw null;
 
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="_Property.FloatSecondsDurationArrayProperty"/> instance for mocking. </returns>
         public static FloatSecondsDurationArrayProperty FloatSecondsDurationArrayProperty(IEnumerable<TimeSpan> value = default) => throw null;
     }
 }

@@ -13,26 +13,43 @@ namespace _Type.Property.AdditionalProperties
     {
         internal DifferentSpreadStringDerived() => throw null;
 
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<DifferentSpreadStringDerived>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         DifferentSpreadStringDerived IJsonModel<DifferentSpreadStringDerived>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected override DifferentSpreadStringRecord JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         BinaryData IPersistableModel<DifferentSpreadStringDerived>.Write(ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         DifferentSpreadStringDerived IPersistableModel<DifferentSpreadStringDerived>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         protected override DifferentSpreadStringRecord PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         string IPersistableModel<DifferentSpreadStringDerived>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
+        /// <param name="differentSpreadStringDerived"> The <see cref="DifferentSpreadStringDerived"/> to serialize into <see cref="BinaryContent"/>. </param>
         public static implicit operator BinaryContent(DifferentSpreadStringDerived differentSpreadStringDerived) => throw null;
 
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="DifferentSpreadStringDerived"/> from. </param>
         public static explicit operator DifferentSpreadStringDerived(ClientResult result) => throw null;
     }
 }

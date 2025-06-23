@@ -16,20 +16,48 @@ namespace _Type.Scalar
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> get unknown value. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Get(RequestOptions options) => throw null;
 
+        /// <summary> get unknown value. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
+        /// <summary> get unknown value. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult<BinaryData> Get(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> get unknown value. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult<BinaryData>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> put unknown value. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> put unknown value. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> put unknown value. </summary>
+        /// <param name="body"> _. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         public virtual ClientResult Put(BinaryData body, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> put unknown value. </summary>
+        /// <param name="body"> _. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         public virtual Task<ClientResult> PutAsync(BinaryData body, CancellationToken cancellationToken = default) => throw null;
     }
 }

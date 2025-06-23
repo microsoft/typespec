@@ -13,6 +13,9 @@ namespace SampleTypeSpec
 {
     internal static partial class ClientPipelineExtensions
     {
+        /// <param name="pipeline"></param>
+        /// <param name="message"></param>
+        /// <param name="options"></param>
         public static async ValueTask<PipelineResponse> ProcessMessageAsync(this ClientPipeline pipeline, PipelineMessage message, RequestOptions options)
         {
             await pipeline.SendAsync(message).ConfigureAwait(false);
@@ -26,6 +29,9 @@ namespace SampleTypeSpec
             return response;
         }
 
+        /// <param name="pipeline"></param>
+        /// <param name="message"></param>
+        /// <param name="options"></param>
         public static PipelineResponse ProcessMessage(this ClientPipeline pipeline, PipelineMessage message, RequestOptions options)
         {
             pipeline.Send(message);
@@ -39,6 +45,9 @@ namespace SampleTypeSpec
             return response;
         }
 
+        /// <param name="pipeline"></param>
+        /// <param name="message"></param>
+        /// <param name="options"></param>
         public static async ValueTask<ClientResult<bool>> ProcessHeadAsBoolMessageAsync(this ClientPipeline pipeline, PipelineMessage message, RequestOptions options)
         {
             PipelineResponse response = await pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false);
@@ -53,6 +62,9 @@ namespace SampleTypeSpec
             }
         }
 
+        /// <param name="pipeline"></param>
+        /// <param name="message"></param>
+        /// <param name="options"></param>
         public static ClientResult<bool> ProcessHeadAsBoolMessage(this ClientPipeline pipeline, PipelineMessage message, RequestOptions options)
         {
             PipelineResponse response = pipeline.ProcessMessage(message, options);

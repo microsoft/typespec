@@ -15,20 +15,40 @@ namespace Client.Structure.ClientOperationGroup
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Two. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Two(RequestOptions options) => throw null;
 
+        /// <summary> Two. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> TwoAsync(RequestOptions options) => throw null;
 
+        /// <summary> Two. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Two(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Two. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> TwoAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Three. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Three(RequestOptions options) => throw null;
 
+        /// <summary> Three. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> ThreeAsync(RequestOptions options) => throw null;
 
+        /// <summary> Three. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Three(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Three. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> ThreeAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

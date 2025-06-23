@@ -9,36 +9,69 @@ namespace _Type.Property.Optional
 {
     public static partial class TypePropertyOptionalModelFactory
     {
+        /// <param name="property"> Property. </param>
+        /// <returns> A new <see cref="Optional.StringProperty"/> instance for mocking. </returns>
         public static StringProperty StringProperty(string @property = default) => throw null;
 
+        /// <param name="property"> Property. </param>
+        /// <returns> A new <see cref="Optional.BytesProperty"/> instance for mocking. </returns>
         public static BytesProperty BytesProperty(BinaryData @property = default) => throw null;
 
+        /// <param name="property"> Property. </param>
+        /// <returns> A new <see cref="Optional.DatetimeProperty"/> instance for mocking. </returns>
         public static DatetimeProperty DatetimeProperty(DateTimeOffset? @property = default) => throw null;
 
+        /// <param name="property"> Property. </param>
+        /// <returns> A new <see cref="Optional.DurationProperty"/> instance for mocking. </returns>
         public static DurationProperty DurationProperty(TimeSpan? @property = default) => throw null;
 
+        /// <param name="property"> Property. </param>
+        /// <returns> A new <see cref="Optional.PlainDateProperty"/> instance for mocking. </returns>
         public static PlainDateProperty PlainDateProperty(DateTimeOffset? @property = default) => throw null;
 
+        /// <param name="property"> Property. </param>
+        /// <returns> A new <see cref="Optional.PlainTimeProperty"/> instance for mocking. </returns>
         public static PlainTimeProperty PlainTimeProperty(TimeSpan? @property = default) => throw null;
 
+        /// <param name="property"> Property. </param>
+        /// <returns> A new <see cref="Optional.CollectionsByteProperty"/> instance for mocking. </returns>
         public static CollectionsByteProperty CollectionsByteProperty(IEnumerable<BinaryData> @property = default) => throw null;
 
+        /// <param name="property"> Property. </param>
+        /// <returns> A new <see cref="Optional.CollectionsModelProperty"/> instance for mocking. </returns>
         public static CollectionsModelProperty CollectionsModelProperty(IEnumerable<StringProperty> @property = default) => throw null;
 
+        /// <param name="property"> Property. </param>
+        /// <returns> A new <see cref="Optional.StringLiteralProperty"/> instance for mocking. </returns>
         public static StringLiteralProperty StringLiteralProperty(string @property = default) => throw null;
 
+        /// <param name="property"> Property. </param>
+        /// <returns> A new <see cref="Optional.IntLiteralProperty"/> instance for mocking. </returns>
         public static IntLiteralProperty IntLiteralProperty(int? @property = default) => throw null;
 
+        /// <param name="property"> Property. </param>
+        /// <returns> A new <see cref="Optional.FloatLiteralProperty"/> instance for mocking. </returns>
         public static FloatLiteralProperty FloatLiteralProperty(float? @property = default) => throw null;
 
+        /// <param name="property"> Property. </param>
+        /// <returns> A new <see cref="Optional.BooleanLiteralProperty"/> instance for mocking. </returns>
         public static BooleanLiteralProperty BooleanLiteralProperty(bool? @property = default) => throw null;
 
+        /// <param name="property"> Property. </param>
+        /// <returns> A new <see cref="Optional.UnionStringLiteralProperty"/> instance for mocking. </returns>
         public static UnionStringLiteralProperty UnionStringLiteralProperty(UnionStringLiteralPropertyProperty? @property = default) => throw null;
 
+        /// <param name="property"> Property. </param>
+        /// <returns> A new <see cref="Optional.UnionIntLiteralProperty"/> instance for mocking. </returns>
         public static UnionIntLiteralProperty UnionIntLiteralProperty(UnionIntLiteralPropertyProperty? @property = default) => throw null;
 
+        /// <param name="property"> Property. </param>
+        /// <returns> A new <see cref="Optional.UnionFloatLiteralProperty"/> instance for mocking. </returns>
         public static UnionFloatLiteralProperty UnionFloatLiteralProperty(UnionFloatLiteralPropertyProperty? @property = default) => throw null;
 
+        /// <param name="optionalProperty"> optional string property. </param>
+        /// <param name="requiredProperty"> required int property. </param>
+        /// <returns> A new <see cref="Optional.RequiredAndOptionalProperty"/> instance for mocking. </returns>
         public static RequiredAndOptionalProperty RequiredAndOptionalProperty(string optionalProperty = default, int requiredProperty = default) => throw null;
     }
 }

@@ -17,32 +17,79 @@ namespace Payload.MultiPart
 
         public string ContentType => throw null;
 
+        /// <param name="content"></param>
+        /// <param name="name"></param>
+        /// <param name="filename"></param>
+        /// <param name="contentType"></param>
         public void Add(string content, string name, string filename = default, string contentType = default) => throw null;
 
+        /// <param name="content"></param>
+        /// <param name="name"></param>
+        /// <param name="filename"></param>
+        /// <param name="contentType"></param>
         public void Add(int content, string name, string filename = default, string contentType = default) => throw null;
 
+        /// <param name="content"></param>
+        /// <param name="name"></param>
+        /// <param name="filename"></param>
+        /// <param name="contentType"></param>
         public void Add(long content, string name, string filename = default, string contentType = default) => throw null;
 
+        /// <param name="content"></param>
+        /// <param name="name"></param>
+        /// <param name="filename"></param>
+        /// <param name="contentType"></param>
         public void Add(float content, string name, string filename = default, string contentType = default) => throw null;
 
+        /// <param name="content"></param>
+        /// <param name="name"></param>
+        /// <param name="filename"></param>
+        /// <param name="contentType"></param>
         public void Add(double content, string name, string filename = default, string contentType = default) => throw null;
 
+        /// <param name="content"></param>
+        /// <param name="name"></param>
+        /// <param name="filename"></param>
+        /// <param name="contentType"></param>
         public void Add(decimal content, string name, string filename = default, string contentType = default) => throw null;
 
+        /// <param name="content"></param>
+        /// <param name="name"></param>
+        /// <param name="filename"></param>
+        /// <param name="contentType"></param>
         public void Add(bool content, string name, string filename = default, string contentType = default) => throw null;
 
+        /// <param name="content"></param>
+        /// <param name="name"></param>
+        /// <param name="filename"></param>
+        /// <param name="contentType"></param>
         public void Add(Stream content, string name, string filename = default, string contentType = default) => throw null;
 
+        /// <param name="content"></param>
+        /// <param name="name"></param>
+        /// <param name="filename"></param>
+        /// <param name="contentType"></param>
         public void Add(byte[] content, string name, string filename = default, string contentType = default) => throw null;
 
+        /// <param name="content"></param>
+        /// <param name="name"></param>
+        /// <param name="filename"></param>
+        /// <param name="contentType"></param>
         public void Add(BinaryData content, string name, string filename = default, string contentType = default) => throw null;
 
+        /// <param name="content"></param>
+        /// <param name="contentType"></param>
         public static void AddContentTypeHeader(HttpContent content, string contentType) => throw null;
 
+        /// <param name="length"></param>
         public override bool TryComputeLength(out long length) => throw null;
 
+        /// <param name="stream"></param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
         public override void WriteTo(Stream stream, CancellationToken cancellationToken = default) => throw null;
 
+        /// <param name="stream"></param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
         public override Task WriteToAsync(Stream stream, CancellationToken cancellationToken = default) => throw null;
 
         public override void Dispose() => throw null;

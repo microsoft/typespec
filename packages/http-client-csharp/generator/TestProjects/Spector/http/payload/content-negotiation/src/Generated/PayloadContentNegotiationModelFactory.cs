@@ -9,6 +9,9 @@ namespace Payload.ContentNegotiation
 {
     public static partial class PayloadContentNegotiationModelFactory
     {
+        /// <param name="contentType"></param>
+        /// <param name="content"></param>
+        /// <returns> A new <see cref="_DifferentBody.PngImageAsJson"/> instance for mocking. </returns>
         public static PngImageAsJson PngImageAsJson(string contentType = default, BinaryData content = default) => throw null;
     }
 }

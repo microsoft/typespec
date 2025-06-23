@@ -15,20 +15,34 @@ namespace _Type.Union
 
         public static GetResponseProp1 C => throw null;
 
+        /// <summary> Determines if two <see cref="GetResponseProp1"/> values are the same. </summary>
+        /// <param name="left"> The left value to compare. </param>
+        /// <param name="right"> The right value to compare. </param>
         public static bool operator ==(GetResponseProp1 left, GetResponseProp1 right) => throw null;
 
+        /// <summary> Determines if two <see cref="GetResponseProp1"/> values are not the same. </summary>
+        /// <param name="left"> The left value to compare. </param>
+        /// <param name="right"> The right value to compare. </param>
         public static bool operator !=(GetResponseProp1 left, GetResponseProp1 right) => throw null;
 
+        /// <summary> Converts a string to a <see cref="GetResponseProp1"/>. </summary>
+        /// <param name="value"> The value. </param>
         public static implicit operator GetResponseProp1(string value) => throw null;
 
+        /// <summary></summary>
+        /// <param name="obj"> The object to compare. </param>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj) => throw null;
 
+        /// <summary></summary>
+        /// <param name="other"> The instance to compare. </param>
         public bool Equals(GetResponseProp1 other) => throw null;
 
+        /// <summary></summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode() => throw null;
 
+        /// <summary></summary>
         public override string ToString() => throw null;
     }
 }

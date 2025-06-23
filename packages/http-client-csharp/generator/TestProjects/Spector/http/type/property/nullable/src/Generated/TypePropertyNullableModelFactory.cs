@@ -9,20 +9,43 @@ namespace _Type.Property.Nullable
 {
     public static partial class TypePropertyNullableModelFactory
     {
+        /// <param name="requiredProperty"> Required property. </param>
+        /// <param name="nullableProperty"> Property. </param>
+        /// <returns> A new <see cref="Nullable.StringProperty"/> instance for mocking. </returns>
         public static StringProperty StringProperty(string requiredProperty = default, string nullableProperty = default) => throw null;
 
+        /// <param name="requiredProperty"> Required property. </param>
+        /// <param name="nullableProperty"> Property. </param>
+        /// <returns> A new <see cref="Nullable.BytesProperty"/> instance for mocking. </returns>
         public static BytesProperty BytesProperty(string requiredProperty = default, BinaryData nullableProperty = default) => throw null;
 
+        /// <param name="requiredProperty"> Required property. </param>
+        /// <param name="nullableProperty"> Property. </param>
+        /// <returns> A new <see cref="Nullable.DatetimeProperty"/> instance for mocking. </returns>
         public static DatetimeProperty DatetimeProperty(string requiredProperty = default, DateTimeOffset? nullableProperty = default) => throw null;
 
+        /// <param name="requiredProperty"> Required property. </param>
+        /// <param name="nullableProperty"> Property. </param>
+        /// <returns> A new <see cref="Nullable.DurationProperty"/> instance for mocking. </returns>
         public static DurationProperty DurationProperty(string requiredProperty = default, TimeSpan? nullableProperty = default) => throw null;
 
+        /// <param name="requiredProperty"> Required property. </param>
+        /// <param name="nullableProperty"> Property. </param>
+        /// <returns> A new <see cref="Nullable.CollectionsByteProperty"/> instance for mocking. </returns>
         public static CollectionsByteProperty CollectionsByteProperty(string requiredProperty = default, IEnumerable<BinaryData> nullableProperty = default) => throw null;
 
+        /// <param name="requiredProperty"> Required property. </param>
+        /// <param name="nullableProperty"> Property. </param>
+        /// <returns> A new <see cref="Nullable.CollectionsModelProperty"/> instance for mocking. </returns>
         public static CollectionsModelProperty CollectionsModelProperty(string requiredProperty = default, IEnumerable<InnerModel> nullableProperty = default) => throw null;
 
+        /// <param name="property"> Inner model property. </param>
+        /// <returns> A new <see cref="Nullable.InnerModel"/> instance for mocking. </returns>
         public static InnerModel InnerModel(string @property = default) => throw null;
 
+        /// <param name="requiredProperty"> Required property. </param>
+        /// <param name="nullableProperty"> Property. </param>
+        /// <returns> A new <see cref="Nullable.CollectionsStringProperty"/> instance for mocking. </returns>
         public static CollectionsStringProperty CollectionsStringProperty(string requiredProperty = default, IEnumerable<string> nullableProperty = default) => throw null;
     }
 }

@@ -17,44 +17,118 @@ namespace Encode.Datetime._Query
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> Default. </summary>
+        /// <param name="value"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Default(DateTimeOffset value, RequestOptions options) => throw null;
 
+        /// <summary> Default. </summary>
+        /// <param name="value"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> DefaultAsync(DateTimeOffset value, RequestOptions options) => throw null;
 
+        /// <summary> Default. </summary>
+        /// <param name="value"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Default(DateTimeOffset value, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Default. </summary>
+        /// <param name="value"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> DefaultAsync(DateTimeOffset value, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Rfc3339. </summary>
+        /// <param name="value"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Rfc3339(DateTimeOffset value, RequestOptions options) => throw null;
 
+        /// <summary> Rfc3339. </summary>
+        /// <param name="value"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> Rfc3339Async(DateTimeOffset value, RequestOptions options) => throw null;
 
+        /// <summary> Rfc3339. </summary>
+        /// <param name="value"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Rfc3339(DateTimeOffset value, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Rfc3339. </summary>
+        /// <param name="value"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> Rfc3339Async(DateTimeOffset value, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Rfc7231. </summary>
+        /// <param name="value"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Rfc7231(DateTimeOffset value, RequestOptions options) => throw null;
 
+        /// <summary> Rfc7231. </summary>
+        /// <param name="value"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> Rfc7231Async(DateTimeOffset value, RequestOptions options) => throw null;
 
+        /// <summary> Rfc7231. </summary>
+        /// <param name="value"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Rfc7231(DateTimeOffset value, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Rfc7231. </summary>
+        /// <param name="value"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> Rfc7231Async(DateTimeOffset value, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> UnixTimestamp. </summary>
+        /// <param name="value"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult UnixTimestamp(DateTimeOffset value, RequestOptions options) => throw null;
 
+        /// <summary> UnixTimestamp. </summary>
+        /// <param name="value"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> UnixTimestampAsync(DateTimeOffset value, RequestOptions options) => throw null;
 
+        /// <summary> UnixTimestamp. </summary>
+        /// <param name="value"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult UnixTimestamp(DateTimeOffset value, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> UnixTimestamp. </summary>
+        /// <param name="value"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> UnixTimestampAsync(DateTimeOffset value, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> UnixTimestampArray. </summary>
+        /// <param name="value"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult UnixTimestampArray(IEnumerable<DateTimeOffset> value, RequestOptions options) => throw null;
 
+        /// <summary> UnixTimestampArray. </summary>
+        /// <param name="value"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> UnixTimestampArrayAsync(IEnumerable<DateTimeOffset> value, RequestOptions options) => throw null;
 
+        /// <summary> UnixTimestampArray. </summary>
+        /// <param name="value"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
         public virtual ClientResult UnixTimestampArray(IEnumerable<DateTimeOffset> value, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> UnixTimestampArray. </summary>
+        /// <param name="value"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
         public virtual Task<ClientResult> UnixTimestampArrayAsync(IEnumerable<DateTimeOffset> value, CancellationToken cancellationToken = default) => throw null;
     }
 }

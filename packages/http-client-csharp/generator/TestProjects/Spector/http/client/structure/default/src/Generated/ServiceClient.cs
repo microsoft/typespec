@@ -22,28 +22,52 @@ namespace Client.Structure.Service
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> One. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult One(RequestOptions options) => throw null;
 
+        /// <summary> One. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> OneAsync(RequestOptions options) => throw null;
 
+        /// <summary> One. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult One(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> One. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> OneAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Two. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Two(RequestOptions options) => throw null;
 
+        /// <summary> Two. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> TwoAsync(RequestOptions options) => throw null;
 
+        /// <summary> Two. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Two(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Two. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> TwoAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Initializes a new instance of Baz. </summary>
         public virtual Baz GetBazClient() => throw null;
 
+        /// <summary> Initializes a new instance of Qux. </summary>
         public virtual Qux GetQuxClient() => throw null;
 
+        /// <summary> Initializes a new instance of Foo. </summary>
         public virtual Foo GetFooClient() => throw null;
 
+        /// <summary> Initializes a new instance of Bar. </summary>
         public virtual Bar GetBarClient() => throw null;
     }
 }

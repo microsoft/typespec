@@ -21,30 +21,61 @@ namespace Client.Structure.RenamedOperation
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> RenamedOne. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult RenamedOne(RequestOptions options) => throw null;
 
+        /// <summary> RenamedOne. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> RenamedOneAsync(RequestOptions options) => throw null;
 
+        /// <summary> RenamedOne. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult RenamedOne(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> RenamedOne. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> RenamedOneAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> RenamedThree. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult RenamedThree(RequestOptions options) => throw null;
 
+        /// <summary> RenamedThree. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> RenamedThreeAsync(RequestOptions options) => throw null;
 
+        /// <summary> RenamedThree. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult RenamedThree(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> RenamedThree. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> RenamedThreeAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> RenamedFive. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult RenamedFive(RequestOptions options) => throw null;
 
+        /// <summary> RenamedFive. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> RenamedFiveAsync(RequestOptions options) => throw null;
 
+        /// <summary> RenamedFive. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult RenamedFive(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> RenamedFive. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> RenamedFiveAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Initializes a new instance of Group. </summary>
         public virtual Group GetGroupClient() => throw null;
     }
 }

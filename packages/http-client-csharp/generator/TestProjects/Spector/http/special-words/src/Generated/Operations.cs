@@ -15,268 +15,598 @@ namespace SpecialWords
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> And. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult And(RequestOptions options) => throw null;
 
+        /// <summary> And. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> AndAsync(RequestOptions options) => throw null;
 
+        /// <summary> And. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult And(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> And. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> AndAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> As. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult As(RequestOptions options) => throw null;
 
+        /// <summary> As. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> AsAsync(RequestOptions options) => throw null;
 
+        /// <summary> As. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult As(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> As. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> AsAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Assert. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Assert(RequestOptions options) => throw null;
 
+        /// <summary> Assert. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> AssertAsync(RequestOptions options) => throw null;
 
+        /// <summary> Assert. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Assert(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Assert. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> AssertAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Async. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Async(RequestOptions options) => throw null;
 
+        /// <summary> Async. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> AsyncAsync(RequestOptions options) => throw null;
 
+        /// <summary> Async. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Async(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Async. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> AsyncAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Await. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Await(RequestOptions options) => throw null;
 
+        /// <summary> Await. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> AwaitAsync(RequestOptions options) => throw null;
 
+        /// <summary> Await. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Await(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Await. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> AwaitAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Break. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Break(RequestOptions options) => throw null;
 
+        /// <summary> Break. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> BreakAsync(RequestOptions options) => throw null;
 
+        /// <summary> Break. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Break(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Break. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> BreakAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Class. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Class(RequestOptions options) => throw null;
 
+        /// <summary> Class. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> ClassAsync(RequestOptions options) => throw null;
 
+        /// <summary> Class. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Class(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Class. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> ClassAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Constructor. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Constructor(RequestOptions options) => throw null;
 
+        /// <summary> Constructor. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> ConstructorAsync(RequestOptions options) => throw null;
 
+        /// <summary> Constructor. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Constructor(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Constructor. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> ConstructorAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Continue. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Continue(RequestOptions options) => throw null;
 
+        /// <summary> Continue. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> ContinueAsync(RequestOptions options) => throw null;
 
+        /// <summary> Continue. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Continue(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Continue. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> ContinueAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Def. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Def(RequestOptions options) => throw null;
 
+        /// <summary> Def. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> DefAsync(RequestOptions options) => throw null;
 
+        /// <summary> Def. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Def(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Def. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> DefAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Del. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Del(RequestOptions options) => throw null;
 
+        /// <summary> Del. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> DelAsync(RequestOptions options) => throw null;
 
+        /// <summary> Del. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Del(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Del. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> DelAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Elif. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Elif(RequestOptions options) => throw null;
 
+        /// <summary> Elif. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> ElifAsync(RequestOptions options) => throw null;
 
+        /// <summary> Elif. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Elif(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Elif. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> ElifAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Else. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Else(RequestOptions options) => throw null;
 
+        /// <summary> Else. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> ElseAsync(RequestOptions options) => throw null;
 
+        /// <summary> Else. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Else(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Else. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> ElseAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Except. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Except(RequestOptions options) => throw null;
 
+        /// <summary> Except. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> ExceptAsync(RequestOptions options) => throw null;
 
+        /// <summary> Except. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Except(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Except. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> ExceptAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Exec. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Exec(RequestOptions options) => throw null;
 
+        /// <summary> Exec. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> ExecAsync(RequestOptions options) => throw null;
 
+        /// <summary> Exec. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Exec(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Exec. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> ExecAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Finally. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Finally(RequestOptions options) => throw null;
 
+        /// <summary> Finally. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> FinallyAsync(RequestOptions options) => throw null;
 
+        /// <summary> Finally. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Finally(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Finally. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> FinallyAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> For. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult For(RequestOptions options) => throw null;
 
+        /// <summary> For. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> ForAsync(RequestOptions options) => throw null;
 
+        /// <summary> For. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult For(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> For. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> ForAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> From. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult From(RequestOptions options) => throw null;
 
+        /// <summary> From. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> FromAsync(RequestOptions options) => throw null;
 
+        /// <summary> From. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult From(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> From. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> FromAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Global. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Global(RequestOptions options) => throw null;
 
+        /// <summary> Global. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> GlobalAsync(RequestOptions options) => throw null;
 
+        /// <summary> Global. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Global(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Global. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> GlobalAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> If. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult If(RequestOptions options) => throw null;
 
+        /// <summary> If. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> IfAsync(RequestOptions options) => throw null;
 
+        /// <summary> If. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult If(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> If. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> IfAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Import. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Import(RequestOptions options) => throw null;
 
+        /// <summary> Import. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> ImportAsync(RequestOptions options) => throw null;
 
+        /// <summary> Import. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Import(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Import. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> ImportAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> In. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult In(RequestOptions options) => throw null;
 
+        /// <summary> In. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> InAsync(RequestOptions options) => throw null;
 
+        /// <summary> In. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult In(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> In. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> InAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Is. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Is(RequestOptions options) => throw null;
 
+        /// <summary> Is. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> IsAsync(RequestOptions options) => throw null;
 
+        /// <summary> Is. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Is(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Is. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> IsAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Lambda. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Lambda(RequestOptions options) => throw null;
 
+        /// <summary> Lambda. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> LambdaAsync(RequestOptions options) => throw null;
 
+        /// <summary> Lambda. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Lambda(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Lambda. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> LambdaAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Not. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Not(RequestOptions options) => throw null;
 
+        /// <summary> Not. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> NotAsync(RequestOptions options) => throw null;
 
+        /// <summary> Not. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Not(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Not. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> NotAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Or. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Or(RequestOptions options) => throw null;
 
+        /// <summary> Or. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> OrAsync(RequestOptions options) => throw null;
 
+        /// <summary> Or. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Or(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Or. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> OrAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Pass. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Pass(RequestOptions options) => throw null;
 
+        /// <summary> Pass. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> PassAsync(RequestOptions options) => throw null;
 
+        /// <summary> Pass. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Pass(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Pass. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> PassAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Raise. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Raise(RequestOptions options) => throw null;
 
+        /// <summary> Raise. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> RaiseAsync(RequestOptions options) => throw null;
 
+        /// <summary> Raise. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Raise(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Raise. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> RaiseAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Return. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Return(RequestOptions options) => throw null;
 
+        /// <summary> Return. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> ReturnAsync(RequestOptions options) => throw null;
 
+        /// <summary> Return. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Return(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Return. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> ReturnAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Try. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Try(RequestOptions options) => throw null;
 
+        /// <summary> Try. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> TryAsync(RequestOptions options) => throw null;
 
+        /// <summary> Try. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Try(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Try. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> TryAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> While. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult While(RequestOptions options) => throw null;
 
+        /// <summary> While. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> WhileAsync(RequestOptions options) => throw null;
 
+        /// <summary> While. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult While(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> While. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> WhileAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> With. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult With(RequestOptions options) => throw null;
 
+        /// <summary> With. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> WithAsync(RequestOptions options) => throw null;
 
+        /// <summary> With. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult With(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> With. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> WithAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Yield. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Yield(RequestOptions options) => throw null;
 
+        /// <summary> Yield. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> YieldAsync(RequestOptions options) => throw null;
 
+        /// <summary> Yield. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult Yield(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> Yield. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> YieldAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

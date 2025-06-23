@@ -6,10 +6,13 @@ namespace _Type.Model.Empty
 {
     public static partial class TypeModelEmptyModelFactory
     {
+        /// <returns> A new <see cref="Empty.EmptyInput"/> instance for mocking. </returns>
         public static EmptyInput EmptyInput() => throw null;
 
+        /// <returns> A new <see cref="Empty.EmptyOutput"/> instance for mocking. </returns>
         public static EmptyOutput EmptyOutput() => throw null;
 
+        /// <returns> A new <see cref="Empty.EmptyInputOutput"/> instance for mocking. </returns>
         public static EmptyInputOutput EmptyInputOutput() => throw null;
     }
 }

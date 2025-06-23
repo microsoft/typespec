@@ -15,7 +15,6 @@ namespace SampleTypeSpec
     /// <summary> A factory class for creating instances of the models for mocking. </summary>
     public static partial class SampleTypeSpecModelFactory
     {
-        /// <summary> A model with a few properties of literal types. </summary>
         /// <param name="requiredUnion"> required Union. </param>
         /// <param name="requiredLiteralString"> required literal string. </param>
         /// <param name="requiredNullableString"> required nullable string. </param>
@@ -56,7 +55,6 @@ namespace SampleTypeSpec
                 additionalBinaryDataProperties: null);
         }
 
-        /// <summary> this is a roundtrip model. </summary>
         /// <param name="requiredString"> Required string, illustrating a reference type property. </param>
         /// <param name="requiredInt"> Required int, illustrating a value type property. </param>
         /// <param name="requiredCollection"> Required collection of enums. </param>
@@ -123,7 +121,6 @@ namespace SampleTypeSpec
                 additionalBinaryDataProperties: null);
         }
 
-        /// <summary> A model with a few required nullable properties. </summary>
         /// <param name="requiredNullablePrimitive"> required nullable primitive type. </param>
         /// <param name="requiredExtensibleEnum"> required nullable extensible enum type. </param>
         /// <param name="requiredFixedEnum"> required nullable fixed enum type. </param>
@@ -133,7 +130,6 @@ namespace SampleTypeSpec
             return new ModelWithRequiredNullableProperties(requiredNullablePrimitive, requiredExtensibleEnum, requiredFixedEnum, additionalBinaryDataProperties: null);
         }
 
-        /// <summary> this is not a friendly model but with a friendly name. </summary>
         /// <param name="name"> name of the NotFriend. </param>
         /// <returns> A new <see cref="Models.Custom.Friend"/> instance for mocking. </returns>
         public static Friend Friend(string name = default)
@@ -141,7 +137,6 @@ namespace SampleTypeSpec
             return new Friend(name, additionalBinaryDataProperties: null);
         }
 
-        /// <summary> this is a model with a client name. </summary>
         /// <param name="name"> name of the ModelWithClientName. </param>
         /// <returns> A new <see cref="SampleTypeSpec.RenamedModelCustom"/> instance for mocking. </returns>
         public static RenamedModelCustom RenamedModelCustom(string name = default)
@@ -149,14 +144,12 @@ namespace SampleTypeSpec
             return new RenamedModelCustom(name, additionalBinaryDataProperties: null);
         }
 
-        /// <summary> The ReturnsAnonymousModelResponse. </summary>
         /// <returns> A new <see cref="SampleTypeSpec.ReturnsAnonymousModelResponse"/> instance for mocking. </returns>
         public static ReturnsAnonymousModelResponse ReturnsAnonymousModelResponse()
         {
             return new ReturnsAnonymousModelResponse(additionalBinaryDataProperties: null);
         }
 
-        /// <summary> The ModelWithEmbeddedNonBodyParameters. </summary>
         /// <param name="name"> name of the ModelWithEmbeddedNonBodyParameters. </param>
         /// <param name="requiredHeader"> required header parameter. </param>
         /// <param name="optionalHeader"> optional header parameter. </param>

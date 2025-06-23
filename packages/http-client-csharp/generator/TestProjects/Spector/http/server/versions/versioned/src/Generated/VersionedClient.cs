@@ -20,36 +20,76 @@ namespace Server.Versions.Versioned
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> WithoutApiVersion. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult WithoutApiVersion(RequestOptions options) => throw null;
 
+        /// <summary> WithoutApiVersion. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> WithoutApiVersionAsync(RequestOptions options) => throw null;
 
+        /// <summary> WithoutApiVersion. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult WithoutApiVersion(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> WithoutApiVersion. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> WithoutApiVersionAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> WithQueryApiVersion. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult WithQueryApiVersion(RequestOptions options) => throw null;
 
+        /// <summary> WithQueryApiVersion. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> WithQueryApiVersionAsync(RequestOptions options) => throw null;
 
+        /// <summary> WithQueryApiVersion. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult WithQueryApiVersion(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> WithQueryApiVersion. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> WithQueryApiVersionAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> WithPathApiVersion. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult WithPathApiVersion(RequestOptions options) => throw null;
 
+        /// <summary> WithPathApiVersion. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> WithPathApiVersionAsync(RequestOptions options) => throw null;
 
+        /// <summary> WithPathApiVersion. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult WithPathApiVersion(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> WithPathApiVersion. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> WithPathApiVersionAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> WithQueryOldApiVersion. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult WithQueryOldApiVersion(RequestOptions options) => throw null;
 
+        /// <summary> WithQueryOldApiVersion. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> WithQueryOldApiVersionAsync(RequestOptions options) => throw null;
 
+        /// <summary> WithQueryOldApiVersion. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult WithQueryOldApiVersion(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> WithQueryOldApiVersion. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult> WithQueryOldApiVersionAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

@@ -18,28 +18,74 @@ namespace _Type.Model.Inheritance.NotDiscriminated
 
         public ClientPipeline Pipeline => throw null;
 
+        /// <summary> PostValid. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult PostValid(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> PostValid. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> PostValidAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> PostValid. </summary>
+        /// <param name="input"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="input"/> is null. </exception>
         public virtual ClientResult PostValid(Siamese input, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> PostValid. </summary>
+        /// <param name="input"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="input"/> is null. </exception>
         public virtual Task<ClientResult> PostValidAsync(Siamese input, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> GetValid. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult GetValid(RequestOptions options) => throw null;
 
+        /// <summary> GetValid. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> GetValidAsync(RequestOptions options) => throw null;
 
+        /// <summary> GetValid. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual ClientResult<Siamese> GetValid(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> GetValid. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         public virtual Task<ClientResult<Siamese>> GetValidAsync(CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> PutValid. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult PutValid(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> PutValid. </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual Task<ClientResult> PutValidAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
+        /// <summary> PutValid. </summary>
+        /// <param name="input"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="input"/> is null. </exception>
         public virtual ClientResult<Siamese> PutValid(Siamese input, CancellationToken cancellationToken = default) => throw null;
 
+        /// <summary> PutValid. </summary>
+        /// <param name="input"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="input"/> is null. </exception>
         public virtual Task<ClientResult<Siamese>> PutValidAsync(Siamese input, CancellationToken cancellationToken = default) => throw null;
     }
 }
