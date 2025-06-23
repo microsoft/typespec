@@ -20,6 +20,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public TypeProvider EnclosingType { get; }
 
+        private bool _rebuildXmlDocsOnAccept;
+
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected MethodProvider()
@@ -40,6 +42,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var paramHash = MethodProviderHelpers.GetParamHash(signature);
             BodyStatements = MethodProviderHelpers.GetBodyStatementWithValidation(signature.Parameters, bodyStatements, paramHash);
             XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature);
+            _rebuildXmlDocsOnAccept = xmlDocProvider == null;
             EnclosingType = enclosingType;
         }
 
@@ -55,6 +58,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             Signature = signature;
             BodyExpression = bodyExpression;
             XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature);
+            _rebuildXmlDocsOnAccept = xmlDocProvider == null;
             EnclosingType = enclosingType;
         }
 
@@ -83,6 +87,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (xmlDocProvider != null)
             {
                 XmlDocs = xmlDocProvider;
+                _rebuildXmlDocsOnAccept = false;
             }
         }
 
@@ -100,7 +105,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             Signature = updated.Signature;
-            XmlDocs = MethodProviderHelpers.BuildXmlDocs(Signature);
+            if (_rebuildXmlDocsOnAccept)
+            {
+                XmlDocs = MethodProviderHelpers.BuildXmlDocs(Signature);
+            }
 
             if (BodyExpression != null)
             {
