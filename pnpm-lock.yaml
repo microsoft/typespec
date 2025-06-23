@@ -2273,7 +2273,7 @@ importers:
         specifier: ~6.0.6
         version: 6.0.6
       '@types/mocha':
-        specifier: 10.0.10
+        specifier: ^10.0.9
         version: 10.0.10
       '@types/node':
         specifier: ~24.0.3
