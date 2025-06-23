@@ -4,7 +4,7 @@
 
 ### Bug Fixes
 
-- [#7697](https://github.com/microsoft/typespec/pull/7697) Validate api versions by looking at ordering of api versions from spec
+- [#7705](https://github.com/microsoft/typespec/pull/7705) Validate api versions by looking at ordering of api versions from spec
 - [#7696](https://github.com/microsoft/typespec/pull/7696) Add support for `validate-versioning` flag, so users can toggle whether they get api versioning validation
 
 
