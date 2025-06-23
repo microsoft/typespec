@@ -1,14 +1,13 @@
-import { render } from "@alloy-js/core";
+import { Children, render } from "@alloy-js/core";
 import { d } from "@alloy-js/core/testing";
-import * as cs from "@alloy-js/csharp";
-import { Namespace, SourceFile } from "@alloy-js/csharp";
+import { createCSharpNamePolicy, Namespace, SourceFile } from "@alloy-js/csharp";
 import { Enum, Interface, Model } from "@typespec/compiler";
 import { BasicTestRunner } from "@typespec/compiler/testing";
 import { beforeEach, describe, it } from "vitest";
-import { Output } from "../../../src/core/index.js";
 import { ClassDeclaration, EnumDeclaration } from "../../../src/csharp/index.js";
-import { createEmitterFrameworkTestRunner } from "../test-host.js";
-import { assertFileContents } from "../utils.js";
+import { assertFileContents } from "../../../test/csharp/utils.js";
+import { createEmitterFrameworkTestRunner } from "../../../test/typescript/test-host.js";
+import { Output } from "../../core/index.js";
 
 let runner: BasicTestRunner;
 
@@ -16,19 +15,26 @@ beforeEach(async () => {
   runner = await createEmitterFrameworkTestRunner();
 });
 
+function Wrapper(props: { children: Children }) {
+  const policy = createCSharpNamePolicy();
+  return (
+    <Output program={runner.program} namePolicy={policy}>
+      <Namespace name="TestNamespace">
+        <SourceFile path="test.cs">{props.children}</SourceFile>
+      </Namespace>
+    </Output>
+  );
+}
+
 it("renders an empty class declaration", async () => {
   const { TestModel } = (await runner.compile(`
     @test model TestModel {}
   `)) as { TestModel: Model };
 
   const res = render(
-    <Output program={runner.program}>
-      <Namespace name="TestNamespace">
-        <SourceFile path="test.cs">
-          <ClassDeclaration type={TestModel} />
-        </SourceFile>
-      </Namespace>
-    </Output>,
+    <Wrapper>
+      <ClassDeclaration type={TestModel} />
+    </Wrapper>,
   );
 
   assertFileContents(
@@ -54,13 +60,9 @@ it("renders a class declaration with properties", async () => {
   `)) as { TestModel: Model };
 
   const res = render(
-    <Output program={runner.program}>
-      <Namespace name="TestNamespace">
-        <SourceFile path="test.cs">
-          <ClassDeclaration type={TestModel} />
-        </SourceFile>
-      </Namespace>
-    </Output>,
+    <Wrapper>
+      <ClassDeclaration type={TestModel} />
+    </Wrapper>,
   );
 
   assertFileContents(
@@ -84,13 +86,9 @@ it("can override class name", async () => {
   `)) as { TestModel: Model };
 
   const res = render(
-    <Output program={runner.program}>
-      <Namespace name="TestNamespace">
-        <SourceFile path="test.cs">
-          <ClassDeclaration type={TestModel} name="CustomClassName" />
-        </SourceFile>
-      </Namespace>
-    </Output>,
+    <Wrapper>
+      <ClassDeclaration type={TestModel} name="CustomClassName" />
+    </Wrapper>,
   );
 
   assertFileContents(
@@ -114,13 +112,9 @@ it("renders a class with access modifiers", async () => {
   `)) as { TestModel: Model };
 
   const res = render(
-    <Output program={runner.program}>
-      <Namespace name="TestNamespace">
-        <SourceFile path="test.cs">
-          <ClassDeclaration type={TestModel} protected />
-        </SourceFile>
-      </Namespace>
-    </Output>,
+    <Wrapper>
+      <ClassDeclaration type={TestModel} protected />
+    </Wrapper>,
   );
 
   assertFileContents(
@@ -145,13 +139,9 @@ describe("from an interface", () => {
   `)) as { TestInterface: Interface };
 
     const res = render(
-      <Output program={runner.program}>
-        <Namespace name="TestNamespace">
-          <SourceFile path="test.cs">
-            <ClassDeclaration type={TestInterface} />
-          </SourceFile>
-        </Namespace>
-      </Output>,
+      <Wrapper>
+        <ClassDeclaration type={TestInterface} />
+      </Wrapper>,
     );
 
     assertFileContents(
@@ -176,13 +166,9 @@ describe("from an interface", () => {
   `)) as { TestInterface: Interface };
 
     const res = render(
-      <Output program={runner.program} namePolicy={cs.createCSharpNamePolicy()}>
-        <Namespace name="TestNamespace">
-          <SourceFile path="test.cs">
-            <ClassDeclaration type={TestInterface} />
-          </SourceFile>
-        </Namespace>
-      </Output>,
+      <Wrapper>
+        <ClassDeclaration type={TestInterface} />
+      </Wrapper>,
     );
 
     assertFileContents(
@@ -210,15 +196,11 @@ it("renders a class with model members", async () => {
   `)) as { TestModel: Model; TestReference: Model };
 
   const res = render(
-    <Output program={runner.program} namePolicy={cs.createCSharpNamePolicy()}>
-      <Namespace name="TestNamespace">
-        <SourceFile path="test.cs">
-          <ClassDeclaration type={TestReference} />
-          <hbr />
-          <ClassDeclaration type={TestModel} />
-        </SourceFile>
-      </Namespace>
-    </Output>,
+    <Wrapper>
+      <ClassDeclaration type={TestReference} />
+      <hbr />
+      <ClassDeclaration type={TestModel} />
+    </Wrapper>,
   );
 
   assertFileContents(
@@ -251,15 +233,11 @@ it("renders a class with enum members", async () => {
   `)) as { TestModel: Model; TestEnum: Enum };
 
   const res = render(
-    <Output program={runner.program} namePolicy={cs.createCSharpNamePolicy()}>
-      <Namespace name="TestNamespace">
-        <SourceFile path="test.cs">
-          <EnumDeclaration type={TestEnum} />
-          <hbr />
-          <ClassDeclaration type={TestModel} />
-        </SourceFile>
-      </Namespace>
-    </Output>,
+    <Wrapper>
+      <EnumDeclaration type={TestEnum} />
+      <hbr />
+      <ClassDeclaration type={TestModel} />
+    </Wrapper>,
   );
 
   assertFileContents(
@@ -281,6 +259,33 @@ it("renders a class with enum members", async () => {
   );
 });
 
+it("maps prop: string | null to nullable property", async () => {
+  const { TestModel } = (await runner.compile(`
+    @test model TestModel {
+      prop1: string | null;
+    }
+  `)) as { TestModel: Model };
+
+  const res = render(
+    <Wrapper>
+      <ClassDeclaration type={TestModel} />
+    </Wrapper>,
+  );
+
+  assertFileContents(
+    res,
+    d`
+      namespace TestNamespace
+      {
+          class TestModel
+          {
+              public string? Prop1 { get; set; }
+          }
+      }
+    `,
+  );
+});
+
 it("renders a class with string enums", async () => {
   const { TestModel, TestEnum } = (await runner.compile(`
     @test enum TestEnum {
@@ -293,15 +298,11 @@ it("renders a class with string enums", async () => {
   `)) as { TestModel: Model; TestEnum: Enum };
 
   const res = render(
-    <Output program={runner.program} namePolicy={cs.createCSharpNamePolicy()}>
-      <Namespace name="TestNamespace">
-        <SourceFile path="test.cs">
-          <EnumDeclaration type={TestEnum} />
-          <hbr />
-          <ClassDeclaration type={TestModel} />
-        </SourceFile>
-      </Namespace>
-    </Output>,
+    <Wrapper>
+      <EnumDeclaration type={TestEnum} />
+      <hbr />
+      <ClassDeclaration type={TestModel} />
+    </Wrapper>,
   );
 
   assertFileContents(
@@ -335,13 +336,9 @@ describe("with doc comments", () => {
   `)) as { TestModel: Model };
 
     const res = render(
-      <Output program={runner.program} namePolicy={cs.createCSharpNamePolicy()}>
-        <Namespace name="TestNamespace">
-          <SourceFile path="test.cs">
-            <ClassDeclaration type={TestModel} />
-          </SourceFile>
-        </Namespace>
-      </Output>,
+      <Wrapper>
+        <ClassDeclaration type={TestModel} />
+      </Wrapper>,
     );
 
     assertFileContents(
@@ -375,13 +372,9 @@ describe("with doc comments", () => {
   `)) as { TestInterface: Interface };
 
     const res = render(
-      <Output program={runner.program} namePolicy={cs.createCSharpNamePolicy()}>
-        <Namespace name="TestNamespace">
-          <SourceFile path="test.cs">
-            <ClassDeclaration type={TestInterface} />
-          </SourceFile>
-        </Namespace>
-      </Output>,
+      <Wrapper>
+        <ClassDeclaration type={TestInterface} />
+      </Wrapper>,
     );
 
     assertFileContents(

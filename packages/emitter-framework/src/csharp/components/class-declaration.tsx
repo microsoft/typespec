@@ -1,6 +1,6 @@
 import * as ay from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
-import { Interface, Model } from "@typespec/compiler";
+import { Interface, Model, ModelProperty, Type } from "@typespec/compiler";
 import { useTsp } from "../../core/index.js";
 import { TypeExpression } from "./type-expression.jsx";
 import { getDocComments } from "./utils/doc-comments.jsx";
@@ -42,23 +42,49 @@ export function ClassDeclaration(props: ClassDeclarationProps): ay.Children {
   );
 }
 
-function ClassProperties(props: ClassPropertiesProps): ay.Children {
+function preprocessPropertyType(type: Type): { type: Type; nullable: boolean } {
   const { $ } = useTsp();
-  const namePolicy = cs.useCSharpNamePolicy();
 
+  if (type.kind === "Union") {
+    const variants = type.variants;
+    const nonNullVariant = [...variants.values()].find((v) => v.type !== $.intrinsic.null);
+    const nullVariant = [...variants.values()].find((v) => v.type !== $.intrinsic.null);
+    if (nonNullVariant && nullVariant && variants.size === 2) {
+      return { type: nonNullVariant.type, nullable: true };
+    } else {
+      return { type, nullable: false };
+    }
+  } else {
+    return { type, nullable: false };
+  }
+}
+
+function ClassProperties(props: ClassPropertiesProps): ay.Children {
   return (
     <ay.For each={props.type.properties.entries()} hardline>
-      {([name, property]) => (
-        <cs.ClassProperty
-          name={namePolicy.getName(name, "class-member-public")}
-          type={<TypeExpression type={property.type} />}
-          public
-          doc={getDocComments($, property)}
-          get
-          set
-        />
-      )}
+      {([name, property]) => <ClassProperty type={property} />}
     </ay.For>
+  );
+}
+
+export interface ClassPropertyProps {
+  type: ModelProperty;
+}
+
+function ClassProperty(props: ClassPropertyProps): ay.Children {
+  const result = preprocessPropertyType(props.type.type);
+  const { $ } = useTsp();
+
+  return (
+    <cs.ClassProperty
+      name={props.type.name}
+      type={<TypeExpression type={result.type} />}
+      public
+      nullable={result.nullable}
+      doc={getDocComments($, props.type)}
+      get
+      set
+    />
   );
 }
 
