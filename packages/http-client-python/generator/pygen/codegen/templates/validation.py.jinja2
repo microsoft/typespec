@@ -1,6 +1,7 @@
 {% if code_model.license_header %}
 {{ code_model.license_header }}
 {% endif %}
+import sys
 import functools
 
 def api_version_validation(**kwargs):
@@ -33,7 +34,7 @@ def api_version_validation(**kwargs):
             except AttributeError:
                 return func(*args, **kwargs)
 
-            if _index_with_default(method_added_on) > _index_with_default(client_api_version, float("-inf")):
+            if _index_with_default(method_added_on) > _index_with_default(client_api_version, -sys.maxsize):
                 raise ValueError(
                     f"'{func.__name__}' is not available in API version "
                     f"{client_api_version}. Pass service API version {method_added_on} or newer to your client."
@@ -43,7 +44,7 @@ def api_version_validation(**kwargs):
                 parameter: api_version
                 for api_version, parameters in params_added_on.items()
                 for parameter in parameters
-                if parameter in kwargs and _index_with_default(api_version) > _index_with_default(client_api_version, float("-inf"))
+                if parameter in kwargs and _index_with_default(api_version) > _index_with_default(client_api_version, -sys.maxsize)
             }
             if unsupported:
                 raise ValueError("".join([
