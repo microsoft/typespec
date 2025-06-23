@@ -1092,7 +1092,7 @@ export class CodeModelBuilder {
     // "itemsSegments" should exist for "paging"/"lropaging", take 1st for backward compatibility
     const itemSerializedName =
       pageItemsResponseProperty && pageItemsResponseProperty.length > 0
-        ? pageItemsResponseProperty[0]
+        ? pageItemsResponseProperty[0].serializedName
         : undefined;
 
     // nextLink
@@ -1103,7 +1103,7 @@ export class CodeModelBuilder {
     // take 1st for backward compatibility
     const nextLinkSerializedName =
       nextLinkResponseProperty && nextLinkResponseProperty.length > 0
-        ? nextLinkResponseProperty[0]
+        ? nextLinkResponseProperty[0].serializedName
         : undefined;
 
     // continuationToken
