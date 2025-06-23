@@ -9,7 +9,15 @@ def api_version_validation(**kwargs):
     api_versions_list = kwargs.pop("api_versions_list", [])
 
     def _index_with_default(value: str, default: int = -1) -> int:
-        """Get the index of value in lst, or return default if not found."""
+        """Get the index of value in lst, or return default if not found.
+        
+        :param value: The value to search for in the api_versions_list.
+        :type value: str
+        :param default: The default value to return if the value is not found.
+        :type default: int
+        :return: The index of the value in the list, or the default value if not found.
+        :rtype: int
+        """
         try:
             return api_versions_list.index(value)
         except ValueError:
