@@ -68,6 +68,14 @@ public final class MethodPageDetails {
         return lroIntermediateType;
     }
 
+    public List<ModelPropertySegment> getPageItemsPropertyReference() {
+        return pageItemsPropertyReference;
+    }
+
+    public List<ModelPropertySegment> getNextLinkPropertyReference() {
+        return nextLinkPropertyReference;
+    }
+
     public ContinuationToken getContinuationToken() {
         return continuationToken;
     }
