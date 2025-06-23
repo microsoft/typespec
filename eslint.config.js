@@ -120,7 +120,7 @@ const testFilesConfig = tsEslint.config({
 const jsxFilesConfig = tsEslint.config({
   files: ["**/*.tsx"],
   plugins: { "react-hooks": reactHooks },
-  ignores: ["**/packages/http-client-js/**/*"],
+  ignores: ["packages/emitter-framework/src/**/*", "**/packages/http-client-js/**/*"],
   rules: {
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
