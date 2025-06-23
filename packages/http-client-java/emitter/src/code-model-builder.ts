@@ -1058,17 +1058,6 @@ export class CodeModelBuilder {
       }
     });
 
-    function getLastPropertySegment(
-      segments: SdkModelPropertyType[] | undefined,
-    ): SdkBodyModelPropertyType | undefined {
-      if (segments) {
-        const lastSegment = segments[segments.length - 1];
-        if (lastSegment.kind === "property") {
-          return lastSegment;
-        }
-      }
-      return undefined;
-    }
     function getLastSegment(
       segments: SdkModelPropertyType[] | undefined,
     ): SdkModelPropertyType | undefined {
@@ -1076,12 +1065,6 @@ export class CodeModelBuilder {
         return segments[segments.length - 1];
       }
       return undefined;
-    }
-    function getLastSegmentSerializedName(
-      segments: SdkModelPropertyType[] | undefined,
-    ): string | undefined {
-      const lastSegment = getLastPropertySegment(segments);
-      return lastSegment ? getPropertySerializedName(lastSegment) : undefined;
     }
 
     // pageItems
