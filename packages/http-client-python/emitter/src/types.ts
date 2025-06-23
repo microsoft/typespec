@@ -59,7 +59,7 @@ function isEmptyModel(type: SdkType): boolean {
 }
 
 export function getSimpleTypeResult(result: Record<string, any>): Record<string, any> {
-  const key = dump(result, { sortKeys: true });
+  const key = result.type === "constant" ? result.value : dump(result, { sortKeys: true });
   const value = simpleTypesMap.get(key);
   if (value) {
     result = value;
@@ -381,6 +381,10 @@ function emitEnumMember(
   type: SdkEnumValueType,
   enumType: Record<string, any>,
 ): Record<string, any> {
+  const value = type.value;
+  if (typeof value === "string" && simpleTypesMap.has(value)) {
+    return simpleTypesMap.get(value)!;
+  }
   return {
     name: enumName(type.name),
     value: type.value,
