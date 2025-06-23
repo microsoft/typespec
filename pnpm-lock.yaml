@@ -2294,14 +2294,14 @@ importers:
         specifier: workspace:^
         version: link:../compiler
       '@typespec/http':
-        specifier: latest
-        version: 1.1.0(@typespec/compiler@packages+compiler)(@typespec/streams@0.71.0(@typespec/compiler@packages+compiler))
+        specifier: workspace:^
+        version: link:../http
       '@typespec/internal-build-utils':
         specifier: workspace:^
         version: link:../internal-build-utils
       '@typespec/openapi3':
-        specifier: latest
-        version: 1.1.0(@typespec/compiler@packages+compiler)(@typespec/http@1.1.0(@typespec/compiler@packages+compiler)(@typespec/streams@0.71.0(@typespec/compiler@packages+compiler)))(@typespec/json-schema@1.1.0(@typespec/compiler@packages+compiler))(@typespec/openapi@1.1.0(@typespec/compiler@packages+compiler)(@typespec/http@1.1.0(@typespec/compiler@packages+compiler)(@typespec/streams@0.71.0(@typespec/compiler@packages+compiler))))(@typespec/versioning@0.71.0(@typespec/compiler@packages+compiler))
+        specifier: workspace:^
+        version: link:../openapi3
       '@vitest/coverage-v8':
         specifier: ^3.1.2
         version: 3.2.4(vitest@3.2.4)
@@ -2749,10 +2749,6 @@ packages:
   '@antfu/utils@8.1.1':
     resolution: {integrity: sha512-Mex9nXf9vR6AhcXmMrlz/HVgYYZpVGJ6YlPgwl7UnaFpnshXs6EK/oa5Gpf3CzENMjkvEx2tQtntGnb7UtSTOQ==}
 
-  '@apidevtools/json-schema-ref-parser@11.7.2':
-    resolution: {integrity: sha512-4gY54eEGEstClvEkGnwVkTkrx0sqwemEFG5OSRRn3tD91XH0+Q8XIkYIfo7IwEWPpJZwILb9GUXeShtplRc/eA==}
-    engines: {node: '>= 16'}
-
   '@apidevtools/json-schema-ref-parser@14.0.1':
     resolution: {integrity: sha512-Oc96zvmxx1fqoSEdUmfmvvb59/KDOnUoJ7s2t7bISyAn0XEz57LCCw8k2Y4Pf3mwKaZLMciESALORLgfe2frCw==}
     engines: {node: '>= 16'}
@@ -2763,11 +2759,6 @@ packages:
 
   '@apidevtools/swagger-methods@3.0.2':
     resolution: {integrity: sha512-QAkD5kK2b1WfjDS/UQn/qQkbwF31uqRjPTrsCs5ZG9BQGAkjwvqGFjjPqAuzac/IYzpPtRzjCP1WrTuAIjMrXg==}
-
-  '@apidevtools/swagger-parser@10.1.1':
-    resolution: {integrity: sha512-u/kozRnsPO/x8QtKYJOqoGtC4kH6yg1lfYkB9Au0WhYB0FNLpyFusttQtvhlwjtG3rOwiRz4D8DnnXa8iEpIKA==}
-    peerDependencies:
-      openapi-types: '>=7'
 
   '@apidevtools/swagger-parser@12.0.0':
     resolution: {integrity: sha512-WLJIWcfOXrSKlZEM+yhA2Xzatgl488qr1FoOxixYmtWapBzwSC0gVGq4WObr4hHClMIiFFdOBdixNkvWqkWIWA==}
@@ -5214,9 +5205,6 @@ packages:
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
 
-  '@jsdevtools/ono@7.1.3':
-    resolution: {integrity: sha512-4JQNk+3mVzK3xh2rqd6RB4J46qUR19azEHBneZyTZM+c456qOrbbM/5xcR8huNCCcbVt7+UmizG6GuUvPvKUYg==}
-
   '@jspm/core@2.1.0':
     resolution: {integrity: sha512-3sRl+pkyFY/kLmHl0cgHiFp2xEqErA8N3ECjMs7serSUBmoJ70lBa0PG5t0IM6WJgdZNyyI0R8YFfi5wM8+mzg==}
 
@@ -6864,69 +6852,9 @@ packages:
     resolution: {integrity: sha512-xoh5rJ+tgsRKoXnkBPFRLZ7rjKM0AfVbC68UZ/ECXoDbfggb9RbEySN359acY1vS3qZ0jVTVWzbtfapwm5ztxw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@typespec/asset-emitter@0.71.0':
-    resolution: {integrity: sha512-wXDF2kbEPTJksv16mzcEyaz97PUxz1xH/Bl4OFSnvwE5xC1hkb0uKQ2nsunnu4yFzbz6Jmn7aoxM1WlYR5PzkA==}
-    engines: {node: '>=20.0.0'}
-    peerDependencies:
-      '@typespec/compiler': ^1.1.0
-
-  '@typespec/http@1.1.0':
-    resolution: {integrity: sha512-1doVGmkv3N8l57fVuci4jGMZ61EZBlDzuNZO2b9o0+mexCOs/P96CIpFkaNVvTQgjpyFsW1DlXiUKAvUC9zQfg==}
-    engines: {node: '>=20.0.0'}
-    peerDependencies:
-      '@typespec/compiler': ^1.1.0
-      '@typespec/streams': ^0.71.0
-    peerDependenciesMeta:
-      '@typespec/streams':
-        optional: true
-
-  '@typespec/json-schema@1.1.0':
-    resolution: {integrity: sha512-6pLGrjGX9l3dN10qAnD4jO5BoheaEMH9sL1p6N+USEiGZBnitloRAARXz/nG9fycwyFN1R2dEncgYaLEFvH8FQ==}
-    engines: {node: '>=20.0.0'}
-    peerDependencies:
-      '@typespec/compiler': ^1.1.0
-
-  '@typespec/openapi3@1.1.0':
-    resolution: {integrity: sha512-+1Ue7+M/PkNX54H6SJAym5ONHzlW7s5ZnA4fCH5jwKvalvI94stMvefOpd8FAesJDVmXc3wZ0kiqYo5EuMTjOQ==}
-    engines: {node: '>=20.0.0'}
-    hasBin: true
-    peerDependencies:
-      '@typespec/compiler': ^1.1.0
-      '@typespec/http': ^1.1.0
-      '@typespec/json-schema': ^1.1.0
-      '@typespec/openapi': ^1.1.0
-      '@typespec/versioning': ^0.71.0
-      '@typespec/xml': '*'
-    peerDependenciesMeta:
-      '@typespec/json-schema':
-        optional: true
-      '@typespec/versioning':
-        optional: true
-      '@typespec/xml':
-        optional: true
-
-  '@typespec/openapi@1.1.0':
-    resolution: {integrity: sha512-HPvrpSS7eSVk3fEkWndcDTrAZssWRYv3FyDTqVqljildc7FAiXdo88+r5CCK8endmgIrES7uJdHLkcIGUZx1pg==}
-    engines: {node: '>=20.0.0'}
-    peerDependencies:
-      '@typespec/compiler': ^1.1.0
-      '@typespec/http': ^1.1.0
-
-  '@typespec/streams@0.71.0':
-    resolution: {integrity: sha512-ofyAcg8GnO6uTffGo00D6MMfRkqie4QtnUUSGNC1Bam2WG+wkeSG/huP0WNRT8GofzK1N0M6QqQwAW/vdq9ymQ==}
-    engines: {node: '>=20.0.0'}
-    peerDependencies:
-      '@typespec/compiler': ^1.1.0
-
   '@typespec/ts-http-runtime@0.2.3':
     resolution: {integrity: sha512-oRhjSzcVjX8ExyaF8hC0zzTqxlVuRlgMHL/Bh4w3xB9+wjbm0FpXylVU/lBrn+kgphwYTrOk3tp+AVShGmlYCg==}
     engines: {node: '>=18.0.0'}
-
-  '@typespec/versioning@0.71.0':
-    resolution: {integrity: sha512-8qknFLOpZTVzQ+SveXg9G7WJV8P80yxLlj0nOc3ZLBKiPgM6FF7vGWHRNtnh7s3gSXvWyxopaJ9fZSLZSJmbww==}
-    engines: {node: '>=20.0.0'}
-    peerDependencies:
-      '@typespec/compiler': ^1.1.0
 
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
@@ -14073,11 +14001,6 @@ packages:
     resolution: {integrity: sha512-CBKFWExMn46Foo4cldiChEzn7S7SRV+wqiluAb6xmueD/fGyRHIhX8m14vVGgeFWjN540nKCNVj6P21eQjgTuA==}
     engines: {node: '>= 14'}
 
-  yaml@2.7.1:
-    resolution: {integrity: sha512-10ULxpnOCQXxJvBgxsn9ptjq6uviG/htZKk9veJGhlqn3w/DxQ631zFF+nlQXLwmImeS5amR2dl2U8sg6U9jsQ==}
-    engines: {node: '>= 14'}
-    hasBin: true
-
   yaml@2.8.0:
     resolution: {integrity: sha512-4lLa/EcQCB0cJkyts+FpIRx5G/llPxfP6VQU5KByHEhLxY3IJCH0f0Hy1MHI8sClTvsIb8qwRJ6R/ZdlDJ/leQ==}
     engines: {node: '>= 14.6'}
@@ -14424,12 +14347,6 @@ snapshots:
 
   '@antfu/utils@8.1.1': {}
 
-  '@apidevtools/json-schema-ref-parser@11.7.2':
-    dependencies:
-      '@jsdevtools/ono': 7.1.3
-      '@types/json-schema': 7.0.15
-      js-yaml: 4.1.0
-
   '@apidevtools/json-schema-ref-parser@14.0.1':
     dependencies:
       '@types/json-schema': 7.0.15
@@ -14438,17 +14355,6 @@ snapshots:
   '@apidevtools/openapi-schemas@2.1.0': {}
 
   '@apidevtools/swagger-methods@3.0.2': {}
-
-  '@apidevtools/swagger-parser@10.1.1(openapi-types@12.1.3)':
-    dependencies:
-      '@apidevtools/json-schema-ref-parser': 11.7.2
-      '@apidevtools/openapi-schemas': 2.1.0
-      '@apidevtools/swagger-methods': 3.0.2
-      '@jsdevtools/ono': 7.1.3
-      ajv: 8.17.1
-      ajv-draft-04: 1.0.0(ajv@8.17.1)
-      call-me-maybe: 1.0.2
-      openapi-types: 12.1.3
 
   '@apidevtools/swagger-parser@12.0.0(openapi-types@12.1.3)':
     dependencies:
@@ -17853,8 +17759,6 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@jsdevtools/ono@7.1.3': {}
-
   '@jspm/core@2.1.0': {}
 
   '@koa/cors@5.0.0':
@@ -20173,46 +20077,6 @@ snapshots:
       '@typescript-eslint/types': 8.34.1
       eslint-visitor-keys: 4.2.1
 
-  '@typespec/asset-emitter@0.71.0(@typespec/compiler@packages+compiler)':
-    dependencies:
-      '@typespec/compiler': link:packages/compiler
-
-  '@typespec/http@1.1.0(@typespec/compiler@packages+compiler)(@typespec/streams@0.71.0(@typespec/compiler@packages+compiler))':
-    dependencies:
-      '@typespec/compiler': link:packages/compiler
-    optionalDependencies:
-      '@typespec/streams': 0.71.0(@typespec/compiler@packages+compiler)
-
-  '@typespec/json-schema@1.1.0(@typespec/compiler@packages+compiler)':
-    dependencies:
-      '@typespec/asset-emitter': 0.71.0(@typespec/compiler@packages+compiler)
-      '@typespec/compiler': link:packages/compiler
-      yaml: 2.7.1
-    optional: true
-
-  '@typespec/openapi3@1.1.0(@typespec/compiler@packages+compiler)(@typespec/http@1.1.0(@typespec/compiler@packages+compiler)(@typespec/streams@0.71.0(@typespec/compiler@packages+compiler)))(@typespec/json-schema@1.1.0(@typespec/compiler@packages+compiler))(@typespec/openapi@1.1.0(@typespec/compiler@packages+compiler)(@typespec/http@1.1.0(@typespec/compiler@packages+compiler)(@typespec/streams@0.71.0(@typespec/compiler@packages+compiler))))(@typespec/versioning@0.71.0(@typespec/compiler@packages+compiler))':
-    dependencies:
-      '@apidevtools/swagger-parser': 10.1.1(openapi-types@12.1.3)
-      '@typespec/asset-emitter': 0.71.0(@typespec/compiler@packages+compiler)
-      '@typespec/compiler': link:packages/compiler
-      '@typespec/http': 1.1.0(@typespec/compiler@packages+compiler)(@typespec/streams@0.71.0(@typespec/compiler@packages+compiler))
-      '@typespec/openapi': 1.1.0(@typespec/compiler@packages+compiler)(@typespec/http@1.1.0(@typespec/compiler@packages+compiler)(@typespec/streams@0.71.0(@typespec/compiler@packages+compiler)))
-      openapi-types: 12.1.3
-      yaml: 2.7.1
-    optionalDependencies:
-      '@typespec/json-schema': 1.1.0(@typespec/compiler@packages+compiler)
-      '@typespec/versioning': 0.71.0(@typespec/compiler@packages+compiler)
-
-  '@typespec/openapi@1.1.0(@typespec/compiler@packages+compiler)(@typespec/http@1.1.0(@typespec/compiler@packages+compiler)(@typespec/streams@0.71.0(@typespec/compiler@packages+compiler)))':
-    dependencies:
-      '@typespec/compiler': link:packages/compiler
-      '@typespec/http': 1.1.0(@typespec/compiler@packages+compiler)(@typespec/streams@0.71.0(@typespec/compiler@packages+compiler))
-
-  '@typespec/streams@0.71.0(@typespec/compiler@packages+compiler)':
-    dependencies:
-      '@typespec/compiler': link:packages/compiler
-    optional: true
-
   '@typespec/ts-http-runtime@0.2.3':
     dependencies:
       http-proxy-agent: 7.0.2
@@ -20220,11 +20084,6 @@ snapshots:
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
-
-  '@typespec/versioning@0.71.0(@typespec/compiler@packages+compiler)':
-    dependencies:
-      '@typespec/compiler': link:packages/compiler
-    optional: true
 
   '@ungap/structured-clone@1.3.0': {}
 
@@ -29042,8 +28901,6 @@ snapshots:
   yaml@1.10.2: {}
 
   yaml@2.2.2: {}
-
-  yaml@2.7.1: {}
 
   yaml@2.8.0: {}
 

@@ -18,6 +18,7 @@ jobs:
     steps:
       - template: /eng/tsp-core/pipelines/templates/install.yml
       - template: /eng/tsp-core/pipelines/templates/install-browsers.yml
+      - template: /eng/tsp-core/pipelines/templates/install-linux-dependencies.yml
       - template: /eng/tsp-core/pipelines/templates/build.yml
 
       - ${{ if parameters.azLogin }}:
@@ -27,9 +28,13 @@ jobs:
               azureSubscription: "Azure SDK Engineering System"
               scriptLocation: inlineScript
               inlineScript: pnpm run test:e2e
+            env:
+              DISPLAY: ":99"
       - ${{ else }}:
           - script: pnpm run test:e2e
             displayName: E2E Tests
+            env:
+              DISPLAY: ":99"
 
       - task: 1ES.PublishPipelineArtifact@1
         inputs:
