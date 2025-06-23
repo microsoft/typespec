@@ -32,12 +32,13 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   // TODO -- we should find a way to remove this.
   // but now we have to convert them explicitly because these enums are not directly referenced anywhere.
   fromSdkEnums(sdkContext, sdkPackage.enums);
+  fromSdkModels(sdkContext, sdkPackage.models);
   // TODO -- because of an implementation bug in autorest.csharp,
   // we have to do this in this way instead the nicer way of
   // const enums = fromSdkEnums(sdkContext, sdkPackage.enums);
   // we could change it back once autorest.csharp is deprecated for DPG.
   const enums = Array.from(sdkContext.__typeCache.enums.values());
-  const models = fromSdkModels(sdkContext, sdkPackage.models);
+  const models = Array.from(sdkContext.__typeCache.models.values());
   // TODO -- TCGC now does not have constants field in its sdkPackage, they might add it in the future.
   const constants = Array.from(sdkContext.__typeCache.constants.values());
 
