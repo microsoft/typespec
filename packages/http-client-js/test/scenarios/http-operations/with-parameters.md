@@ -37,7 +37,7 @@ export async function read(
   name: string,
   options?: ReadOptions,
 ): Promise<void> {
-  const path = parse("/widgets/{id}{?foo}").expand({
+  const path = parse("/widgets/{id}{?foo*}").expand({
     id: id,
     foo: foo,
   });

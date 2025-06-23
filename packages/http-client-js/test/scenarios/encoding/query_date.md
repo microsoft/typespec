@@ -23,7 +23,7 @@ export async function defaultEncoding(
   value: Date,
   options?: DefaultEncodingOptions,
 ): Promise<void> {
-  const path = parse("/default{?value}").expand({
+  const path = parse("/default{?value*}").expand({
     value: dateRfc3339Serializer(value),
   });
   const httpRequestOptions = {
@@ -65,7 +65,7 @@ export async function defaultEncoding(
   client: TestClientContext,
   options?: DefaultEncodingOptions,
 ): Promise<void> {
-  const path = parse("/default{?value}").expand({
+  const path = parse("/default{?value*}").expand({
     ...(options?.value && { value: dateRfc3339Serializer(options.value) }),
   });
   const httpRequestOptions = {
@@ -109,7 +109,7 @@ export async function get(
   value: Date,
   options?: GetOptions,
 ): Promise<void> {
-  const path = parse("/default{?value}").expand({
+  const path = parse("/default{?value*}").expand({
     value: dateRfc3339Serializer(value),
   });
   const httpRequestOptions = {
@@ -153,7 +153,7 @@ export async function get(
   value: Date,
   options?: GetOptions,
 ): Promise<void> {
-  const path = parse("/default{?value}").expand({
+  const path = parse("/default{?value*}").expand({
     value: dateRfc7231Serializer(value),
   });
   const httpRequestOptions = {
@@ -197,7 +197,7 @@ export async function get(
   value: Date,
   options?: GetOptions,
 ): Promise<void> {
-  const path = parse("/default{?value}").expand({
+  const path = parse("/default{?value*}").expand({
     value: dateUnixTimestampSerializer(value),
   });
   const httpRequestOptions = {

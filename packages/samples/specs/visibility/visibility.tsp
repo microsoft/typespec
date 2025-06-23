@@ -62,7 +62,7 @@ namespace Hello {
   @get op read(
     @path id: string,
 
-    @query(#{ explode: true })
+    @query(#{ explode: false })
     fieldMask: string[],
   ): ReadablePerson;
   @post op create(@body person: WritablePerson): ReadablePerson;

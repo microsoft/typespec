@@ -23,7 +23,7 @@ export async function defaultEncoding(
   value: Uint8Array,
   options?: DefaultEncodingOptions,
 ): Promise<void> {
-  const path = parse("/default{?value}").expand({
+  const path = parse("/default{?value*}").expand({
     value: encodeUint8Array(value, "base64url")!,
   });
   const httpRequestOptions = {

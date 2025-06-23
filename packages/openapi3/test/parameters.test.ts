@@ -40,7 +40,6 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
         `op test(@query @encode(${encoding}) myParam: string[]): void;`,
       );
       expect(param).toMatchObject({
-        explode: false,
         style: style,
       });
       expect(param.schema).toStrictEqual({
@@ -94,7 +93,6 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
       deepStrictEqual(res.paths["/"].get.parameters[0], {
         in: "query",
         name: "id",
-        explode: false,
         required: true,
         schema: {
           type: "string",
