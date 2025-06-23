@@ -259,6 +259,33 @@ it("renders a class with enum members", async () => {
   );
 });
 
+it("maps prop: string | null to nullable property", async () => {
+  const { TestModel } = (await runner.compile(`
+    @test model TestModel {
+      prop1: string | null;
+    }
+  `)) as { TestModel: Model };
+
+  const res = render(
+    <Wrapper>
+      <ClassDeclaration type={TestModel} />
+    </Wrapper>,
+  );
+
+  assertFileContents(
+    res,
+    d`
+      namespace TestNamespace
+      {
+          class TestModel
+          {
+              public string? Prop1 { get; set; }
+          }
+      }
+    `,
+  );
+});
+
 it("renders a class with string enums", async () => {
   const { TestModel, TestEnum } = (await runner.compile(`
     @test enum TestEnum {
