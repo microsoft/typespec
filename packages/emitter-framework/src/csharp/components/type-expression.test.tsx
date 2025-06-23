@@ -1,12 +1,13 @@
 import { Children, render } from "@alloy-js/core";
 import { d } from "@alloy-js/core/testing";
 import { Namespace, SourceFile } from "@alloy-js/csharp";
-import { ModelProperty } from "@typespec/compiler";
+import { Model, ModelProperty } from "@typespec/compiler";
 import { BasicTestRunner } from "@typespec/compiler/testing";
 import { beforeEach, describe, it } from "vitest";
 import { createEmitterFrameworkTestRunner } from "../../../test/typescript/test-host.js";
 import { assertFileContents } from "../../../test/utils.js";
 import { Output } from "../../core/index.js";
+import { ClassDeclaration } from "./class-declaration.jsx";
 import { TypeExpression } from "./type-expression.jsx";
 
 let runner: BasicTestRunner;
@@ -79,21 +80,54 @@ it("maps array to c# array", async () => {
   );
 });
 
-it("maps record to c# IDictionary", async () => {
-  const type = await compileType("Record<int32>");
-  const res = render(
-    <Wrapper>
-      <TypeExpression type={type} />
-    </Wrapper>,
-  );
+describe("Record map to IDictionary", () => {
+  it("for primitive types", async () => {
+    const type = await compileType("Record<int32>");
+    const res = render(
+      <Wrapper>
+        <TypeExpression type={type} />
+      </Wrapper>,
+    );
 
-  assertFileContents(
-    res,
-    d`
+    assertFileContents(
+      res,
+      d`
           namespace TestNamespace
           {
               IDictionary<string, int>
           }
         `,
-  );
+    );
+  });
+
+  it("for models", async () => {
+    const { test, Pet } = (await runner.compile(`
+      model Test {
+        @test test: Record<Pet>;
+      }
+      @test model Pet {}
+    `)) as { test: ModelProperty; Pet: Model };
+
+    const res = render(
+      <Wrapper>
+        <ClassDeclaration type={Pet} />
+        <hbr />
+        <TypeExpression type={test.type} />
+      </Wrapper>,
+    );
+
+    assertFileContents(
+      res,
+      d`
+          namespace TestNamespace
+          {
+              class Pet
+              {
+          
+              }
+              IDictionary<string, Pet>
+          }
+        `,
+    );
+  });
 });
