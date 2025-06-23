@@ -174,9 +174,9 @@ final class PagingMetadata {
                 final ModelPropertySegment segment
                     = ClientModelUtil.getModelPropertySegment(responseType, p.getSerializedName());
                 if (segment == null) {
-                    throw new RuntimeException(
-                        String.format("Property of serialized name '%s' is not found in model '%s'.",
-                            p.getSerializedName(), responseType));
+                    throw new RuntimeException(String.format(
+                        "[JavaCheck/SchemaError] PageItems property of serialized name '%s' is not found in model '%s'.",
+                        p.getSerializedName(), responseType));
                 }
                 result.add(segment);
 
@@ -198,9 +198,9 @@ final class PagingMetadata {
                 final ModelPropertySegment segment
                     = ClientModelUtil.getModelPropertySegment(responseType, p.getSerializedName());
                 if (segment == null) {
-                    throw new RuntimeException(
-                        String.format("Property of serialized name '%s' is not found in model '%s'.",
-                            p.getSerializedName(), responseType));
+                    throw new RuntimeException(String.format(
+                        "[JavaCheck/SchemaError] NextLink property of serialized name '%s' is not found in model '%s'.",
+                        p.getSerializedName(), responseType));
                 }
                 result.add(segment);
 
