@@ -318,6 +318,7 @@ Statement :
     AugmentDecoratorStatement
     DecoratorDeclarationStatement
     FunctionDeclarationStatement
+    ConstStatement
     `;`
 
 UsingStatement :
@@ -613,5 +614,7 @@ FunctionParameterList :
 FunctionParameter :
   `...`? Identifier `?`? TypeAnnotation?
 
+ConstStatement :
+  `const` Identifier TypeAnnotation? `=` Expression `;`
 </emu-grammar>
 </emu-clause>
