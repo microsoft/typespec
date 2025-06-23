@@ -126,10 +126,6 @@ describe.each(CreateCasesConfigList)("CreateTypespecProject", async (item) => {
 
     if (templateName === "Generic Rest API") {
       await selectEmitters(page)
-    } else if (DataPlaneAPIProviderNameTemplates.includes(templateName)) {
-      await inputServiceNameSpace(page)
-    } else if (ARMAPIProviderNameTemplates.includes(templateName)) {
-      await inputARMResourceProviderName(page)
     }
 
     await preContrastResult(
