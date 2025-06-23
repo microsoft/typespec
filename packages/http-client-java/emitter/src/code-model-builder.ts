@@ -1089,7 +1089,8 @@ export class CodeModelBuilder {
       op,
       sdkMethod.response.resultSegments,
     );
-    // "itemsSegments" should exist for "paging"/"lropaging", take 1st for backward compatibility
+    // "sdkMethod.response.resultSegments" should not be empty for "paging"/"lropaging"
+    // "itemSerializedName" take 1st property for backward compatibility
     const itemSerializedName =
       pageItemsResponseProperty && pageItemsResponseProperty.length > 0
         ? pageItemsResponseProperty[0].serializedName
@@ -1100,7 +1101,7 @@ export class CodeModelBuilder {
       op,
       sdkMethod.pagingMetadata.nextLinkSegments,
     );
-    // take 1st for backward compatibility
+    // "nextLinkSerializedName" take 1st property for backward compatibility
     const nextLinkSerializedName =
       nextLinkResponseProperty && nextLinkResponseProperty.length > 0
         ? nextLinkResponseProperty[0].serializedName
