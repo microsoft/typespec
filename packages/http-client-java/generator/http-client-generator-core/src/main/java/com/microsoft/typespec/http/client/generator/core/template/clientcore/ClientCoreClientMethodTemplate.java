@@ -726,14 +726,10 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
                         function.line("res.getHeaders().getValue(HttpHeaderName.fromString(" + ClassType.STRING
                             .defaultValueExpression(continuationToken.getResponseHeaderSerializedName()) + ")),");
                     } else if (continuationToken.getResponsePropertyReference() != null) {
-                        StringBuilder continuationTokenExpression = new StringBuilder("res.getValue()");
-                        for (ModelPropertySegment propertySegment : continuationToken.getResponsePropertyReference()) {
-                            continuationTokenExpression.append(".")
-                                .append(
-                                    CodeNamer.getModelNamer().modelPropertyGetterName(propertySegment.getProperty()))
-                                .append("()");
-                        }
-                        function.line(continuationTokenExpression.append(",").toString());
+                        String continuationTokenExpression
+                            = nestedReferenceLineWithNullCheck(continuationToken.getResponsePropertyReference(),
+                                "res.getValue()") + ",";
+                        function.line(continuationTokenExpression);
                     } else {
                         // this should not happen
                         function.line("null,");
@@ -1049,9 +1045,15 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
     }
 
     protected static String nextLinkLine(ClientMethod clientMethod, String valueExpression) {
+        return nestedReferenceLineWithNullCheck(clientMethod.getMethodPageDetails().getNextLinkPropertyReference(),
+            "res." + valueExpression) + ",";
+    }
+
+    protected static String nestedReferenceLineWithNullCheck(List<ModelPropertySegment> segments,
+        String valueReferenceExpression) {
         StringBuilder nullCheckStringBuilder = new StringBuilder();
-        StringBuilder propertyRefStringBuilder = new StringBuilder("res.").append(valueExpression);
-        for (ModelPropertySegment segment : clientMethod.getMethodPageDetails().getNextLinkPropertyReference()) {
+        StringBuilder propertyRefStringBuilder = new StringBuilder(valueReferenceExpression);
+        for (ModelPropertySegment segment : segments) {
             propertyRefStringBuilder.append(".")
                 .append(CodeNamer.getModelNamer().modelPropertyGetterName(segment.getProperty().getName()))
                 .append("()");
@@ -1068,7 +1070,7 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
         }
         nullCheckStringBuilder.append(" ? ").append(propertyRefStringBuilder.toString()).append(" : null");
 
-        return nullCheckStringBuilder.toString() + ",";
+        return nullCheckStringBuilder.toString();
     }
 
     private static boolean responseTypeHasDeserializedHeaders(IType type) {
