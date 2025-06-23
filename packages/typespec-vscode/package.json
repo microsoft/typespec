@@ -275,7 +275,7 @@
   "devDependencies": {
     "@nut-tree-fork/nut-js": "^4.2.6",
     "@types/cross-spawn": "~6.0.6",
-    "@types/mocha": "10.0.10",
+    "@types/mocha": "^10.0.9",
     "@types/screenshot-desktop": "^1.12.3",
     "@types/node": "~24.0.3",
     "@types/semver": "^7.5.8",
