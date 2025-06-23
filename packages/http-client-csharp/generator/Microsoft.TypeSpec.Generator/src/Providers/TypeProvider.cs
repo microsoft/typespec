@@ -23,9 +23,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected TypeProvider(InputType? inputType = default)
         {
-            _customCodeView = new(() => GetCustomCodeView());
+            _customCodeView = new(() => BuildCustomCodeView());
             _canonicalView = new(BuildCanonicalView);
-            _lastContractView = new(GetLastContractView);
+            _lastContractView = new(BuildLastContractView);
             _inputType = inputType;
         }
 
@@ -36,10 +36,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
         }
 
-        private protected virtual TypeProvider? GetCustomCodeView(string? generatedTypeName = default)
-            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(BuildNamespace(), generatedTypeName ?? BuildName(), DeclaringTypeProvider?.BuildName());
+        private protected virtual TypeProvider? BuildCustomCodeView(string? generatedTypeName = null)
+            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
+                BuildNamespace(),
+                generatedTypeName ?? BuildName(),
+                // Use the Type.Name so that any customizations to the declaring type are applied for the lookup.
+                DeclaringTypeProvider?.Type.Name);
 
-        private protected virtual TypeProvider? GetLastContractView()
+        private protected virtual TypeProvider? BuildLastContractView()
             => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(BuildNamespace(), BuildName(), DeclaringTypeProvider?.BuildName());
 
         public TypeProvider? CustomCodeView => _customCodeView.Value;
@@ -366,9 +370,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _xmlDocs = null;
             _declarationModifiers = null;
             _relativeFilePath = null;
-            _customCodeView = new(() => GetCustomCodeView());
+            _customCodeView = new(() => BuildCustomCodeView());
             _canonicalView = new(BuildCanonicalView);
-            _lastContractView = new(GetLastContractView);
+            _lastContractView = new(BuildLastContractView);
             _enumValues = null;
             _enumUnderlyingType = null;
             _attributes = null;
@@ -431,7 +435,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (name != null)
             {
                 // Reset the custom code view to reflect the new name
-                _customCodeView = new(GetCustomCodeView(name));
+                _customCodeView = new(BuildCustomCodeView(name));
                 // Give precedence to the custom code view name if it exists
                 Type.Update(_customCodeView.Value?.Name ?? name);
             }
