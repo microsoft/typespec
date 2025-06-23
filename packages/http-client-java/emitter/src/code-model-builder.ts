@@ -126,6 +126,7 @@ import {
   ORIGIN_API_VERSION,
   SPECIAL_HEADER_NAMES,
   cloneOperationParameter,
+  findResponsePropertySegments,
   getServiceVersion,
   isKnownContentType,
   isLroNewPollingStrategy,
@@ -1083,14 +1084,27 @@ export class CodeModelBuilder {
       return lastSegment ? getPropertySerializedName(lastSegment) : undefined;
     }
 
-    // TODO: in future the property could be nested, so that the "itemSegments" or "nextLinkSegments" would contain more than 1 element
-    // item/result
-    // "itemsSegments" should exist for "paging"/"lropaging"
-    const itemSerializedName = getLastSegmentSerializedName(sdkMethod.response.resultSegments);
+    // pageItems
+    const pageItemsResponseProperty = findResponsePropertySegments(
+      op,
+      sdkMethod.response.resultSegments,
+    );
+    // "itemsSegments" should exist for "paging"/"lropaging", take 1st for backward compatibility
+    const itemSerializedName =
+      pageItemsResponseProperty && pageItemsResponseProperty.length > 0
+        ? pageItemsResponseProperty[0]
+        : undefined;
+
     // nextLink
-    const nextLinkSerializedName = getLastSegmentSerializedName(
+    const nextLinkResponseProperty = findResponsePropertySegments(
+      op,
       sdkMethod.pagingMetadata.nextLinkSegments,
     );
+    // take 1st for backward compatibility
+    const nextLinkSerializedName =
+      nextLinkResponseProperty && nextLinkResponseProperty.length > 0
+        ? nextLinkResponseProperty[0]
+        : undefined;
 
     // continuationToken
     let continuationTokenParameter: Parameter | undefined;
@@ -1147,28 +1161,10 @@ export class CodeModelBuilder {
             }
           }
         } else if (continuationTokenResponseSegment?.kind === "property") {
-          // continuationToken is response body property
-          // TODO: the property could be nested
-          for (const response of op.responses) {
-            if (
-              response instanceof SchemaResponse &&
-              response.schema instanceof ObjectSchema &&
-              response.schema.properties
-            ) {
-              for (const property of response.schema.properties) {
-                if (
-                  property.serializedName ===
-                  getPropertySerializedName(continuationTokenResponseSegment)
-                ) {
-                  continuationTokenResponseProperty = [property];
-                  break;
-                }
-              }
-            }
-            if (continuationTokenResponseProperty) {
-              break;
-            }
-          }
+          continuationTokenResponseProperty = findResponsePropertySegments(
+            op,
+            sdkMethod.pagingMetadata.continuationTokenResponseSegments,
+          );
         }
       }
     }
@@ -1209,8 +1205,12 @@ export class CodeModelBuilder {
 
     op.extensions = op.extensions ?? {};
     op.extensions["x-ms-pageable"] = {
+      // this part need to be compatible with modelerfour
       itemName: itemSerializedName,
       nextLinkName: nextLinkSerializedName,
+      // this part is only available in TypeSpec
+      pageItemsProperty: pageItemsResponseProperty,
+      nextLinkProperty: nextLinkResponseProperty,
       continuationToken: continuationTokenParameter
         ? new PageableContinuationToken(
             continuationTokenParameter,
