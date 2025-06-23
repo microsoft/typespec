@@ -149,6 +149,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var customModifiers = CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
             if (customModifiers != TypeSignatureModifiers.None)
             {
+                // if the custom modifiers contain accessibility modifiers, we override the default ones
+                if (customModifiers.HasFlag(TypeSignatureModifiers.Internal) ||
+                    customModifiers.HasFlag(TypeSignatureModifiers.Public) ||
+                    customModifiers.HasFlag(TypeSignatureModifiers.Private))
+                {
+                    modifiers &= ~(TypeSignatureModifiers.Internal | TypeSignatureModifiers.Public | TypeSignatureModifiers.Private);
+                }
                 modifiers |= customModifiers;
             }
             // we default to public when no accessibility modifier is provided
