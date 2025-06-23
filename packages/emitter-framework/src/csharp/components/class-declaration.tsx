@@ -1,6 +1,6 @@
 import * as ay from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
-import { Interface, Model, Type } from "@typespec/compiler";
+import { Interface, Model, ModelProperty, Type } from "@typespec/compiler";
 import { useTsp } from "../../core/index.js";
 import { TypeExpression } from "./type-expression.jsx";
 import { getDocComments } from "./utils/doc-comments.jsx";
@@ -60,24 +60,31 @@ function preprocessPropertyType(type: Type): { type: Type; nullable: boolean } {
 }
 
 function ClassProperties(props: ClassPropertiesProps): ay.Children {
-  const { $ } = useTsp();
-  const namePolicy = cs.useCSharpNamePolicy();
-
-  const result = preprocessPropertyType(props.type);
   return (
     <ay.For each={props.type.properties.entries()} hardline>
-      {([name, property]) => (
-        <cs.ClassProperty
-          name={namePolicy.getName(name, "class-member-public")}
-          type={<TypeExpression type={result.type} />}
-          public
-          nullable={result.nullable}
-          doc={getDocComments($, property)}
-          get
-          set
-        />
-      )}
+      {([name, property]) => <ClassProperty type={property} />}
     </ay.For>
+  );
+}
+
+export interface ClassPropertyProps {
+  type: ModelProperty;
+}
+
+function ClassProperty(props: ClassPropertyProps): ay.Children {
+  const result = preprocessPropertyType(props.type.type);
+  const { $ } = useTsp();
+
+  return (
+    <cs.ClassProperty
+      name={props.type.name}
+      type={<TypeExpression type={result.type} />}
+      public
+      nullable={result.nullable}
+      doc={getDocComments($, props.type)}
+      get
+      set
+    />
   );
 }
 
