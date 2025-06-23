@@ -49,20 +49,18 @@ namespace SampleTypeSpec
         /// <param name="value"> The value. </param>
         public static implicit operator FloatExtensibleEnumWithIntValue(float value) => new FloatExtensibleEnumWithIntValue(value);
 
-        /// <summary></summary>
-        /// <param name="obj"> The object to compare. </param>
+        /// <inheritdoc/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj) => obj is FloatExtensibleEnumWithIntValue other && Equals(other);
 
-        /// <summary></summary>
-        /// <param name="other"> The instance to compare. </param>
+        /// <inheritdoc/>
         public bool Equals(FloatExtensibleEnumWithIntValue other) => Equals(_value, other._value);
 
-        /// <summary></summary>
+        /// <inheritdoc/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode() => _value.GetHashCode();
 
-        /// <summary></summary>
+        /// <inheritdoc/>
         public override string ToString() => _value.ToString(CultureInfo.InvariantCulture);
     }
 }
