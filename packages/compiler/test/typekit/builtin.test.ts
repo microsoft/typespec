@@ -1,5 +1,11 @@
-import { beforeAll, expect, it } from "vitest";
-import { Program } from "../../src/index.js";
+import { beforeAll, beforeEach, describe, expect, it } from "vitest";
+import {
+  unsafe_mutateSubgraphWithNamespace,
+  unsafe_MutatorWithNamespace,
+} from "../../src/experimental/index.js";
+import { Model, ModelProperty, Namespace, Program, Scalar, Union } from "../../src/index.js";
+import { createTestRunner } from "../../src/testing/test-host.js";
+import { BasicTestRunner } from "../../src/testing/types.js";
 import { $ } from "../../src/typekit/index.js";
 import { createContextMock } from "./utils.js";
 
@@ -158,4 +164,271 @@ it("can get the builtin utcDateTime type", async () => {
   const utcDateTimeType = $(program).builtin.utcDateTime;
   expect(utcDateTimeType).toBeDefined();
   expect(utcDateTimeType.name).toBe("utcDateTime");
+});
+
+describe("builtin.is() tests", () => {
+  let runner: BasicTestRunner;
+
+  beforeEach(async () => {
+    runner = await createTestRunner();
+  });
+
+  it("simple model with a string property", async () => {
+    // ------------------------------------------------------------
+    //   - Foo (Model)                     → false
+    //   - Foo.bar (ModelProperty)         → false
+    //   - type of Foo.bar (intrinsic)     → true
+    // ------------------------------------------------------------
+    const { Foo, bar } = (await runner.compile(
+      `
+      @test model Foo {
+        @test bar: string;
+      }
+    `,
+    )) as { Foo: Model; bar: ModelProperty };
+
+    program = runner.program;
+    const _$ = $(program);
+
+    expect(_$.builtin.is(Foo)).toBe(false);
+    expect(_$.builtin.is(bar)).toBe(false);
+    expect(_$.builtin.is(bar.type)).toBe(true);
+  });
+
+  it("Model Property reference", async () => {
+    // ------------------------------------------------------------
+    //   - Foo (Model)                     → false
+    //   - Foo.bar (ModelProperty)         → false
+    //   - type of Foo.bar (ModelProperty)     → false
+    //   - type of Foo.bar.type (Intrinsic) → true
+    // ------------------------------------------------------------
+    const { Foo, bar } = (await runner.compile(
+      `
+      @test model Bar {
+         prop: string
+      }
+         
+      @test model Foo {
+        @test bar: Bar.prop;
+      }
+    `,
+    )) as { Foo: Model; bar: ModelProperty };
+
+    program = runner.program;
+    const _$ = $(program);
+
+    expect(_$.builtin.is(Foo)).toBe(false);
+    expect(_$.builtin.is(bar)).toBe(false);
+    expect(_$.builtin.is(bar.type)).toBe(false);
+    expect(_$.builtin.is((bar.type as ModelProperty).type)).toBe(true);
+  });
+
+  it("model property is a union of string | int32", async () => {
+    // ------------------------------------------------------------
+    //   - Foo (Model)                             → false
+    //   - Foo.bar (ModelProperty)                 → false
+    //   - Foo.bar.type (Union)                    → false
+    //   - each variant (UnionVariant)             → false
+    //   - variant.type (intrinsic)                → true
+    // ------------------------------------------------------------
+    const { Foo, bar } = (await runner.compile(
+      `
+      @test model Foo {
+        @test bar: string | int32;
+      }
+    `,
+    )) as { Foo: Model; bar: ModelProperty };
+
+    program = runner.program;
+    const _$ = $(program);
+
+    expect(_$.builtin.is(Foo)).toBe(false);
+    expect(_$.builtin.is(bar)).toBe(false);
+    expect(_$.builtin.is(bar.type)).toBe(false);
+    const [variant1, variant2] = [...(bar.type as Union).variants.values()];
+    expect(_$.builtin.is(variant1)).toBe(false);
+    expect(_$.builtin.is(variant2)).toBe(false);
+    expect(_$.builtin.is(variant1.type)).toBe(true);
+    expect(_$.builtin.is(variant2.type)).toBe(true);
+  });
+
+  it("works with enums and models", async () => {
+    // -------------------------------------------------------------------
+    //   - FooEnum (Enum variants)               → false
+    //   - Foo.bar (ModelProperty of FooEnum)    → false
+    //   - Foo.bar.type (Enum)                   → false
+    //   - Baz.baz (ModelProperty of FooEnum.one)→ false
+    //   - Baz.baz.type (EnumMember)             → false
+    // -------------------------------------------------------------------
+    const { Foo, bar, Baz } = (await runner.compile(
+      `
+      @test enum FooEnum {
+        one: "1";
+        two: "2";
+      };
+
+      @test model Foo {
+        @test bar: FooEnum;
+      }
+      @test model Baz {
+        @test baz: FooEnum.one;
+      }
+    `,
+    )) as { Foo: Model; bar: ModelProperty; Baz: Model };
+
+    program = runner.program;
+    const _$ = $(program);
+
+    expect(_$.builtin.is(Foo)).toBe(false);
+    expect(_$.builtin.is(bar)).toBe(false);
+    expect(_$.builtin.is(bar.type)).toBe(false);
+    expect(_$.builtin.is(Baz)).toBe(false);
+    expect(_$.builtin.is(Baz.properties.get("baz")!)).toBe(false);
+    expect(_$.builtin.is(Baz.properties.get("baz")!.type)).toBe(false);
+  });
+
+  it("scalar extends an intrinsic (string)", async () => {
+    // ------------------------------------------------------------
+    //   - NotBuiltin (Scalar)             → false
+    //   - NotBuiltin.baseScalar (string)  → true
+    // ------------------------------------------------------------
+    const { NotBuiltin } = (await runner.compile(
+      `
+      @test scalar NotBuiltin extends string; 
+      `,
+    )) as { NotBuiltin: Scalar };
+
+    program = runner.program;
+    const _$ = $(program);
+    expect(_$.builtin.is(NotBuiltin)).toBe(false);
+    expect(_$.builtin.is(NotBuiltin.baseScalar!)).toBe(true);
+  });
+
+  it("alias an intrinsic then extend it", async () => {
+    // ------------------------------------------------------------
+    //   - NotBuiltin (Scalar extends alias)  → false
+    //   - NotBuiltin.baseScalar (int builtin)→ true
+    // ------------------------------------------------------------
+    const { NotBuiltin } = (await runner.compile(
+      `
+      alias UnixTimeStamp32 = unixTimestamp32;
+      @test scalar NotBuiltin extends UnixTimeStamp32;
+      `,
+    )) as { NotBuiltin: Scalar };
+
+    program = runner.program;
+    const _$ = $(program);
+    expect(_$.builtin.is(NotBuiltin)).toBe(false);
+    expect(_$.builtin.is(NotBuiltin.baseScalar!)).toBe(true);
+  });
+
+  it("should recognize a model in global.TypeSpec", async () => {
+    // ------------------------------------------------------------
+    // A non-typespec model references a ModelProperty defined in TypeSpec
+    // ------------------------------------------------------------
+    const { InTypeSpec, Foo } = (await runner.compile(`
+      @test namespace TypeSpec {
+        @test model InTypeSpec {
+          @test foo: string;
+        }
+      }
+
+      @test model Foo {
+        @test bar: TypeSpec.InTypeSpec.foo;
+      } 
+    `)) as { InTypeSpec: Model; Foo: Model };
+
+    const program = runner.program;
+    const _$ = $(program);
+
+    expect(_$.builtin.is(InTypeSpec)).toBe(true);
+
+    const prop = InTypeSpec.properties.get("foo")!;
+    expect(_$.builtin.is(prop)).toBe(true);
+
+    expect(_$.builtin.is(prop.type)).toBe(true);
+
+    expect(_$.builtin.is(Foo)).toBe(false);
+    const bar = Foo.properties.get("bar") as ModelProperty;
+    expect(_$.builtin.is(bar)).toBe(false); // bar is defined outside TypeSpec
+    expect(_$.builtin.is(bar.type)).toBe(true); // TypeSpec.InTypeSpec.foo is deifined inside TypeSpec
+  });
+
+  it("should NOT recognize a nested TypeSpec namespace", async () => {
+    // ----------------------------------------------------------------
+    // A namespace called "TypeSpec" but nested inside another namespace
+    // ----------------------------------------------------------------
+    const { InNested } = (await runner.compile(`
+      @test namespace Outer {
+        @test namespace TypeSpec {
+          @test model InNested {
+            @test bar: int32;
+          }
+        }
+      }
+    `)) as { InNested: Model };
+
+    const program = runner.program;
+    const _$ = $(program);
+
+    // Although the local namespace is called "TypeSpec",
+    // it's not direct child of the global namespace → false
+    expect(_$.builtin.is(InNested)).toBe(false);
+  });
+
+  it("should always return true for pure intrinsics", async () => {
+    const _$ = $(program);
+    const stringType = _$.builtin.string;
+
+    expect(_$.builtin.is(stringType)).toBe(true);
+
+    const int32Type = _$.builtin.int32;
+    expect(_$.builtin.is(int32Type)).toBe(true);
+  });
+
+  it("should work with mutators", async () => {
+    // ------------------------------------------------------------
+    // A non-typespec model references a ModelProperty defined in TypeSpec
+    // ------------------------------------------------------------
+    const mutator: unsafe_MutatorWithNamespace = {
+      name: "test",
+      Namespace: {
+        mutate: (_ns, clone) => {
+          clone.models.delete("Bar");
+        },
+      },
+    };
+
+    (await runner.compile(`
+      namespace TypeSpec {
+        model InTypeSpec {
+          foo: string;
+        }
+      }
+
+      model Foo {
+        bar: TypeSpec.InTypeSpec.foo;
+      } 
+
+      model Bar {}
+    `)) as { InTypeSpec: Model; Foo: Model };
+
+    const program = runner.program;
+    const _$ = $(program);
+
+    const globalNs = program.getGlobalNamespaceType();
+    const mutatedGlobalNs = unsafe_mutateSubgraphWithNamespace(program, [mutator], globalNs)
+      .type as Namespace;
+
+    const Foo = mutatedGlobalNs.models.get("Foo")!;
+    const Bar = mutatedGlobalNs.models.get("Bar");
+
+    expect(Bar).toBeUndefined();
+    expect(Foo).toBeDefined();
+
+    expect(_$.builtin.is(Foo)).toBe(false);
+    expect(_$.builtin.is(Foo.properties.get("bar")!)).toBe(false);
+    expect(_$.builtin.is(Foo.properties.get("bar")!.type)).toBe(true);
+    expect(_$.builtin.is((Foo.properties.get("bar")!.type as ModelProperty).type)).toBe(true);
+  });
 });

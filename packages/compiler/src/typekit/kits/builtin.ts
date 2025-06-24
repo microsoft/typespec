@@ -1,4 +1,4 @@
-import type { Scalar } from "../../core/types.js";
+import type { Namespace, Scalar, Type } from "../../core/types.js";
 import { defineKit } from "../define-kit.js";
 
 /**
@@ -6,6 +6,12 @@ import { defineKit } from "../define-kit.js";
  * @typekit builtin
  */
 export interface BuiltinKit {
+  /**
+   * Checks if the given type is a built-in type.
+   * A type is considered built-in if it is defined in the TypeSpec namespace.
+   */
+  is(type: Type): boolean;
+
   /**
    * Accessor for the string builtin type.
    */
@@ -142,6 +148,36 @@ declare module "../define-kit.js" {
 
 defineKit<TypekitExtension>({
   builtin: {
+    is(type: Type): boolean {
+      // Model property does not have a namespace,
+      // so we will use the Model where it is defined.
+      if (type.kind === "ModelProperty" && type.model) {
+        type = type.model;
+      }
+
+      // Consider the type not built-in if it has no namespace
+      // TypeKit might create types without a namespace
+      const ns = (type as any).namespace as Namespace | undefined;
+      if (!ns) {
+        return false;
+      }
+
+      const globalNs = this.program.getGlobalNamespaceType();
+      // If it’s already in the global root, it's not in global.TypeSpec
+      if (ns === globalNs) {
+        return false;
+      }
+
+      // Find the immediate child of `globalNs` in this namespace's ancestry.
+      const topLevel = getImmediateChildOfGlobal(ns, globalNs);
+      if (!topLevel) {
+        return false;
+      }
+
+      // Finally, compare by identity
+      const typeSpecNs = globalNs.namespaces.get("TypeSpec");
+      return topLevel === typeSpecNs;
+    },
     get string(): Scalar {
       return this.program.checker.getStdType("string");
     },
@@ -219,3 +255,16 @@ defineKit<TypekitExtension>({
     },
   },
 });
+
+/**
+ * Walks from `ns` up to `root`, returning the first namespace
+ * whose parent is `root`.  Returns undefined if `root` is not
+ * actually an ancestor.
+ */
+function getImmediateChildOfGlobal(ns: Namespace, root: Namespace): Namespace | undefined {
+  let current: Namespace | undefined = ns;
+  while (current.namespace && current.namespace !== root) {
+    current = current.namespace;
+  }
+  return current?.namespace === root ? current : undefined;
+}
