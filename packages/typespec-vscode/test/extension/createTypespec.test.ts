@@ -96,7 +96,7 @@ describe.each(CreateCasesConfigList)("CreateTypespecProject", async (item) => {
 
     await preContrastResult(
       page,
-      "Project created",
+      "Project error created",
       "Failed to create project Successful",
       [10, 15]
     )
