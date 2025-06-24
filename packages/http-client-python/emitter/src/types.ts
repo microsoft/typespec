@@ -59,7 +59,7 @@ function isEmptyModel(type: SdkType): boolean {
 }
 
 export function getSimpleTypeResult(result: Record<string, any>): Record<string, any> {
-  const key = result.type === "constant" ? result.value : dump(result, { sortKeys: true });
+  const key = dump(result, { sortKeys: true });
   const value = simpleTypesMap.get(key);
   if (value) {
     result = value;

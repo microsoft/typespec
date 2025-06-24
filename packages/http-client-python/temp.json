@@ -1,0 +1,16 @@
+{
+  "enumType": {
+    "description": "",
+    "internal": "True",
+    "type": "combined",
+    "types": [
+      { "type": "constant", "value": "text", "valueType": { "type": "string" } },
+      { "type": "constant", "value": "json_object", "valueType": { "type": "string" } },
+      { "type": "constant", "value": "json_schema", "valueType": { "type": "string" } }
+    ],
+    "xmlMetadata": {}
+  },
+  "name": "JSON_OBJECT",
+  "type": "enumvalue",
+  "value": "json_object"
+}
