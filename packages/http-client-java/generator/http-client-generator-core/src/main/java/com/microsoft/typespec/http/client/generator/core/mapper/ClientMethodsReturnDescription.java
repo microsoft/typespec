@@ -291,18 +291,20 @@ public final class ClientMethodsReturnDescription {
         }
         IType elementType;
         if (!CoreUtils.isNullOrEmpty(operation.getExtensions().getXmsPageable().getPageItemsProperty())) {
+            // TypeSpec, the element type of the type of the last property
             List<Property> list = operation.getExtensions().getXmsPageable().getPageItemsProperty();
             final IType listType = Mappers.getSchemaMapper().map(list.get(list.size() - 1).getSchema());
             elementType = ((IterableType) listType).getElementType();
         } else {
+            // m4
             final ClientModel pageResponseModel = Mappers.getModelMapper().map((ObjectSchema) pageResponseSchema);
             final String pageItemName = operation.getExtensions().getXmsPageable().getItemName();
             final Optional<ClientModelProperty> pageItemPropertyOpt
                 = ClientModelUtil.findProperty(pageResponseModel, pageItemName);
             if (pageItemPropertyOpt.isEmpty()) {
-                throw new IllegalArgumentException(
-                    String.format("[JavaCheck/SchemaError] item name %s not found among properties of client model %s",
-                        pageItemName, pageResponseModel.getName()));
+                throw new IllegalArgumentException(String.format(
+                    "[JavaCheck/SchemaError] PageItems property of serialized name '%s' is not found in model '%s'.",
+                    pageItemName, pageResponseModel.getName()));
             }
             final ClientModelProperty property = pageItemPropertyOpt.get();
             final IType listType = property.getWireType();

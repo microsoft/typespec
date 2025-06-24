@@ -700,7 +700,7 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
                 function.line("res.getRequest(),");
                 function.line("res.getStatusCode(),");
                 function.line("res.getHeaders(),");
-                function.line(valueLine(clientMethod));
+                function.line(pageItemsLine(clientMethod));
                 if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
                     function.line(nextLinkLine(clientMethod));
                 } else {
@@ -717,7 +717,7 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
                 function.line("res.getRequest(),");
                 function.line("res.getStatusCode(),");
                 function.line("res.getHeaders(),");
-                function.line(valueLine(clientMethod));
+                function.line(pageItemsLine(clientMethod));
                 // continuation token
                 if (clientMethod.getMethodPageDetails().getContinuationToken() != null) {
                     MethodPageDetails.ContinuationToken continuationToken
@@ -1030,14 +1030,14 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
         return paramJavadoc;
     }
 
-    private static String valueLine(ClientMethod clientMethod) {
+    private static String pageItemsLine(ClientMethod clientMethod) {
         StringBuilder stringBuilder = new StringBuilder("res.getValue()");
         for (ModelPropertySegment segment : clientMethod.getMethodPageDetails().getPageItemsPropertyReference()) {
             stringBuilder.append(".")
                 .append(CodeNamer.getModelNamer().modelPropertyGetterName(segment.getProperty().getName()))
                 .append("()");
         }
-        return stringBuilder.toString() + ",";
+        return stringBuilder + ",";
     }
 
     protected static String nextLinkLine(ClientMethod clientMethod) {
@@ -1051,6 +1051,11 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
 
     protected static String nestedReferenceLineWithNullCheck(List<ModelPropertySegment> segments,
         String valueReferenceExpression) {
+        /*
+         * res.getValue().getNestedNext() != null && res.getValue().getNestedNext().getNext() != null
+         * ? res.getValue().getNestedNext().getNext()
+         * : null
+         */
         StringBuilder nullCheckStringBuilder = new StringBuilder();
         StringBuilder propertyRefStringBuilder = new StringBuilder(valueReferenceExpression);
         for (ModelPropertySegment segment : segments) {
@@ -1061,14 +1066,14 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
             if (nullCheckStringBuilder.length() > 0) {
                 nullCheckStringBuilder.append(" && ");
             }
-            nullCheckStringBuilder.append(propertyRefStringBuilder.toString()).append(" != null");
+            nullCheckStringBuilder.append(propertyRefStringBuilder).append(" != null");
 
             // this would be the last segment
             if (segment.getProperty().getClientType() == ClassType.URL) {
                 propertyRefStringBuilder.append(".toString()");
             }
         }
-        nullCheckStringBuilder.append(" ? ").append(propertyRefStringBuilder.toString()).append(" : null");
+        nullCheckStringBuilder.append(" ? ").append(propertyRefStringBuilder).append(" : null");
 
         return nullCheckStringBuilder.toString();
     }

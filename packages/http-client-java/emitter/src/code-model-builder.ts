@@ -1080,6 +1080,7 @@ export class CodeModelBuilder {
         : undefined;
 
     // nextLink
+    // TODO: nextLink can also be a response header, similar to "sdkMethod.pagingMetadata.continuationTokenResponseSegments"
     const nextLinkResponseProperty = findResponsePropertySegments(
       op,
       sdkMethod.pagingMetadata.nextLinkSegments,
@@ -1095,9 +1096,11 @@ export class CodeModelBuilder {
     let continuationTokenResponseProperty: Property[] | undefined;
     let continuationTokenResponseHeader: HttpHeader | undefined;
     if (!this.isBranded()) {
+      // parameter would either be query or header parameter, so taking the last segment would be enough
       const continuationTokenParameterSegment = getLastSegment(
         sdkMethod.pagingMetadata.continuationTokenParameterSegments,
       );
+      // response could be response header, where the last segment would do; or it be json path in the response body, where we use "findResponsePropertySegments" to find them
       const continuationTokenResponseSegment = getLastSegment(
         sdkMethod.pagingMetadata.continuationTokenResponseSegments,
       );

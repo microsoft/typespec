@@ -186,11 +186,11 @@ export function cloneOperationParameter(parameter: Parameter): Parameter {
 }
 
 /**
- * Constructs a list of property path from the response schema based on the provided property segments.
+ * Constructs a list of property path (json path) from the response schema based on the provided property segments.
  *
  * @param op the code model operation
- * @param propertySegments the segments of the property path to find in the response schema
- * @returns the list of property path
+ * @param propertySegments the segments of the property path (json path) to find in the response schema
+ * @returns the list of property path (json path)
  */
 export function findResponsePropertySegments(
   op: CodeModelOperation,
@@ -203,10 +203,12 @@ export function findResponsePropertySegments(
 
       let currentSchemaProperties: Property[] | undefined = schema.properties;
       for (const propertySegment of propertySegments) {
+        // abort if no properties in current schema. this should not happen though
         if (!currentSchemaProperties) {
           break;
         }
 
+        // skip non-property segments. again, this should not happen
         if (propertySegment.kind === "property") {
           const serializedName = getPropertySerializedName(propertySegment);
           for (const property of currentSchemaProperties) {
@@ -220,7 +222,7 @@ export function findResponsePropertySegments(
         }
       }
 
-      return propertyArray;
+      return propertyArray.length > 0 ? propertyArray : undefined;
     }
   }
   return undefined;

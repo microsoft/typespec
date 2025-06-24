@@ -169,6 +169,7 @@ final class PagingMetadata {
         if (xmsPageable.getItemName() == null) {
             return null;
         } else if (xmsPageable.getPageItemsProperty() != null) {
+            // TypeSpec
             List<ModelPropertySegment> result = new ArrayList<>();
             for (Property p : xmsPageable.getPageItemsProperty()) {
                 final ModelPropertySegment segment
@@ -184,6 +185,7 @@ final class PagingMetadata {
             }
             return result;
         } else {
+            // m4
             return Collections
                 .singletonList(ClientModelUtil.getModelPropertySegment(responseType, xmsPageable.getItemName()));
         }
@@ -193,6 +195,7 @@ final class PagingMetadata {
         if (xmsPageable.getNextLinkName() == null) {
             return null;
         } else if (xmsPageable.getNextLinkProperty() != null) {
+            // TypeSpec
             List<ModelPropertySegment> result = new ArrayList<>();
             for (Property p : xmsPageable.getNextLinkProperty()) {
                 final ModelPropertySegment segment
@@ -208,6 +211,7 @@ final class PagingMetadata {
             }
             return result;
         } else {
+            // m4
             return Collections
                 .singletonList(ClientModelUtil.getModelPropertySegment(responseType, xmsPageable.getNextLinkName()));
         }
