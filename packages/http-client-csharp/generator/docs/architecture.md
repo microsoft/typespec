@@ -81,31 +81,37 @@ The TypeSpec Generator follows a layered architecture designed for extensibility
 The generation process follows a well-defined pipeline:
 
 1. **Initialization**
+
    - Load configuration from `Configuration.json`
    - Initialize generator context and MEF composition
    - Load TypeSpec model from `tspCodeModel.json`
 
 2. **Input Processing**
+
    - Deserialize TypeSpec JSON into strongly-typed input model
    - Validate and normalize input data
    - Build dependency graphs
 
 3. **Code Model Generation**
+
    - Transform input types to output providers using TypeFactory
    - Apply generator-specific customizations
    - Build method signatures and type hierarchies
 
 4. **Visitor Pipeline**
+
    - Execute registered visitors in dependency order
    - Apply transformations, validations, and enhancements
    - Support for both built-in and plugin-provided visitors
 
 5. **Source Integration**
+
    - Analyze existing custom code using Roslyn
    - Merge custom implementations with generated code
    - Respect customization attributes and partial classes
 
 6. **Code Generation**
+
    - Convert providers to C# syntax trees
    - Apply formatting and style conventions
    - Generate supporting files (model factories, serialization)
