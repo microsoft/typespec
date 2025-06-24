@@ -146,7 +146,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var exceptions = new List<XmlDocExceptionStatement>(convenienceMethod.XmlDocs.Exceptions);
                 exceptions.Add(new(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
                 convenienceMethod.XmlDocs.Update(exceptions: exceptions);
-                convenienceMethod.Update(xmlDocProvider: convenienceMethod.XmlDocs);
             }
 
             return convenienceMethod;
@@ -592,7 +591,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var summary = new XmlDocSummaryStatement([$"[Protocol Method] {DocHelpers.GetDescription(ServiceMethod.Operation.Summary, ServiceMethod.Operation.Doc) ?? ServiceMethod.Operation.Name}"], listXmlDoc);
 
                 protocolMethod.XmlDocs.Update(summary: summary, exceptions: exceptions);
-                protocolMethod.Update(xmlDocProvider: protocolMethod.XmlDocs);
             }
             return protocolMethod;
         }

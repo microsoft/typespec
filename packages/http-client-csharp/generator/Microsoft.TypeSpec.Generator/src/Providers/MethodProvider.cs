@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Linq;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -19,8 +20,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public XmlDocProvider XmlDocs { get; private set; }
 
         public TypeProvider EnclosingType { get; }
-
-        private bool _rebuildXmlDocsOnAccept;
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -42,7 +41,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var paramHash = MethodProviderHelpers.GetParamHash(signature);
             BodyStatements = MethodProviderHelpers.GetBodyStatementWithValidation(signature.Parameters, bodyStatements, paramHash);
             XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature);
-            _rebuildXmlDocsOnAccept = xmlDocProvider == null;
             EnclosingType = enclosingType;
         }
 
@@ -58,7 +56,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             Signature = signature;
             BodyExpression = bodyExpression;
             XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature);
-            _rebuildXmlDocsOnAccept = xmlDocProvider == null;
             EnclosingType = enclosingType;
         }
 
@@ -87,12 +84,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (xmlDocProvider != null)
             {
                 XmlDocs = xmlDocProvider;
-                _rebuildXmlDocsOnAccept = false;
             }
         }
 
         internal virtual MethodProvider? Accept(LibraryVisitor visitor)
         {
+            var originalPartaMeterNames = Signature.Parameters.Select(p => p.Name).ToList();
             var updated = visitor.VisitMethod(this);
             if (updated == null)
             {
@@ -105,7 +102,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             Signature = updated.Signature;
-            if (_rebuildXmlDocsOnAccept)
+            var updatedParameterNames = Signature.Parameters.Select(p => p.Name).ToList();
+            if (!originalPartaMeterNames.SequenceEqual(updatedParameterNames) || XmlDocs is null)
             {
                 XmlDocs = MethodProviderHelpers.BuildXmlDocs(Signature);
             }
