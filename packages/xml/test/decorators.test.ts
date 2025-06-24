@@ -1,13 +1,13 @@
-import { resolveEncodedName, type Model, type ModelProperty } from "@typespec/compiler";
-import { expectDiagnostics, type BasicTestRunner } from "@typespec/compiler/testing";
+import { resolveEncodedName, type Model } from "@typespec/compiler";
+import { expectDiagnostics, t, type TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { getNs, isAttribute, isUnwrapped } from "../src/decorators.js";
-import { createXmlTestRunner } from "./test-host.js";
+import { Tester } from "./test-host.js";
 
-let runner: BasicTestRunner;
+let runner: TesterInstance;
 
 beforeEach(async () => {
-  runner = await createXmlTestRunner();
+  runner = await Tester.createInstance();
 });
 
 describe("@name", () => {
@@ -16,7 +16,7 @@ describe("@name", () => {
     ["model prop", `model Blob {@Xml.name("XmlName") @test title:string}`],
     ["scalar", `@Xml.name("XmlName") @test scalar Blob extends string;`],
   ])("%s", async (_, code) => {
-    const result = await runner.compile(`${code}`);
+    const result = await runner.compile(t.code`${code}`);
     const curr = (result.Blob || result.title) as Model;
     expect(resolveEncodedName(runner.program, curr, "application/xml")).toEqual("XmlName");
   });
@@ -24,17 +24,17 @@ describe("@name", () => {
 
 describe("@attribute", () => {
   it("mark property as being an attribute", async () => {
-    const { id } = (await runner.compile(`model Blob {
-      @test @Xml.attribute id : string
-    }`)) as { id: ModelProperty };
+    const { id } = await runner.compile(t.code`model Blob {
+      @Xml.attribute ${t.modelProperty("id")} : string
+    }`);
 
     expect(isAttribute(runner.program, id)).toBe(true);
   });
 
   it("returns false if property is not decorated", async () => {
-    const { id } = (await runner.compile(`model Blob {
-      @test id : string
-    }`)) as { id: ModelProperty };
+    const { id } = await runner.compile(t.code`model Blob {
+      ${t.modelProperty("id")} : string
+    }`);
 
     expect(isAttribute(runner.program, id)).toBe(false);
   });
@@ -42,17 +42,17 @@ describe("@attribute", () => {
 
 describe("@unwrapped", () => {
   it("mark property as to not be wrapped", async () => {
-    const { id } = (await runner.compile(`model Blob {
-      @test @Xml.unwrapped id : string
-    }`)) as { id: ModelProperty };
+    const { id } = await runner.compile(t.code`model Blob {
+      @Xml.unwrapped ${t.modelProperty("id")} : string
+    }`);
 
     expect(isUnwrapped(runner.program, id)).toBe(true);
   });
 
   it("returns false if property is not decorated", async () => {
-    const { id } = (await runner.compile(`model Blob {
-      @test id : string
-    }`)) as { id: ModelProperty };
+    const { id } = await runner.compile(t.code`model Blob {
+      ${t.modelProperty("id")} : string
+    }`);
 
     expect(isUnwrapped(runner.program, id)).toBe(false);
   });
@@ -60,9 +60,9 @@ describe("@unwrapped", () => {
 
 describe("@ns", () => {
   it("provide the namespace and prefix using string", async () => {
-    const { id } = await runner.compile(`
+    const { id } = await runner.compile(t.code`
       model Blob {
-        @test @Xml.ns("https://example.com/ns1", "ns1") id : string;
+        @Xml.ns("https://example.com/ns1", "ns1") ${t.modelProperty("id")} : string;
       }
     `);
 
@@ -73,10 +73,10 @@ describe("@ns", () => {
   });
 
   it("doesn't carry over to children", async () => {
-    const { id } = await runner.compile(`
+    const { id } = await runner.compile(t.code`
       @Xml.ns("https://example.com/ns1", "ns1") 
         model Blob {
-        @test  id : string;
+        ${t.modelProperty("id")} : string;
       }
     `);
 
@@ -84,7 +84,7 @@ describe("@ns", () => {
   });
 
   it("provide the namespace using enum declaration", async () => {
-    const { id } = await runner.compile(`
+    const { id } = await runner.compile(t.code`
       @Xml.nsDeclarations
       enum Namespaces {
         ns1: "https://example.com/ns1",
@@ -92,7 +92,7 @@ describe("@ns", () => {
       }
       
       model Blob {
-        @test @Xml.ns(Namespaces.ns2) id : string;
+         @Xml.ns(Namespaces.ns2) ${t.modelProperty("id")} : string;
       }
     `);
 
