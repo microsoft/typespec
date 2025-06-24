@@ -520,7 +520,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     optionalParameters.Add(parameter);
                 }
             }
-            bool addOptionalRequestOptionsParameter = ShouldAddOptionalRequestOptionsParameter();
+            bool addOptionalRequestOptionsParameter = ShouldRequestOptionsBeOptional();
             ParameterProvider requestOptionsParameter = addOptionalRequestOptionsParameter ? ScmKnownParameters.OptionalRequestOptions : ScmKnownParameters.RequestOptions;
 
             if (!addOptionalRequestOptionsParameter && optionalParameters.Count > 0)
@@ -687,7 +687,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputType);
         }
 
-        private bool ShouldAddOptionalRequestOptionsParameter()
+        private bool ShouldRequestOptionsBeOptional()
         {
             var convenienceMethodParameterCount = ConvenienceMethodParameters.Count;
             if (!_generateConvenienceMethod)
