@@ -76,7 +76,7 @@ function ClassProperty(props: ClassPropertyProps): ay.Children {
   const { $ } = useTsp();
 
   return (
-    <cs.ClassProperty
+    <cs.Property
       name={props.type.name}
       type={<TypeExpression type={result.type} />}
       public

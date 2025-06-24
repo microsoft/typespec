@@ -9,5 +9,5 @@ packages:
 overrides:
   "cross-spawn@>=7.0.0 <7.0.5": "^7.0.5"
   "@alloy-js/core": "^0.18.0-dev.5"
-  "@alloy-js/csharp": "^0.18.0-dev.11"
+  "@alloy-js/csharp": "^0.18.0-dev.16"
   "@alloy-js/typescript": "^0.18.0-dev"

@@ -7,7 +7,7 @@ settings:
 overrides:
   cross-spawn@>=7.0.0 <7.0.5: ^7.0.5
   '@alloy-js/core': ^0.18.0-dev.5
-  '@alloy-js/csharp': ^0.18.0-dev.11
+  '@alloy-js/csharp': ^0.18.0-dev.16
   '@alloy-js/typescript': ^0.18.0-dev
 
 importers:
@@ -414,8 +414,8 @@ importers:
   packages/emitter-framework:
     dependencies:
       '@alloy-js/csharp':
-        specifier: ^0.18.0-dev.11
-        version: 0.18.0-dev.11
+        specifier: ^0.18.0-dev.16
+        version: 0.18.0-dev.16
     devDependencies:
       '@alloy-js/cli':
         specifier: ^0.17.0
@@ -2708,8 +2708,8 @@ packages:
   '@alloy-js/core@0.18.0-dev.5':
     resolution: {integrity: sha512-AZmUKkHnZFMR1wD64VidGBREG3CTsH25JDgjWjtKmT/gHtYJpbiIrASBq0XIQ+30POA+BL5hbF6aSAoOl0Y7yg==}
 
-  '@alloy-js/csharp@0.18.0-dev.11':
-    resolution: {integrity: sha512-WAsEKChTQehmx0gTBWPtSMMxfnyPaRVkaRCYKz+G+c8P8Dy8O0l7X4apzuEjHpHF1TFDwPfShAPK8kKcFUp1jw==}
+  '@alloy-js/csharp@0.18.0-dev.16':
+    resolution: {integrity: sha512-fGT8cvqpfX0tjPEo8Ws/2b6VX3oFKmB1FcK9QKQn3Hj8ImKkWYbBeYPwWQ55DciQfsaVVeJtkhUo6CbTERblXw==}
 
   '@alloy-js/markdown@0.17.0':
     resolution: {integrity: sha512-Z3D2NXKjWh/izImih4lG0crigk4JWb//eJBTpeyRJ6c2HQOi7j++eZNoABNlTPwHfh3aYyijyoQjVdnnxRLAmQ==}
@@ -13893,7 +13893,7 @@ snapshots:
       picocolors: 1.1.1
       prettier: 3.5.3
 
-  '@alloy-js/csharp@0.18.0-dev.11':
+  '@alloy-js/csharp@0.18.0-dev.16':
     dependencies:
       '@alloy-js/core': 0.18.0-dev.5
       change-case: 5.4.4
