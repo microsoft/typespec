@@ -35,17 +35,20 @@ The TypeSpec Generator follows a layered architecture designed for extensibility
 ## Core Components
 
 ### 1. **Input Processing Layer**
+
 - **`Microsoft.TypeSpec.Generator.Input`**: Handles deserialization of TypeSpec JSON output
 - **`InputLibrary`**: Entry point for loading and accessing TypeSpec model data
 - **`InputTypes`**: Strongly-typed representations of TypeSpec constructs (models, operations, etc.)
 
 ### 2. **Code Model Generation Layer**
+
 - **`CodeModelGenerator`**: Abstract base class defining the generator contract and extensibility points
 - **`ScmCodeModelGenerator`**: Concrete implementation for System.ClientModel-based generators
 - **`TypeFactory`**: Factory pattern for creating output type providers from input types
 - **`GeneratorContext`**: Provides configuration and runtime context
 
 ### 3. **Output Model Layer**
+
 - **`OutputLibrary`**: Container for all generated type providers
 - **`TypeProvider`**: Abstract representation of generated types (models, enums, clients)
 - **`Providers/`**: Concrete implementations for different code constructs:
@@ -55,17 +58,20 @@ The TypeSpec Generator follows a layered architecture designed for extensibility
   - `PropertyProvider`: Model properties with accessors
 
 ### 4. **Transformation Pipeline**
+
 - **`LibraryVisitor`**: Visitor pattern for traversing and modifying the output library
 - **`LibraryRewriter`**: Advanced transformation capabilities for code modification
 - **Plugin System**: MEF-based extensibility for custom transformations
 
 ### 5. **Code Generation Layer**
+
 - **`Writers/`**: Responsible for converting providers to actual C# syntax
 - **`Snippets/`**: Reusable code patterns and expressions
 - **`Expressions/`**: Type-safe representation of C# expressions
 - **`Statements/`**: Type-safe representation of C# statements
 
 ### 6. **Configuration & Context**
+
 - **`Configuration`**: Centralized configuration management from JSON input
 - **`GeneratorContext`**: Runtime context and dependency injection container
 - **`SourceInputModel`**: Integration with existing custom code via Roslyn analysis
@@ -114,6 +120,7 @@ The generation process follows a well-defined pipeline:
 The generator provides multiple extensibility points:
 
 ### **Generator Inheritance**
+
 ```csharp
 [Export(typeof(CodeModelGenerator))]
 public class CustomGenerator : CodeModelGenerator
@@ -124,6 +131,7 @@ public class CustomGenerator : CodeModelGenerator
 ```
 
 ### **Custom Visitors**
+
 ```csharp
 public class CustomLibraryVisitor : LibraryVisitor
 {
@@ -136,6 +144,7 @@ public class CustomLibraryVisitor : LibraryVisitor
 ```
 
 ### **Plugin System**
+
 ```csharp
 [Export(typeof(GeneratorPlugin))]
 public class CustomPlugin : GeneratorPlugin
@@ -148,6 +157,7 @@ public class CustomPlugin : GeneratorPlugin
 ```
 
 ### **Type Factories**
+
 ```csharp
 public class CustomTypeFactory : TypeFactory
 {
@@ -164,22 +174,26 @@ public class CustomTypeFactory : TypeFactory
 The project employs a comprehensive testing approach:
 
 ### **Spector Tests**
+
 - **Purpose**: Integration testing against HTTP specification test cases
 - **Location**: `TestProjects/Spector/`
 - **Approach**: Generates client libraries for HTTP-specs test cases and validates API surface
 - **Stubbed Generation**: Minimizes repository size while maintaining API contract testing
 
 ### **Local Tests**
+
 - **Purpose**: Unit and integration testing of generator components
 - **Location**: `TestProjects/Local/`
 - **Approach**: Direct testing of generator functionality with controlled inputs
 
 ### **Performance Tests**
+
 - **Purpose**: Benchmarking generator performance and memory usage
 - **Location**: Various `*.Tests.Perf` projects
 - **Approach**: Measures generation time and resource consumption
 
 ### **Plugin Tests**
+
 - **Purpose**: Validates extensibility framework and plugin system
 - **Location**: `TestProjects/Plugin/`
 - **Approach**: Tests custom generators and plugins
