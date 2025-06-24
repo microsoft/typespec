@@ -6,22 +6,22 @@ describe("getPrereleaseVersionRange", () => {
     {
       currentVersion: "0.1.0",
       preReleaseTag: "dev",
-      expectedRange: "^0.1.0 || >=0.2.0-dev <0.2.0",
+      expectedRange: ">=0.2.0-dev <0.2.0",
     },
     {
       currentVersion: "0.1.0-alpha.0",
       preReleaseTag: "dev",
-      expectedRange: "^0.1.0-alpha.0 || >=0.1.0-alpha.1-dev <0.1.0-alpha.1",
+      expectedRange: ">=0.1.0-alpha.1-dev <0.1.0-alpha.1",
     },
     {
       currentVersion: "1.0.0-rc.0",
       preReleaseTag: "dev",
-      expectedRange: "^1.0.0-rc.0",
+      expectedRange: ">=1.0.0-rc.1-dev <1.0.0-rc.1",
     },
     {
       currentVersion: "1.1.0",
       preReleaseTag: "dev",
-      expectedRange: "^1.1.0",
+      expectedRange: ">=1.2.0-dev <1.2.0",
     },
   ])(
     "limits range to major version ($currentVersion)",
