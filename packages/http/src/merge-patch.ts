@@ -23,7 +23,6 @@ import {
 } from "@typespec/compiler";
 
 import {
-  unsafe_MutableType as MutableType,
   unsafe_mutateSubgraph as mutateSubgraph,
   unsafe_Mutator as Mutator,
   unsafe_MutatorFlow as MutatorFlow,
@@ -37,7 +36,6 @@ import {
   MergePatchModelDecorator,
   MergePatchPropertyDecorator,
 } from "../generated-defs/TypeSpec.Http.Private.js";
-import { isCookieParam, isHeader, isPathParam, isQueryParam, isStatusCode } from "./decorators.js";
 import {
   getMergePatchPropertyOverrides,
   MergePatchPropertyOverrides,
@@ -47,6 +45,7 @@ import {
 } from "./experimental/merge-patch/index.js";
 import { HttpStateKeys, reportDiagnostic } from "./lib.js";
 import { isMetadata } from "./metadata.js";
+import { applyClone, cachedMutateSubgraph, rename } from "./utils/mutator-utils.js";
 
 export const $mergePatchModel: MergePatchModelDecorator = (
   ctx: DecoratorContext,
@@ -63,29 +62,6 @@ export const $mergePatchProperty: MergePatchPropertyDecorator = (
 ) => {
   setMergePatchPropertySource(ctx.program, target, source);
 };
-
-const MUTATOR_RESULT_CACHE = Symbol.for("TypeSpec.Http.MutatorResultCache");
-
-interface MutatorResultCache {
-  [MUTATOR_RESULT_CACHE]?: WeakMap<MutableType, ReturnType<typeof mutateSubgraph>>;
-}
-
-function cachedMutateSubgraph(
-  program: Program,
-  mutator: Mutator,
-  type: MutableType,
-): ReturnType<typeof mutateSubgraph> {
-  const cache = ((mutator as MutatorResultCache)[MUTATOR_RESULT_CACHE] ??= new WeakMap());
-
-  let cached = cache.get(type);
-
-  if (cached) return cached;
-
-  cached = mutateSubgraph(program, [mutator], type);
-
-  cache.set(type, cached);
-  return cached;
-}
 
 const MERGE_PATCH_MUTATOR_CACHE = Symbol.for("TypeSpec.Http.MergePatchMutatorCache");
 
@@ -134,8 +110,13 @@ export const $applyMergePatch: ApplyMergePatchDecorator = (
   ));
 
   const mutated = cachedMutateSubgraph(ctx.program, mutator, source);
-
-  target.properties = (mutated.type as Model).properties;
+  compilerAssert(
+    mutated.type.kind === "Model",
+    `Mutator should have mutated to a Model, but got ${mutated.type.kind}`,
+    ctx.decoratorTarget,
+  );
+  applyClone(target, mutated.type);
+  target.decorators = target.decorators.filter((d) => d.decorator !== $applyMergePatch);
   ctx.program.stateMap(HttpStateKeys.mergePatchModel).set(target, source);
 };
 
@@ -238,6 +219,9 @@ function createMergePatchMutator(
       ModelProperty: {
         filter: () => MutatorFlow.DoNotRecur,
         mutate: (prop, clone, program, realm) => {
+          if (isMetadata(program, prop)) {
+            return;
+          }
           const decorators: DecoratorApplication[] = [];
           const overrides = getMergePatchPropertyOverrides(program, prop);
           for (const decorator of prop.decorators) {
@@ -286,6 +270,7 @@ function createMergePatchMutator(
             }
             clone.optional =
               overrides?.optional ?? (isDiscriminatedProperty(program, prop) ? false : true);
+            (clone as any).__TRACK = "ABC";
             clone.defaultValue = undefined;
           }
 
@@ -345,30 +330,11 @@ function createMergePatchMutator(
                 clone.properties.delete(key);
                 realm.remove(clonedProp);
               }
-            } else if (!isMetadata(program, prop)) {
+            } else {
               const mutated = mutateSubgraph(program, [mpMutator], prop);
               const mutatedProp = mutated.type as ModelProperty;
               mutatedProp.model = clone;
               clone.properties.set(key, mutatedProp);
-            } else {
-              const decorator: string | undefined = isPathParam(program, prop)
-                ? "@path"
-                : isHeader(program, prop)
-                  ? "@header"
-                  : isCookieParam(program, prop)
-                    ? "@cookie"
-                    : isQueryParam(program, prop)
-                      ? "@query"
-                      : isStatusCode(program, prop)
-                        ? "@statusCode"
-                        : undefined;
-              if (decorator) {
-                reportDiagnostic(program, {
-                  code: "merge-patch-contains-metadata",
-                  target: prop,
-                  format: { metadataType: decorator, propertyName: prop.name },
-                });
-              }
             }
           }
 
@@ -446,26 +412,4 @@ function isMergePatchSubject(type: Type): type is MergePatchSubject {
     type.kind === "UnionVariant" ||
     type.kind === "Tuple"
   );
-}
-
-function rename(
-  program: Program,
-  type: Extract<MergePatchSubject, { name?: string }>,
-  nameTemplate: string,
-) {
-  if ($(program).array.is(type) && type.name === "Array") return;
-  if (type.name && nameTemplate) {
-    type.name = replaceTemplatedStringFromProperties(nameTemplate, type);
-  }
-}
-
-function replaceTemplatedStringFromProperties(formatString: string, sourceObject: Type) {
-  // Template parameters are not valid source objects, just skip them
-  if (sourceObject.kind === "TemplateParameter") {
-    return formatString;
-  }
-
-  return formatString.replace(/{(\w+)}/g, (_, propName) => {
-    return (sourceObject as any)[propName];
-  });
 }
