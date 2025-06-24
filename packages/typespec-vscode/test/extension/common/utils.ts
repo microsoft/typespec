@@ -159,20 +159,14 @@ class Screenshot {
     this.fileList.sort((a, b) => a.date - b.date)
     for (let i = 0; i < this.fileList.length; i++) {
       const fullPathItem = this.fileList[i].fullPath.split("\\")
-      if (os.platform() === "win32") {
-        fullPathItem[fullPathItem.length - 1] = `${i}_${
-          fullPathItem[fullPathItem.length - 1]
-        }`
+      const lastslashIdx = fullPathItem[fullPathItem.length - 1].lastIndexOf("/")
+      const fileName = fullPathItem[fullPathItem.length - 1];
+      if (lastslashIdx !== -1) {
+        const prefix = fileName.substring(0, lastslashIdx + 1);
+        const suffix = fileName.substring(lastslashIdx + 1);
+        fullPathItem[fullPathItem.length - 1] = `${prefix}${i}_${suffix}`;
       } else {
-        const lastslashIdx = fullPathItem[fullPathItem.length - 1].lastIndexOf("/")
-        const fileName = fullPathItem[fullPathItem.length - 1];
-        if (lastslashIdx !== -1) {
-          const prefix = fileName.substring(0, lastslashIdx + 1);
-          const suffix = fileName.substring(lastslashIdx + 1);
-          fullPathItem[fullPathItem.length - 1] = `${prefix}${i}_${suffix}`;
-        } else {
-          fullPathItem[fullPathItem.length - 1] = `${i}_${fileName}`;
-        }
+        fullPathItem[fullPathItem.length - 1] = `${i}_${fileName}`;
       }
       fs.mkdirSync(path.dirname(path.join(...fullPathItem)), {
         recursive: true,
@@ -188,7 +182,7 @@ class Screenshot {
     let rootDir =
       process.env.BUILD_ARTIFACT_STAGING_DIRECTORY ||
       path.resolve(__dirname, "../..")
-    const platformDir = os.platform() === "win32" ? "/images-windows" : "/images-linux"
+    const platformDir = "/images-linux"
     const fullPath = path.join(
       rootDir,
       platformDir,

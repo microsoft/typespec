@@ -21,6 +21,10 @@ import {
   selectTemplate,
   startWithClick,
 } from "./common/createSteps"
+import {
+  CreateCasesConfigList,
+  CreateProjectTriggerType,
+} from "./config"
 
 beforeAll(() => {
   screenShot.setCreateType("create")
@@ -37,43 +41,6 @@ beforeEach(() => {
     fs.mkdirSync(dir, { recursive: true })
   }
 })
-
-enum CreateProjectTriggerType {
-  Click = "RightClick",
-  Command = "CommandPalette",
-}
-
-type CreateConfigType = {
-  caseName: string
-  triggerType: CreateProjectTriggerType
-  templateName: string
-  templateNameDesctiption: string
-  isEmptyFolder: boolean
-  expectedResults: string[]
-}
-
-const createCase = "CreateTypespecProject"
-let templateName = "Generic Rest API"
-let templateNameDesctiption = "Create a project representing a generic REST API service."
-let expectedResults = [
-  ".gitignore",
-  "main.tsp",
-  "node_modules",
-  "package-lock.json",
-  "package.json",
-  "tspconfig.yaml",
-]
-
-const CreateCasesConfigList: CreateConfigType[] = [
-  {
-    triggerType: CreateProjectTriggerType.Command,
-    caseName: `${createCase}-${templateName.replaceAll(" ", "")}-Trigger_${CreateProjectTriggerType.Command}-EmptyFolder`,
-    templateName,
-    templateNameDesctiption,
-    isEmptyFolder: true,
-    expectedResults,
-  },
-]
 
 describe.each(CreateCasesConfigList)("CreateTypespecProject", async (item) => {
   const {

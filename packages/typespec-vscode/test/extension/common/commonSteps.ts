@@ -3,7 +3,6 @@ import { retry, screenShot, sleep } from "./utils"
 import { keyboard, Key } from "@nut-tree-fork/nut-js"
 import fs from "node:fs"
 import path from "node:path"
-import os from "node:os"
 
 /**
  * Before comparing the results, you need to check whether the conditions for result comparison are met.
@@ -109,9 +108,7 @@ async function startWithRightClick(page: Page, command: string, type?: string) {
     const target = page.getByRole("treeitem", { name: targetName }).locator("a")
     await target.click({ button: "right" })
     await screenShot.screenShot("openapi.3.0.png")
-    if (os.platform() == "linux"){
-      await sleep(3)
-    }
+    await sleep(3)
     await page
       .getByRole("menuitem", { name: "Import TypeSpec from OpenAPI" })
       .click()
@@ -126,17 +123,9 @@ async function startWithRightClick(page: Page, command: string, type?: string) {
 async function selectFolder(file: string = "") {
   await sleep(10)
   await keyboard.type(file)
-  if (os.platform() === "win32" 
-    && file.includes("CreateTypespecProject")
-  ) {
-    await sleep(2)
-    await keyboard.pressKey(Key.Enter)
-  }
   await screenShot.screenShot("select_folder.png")
   await keyboard.pressKey(Key.Enter)
-  if (os.platform() !== "win32") {
-    await keyboard.releaseKey(Key.Enter)
-  }
+  await keyboard.releaseKey(Key.Enter)
   await sleep(3)
 }
 
