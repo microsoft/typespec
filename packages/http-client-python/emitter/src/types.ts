@@ -382,9 +382,11 @@ function emitEnumMember(
   type: SdkEnumValueType,
   enumType: Record<string, any>,
 ): Record<string, any> {
-  const value = type.value;
-  if (typeof value === "string" && simpleTypesMap.has(value)) {
-    return simpleTypesMap.get(value)!;
+  const existingEnum = typesMap.get(type.enumType);
+  if (existingEnum && existingEnum.type === "combined") {
+    return existingEnum.types.find(
+      (x: Record<string, any>) => x.type === "constant" && x.value === type.value,
+    );
   }
   return {
     name: enumName(type.name),
