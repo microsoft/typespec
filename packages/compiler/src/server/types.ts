@@ -59,6 +59,14 @@ export interface ServerLog {
   detail?: unknown;
 }
 
+export interface ConsoleLogger {
+  log(...args: any[]): void;
+  error(...args: any[]): void;
+  warn(...args: any[]): void;
+  info(...args: any[]): void;
+  debug(...args: any[]): void;
+}
+
 export interface ServerHost {
   readonly compilerHost: CompilerHost;
   readonly throwInternalErrors?: boolean;
