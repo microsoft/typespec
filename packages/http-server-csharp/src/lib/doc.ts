@@ -40,7 +40,7 @@ title: Next Steps
 
 # Next Steps
 
-- Use the SwaggerUI endpoint to test out the running service
+- Use the SwaggerUI endpoint (`/swagger`) to test out the running service
 - Implement business logic interfaces for your operations
 - Register each of your implementations as part of application startup
 - Update development and production configuration to suit your needs
@@ -134,7 +134,7 @@ Models are partial, so you can add additional members for internal usage as need
 
 After successful generation, you should:
 
-- Use the SwaggerUI endpoint to test out the running service
+- Use the SwaggerUI endpoint (`/swagger`)  to test out the running service
 - Implement the business logic interfaces for your operations
 - Update MockRegistration.cs, or register each of your interfaces as part of application startup
 - Update configuration to suit your needs
@@ -235,7 +235,7 @@ title: Next Steps
 
 # Next Steps
 
-- Use the SwaggerUI endpoint to test out the running service
+- Use the SwaggerUI endpoint (`/swagger`) to test out the running service
 - Update business logic mocks with real business logic
 ${mocks.flatMap((m) => `  - \`mocks/${m.className}.cs\``).join("\n")}
 - Update \`mocks/MockRegistration.cs\` if you update the constructor of business logic implementations.
