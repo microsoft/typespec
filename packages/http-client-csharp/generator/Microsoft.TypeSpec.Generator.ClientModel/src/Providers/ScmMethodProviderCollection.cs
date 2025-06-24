@@ -520,10 +520,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     optionalParameters.Add(parameter);
                 }
             }
-            bool addOptionalRequestOptionsParameter = ShouldRequestOptionsBeOptional();
-            ParameterProvider requestOptionsParameter = addOptionalRequestOptionsParameter ? ScmKnownParameters.OptionalRequestOptions : ScmKnownParameters.RequestOptions;
+            bool shouldRequestOptionsBeOptional = ShouldRequestOptionsBeOptional();
+            ParameterProvider requestOptionsParameter = shouldRequestOptionsBeOptional ? ScmKnownParameters.OptionalRequestOptions : ScmKnownParameters.RequestOptions;
 
-            if (!addOptionalRequestOptionsParameter && optionalParameters.Count > 0)
+            if (!shouldRequestOptionsBeOptional && optionalParameters.Count > 0)
             {
                 // If there are optional parameters, but the request options parameter is not optional, make only the first optional parameter nullable required.
                 // This is to prevent ambiguous callsites with the RequestOptions parameter while avoiding overly aggressive required parameter conversion.
