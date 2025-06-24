@@ -279,8 +279,9 @@ async function installExtensionForCommand(page: Page, extensionDir: string) {
   await retry(
     2,
     async () => {
-      const installed = page.locator('span').filter({ hasText: /^TypeSpec$/ })
-      return (await installed.count()) > 0
+      // Check if there is TypeSpec under the 'installed' section
+      const installed = await page.locator('.monaco-list > .monaco-scrollable-element').first().textContent()
+      return installed !== null && installed.includes("TypeSpec")
     },
     `Failed to install the extension.`,
     1
