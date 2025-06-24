@@ -525,24 +525,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (!addOptionalRequestOptionsParameter && optionalParameters.Count > 0)
             {
-                // If there are optional parameters, but the request options parameter is not optional, make the optional parameters nullable required.
-                // This is to ensure that the request options parameter is always the last parameter.
-                var newlyRequiredParameters = new List<ParameterProvider>(optionalParameters.Count);
-                foreach (var parameter in optionalParameters)
+                // If there are optional parameters, but the request options parameter is not optional, make only the first optional parameter nullable required.
+                // This is to prevent ambiguous callsites with the RequestOptions parameter while avoiding overly aggressive required parameter conversion.
+                var firstOptionalParameter = optionalParameters[0];
+
+                // don't mutate the static request content parameter
+                if (firstOptionalParameter.Equals(ScmKnownParameters.OptionalRequestContent))
                 {
-                    // don't mutate the static request content parameter
-                    if (parameter.Equals(ScmKnownParameters.OptionalRequestContent))
-                    {
-                        newlyRequiredParameters.Add(ScmKnownParameters.NullableRequiredRequestContent);
-                        continue;
-                    }
-                    parameter.DefaultValue = null;
-                    parameter.Type = parameter.Type.WithNullable(true);
-                    newlyRequiredParameters.Add(parameter);
+                    requiredParameters.Add(ScmKnownParameters.NullableRequiredRequestContent);
+                }
+                else
+                {
+                    firstOptionalParameter.DefaultValue = null;
+                    firstOptionalParameter.Type = firstOptionalParameter.Type.WithNullable(true);
+                    requiredParameters.Add(firstOptionalParameter);
                 }
 
-                requiredParameters.AddRange(newlyRequiredParameters);
-                optionalParameters.Clear();
+                // Remove only the first optional parameter from the optional list
+                optionalParameters.RemoveAt(0);
             }
 
             ParameterProvider[] parameters = [.. requiredParameters, .. optionalParameters, requestOptionsParameter];
