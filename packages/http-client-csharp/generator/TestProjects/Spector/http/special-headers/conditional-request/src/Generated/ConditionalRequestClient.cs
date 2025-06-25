@@ -18,33 +18,33 @@ namespace SpecialHeaders.ConditionalRequest
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult PostIfMatch(string ifMatch, RequestOptions options = null) => throw null;
+        public virtual ClientResult PostIfMatch(string ifMatch, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> PostIfMatchAsync(string ifMatch, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PostIfMatchAsync(string ifMatch, RequestOptions options) => throw null;
 
         public virtual ClientResult PostIfMatch(string ifMatch = default, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> PostIfMatchAsync(string ifMatch = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult PostIfNoneMatch(string ifNoneMatch, RequestOptions options = null) => throw null;
+        public virtual ClientResult PostIfNoneMatch(string ifNoneMatch, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> PostIfNoneMatchAsync(string ifNoneMatch, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PostIfNoneMatchAsync(string ifNoneMatch, RequestOptions options) => throw null;
 
         public virtual ClientResult PostIfNoneMatch(string ifNoneMatch = default, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> PostIfNoneMatchAsync(string ifNoneMatch = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult HeadIfModifiedSince(DateTimeOffset? ifModifiedSince, RequestOptions options = null) => throw null;
+        public virtual ClientResult HeadIfModifiedSince(DateTimeOffset? ifModifiedSince, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> HeadIfModifiedSinceAsync(DateTimeOffset? ifModifiedSince, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> HeadIfModifiedSinceAsync(DateTimeOffset? ifModifiedSince, RequestOptions options) => throw null;
 
         public virtual ClientResult HeadIfModifiedSince(DateTimeOffset? ifModifiedSince = default, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> HeadIfModifiedSinceAsync(DateTimeOffset? ifModifiedSince = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult PostIfUnmodifiedSince(DateTimeOffset? ifUnmodifiedSince, RequestOptions options = null) => throw null;
+        public virtual ClientResult PostIfUnmodifiedSince(DateTimeOffset? ifUnmodifiedSince, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> PostIfUnmodifiedSinceAsync(DateTimeOffset? ifUnmodifiedSince, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PostIfUnmodifiedSinceAsync(DateTimeOffset? ifUnmodifiedSince, RequestOptions options) => throw null;
 
         public virtual ClientResult PostIfUnmodifiedSince(DateTimeOffset? ifUnmodifiedSince = default, CancellationToken cancellationToken = default) => throw null;
 

@@ -77,8 +77,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected virtual IReadOnlyList<ScmMethodProvider> BuildMethods()
         {
-            var syncProtocol = BuildProtocolMethod(_createRequestMethod, false);
-            var asyncProtocol = BuildProtocolMethod(_createRequestMethod, true);
+            bool shouldMakeParametersRequired = ShouldMakeProtocolMethodParametersRequired();
+
+            var syncProtocol = BuildProtocolMethod(_createRequestMethod, false, shouldMakeParametersRequired);
+            var asyncProtocol = BuildProtocolMethod(_createRequestMethod, true, shouldMakeParametersRequired);
 
             if (_generateConvenienceMethod)
             {
@@ -487,7 +489,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return (required, optional);
         }
 
-        private ScmMethodProvider BuildProtocolMethod(MethodProvider createRequestMethod, bool isAsync)
+        private ScmMethodProvider BuildProtocolMethod(MethodProvider createRequestMethod, bool isAsync, bool shouldMakeParametersRequired)
         {
             if (EnclosingType is not ClientProvider client)
             {
@@ -520,40 +522,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     optionalParameters.Add(parameter);
                 }
             }
-            ParameterProvider requestOptionsParameter = ScmKnownParameters.OptionalRequestOptions;
-            bool shouldMakeParametersRequired = ShouldMakeProtocolMethodParametersRequired();
+            ParameterProvider requestOptionsParameter = ScmKnownParameters.RequestOptions;
 
             if (shouldMakeParametersRequired)
             {
                 if (optionalParameters.Count > 0)
                 {
-                    // If we need to make parameters required, make only the first optional parameter nullable required.
-                    // This is to prevent ambiguous callsites with the RequestOptions parameter while avoiding overly aggressive required parameter conversion.
-                    var firstOptionalParameter = optionalParameters[0];
-
-                    // don't mutate the static request content parameter
-                    if (firstOptionalParameter.Equals(ScmKnownParameters.OptionalRequestContent))
-                    {
-                        requiredParameters.Add(ScmKnownParameters.NullableRequiredRequestContent);
-                        // Update the body param in the underlying collection
-                        var bodyParamIndex = ProtocolMethodParameters.IndexOf(firstOptionalParameter);
-                        ProtocolMethodParameters[bodyParamIndex] = ScmKnownParameters.NullableRequiredRequestContent;
-                    }
-                    else
-                    {
-                        firstOptionalParameter.DefaultValue = null;
-                        firstOptionalParameter.Type = firstOptionalParameter.Type.WithNullable(true);
-                        requiredParameters.Add(firstOptionalParameter);
-                    }
-
-                    // Remove only the first optional parameter from the optional list
-                    optionalParameters.RemoveAt(0);
-                    requestOptionsParameter = ScmKnownParameters.OptionalRequestOptions;
+                    ProcessOptionalParameters(optionalParameters, requiredParameters, ref requestOptionsParameter);
                 }
-                else
-                {
-                    requestOptionsParameter = ScmKnownParameters.RequestOptions;
-                }
+            }
+            else
+            {
+                requestOptionsParameter = ScmKnownParameters.OptionalRequestOptions;
             }
 
             ParameterProvider[] parameters = [.. requiredParameters, .. optionalParameters, requestOptionsParameter];
@@ -604,6 +584,69 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 protocolMethod.XmlDocs.Update(summary: summary, exceptions: exceptions);
             }
             return protocolMethod;
+        }
+
+        private ParameterProvider ProcessOptionalParameters(
+            List<ParameterProvider> optionalParameters,
+            List<ParameterProvider> requiredParameters,
+            ref ParameterProvider requestOptionsParameter)
+        {
+            // If we need to make parameters required, make only the first optional parameter nullable required.
+            // This is to prevent ambiguous callsites with the RequestOptions parameter while avoiding overly aggressive required parameter conversion.
+            bool hasOptionalRequestContent =
+                optionalParameters.Any(p => p.Equals(ScmKnownParameters.OptionalRequestContent));
+
+            // If there is an optional request content parameter, we need to make all parameters required up to and including the request content parameter
+            if (hasOptionalRequestContent)
+            {
+                int parametersMadeRequired = 0;
+                foreach (var optionalParameter in optionalParameters)
+                {
+                    if (optionalParameter.Equals(ScmKnownParameters.OptionalRequestContent))
+                    {
+                        requiredParameters.Add(ScmKnownParameters.NullableRequiredRequestContent);
+                        // Update the body param in the underlying collection
+                        var bodyParamIndex = ProtocolMethodParameters.IndexOf(optionalParameter);
+                        ProtocolMethodParameters[bodyParamIndex] =
+                            ScmKnownParameters.NullableRequiredRequestContent;
+                        parametersMadeRequired++;
+                        break;
+                    }
+
+                    optionalParameter.DefaultValue = null;
+                    optionalParameter.Type = optionalParameter.Type.WithNullable(true);
+                    requiredParameters.Add(optionalParameter);
+                    parametersMadeRequired++;
+                }
+
+                optionalParameters.RemoveRange(0, parametersMadeRequired);
+                requestOptionsParameter = ScmKnownParameters.OptionalRequestOptions;
+            }
+            else
+            {
+                // If there is a required request content, then we don't need to make the optional parameters required
+                bool hasRequiredRequestContent =
+                    requiredParameters.Any(p => p.Equals(ScmKnownParameters.RequestContent));
+
+                if (hasRequiredRequestContent)
+                {
+                    requestOptionsParameter = ScmKnownParameters.OptionalRequestOptions;
+                }
+                else
+                {
+                    // Otherwise we need to make all parameters required
+                    foreach (var optionalParameter in optionalParameters)
+                    {
+                        optionalParameter.DefaultValue = null;
+                        optionalParameter.Type = optionalParameter.Type.WithNullable(true);
+                        requiredParameters.Add(optionalParameter);
+                    }
+
+                    optionalParameters.Clear();
+                }
+            }
+
+            return requestOptionsParameter;
         }
 
         private IEnumerable<MethodBodyStatement> GetPagingMethodBody(

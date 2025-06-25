@@ -277,7 +277,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [TestCase(true, false, true)]
-        [TestCase(true, true, false)]
+        [TestCase(true, true, true)]
         [TestCase(false, false, false)]
         [TestCase(false, true, false)]
         public void RequestOptionsOptionality(bool inBody, bool hasOptionalParameter, bool shouldBeOptional)
@@ -386,18 +386,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 Assert.IsNull(optional1Param.DefaultValue, "First optional parameter should become required");
                 Assert.IsTrue(optional1Param.Type.IsNullable, "First optional parameter should be nullable");
 
-                // Subsequent optional parameters should remain optional
+                // Subsequent optional parameters still need to be made required
                 var optional2Param = methodParameters.Single(p => p.Name == "optional2");
-                Assert.IsNotNull(optional2Param.DefaultValue, "Second optional parameter should remain optional");
-                Assert.IsTrue(optional2Param.Type.IsNullable, "Second optional parameter should not be nullable");
+                Assert.IsNull(optional2Param.DefaultValue, "Second optional parameter should be required");
+                Assert.IsTrue(optional2Param.Type.IsNullable, "Second optional parameter should be nullable");
 
                 var optional3Param = methodParameters.Single(p => p.Name == "optional3");
-                Assert.IsNotNull(optional3Param.DefaultValue, "Third optional parameter should remain optional");
-                Assert.IsTrue(optional3Param.Type.IsNullable, "Third optional parameter should not be nullable");
+                Assert.IsNull(optional3Param.DefaultValue, "Third optional parameter should be required");
+                Assert.IsTrue(optional3Param.Type.IsNullable, "Third optional parameter should be nullable");
 
-                // RequestOptions should be optional
+                // RequestOptions should be required
                 var optionsParameter = methodParameters.Single(p => p.Name == "options");
-                Assert.IsNotNull(optionsParameter.DefaultValue, "RequestOptions should be optional");
+                Assert.IsNull(optionsParameter.DefaultValue, "RequestOptions should be required");
             }
         }
 
