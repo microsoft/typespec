@@ -1,6 +1,10 @@
 import { Diagnostic, Service } from "@typespec/compiler";
 import { Contact, ExtensionKey, License } from "@typespec/openapi";
 
+export type CommonOpenAPI3Schema = OpenAPI3Schema & OpenAPISchema3_1;
+
+export type SupportedOpenAPIDocuments = OpenAPI3Document | OpenAPIDocument3_1;
+
 export type Extensions = {
   [key in ExtensionKey]?: any;
 };
@@ -56,7 +60,7 @@ export interface OpenAPI3UnversionedServiceRecord {
   readonly versioned: false;
 
   /** The OpenAPI 3 document */
-  readonly document: OpenAPI3Document;
+  readonly document: SupportedOpenAPIDocuments;
 
   /** The diagnostics created for this document */
   readonly diagnostics: readonly Diagnostic[];
@@ -79,7 +83,7 @@ export interface OpenAPI3VersionedServiceRecord {
 
 export interface OpenAPI3VersionedDocumentRecord {
   /** The OpenAPI document*/
-  readonly document: OpenAPI3Document;
+  readonly document: SupportedOpenAPIDocuments;
 
   /** The service that generated this OpenAPI document. */
   readonly service: Service;
@@ -376,6 +380,14 @@ export type JsonType = "array" | "boolean" | "integer" | "number" | "object" | "
  */
 export type OpenAPI3SchemaProperty = Ref<OpenAPI3Schema> | OpenAPI3Schema;
 
+export type OpenAPI3XmlSchema = Extensions & {
+  name?: string;
+  namespace?: string;
+  prefix?: string;
+  attribute?: boolean;
+  wrapped?: boolean;
+};
+
 export type OpenAPI3Schema = Extensions & {
   /**
    * This attribute is a string that provides a short description of the instance property.
@@ -587,6 +599,9 @@ export type OpenAPI3Schema = Extensions & {
 
   /** Specifies that a schema is deprecated and SHOULD be transitioned out of usage.Default value is false. */
   deprecated?: boolean;
+
+  /** This MAY be used only on properties schemas. It has no effect on root schemas. Adds additional metadata to describe the XML representation of this property. */
+  xml?: OpenAPI3XmlSchema;
 };
 
 export type OpenAPI3ParameterBase = Extensions & {
@@ -603,6 +618,11 @@ export type OpenAPI3ParameterBase = Extensions & {
   explode?: boolean;
 
   schema: OpenAPI3Schema;
+
+  /** A free-form property to include an example of an instance for this schema. To represent examples that cannot be naturally represented in JSON or YAML, a string value can be used to contain the example with escaping where necessary. */
+  example?: any;
+
+  examples?: Record<string, Refable<OpenAPI3Example>>;
 };
 
 export type OpenAPI3QueryParameter = OpenAPI3ParameterBase & {
@@ -670,7 +690,7 @@ export type OpenAPI3Operation = Extensions & {
   responses?: any;
   tags?: string[];
   operationId?: string;
-  requestBody?: OpenAPI3RequestBody;
+  requestBody?: Refable<OpenAPI3RequestBody>;
   parameters: Refable<OpenAPI3Parameter>[];
   deprecated?: boolean;
   security?: Record<string, string[]>[];
@@ -684,3 +704,427 @@ export interface Ref<T> {
 }
 
 export type Refable<T> = Ref<T> | T;
+
+export type JsonSchemaType =
+  | "array"
+  | "boolean"
+  | "integer"
+  | "null"
+  | "number"
+  | "object"
+  | "string";
+
+export type JsonSchema<AdditionalVocabularies extends {} = {}> = AdditionalVocabularies & {
+  /**
+   * The JSON type for the schema.
+   * If the value is an array, then an instance validates successfully if its type
+   * matches any of the types indicated by the string in the array.
+   *
+   * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-type
+   */
+  type?: JsonSchemaType | JsonSchemaType[];
+
+  /**
+   * The extending format for the previously mentioned type.
+   */
+  format?: string;
+
+  /**
+   * This provides an enumeration of all possible values that are valid
+   * for the instance property. This MUST be an array, and each item in
+   * the array represents a possible value for the instance value. If
+   * this attribute is defined, the instance value MUST be one of the
+   * values in the array in order for the schema to be valid.
+   *
+   * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-enum
+   */
+  enum?: (string | number | boolean | null)[];
+
+  /**
+   * Functionally equivalent to "enum" with a single value.
+   * An instance validates successfully if its value is equal to the value of this keyword.
+   *
+   * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-const
+   */
+  const?: unknown;
+
+  /**
+   * Must be strictly greater than 0.
+   * A numeric instance is valid only if division by this keyword's value results in an integer.
+   * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-multipleof
+   */
+  multipleOf?: number;
+
+  /**
+   * Representing an inclusive upper limit for a numeric instance.
+   * This keyword validates only if the instance is less than or exactly equal to "maximum".
+   * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-maximum
+   */
+  maximum?: number;
+
+  /**
+   * Representing an exclusive upper limit for a numeric instance.
+   * This keyword validates only if the instance is strictly less than (not equal to) to "exclusiveMaximum".
+   * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-exclusivemaximum
+   */
+  exclusiveMaximum?: number;
+
+  /**
+   * Representing an inclusive lower limit for a numeric instance.
+   * This keyword validates only if the instance is greater than or exactly equal to "minimum".
+   * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-minimum
+   */
+  minimum?: number;
+
+  /**
+   * Representing an exclusive lower limit for a numeric instance.
+   * This keyword validates only if the instance is strictly greater than (not equal to) to "exclusiveMinimum".
+   * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-exclusiveminimum
+   */
+  exclusiveMinimum?: number;
+
+  /**
+   * Must be a non-negative integer.
+   * A string instance is valid against this keyword if its length is less than, or equal to, the value of this keyword.
+   * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-maxlength
+   */
+  maxLength?: number;
+
+  /**
+   * Must be a non-negative integer.
+   * A string instance is valid against this keyword if its length is greater than, or equal to, the value of this keyword.
+   * Omitting this keyword has the same behavior as a value of 0.
+   * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-minlength
+   */
+  minLength?: number;
+
+  /**
+   * Should be a valid regular expression, according to the ECMA 262 regular expression dialect.
+   * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-pattern
+   */
+  pattern?: string;
+
+  /**
+   * Must be a non-negative integer.
+   * An array instance is valid against "maxItems" if its size is less than, or equal to, the value of this keyword.
+   * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-maxitems
+   */
+  maxItems?: number;
+
+  /**
+   * Must be a non-negative integer.
+   * An array instance is valid against "maxItems" if its size is greater than, or equal to, the value of this keyword.
+   * Omitting this keyword has the same behavior as a value of 0.
+   * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-minitems
+   */
+  minItems?: number;
+
+  /**
+   * If this keyword has boolean value false, the instance validates successfully.
+   * If it has boolean value true, the instance validates successfully if all of its elements are unique.
+   * Omitting this keyword has the same behavior as a value of false.
+   * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-uniqueitems
+   */
+  uniqueItems?: boolean;
+
+  /**
+   * Must be a non-negative integer.
+   * If "contains" is not present within the same schema object, then this has no effect.
+   * An array instance is valid against "maxContains" if the number of elements that are'
+   * valid against the schema defined by "contains" is less than, or equal to, the value of this keyword.
+   * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-maxcontains
+   */
+  maxContains?: number;
+
+  /**
+   * Must be a non-negative integer.
+   * If "contains" is not present within the same schema object, then this has no effect.
+   * An array instance is valid against "minContains" if the number of elements that are'
+   * valid against the schema defined by "contains" is greater than, or equal to, the value of this keyword.
+   * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-maxcontains
+   */
+  minContains?: number;
+
+  /**
+   * Must be a non-negative integer.
+   * An object instance is valid against "maxProperties" if its number of properties is less than, or equal to, the value of this keyword.
+   * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-maxproperties
+   */
+  maxProperties?: number;
+
+  /**
+   * Must be a non-negative integer.
+   * An object instance is valid against "maxProperties" if its number of properties is greater than,
+   * or equal to, the value of this keyword.
+   * Omitting this keyword has the same behavior as a value of 0.
+   * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-minproperties
+   */
+  minProperties?: number;
+
+  /**
+   * Elements of this array must be unique.
+   * An object instance is valid against this keyword if every item in the array is the name of a property in the instance.
+   * Omitting this keyword has the same behavior as an empty array.
+   *
+   * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-required
+   */
+  required?: Array<string>;
+
+  /**
+   * Must be a string.
+   * If the schema instance is a string, this property defines that the string SHOULD be
+   * interpreted as encoded binary data and decoded using the encoding named by this property.
+   *
+   * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-contentencoding
+   */
+  contentEncoding?: string;
+
+  /**
+   * If the schema instance is a string and "contentMediaType" is present, this property
+   * contains a schema which describes the structure of the string.
+   * This should be ignored if "contentMediaType" is not present.
+   *
+   * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-contentschema
+   */
+  contentSchema?: Refable<JsonSchema<AdditionalVocabularies>>;
+
+  /**
+   * Must be a string.
+   * If the schema instance is a string, this property indicates the media type of the contents of the string.
+   * If "contentEncoding" is present, this property describes the decoded string.
+   *
+   * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-contentmediatype
+   */
+  contentMediaType?: string;
+
+  /**
+   * This attribute is a string that provides a short description of the instance property.
+   *
+   * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-title-and-description
+   */
+  title?: string;
+
+  /**
+   * This attribute is a string that provides a full description of the schema
+   *
+   * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-title-and-description
+   */
+  description?: string;
+
+  /**
+   * Declares the value of the property that the server will use if none is provided,
+   * for example a "count" to control the number of results per page might default to 100 if not supplied by the client in the request.
+   *
+   * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-default
+   */
+  default?: string | boolean | number | null | Record<string, any>;
+
+  /**
+   * Specifies that a schema is deprecated and SHOULD be transitioned out of usage.
+   * Default value is false.
+   *
+   * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-deprecated
+   */
+  deprecated?: boolean;
+
+  /**
+   * An array of free-form properties to include examples of an instance for this schema.
+   * To represent examples that cannot be naturally represented in JSON or YAML, a string value can be used to contain the example with escaping where necessary.
+   *
+   * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-examples
+   */
+  examples?: any[];
+
+  /**
+   * A collection of schemas that this schema also must conform to.
+   *
+   * An instance validates successfully against this keyword if it validates successfully against all schemas defined by this keyword's value.
+   *
+   * @see https://json-schema.org/draft/2020-12/json-schema-core#name-allof
+   */
+  allOf?: Refable<JsonSchema<AdditionalVocabularies>>[];
+
+  /**
+   * A collection of schemas that this schema may conform to one or more of.
+   *
+   * An instance validates successfully against this keyword if it validates successfully against at least one schema defined by this keyword's value.
+   *
+   * @see https://json-schema.org/draft/2020-12/json-schema-core#name-anyof
+   */
+  anyOf?: Refable<JsonSchema<AdditionalVocabularies>>[];
+
+  /**
+   * A collection of schemas that this schema may conform to only one of.
+   *
+   * An instance validates successfully against this keyword if it validates successfully against exactly one schema defined by this keyword's value.
+   *
+   * @see https://json-schema.org/draft/2020-12/json-schema-core#name-oneof
+   */
+  oneOf?: Refable<JsonSchema<AdditionalVocabularies>>[];
+
+  /**
+   *  An instance is valid against this keyword if it fails to validate successfully against the schema defined by this keyword.
+   * @see https://json-schema.org/draft/2020-12/json-schema-core#name-not
+   */
+  not?: Refable<JsonSchema<AdditionalVocabularies>>;
+
+  /**
+   * Validation succeeds if each element of the instance validates against the schema at the same position, if any.
+   * This keyword does not constrain the length of the array.
+   * If the array is longer than this keyword's value, this keyword validates only the prefix of matching length.
+   *
+   * @see https://json-schema.org/draft/2020-12/json-schema-core#name-prefixitems
+   */
+  prefixItems?: Refable<JsonSchema<AdditionalVocabularies>>[];
+
+  /**
+   * This keyword applies its subschema to all instance elements at indexes greater than the lenfth of the "prefixItems" array.
+   *
+   * @see https://json-schema.org/draft/2020-12/json-schema-core#name-items
+   * */
+  items?: Refable<JsonSchema<AdditionalVocabularies>>;
+
+  /**
+   * An array instance validates successfully against this keyword if at least one of its elements is valid against the given schema,
+   * except when `minContains` is present and has a value of 0.
+   *
+   * @see https://json-schema.org/draft/2020-12/json-schema-core#name-contains
+   */
+  contains?: Refable<JsonSchema<AdditionalVocabularies>>;
+
+  /**
+   * This attribute is an object with property definitions that define the
+   * valid values of instance object property values. When the instance
+   * value is an object, the property values of the instance object MUST
+   * conform to the property definitions in this object. In this object,
+   * each property definition's value MUST be a schema, and the property's
+   * name MUST be the name of the instance property that it defines.  The
+   * instance property value MUST be valid according to the schema from
+   * the property definition. Properties are considered unordered, the
+   * order of the instance properties MAY be in any order.
+   *
+   * @see https://json-schema.org/draft/2020-12/json-schema-core#name-properties
+   */
+  properties?: Record<
+    string,
+    Refable<JsonSchema<AdditionalVocabularies>> | JsonSchema<AdditionalVocabularies>
+  >;
+
+  /**
+   * indicates that additional unlisted properties can exist in this schema
+   *
+   * @see https://json-schema.org/draft/2020-12/json-schema-core#name-additionalproperties
+   */
+  additionalProperties?: boolean | Refable<JsonSchema<AdditionalVocabularies>>;
+
+  /**
+   * Indicates that additional unlisted properties can exist in this schema.
+   * This differs from additionalProperties in that it is aware of any in-place applicators.
+   * This includes being aware of properties defined in sibling `allOf` sub-schemas.
+   *
+   * @see https://json-schema.org/draft/2020-12/json-schema-core#name-unevaluatedproperties
+   */
+  unevaluatedProperties?: boolean | Refable<JsonSchema<AdditionalVocabularies>>;
+
+  /**
+   * Property is readonly.
+   */
+  readOnly?: boolean;
+
+  /** Adds support for polymorphism. The discriminator is an object name that is used to differentiate between other schemas which may satisfy the payload description  */
+  discriminator?: OpenAPI3Discriminator;
+
+  /** Additional external documentation for this schema. */
+  externalDocs?: OpenAPI3ExternalDocs;
+};
+
+export type OpenAPISchema3_1 = JsonSchema<
+  {
+    /**
+     * Adds support for polymorphism.
+     * The discriminator is an object name that is used to differentiate between other schemas which may satisfy the payload description
+     *
+     * @see https://spec.openapis.org/oas/v3.1.1.html#discriminator-object
+     */
+    discriminator?: OpenAPI3Discriminator;
+
+    /**
+     * Additional external documentation for this schema.
+     *
+     * @see https://spec.openapis.org/oas/v3.1.1.html#external-documentation-object
+     */
+    externalDocs?: OpenAPI3ExternalDocs;
+
+    /**
+     * This MAY be used only on properties schemas.
+     * It has no effect on root schemas.
+     * Adds additional metadata to describe the XML representation of this property.
+     */
+    xml?: OpenAPI3XmlSchema;
+  } & Extensions
+>;
+
+export interface OpenAPIDocument3_1 extends Extensions {
+  openapi: "3.1.0";
+
+  /**
+   * Provides metadata about the API. The metadata can be used by the clients if needed.
+   */
+  info: OpenAPI3Info;
+
+  /**
+   * The default value for the $schema keyword within Schema Objects contained within this document.
+   * This MUST be in the form of a URI.
+   */
+  jsonSchemaDialect?: string;
+
+  /** Additional external documentation. */
+  externalDocs?: OpenAPI3ExternalDocs;
+
+  /** The available paths and operations for the API */
+  paths: Record<string, OpenAPI3PathItem>;
+
+  /**
+   * The incoming webhooks that may be received as part of this API.
+   * The key name is a unique string to refer to each webhook.
+   */
+  webhooks?: Record<string, OpenAPI3PathItem>;
+
+  /**
+   * An array of Server Objects, which provide connectivity information to a target server.
+   * If the servers property is not provided, or is an empty array, the default value would be a Server Object with a url value of /.
+   */
+  servers?: OpenAPI3Server[];
+
+  /**
+   * A list of tags used by the specification with additional metadata.
+   * The order of the tags can be used to reflect on their order by the parsing tools.
+   * Not all tags that are used by the Operation Object must be declared.
+   * The tags that are not declared MAY be organized randomly or based on the tools' logic. Each tag name in the list MUST be unique.
+   */
+  tags?: OpenAPI3Tag[];
+
+  /** An element to hold various schemas for the specification. */
+  components?: OpenAPIComponents3_1;
+
+  /**
+   * A declaration of which security mechanisms can be used across the API.
+   * The list of values includes alternative security requirement objects that can be used.
+   * Only one of the security requirement objects need to be satisfied to authorize a request.
+   * Individual operations can override this definition.
+   */
+  security?: Record<string, string[]>[];
+}
+
+export interface OpenAPIComponents3_1 extends Extensions {
+  schemas?: Record<string, OpenAPISchema3_1>;
+  responses?: Record<string, Refable<OpenAPI3Response>>;
+  parameters?: Record<string, Refable<OpenAPI3Parameter>>;
+  examples?: Record<string, Refable<OpenAPI3Example>>;
+  requestBodies?: Record<string, Refable<OpenAPI3RequestBody>>;
+  headers?: Record<string, Refable<OpenAPI3Header>>;
+  securitySchemes?: Record<string, Refable<OpenAPI3SecurityScheme>>;
+  links?: Record<string, Refable<OpenAPI3Link>>;
+  callbacks?: Record<string, Record<string, OpenAPI3PathItem>>;
+  pathItems?: Record<string, OpenAPI3PathItem>;
+}

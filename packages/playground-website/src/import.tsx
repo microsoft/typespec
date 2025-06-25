@@ -77,7 +77,7 @@ const ImportOpenAPI3 = ({ onImport }: { onImport: () => void }) => {
 
     const yaml = parse(content);
     try {
-      const tsp = await openapi3.convertOpenAPI3Document(yaml);
+      const tsp = await openapi3.convertOpenAPI3Document(yaml, { disableExternalRefs: true });
       context.setContent(tsp);
       onImport();
     } catch (e: any) {

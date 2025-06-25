@@ -28,10 +28,12 @@ export const $lib = createTypeSpecLibrary({
       },
     },
 
-    "optional-path-param": {
-      severity: "error",
+    "double-slash": {
+      severity: "warning",
       messages: {
-        default: paramMessage`Path parameter '${"paramName"}' cannot be optional.`,
+        default: paramMessage`Route will result in duplicate slashes as parameter '${"paramName"}' use path expansion and is prefixed with a /`,
+        optionalUnset: paramMessage`Route will result in duplicate slashes when optional parameter '${"paramName"}' is not set.`,
+        optionalSet: paramMessage`Route will result in duplicate slashes when optional parameter '${"paramName"}' is set.`,
       },
     },
     "missing-server-param": {
@@ -100,6 +102,12 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`${"kind"} property will be ignored as it is inside of a @body property. Use @bodyRoot instead if wanting to mix.`,
       },
     },
+    "response-cookie-not-supported": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`@cookie on response is not supported. Property '${"propName"}' will be ignored in the body. If you need 'Set-Cookie', use @header instead.`,
+      },
+    },
     "no-service-found": {
       severity: "warning",
       messages: {
@@ -118,12 +126,6 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`Each operation routed at "${"verb"} ${"path"}" needs to have the @sharedRoute decorator.`,
       },
     },
-    "write-visibility-not-supported": {
-      severity: "warning",
-      messages: {
-        default: `@visibility("write") is not supported. Use @visibility("update"), @visibility("create") or @visibility("create", "update") as appropriate.`,
-      },
-    },
     "multipart-invalid-content-type": {
       severity: "error",
       messages: {
@@ -133,7 +135,14 @@ export const $lib = createTypeSpecLibrary({
     "multipart-model": {
       severity: "error",
       messages: {
-        default: "Multipart request body must be a model.",
+        default: "Multipart request body must be a model or a tuple of http parts.",
+      },
+    },
+    "no-implicit-multipart": {
+      severity: "error",
+      messages: {
+        default:
+          "Using multipart payloads requires the use of @multipartBody and HttpPart<T> models.",
       },
     },
     "multipart-part": {
@@ -154,22 +163,68 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`File model cannot define extra properties. Found '${"propName"}'.`,
       },
     },
+    "http-file-disallowed-metadata": {
+      severity: "error",
+      messages: {
+        default: paramMessage`File model cannot define HTTP metadata type '${"metadataType"}' on property '${"propName"}'.`,
+      },
+    },
     "formdata-no-part-name": {
       severity: "error",
       messages: {
         default: "Part used in multipart/form-data must have a name.",
       },
     },
-    "header-format-required": {
+    "http-file-structured": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`HTTP File body is serialized as a structured model in '${"contentTypes"}' instead of being treated as the contents of a file because an explicit Content-Type header is defined. Override the \`contentType\` property of the file model to declare the internal media type of the file's contents, or suppress this warning if you intend to serialize the File as a model.`,
+        union:
+          "An HTTP File in a union is serialized as a structured model instead of being treated as the contents of a file. Declare a separate operation using `@sharedRoute` that has only the File model as the body type to treat it as a file, or suppress this warning if you intend to serialize the File as a model.",
+      },
+    },
+    "http-file-content-type-not-string": {
       severity: "error",
       messages: {
-        default: `A format must be specified for @header when type is an array. e.g. @header({format: "csv"})`,
+        default: paramMessage`The 'contentType' property of the file model must be 'TypeSpec.string', a string literal, or a union of string literals. Found '${"type"}'.`,
+      },
+    },
+    "http-file-contents-not-scalar": {
+      severity: "error",
+      messages: {
+        default: paramMessage`The 'contents' property of the file model must be a scalar type that extends 'string' or 'bytes'. Found '${"type"}'.`,
+      },
+    },
+    "patch-implicit-optional": {
+      severity: "warning",
+      messages: {
+        default: `Patch operation stopped applying an implicit optional transform to the body in 1.0.0. Use @patch(#{implicitOptionality: true}) to restore the old behavior.`,
+      },
+    },
+    "merge-patch-contains-null": {
+      severity: "error",
+      messages: {
+        default:
+          "Cannot convert model to a merge-patch compatible shape because it contains the 'null' intrinsic type.",
+      },
+    },
+    "merge-patch-content-type": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`The content-type of a request using a merge-patch template should be 'application/merge-patch+json' detected a header with content-type '${"contentType"}'.`,
+      },
+    },
+    "merge-patch-contains-metadata": {
+      severity: "error",
+      messages: {
+        default: paramMessage`The MergePatch transform does not operate on http envelope metadata.  Remove any http metadata decorators ('@query', '@header', '@path', '@cookie', '@statusCode') from the model passed to the MergePatch template. Found '${"metadataType"}' decorating property '${"propertyName"}'`,
       },
     },
   },
   state: {
     authentication: { description: "State for the @auth decorator" },
     header: { description: "State for the @header decorator" },
+    cookie: { description: "State for the @cookie decorator" },
     query: { description: "State for the @query decorator" },
     path: { description: "State for the @path decorator" },
     body: { description: "State for the @body decorator" },
@@ -178,11 +233,11 @@ export const $lib = createTypeSpecLibrary({
     multipartBody: { description: "State for the @bodyIgnore decorator" },
     statusCode: { description: "State for the @statusCode decorator" },
     verbs: { description: "State for the verb decorators (@get, @post, @put, etc.)" },
+    patchOptions: { description: "State for the options of the @patch decorator" },
     servers: { description: "State for the @server decorator" },
     includeInapplicableMetadataInPayload: {
       description: "State for the @includeInapplicableMetadataInPayload decorator",
     },
-
     // route.ts
     externalInterfaces: {},
     routeProducer: {},
@@ -193,6 +248,11 @@ export const $lib = createTypeSpecLibrary({
     // private
     file: { description: "State for the @Private.file decorator" },
     httpPart: { description: "State for the @Private.httpPart decorator" },
+    mergePatchModel: { description: "State marking mergePatch models " },
+    mergePatchProperty: { description: "State marking merge path model property source" },
+    mergePatchPropertyOptions: {
+      description: "Override options for a property in a merge patch transform",
+    },
   },
 });
 

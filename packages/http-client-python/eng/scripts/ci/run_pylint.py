@@ -37,6 +37,8 @@ def _single_dir_pylint(mod):
                 "--evaluation=(max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention + info)/ statement) * 10)))",
                 "--load-plugins=pylint_guidelines_checker",
                 "--output-format=parseable",
+                "--recursive=y",
+                "--py-version=3.9",
                 str(inner_class.absolute()),
             ]
         )
@@ -47,4 +49,8 @@ def _single_dir_pylint(mod):
 
 
 if __name__ == "__main__":
+    if os.name == "nt":
+        # Before https://github.com/microsoft/typespec/issues/4759 fixed, skip running Pylint for now on Windows
+        logging.info("Skip running Pylint on Windows for now")
+        sys.exit(0)
     run_check("pylint", _single_dir_pylint, "Pylint")

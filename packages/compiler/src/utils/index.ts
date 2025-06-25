@@ -4,3 +4,4 @@
 // ---------------------------------------
 export { DuplicateTracker } from "./duplicate-tracker.js";
 export { Queue, TwoLevelMap, createRekeyableMap, deepClone, deepEquals } from "./misc.js";
+export { useStateMap, useStateSet } from "./state-accessor.js";

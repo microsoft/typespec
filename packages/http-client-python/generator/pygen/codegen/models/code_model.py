@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import List, Dict, Any, Set, Union, Literal
+from typing import List, Dict, Any, Set, Union, Literal, Optional, cast
 
 from .base import BaseType
 from .enum_type import EnumType
@@ -11,10 +11,39 @@ from .model_type import ModelType, UsageFlags
 from .combined_type import CombinedType
 from .client import Client
 from .request_builder import RequestBuilder, OverloadedRequestBuilder
+from .operation_group import OperationGroup
+from .utils import NamespaceType
+from .._utils import DEFAULT_HEADER_TEXT, DEFAULT_LICENSE_DESCRIPTION
 
 
 def _is_legacy(options) -> bool:
     return not (options.get("version_tolerant") or options.get("low_level_client"))
+
+
+def get_all_operation_groups_recursively(clients: List[Client]) -> List[OperationGroup]:
+    operation_groups = []
+    queue = []
+    for client in clients:
+        queue.extend(client.operation_groups)
+    while queue:
+        operation_groups.append(queue.pop(0))
+        if operation_groups[-1].operation_groups:
+            queue.extend(operation_groups[-1].operation_groups)
+    return operation_groups
+
+
+class ClientNamespaceType:
+    def __init__(
+        self,
+        clients: Optional[List[Client]] = None,
+        models: Optional[List[ModelType]] = None,
+        enums: Optional[List[EnumType]] = None,
+        operation_groups: Optional[List[OperationGroup]] = None,
+    ):
+        self.clients = clients or []
+        self.models = models or []
+        self.enums = enums or []
+        self.operation_groups = operation_groups or []
 
 
 class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-instance-attributes
@@ -44,8 +73,6 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         self,
         yaml_data: Dict[str, Any],
         options: Dict[str, Any],
-        *,
-        is_subnamespace: bool = False,
     ) -> None:
         self.yaml_data = yaml_data
         self.options = options
@@ -59,18 +86,110 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         self.clients: List[Client] = [
             Client.from_yaml(client_yaml_data, self) for client_yaml_data in yaml_data["clients"]
         ]
-        self.subnamespace_to_clients: Dict[str, List[Client]] = {
-            subnamespace: [Client.from_yaml(client_yaml, self, is_subclient=True) for client_yaml in client_yamls]
-            for subnamespace, client_yamls in yaml_data.get("subnamespaceToClients", {}).items()
-        }
         if self.options["models_mode"] and self.model_types:
             self.sort_model_types()
-        self.is_subnamespace = is_subnamespace
         self.named_unions: List[CombinedType] = [
             t for t in self.types_map.values() if isinstance(t, CombinedType) and t.name
         ]
         self.cross_language_package_id = self.yaml_data.get("crossLanguagePackageId")
         self.for_test: bool = False
+        # key is typespec namespace, value is models/clients/opeartion_groups/enums cache in the namespace
+        self._client_namespace_types: Dict[str, ClientNamespaceType] = {}
+        self.has_subnamespace = False
+        self._operations_folder_name: Dict[str, str] = {}
+        self._relative_import_path: Dict[str, str] = {}
+        self.metadata: Dict[str, Any] = yaml_data.get("metadata", {})
+
+    @staticmethod
+    def get_imported_namespace_for_client(imported_namespace: str, async_mode: bool = False) -> str:
+        return imported_namespace + (".aio" if async_mode else "")
+
+    @staticmethod
+    def get_imported_namespace_for_model(imported_namespace: str) -> str:
+        return imported_namespace + ".models"
+
+    def get_imported_namespace_for_operation(self, imported_namespace: str, async_mode: bool = False) -> str:
+        module_namespace = f".{self.operations_folder_name(imported_namespace)}"
+        return self.get_imported_namespace_for_client(imported_namespace, async_mode) + module_namespace
+
+    # | serialize_namespace  | imported_namespace   | relative_import_path |
+    # |----------------------|----------------------|----------------------|
+    # |azure.test.operations | azure.test.operations| .                    |
+    # |azure.test.operations | azure.test           | ..                   |
+    # |azure.test.operations | azure.test.subtest   | ..subtest            |
+    # |azure.test.operations | azure                | ...                  |
+    # |azure.test.aio.operations | azure.test       | ...                  |
+    # |azure.test.subtest.aio.operations|azure.test | ....                 |
+    # |azure.test            |azure.test.subtest    | .subtest             |
+    def get_relative_import_path(
+        self,
+        serialize_namespace: str,
+        imported_namespace: Optional[str] = None,
+        module_name: Optional[str] = None,
+    ) -> str:
+        if imported_namespace is None:
+            imported_namespace = self.namespace
+
+        key = f"{serialize_namespace}-{imported_namespace}"
+        if key not in self._relative_import_path:
+            idx = 0
+            serialize_namespace_split = serialize_namespace.split(".")
+            imported_namespace_split = cast(str, imported_namespace).split(".")
+            while idx < min(len(serialize_namespace_split), len(imported_namespace_split)):
+                if serialize_namespace_split[idx] != imported_namespace_split[idx]:
+                    break
+                idx += 1
+            self._relative_import_path[key] = "." * (len(serialize_namespace_split[idx:]) + 1) + ".".join(
+                imported_namespace_split[idx:]
+            )
+        result = self._relative_import_path[key]
+        if module_name is None:
+            return result
+        return f"{result}{module_name}" if result.endswith(".") else f"{result}.{module_name}"
+
+    def get_unique_models_alias(self, serialize_namespace: str, imported_namespace: str) -> str:
+        if not self.has_subnamespace:
+            return "_models"
+        relative_path = self.get_relative_import_path(
+            serialize_namespace, self.get_imported_namespace_for_model(imported_namespace)
+        )
+        dot_num = max(relative_path.count(".") - 1, 0)
+        parts = [""] + ([p for p in relative_path.split(".") if p] or ["models"])
+        return "_".join(parts) + (str(dot_num) if dot_num > 0 else "")
+
+    @property
+    def client_namespace_types(self) -> Dict[str, ClientNamespaceType]:
+        if not self._client_namespace_types:
+            # calculate client namespace types for each kind of client namespace
+            for client in self.clients:
+                if client.client_namespace not in self._client_namespace_types:
+                    self._client_namespace_types[client.client_namespace] = ClientNamespaceType()
+                self._client_namespace_types[client.client_namespace].clients.append(client)
+            for model in self.model_types:
+                if model.client_namespace not in self._client_namespace_types:
+                    self._client_namespace_types[model.client_namespace] = ClientNamespaceType()
+                self._client_namespace_types[model.client_namespace].models.append(model)
+            for enum in self.enums:
+                if enum.client_namespace not in self._client_namespace_types:
+                    self._client_namespace_types[enum.client_namespace] = ClientNamespaceType()
+                self._client_namespace_types[enum.client_namespace].enums.append(enum)
+            for operation_group in get_all_operation_groups_recursively(self.clients):
+                if operation_group.client_namespace not in self._client_namespace_types:
+                    self._client_namespace_types[operation_group.client_namespace] = ClientNamespaceType()
+                self._client_namespace_types[operation_group.client_namespace].operation_groups.append(operation_group)
+
+            # here we can check and record whether there are multi kinds of client namespace
+            if len(self._client_namespace_types.keys()) > 1:
+                self.has_subnamespace = True
+
+            # insert namespace to make sure it is continuous(e.g. ("", "azure", "azure.mgmt", "azure.mgmt.service"))
+            longest_namespace = sorted(self._client_namespace_types.keys())[-1]
+            namespace_parts = longest_namespace.split(".")
+            for idx in range(len(namespace_parts) + 1):
+                namespace = ".".join(namespace_parts[:idx])
+                if namespace not in self._client_namespace_types:
+                    self._client_namespace_types[namespace] = ClientNamespaceType()
+        return self._client_namespace_types
 
     @property
     def has_form_data(self) -> bool:
@@ -80,17 +199,17 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
     def has_etag(self) -> bool:
         return any(client.has_etag for client in self.clients)
 
+    @staticmethod
+    def clients_has_operations(clients: List[Client]) -> bool:
+        return any(c for c in clients if c.has_operations)
+
     @property
     def has_operations(self) -> bool:
-        if any(c for c in self.clients if c.has_operations):
-            return True
-        return any(c for clients in self.subnamespace_to_clients.values() for c in clients if c.has_operations)
+        return self.clients_has_operations(self.clients)
 
     @property
     def has_non_abstract_operations(self) -> bool:
-        return any(c for c in self.clients if c.has_non_abstract_operations) or any(
-            c for cs in self.subnamespace_to_clients.values() for c in cs if c.has_non_abstract_operations
-        )
+        return any(c for c in self.clients if c.has_non_abstract_operations)
 
     def lookup_request_builder(self, request_builder_id: int) -> Union[RequestBuilder, OverloadedRequestBuilder]:
         """Find the request builder based off of id"""
@@ -114,31 +233,84 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
     def client_filename(self) -> str:
         return self.clients[0].filename
 
-    def need_vendored_code(self, async_mode: bool) -> bool:
-        """Whether we need to vendor code in the _vendor.py file for this SDK"""
-        if self.has_abstract_operations:
-            return True
-        if async_mode:
-            return self.need_mixin_abc
-        return self.need_mixin_abc or self.has_etag or self.has_form_data
+    def get_clients(self, client_namespace: str) -> List[Client]:
+        """Get all clients in specific namespace"""
+        return self.client_namespace_types.get(client_namespace, ClientNamespaceType()).clients
+
+    def is_top_namespace(self, client_namespace: str) -> bool:
+        """Whether the namespace is the top namespace. For example, a package named 'azure-mgmt-service',
+        'azure.mgmt.service' is the top namespace.
+        """
+        return client_namespace == self.namespace
+
+    def need_utils_folder(self, async_mode: bool, client_namespace: str) -> bool:
+        return (
+            self.need_utils_utils(async_mode, client_namespace)
+            or self.need_utils_serialization
+            or self.options["models_mode"] == "dpg"
+        )
 
     @property
-    def need_mixin_abc(self) -> bool:
-        return any(c for c in self.clients if c.has_mixin)
+    def need_utils_serialization(self) -> bool:
+        return not self.options["client_side_validation"]
+
+    def need_utils_utils(self, async_mode: bool, client_namespace: str) -> bool:
+        return (
+            self.need_utils_form_data(async_mode, client_namespace)
+            or self.need_utils_etag(client_namespace)
+            or self.need_utils_abstract(client_namespace)
+            or self.need_utils_mixin
+        )
+
+    def need_utils_form_data(self, async_mode: bool, client_namespace: str) -> bool:
+        return (
+            (not async_mode)
+            and self.is_top_namespace(client_namespace)
+            and self.has_form_data
+            and self.options["models_mode"] == "dpg"
+        )
+
+    def need_utils_etag(self, client_namespace: str) -> bool:
+        return self.is_top_namespace(client_namespace) and self.has_etag
+
+    def need_utils_abstract(self, client_namespace: str) -> bool:
+        return self.is_top_namespace(client_namespace) and self.has_abstract_operations
+
+    @property
+    def need_utils_mixin(self) -> bool:
+        return any(c_n for c_n in self.client_namespace_types if self.has_mixin(c_n))
+
+    def has_mixin(self, client_namespace: str) -> bool:
+        return any(c for c in self.get_clients(client_namespace) if c.has_mixin)
 
     @property
     def has_abstract_operations(self) -> bool:
         return any(c for c in self.clients if c.has_abstract_operations)
 
-    @property
-    def operations_folder_name(self) -> str:
+    def operations_folder_name(self, client_namespace: str) -> str:
         """Get the name of the operations folder that holds operations."""
-        name = "operations"
-        if self.options["version_tolerant"] and not any(
-            og for client in self.clients for og in client.operation_groups if not og.is_mixin
-        ):
-            name = f"_{name}"
-        return name
+        if client_namespace not in self._operations_folder_name:
+            name = "operations"
+            operation_groups = self.client_namespace_types.get(client_namespace, ClientNamespaceType()).operation_groups
+            if self.options["version_tolerant"] and all(og.is_mixin for og in operation_groups):
+                name = f"_{name}"
+            self._operations_folder_name[client_namespace] = name
+        return self._operations_folder_name[client_namespace]
+
+    def get_serialize_namespace(
+        self,
+        client_namespace: str,
+        async_mode: bool = False,
+        client_namespace_type: NamespaceType = NamespaceType.CLIENT,
+    ) -> str:
+        """calculate the namespace for serialization from client namespace"""
+        if client_namespace_type == NamespaceType.CLIENT:
+            return client_namespace + (".aio" if async_mode else "")
+        if client_namespace_type == NamespaceType.MODEL:
+            return client_namespace + ".models"
+
+        operations_folder_name = self.operations_folder_name(client_namespace)
+        return client_namespace + (".aio." if async_mode else ".") + operations_folder_name
 
     @property
     def description(self) -> str:
@@ -150,7 +322,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         :param int schema_id: The yaml id of the schema
         :return: If created, we return the created schema, otherwise, we throw.
         :rtype: ~autorest.models.BaseType
-        :raises: KeyError if schema is not found
+        :raises KeyError: if schema is not found
         """
         try:
             return next(type for id, type in self.types_map.items() if id == schema_id)
@@ -170,9 +342,13 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
     def model_types(self, val: List[ModelType]) -> None:
         self._model_types = val
 
+    @staticmethod
+    def get_public_model_types(models: List[ModelType]) -> List[ModelType]:
+        return [m for m in models if not m.internal and not m.base == "json"]
+
     @property
     def public_model_types(self) -> List[ModelType]:
-        return [m for m in self.model_types if not m.internal and not m.base == "json"]
+        return self.get_public_model_types(self.model_types)
 
     @property
     def enums(self) -> List[EnumType]:
@@ -235,3 +411,43 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
     @property
     def is_legacy(self) -> bool:
         return _is_legacy(self.options)
+
+    @staticmethod
+    def has_non_json_models(models: List[ModelType]) -> bool:
+        return any(m for m in models if m.base != "json")
+
+    @property
+    def is_tsp(self) -> bool:
+        return self.options.get("tsp_file") is not None
+
+    @property
+    def license_header(self) -> str:
+        if self.yaml_data.get("licenseInfo") or not self.is_azure_flavor:
+            # typespec unbranded case and azure case with custom license
+            license_header = self.yaml_data.get("licenseInfo", {}).get("header", "")
+        else:
+            # typespec azure case without custom license and swagger case
+            license_header = self.options.get("header_text") or DEFAULT_HEADER_TEXT
+        if license_header:
+            license_header = license_header.replace("\n", "\n# ")
+            license_header = (
+                "# --------------------------------------------------------------------------\n# " + license_header
+            )
+            license_header += "\n# --------------------------------------------------------------------------"
+        return license_header
+
+    @property
+    def license_description(self) -> str:
+        if self.yaml_data.get("licenseInfo") or not self.is_azure_flavor:
+            # typespec unbranded case and azure case with custom license
+            return self.yaml_data.get("licenseInfo", {}).get("description", "")
+        # typespec azure case without custom license and swagger case
+        return DEFAULT_LICENSE_DESCRIPTION
+
+    @property
+    def company_name(self) -> str:
+        if self.yaml_data.get("licenseInfo") or not self.is_azure_flavor:
+            # typespec unbranded case and azure case with custom license
+            return self.yaml_data.get("licenseInfo", {}).get("company", "")
+        # typespec azure case without custom license and swagger case
+        return "Microsoft Corporation"

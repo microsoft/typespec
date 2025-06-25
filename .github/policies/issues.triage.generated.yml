@@ -32,17 +32,25 @@ configuration:
                 - hasLabel:
                     label: lib:versioning
                 - hasLabel:
+                    label: lib:http-specs
+                - hasLabel:
                     label: meta:blog
                 - hasLabel:
                     label: meta:website
                 - hasLabel:
                     label: tspd
                 - hasLabel:
+                    label: emitter:client:all
+                - hasLabel:
+                    label: emitter:client:js
+                - hasLabel:
                     label: emitter:client:csharp
                 - hasLabel:
                     label: emitter:client:java
                 - hasLabel:
                     label: emitter:client:python
+                - hasLabel:
+                    label: emitter:graphql
                 - hasLabel:
                     label: emitter:json-schema
                 - hasLabel:
@@ -55,6 +63,10 @@ configuration:
                     label: emitter:service:csharp
                 - hasLabel:
                     label: emitter:service:js
+                - hasLabel:
+                    label: emitter:service:java
+                - hasLabel:
+                    label: spector
                 - hasLabel:
                     label: eng
                 - hasLabel:
@@ -86,17 +98,25 @@ configuration:
               - labelAdded:
                   label: lib:versioning
               - labelAdded:
+                  label: lib:http-specs
+              - labelAdded:
                   label: meta:blog
               - labelAdded:
                   label: meta:website
               - labelAdded:
                   label: tspd
               - labelAdded:
+                  label: emitter:client:all
+              - labelAdded:
+                  label: emitter:client:js
+              - labelAdded:
                   label: emitter:client:csharp
               - labelAdded:
                   label: emitter:client:java
               - labelAdded:
                   label: emitter:client:python
+              - labelAdded:
+                  label: emitter:graphql
               - labelAdded:
                   label: emitter:json-schema
               - labelAdded:
@@ -109,6 +129,10 @@ configuration:
                   label: emitter:service:csharp
               - labelAdded:
                   label: emitter:service:js
+              - labelAdded:
+                  label: emitter:service:java
+              - labelAdded:
+                  label: spector
               - labelAdded:
                   label: eng
               - labelAdded:
@@ -141,17 +165,25 @@ configuration:
               - labelRemoved:
                   label: lib:versioning
               - labelRemoved:
+                  label: lib:http-specs
+              - labelRemoved:
                   label: meta:blog
               - labelRemoved:
                   label: meta:website
               - labelRemoved:
                   label: tspd
               - labelRemoved:
+                  label: emitter:client:all
+              - labelRemoved:
+                  label: emitter:client:js
+              - labelRemoved:
                   label: emitter:client:csharp
               - labelRemoved:
                   label: emitter:client:java
               - labelRemoved:
                   label: emitter:client:python
+              - labelRemoved:
+                  label: emitter:graphql
               - labelRemoved:
                   label: emitter:json-schema
               - labelRemoved:
@@ -164,6 +196,10 @@ configuration:
                   label: emitter:service:csharp
               - labelRemoved:
                   label: emitter:service:js
+              - labelRemoved:
+                  label: emitter:service:java
+              - labelRemoved:
+                  label: spector
               - labelRemoved:
                   label: eng
               - labelRemoved:
@@ -187,17 +223,25 @@ configuration:
                 - hasLabel:
                     label: lib:versioning
                 - hasLabel:
+                    label: lib:http-specs
+                - hasLabel:
                     label: meta:blog
                 - hasLabel:
                     label: meta:website
                 - hasLabel:
                     label: tspd
                 - hasLabel:
+                    label: emitter:client:all
+                - hasLabel:
+                    label: emitter:client:js
+                - hasLabel:
                     label: emitter:client:csharp
                 - hasLabel:
                     label: emitter:client:java
                 - hasLabel:
                     label: emitter:client:python
+                - hasLabel:
+                    label: emitter:graphql
                 - hasLabel:
                     label: emitter:json-schema
                 - hasLabel:
@@ -210,6 +254,10 @@ configuration:
                     label: emitter:service:csharp
                 - hasLabel:
                     label: emitter:service:js
+                - hasLabel:
+                    label: emitter:service:java
+                - hasLabel:
+                    label: spector
                 - hasLabel:
                     label: eng
                 - hasLabel:

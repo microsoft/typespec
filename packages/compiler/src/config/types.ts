@@ -1,4 +1,4 @@
-import type { Diagnostic, RuleRef } from "../core/index.js";
+import type { Diagnostic, RuleRef } from "../core/types.js";
 import type { YamlScript } from "../yaml/types.js";
 
 /**
@@ -86,7 +86,6 @@ export interface TypeSpecRawConfig {
 
   emit?: string[];
   options?: Record<string, EmitterOptions>;
-  emitters?: Record<string, boolean | EmitterOptions>;
 
   linter?: LinterConfig;
 }

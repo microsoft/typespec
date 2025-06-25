@@ -48,17 +48,20 @@ class BearerTokenCredentialPolicyType(_CredentialPolicyBaseType):
         yaml_data: Dict[str, Any],
         code_model: "CodeModel",
         credential_scopes: List[str],
+        flows: Optional[Dict[str, Any]] = None,
     ) -> None:
         super().__init__(yaml_data, code_model)
         self.credential_scopes = credential_scopes
+        self.flows = flows
 
     def call(self, async_mode: bool) -> str:
         policy_name = f"{'Async' if async_mode else ''}BearerTokenCredentialPolicy"
-        return f"policies.{policy_name}(self.credential, *self.credential_scopes, **kwargs)"
+        auth_flows = f"auth_flows={self.flows}, " if self.flows else ""
+        return f"policies.{policy_name}(self.credential, *self.credential_scopes, {auth_flows}**kwargs)"
 
     @classmethod
     def from_yaml(cls, yaml_data: Dict[str, Any], code_model: "CodeModel") -> "BearerTokenCredentialPolicyType":
-        return cls(yaml_data, code_model, yaml_data["credentialScopes"])
+        return cls(yaml_data, code_model, yaml_data["credentialScopes"], yaml_data.get("flows"))
 
 
 class ARMChallengeAuthenticationPolicyType(BearerTokenCredentialPolicyType):
@@ -131,8 +134,7 @@ class CredentialType(Generic[CredentialPolicyType], BaseType):
     def docstring_text(self, **kwargs: Any) -> str:
         return "credential"
 
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return self.docstring_type()
 
     @classmethod
@@ -156,7 +158,7 @@ class TokenCredentialType(CredentialType[Union[BearerTokenCredentialPolicyType, 
 
     @property
     def type_description(self) -> str:
-        return "TokenCredential"
+        return "token credential"
 
     @property
     def credentials_subfolder(self) -> str:
@@ -198,6 +200,10 @@ class KeyCredentialType(CredentialType[KeyCredentialPolicyType]):
 
     def type_annotation(self, **kwargs: Any) -> str:
         return self.policy.credential_name
+
+    @property
+    def type_description(self) -> str:
+        return "key credential"
 
     @property
     def instance_check_template(self) -> str:

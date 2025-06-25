@@ -56,7 +56,7 @@ try {
             Write-Host 'tox tests passed'
         } 
         catch {
-            Write-Error "Cadl ranch tests failed:  $_"
+            Write-Error "Spector tests failed:  $_"
         }
     }
 }

@@ -8,18 +8,21 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 public class ExternalPackage {
 
     public static final String CLIENTCORE_PACKAGE_NAME = "io.clientcore.core";
-    public static final String CLIENTCORE_JSON_PACKAGE_NAME = "io.clientcore.core.json";
+    public static final String CLIENTCORE_JSON_PACKAGE_NAME = "io.clientcore.core.serialization.json";
+    public static final String CLIENTCORE_XML_PACKAGE_NAME = "io.clientcore.core.serialization.xml";
 
     public static final String AZURE_CORE_PACKAGE_NAME = "com.azure.core";
     public static final String AZURE_JSON_PACKAGE_NAME = "com.azure.json";
+    public static final String AZURE_XML_PACKAGE_NAME = "com.azure.xml";
+    public static final String AZURE_CORE_VNEXT_PACKAGE_NAME = "com.azure.v2.core";
 
     public static final ExternalPackage CORE
         = new Builder().packageName(CLIENTCORE_PACKAGE_NAME).groupId("io.clientcore").artifactId("core").build();
 
-    public static final ExternalPackage JSON = new Builder().packageName(CLIENTCORE_JSON_PACKAGE_NAME)
-        .groupId("io.clientcore")
-        .artifactId("core-json")
-        .build();
+//    public static final ExternalPackage JSON = new Builder().packageName(CLIENTCORE_JSON_PACKAGE_NAME)
+//        .groupId("io.clientcore")
+//        .artifactId("core-json")
+//        .build();
 
     private final String packageName;
     private final String groupId;
@@ -67,7 +70,7 @@ public class ExternalPackage {
         }
 
         public ExternalPackage build() {
-            if (JavaSettings.getInstance().isBranded()) {
+            if (JavaSettings.getInstance().isAzureV1()) {
                 switch (packageName) {
                     case CLIENTCORE_PACKAGE_NAME:
                         packageName = AZURE_CORE_PACKAGE_NAME;

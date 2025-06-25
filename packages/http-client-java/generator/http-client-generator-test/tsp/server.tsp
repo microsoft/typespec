@@ -6,9 +6,7 @@ using TypeSpec.Http;
 using TypeSpec.Versioning;
 using Azure.ClientGenerator.Core;
 
-@service({
-  title: "HttpbinServer",
-})
+@service(#{ title: "HttpbinServer" })
 @server(
   "https://{domain}.{tld}{relative-path}",
   "Httpbin endpoint",
@@ -23,10 +21,11 @@ using Azure.ClientGenerator.Core;
     `relative-path`?: string,
   }
 )
-namespace Cadl.Server {
+@clientNamespace("tsptest.server", "java")
+namespace TspTest.Server {
   @Azure.ClientGenerator.Core.client({
     name: "HttpbinClient",
-    service: Cadl.Server,
+    service: TspTest.Server,
   })
   @route("/status/{code}")
   interface ServerOp {
@@ -34,10 +33,8 @@ namespace Cadl.Server {
   }
 }
 
-@service({
-  title: "ContosoServer",
-})
-@versioned(Cadl.ContosoServer.APIVersions)
+@service(#{ title: "ContosoServer" })
+@versioned(TspTest.ContosoServer.APIVersions)
 @server(
   "{Endpoint}/contoso/{ApiVersion}",
   "Service endpoint",
@@ -50,16 +47,18 @@ namespace Cadl.Server {
     ApiVersion: APIVersions,
   }
 )
-namespace Cadl.ContosoServer {
+@clientNamespace("tsptest.server.contoso", "java")
+namespace TspTest.ContosoServer {
   enum APIVersions {
     v1: "v1",
   }
 
   @client({
-    name: "Contoso.Sub.ContosoClient",
-    service: Cadl.ContosoServer,
+    name: "ContosoClient",
+    service: TspTest.ContosoServer,
   })
   @route("/contoso/")
+  @clientNamespace("tsptest.server.contoso.sub", "java")
   interface ServerOp {
     get(@path(#{ allowReserved: true }) group: string): OkResponse | NoContentResponse;
   }

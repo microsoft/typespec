@@ -15,6 +15,7 @@ npm install -g pnpm
 
 ```bash
 pnpm install
+pnpm install-conflict # This will reset the lockfile to the upstream version and run install again making sure the lockfile is not dropping changes from main.
 ```
 
 - Build the dependencies
@@ -310,18 +311,24 @@ Area of the codebase
 | `lib:openapi`                | #c7aee6 |                                                                   |
 | `lib:rest`                   | #c7aee6 |                                                                   |
 | `lib:versioning`             | #c7aee6 |                                                                   |
+| `lib:http-specs`             | #c7aee6 | For issues/prs related to the @typespec/http-specs package        |
 | `meta:blog`                  | #007dc8 | Blog updates                                                      |
 | `meta:website`               | #007dc8 | TypeSpec.io updates                                               |
 | `tspd`                       | #004185 | Issues for the tspd tool                                          |
+| `emitter:client:all`         | #e1b300 | General issue for client emitters                                 |
+| `emitter:client:js`          | #e1b300 | Issue for the JS client emitter: @typespec/http-client-js         |
 | `emitter:client:csharp`      | #e1b300 | Issue for the C# client emitter: @typespec/http-client-csharp     |
 | `emitter:client:java`        | #e1b300 | Issue for the Java client emitter: @typespec/http-client-java     |
 | `emitter:client:python`      | #e1b300 | Issue for the Python client emitter: @typespec/http-client-python |
+| `emitter:graphql`            | #957300 | Issues for @typespec/graphql emitter                              |
 | `emitter:json-schema`        | #957300 |                                                                   |
 | `emitter:protobuf`           | #957300 | The protobuf emitter                                              |
 | `emitter:openapi3`           | #957300 | Issues for @typespec/openapi3 emitter                             |
 | `openapi3:converter`         | #957300 | Issues for @typespec/openapi3 openapi to typespec converter       |
 | `emitter:service:csharp`     | #967200 |                                                                   |
 | `emitter:service:js`         | #967200 |                                                                   |
+| `emitter:service:java`       | #967200 | Issue for Java service emitter                                    |
+| `spector`                    | #65bfff | Issues related to spector and the spec sets                       |
 | `eng`                        | #65bfff |                                                                   |
 | `ui:playground`              | #3256a8 |                                                                   |
 | `ui:type-graph-viewer`       | #3256a8 |                                                                   |
@@ -364,16 +371,19 @@ Process labels
 | -------------- | ------- | --------------------------------------------------------------------------------- |
 | `needs-area`   | #ffffff |                                                                                   |
 | `needs-info`   | #ffffff | Mark an issue that needs reply from the author or it will be closed automatically |
+| `stale`        | #ffffff | Mark a PR that hasn't been recently updated and will be closed.                   |
 | `triaged:core` | #5319e7 |                                                                                   |
 
 #### misc
 
 Misc labels
 
-| Name                       | Color   | Description        |
-| -------------------------- | ------- | ------------------ |
-| `Client Emitter Migration` | #FD92F0 |                    |
-| `good first issue`         | #7057ff | Good for newcomers |
+| Name                       | Color   | Description           |
+| -------------------------- | ------- | --------------------- |
+| `1_0_E2E`                  | #5319E7 |                       |
+| `Client Emitter Migration` | #FD92F0 |                       |
+| `good first issue`         | #7057ff | Good for newcomers    |
+| `mq`                       | #0969da | Good candidate for MQ |
 
 <!-- LABEL GENERATED REF END -->
 

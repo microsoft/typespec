@@ -10,7 +10,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Gener
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 
 /**
- * A mapper that maps a {@link BinarySchema} to {@link GenericType#FLUX_BYTE_BUFFER} when the schema isn't null.
+ * A mapper that maps a {@link BinarySchema} to {@link ClassType#BINARY_DATA} when the schema isn't null.
  */
 public class BinaryMapper implements IMapper<BinarySchema, IType> {
 
@@ -30,6 +30,7 @@ public class BinaryMapper implements IMapper<BinarySchema, IType> {
         if (binarySchema == null) {
             return null;
         }
-        return JavaSettings.getInstance().isDataPlaneClient() ? ClassType.BINARY_DATA : GenericType.FLUX_BYTE_BUFFER;
+        // Not touching vanilla for now. Storage is still using Flux<ByteBuffer>.
+        return JavaSettings.getInstance().isVanilla() ? GenericType.FLUX_BYTE_BUFFER : ClassType.BINARY_DATA;
     }
 }

@@ -92,9 +92,9 @@ class LROOperationBase(OperationBase[LROResponseType]):
             return lro_response.type_annotation(**kwargs)
         return "None"
 
-    def cls_type_annotation(self, *, async_mode: bool) -> str:
+    def cls_type_annotation(self, *, async_mode: bool, **kwargs: Any) -> str:
         """We don't want the poller to show up in ClsType, so we call super() on response type annotation"""
-        return f"ClsType[{Response.type_annotation(self.responses[0], async_mode=async_mode)}]"
+        return f"ClsType[{Response.type_annotation(self.responses[0], async_mode=async_mode, **kwargs)}]"
 
     def get_poller_with_response_type(self, async_mode: bool) -> str:
         return self.response_type_annotation(async_mode=async_mode)
@@ -132,8 +132,12 @@ class LROOperationBase(OperationBase[LROResponseType]):
         ):
             # used in the case if initial operation returns none
             # but final call returns a model
-            relative_path = "..." if async_mode else ".."
-            file_import.add_submodule_import(f"{relative_path}_model_base", "_deserialize", ImportType.LOCAL)
+            serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+            file_import.add_submodule_import(
+                self.code_model.get_relative_import_path(serialize_namespace, module_name="_utils.model_base"),
+                "_deserialize",
+                ImportType.LOCAL,
+            )
         file_import.add_submodule_import("typing", "Union", ImportType.STDLIB, TypingSection.CONDITIONAL)
         file_import.add_submodule_import("typing", "cast", ImportType.STDLIB)
         return file_import

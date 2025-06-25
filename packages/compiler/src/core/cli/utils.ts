@@ -1,5 +1,3 @@
-// NOTE: We could also use { shell: true } to let windows find the .cmd, but that breaks
-
 import { SpawnSyncOptionsWithStringEncoding, spawnSync } from "child_process";
 import pc from "picocolors";
 import { inspect } from "util";
@@ -7,6 +5,7 @@ import { logDiagnostics } from "../diagnostics.js";
 import { Colors, ExternalError } from "../external-error.js";
 import { createConsoleSink } from "../logger/console-sink.js";
 import { createLogger } from "../logger/logger.js";
+import { createTracer } from "../logger/tracer.js";
 import { NodeHost } from "../node-host.js";
 import { getBaseFileName } from "../path-utils.js";
 import { Diagnostic } from "../types.js";
@@ -25,14 +24,27 @@ export interface RunOptions extends Partial<SpawnSyncOptionsWithStringEncoding> 
 export interface CliHostArgs {
   pretty?: boolean;
   debug?: boolean;
+  trace?: string[];
 }
 
 export function withCliHost<T extends CliHostArgs>(
-  fn: (host: CliCompilerHost, args: T) => void | Promise<void>,
-): (args: T) => void | Promise<void> {
-  return (args: T) => {
+  fn: (host: CliCompilerHost, args: T) => Promise<void>,
+): (args: T) => Promise<void> {
+  return withFailsafe((args: T) => {
     const host = createCLICompilerHost(args);
     return fn(host, args);
+  });
+}
+
+function withFailsafe<T extends unknown[], R>(
+  fn: (...args: T) => Promise<R>,
+): (...args: T) => Promise<R> {
+  return async (...args: T) => {
+    try {
+      return await fn(...args);
+    } catch (error) {
+      handleInternalCompilerError(error);
+    }
   };
 }
 
@@ -42,7 +54,7 @@ export function withCliHost<T extends CliHostArgs>(
 export function withCliHostAndDiagnostics<T extends CliHostArgs>(
   fn: (host: CliCompilerHost, args: T) => readonly Diagnostic[] | Promise<readonly Diagnostic[]>,
 ): (args: T) => void | Promise<void> {
-  return async (args: T) => {
+  return withFailsafe(async (args: T) => {
     const host = createCLICompilerHost(args);
     const diagnostics = await fn(host, args);
     logDiagnostics(diagnostics, host.logSink);
@@ -50,13 +62,21 @@ export function withCliHostAndDiagnostics<T extends CliHostArgs>(
     if (diagnostics.some((d) => d.severity === "error")) {
       process.exit(1);
     }
-  };
+  });
 }
 
 export function createCLICompilerHost(options: CliHostArgs): CliCompilerHost {
-  const logSink = createConsoleSink({ pretty: options.pretty });
-  const logger = createLogger({ sink: logSink, level: options.debug ? "trace" : "warning" });
-  return { ...NodeHost, logSink, logger, debug: options.debug ?? false };
+  const logSink = createConsoleSink({
+    pretty: options.pretty,
+    pathRelativeTo: process.cwd(),
+    trackAction: true,
+  });
+  const logger = createLogger({ sink: logSink });
+  const tracer = createTracer(logger, {
+    filter: options.trace ?? (options.debug ? ["*"] : undefined),
+  });
+  tracer.trace("cli.args", `CLI args: ${inspect(options, { depth: null })}`);
+  return { ...NodeHost, logSink, logger, tracer, debug: options.debug ?? false };
 }
 
 export function run(
@@ -165,7 +185,7 @@ export function logInternalCompilerError(error: unknown) {
  *
  * @param error error thrown
  */
-export function handleInternalCompilerError(error: unknown) {
+export function handleInternalCompilerError(error: unknown): never {
   logInternalCompilerError(error);
   process.exit(1);
 }

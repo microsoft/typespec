@@ -1,6 +1,6 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
-  "mainEntryPointFilePath": "./dist/emitter/index.d.ts",
+  "mainEntryPointFilePath": "./dist/emitter/src/index.d.ts",
   "projectFolder": "./emitter",
   "compiler": {
     "tsconfigFilePath": "./emitter/tsconfig.build.json"
@@ -22,17 +22,17 @@
   "messages": {
     "compilerMessageReporting": {
       "default": {
-        "logLevel": "warning"
+        "logLevel": "error"
       }
     },
     "extractorMessageReporting": {
       "default": {
-        "logLevel": "warning"
+        "logLevel": "error"
       }
     },
     "tsdocMessageReporting": {
       "default": {
-        "logLevel": "warning"
+        "logLevel": "error"
       }
     }
   }

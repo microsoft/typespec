@@ -68,26 +68,6 @@ describe("compiler: models", () => {
     match(diagnostics[0].message, /Model already has a property/);
   });
 
-  it("doesn't invoke decorators on uninstantiated templates", async () => {
-    const blues = new WeakSet();
-    let calls = 0;
-    testHost.addJsFile("dec.js", {
-      $blue(p: any, t: Type) {
-        calls++;
-        blues.add(t);
-      },
-    });
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-      import "./dec.js";
-      @blue model A<T> { @blue x: int32}
-      `,
-    );
-    await testHost.compile("./");
-    strictEqual(calls, 0);
-  });
-
   it("emit single error when there is an invalid ref in a templated type", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
@@ -103,7 +83,7 @@ describe("compiler: models", () => {
     const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, [
       {
-        code: "unknown-identifier",
+        code: "invalid-ref",
         message: "Unknown identifier notValidType",
       },
     ]);
@@ -195,46 +175,31 @@ describe("compiler: models", () => {
       });
     });
 
-    describe("set deprecated default property", () => {
-      const testCases: [string, string, any][] = [
-        ["boolean", `false`, { kind: "Boolean", value: false, isFinished: false }],
-        ["boolean", `true`, { kind: "Boolean", value: true, isFinished: false }],
-        ["string", `"foo"`, { kind: "String", value: "foo", isFinished: false }],
-        ["int32", `123`, { kind: "Number", value: 123, valueAsString: "123", isFinished: false }],
-        ["int32 | null", `null`, { kind: "Intrinsic", name: "null", isFinished: false }],
-      ];
-
-      it.each(testCases)(`foo?: %s = %s`, async (type, defaultValue, expectedValue) => {
+    describe("using a template parameter", () => {
+      it(`set it with valid constraint`, async () => {
         testHost.addTypeSpecFile(
           "main.tsp",
           `
-          model A { @test foo?: ${type} = ${defaultValue} }
-          `,
-        );
-        const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
-        expect({ ...foo.default }).toMatchObject(expectedValue);
-      });
-
-      it(`foo?: string[] = #["abc"] result is not set`, async () => {
-        testHost.addTypeSpecFile(
-          "main.tsp",
-          `
-        model A { @test foo?: string[] = #["abc"] }
+        model A<T extends valueof string> { @test foo?: string = T }
+        alias Test = A<"Abc">;
         `,
         );
         const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
-        deepStrictEqual(foo.default, undefined);
+        strictEqual(foo.defaultValue?.valueKind, "StringValue");
       });
 
-      it(`foo?: {name: string} = #{name: "abc"} result is not set`, async () => {
+      it(`error if constraint is not compatible with property type`, async () => {
         testHost.addTypeSpecFile(
           "main.tsp",
           `
-        model A { @test foo?: {name: string} = #{name: "abc"} }
+        model A<T extends valueof int32> { @test foo?: string = T }
         `,
         );
-        const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
-        deepStrictEqual(foo.default, undefined);
+        const diagnostics = await testHost.diagnose("main.tsp");
+        expectDiagnostics(diagnostics, {
+          code: "unassignable",
+          message: "Type 'int32' is not assignable to type 'string'",
+        });
       });
     });
   });
@@ -288,9 +253,7 @@ describe("compiler: models", () => {
       `,
     );
     const diagnostics = await testHost.diagnose("main.tsp");
-    expectDiagnostics(diagnostics, [
-      { code: "unknown-identifier", message: "Unknown identifier bool" },
-    ]);
+    expectDiagnostics(diagnostics, [{ code: "invalid-ref", message: "Unknown identifier bool" }]);
   });
 
   describe("link model with its properties", () => {
@@ -713,6 +676,67 @@ describe("compiler: models", () => {
       const diagnostics = await testHost.diagnose("main.tsp");
       strictEqual(diagnostics.length, 1);
       strictEqual(diagnostics[0].message, "Type 'A' recursively references itself as a base type.");
+    });
+
+    it("emit error when extends circular reference with alias - case 1", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model A extends B {}
+        model C extends A {}
+        alias B = C;
+        `,
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "circular-base-type",
+        message: "Type 'A' recursively references itself as a base type.",
+      });
+    });
+
+    it("emit error when extends circular reference with alias - case 2", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model A extends B {}
+        alias B = A;
+        `,
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "circular-base-type",
+        message: "Type 'A' recursively references itself as a base type.",
+      });
+    });
+
+    it("emit error when model is circular reference with alias", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model A is B;
+        model C is A;
+        alias B = C;
+        `,
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "circular-base-type",
+        message: "Type 'A' recursively references itself as a base type.",
+      });
+    });
+    it("emit error when model is circular reference with alias - case 2", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model A is B;
+        alias B = A;
+        `,
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "circular-base-type",
+        message: "Type 'A' recursively references itself as a base type.",
+      });
     });
 
     it("emit no error when extends has property to base model", async () => {

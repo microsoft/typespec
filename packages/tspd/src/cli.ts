@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { NodeHost, logDiagnostics, resolvePath, typespecVersion } from "@typespec/compiler";
+import { NodeHost, logDiagnostics, resolvePath } from "@typespec/compiler";
 import pc from "picocolors";
 import yargs from "yargs";
 import { generateExternSignatures } from "./gen-extern-signatures/gen-extern-signatures.js";
@@ -31,7 +31,7 @@ function logExperimentalWarning(type: "log" | "error") {
 }
 
 async function main() {
-  console.log(`TypeSpec Developer Tools v${typespecVersion}\n`);
+  console.log(`TypeSpec Developer Tools\n`);
 
   await yargs(process.argv.slice(2))
     .scriptName("tspd")
@@ -78,6 +78,14 @@ async function main() {
           })
           .option("output-dir", {
             type: "string",
+          })
+          .option("skip-js", {
+            description: "Skip generating JS API docs.",
+            type: "boolean",
+          })
+          .option("typekits", {
+            description: "Generate typekit docs. Currently targeted for use with Astro Starlight.",
+            type: "boolean",
           });
       },
       async (args) => {
@@ -86,6 +94,10 @@ async function main() {
         const diagnostics = await generateLibraryDocs(
           resolvedRoot,
           args["output-dir"] ?? resolvePath(resolvedRoot, "docs"),
+          {
+            skipJSApi: args["skip-js"],
+            typekits: args["typekits"],
+          },
         );
         // const diagnostics = await generateExternSignatures(host, resolvedRoot);
         if (diagnostics.length > 0) {
@@ -112,7 +124,6 @@ async function main() {
         }
       },
     )
-    .version(typespecVersion)
     .demandCommand(1, "You must use one of the supported commands.").argv;
 }
 

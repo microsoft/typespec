@@ -10,6 +10,7 @@ import com.azure.core.http.HttpPipelineBuilder;
 import com.azure.core.http.HttpPipelinePosition;
 import com.azure.core.http.policy.AddDatePolicy;
 import com.azure.core.http.policy.AddHeadersFromContextPolicy;
+import com.azure.core.http.policy.BearerTokenAuthenticationPolicy;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.http.policy.HttpLoggingPolicy;
 import com.azure.core.http.policy.HttpPipelinePolicy;
@@ -18,7 +19,6 @@ import com.azure.core.http.policy.RequestIdPolicy;
 import com.azure.core.http.policy.RetryOptions;
 import com.azure.core.http.policy.RetryPolicy;
 import com.azure.core.http.policy.UserAgentPolicy;
-import com.azure.core.management.http.policy.ArmChallengeAuthenticationPolicy;
 import com.azure.core.management.profile.AzureProfile;
 import com.azure.core.util.Configuration;
 import com.azure.core.util.logging.ClientLogger;
@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -90,7 +91,7 @@ public class FluentManagerTemplate {
         Set<String> imports = new HashSet<>(Arrays.asList(
             // java
             Objects.class.getName(), Duration.class.getName(), ChronoUnit.class.getName(), List.class.getName(),
-            ArrayList.class.getName(), Collectors.class.getName(),
+            ArrayList.class.getName(), Collectors.class.getName(), Map.class.getName(),
             // azure-core
             TokenCredential.class.getName(), ClientLogger.class.getName(), Configuration.class.getName(),
             HttpClient.class.getName(), HttpPipeline.class.getName(), HttpPipelineBuilder.class.getName(),
@@ -98,7 +99,7 @@ public class FluentManagerTemplate {
             HttpPolicyProviders.class.getName(), RetryOptions.class.getName(),
             AddHeadersFromContextPolicy.class.getName(), RequestIdPolicy.class.getName(), RetryPolicy.class.getName(),
             AddDatePolicy.class.getName(), HttpLoggingPolicy.class.getName(), HttpLogOptions.class.getName(),
-            ArmChallengeAuthenticationPolicy.class.getName(), UserAgentPolicy.class.getName(),
+            BearerTokenAuthenticationPolicy.class.getName(), UserAgentPolicy.class.getName(),
             // azure-core-management
             AzureProfile.class.getName()));
 
@@ -113,6 +114,9 @@ public class FluentManagerTemplate {
             imports.add(property.getFluentType().getFullName());
             imports.add(property.getFluentImplementType().getFullName());
         });
+
+        ClassType.CORE_UTILS.addImportsTo(imports, false);
+
         javaFile.declareImport(imports);
 
         javaFile.javadocComment(comment -> {
@@ -197,10 +201,11 @@ public class FluentManagerTemplate {
 
             // Configurable class
             javaFile.line();
-            String configurableClassText = FluentUtils.loadTextFromResource("Manager_Configurable.txt",
-                TemplateUtil.SERVICE_NAME, manager.getServiceName(), TemplateUtil.MANAGER_CLASS,
-                manager.getType().getName(), TemplateUtil.PACKAGE_NAME, project.getNamespace(),
-                TemplateUtil.ARTIFACT_VERSION, project.getVersion());
+            String configurableClassText
+                = FluentUtils.loadTextFromResource("Manager_Configurable.txt", TemplateUtil.SERVICE_NAME,
+                    manager.getServiceName(), TemplateUtil.MANAGER_CLASS, manager.getType().getName(),
+                    TemplateUtil.PACKAGE_NAME, project.getNamespace(), TemplateUtil.ARTIFACT_VERSION,
+                    project.getVersion(), TemplateUtil.ARTIFACT_ID, FluentUtils.getArtifactId());
             javaFile.text(configurableClassText);
 
             manager.getProperties().forEach(property -> {

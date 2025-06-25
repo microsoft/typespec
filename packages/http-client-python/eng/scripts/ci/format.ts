@@ -1,3 +1,3 @@
 import { runCommand } from "./utils.js";
 
-runCommand("black . --config ./eng/scripts/ci/pyproject.toml", "black");
+runCommand("black", ["generator/", "eng/", "--config", "./eng/scripts/ci/pyproject.toml"]);

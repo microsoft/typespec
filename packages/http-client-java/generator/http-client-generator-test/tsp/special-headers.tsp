@@ -7,11 +7,9 @@ using TypeSpec.Versioning;
 using Azure.Core;
 using Azure.Core.Traits;
 
-@service({
-  title: "SpecialHeaders",
-})
+@service(#{ title: "SpecialHeaders" })
 @versioned(ApiVersions)
-namespace Cadl.SpecialHeaders;
+namespace TspTest.SpecialHeaders;
 
 enum ApiVersions {
   @useDependency(global.Azure.Core.Versions.v1_0_Preview_2)
@@ -20,11 +18,11 @@ enum ApiVersions {
 
 @resource("resources")
 model Resource {
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   id: string;
 
   @key
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   name: string;
 
   description?: string;

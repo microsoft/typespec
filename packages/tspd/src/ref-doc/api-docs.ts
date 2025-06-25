@@ -31,6 +31,7 @@ export async function generateJsApiDocs(libraryPath: string, outputDir: string) 
     readme: "none",
     hideGenerator: true,
     disableSources: true,
+    out: outputDir,
     ...markdownPluginOptions,
   });
 
@@ -41,7 +42,7 @@ export async function generateJsApiDocs(libraryPath: string, outputDir: string) 
     return;
   }
 
-  await app.generateDocs(project, outputDir);
+  await app.generateOutputs(project);
 
   await writeFile(
     joinPaths(outputDir, "_category_.json"),
@@ -62,7 +63,7 @@ function setOptions(app: Application, options: any, reportErrors = true) {
 }
 
 export function loadRenderer(app: Application) {
-  app.renderer.on(PageEvent.END, (page: PageEvent<Reflection>) => {
+  app.renderer.on(PageEvent.END, (page: PageEvent<any>) => {
     if (page.contents && page) {
       const frontMatter = createFrontMatter(page.model);
       page.contents = frontMatter + page.contents.replace(/\\</g, "<");

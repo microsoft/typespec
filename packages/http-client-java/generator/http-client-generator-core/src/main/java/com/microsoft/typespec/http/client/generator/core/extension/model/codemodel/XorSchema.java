@@ -3,10 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -65,33 +61,5 @@ public class XorSchema extends ComplexSchema {
 
         XorSchema rhs = ((XorSchema) other);
         return Objects.equals(oneOf, rhs.oneOf);
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return super.writeParentProperties(jsonWriter.writeStartObject())
-            .writeArrayField("oneOf", oneOf, JsonWriter::writeJson)
-            .writeEndObject();
-    }
-
-    /**
-     * Deserializes a XorSchema instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return A XorSchema instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static XorSchema fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, XorSchema::new, (schema, fieldName, reader) -> {
-            if (schema.tryConsumeParentProperties(schema, fieldName, reader)) {
-                return;
-            }
-
-            if ("oneOf".equals(fieldName)) {
-                schema.oneOf = reader.readArray(Schema::fromJson);
-            } else {
-                reader.skipChildren();
-            }
-        });
     }
 }

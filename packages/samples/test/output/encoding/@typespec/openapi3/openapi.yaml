@@ -16,7 +16,7 @@ paths:
               required: true
               schema:
                 type: string
-                format: date-time
+                format: http-date
           content:
             application/json:
               schema:

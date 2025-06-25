@@ -14,6 +14,7 @@ import com.microsoft.typespec.http.client.generator.core.partialupdate.util.Part
 import com.microsoft.typespec.http.client.generator.core.postprocessor.implementation.CodeFormatterUtil;
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -118,11 +119,7 @@ public class Postprocessor {
             handlePartialUpdate(javaFiles, plugin, logger);
         }
 
-        try {
-            CodeFormatterUtil.formatCode(javaFiles, plugin);
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
+        CodeFormatterUtil.formatCode(javaFiles, plugin, logger);
     }
 
     private static String getReadme(NewPlugin plugin) {
@@ -216,9 +213,9 @@ public class Postprocessor {
                         String existingFileContent = Files.readString(existingFilePath);
                         return PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent,
                             existingFileContent);
-                    } catch (Exception e) {
+                    } catch (IOException e) {
                         logger.error("Unable to get content from file path", e);
-                        throw new RuntimeException(e);
+                        throw new UncheckedIOException(e);
                     }
                 }
             }

@@ -9,10 +9,8 @@ using Azure.ClientGenerator.Core;
 
 @summary("summary of Naming")
 @doc("description of Naming")
-@service({
-  title: "Naming",
-})
-namespace Cadl.Naming;
+@service(#{ title: "Naming" })
+namespace TspTest.Naming;
 
 @summary("summary of Response")
 @doc("description of Response. Include tab '	' in doc.")
@@ -34,6 +32,9 @@ model Response {
   @summary("summary of status property")
   @doc("description of status property")
   status: StatusModel;
+
+  @doc("The domain\\username data")
+  domainUsername: string;
 
   anonymous: RunObject;
 }
@@ -72,7 +73,6 @@ model BytesData extends Data {
   @doc("Data as {@code byte[]}")
   @clientName("dataAsBytes")
   @encodedName("application/json", "data_bytes")
-  @projectedName("client", "noeffect")
   data: bytes;
 }
 

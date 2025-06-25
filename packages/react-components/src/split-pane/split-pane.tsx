@@ -1,17 +1,9 @@
 import { mergeClasses } from "@fluentui/react-components";
-import {
-  useCallback,
-  useMemo,
-  useRef,
-  useState,
-  type FunctionComponent,
-  type JSX,
-  type MouseEvent,
-} from "react";
+import { useCallback, useMemo, useRef, useState, type FunctionComponent, type JSX } from "react";
 import { useControllableValue } from "../hooks.js";
 import { Pane, type PaneProps } from "./pane.js";
 import { SashContent } from "./sash-content.js";
-import { Sash } from "./sash.js";
+import { Sash, type DraggingEvent } from "./sash.js";
 import style from "./split-pane.module.css";
 import { useElDimensions } from "./use-el-dimensions.js";
 
@@ -23,8 +15,8 @@ export interface SplitPaneProps {
   sizes?: (string | number | undefined)[];
   sashRender?: (index: number, active: boolean) => React.ReactNode;
   onChange?: (sizes: number[]) => void;
-  onDragStart?: (e: MouseEvent) => void;
-  onDragEnd?: (e: MouseEvent) => void;
+  onDragStart?: (e: DraggingEvent) => void;
+  onDragEnd?: (e: DraggingEvent) => void;
   className?: string;
   sashClassName?: string;
   performanceMode?: boolean;
@@ -131,7 +123,7 @@ export const SplitPane: FunctionComponent<SplitPaneProps> = ({
   );
 
   const dragStart = useCallback(
-    (e: any) => {
+    (e: DraggingEvent) => {
       document?.body?.classList?.add(style["split-disabled"]);
       axis.current = { x: e.pageX, y: e.pageY };
       cacheSizes.current = { sizes, sashPosSizes };
@@ -148,7 +140,7 @@ export const SplitPane: FunctionComponent<SplitPaneProps> = ({
   }, [defaultSizes, updateSizes]);
 
   const dragEnd = useCallback(
-    (e: any) => {
+    (e: DraggingEvent) => {
       document?.body?.classList?.remove(style["split-disabled"]);
       axis.current = { x: e.pageX, y: e.pageY };
       cacheSizes.current = { sizes, sashPosSizes };
@@ -159,7 +151,7 @@ export const SplitPane: FunctionComponent<SplitPaneProps> = ({
   );
 
   const onDragging = useCallback(
-    (e: MouseEvent<HTMLDivElement>, i: number) => {
+    (e: DraggingEvent, i: number) => {
       const curAxis = { x: e.pageX, y: e.pageY };
       let distanceX = curAxis[splitAxis] - axis.current[splitAxis];
 

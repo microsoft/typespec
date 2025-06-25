@@ -10,9 +10,7 @@ using Azure.Core.Traits;
 using Azure.Core.Foundations;
 using Azure.ClientGenerator.Core;
 
-@service({
-  title: "Union",
-})
+@service(#{ title: "Union" })
 @server(
   "{endpoint}/openai",
   "Union",
@@ -21,7 +19,7 @@ using Azure.ClientGenerator.Core;
   }
 )
 @versioned(ServiceApiVersions)
-namespace Cadl.Union;
+namespace TspTest.Union;
 
 enum ServiceApiVersions {
   @useDependency(Azure.Core.Versions.v1_0_Preview_2)

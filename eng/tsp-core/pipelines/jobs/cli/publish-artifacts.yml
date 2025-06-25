@@ -1,0 +1,96 @@
+# cspell:ignore cvzf
+jobs:
+  - job: CheckIfPublish
+    displayName: Check if we should publish
+    pool:
+      name: $(LINUXPOOL)
+      image: $(LINUXVMIMAGE)
+      os: linux
+    steps:
+      - script: |
+          PACKAGE_VERSION=$(jq -r .version package.json)
+          LATEST=$(curl https://typespec.blob.core.windows.net/dist/latest.txt)
+          echo "Current version is '$PACKAGE_VERSION'"
+          echo "Latest version is '$LATEST'"
+
+          if [ "$PACKAGE_VERSION" == "$LATEST" ]; then
+            SKIP_PUBLISH=true
+          fi
+
+          if [ "$SKIP_PUBLISH" == "true" ]; then
+            echo "Skipping publish as latest version '$LATEST' is the same as current version '$PACKAGE_VERSION'"
+          fi
+          echo "##vso[task.setvariable variable=SKIP_PUBLISH;isOutput=true]$SKIP_PUBLISH"
+          echo "##vso[task.setvariable variable=PACKAGE_VERSION;isOutput=true]$PACKAGE_VERSION"
+        displayName: Get package version
+        name: SetPackageVersion
+        workingDirectory: $(Build.SourcesDirectory)/packages/standalone
+
+  - deployment: PublishCliArtifacts
+    environment: typespec-cli
+    displayName: Publish artifacts
+    dependsOn: CheckIfPublish
+    variables:
+      PACKAGE_VERSION: $[ dependencies.CheckIfPublish.outputs['SetPackageVersion.PACKAGE_VERSION'] ]
+    condition: ne(dependencies.CheckIfPublish.outputs['SetPackageVersion.SKIP_PUBLISH'], 'true')
+    pool:
+      name: azsdk-pool
+      image: ubuntu-24.04
+      os: linux
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - download: current
+              artifact: standalone-macos-signed
+              displayName: Download macos binaries
+
+            - download: current
+              artifact: standalone-windows-signed
+              displayName: Download windows binaries
+
+            - download: current
+              artifact: standalone-linux-arm64
+              displayName: Download linux arm64 binaries
+
+            - download: current
+              artifact: standalone-linux-x64
+              displayName: Download linux x64 binaries
+
+            - script: |
+                set -e
+                mkdir release
+                tar -cvzf release/tsp-darwin-arm64.tar.gz -C $(Pipeline.Workspace)/standalone-macos-signed/standalone-macos-arm64 tsp
+                tar -cvzf release/tsp-darwin-x64.tar.gz -C $(Pipeline.Workspace)/standalone-macos-signed/standalone-macos-x64 tsp
+
+                tar -cvzf release/tsp-linux-arm64.tar.gz -C $(Pipeline.Workspace)/standalone-linux-arm64 tsp
+                tar -cvzf release/tsp-linux-x64.tar.gz -C $(Pipeline.Workspace)/standalone-linux-x64 tsp
+
+                # zip release/tsp-windows-arm64.zip -j $(Pipeline.Workspace)/standalone-windows-signed/standalone-windows-arm64/tsp.exe
+                zip release/tsp-windows-x64.zip -j $(Pipeline.Workspace)/standalone-windows-signed/standalone-windows-x64/tsp.exe
+
+                ls ./release
+              displayName: Prepare for packaging
+
+            - task: AzureCLI@1
+              displayName: "Upload to storage"
+              inputs:
+                azureSubscription: "Azure SDK Engineering System"
+                scriptLocation: inlineScript
+                inlineScript: |
+                  echo -n "$(PACKAGE_VERSION)" > latest.txt
+
+                  az storage blob upload-batch \
+                    --auth-mode login \
+                    --account-name "typespec" \
+                    --destination dist \
+                    --destination-path "/$PACKAGE_VERSION/" \
+                    --source "./release/"
+
+                  az storage blob upload \
+                    --auth-mode login \
+                    --account-name "typespec" \
+                    --container-name dist \
+                    --name "latest.txt" \
+                    --overwrite \
+                    --file "./latest.txt"

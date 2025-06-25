@@ -2,19 +2,29 @@
 
 Import-Module "$PSScriptRoot\Generation.psm1" -DisableNameChecking -Force;
 
-$repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
+$packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
 
 $env:JAVA_HOME = $env:JAVA_HOME_21_X64
 Write-Host "JAVA_HOME: $Env:JAVA_HOME"
 
 $env:PATH = "$env:JAVA_HOME\bin;$env:PATH"
 
-Invoke "npm run build:generator"
-Invoke "npm run build:emitter"
+Write-Host "Generating http-client-generator-clientcore-test module ..."
+$generatorTestDir = Join-Path $packageRoot 'generator/http-client-generator-clientcore-test'
+Push-Location $generatorTestDir
+try {
+    & "./Generate.ps1"
+}
+finally {
+    Pop-Location
+}
 
-$testDir = Join-Path $repoRoot 'test' 
-
-$generatorTestDir = Join-Path $repoRoot 'generator/http-client-generator-test'
-Set-Location $generatorTestDir
-./Generate.ps1
-Set-Location $PSScriptRoot
+Write-Host "Generating http-client-generator-test module ..."
+$generatorTestDir = Join-Path $packageRoot 'generator/http-client-generator-test'
+Push-Location $generatorTestDir
+try {
+    & "./Generate.ps1"
+}
+finally {
+    Pop-Location
+}

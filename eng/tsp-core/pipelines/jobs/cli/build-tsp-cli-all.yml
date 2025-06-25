@@ -1,0 +1,24 @@
+jobs:
+  - template: /eng/tsp-core/pipelines/jobs/cli/build-tsp-cli.yml
+    parameters:
+      platform: linux-x64
+
+  - template: /eng/tsp-core/pipelines/jobs/cli/build-tsp-cli.yml
+    parameters:
+      platform: linux-arm64
+
+  - template: /eng/tsp-core/pipelines/jobs/cli/build-tsp-cli.yml
+    parameters:
+      platform: macos-x64
+
+  - template: /eng/tsp-core/pipelines/jobs/cli/build-tsp-cli.yml
+    parameters:
+      platform: macos-arm64
+
+  - template: /eng/tsp-core/pipelines/jobs/cli/build-tsp-cli.yml
+    parameters:
+      platform: windows-x64
+
+  # - template: /eng/tsp-core/pipelines/jobs/cli/build-tsp-cli.yml
+  #   parameters:
+  #     platform: windows-arm64

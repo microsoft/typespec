@@ -1,10 +1,8 @@
 # coding=utf-8
-# --------------------------------------------------------------------------
-# Copyright (c) {{ code_model.options["company_name"] }} Corporation. All rights reserved.
-# Licensed under the MIT License. See License.txt in the project root for
-# license information.
-# --------------------------------------------------------------------------
-# pylint: disable=protected-access, arguments-differ, signature-differs, broad-except, too-many-lines
+{% if code_model.license_header %}
+{{ code_model.license_header }}
+{% endif %}
+# pylint: disable=protected-access, broad-except
 
 import copy
 import calendar
@@ -20,17 +18,13 @@ import email.utils
 from datetime import datetime, date, time, timedelta, timezone
 from json import JSONEncoder
 import xml.etree.ElementTree as ET
+from collections.abc import MutableMapping
 from typing_extensions import Self
 import isodate
 from {{ code_model.core_library }}.exceptions import DeserializationError
 from {{ code_model.core_library }}{{ "" if code_model.is_azure_flavor else ".utils" }} import CaseInsensitiveEnumMeta
 from {{ code_model.core_library }}.{{ "" if code_model.is_azure_flavor else "runtime." }}pipeline import PipelineResponse
 from {{ code_model.core_library }}.serialization import _Null
-
-if sys.version_info >= (3, 9):
-    from collections.abc import MutableMapping
-else:
-    from typing import MutableMapping
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -346,7 +340,7 @@ def _get_model(module_name: str, model_name: str):
 _UNSET = object()
 
 
-class _MyMutableMapping(MutableMapping[str, typing.Any]):  # pylint: disable=unsubscriptable-object
+class _MyMutableMapping(MutableMapping[str, typing.Any]):
     def __init__(self, data: typing.Dict[str, typing.Any]) -> None:
         self._data = data
 
@@ -372,50 +366,97 @@ class _MyMutableMapping(MutableMapping[str, typing.Any]):  # pylint: disable=uns
         return not self.__eq__(other)
 
     def keys(self) -> typing.KeysView[str]:
+        """
+        :returns: a set-like object providing a view on D's keys
+        :rtype: ~typing.KeysView
+        """
         return self._data.keys()
 
     def values(self) -> typing.ValuesView[typing.Any]:
+        """
+        :returns: an object providing a view on D's values
+        :rtype: ~typing.ValuesView
+        """
         return self._data.values()
 
     def items(self) -> typing.ItemsView[str, typing.Any]:
+        """
+        :returns: set-like object providing a view on D's items
+        :rtype: ~typing.ItemsView
+        """
         return self._data.items()
 
     def get(self, key: str, default: typing.Any = None) -> typing.Any:
+        """
+        Get the value for key if key is in the dictionary, else default.
+        :param str key: The key to look up.
+        :param any default: The value to return if key is not in the dictionary. Defaults to None
+        :returns: D[k] if k in D, else d.
+        :rtype: any
+        """
         try:
             return self[key]
         except KeyError:
             return default
 
     @typing.overload
-    def pop(self, key: str) -> typing.Any: ...
+    def pop(self, key: str) -> typing.Any: ...  # pylint: disable=arguments-differ
 
     @typing.overload
-    def pop(self, key: str, default: _T) -> _T: ...
+    def pop(self, key: str, default: _T) -> _T: ...  # pylint: disable=signature-differs
 
     @typing.overload
-    def pop(self, key: str, default: typing.Any) -> typing.Any: ...
+    def pop(self, key: str, default: typing.Any) -> typing.Any: ...  # pylint: disable=signature-differs
 
     def pop(self, key: str, default: typing.Any = _UNSET) -> typing.Any:
+        """
+        Removes specified key and return the corresponding value.
+        :param str key: The key to pop.
+        :param any default: The value to return if key is not in the dictionary
+        :returns: The value corresponding to the key.
+        :rtype: any
+        :raises KeyError: If key is not found and default is not given.
+        """
         if default is _UNSET:
             return self._data.pop(key)
         return self._data.pop(key, default)
 
     def popitem(self) -> typing.Tuple[str, typing.Any]:
+        """
+        Removes and returns some (key, value) pair
+        :returns: The (key, value) pair.
+        :rtype: tuple
+        :raises KeyError: if D is empty.
+        """
         return self._data.popitem()
 
     def clear(self) -> None:
+        """
+        Remove all items from D.
+        """
         self._data.clear()
 
-    def update(self, *args: typing.Any, **kwargs: typing.Any) -> None:
+    def update(self, *args: typing.Any, **kwargs: typing.Any) -> None:  # pylint: disable=arguments-differ
+        """
+        Updates D from mapping/iterable E and F.
+        :param any args: Either a mapping object or an iterable of key-value pairs.
+        """
         self._data.update(*args, **kwargs)
 
     @typing.overload
     def setdefault(self, key: str, default: None = None) -> None: ...
 
     @typing.overload
-    def setdefault(self, key: str, default: typing.Any) -> typing.Any: ...
+    def setdefault(self, key: str, default: typing.Any) -> typing.Any: ...  # pylint: disable=signature-differs
 
     def setdefault(self, key: str, default: typing.Any = _UNSET) -> typing.Any:
+        """
+        Same as calling D.get(k, d), and setting D[k]=d if k not found
+        :param str key: The key to look up.
+        :param any default: The value to set if key is not in the dictionary
+        :returns: D[k] if k in D, else d.
+        :rtype: any
+        """
         if default is _UNSET:
             return self._data.setdefault(key)
         return self._data.setdefault(key, default)
@@ -573,7 +614,7 @@ class Model(_MyMutableMapping):
     def copy(self) -> "Model":
         return Model(self.__dict__)
 
-    def __new__(cls, *args: typing.Any, **kwargs: typing.Any) -> Self:  # pylint: disable=unused-argument
+    def __new__(cls, *args: typing.Any, **kwargs: typing.Any) -> Self:
         if f"{cls.__module__}.{cls.__qualname__}" not in cls._calculated:
             # we know the last nine classes in mro are going to be 'Model', '_MyMutableMapping', 'MutableMapping',
             # 'Mapping', 'Collection', 'Sized', 'Iterable', 'Container' and 'object'
@@ -584,8 +625,8 @@ class Model(_MyMutableMapping):
             annotations = {
                 k: v
                 for mro_class in mros
-                if hasattr(mro_class, "__annotations__")  # pylint: disable=no-member
-                for k, v in mro_class.__annotations__.items()  # pylint: disable=no-member
+                if hasattr(mro_class, "__annotations__")
+                for k, v in mro_class.__annotations__.items()
             }
             for attr, rf in attr_to_rest_field.items():
                 rf._module = cls.__module__
@@ -596,12 +637,12 @@ class Model(_MyMutableMapping):
             cls._attr_to_rest_field: typing.Dict[str, _RestField] = dict(attr_to_rest_field.items())
             cls._calculated.add(f"{cls.__module__}.{cls.__qualname__}")
 
-        return super().__new__(cls)  # pylint: disable=no-value-for-parameter
+        return super().__new__(cls)
 
     def __init_subclass__(cls, discriminator: typing.Optional[str] = None) -> None:
         for base in cls.__bases__:
-            if hasattr(base, "__mapping__"):  # pylint: disable=no-member
-                base.__mapping__[discriminator or cls.__name__] = cls  # type: ignore  # pylint: disable=no-member
+            if hasattr(base, "__mapping__"):
+                base.__mapping__[discriminator or cls.__name__] = cls  # type: ignore
 
     @classmethod
     def _get_discriminator(cls, exist_discriminators) -> typing.Optional["_RestField"]:
@@ -612,7 +653,7 @@ class Model(_MyMutableMapping):
 
     @classmethod
     def _deserialize(cls, data, exist_discriminators):
-        if not hasattr(cls, "__mapping__"):  # pylint: disable=no-member
+        if not hasattr(cls, "__mapping__"):
             return cls(data)
         discriminator = cls._get_discriminator(exist_discriminators)
         if discriminator is None:
@@ -752,7 +793,7 @@ def _get_deserialize_callable_from_annotation(  # pylint: disable=too-many-retur
         except AttributeError:
             model_name = annotation
         if module is not None:
-            annotation = _get_model(module, model_name)
+            annotation = _get_model(module, model_name)  # type: ignore
 
     try:
         if module and _is_model(annotation):
@@ -890,6 +931,37 @@ def _deserialize(
     if not isinstance(deserializer, functools.partial):
         deserializer = _get_deserialize_callable_from_annotation(deserializer, module, rf)
     return _deserialize_with_callable(deserializer, value)
+
+
+def _failsafe_deserialize(
+  deserializer: typing.Any,
+  value: typing.Any,
+  module: typing.Optional[str] = None,
+  rf: typing.Optional["_RestField"] = None,
+  format: typing.Optional[str] = None,
+) -> typing.Any:
+  try:
+      return _deserialize(deserializer, value, module, rf, format)
+  except DeserializationError:
+      _LOGGER.warning(
+          "Ran into a deserialization error. Ignoring since this is failsafe deserialization",
+          exc_info=True
+      )
+      return None
+
+
+def _failsafe_deserialize_xml(
+  deserializer: typing.Any,
+  value: typing.Any,
+) -> typing.Any:
+  try:
+      return _deserialize_xml(deserializer, value)
+  except DeserializationError:
+      _LOGGER.warning(
+          "Ran into a deserialization error. Ignoring since this is failsafe deserialization",
+          exc_info=True
+      )
+      return None
 
 
 class _RestField:

@@ -1,0 +1,58 @@
+{
+  "name": "@typespec/spec-dashboard",
+  "private": true,
+  "version": "0.1.0-alpha.0",
+  "description": "Spector Dashboard website",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "clean": "rimraf ./dist ./temp",
+    "build": "vite build",
+    "watch": "vite build --watch",
+    "test": "vitest run",
+    "test:ui": "vitest --ui",
+    "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./style.css": "./dist/style.css"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/microsoft/typespec.git"
+  },
+  "author": "Microsoft",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/microsoft/typespec/issues"
+  },
+  "homepage": "https://github.com/microsoft/typespec#readme",
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@fluentui/react-components": "~9.66.1",
+    "@fluentui/react-icons": "^2.0.292",
+    "@typespec/spec-coverage-sdk": "workspace:^",
+    "react": "~18.3.1",
+    "react-dom": "~18.3.1",
+    "react-markdown": "^10.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "~18.3.11",
+    "@types/react-dom": "~18.3.0",
+    "@vitejs/plugin-react": "~4.4.1",
+    "rimraf": "~6.0.1",
+    "rollup-plugin-visualizer": "~6.0.3",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.7",
+    "vite-plugin-checker": "^0.9.1",
+    "vite-plugin-dts": "4.5.4"
+  }
+}

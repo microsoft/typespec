@@ -50,7 +50,7 @@ describe("compiler: service", () => {
 
   it("customize service title", async () => {
     const { S } = await runner.compile(`
-      @test @service({title: "My Service"}) namespace S {}
+      @test @service(#{title: "My Service"}) namespace S {}
 
     `);
 
@@ -59,7 +59,7 @@ describe("compiler: service", () => {
 
   it("emit diagnostic if service title is not a string", async () => {
     const diagnostics = await runner.diagnose(`
-      @test @service({title: 123}) namespace S {}
+      @test @service(#{title: 123}) namespace S {}
     `);
 
     expectDiagnostics(diagnostics, {
@@ -67,18 +67,6 @@ describe("compiler: service", () => {
       message:
         "Argument of type '{ title: 123 }' is not assignable to parameter of type 'ServiceOptions'",
     });
-  });
-
-  it("customize service version", async () => {
-    const { S } = await runner.compile(`
-      @test @service({
-        #suppress "deprecated" "test"
-        version: "1.2.3"
-      }) namespace S {}
-
-    `);
-
-    deepStrictEqual(listServices(runner.program), [{ type: S, version: "1.2.3" }]);
   });
 
   it("emit diagnostic if service is used on a non namespace", async () => {
@@ -89,21 +77,6 @@ describe("compiler: service", () => {
     expectDiagnostics(diagnostics, {
       code: "decorator-wrong-target",
       message: "Cannot apply @service decorator to S since it is not assignable to Namespace",
-    });
-  });
-
-  it("emit diagnostic if service version is not a string", async () => {
-    const diagnostics = await runner.diagnose(`
-      @test @service({
-        #suppress "deprecated" "test"
-        version: 123
-      }) namespace S {}
-    `);
-
-    expectDiagnostics(diagnostics, {
-      code: "invalid-argument",
-      message:
-        "Argument of type '{ version: 123 }' is not assignable to parameter of type 'ServiceOptions'",
     });
   });
 });

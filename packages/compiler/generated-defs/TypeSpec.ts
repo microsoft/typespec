@@ -14,6 +14,16 @@ import type {
   UnionVariant,
 } from "../src/index.js";
 
+export interface ServiceOptions {
+  readonly title?: string;
+}
+
+export interface DiscriminatedOptions {
+  readonly envelope?: "object" | "none";
+  readonly discriminatorPropertyName?: string;
+  readonly envelopePropertyName?: string;
+}
+
 export interface ExampleOptions {
   readonly title?: string;
   readonly description?: string;
@@ -23,6 +33,43 @@ export interface OperationExample {
   readonly parameters?: unknown;
   readonly returnType?: unknown;
 }
+
+export interface VisibilityFilter {
+  readonly any?: readonly EnumValue[];
+  readonly all?: readonly EnumValue[];
+  readonly none?: readonly EnumValue[];
+}
+
+/**
+ * Applies a media type hint to a TypeSpec type. Emitters and libraries may choose to use this hint to determine how a
+ * type should be serialized. For example, the `@typespec/http` library will use the media type hint of the response
+ * body type as a default `Content-Type` if one is not explicitly specified in the operation.
+ *
+ * Media types (also known as MIME types) are defined by RFC 6838. The media type hint should be a valid media type
+ * string as defined by the RFC, but the decorator does not enforce or validate this constraint.
+ *
+ * Notes: the applied media type is _only_ a hint. It may be overridden or not used at all. Media type hints are
+ * inherited by subtypes. If a media type hint is applied to a model, it will be inherited by all other models that
+ * `extend` it unless they delcare their own media type hint.
+ *
+ * @param mediaType The media type hint to apply to the target type.
+ * @example create a model that serializes as XML by default
+ *
+ * ```tsp
+ * @mediaTypeHint("application/xml")
+ * model Example {
+ *   @visibility(Lifecycle.Read)
+ *   id: string;
+ *
+ *   name: string;
+ * }
+ * ```
+ */
+export type MediaTypeHintDecorator = (
+  context: DecoratorContext,
+  target: Model | Scalar | Enum | Union,
+  mediaType: string,
+) => void;
 
 /**
  * Specify how to encode the target type.
@@ -57,7 +104,7 @@ export type EncodeDecorator = (
 ) => void;
 
 /**
- * Attach a documentation string.
+ * Attach a documentation string. Content support CommonMark markdown formatting.
  *
  * @param doc Documentation string
  * @param formatArgs Record with key value pair that can be interpolated in the doc.
@@ -114,12 +161,22 @@ export type WithoutDefaultValuesDecorator = (context: DecoratorContext, target: 
 /**
  * Set the visibility of key properties in a model if not already set.
  *
- * @param visibility The desired default visibility value. If a key property already has a `visibility` decorator then the default visibility is not applied.
+ * This will set the visibility modifiers of all key properties in the model if the visibility is not already _explicitly_ set,
+ * but will not change the visibility of any properties that have visibility set _explicitly_, even if the visibility
+ * is the same as the default visibility.
+ *
+ * Visibility may be set explicitly using any of the following decorators:
+ *
+ * - `@visibility`
+ * - `@removeVisibility`
+ * - `@invisible`
+ *
+ * @param visibility The desired default visibility value. If a key property already has visibility set, it will not be changed.
  */
 export type WithDefaultKeyVisibilityDecorator = (
   context: DecoratorContext,
   target: Model,
-  visibility: string,
+  visibility: EnumValue,
 ) => void;
 
 /**
@@ -169,27 +226,6 @@ export type ErrorsDocDecorator = (
 ) => void;
 
 /**
- * Mark this type as deprecated.
- *
- * NOTE: This decorator **should not** be used, use the `#deprecated` directive instead.
- *
- * @deprecated Use the `#deprecated` directive instead.
- * @param message Deprecation message.
- * @example
- * Use the `#deprecated` directive instead:
- *
- * ```typespec
- * #deprecated "Use ActionV2"
- * op Action<Result>(): Result;
- * ```
- */
-export type DeprecatedDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  message: string,
-) => void;
-
-/**
  * Mark this namespace as describing a service and configure service properties.
  *
  * @param options Optional configuration for the service.
@@ -200,19 +236,19 @@ export type DeprecatedDecorator = (
  * ```
  * @example Setting service title
  * ```typespec
- * @service({title: "Pet store"})
+ * @service(#{title: "Pet store"})
  * namespace PetStore;
  * ```
  * @example Setting service version
  * ```typespec
- * @service({version: "1.0"})
+ * @service(#{version: "1.0"})
  * namespace PetStore;
  * ```
  */
 export type ServiceDecorator = (
   context: DecoratorContext,
   target: Namespace,
-  options?: Type,
+  options?: ServiceOptions,
 ) => void;
 
 /**
@@ -414,18 +450,6 @@ export type MaxValueExclusiveDecorator = (
 export type SecretDecorator = (context: DecoratorContext, target: Scalar | ModelProperty) => void;
 
 /**
- * Mark this operation as a `list` operation for resource types.
- *
- * @deprecated Use the `listsResource` decorator in `@typespec/rest` instead.
- * @param listedType Optional type of the items in the list.
- */
-export type ListDecorator = (
-  context: DecoratorContext,
-  target: Operation,
-  listedType?: Model,
-) => void;
-
-/**
  * Attaches a tag to an operation, interface, or namespace. Multiple `@tag` decorators can be specified to attach multiple tags to a TypeSpec element.
  *
  * @param tag Tag value
@@ -455,27 +479,6 @@ export type FriendlyNameDecorator = (
   target: Type,
   name: string,
   formatArgs?: Type,
-) => void;
-
-/**
- * Provide a set of known values to a string type.
- *
- * @param values Known values enum.
- * @example
- * ```typespec
- * @knownValues(KnownErrorCode)
- * scalar ErrorCode extends string;
- *
- * enum KnownErrorCode {
- *   NotFound,
- *   Invalid,
- * }
- * ```
- */
-export type KnownValuesDecorator = (
-  context: DecoratorContext,
-  target: Scalar | ModelProperty,
-  values: Enum,
 ) => void;
 
 /**
@@ -515,28 +518,6 @@ export type OverloadDecorator = (
 ) => void;
 
 /**
- * DEPRECATED: Use `@encodedName` instead.
- *
- * Provide an alternative name for this type.
- *
- * @param targetName Projection target
- * @param projectedName Alternative name
- * @example
- * ```typespec
- * model Certificate {
- *   @projectedName("json", "exp")
- *   expireAt: int32;
- * }
- * ```
- */
-export type ProjectedNameDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  targetName: string,
-  projectedName: string,
-) => void;
-
-/**
  * Provide an alternative name for this type when serialized to the given mime type.
  *
  * @param mimeType Mime type this should apply to. The mime type should be a known mime type as described here https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types without any suffix (e.g. `+json`)
@@ -564,18 +545,72 @@ export type EncodedNameDecorator = (
 ) => void;
 
 /**
+ * Specify that this union is discriminated.
+ *
+ * @param options Options to configure the serialization of the discriminated union.
+ * @example
+ * ```typespec
+ * @discriminated
+ * union Pet{ cat: Cat, dog: Dog }
+ *
+ * model Cat { name: string, meow: boolean }
+ * model Dog { name: string, bark: boolean }
+ * ```
+ * Serialized as:
+ * ```json
+ * {
+ *   "kind": "cat",
+ *   "value": {
+ *     "name": "Whiskers",
+ *     "meow": true
+ *   }
+ * },
+ * {
+ *   "kind": "dog",
+ *   "value": {
+ *     "name": "Rex",
+ *     "bark": false
+ *   }
+ * }
+ * ```
+ * @example Custom property names
+ *
+ * ```typespec
+ * @discriminated(#{discriminatorPropertyName: "dataKind", envelopePropertyName: "data"})
+ * union Pet{ cat: Cat, dog: Dog }
+ *
+ * model Cat { name: string, meow: boolean }
+ * model Dog { name: string, bark: boolean }
+ * ```
+ * Serialized as:
+ * ```json
+ * {
+ *   "dataKind": "cat",
+ *   "data": {
+ *     "name": "Whiskers",
+ *     "meow": true
+ *   }
+ * },
+ * {
+ *   "dataKind": "dog",
+ *   "data": {
+ *     "name": "Rex",
+ *     "bark": false
+ *   }
+ * }
+ * ```
+ */
+export type DiscriminatedDecorator = (
+  context: DecoratorContext,
+  target: Union,
+  options?: DiscriminatedOptions,
+) => void;
+
+/**
  * Specify the property to be used to discriminate this type.
  *
  * @param propertyName The property name to use for discrimination
  * @example
- * ```typespec
- * @discriminator("kind")
- * union Pet{ cat: Cat, dog: Dog }
- *
- * model Cat {kind: "cat", meow: boolean}
- * model Dog {kind: "dog", bark: boolean}
- * ```
- *
  * ```typespec
  * @discriminator("kind")
  * model Pet{ kind: string }
@@ -586,7 +621,7 @@ export type EncodedNameDecorator = (
  */
 export type DiscriminatorDecorator = (
   context: DecoratorContext,
-  target: Model | Union,
+  target: Model,
   propertyName: string,
 ) => void;
 
@@ -618,7 +653,7 @@ export type ExampleDecorator = (
  * @param options Optional metadata for the example.
  * @example
  * ```tsp
- * @example(#{parameters: #{name: "Fluffy", age: 2}, returnType: #{name: "Fluffy", age: 2, id: "abc"})
+ * @opExample(#{parameters: #{name: "Fluffy", age: 2}, returnType: #{name: "Fluffy", age: 2, id: "abc"})
  * op createPet(pet: Pet): Pet;
  * ```
  */
@@ -630,85 +665,152 @@ export type OpExampleDecorator = (
 ) => void;
 
 /**
- * Indicates that a property is only considered to be present or applicable ("visible") with
- * the in the given named contexts ("visibilities"). When a property has no visibilities applied
- * to it, it is implicitly visible always.
- *
- * As far as the TypeSpec core library is concerned, visibilities are open-ended and can be arbitrary
- * strings, but  the following visibilities are well-known to standard libraries and should be used
- * with standard emitters that interpret them as follows:
- *
- * - "read": output of any operation.
- * - "create": input to operations that create an entity..
- * - "query": input to operations that read data.
- * - "update": input to operations that update data.
- * - "delete": input to operations that delete data.
- *
- * See also: [Automatic visibility](https://typespec.io/docs/libraries/http/operations#automatic-visibility)
- *
- * @param visibilities List of visibilities which apply to this property.
- * @example
- * ```typespec
- * model Dog {
- *   // the service will generate an ID, so you don't need to send it.
- *   @visibility("read") id: int32;
- *   // the service will store this secret name, but won't ever return it
- *   @visibility("create", "update") secretName: string;
- *   // the regular name is always present
- *   name: string;
- * }
- * ```
+ * Mark this operation as a `list` operation that returns a paginated list of items.
  */
-export type VisibilityDecorator = (
-  context: DecoratorContext,
-  target: ModelProperty,
-  ...visibilities: string[]
-) => void;
+export type ListDecorator = (context: DecoratorContext, target: Operation) => void;
 
 /**
- * Removes properties that are not considered to be present or applicable
- * ("visible") in the given named contexts ("visibilities"). Can be used
- * together with spread to effectively spread only visible properties into
- * a new model.
+ * Pagination property defining the number of items to skip.
  *
- * See also: [Automatic visibility](https://typespec.io/docs/libraries/http/operations#automatic-visibility)
- *
- * When using an emitter that applies visibility automatically, it is generally
- * not necessary to use this decorator.
- *
- * @param visibilities List of visibilities which apply to this property.
  * @example
- * ```typespec
- * model Dog {
- *   @visibility("read") id: int32;
- *   @visibility("create", "update") secretName: string;
- *   name: string;
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
  * }
- *
- * // The spread operator will copy all the properties of Dog into DogRead,
- * // and @withVisibility will then remove those that are not visible with
- * // create or update visibility.
- * //
- * // In this case, the id property is removed, and the name and secretName
- * // properties are kept.
- * @withVisibility("create", "update")
- * model DogCreateOrUpdate {
- *   ...Dog;
- * }
- *
- * // In this case the id and name properties are kept and the secretName property
- * // is removed.
- * @withVisibility("read")
- * model DogRead {
- *   ...Dog;
- * }
+ * @list op listPets(@offset skip: int32, @pageSize pageSize: int8): Page<Pet>;
  * ```
  */
-export type WithVisibilityDecorator = (
-  context: DecoratorContext,
-  target: Model,
-  ...visibilities: string[]
-) => void;
+export type OffsetDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+
+/**
+ * Pagination property defining the page index.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ * }
+ * @list op listPets(@pageIndex page: int32, @pageSize pageSize: int8): Page<Pet>;
+ * ```
+ */
+export type PageIndexDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+
+/**
+ * Specify the pagination parameter that controls the maximum number of items to include in a page.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ * }
+ * @list op listPets(@pageIndex page: int32, @pageSize pageSize: int8): Page<Pet>;
+ * ```
+ */
+export type PageSizeDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+
+/**
+ * Specify the the property that contains the array of page items.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ * }
+ * @list op listPets(@pageIndex page: int32, @pageSize pageSize: int8): Page<Pet>;
+ * ```
+ */
+export type PageItemsDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+
+/**
+ * Pagination property defining the token to get to the next page.
+ * It MUST be specified both on the request parameter and the response.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ *   @continuationToken continuationToken: string;
+ * }
+ * @list op listPets(@continuationToken continuationToken: string): Page<Pet>;
+ * ```
+ */
+export type ContinuationTokenDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+
+/**
+ * Pagination property defining a link to the next page.
+ *
+ * It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ *   @nextLink next: url;
+ *   @prevLink prev: url;
+ *   @firstLink first: url;
+ *   @lastLink last: url;
+ * }
+ * @list op listPets(): Page<Pet>;
+ * ```
+ */
+export type NextLinkDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+
+/**
+ * Pagination property defining a link to the previous page.
+ *
+ * It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ *   @nextLink next: url;
+ *   @prevLink prev: url;
+ *   @firstLink first: url;
+ *   @lastLink last: url;
+ * }
+ * @list op listPets(): Page<Pet>;
+ * ```
+ */
+export type PrevLinkDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+
+/**
+ * Pagination property defining a link to the first page.
+ *
+ * It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ *   @nextLink next: url;
+ *   @prevLink prev: url;
+ *   @firstLink first: url;
+ *   @lastLink last: url;
+ * }
+ * @list op listPets(): Page<Pet>;
+ * ```
+ */
+export type FirstLinkDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+
+/**
+ * Pagination property defining a link to the last page.
+ *
+ * It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ *   @nextLink next: url;
+ *   @prevLink prev: url;
+ *   @firstLink first: url;
+ *   @lastLink last: url;
+ * }
+ * @list op listPets(): Page<Pet>;
+ * ```
+ */
+export type LastLinkDecorator = (context: DecoratorContext, target: ModelProperty) => void;
 
 /**
  * A debugging decorator used to inspect a type.
@@ -729,28 +831,276 @@ export type InspectTypeNameDecorator = (
 ) => void;
 
 /**
- * Sets which visibilities apply to parameters for the given operation.
+ * Sets the visibility modifiers that are active on a property, indicating that it is only considered to be present
+ * (or "visible") in contexts that select for the given modifiers.
  *
- * @param visibilities List of visibility strings which apply to this operation.
+ * A property without any visibility settings applied for any visibility class (e.g. `Lifecycle`) is considered to have
+ * the default visibility settings for that class.
+ *
+ * If visibility for the property has already been set for a visibility class (for example, using `@invisible` or
+ * `@removeVisibility`), this decorator will **add** the specified visibility modifiers to the property.
+ *
+ * See: [Visibility](https://typespec.io/docs/language-basics/visibility)
+ *
+ * The `@typespec/http` library uses `Lifecycle` visibility to determine which properties are included in the request or
+ * response bodies of HTTP operations. By default, it uses the following visibility settings:
+ *
+ * - For the return type of operations, properties are included if they have `Lifecycle.Read` visibility.
+ * - For POST operation parameters, properties are included if they have `Lifecycle.Create` visibility.
+ * - For PUT operation parameters, properties are included if they have `Lifecycle.Create` or `Lifecycle.Update` visibility.
+ * - For PATCH operation parameters, properties are included if they have `Lifecycle.Update` visibility.
+ * - For DELETE operation parameters, properties are included if they have `Lifecycle.Delete` visibility.
+ * - For GET or HEAD operation parameters, properties are included if they have `Lifecycle.Query` visibility.
+ *
+ * By default, properties have all five Lifecycle visibility modifiers enabled, so a property is visible in all contexts
+ * by default.
+ *
+ * The default settings may be overridden using the `@returnTypeVisibility` and `@parameterVisibility` decorators.
+ *
+ * See also: [Automatic visibility](https://typespec.io/docs/libraries/http/operations#automatic-visibility)
+ *
+ * @param visibilities List of visibilities which apply to this property.
+ * @example
+ * ```typespec
+ * model Dog {
+ *   // The service will generate an ID, so you don't need to send it.
+ *   @visibility(Lifecycle.Read)
+ *   id: int32;
+ *
+ *   // The service will store this secret name, but won't ever return it.
+ *   @visibility(Lifecycle.Create, Lifecycle.Update)
+ *   secretName: string;
+ *
+ *   // The regular name has all vi
+ *   name: string;
+ * }
+ * ```
+ */
+export type VisibilityDecorator = (
+  context: DecoratorContext,
+  target: ModelProperty,
+  ...visibilities: EnumValue[]
+) => void;
+
+/**
+ * Indicates that a property is not visible in the given visibility class.
+ *
+ * This decorator removes all active visibility modifiers from the property within
+ * the given visibility class, making it invisible to any context that selects for
+ * visibility modifiers within that class.
+ *
+ * @param visibilityClass The visibility class to make the property invisible within.
+ * @example
+ * ```typespec
+ * model Example {
+ *   @invisible(Lifecycle)
+ *   hidden_property: string;
+ * }
+ * ```
+ */
+export type InvisibleDecorator = (
+  context: DecoratorContext,
+  target: ModelProperty,
+  visibilityClass: Enum,
+) => void;
+
+/**
+ * Removes visibility modifiers from a property.
+ *
+ * If the visibility modifiers for a visibility class have not been initialized,
+ * this decorator will use the default visibility modifiers for the visibility
+ * class as the default modifier set.
+ *
+ * @param target The property to remove visibility from.
+ * @param visibilities The visibility modifiers to remove from the target property.
+ * @example
+ * ```typespec
+ * model Example {
+ *   // This property will have all Lifecycle visibilities except the Read
+ *   // visibility, since it is removed.
+ *   @removeVisibility(Lifecycle.Read)
+ *   secret_property: string;
+ * }
+ * ```
+ */
+export type RemoveVisibilityDecorator = (
+  context: DecoratorContext,
+  target: ModelProperty,
+  ...visibilities: EnumValue[]
+) => void;
+
+/**
+ * Removes properties that do not have at least one of the given visibility modifiers
+ * active.
+ *
+ * If no visibility modifiers are supplied, this decorator has no effect.
+ *
+ * See also: [Automatic visibility](https://typespec.io/docs/libraries/http/operations#automatic-visibility)
+ *
+ * When using an emitter that applies visibility automatically, it is generally
+ * not necessary to use this decorator.
+ *
+ * @param visibilities List of visibilities that apply to this property.
+ * @example
+ * ```typespec
+ * model Dog {
+ *   @visibility(Lifecycle.Read)
+ *   id: int32;
+ *
+ *   @visibility(Lifecycle.Create, Lifecycle.Update)
+ *   secretName: string;
+ *
+ *   name: string;
+ * }
+ *
+ * // The spread operator will copy all the properties of Dog into DogRead,
+ * // and @withVisibility will then remove those that are not visible with
+ * // create or update visibility.
+ * //
+ * // In this case, the id property is removed, and the name and secretName
+ * // properties are kept.
+ * @withVisibility(Lifecycle.Create, Lifecycle.Update)
+ * model DogCreateOrUpdate {
+ *   ...Dog;
+ * }
+ *
+ * // In this case the id and name properties are kept and the secretName property
+ * // is removed.
+ * @withVisibility(Lifecycle.Read)
+ * model DogRead {
+ *   ...Dog;
+ * }
+ * ```
+ */
+export type WithVisibilityDecorator = (
+  context: DecoratorContext,
+  target: Model,
+  ...visibilities: EnumValue[]
+) => void;
+
+/**
+ * Declares the visibility constraint of the parameters of a given operation.
+ *
+ * A parameter or property nested within a parameter will be visible if it has _any_ of the visibilities
+ * in the list.
+ *
+ * It is invalid to call this decorator with no visibility modifiers.
+ *
+ * @param visibilities List of visibility modifiers that apply to the parameters of this operation.
  */
 export type ParameterVisibilityDecorator = (
   context: DecoratorContext,
   target: Operation,
-  ...visibilities: string[]
+  ...visibilities: EnumValue[]
 ) => void;
 
 /**
- * Sets which visibilities apply to the return type for the given operation.
+ * Declares the visibility constraint of the return type of a given operation.
  *
- * @param visibilities List of visibility strings which apply to this operation.
+ * A property within the return type of the operation will be visible if it has _any_ of the visibilities
+ * in the list.
+ *
+ * It is invalid to call this decorator with no visibility modifiers.
+ *
+ * @param visibilities List of visibility modifiers that apply to the return type of this operation.
  */
 export type ReturnTypeVisibilityDecorator = (
   context: DecoratorContext,
   target: Operation,
-  ...visibilities: string[]
+  ...visibilities: EnumValue[]
+) => void;
+
+/**
+ * Declares the default visibility modifiers for a visibility class.
+ *
+ * The default modifiers are used when a property does not have any visibility decorators
+ * applied to it.
+ *
+ * The modifiers passed to this decorator _MUST_ be members of the target Enum.
+ *
+ * @param visibilities the list of modifiers to use as the default visibility modifiers.
+ */
+export type DefaultVisibilityDecorator = (
+  context: DecoratorContext,
+  target: Enum,
+  ...visibilities: EnumValue[]
+) => void;
+
+/**
+ * Applies the given visibility filter to the properties of the target model.
+ *
+ * This transformation is recursive, so it will also apply the filter to any nested
+ * or referenced models that are the types of any properties in the `target`.
+ *
+ * If a `nameTemplate` is provided, newly-created type instances will be named according
+ * to the template. See the `@friendlyName` decorator for more information on the template
+ * syntax. The transformed type is provided as the argument to the template.
+ *
+ * @param target The model to apply the visibility filter to.
+ * @param filter The visibility filter to apply to the properties of the target model.
+ * @param nameTemplate The name template to use when renaming new model instances.
+ * @example
+ * ```typespec
+ * model Dog {
+ *   @visibility(Lifecycle.Read)
+ *   id: int32;
+ *
+ *   name: string;
+ * }
+ *
+ * @withVisibilityFilter(#{ all: #[Lifecycle.Read] })
+ * model DogRead {
+ *  ...Dog
+ * }
+ * ```
+ */
+export type WithVisibilityFilterDecorator = (
+  context: DecoratorContext,
+  target: Model,
+  filter: VisibilityFilter,
+  nameTemplate?: string,
+) => void;
+
+/**
+ * Transforms the `target` model to include only properties that are visible during the
+ * "Update" lifecycle phase.
+ *
+ * Any nested models of optional properties will be transformed into the "CreateOrUpdate"
+ * lifecycle phase instead of the "Update" lifecycle phase, so that nested models may be
+ * fully updated.
+ *
+ * If a `nameTemplate` is provided, newly-created type instances will be named according
+ * to the template. See the `@friendlyName` decorator for more information on the template
+ * syntax. The transformed type is provided as the argument to the template.
+ *
+ * @param target The model to apply the transformation to.
+ * @param nameTemplate The name template to use when renaming new model instances.
+ * @example
+ * ```typespec
+ * model Dog {
+ *   @visibility(Lifecycle.Read)
+ *   id: int32;
+ *
+ *   @visibility(Lifecycle.Create, Lifecycle.Update)
+ *   secretName: string;
+ *
+ *   name: string;
+ * }
+ *
+ * @withLifecycleUpdate
+ * model DogUpdate {
+ *   ...Dog
+ * }
+ * ```
+ */
+export type WithLifecycleUpdateDecorator = (
+  context: DecoratorContext,
+  target: Model,
+  nameTemplate?: string,
 ) => void;
 
 export type TypeSpecDecorators = {
+  mediaTypeHint: MediaTypeHintDecorator;
   encode: EncodeDecorator;
   doc: DocDecorator;
   withOptionalProperties: WithOptionalPropertiesDecorator;
@@ -762,7 +1112,6 @@ export type TypeSpecDecorators = {
   summary: SummaryDecorator;
   returnsDoc: ReturnsDocDecorator;
   errorsDoc: ErrorsDocDecorator;
-  deprecated: DeprecatedDecorator;
   service: ServiceDecorator;
   error: ErrorDecorator;
   format: FormatDecorator;
@@ -776,21 +1125,34 @@ export type TypeSpecDecorators = {
   minValueExclusive: MinValueExclusiveDecorator;
   maxValueExclusive: MaxValueExclusiveDecorator;
   secret: SecretDecorator;
-  list: ListDecorator;
   tag: TagDecorator;
   friendlyName: FriendlyNameDecorator;
-  knownValues: KnownValuesDecorator;
   key: KeyDecorator;
   overload: OverloadDecorator;
-  projectedName: ProjectedNameDecorator;
   encodedName: EncodedNameDecorator;
+  discriminated: DiscriminatedDecorator;
   discriminator: DiscriminatorDecorator;
   example: ExampleDecorator;
   opExample: OpExampleDecorator;
-  visibility: VisibilityDecorator;
-  withVisibility: WithVisibilityDecorator;
+  list: ListDecorator;
+  offset: OffsetDecorator;
+  pageIndex: PageIndexDecorator;
+  pageSize: PageSizeDecorator;
+  pageItems: PageItemsDecorator;
+  continuationToken: ContinuationTokenDecorator;
+  nextLink: NextLinkDecorator;
+  prevLink: PrevLinkDecorator;
+  firstLink: FirstLinkDecorator;
+  lastLink: LastLinkDecorator;
   inspectType: InspectTypeDecorator;
   inspectTypeName: InspectTypeNameDecorator;
+  visibility: VisibilityDecorator;
+  invisible: InvisibleDecorator;
+  removeVisibility: RemoveVisibilityDecorator;
+  withVisibility: WithVisibilityDecorator;
   parameterVisibility: ParameterVisibilityDecorator;
   returnTypeVisibility: ReturnTypeVisibilityDecorator;
+  defaultVisibility: DefaultVisibilityDecorator;
+  withVisibilityFilter: WithVisibilityFilterDecorator;
+  withLifecycleUpdate: WithLifecycleUpdateDecorator;
 };

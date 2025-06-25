@@ -1,5 +1,62 @@
 # Change Log - typespec-vs
 
+## 1.1.0
+
+No changes, version bump only.
+
+## 1.0.0
+
+No changes, version bump only.
+
+## 0.69.0
+
+No changes, version bump only.
+
+## 0.68.0
+
+No changes, version bump only.
+
+## 0.67.0
+
+### Breaking Changes
+
+- [#5977](https://github.com/microsoft/typespec/pull/5977) Minimum node version is now 20
+
+### Bug Fixes
+
+- [#6144](https://github.com/microsoft/typespec/pull/6144) Add missing node to list of suggestion when tsp server cannot start
+
+
+## 0.66.0
+
+### Features
+
+- [#5968](https://github.com/microsoft/typespec/pull/5968) Support intellisense for tsconfig.yaml in visual studio
+
+
+## 0.65.0
+
+### Bug Fixes
+
+- [#5834](https://github.com/microsoft/typespec/pull/5834) Update extension configuration URLs in error message
+
+
+## 0.64.0
+
+No changes, version bump only.
+
+## 0.63.0
+
+No changes, version bump only.
+
+## 0.62.0
+
+No changes, version bump only.
+
+## 0.61.0
+
+No changes, version bump only.
+
 ## 0.60.0
 
 No changes, version bump only.

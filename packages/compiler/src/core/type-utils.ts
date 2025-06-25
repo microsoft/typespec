@@ -74,13 +74,22 @@ export function getParentTemplateNode(node: Node): (Node & TemplateDeclarationNo
   switch (node.kind) {
     case SyntaxKind.ModelStatement:
     case SyntaxKind.ScalarStatement:
-    case SyntaxKind.OperationStatement:
     case SyntaxKind.UnionStatement:
     case SyntaxKind.InterfaceStatement:
       return node.templateParameters.length > 0 ? node : undefined;
+    case SyntaxKind.OperationStatement:
+      return node.templateParameters.length > 0
+        ? node
+        : node.parent?.kind === SyntaxKind.InterfaceStatement
+          ? node.parent.templateParameters.length > 0
+            ? node.parent
+            : undefined
+          : undefined;
     case SyntaxKind.OperationSignatureDeclaration:
     case SyntaxKind.ModelProperty:
+    case SyntaxKind.UnionVariant:
     case SyntaxKind.ModelExpression:
+    case SyntaxKind.UnionExpression:
       return node.parent ? getParentTemplateNode(node.parent) : undefined;
     default:
       return undefined;

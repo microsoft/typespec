@@ -13,7 +13,7 @@ from .. import Plugin
 from ..utils import parse_args
 from .models.code_model import CodeModel
 from .serializers import JinjaSerializer
-from ._utils import DEFAULT_HEADER_TEXT, VALID_PACKAGE_MODE, TYPESPEC_PACKAGE_MODE
+from ._utils import VALID_PACKAGE_MODE, TYPESPEC_PACKAGE_MODE
 
 
 def _default_pprint(package_name: str) -> str:
@@ -54,31 +54,13 @@ class OptionsRetriever:
         return self.options.get(key, self.OPTIONS_TO_DEFAULT.get(key))
 
     @property
-    def company_name(self) -> str:
-        return self.options.get("company-name", "Microsoft" if self.is_azure_flavor else "")
-
-    @property
-    def license_header(self) -> str:
-        license_header = self.options.get(
-            "header-text",
-            (DEFAULT_HEADER_TEXT.format(company_name=self.company_name) if self.company_name else ""),
-        )
-        if license_header:
-            license_header = license_header.replace("\n", "\n# ")
-            license_header = (
-                "# --------------------------------------------------------------------------\n# " + license_header
-            )
-            license_header += "\n# --------------------------------------------------------------------------"
-        return license_header
-
-    @property
     def show_operations(self) -> bool:
         return self.options.get("show-operations", not self.low_level_client)
 
     @property
     def _models_mode_default(self) -> str:
         models_mode_default = "none" if self.low_level_client or self.version_tolerant else "msrest"
-        if self.options.get("cadl_file") is not None:
+        if self.options.get("tsp_file") is not None:
             models_mode_default = "dpg"
         return models_mode_default
 
@@ -128,6 +110,10 @@ class OptionsRetriever:
         return self.options.get("package-pprint-name") or _default_pprint(str(self.package_name))
 
     @property
+    def validate_versioning(self) -> bool:
+        return self.options.get("validate-versioning", True)
+
+    @property
     def default_optional_constants_to_none(self) -> bool:
         return self.options.get(
             "default-optional-constants-to-none",
@@ -167,6 +153,10 @@ class OptionsRetriever:
     @property
     def package_version(self) -> Optional[str]:
         return str(self.options.get("package-version", ""))
+
+    @property
+    def header_text(self) -> Optional[str]:
+        return self.options.get("header-text")
 
 
 class CodeGenerator(Plugin):
@@ -242,10 +232,27 @@ class CodeGenerator(Plugin):
             raise ValueError("Can only have tracing turned on for Azure SDKs.")
 
     @staticmethod
+    def sort_exceptions(yaml_data: Dict[str, Any]) -> None:
+        for client in yaml_data["clients"]:
+            for group in client.get("operationGroups", []):
+                for operation in group.get("operations", []):
+                    if not operation.get("exceptions"):
+                        continue
+                    # sort exceptions by status code, first single status code, then range, then default
+                    operation["exceptions"] = sorted(
+                        operation["exceptions"],
+                        key=lambda x: (
+                            3
+                            if x["statusCodes"][0] == "default"
+                            else (1 if isinstance(x["statusCodes"][0], int) else 2)
+                        ),
+                    )
+
+    @staticmethod
     def remove_cloud_errors(yaml_data: Dict[str, Any]) -> None:
         for client in yaml_data["clients"]:
-            for group in client["operationGroups"]:
-                for operation in group["operations"]:
+            for group in client.get("operationGroups", []):
+                for operation in group.get("operations", []):
                     if not operation.get("exceptions"):
                         continue
                     i = 0
@@ -269,7 +276,7 @@ class CodeGenerator(Plugin):
         flags = [
             "azure_arm",
             "head_as_boolean",
-            "license_header",
+            "header_text",
             "keep_version_file",
             "no_async",
             "no_namespace_folders",
@@ -297,14 +304,14 @@ class CodeGenerator(Plugin):
             "default_api_version",
             "from_typespec",
             "flavor",
-            "company_name",
             "emit_cross_language_definition_file",
+            "validate_versioning",
         ]
         return {f: getattr(self.options_retriever, f) for f in flags}
 
     def get_yaml(self) -> Dict[str, Any]:
-        # cadl file doesn't have to be relative to output folder
-        with open(self.options["cadl_file"], "r", encoding="utf-8-sig") as fd:
+        # tsp file doesn't have to be relative to output folder
+        with open(self.options["tsp_file"], "r", encoding="utf-8-sig") as fd:
             return yaml.safe_load(fd.read())
 
     def get_serializer(self, code_model: CodeModel):
@@ -315,6 +322,8 @@ class CodeGenerator(Plugin):
         self._validate_code_model_options()
         options = self._build_code_model_options()
         yaml_data = self.get_yaml()
+
+        self.sort_exceptions(yaml_data)
 
         if self.options_retriever.azure_arm:
             self.remove_cloud_errors(yaml_data)
@@ -329,10 +338,10 @@ class CodeGenerator(Plugin):
 
 
 if __name__ == "__main__":
-    # CADL pipeline will call this
+    # TSP pipeline will call this
     parsed_args, unknown_args = parse_args()
     CodeGenerator(
         output_folder=parsed_args.output_folder,
-        cadl_file=parsed_args.cadl_file,
+        tsp_file=parsed_args.tsp_file,
         **unknown_args,
     ).process()

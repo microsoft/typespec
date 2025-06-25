@@ -34,12 +34,10 @@ public class FluentExceptionMapper extends ExceptionMapper {
         boolean isManagementException = compositeType.getParents() != null
             && !FluentType.nonManagementError(Utils.getJavaName(compositeType.getParents().getImmediate().get(0)));
 
-        ClientException exception
-            = new ClientException.Builder().packageName(settings.getPackage(settings.getModelsSubpackage()))
-                .name(methodOperationExceptionTypeName)
-                .errorName(errorName)
-                .parentType(isManagementException ? FluentType.MANAGEMENT_EXCEPTION : ClassType.HTTP_RESPONSE_EXCEPTION)
-                .build();
-        return exception;
+        return new ClientException.Builder().packageName(settings.getPackage(settings.getModelsSubpackage()))
+            .name(methodOperationExceptionTypeName)
+            .errorName(errorName)
+            .parentType(isManagementException ? FluentType.MANAGEMENT_EXCEPTION : ClassType.HTTP_RESPONSE_EXCEPTION)
+            .build();
     }
 }

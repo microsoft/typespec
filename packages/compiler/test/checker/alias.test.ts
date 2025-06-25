@@ -76,7 +76,7 @@ describe("compiler: aliases", () => {
     testHost.addTypeSpecFile(
       "main.tsp",
       `
-      alias Foo<T> = int32 | T;
+      alias Foo<TEST> = int32 | TEST;
       
       @test model A {
         prop: Foo<"hi">
@@ -298,7 +298,7 @@ describe("compiler: aliases", () => {
       message: `Cannot resolve 'prop' in node AliasStatement since it has no members. Did you mean to use "::" instead of "."?`,
     });
   });
-  it("trying to access member of aliased model expression shouldn't crash", async () => {
+  it("trying to access unknown member of aliased model expression shouldn't crash", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
       `
@@ -311,7 +311,7 @@ describe("compiler: aliases", () => {
     const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
       code: "invalid-ref",
-      message: `Cannot resolve 'prop' in node AliasStatement since it has no members. Did you mean to use "::" instead of "."?`,
+      message: `Model doesn't have member prop`,
     });
   });
 });

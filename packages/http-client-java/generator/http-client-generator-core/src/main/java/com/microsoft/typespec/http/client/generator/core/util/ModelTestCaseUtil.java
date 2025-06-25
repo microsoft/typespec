@@ -11,7 +11,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -98,6 +98,8 @@ public class ModelTestCaseUtil {
             return RANDOM.nextInt() & Integer.MAX_VALUE;
         } else if (type.asNullable() == ClassType.LONG) {
             return RANDOM.nextLong() & Long.MAX_VALUE;
+        } else if (type.asNullable() == ClassType.BIG_DECIMAL) {
+            return RANDOM.nextLong() & Long.MAX_VALUE;
         } else if (type.asNullable() == ClassType.FLOAT) {
             return RANDOM.nextFloat() * 100;
         } else if (type.asNullable() == ClassType.DOUBLE) {
@@ -150,10 +152,10 @@ public class ModelTestCaseUtil {
             } else if (elementType == ClassType.STRING) {
                 return value;
             }
-        } else if (type instanceof ListType) {
+        } else if (type instanceof IterableType) {
             List<Object> list = new ArrayList<>();
             if (depth <= CONFIGURATION.maxDepth) {
-                IType elementType = ((ListType) type).getElementType();
+                IType elementType = ((IterableType) type).getElementType();
                 int count = RANDOM.nextInt(CONFIGURATION.maxList - 1) + 1;
                 for (int i = 0; i < count; ++i) {
                     Object element = jsonFromType(depth + 1, elementType);
@@ -198,27 +200,28 @@ public class ModelTestCaseUtil {
         return value;
     }
 
+    @SuppressWarnings("unchecked")
     private static void addForProperty(int depth, Map<String, Object> jsonObject, ClientModelProperty property,
         boolean modelNeedsFlatten) {
         final boolean maxDepthReached = depth > CONFIGURATION.maxDepth;
-
-        Object value = null;
-        if (property.isConstant()) {
-            // TODO (weidxu): skip for now, as the property.getDefaultValue() is the code, not the raw data
-            // value = property.getDefaultValue();
-            return;
-        } else {
-            if (property.isRequired()
-                // required property must be generated
-                // optional property only be generated when still have depth remains
-                // we assume here that there is no infinitely nested required properties
-                || (!maxDepthReached && RANDOM.nextFloat() > CONFIGURATION.nullableProbability)) {
-                value = jsonFromType(depth, property.getWireType());
+        // TODO (weidxu): skip constant property for now, as the property.getDefaultValue() is the code, not the raw
+        // data
+        if (!property.isConstant() && (
+        // required property must be generated
+        property.isRequired()
+            // optional property only be generated when still have depth remains
+            // we assume here that there is no infinitely nested required properties
+            || (!maxDepthReached && RANDOM.nextFloat() > CONFIGURATION.nullableProbability))) {
+            Object value = jsonFromType(depth, property.getWireType());
+            if (property.isAdditionalProperties()) {
+                if (value != null) {
+                    ((Map<String, Object>) value).forEach(jsonObject::putIfAbsent);
+                }
+            } else {
+                addForProperty(jsonObject, property.getSerializedName(),
+                    modelNeedsFlatten || property.getNeedsFlatten(), value);
             }
         }
-
-        addForProperty(jsonObject, property.getSerializedName(), modelNeedsFlatten || property.getNeedsFlatten(),
-            value);
     }
 
     private static void addForProperty(Map<String, Object> jsonObject, String serializedName, boolean modelNeedsFlatten,

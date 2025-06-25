@@ -1,0 +1,94 @@
+jobs:
+  - job: build
+    displayName: Build Packages
+
+    variables:
+      TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
+
+    steps:
+      - template: /eng/tsp-core/pipelines/templates/install.yml
+        parameters:
+          useDotNet: true
+
+      - script: pnpm run update-telemetry-key $(vscode.telemetryKey)
+        workingDirectory: $(Build.SourcesDirectory)/packages/typespec-vscode
+        displayName: Update vscode telemetry key
+
+      - template: /eng/tsp-core/pipelines/templates/build.yml
+
+      - script: pnpm run test:ci
+        displayName: Test
+
+      - template: /eng/tsp-core/pipelines/templates/upload-coverage.yml
+
+      - script: pnpm chronus pack --exclude standalone --pack-destination $(Build.ArtifactStagingDirectory)/npm-packages-stable
+        displayName: Pack packages
+
+      - task: CopyFiles@2
+        displayName: "Copy VSCode extension .vsix to artifact directory"
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vscode"
+          Contents: "*.vsix"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/vscode-extension"
+
+      - task: CopyFiles@2
+        displayName: "Copy VS extension .vsix to artifact directory"
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vs"
+          Contents: "*.vsix"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/vs-extension"
+
+      - task: AzureCLI@1
+        displayName: "Publish bundled packages to package storage"
+        inputs:
+          azureSubscription: "Azure SDK Engineering System"
+          scriptLocation: inlineScript
+          inlineScript: node ./eng/tsp-core/scripts/upload-bundler-packages.js
+
+      # Update version for next version publish
+      - script: node ./packages/internal-build-utils/cmd/cli.js bump-version-preview .
+        displayName: Bump version to prerelease targets
+
+      - script: pnpm run gen-manifest
+        displayName: Regen manifest for compiler
+        workingDirectory: ./packages/compiler
+
+      - script: pnpm chronus pack --exclude standalone --pack-destination $(Build.ArtifactStagingDirectory)/npm-packages-next
+        displayName: Pack next packages
+
+      # Publish Next playground
+      - task: AzureCLI@1
+        displayName: "Publish playground"
+        inputs:
+          azureSubscription: "Azure SDK Engineering System"
+          scriptLocation: inlineScript
+          inlineScript: |
+            az storage blob upload-batch ^
+              --auth-mode login ^
+              --destination $web ^
+              --account-name "cadlplayground" ^
+              --destination-path / ^
+              --source "./packages/playground-website/dist/web/" ^
+              --overwrite
+
+    templateContext:
+      outputs:
+        - output: pipelineArtifact
+          path: $(Build.ArtifactStagingDirectory)/npm-packages-stable
+          artifact: npm-packages-stable
+          displayName: Publish npm stable packages(.tgz) as pipeline artifacts
+
+        - output: pipelineArtifact
+          path: $(Build.ArtifactStagingDirectory)/npm-packages-next
+          artifact: npm-packages-next
+          displayName: Publish npm next packages(.tgz) as pipeline artifacts
+
+        - output: pipelineArtifact
+          path: $(Build.ArtifactStagingDirectory)/vscode-extension
+          artifact: vscode-extension-unsigned
+          displayName: Publish VSCode extension(.vsix) as pipeline artifacts
+
+        - output: pipelineArtifact
+          path: $(Build.ArtifactStagingDirectory)/vs-extension
+          artifact: vs-extension-unsigned
+          displayName: Publish VS extension(.vsix) as pipeline artifacts

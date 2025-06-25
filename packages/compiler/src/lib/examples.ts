@@ -72,15 +72,11 @@ function resolveUnions(program: Program, value: ObjectValue, type: Type): Type |
   if (type.kind !== "Union") {
     return type;
   }
+  const exactValueType = program.checker.getValueExactType(value);
   for (const variant of type.variants.values()) {
     if (
-      variant.type.kind === "Model" &&
       ignoreDiagnostics(
-        program.checker.isTypeAssignableTo(
-          value,
-          { entityKind: "MixedParameterConstraint", valueType: variant.type },
-          value,
-        ),
+        program.checker.isTypeAssignableTo(exactValueType ?? value.type, variant.type, value),
       )
     ) {
       return variant.type;

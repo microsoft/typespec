@@ -5,9 +5,13 @@ package com.microsoft.typespec.http.client.generator.core.extension.plugin;
 
 import com.azure.json.JsonProviders;
 import com.azure.json.JsonReader;
-import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
-import com.azure.json.JsonWriter;
+import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
+import com.microsoft.typespec.http.client.generator.core.mapper.azurevnext.AzureVNextMapperFactory;
+import com.microsoft.typespec.http.client.generator.core.mapper.clientcore.ClientCoreMapperFactory;
+import com.microsoft.typespec.http.client.generator.core.template.Templates;
+import com.microsoft.typespec.http.client.generator.core.template.azurevnext.AzureVNextTemplateFactory;
+import com.microsoft.typespec.http.client.generator.core.template.clientcore.ClientCoreTemplateFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +39,7 @@ public class JavaSettings {
     private final String flavor;
     private final boolean noCustomHeaders;
     private final boolean disableTypedHeadersMethods;
+    private final boolean useRestProxy;
 
     static void setHeader(String value) {
         if ("MICROSOFT_MIT".equals(value)) {
@@ -108,66 +113,8 @@ public class JavaSettings {
                 logger.debug("List of require : {}", autorestSettings.getRequire());
             }
 
-            String fluent = getStringValue(host, "fluent");
-
             setHeader(getStringValue(host, "license-header"));
-            instance = new JavaSettings(autorestSettings,
-                host.getValueWithJsonReader("modelerfour", jsonReader -> jsonReader.readMap(JsonReader::readUntyped)),
-                getBooleanValue(host, "azure-arm", false), getBooleanValue(host, "sdk-integration", false), fluent,
-                getBooleanValue(host, "regenerate-pom", false), header, getStringValue(host, "service-name"),
-                getStringValue(host, "namespace", "com.azure.app").toLowerCase(),
-                getBooleanValue(host, "client-side-validations", false), getStringValue(host, "client-type-prefix"),
-                getBooleanValue(host, "generate-client-interfaces", false),
-                getBooleanValue(host, "generate-client-as-impl", false),
-                getStringValue(host, "implementation-subpackage", "implementation"),
-                getStringValue(host, "models-subpackage", "models"), getStringValue(host, "custom-types", ""),
-                getStringValue(host, "custom-types-subpackage", ""),
-                getStringValue(host, "fluent-subpackage", "fluent"),
-                getBooleanValue(host, "required-parameter-client-methods", false),
-                getBooleanValue(host, "generate-sync-async-clients", false),
-                getBooleanValue(host, "generate-builder-per-client", false),
-                getStringValue(host, "sync-methods", "essential"), getBooleanValue(host, "client-logger", false),
-                getBooleanValue(host, "required-fields-as-ctor-args", false),
-                getBooleanValue(host, "service-interface-as-public", true), getStringValue(host, "artifact-id", ""),
-                getStringValue(host, "credential-types", "none"), getStringValue(host, "credential-scopes"),
-                getStringValue(host, "customization-jar-path"), getStringValue(host, "customization-class"),
-                getBooleanValue(host, "optional-constant-as-enum", false), getBooleanValue(host, "data-plane", false),
-                getBooleanValue(host, "use-iterable", false),
-                host.getValueWithJsonReader("service-versions",
-                    jsonReader -> jsonReader.readArray(JsonReader::getString)),
-                getStringValue(host, "client-flattened-annotation-target", ""),
-                getStringValue(host, "key-credential-header-name", ""),
-                getBooleanValue(host, "disable-client-builder", false),
-                host.getValueWithJsonReader("polling", jsonReader -> jsonReader.readMap(PollingDetails::fromJson)),
-                getBooleanValue(host, "generate-samples", false), getBooleanValue(host, "generate-tests", false), false, // getBooleanValue(host,
-                                                                                                                         // "generate-send-request-method",
-                                                                                                                         // false),
-                getBooleanValue(host, "annotate-getters-and-setters-for-serialization", false),
-                getStringValue(host, "default-http-exception-type"),
-                getBooleanValue(host, "use-default-http-status-code-to-exception-type-mapping", false),
-                host.getValueWithJsonReader("http-status-code-to-exception-type-mapping",
-                    JavaSettings::parseStatusCodeMapping),
-                getBooleanValue(host, "partial-update", false),
-                // If fluent default to false, this is because the automated test generation ends up with invalid code.
-                // Once that is fixed, this can be switched over to true.
-                getBooleanValue(host, "generic-response-type", fluent == null),
-                getBooleanValue(host, "stream-style-serialization", true),
-                getBooleanValue(host, "enable-sync-stack", false),
-                getBooleanValue(host, "output-model-immutable", false),
-                getBooleanValue(host, "use-input-stream-for-binary", false),
-                getBooleanValue(host, "no-custom-headers", true),
-                getBooleanValue(host, "include-read-only-in-constructor-args", false),
-                // setting the default as true as the Java design guideline recommends using String for URLs.
-                getBooleanValue(host, "url-as-string", true), getBooleanValue(host, "uuid-as-string", false),
-
-                // setting this to false by default as a lot of existing libraries still use swagger and
-                // were generated with required = true set in JsonProperty annotation
-                getBooleanValue(host, "disable-required-property-annotation", false),
-                getBooleanValue(host, "enable-page-size", false), getBooleanValue(host, "use-key-credential", false),
-                getBooleanValue(host, "null-byte-array-maps-to-empty-array", false),
-                getBooleanValue(host, "graal-vm-config", false), getStringValue(host, "flavor", "Azure"),
-                getBooleanValue(host, "disable-typed-headers-methods", false),
-                getBooleanValue(host, "share-jsonserializable-code", false), getBooleanValue(host, "android", false));
+            instance = new JavaSettings(autorestSettings);
         }
         return instance;
     }
@@ -189,158 +136,107 @@ public class JavaSettings {
      * Create a new JavaSettings object with the provided properties.
      *
      * @param autorestSettings The autorest settings.
-     * @param modelerSettings The modeler settings.
-     * @param azure Whether to generate the Azure.
-     * @param sdkIntegration Whether to generate the SDK integration.
-     * @param fluent The fluent generation mode.
-     * @param regeneratePom Whether to regenerate the POM.
-     * @param fileHeaderText The file header text.
-     * @param serviceName The service name.
-     * @param packageKeyword The package keyword.
-     * @param clientSideValidations Whether to add client-side validations to the generated clients.
-     * @param clientTypePrefix The prefix that will be added to each generated client type.
-     * @param generateClientInterfaces Whether interfaces will be generated for Service and Method Group clients.
-     * @param generateClientAsImpl Whether Service and Method Group clients will be generated as implementation
-     * @param implementationSubpackage The sub-package that the Service and Method Group client implementation classes
-     * will be put into.
-     * @param modelsSubpackage The sub-package that Enums, Exceptions, and Model types will be put into.
-     * @param customTypes The custom types that will be generated.
-     * @param customTypesSubpackage The sub-package that custom types will be put into.
-     * @param fluentSubpackage The sub-package that Fluent interfaces will be put into.
-     * @param requiredParameterClientMethods Whether Service and Method Group client method overloads that omit optional
-     * parameters will be created.
-     * @param generateSyncAsyncClients Whether Service and Method Group clients will be generated with both synchronous
-     * and asynchronous methods.
-     * @param generateBuilderPerClient Whether a builder will be generated for each Service and Method Group client.
-     * @param syncMethods The sync methods generation mode.
-     * @param clientLogger Whether to add a logger to the generated clients.
-     * @param requiredFieldsAsConstructorArgs Whether required fields will be included in the constructor arguments for
-     * generated models.
-     * @param serviceInterfaceAsPublic If set to true, proxy method service interface will be marked as public.
-     * @param artifactId The artifactId for the generated project.
-     * @param credentialType The type of credential to generate.
-     * @param credentialScopes The scopes for the generated credential.
-     * @param customizationJarPath The path to the customization jar.
-     * @param customizationClass The class to use for customization.
-     * @param optionalConstantAsEnum Whether to generate optional constants as enums.
-     * @param dataPlaneClient Whether to generate a data plane client.
-     * @param useIterable Whether to use Iterable instead of List for collection types.
-     * @param serviceVersions The versions of the service.
-     * @param clientFlattenAnnotationTarget The target for the <code>@JsonFlatten</code> annotation for
-     * x-ms-client-flatten.
-     * @param keyCredentialHeaderName The header name for the key credential.
-     * @param clientBuilderDisabled Whether to disable the client builder.
-     * @param pollingConfig The polling configuration.
-     * @param generateSamples Whether to generate samples.
-     * @param generateTests Whether to generate tests.
-     * @param generateSendRequestMethod Whether to generate the send request method.
-     * @param annotateGettersAndSettersForSerialization If set to true, Jackson JsonGetter and JsonSetter will annotate
-     * getters and setters in generated models to handle serialization and deserialization. For now, fields will
-     * continue being annotated to ensure that there are no backwards compatibility breaks.
-     * @param defaultHttpExceptionType The fully-qualified class that should be used as the default exception type. This
-     * class must extend from HttpResponseException.
-     * @param useDefaultHttpStatusCodeToExceptionTypeMapping Determines whether a well-known HTTP status code to
-     * exception type mapping should be used if an HTTP status code-exception mapping isn't provided.
-     * @param httpStatusCodeToExceptionTypeMapping A mapping of HTTP response status code to the exception type that
-     * should be thrown if that status code is seen. All exception types must be fully-qualified and extend from
-     * HttpResponseException.
-     * @param handlePartialUpdate If set to true, the generated model will handle partial updates.
-     * @param genericResponseTypes If set to true, responses will only use Response, ResponseBase, PagedResponse, and
-     * PagedResponseBase types with generics instead of creating a specific named type that extends one of those types.
-     * @param streamStyleSerialization If set to true, models will handle serialization themselves using stream-style
-     * serialization instead of relying on Jackson Databind.
-     * @param isSyncStackEnabled If set to true, sync methods are generated using sync stack. i.e these methods do
-     * not use sync-over-async stack.
-     * @param outputModelImmutable If set to true, the models that are determined as output only models will be made
-     * immutable without any public constructors or setter methods.
-     * @param streamResponseInputStream If set to true, sync methods will use {@code InputStream} for binary responses.
-     * @param noCustomHeaders If set to true, methods that have custom header types will also have an equivalent
-     * method that returns just the response with untyped headers.
-     * @param includeReadOnlyInConstructorArgs If set to true, read-only required properties will be included in the
-     * constructor if {@code requiredFieldsAsConstructorArgs} is true. This is a backwards compatibility flag as
-     * previously read-only required were included in constructors.
-     * @param urlAsString This generates all URLs as String type. This is enabled by default as required by the Java
-     * design guidelines. For backward compatibility, this can be set to false.
-     * @param disableRequiredPropertyAnnotation If set to true, the required property annotation will be disabled.
-     * @param pageSizeEnabled If set to true, the generated client will have support for page size.
-     * @param useKeyCredential If set to true, the generated client will have support for key credential.
-     * @param nullByteArrayMapsToEmptyArray If set to true, {@code ArrayType.BYTE_ARRAY} will return an empty array
-     * instead of null when the default value expression is null.
-     * @param generateGraalVmConfig If set to true, the generated client will have support for GraalVM.
-     * @param flavor The brand name we use to generate SDK.
-     * @param disableTypedHeadersMethods Prevents generating REST API methods that include typed headers. If set to
-     * true, {@code noCustomHeaders} will be ignored as no REST APIs with typed headers will be generated.
-     * @param shareJsonSerializableCode Whether models implementing {@code JsonSerializable} can attempt to share code
-     * for {@code toJson} and {@code fromJson}.
-     * @param android Whether to generate the Android client.
      */
-    private JavaSettings(AutorestSettings autorestSettings, Map<String, Object> modelerSettings, boolean azure,
-        boolean sdkIntegration, String fluent, boolean regeneratePom, String fileHeaderText, String serviceName,
-        String packageKeyword, boolean clientSideValidations, String clientTypePrefix, boolean generateClientInterfaces,
-        boolean generateClientAsImpl, String implementationSubpackage, String modelsSubpackage, String customTypes,
-        String customTypesSubpackage, String fluentSubpackage, boolean requiredParameterClientMethods,
-        boolean generateSyncAsyncClients, boolean generateBuilderPerClient, String syncMethods, boolean clientLogger,
-        boolean requiredFieldsAsConstructorArgs, boolean serviceInterfaceAsPublic, String artifactId,
-        String credentialType, String credentialScopes, String customizationJarPath, String customizationClass,
-        boolean optionalConstantAsEnum, boolean dataPlaneClient, boolean useIterable, List<String> serviceVersions,
-        String clientFlattenAnnotationTarget, String keyCredentialHeaderName, boolean clientBuilderDisabled,
-        Map<String, PollingDetails> pollingConfig, boolean generateSamples, boolean generateTests,
-        boolean generateSendRequestMethod, boolean annotateGettersAndSettersForSerialization,
-        String defaultHttpExceptionType, boolean useDefaultHttpStatusCodeToExceptionTypeMapping,
-        Map<Integer, String> httpStatusCodeToExceptionTypeMapping, boolean handlePartialUpdate,
-        boolean genericResponseTypes, boolean streamStyleSerialization, boolean isSyncStackEnabled,
-        boolean outputModelImmutable, boolean streamResponseInputStream, boolean noCustomHeaders,
-        boolean includeReadOnlyInConstructorArgs, boolean urlAsString, boolean uuidAsString,
-        boolean disableRequiredPropertyAnnotation, boolean pageSizeEnabled, boolean useKeyCredential,
-        boolean nullByteArrayMapsToEmptyArray, boolean generateGraalVmConfig, String flavor,
-        boolean disableTypedHeadersMethods, boolean shareJsonSerializableCode, boolean android) {
-
+    private JavaSettings(AutorestSettings autorestSettings) {
         this.autorestSettings = autorestSettings;
-        this.modelerSettings = new ModelerSettings(modelerSettings);
-        this.azure = azure;
-        this.sdkIntegration = sdkIntegration;
-        this.fluent = fluent == null
+
+        // The modeler settings.
+        this.modelerSettings = new ModelerSettings(
+            host.getValueWithJsonReader("modelerfour", jsonReader -> jsonReader.readMap(JsonReader::readUntyped)));
+
+        // Whether to generate the SDK integration.
+        this.sdkIntegration = getBooleanValue(host, "sdk-integration", false);
+
+        // The fluent generation mode.
+        String fluentString = getStringValue(host, "fluent");
+        this.fluent = fluentString == null
             ? Fluent.NONE
-            : (fluent.isEmpty() || fluent.equalsIgnoreCase("true")
+            : (fluentString.isEmpty() || fluentString.equalsIgnoreCase("true")
                 ? Fluent.PREMIUM
-                : Fluent.valueOf(fluent.toUpperCase(Locale.ROOT)));
-        this.regeneratePom = regeneratePom;
-        this.fileHeaderText = fileHeaderText;
-        this.serviceName = serviceName;
-        this.packageName = packageKeyword;
-        this.clientSideValidations = clientSideValidations;
-        this.clientTypePrefix = clientTypePrefix;
-        this.generateClientInterfaces = generateClientInterfaces;
-        this.generateClientAsImpl = generateClientAsImpl || generateSyncAsyncClients || generateClientInterfaces;
-        this.implementationSubpackage = implementationSubpackage;
-        this.modelsSubpackage = modelsSubpackage;
+                : Fluent.valueOf(fluentString.toUpperCase(Locale.ROOT)));
+
+        // Whether to regenerate the POM.
+        this.regeneratePom = getBooleanValue(host, "regenerate-pom", false);
+
+        // The file header text.
+        this.fileHeaderText = header;
+
+        // The service name.
+        this.serviceName = getStringValue(host, "service-name");
+
+        // The package keyword.
+        this.packageName = getStringValue(host, "namespace", "com.azure.app").toLowerCase();
+
+        // Whether to add client-side validations to the generated clients.
+        this.clientSideValidations = getBooleanValue(host, "client-side-validations", false);
+
+        // The prefix that will be added to each generated client type.
+        this.clientTypePrefix = getStringValue(host, "client-type-prefix");
+
+        // Whether interfaces will be generated for Service and Method Group clients.
+        this.generateClientInterfaces = getBooleanValue(host, "generate-client-interfaces", false);
+
+        // The sub-package that the Service and Method Group client implementation classes will be put into.
+        this.implementationSubpackage = getStringValue(host, "implementation-subpackage", "implementation");
+
+        // The brand name we use to generate SDK.
+        this.flavor = getStringValue(host, "flavor", "azure");
+
+        updateFlavorFactories();
+
+        this.modelsSubpackage = getStringValue(host, "models-subpackage", isAzureV1() || isAzureV2() ? "models" : "");
+
+        // The custom types that will be generated.
+        String customTypes = getStringValue(host, "custom-types", "");
         this.customTypes = (customTypes == null || customTypes.isEmpty())
             ? new ArrayList<>()
             : Arrays.asList(customTypes.split(","));
-        this.customTypesSubpackage = customTypesSubpackage;
-        this.fluentSubpackage = fluentSubpackage;
-        this.requiredParameterClientMethods = requiredParameterClientMethods;
-        this.generateSyncAsyncClients = generateSyncAsyncClients;
-        this.generateBuilderPerClient = generateBuilderPerClient;
-        this.syncMethods = SyncMethodsGeneration.fromValue(syncMethods);
-        this.clientLogger = clientLogger;
-        this.requiredFieldsAsConstructorArgs = requiredFieldsAsConstructorArgs;
-        this.serviceInterfaceAsPublic = serviceInterfaceAsPublic;
-        this.artifactId = artifactId;
-        this.optionalConstantAsEnum = optionalConstantAsEnum;
-        this.dataPlaneClient = dataPlaneClient;
-        this.useIterable = useIterable;
-        this.serviceVersions = serviceVersions;
-        this.clientFlattenAnnotationTarget
-            = (clientFlattenAnnotationTarget == null || clientFlattenAnnotationTarget.isEmpty())
-                ? ClientFlattenAnnotationTarget.TYPE
-                : ClientFlattenAnnotationTarget.valueOf(clientFlattenAnnotationTarget.toUpperCase(Locale.ROOT));
 
+        // The sub-package that custom types will be put into.
+        this.customTypesSubpackage = getStringValue(host, "custom-types-subpackage", "");
+
+        // The sub-package that Fluent interfaces will be put into.
+        this.fluentSubpackage = getStringValue(host, "fluent-subpackage", "fluent");
+
+        // Whether Service and Method Group client method overloads that omit optional parameters will be created.
+        this.requiredParameterClientMethods = getBooleanValue(host, "required-parameter-client-methods", false);
+
+        // Whether Service and Method Group clients will be generated with both synchronous and asynchronous methods.
+        this.generateSyncAsyncClients = getBooleanValue(host, "generate-sync-async-clients", false);
+
+        // Whether Service and Method Group clients will be generated as implementation
+        this.generateClientAsImpl = getBooleanValue(host, "generate-client-as-impl", false)
+            || this.generateSyncAsyncClients
+            || this.generateClientInterfaces;
+
+        // Whether a builder will be generated for each Service and Method Group client.
+        this.generateBuilderPerClient = getBooleanValue(host, "generate-builder-per-client", false);
+
+        // The sync methods generation mode.
+        this.syncMethods = SyncMethodsGeneration.fromValue(getStringValue(host, "sync-methods", "essential"));
+
+        // Whether to add a logger to the generated clients.
+        this.clientLogger = getBooleanValue(host, "client-logger", true);
+
+        // Whether required fields will be included in the constructor arguments for generated models.
+        this.requiredFieldsAsConstructorArgs = getBooleanValue(host, "required-fields-as-ctor-args", false);
+
+        // If set to true, proxy method service interface will be marked as public.
+        this.serviceInterfaceAsPublic = getBooleanValue(host, "service-interface-as-public", true);
+
+        // The artifactId for the generated project.
+        this.artifactId = getStringValue(host, "artifact-id", "");
+
+        // The types of credentials to generate.
+        String credentialType = getStringValue(host, "credential-types", "none");
         if (credentialType != null) {
             String[] splits = credentialType.split(",");
             this.credentialTypes
                 = Arrays.stream(splits).map(String::trim).map(CredentialType::fromValue).collect(Collectors.toSet());
         }
+
+        // The scopes for the generated credential.
+        String credentialScopes = getStringValue(host, "credential-scopes");
         if (credentialScopes != null) {
             String[] splits = credentialScopes.split(",");
             this.credentialScopes = Arrays.stream(splits).map(String::trim).map(split -> {
@@ -350,58 +246,182 @@ public class JavaSettings {
                 return split;
             }).collect(Collectors.toSet());
         }
-        this.customizationJarPath = customizationJarPath;
-        this.customizationClass = customizationClass;
-        this.keyCredentialHeaderName = keyCredentialHeaderName;
-        this.clientBuilderDisabled = clientBuilderDisabled;
-        if (pollingConfig != null) {
-            if (!pollingConfig.containsKey("default")) {
-                pollingConfig.put("default", new PollingDetails());
-            }
+
+        // The path to the customization jar.
+        this.customizationJarPath = getStringValue(host, "customization-jar-path");
+
+        // The class to use for customization.
+        this.customizationClass = getStringValue(host, "customization-class");
+
+        // Whether to generate optional constants as enums.
+        this.optionalConstantAsEnum = getBooleanValue(host, "optional-constant-as-enum", false);
+
+        // Whether to generate a data plane client.
+        this.dataPlaneClient = getBooleanValue(host, "data-plane", false);
+
+        // Whether to use Iterable instead of List for collection types.
+        this.useIterable = getBooleanValue(host, "use-iterable", false);
+
+        // The versions of the service.
+        this.serviceVersions
+            = host.getValueWithJsonReader("service-versions", reader -> reader.readArray(JsonReader::getString));
+
+        // The target for the <code>@JsonFlatten</code> annotation for x-ms-client-flatten.
+        String clientFlattenAnnotationTarget = getStringValue(host, "client-flattened-annotation-target", "");
+        this.clientFlattenAnnotationTarget
+            = (clientFlattenAnnotationTarget == null || clientFlattenAnnotationTarget.isEmpty())
+                ? ClientFlattenAnnotationTarget.TYPE
+                : ClientFlattenAnnotationTarget.valueOf(clientFlattenAnnotationTarget.toUpperCase(Locale.ROOT));
+
+        // The header name for the key credential.
+        this.keyCredentialHeaderName = getStringValue(host, "key-credential-header-name", "");
+
+        // Whether to disable the client builder.
+        this.clientBuilderDisabled = getBooleanValue(host, "disable-client-builder", false);
+
+        // The polling configuration.
+        final Map<String, PollingSettings> operationPollingMapping
+            = host.getValueWithJsonReader("polling", reader -> reader.readMap(PollingSettings::fromJson));
+        if (operationPollingMapping != null && !operationPollingMapping.containsKey("default")) {
+            operationPollingMapping.put("default", new PollingSettings());
         }
-        this.pollingConfig = pollingConfig;
-        this.generateSamples = generateSamples;
-        this.generateTests = generateTests;
-        this.generateSendRequestMethod = generateSendRequestMethod;
-        this.annotateGettersAndSettersForSerialization = annotateGettersAndSettersForSerialization;
+        this.operationPollingMapping = operationPollingMapping;
+
+        // Whether to generate samples.
+        this.generateSamples = getBooleanValue(host, "generate-samples", false);
+
+        // Whether to generate tests.
+        this.generateTests = getBooleanValue(host, "generate-tests", false);
+
+        this.useRestProxy = getBooleanValue(host, "use-rest-proxy", false);
+
+        // Whether to generate the send request method.
+        this.generateSendRequestMethod = false;
+
+        // If set to true, Jackson JsonGetter and JsonSetter will annotate getters and setters in generated models to
+        // handle serialization and deserialization. For now, fields will continue being annotated to ensure that there
+        // are no backwards compatibility breaks.
+        this.annotateGettersAndSettersForSerialization
+            = getBooleanValue(host, "annotate-getters-and-setters-for-serialization", false);
 
         // Error HTTP status code exception type handling.
-        this.defaultHttpExceptionType = defaultHttpExceptionType;
-        this.useDefaultHttpStatusCodeToExceptionTypeMapping = useDefaultHttpStatusCodeToExceptionTypeMapping;
-        this.httpStatusCodeToExceptionTypeMapping = httpStatusCodeToExceptionTypeMapping;
+        // The fully-qualified class that should be used as the default exception type. This class must extend from
+        // HttpResponseException
+        this.defaultHttpExceptionType = getStringValue(host, "default-http-exception-type");
 
-        this.handlePartialUpdate = handlePartialUpdate;
+        // Whether to use the default HTTP status code to exception type mapping.
+        this.useDefaultHttpStatusCodeToExceptionTypeMapping
+            = getBooleanValue(host, "use-default-http-status-code-to-exception-type-mapping", false);
 
-        this.genericResponseTypes = genericResponseTypes;
+        // A mapping of HTTP response status code to the exception type that should be thrown if that status code is
+        // seen. All exception types must be fully-qualified and extend from HttpResponseException.
+        this.httpStatusCodeToExceptionTypeMapping = host
+            .getValueWithJsonReader("http-status-code-to-exception-type-mapping", JavaSettings::parseStatusCodeMapping);
 
-        this.streamStyleSerialization = streamStyleSerialization;
-        this.syncStackEnabled = isSyncStackEnabled;
+        // Whether to handle partial updates.
+        this.handlePartialUpdate = getBooleanValue(host, "partial-update", false);
 
-        this.outputModelImmutable = outputModelImmutable;
+        // If set to true, responses will only use Response, ResponseBase, PagedResponse, and PagedResponseBase types
+        // with generics instead of creating a specific named type that extends one of those types.
+        // If fluent default to false, this is because the automated test generation ends up with invalid code.
+        // Once that is fixed, this can be switched over to true.
+        this.genericResponseTypes = getBooleanValue(host, "generic-response-type", fluentString == null);
 
-        this.isInputStreamForBinary = streamResponseInputStream;
-        this.noCustomHeaders = noCustomHeaders;
-        this.includeReadOnlyInConstructorArgs = includeReadOnlyInConstructorArgs;
-        this.urlAsString = urlAsString;
-        this.uuidAsString = uuidAsString;
-        this.disableRequiredJsonAnnotation = disableRequiredPropertyAnnotation;
-        this.pageSizeEnabled = pageSizeEnabled;
-        this.useKeyCredential = useKeyCredential;
-        this.nullByteArrayMapsToEmptyArray = nullByteArrayMapsToEmptyArray;
-        this.generateGraalVmConfig = generateGraalVmConfig;
-        this.flavor = flavor;
-        this.disableTypedHeadersMethods = disableTypedHeadersMethods;
-        this.shareJsonSerializableCode = shareJsonSerializableCode;
-        this.android = android;
+        // If set to true, models will handle serialization themselves using stream-style serialization instead of
+        // relying on Jackson Databind.
+        this.streamStyleSerialization = getBooleanValue(host, "stream-style-serialization", true);
+
+        // If set to true, sync methods are generated using sync stack. i.e these methods do not use sync-over-async
+        // stack.
+        this.syncStackEnabled = getBooleanValue(host, "enable-sync-stack", false);
+
+        // If set to true, the models that are determined as output only models will be made immutable without any
+        // public constructors or setter methods.
+        this.outputModelImmutable = getBooleanValue(host, "output-model-immutable", false);
+
+        // Whether to use InputStream for binary responses.
+        this.isInputStreamForBinary = getBooleanValue(host, "use-input-stream-for-binary", false);
+
+        // If set to true, methods that have custom header types will also have an equivalent method that returns just
+        // the response with untyped headers.
+        this.noCustomHeaders = getBooleanValue(host, "no-custom-headers", true);
+
+        // If set to true, read-only required properties will be included in the constructor if
+        // {@code requiredFieldsAsConstructorArgs} is true. This is a backwards compatibility flag as previously
+        // read-only required were included in constructors.
+        this.includeReadOnlyInConstructorArgs = getBooleanValue(host, "include-read-only-in-constructor-args", false);
+
+        // This generates all URLs as String type. This is enabled by default as required by the Java design guidelines.
+        // For backward compatibility, this can be set to false.
+        // setting the default as true as the Java design guideline recommends using String for URLs.
+        this.urlAsString = getBooleanValue(host, "url-as-string", true);
+
+        // Generate UUID as string.
+        this.uuidAsString = getBooleanValue(host, "uuid-as-string", false);
+
+        // If set to true, the required property annotation will be disabled.
+        // setting this to false by default as a lot of existing libraries still use swagger and were generated with
+        // required = true set in JsonProperty annotation
+        this.disableRequiredJsonAnnotation = getBooleanValue(host, "disable-required-property-annotation", false);
+
+        // If set to true, the generated client will have support for page size.
+        this.pageSizeEnabled = getBooleanValue(host, "enable-page-size", false);
+
+        // If set to true, the generated client will have support for key credential.
+        this.useKeyCredential = getBooleanValue(host, "use-key-credential", false);
+
+        // If set to true, {@code ArrayType.BYTE_ARRAY} will return an empty array instead of null when the default
+        // value expression is null.
+        this.nullByteArrayMapsToEmptyArray = getBooleanValue(host, "null-byte-array-maps-to-empty-array", false);
+
+        // If set to true, the generated client will have support for GraalVM.
+        this.generateGraalVmConfig = getBooleanValue(host, "graal-vm-config", false);
+
+        // Prevents generating REST API methods that include typed headers. If set to true, {@code noCustomHeaders}
+        // will be ignored as no REST APIs with typed headers will be generated.
+        this.disableTypedHeadersMethods = getBooleanValue(host, "disable-typed-headers-methods", false);
+
+        // Whether models implementing {@code JsonSerializable} can attempt to share code for toJson and fromJson.
+        this.shareJsonSerializableCode = getBooleanValue(host, "share-jsonserializable-code", false);
+
+        // Whether to use object for unknown.
+        this.useObjectForUnknown = getBooleanValue(host, "use-object-for-unknown", false);
+    }
+
+    private void updateFlavorFactories() {
+        if (isAzureV2()) {
+            Mappers.setFactory(new AzureVNextMapperFactory());
+            Templates.setFactory(new AzureVNextTemplateFactory());
+        } else if (!isAzureV1()) {
+            Mappers.setFactory(new ClientCoreMapperFactory());
+            Templates.setFactory(new ClientCoreTemplateFactory());
+        }
     }
 
     /**
-     * Whether to generate with Azure branding.
+     * Whether to generate with Azure V1.
      *
-     * @return Whether to generate with Azure branding.
+     * @return Whether to generate with Azure V1.
      */
-    public boolean isBranded() {
-        return "azure".equalsIgnoreCase(this.flavor);
+    public boolean isAzureV1() {
+        return "azure".equalsIgnoreCase(flavor);
+    }
+
+    /**
+     * Whether to generate with Azure V2.
+     *
+     * @return Whether to generate with Azure V2.
+     */
+    public boolean isAzureV2() {
+        return "azurev2".equalsIgnoreCase(this.flavor);
+    }
+
+    public boolean isUnbranded() {
+        return !isAzureV1() && !isAzureV2();
+    }
+
+    public boolean useRestProxy() {
+        return this.useRestProxy;
     }
 
     private final String keyCredentialHeaderName;
@@ -435,17 +455,6 @@ public class JavaSettings {
      */
     public Set<String> getCredentialScopes() {
         return credentialScopes;
-    }
-
-    private final boolean azure;
-
-    /**
-     * Whether to generate the Azure.
-     *
-     * @return Whether to generate the Azure.
-     */
-    public final boolean isAzure() {
-        return azure;
     }
 
     private final String artifactId;
@@ -569,15 +578,6 @@ public class JavaSettings {
      */
     public final boolean isFluentPremium() {
         return fluent == Fluent.PREMIUM;
-    }
-
-    /**
-     * Whether to generate the Azure or Fluent.
-     *
-     * @return Whether to generate the Azure or Fluent.
-     */
-    public final boolean isAzureOrFluent() {
-        return isAzure() || isFluent();
     }
 
     // configure for model flatten in client
@@ -753,6 +753,17 @@ public class JavaSettings {
      * @return The package name with the provided package suffixes appended.
      */
     public final String getPackage(String... packageSuffixes) {
+        return getPackageName(packageName, packageSuffixes);
+    }
+
+    /**
+     * Get the package name with the provided package suffixes appended.
+     *
+     * @param packageName the package name.
+     * @param packageSuffixes The package suffixes to append to the package name.
+     * @return The package name with the provided package suffixes appended.
+     */
+    public final String getPackageName(String packageName, String... packageSuffixes) {
         StringBuilder packageBuilder = new StringBuilder(packageName);
         if (packageSuffixes != null) {
             for (String packageSuffix : packageSuffixes) {
@@ -1150,6 +1161,15 @@ public class JavaSettings {
         return dataPlaneClient;
     }
 
+    /**
+     * Whether the client is vanilla client.
+     *
+     * @return Whether the client is a vanilla client.
+     */
+    public boolean isVanilla() {
+        return isAzureV1() && !isDataPlaneClient() && !isFluent();
+    }
+
     private final boolean useIterable;
 
     /**
@@ -1268,153 +1288,25 @@ public class JavaSettings {
         return generateGraalVmConfig;
     }
 
-    /**
-     * Represents the details of polling for a long-running operation.
-     */
-    public static class PollingDetails implements JsonSerializable<PollingDetails> {
-        private String strategy;
-        private String syncStrategy;
-        private String intermediateType;
-        private String finalType;
-        private String pollInterval;
-
-        /**
-         * Creates a new PollingDetails object.
-         */
-        public PollingDetails() {
-        }
-
-        /**
-         * The default polling strategy format.
-         */
-        public static final String DEFAULT_POLLING_STRATEGY_FORMAT
-            = String.join("\n", "new %s<>(new PollingStrategyOptions({httpPipeline})", "    .setEndpoint({endpoint})",
-                "    .setContext({context})", "    .setServiceVersion({serviceVersion}))");
-
-        private static final String DEFAULT_POLLING_CODE
-            = String.format(DEFAULT_POLLING_STRATEGY_FORMAT, "DefaultPollingStrategy");
-
-        private static final String DEFAULT_SYNC_POLLING_CODE
-            = String.format(DEFAULT_POLLING_STRATEGY_FORMAT, "SyncDefaultPollingStrategy");
-
-        /**
-         * Gets the strategy for polling.
-         *
-         * @return The strategy for polling.
-         */
-        public String getStrategy() {
-            if (strategy == null || "default".equalsIgnoreCase(strategy)) {
-                return DEFAULT_POLLING_CODE;
-            } else {
-                return strategy;
-            }
-        }
-
-        /**
-         * Gets the sync strategy for polling.
-         *
-         * @return The sync strategy for polling.
-         */
-        public String getSyncStrategy() {
-            if (syncStrategy == null || "default".equalsIgnoreCase(syncStrategy)) {
-                return DEFAULT_SYNC_POLLING_CODE;
-            } else {
-                return syncStrategy;
-            }
-        }
-
-        /**
-         * Gets the intermediate type for polling.
-         *
-         * @return The intermediate type for polling.
-         */
-        public String getIntermediateType() {
-            return intermediateType;
-        }
-
-        /**
-         * Gets the final type for polling.
-         *
-         * @return The final type for polling.
-         */
-        public String getFinalType() {
-            return finalType;
-        }
-
-        /**
-         * Gets the polling interval in seconds.
-         *
-         * @return The polling interval in seconds.
-         */
-        public int getPollIntervalInSeconds() {
-            return pollInterval != null ? Integer.parseInt(pollInterval) : 1;
-        }
-
-        @Override
-        public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-            return jsonWriter.writeStartObject()
-                .writeStringField("strategy", strategy)
-                .writeStringField("sync-strategy", syncStrategy)
-                .writeStringField("intermediate-type", intermediateType)
-                .writeStringField("final-type", finalType)
-                .writeStringField("poll-interval", pollInterval)
-                .writeEndObject();
-        }
-
-        /**
-         * Deserializes a PollingDetails instance from the JSON data.
-         *
-         * @param jsonReader The JSON reader to deserialize from.
-         * @return A PollingDetails instance deserialized from the JSON data.
-         * @throws IOException If an error occurs during deserialization.
-         */
-        public static PollingDetails fromJson(JsonReader jsonReader) throws IOException {
-            return jsonReader.readObject(reader -> {
-                PollingDetails pollingDetails = new PollingDetails();
-
-                while (reader.nextToken() != JsonToken.END_OBJECT) {
-                    String fieldName = reader.getFieldName();
-                    reader.nextToken();
-
-                    if ("strategy".equals(fieldName)) {
-                        pollingDetails.strategy = reader.getString();
-                    } else if ("sync-strategy".equals(fieldName)) {
-                        pollingDetails.syncStrategy = reader.getString();
-                    } else if ("intermediate-type".equals(fieldName)) {
-                        pollingDetails.intermediateType = reader.getString();
-                    } else if ("final-type".equals(fieldName)) {
-                        pollingDetails.finalType = reader.getString();
-                    } else if ("poll-interval".equals(fieldName)) {
-                        pollingDetails.pollInterval = reader.getString();
-                    } else {
-                        reader.skipChildren();
-                    }
-                }
-
-                return pollingDetails;
-            });
-        }
-    }
-
-    private final Map<String, PollingDetails> pollingConfig;
+    private final Map<String, PollingSettings> operationPollingMapping;
 
     /**
      * Gets the polling configuration for the specified operation.
      *
-     * @param operation The operation name.
+     * @param operationId The operation id.
      * @return The polling configuration for the specified operation, or the default polling configuration if no
      * configuration is specified for the operation.
      */
-    public PollingDetails getPollingConfig(String operation) {
-        if (pollingConfig == null) {
+    public PollingSettings getPollingSettings(String operationId) {
+        if (operationPollingMapping == null) {
             return null;
         }
-        for (String key : pollingConfig.keySet()) {
-            if (key.equalsIgnoreCase(operation)) {
-                return pollingConfig.get(key);
+        for (String key : operationPollingMapping.keySet()) {
+            if (key.equalsIgnoreCase(operationId)) {
+                return operationPollingMapping.get(key);
             }
         }
-        return pollingConfig.get("default");
+        return operationPollingMapping.get("default");
     }
 
     private final boolean annotateGettersAndSettersForSerialization;
@@ -1607,15 +1499,10 @@ public class JavaSettings {
         return shareJsonSerializableCode;
     }
 
-    private final boolean android;
+    private final boolean useObjectForUnknown;
 
-    /**
-     * Whether to generate code for Android.
-     *
-     * @return Whether to generate code for Android.
-     */
-    public boolean isAndroid() {
-        return android;
+    public boolean isUseObjectForUnknown() {
+        return useObjectForUnknown;
     }
 
     private static final String DEFAULT_CODE_GENERATION_HEADER

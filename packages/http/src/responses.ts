@@ -14,11 +14,12 @@ import {
   Program,
   Type,
 } from "@typespec/compiler";
+import { $ } from "@typespec/compiler/typekit";
 import { getStatusCodeDescription, getStatusCodesWithDiagnostics } from "./decorators.js";
 import { HttpProperty } from "./http-property.js";
 import { HttpStateKeys, reportDiagnostic } from "./lib.js";
 import { Visibility } from "./metadata.js";
-import { resolveHttpPayload } from "./payload.js";
+import { HttpPayloadDisposition, resolveHttpPayload } from "./payload.js";
 import { HttpOperationResponse, HttpStatusCodes, HttpStatusCodesEntry } from "./types.js";
 
 /**
@@ -31,7 +32,8 @@ export function getResponsesForOperation(
   const diagnostics = createDiagnosticCollector();
   const responseType = operation.returnType;
   const responses = new ResponseIndex();
-  if (responseType.kind === "Union") {
+  const tk = $(program);
+  if (tk.union.is(responseType) && !tk.union.getDiscriminatedUnion(responseType)) {
     for (const option of responseType.variants.values()) {
       if (isNullType(option.type)) {
         // TODO how should we treat this? https://github.com/microsoft/typespec/issues/356
@@ -82,7 +84,7 @@ function processResponseType(
 ) {
   // Get body
   let { body: resolvedBody, metadata } = diagnostics.pipe(
-    resolveHttpPayload(program, responseType, Visibility.Read, "response"),
+    resolveHttpPayload(program, responseType, Visibility.Read, HttpPayloadDisposition.Response),
   );
   // Get explicity defined status codes
   const statusCodes: HttpStatusCodes = diagnostics.pipe(
@@ -112,7 +114,6 @@ function processResponseType(
     // the first model for this statusCode/content type pair carries the
     // description for the endpoint. This could probably be improved.
     const response: HttpOperationResponse = responses.get(statusCode) ?? {
-      statusCode: typeof statusCode === "object" ? "*" : (String(statusCode) as any),
       statusCodes: statusCode,
       type: responseType,
       description: getResponseDescription(program, operation, responseType, statusCode, metadata),

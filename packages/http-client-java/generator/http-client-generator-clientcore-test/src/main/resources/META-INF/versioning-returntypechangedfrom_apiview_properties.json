@@ -1,0 +1,7 @@
+{
+  "flavor": "generic", 
+  "CrossLanguageDefinitionId": {
+    "versioning.returntypechangedfrom.ReturnTypeChangedFromClient": "Versioning.ReturnTypeChangedFrom",
+    "versioning.returntypechangedfrom.ReturnTypeChangedFromClientBuilder": "Versioning.ReturnTypeChangedFrom"
+  }
+}

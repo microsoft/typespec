@@ -1,11 +1,8 @@
-import commonjs from "@rollup/plugin-commonjs";
-import json from "@rollup/plugin-json";
-import nodeResolve from "@rollup/plugin-node-resolve";
-import virtual from "@rollup/plugin-virtual";
 import { compile, joinPaths, NodeHost, normalizePath, resolvePath } from "@typespec/compiler";
+import { BuildOptions, BuildResult, context, Plugin } from "esbuild";
+import { nodeModulesPolyfillPlugin } from "esbuild-plugins-node-modules-polyfill";
 import { mkdir, readFile, realpath, writeFile } from "fs/promises";
 import { basename, join, resolve } from "path";
-import { OutputChunk, rollup, RollupBuild, RollupOptions, watch } from "rollup";
 import { relativeTo } from "./utils.js";
 
 export interface BundleManifest {
@@ -22,7 +19,8 @@ export interface TypeSpecBundleDefinition {
 }
 
 export interface ExportData {
-  default: string;
+  default?: string;
+  import?: string;
   types?: string;
 }
 
@@ -61,13 +59,12 @@ interface PackageJson {
 
 export async function createTypeSpecBundle(libraryPath: string): Promise<TypeSpecBundle> {
   const definition = await resolveTypeSpecBundleDefinition(libraryPath);
-  const rollupOptions = await createRollupConfig(definition);
-  const bundle = await rollup(rollupOptions);
-
+  const context = await createEsBuildContext(definition);
   try {
-    return generateTypeSpecBundle(definition, bundle);
+    const result = await context.rebuild();
+    return resolveTypeSpecBundle(definition, result);
   } finally {
-    await bundle.close();
+    await context.dispose();
   }
 }
 
@@ -76,32 +73,18 @@ export async function watchTypeSpecBundle(
   onBundle: (bundle: TypeSpecBundle) => void,
 ) {
   const definition = await resolveTypeSpecBundleDefinition(libraryPath);
-  const rollupOptions = await createRollupConfig(definition);
-  const watcher = watch({
-    ...rollupOptions,
-    watch: {
-      skipWrite: true,
+  const context = await createEsBuildContext(definition, [
+    {
+      name: "example",
+      setup(build) {
+        build.onEnd((result) => {
+          const bundle = resolveTypeSpecBundle(definition, result);
+          onBundle(bundle);
+        });
+      },
     },
-  });
-
-  watcher.on("event", async (event) => {
-    switch (event.code) {
-      case "BUNDLE_START":
-        break;
-      case "BUNDLE_END":
-        try {
-          const typespecBundle = await generateTypeSpecBundle(definition, event.result);
-          onBundle(typespecBundle);
-        } finally {
-          await event.result.close();
-        }
-        break;
-      case "ERROR":
-        // eslint-disable-next-line no-console
-        console.error("Error bundling", event.error);
-        await event.result?.close();
-    }
-  });
+  ]);
+  await context.watch();
 }
 
 export async function bundleTypeSpecLibrary(libraryPath: string, outputDir: string) {
@@ -122,7 +105,9 @@ async function resolveTypeSpecBundleDefinition(
 
   const exports = pkg.exports
     ? Object.fromEntries(
-        Object.entries(pkg.exports).filter(([k, v]) => k !== "." && k !== "./testing"),
+        Object.entries(pkg.exports).filter(
+          ([k, v]) => k !== "." && k !== "./testing" && k !== "./internals",
+        ),
       )
     : {};
 
@@ -134,7 +119,7 @@ async function resolveTypeSpecBundleDefinition(
   };
 }
 
-async function createRollupConfig(definition: TypeSpecBundleDefinition): Promise<RollupOptions> {
+async function createEsBuildContext(definition: TypeSpecBundleDefinition, plugins: Plugin[] = []) {
   const libraryPath = definition.path;
   const program = await compile(NodeHost, libraryPath, {
     noEmit: true,
@@ -152,6 +137,7 @@ async function createRollupConfig(definition: TypeSpecBundleDefinition): Promise
   for (const [filename, sourceFile] of program.sourceFiles) {
     typespecFiles[filename] = sourceFile.file.text;
   }
+
   const content = createBundleEntrypoint({
     libraryPath,
     mainFile: definition.main,
@@ -167,63 +153,78 @@ async function createRollupConfig(definition: TypeSpecBundleDefinition): Promise
       ];
     }),
   );
-  return {
-    input: {
-      index: "entry.js",
-      ...extraEntry,
-    },
-    output: {
-      esModule: true,
-    },
-    plugins: [
-      (virtual as any)({
-        "entry.js": content,
-      }),
-      (commonjs as any)(),
-      (json as any)(),
-      (nodeResolve as any)({ preferBuiltins: true, browser: true }),
-    ],
-    external: (id) => {
-      return (
-        definition.packageJson.peerDependencies &&
-        !!Object.keys(definition.packageJson.peerDependencies).find((x) => id.startsWith(x))
-      );
-    },
-    onwarn: (warning, warn) => {
-      if (warning.code === "THIS_IS_UNDEFINED" || warning.code === "CIRCULAR_DEPENDENCY") {
-        return;
-      }
-      warn(warning);
+
+  const virtualPlugin: Plugin = {
+    name: "virtual",
+    setup(build) {
+      build.onResolve({ filter: /^virtual:/ }, (args) => {
+        return {
+          path: args.path,
+          namespace: "virtual",
+        };
+      });
+      build.onResolve({ filter: /.*/ }, (args) => {
+        if (
+          definition.packageJson.peerDependencies &&
+          Object.keys(definition.packageJson.peerDependencies).some((x) => args.path.startsWith(x))
+        ) {
+          return { path: args.path, external: true };
+        }
+        return null;
+      });
+
+      build.onLoad({ filter: /^virtual:/, namespace: "virtual" }, async (args) => {
+        return {
+          contents: content,
+          resolveDir: libraryPath,
+        };
+      });
     },
   };
+  return await context({
+    write: false,
+    entryPoints: {
+      index: "virtual:entry.js",
+      ...extraEntry,
+    },
+    bundle: true,
+    splitting: true,
+    outdir: "out",
+    platform: "browser",
+    format: "esm",
+    target: "es2024",
+    plugins: [virtualPlugin, nodeModulesPolyfillPlugin({}), ...plugins],
+  });
 }
 
-async function generateTypeSpecBundle(
+function resolveTypeSpecBundle(
   definition: TypeSpecBundleDefinition,
-  bundle: RollupBuild,
-): Promise<TypeSpecBundle> {
-  const { output } = await bundle.generate({
-    dir: "virtual",
-  });
-
+  result: BuildResult<BuildOptions>,
+): TypeSpecBundle {
   return {
     definition,
     manifest: createManifest(definition),
-    files: output
-      .filter((x): x is OutputChunk => "code" in x)
-      .map((chunk) => {
-        const entry = definition.exports[basename(chunk.fileName)];
-        return {
-          filename: chunk.fileName,
-          content: chunk.code,
-          export: entry ? getExportEntryPoint(entry) : undefined,
-        };
-      }),
+    files: result.outputFiles!.map((file) => {
+      const entry = definition.exports[basename(file.path)];
+      return {
+        filename: file.path.replaceAll("\\", "/").split("/out/")[1],
+        content: file.text,
+        export: entry ? getExportEntryPoint(entry) : undefined,
+      };
+    }),
   };
 }
 
 function getExportEntryPoint(value: string | ExportData) {
-  return typeof value === "string" ? value : value.default;
+  const resolved = typeof value === "string" ? value : (value.import ?? value.default);
+
+  if (!resolved) {
+    throw new Error(
+      `Exports ${JSON.stringify(value, null, 2)} is missing import or default entrypoint`,
+    );
+  }
+
+  return resolved;
 }
 async function readLibraryPackageJson(path: string): Promise<PackageJson> {
   const file = await readFile(join(path, "package.json"));

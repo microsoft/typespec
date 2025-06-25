@@ -4,27 +4,14 @@ import {
   CompletionList,
   CompletionParams,
   MarkupKind,
+  Range,
   TextEdit,
 } from "vscode-languageserver";
+import { getSymNode } from "../core/binder.js";
 import { getDeprecationDetails } from "../core/deprecation.js";
-import {
-  CompilerHost,
-  IdentifierNode,
-  Node,
-  NodeFlags,
-  NodePackage,
-  PositionDetail,
-  Program,
-  StringLiteralNode,
-  SymbolFlags,
-  SyntaxKind,
-  Type,
-  TypeSpecScriptNode,
-  compilerAssert,
-  getFirstAncestor,
-  positionInRange,
-  printIdentifier,
-} from "../core/index.js";
+import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
+import { printIdentifier } from "../core/helpers/syntax-utils.js";
+import { getFirstAncestor, positionInRange } from "../core/parser.js";
 import {
   getAnyExtensionFromPath,
   getBaseFileName,
@@ -32,7 +19,23 @@ import {
   hasTrailingDirectorySeparator,
   resolvePath,
 } from "../core/path-utils.js";
-import { findProjectRoot, loadFile, resolveTspMain } from "../utils/misc.js";
+import { Program } from "../core/program.js";
+import {
+  CompilerHost,
+  IdentifierNode,
+  Node,
+  NodeFlags,
+  PositionDetail,
+  StringLiteralNode,
+  SymbolFlags,
+  SyntaxKind,
+  Type,
+  TypeSpecScriptNode,
+} from "../core/types.js";
+
+import { PackageJson } from "../types/package-json.js";
+import { findProjectRoot, loadFile } from "../utils/io.js";
+import { resolveTspMain } from "../utils/misc.js";
 import { getSymbolDetails } from "./type-details.js";
 
 export type CompletionContext = {
@@ -250,7 +253,7 @@ function addKeywordCompletion(area: keyof KeywordArea, completions: CompletionLi
   }
 }
 
-async function loadPackageJson(host: CompilerHost, path: string): Promise<NodePackage> {
+async function loadPackageJson(host: CompilerHost, path: string): Promise<PackageJson> {
   const [libPackageJson] = await loadFile(host, path, JSON.parse, () => {});
   return libPackageJson;
 }
@@ -410,22 +413,24 @@ function addIdentifierCompletion(
   for (const [key, { sym, label, suffix }] of result) {
     let kind: CompletionItemKind;
     let deprecated = false;
-    const type = sym.type ?? program.checker.getTypeForNode(sym.declarations[0]);
+    const symNode = getSymNode(sym);
+    const type = sym.type ?? program.checker.getTypeForNode(symNode);
     if (sym.flags & (SymbolFlags.Function | SymbolFlags.Decorator)) {
       kind = CompletionItemKind.Function;
     } else if (
       sym.flags & SymbolFlags.Namespace &&
-      sym.declarations[0].kind !== SyntaxKind.NamespaceStatement
+      symNode.kind !== SyntaxKind.NamespaceStatement
     ) {
       kind = CompletionItemKind.Module;
-    } else if (sym.declarations[0]?.kind === SyntaxKind.AliasStatement) {
+    } else if (symNode?.kind === SyntaxKind.AliasStatement) {
       kind = CompletionItemKind.Variable;
-      deprecated = getDeprecationDetails(program, sym.declarations[0]) !== undefined;
+      deprecated = getDeprecationDetails(program, symNode) !== undefined;
     } else {
       kind = getCompletionItemKind(program, type);
       deprecated = getDeprecationDetails(program, type) !== undefined;
     }
     const documentation = getSymbolDetails(program, sym);
+
     const item: CompletionItem = {
       label: label ?? key,
       documentation: documentation
@@ -435,8 +440,20 @@ function addIdentifierCompletion(
           }
         : undefined,
       kind,
-      insertText: printIdentifier(key) + (suffix ?? ""),
     };
+
+    if (sym.name.startsWith("$")) {
+      const targetNode = getSourceLocation(node);
+      const lineAndChar = targetNode.file.getLineAndCharacterOfPosition(node.pos);
+      item.textEdit = TextEdit.replace(
+        // Specifying replacement in the current location can avoid the problem of $ duplication
+        Range.create(lineAndChar, lineAndChar),
+        printIdentifier(key) + (suffix ?? ""),
+      );
+    } else {
+      item.insertText = printIdentifier(key) + (suffix ?? "");
+    }
+
     if (deprecated) {
       // hide these deprecated items to discourage the usage
       // not using CompletionItemTag.Deprecated because the strike-through is a little confusing

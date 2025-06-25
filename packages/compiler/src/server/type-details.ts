@@ -1,16 +1,21 @@
-import {
-  compilerAssert,
-  DocContent,
-  getDocData,
-  isType,
-  Node,
-  Program,
-  Sym,
-  SyntaxKind,
-  TemplateDeclarationNode,
-  Type,
-} from "../core/index.js";
+import { getSymNode } from "../core/binder.js";
+import { compilerAssert } from "../core/diagnostics.js";
+import { getDocData } from "../core/intrinsic-type-state.js";
+import { Program } from "../core/program.js";
+import { isType } from "../core/type-utils.js";
+import { DocContent, Node, Sym, SyntaxKind, TemplateDeclarationNode, Type } from "../core/types.js";
 import { getSymbolSignature } from "./type-signature.js";
+
+interface GetSymbolDetailsOptions {
+  includeSignature: boolean;
+  includeParameterTags: boolean;
+  /**
+   * Whether to include the final expended definition of the symbol
+   * For Model and Interface, it's body with expended members will be included. Otherwise, it will be the same as signature. (Support for other type may be added in the future as needed)
+   * This is useful for models and interfaces with complex 'extends' and 'is' relationship when user wants to know the final expended definition.
+   */
+  includeExpandedDefinition?: boolean;
+}
 
 /**
  * Get the detailed documentation for a symbol.
@@ -20,9 +25,10 @@ import { getSymbolSignature } from "./type-signature.js";
 export function getSymbolDetails(
   program: Program,
   symbol: Sym,
-  options = {
+  options: GetSymbolDetailsOptions = {
     includeSignature: true,
     includeParameterTags: true,
+    includeExpandedDefinition: false,
   },
 ): string {
   const lines = [];
@@ -49,13 +55,22 @@ export function getSymbolDetails(
       }
     }
   }
+  if (options.includeExpandedDefinition) {
+    lines.push(`*Full Definition:*`);
+    lines.push(
+      getSymbolSignature(program, symbol, {
+        includeBody: true,
+      }),
+    );
+  }
+
   return lines.join("\n\n");
 }
 
 function getSymbolDocumentation(program: Program, symbol: Sym) {
   const docs: string[] = [];
 
-  for (const node of symbol.declarations) {
+  for (const node of [...symbol.declarations, ...(symbol.node ? [symbol.node] : [])]) {
     // Add /** ... */ developer docs
     for (const d of node.docs ?? []) {
       docs.push(getDocContent(d.content));
@@ -65,7 +80,7 @@ function getSymbolDocumentation(program: Program, symbol: Sym) {
   // Add @doc(...) API docs
   let type = symbol.type;
   if (!type) {
-    const entity = program.checker.getTypeOrValueForNode(symbol.declarations[0]);
+    const entity = program.checker.getTypeOrValueForNode(getSymNode(symbol));
     if (entity && isType(entity)) {
       type = entity;
     }

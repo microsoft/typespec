@@ -212,7 +212,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          text/plain:
             schema:
               $ref: '#/components/schemas/shelf_name'
         description: The name of the shelf we're removing books from and deleting.

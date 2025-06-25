@@ -4,10 +4,8 @@ import "@azure-tools/typespec-client-generator-core";
 using TypeSpec.Http;
 using Azure.ClientGenerator.Core;
 
-@service({
-  title: "PartialUpdate",
-})
-namespace Cadl.PartialUpdate;
+@service(#{ title: "PartialUpdate" })
+namespace TspTest.PartialUpdate;
 
 model PartialUpdateModel {
   boolean: boolean;
@@ -24,7 +22,7 @@ model PartialUpdateModel {
 }
 
 @client({
-  service: Cadl.PartialUpdate,
+  service: TspTest.PartialUpdate,
   name: "PartialUpdateClient",
 })
 @route("/partialupdate")

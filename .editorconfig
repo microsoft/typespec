@@ -9,3 +9,6 @@ charset = utf-8
 
 [*.cs]
 indent_size = 4
+
+[*.java]
+indent_size = 4

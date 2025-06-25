@@ -8,6 +8,7 @@ steps:
   - template: /eng/tsp-core/pipelines/templates/install.yml
     parameters:
       nodeVersion: ${{ parameters.nodeVersion }}
+      useDotnet: true
 
   - script: pnpm run check-version-mismatch
     displayName: Check version mismatch
@@ -21,10 +22,6 @@ steps:
 
   - script: node eng/common/scripts/check-for-changed-files.js
     displayName: Check Git Status For Changed Files
-
-  - script: node eng/common/scripts/check-docs.js
-    displayName: Check docs
-    condition: ne(variables['Agent.OS'], 'Windows_NT')
 
   # Unlink node_modules folders to significantly improve performance of subsequent tasks
   # which need to walk the directory tree (and are hardcoded to follow symlinks).

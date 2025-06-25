@@ -17,7 +17,7 @@ namespace TypeSpec;
 extern dec summary(target: unknown, summary: valueof string);
 
 /**
- * Attach a documentation string.
+ * Attach a documentation string. Content support CommonMark markdown formatting.
  * @param doc Documentation string
  * @param formatArgs Record with key value pair that can be interpolated in the doc.
  *
@@ -56,26 +56,6 @@ extern dec returnsDoc(target: Operation, doc: valueof string);
 extern dec errorsDoc(target: Operation, doc: valueof string);
 
 /**
- * Mark this type as deprecated.
- *
- * NOTE: This decorator **should not** be used, use the `#deprecated` directive instead.
- *
- * @deprecated Use the `#deprecated` directive instead.
- * @param message Deprecation message.
- *
- * @example
- *
- * Use the `#deprecated` directive instead:
- *
- * ```typespec
- * #deprecated "Use ActionV2"
- * op Action<Result>(): Result;
- * ```
- */
-#deprecated "@deprecated decorator is deprecated. Use the `#deprecated` directive instead."
-extern dec deprecated(target: unknown, message: valueof string);
-
-/**
  * Service options.
  */
 model ServiceOptions {
@@ -83,11 +63,6 @@ model ServiceOptions {
    * Title of the service.
    */
   title?: string;
-
-  /**
-   * Version of the service.
-   */
-  version?: string;
 }
 
 /**
@@ -102,17 +77,17 @@ model ServiceOptions {
  *
  * @example Setting service title
  * ```typespec
- * @service({title: "Pet store"})
+ * @service(#{title: "Pet store"})
  * namespace PetStore;
  * ```
  *
  * @example Setting service version
  * ```typespec
- * @service({version: "1.0"})
+ * @service(#{version: "1.0"})
  * namespace PetStore;
  * ```
  */
-extern dec service(target: Namespace, options?: ServiceOptions);
+extern dec service(target: Namespace, options?: valueof ServiceOptions);
 
 /**
  * Specify that this model is an error type. Operations return error types when the operation has failed.
@@ -129,6 +104,41 @@ extern dec service(target: Namespace, options?: ServiceOptions);
 extern dec error(target: Model);
 
 /**
+ * Applies a media type hint to a TypeSpec type. Emitters and libraries may choose to use this hint to determine how a
+ * type should be serialized. For example, the `@typespec/http` library will use the media type hint of the response
+ * body type as a default `Content-Type` if one is not explicitly specified in the operation.
+ *
+ * Media types (also known as MIME types) are defined by RFC 6838. The media type hint should be a valid media type
+ * string as defined by the RFC, but the decorator does not enforce or validate this constraint.
+ *
+ * Notes: the applied media type is _only_ a hint. It may be overridden or not used at all. Media type hints are
+ * inherited by subtypes. If a media type hint is applied to a model, it will be inherited by all other models that
+ * `extend` it unless they delcare their own media type hint.
+ *
+ * @param mediaType The media type hint to apply to the target type.
+ *
+ * @example create a model that serializes as XML by default
+ *
+ * ```tsp
+ * @mediaTypeHint("application/xml")
+ * model Example {
+ *   @visibility(Lifecycle.Read)
+ *   id: string;
+ *
+ *   name: string;
+ * }
+ * ```
+ */
+extern dec mediaTypeHint(target: Model | Scalar | Enum | Union, mediaType: valueof string);
+
+// Cannot apply this to the scalar itself. Needs to be applied here so that we don't crash nostdlib scenarios
+@@mediaTypeHint(TypeSpec.bytes, "application/octet-stream");
+
+// @@mediaTypeHint(TypeSpec.string "text/plain") -- This is hardcoded in the compiler to avoid circularity
+// between the initialization of the string scalar and the `valueof string` required to call the
+// `mediaTypeHint` decorator.
+
+/**
  * Specify a known data format hint for this string type. For example `uuid`, `uri`, etc.
  * This differs from the `@pattern` decorator which is meant to specify a regular expression while `@format` accepts a known format name.
  * The format names are open ended and are left to emitter to interpret.
@@ -141,7 +151,7 @@ extern dec error(target: Model);
  * scalar uuid extends string;
  * ```
  */
-extern dec format(target: string | bytes | ModelProperty, format: valueof string);
+extern dec format(target: string | ModelProperty, format: valueof string);
 
 /**
  * Specify the the pattern this string should respect using simple regular expression syntax.
@@ -278,13 +288,6 @@ extern dec maxValueExclusive(target: numeric | ModelProperty, value: valueof num
 extern dec secret(target: string | ModelProperty);
 
 /**
- * Mark this operation as a `list` operation for resource types.
- * @deprecated Use the `listsResource` decorator in `@typespec/rest` instead.
- * @param listedType Optional type of the items in the list.
- */
-extern dec list(target: Operation, listedType?: Model);
-
-/**
  * Attaches a tag to an operation, interface, or namespace. Multiple `@tag` decorators can be specified to attach multiple tags to a TypeSpec element.
  * @param tag Tag value
  */
@@ -305,24 +308,6 @@ extern dec tag(target: Namespace | Interface | Operation, tag: valueof string);
  * ```
  */
 extern dec friendlyName(target: unknown, name: valueof string, formatArgs?: unknown);
-
-/**
- * Provide a set of known values to a string type.
- * @param values Known values enum.
- *
- * @example
- * ```typespec
- * @knownValues(KnownErrorCode)
- * scalar ErrorCode extends string;
- *
- * enum KnownErrorCode {
- *   NotFound,
- *   Invalid,
- * }
- * ```
- */
-#deprecated "This decorator has been deprecated. Use a named union of string literals with a string variant to achieve the same result without a decorator."
-extern dec knownValues(target: string | numeric | ModelProperty, values: Enum);
 
 /**
  * Mark a model property as the key to identify instances of that type
@@ -353,28 +338,6 @@ extern dec key(target: ModelProperty, altName?: valueof string);
 extern dec overload(target: Operation, overloadbase: Operation);
 
 /**
- * DEPRECATED: Use `@encodedName` instead.
- *
- * Provide an alternative name for this type.
- * @param targetName Projection target
- * @param projectedName Alternative name
- *
- * @example
- * ```typespec
- * model Certificate {
- *   @projectedName("json", "exp")
- *   expireAt: int32;
- * }
- * ```
- */
-#deprecated "Use `@encodedName` instead for changing the name over the wire."
-extern dec projectedName(
-  target: unknown,
-  targetName: valueof string,
-  projectedName: valueof string
-);
-
-/**
  * Provide an alternative name for this type when serialized to the given mime type.
  * @param mimeType Mime type this should apply to. The mime type should be a known mime type as described here https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types without any suffix (e.g. `+json`)
  * @param name Alternative name
@@ -399,18 +362,87 @@ extern dec projectedName(
 extern dec encodedName(target: unknown, mimeType: valueof string, name: valueof string);
 
 /**
- * Specify the property to be used to discriminate this type.
- * @param propertyName The property name to use for discrimination
+ * Options for `@discriminated` decorator.
+ */
+model DiscriminatedOptions {
+  /**
+   * How is the discriminated union serialized.
+   * @default object
+   */
+  envelope?: "object" | "none";
+
+  /** Name of the discriminator property */
+  discriminatorPropertyName?: string;
+
+  /** Name of the property envelopping the data */
+  envelopePropertyName?: string;
+}
+
+/**
+ * Specify that this union is discriminated.
+ * @param options Options to configure the serialization of the discriminated union.
  *
  * @example
  *
  * ```typespec
- * @discriminator("kind")
+ * @discriminated
  * union Pet{ cat: Cat, dog: Dog }
  *
- * model Cat {kind: "cat", meow: boolean}
- * model Dog {kind: "dog", bark: boolean}
+ * model Cat { name: string, meow: boolean }
+ * model Dog { name: string, bark: boolean }
  * ```
+ * Serialized as:
+ * ```json
+ * {
+ *   "kind": "cat",
+ *   "value": {
+ *     "name": "Whiskers",
+ *     "meow": true
+ *   }
+ * },
+ * {
+ *   "kind": "dog",
+ *   "value": {
+ *     "name": "Rex",
+ *     "bark": false
+ *   }
+ * }
+ * ```
+ *
+ * @example Custom property names
+ *
+ * ```typespec
+ * @discriminated(#{discriminatorPropertyName: "dataKind", envelopePropertyName: "data"})
+ * union Pet{ cat: Cat, dog: Dog }
+ *
+ * model Cat { name: string, meow: boolean }
+ * model Dog { name: string, bark: boolean }
+ * ```
+ * Serialized as:
+ * ```json
+ * {
+ *   "dataKind": "cat",
+ *   "data": {
+ *     "name": "Whiskers",
+ *     "meow": true
+ *   }
+ * },
+ * {
+ *   "dataKind": "dog",
+ *   "data": {
+ *     "name": "Rex",
+ *     "bark": false
+ *   }
+ * }
+ * ```
+ */
+extern dec discriminated(target: Union, options?: valueof DiscriminatedOptions);
+
+/**
+ * Specify the property to be used to discriminate this type.
+ * @param propertyName The property name to use for discrimination
+ *
+ * @example
  *
  * ```typespec
  * @discriminator("kind")
@@ -420,7 +452,7 @@ extern dec encodedName(target: unknown, mimeType: valueof string, name: valueof 
  * model Dog extends Pet  {kind: "dog", bark: boolean}
  * ```
  */
-extern dec discriminator(target: Model | Union, propertyName: valueof string);
+extern dec discriminator(target: Model, propertyName: valueof string);
 
 /**
  * Known encoding to use on utcDateTime or offsetDateTime
@@ -570,7 +602,7 @@ model OperationExample {
  * @example
  *
  * ```tsp
- * @example(#{parameters: #{name: "Fluffy", age: 2}, returnType: #{name: "Fluffy", age: 2, id: "abc"})
+ * @opExample(#{parameters: #{name: "Fluffy", age: 2}, returnType: #{name: "Fluffy", age: 2, id: "abc"})
  * op createPet(pet: Pet): Pet;
  * ```
  */
@@ -579,93 +611,6 @@ extern dec opExample(
   example: valueof OperationExample,
   options?: valueof ExampleOptions
 );
-/**
- * Indicates that a property is only considered to be present or applicable ("visible") with
- * the in the given named contexts ("visibilities"). When a property has no visibilities applied
- * to it, it is implicitly visible always.
- *
- * As far as the TypeSpec core library is concerned, visibilities are open-ended and can be arbitrary
- * strings, but  the following visibilities are well-known to standard libraries and should be used
- * with standard emitters that interpret them as follows:
- *
- * - "read": output of any operation.
- * - "create": input to operations that create an entity..
- * - "query": input to operations that read data.
- * - "update": input to operations that update data.
- * - "delete": input to operations that delete data.
- *
- * See also: [Automatic visibility](https://typespec.io/docs/libraries/http/operations#automatic-visibility)
- *
- * @param visibilities List of visibilities which apply to this property.
- *
- * @example
- *
- * ```typespec
- * model Dog {
- *   // the service will generate an ID, so you don't need to send it.
- *   @visibility("read") id: int32;
- *   // the service will store this secret name, but won't ever return it
- *   @visibility("create", "update") secretName: string;
- *   // the regular name is always present
- *   name: string;
- * }
- * ```
- */
-extern dec visibility(target: ModelProperty, ...visibilities: valueof string[]);
-
-/**
- * Removes properties that are not considered to be present or applicable
- * ("visible") in the given named contexts ("visibilities"). Can be used
- * together with spread to effectively spread only visible properties into
- * a new model.
- *
- * See also: [Automatic visibility](https://typespec.io/docs/libraries/http/operations#automatic-visibility)
- *
- * When using an emitter that applies visibility automatically, it is generally
- * not necessary to use this decorator.
- *
- * @param visibilities List of visibilities which apply to this property.
- *
- * @example
- * ```typespec
- * model Dog {
- *   @visibility("read") id: int32;
- *   @visibility("create", "update") secretName: string;
- *   name: string;
- * }
- *
- * // The spread operator will copy all the properties of Dog into DogRead,
- * // and @withVisibility will then remove those that are not visible with
- * // create or update visibility.
- * //
- * // In this case, the id property is removed, and the name and secretName
- * // properties are kept.
- * @withVisibility("create", "update")
- * model DogCreateOrUpdate {
- *   ...Dog;
- * }
- *
- * // In this case the id and name properties are kept and the secretName property
- * // is removed.
- * @withVisibility("read")
- * model DogRead {
- *   ...Dog;
- * }
- * ```
- */
-extern dec withVisibility(target: Model, ...visibilities: valueof string[]);
-
-/**
- * Set the visibility of key properties in a model if not already set.
- *
- * @param visibility The desired default visibility value. If a key property already has a `visibility` decorator then the default visibility is not applied.
- */
-extern dec withDefaultKeyVisibility(target: Model, visibility: valueof string);
-
-/**
- * Returns the model with non-updateable properties removed.
- */
-extern dec withUpdateableProperties(target: Model);
 
 /**
  * Returns the model with required properties removed.
@@ -690,6 +635,157 @@ extern dec withoutOmittedProperties(target: Model, omit: string | Union);
 extern dec withPickedProperties(target: Model, pick: string | Union);
 
 //---------------------------------------------------------------------------
+// Paging
+//---------------------------------------------------------------------------
+
+/**
+ * Mark this operation as a `list` operation that returns a paginated list of items.
+ */
+extern dec list(target: Operation);
+
+/**
+ * Pagination property defining the number of items to skip.
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ * }
+ * @list op listPets(@offset skip: int32, @pageSize pageSize: int8): Page<Pet>;
+ * ```
+ */
+extern dec offset(target: ModelProperty);
+
+/**
+ * Pagination property defining the page index.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ * }
+ * @list op listPets(@pageIndex page: int32, @pageSize pageSize: int8): Page<Pet>;
+ * ```
+ */
+extern dec pageIndex(target: ModelProperty);
+
+/**
+ * Specify the pagination parameter that controls the maximum number of items to include in a page.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ * }
+ * @list op listPets(@pageIndex page: int32, @pageSize pageSize: int8): Page<Pet>;
+ * ```
+ */
+extern dec pageSize(target: ModelProperty);
+
+/**
+ * Specify the the property that contains the array of page items.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ * }
+ * @list op listPets(@pageIndex page: int32, @pageSize pageSize: int8): Page<Pet>;
+ * ```
+ */
+extern dec pageItems(target: ModelProperty);
+
+/**
+ * Pagination property defining the token to get to the next page.
+ * It MUST be specified both on the request parameter and the response.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ *   @continuationToken continuationToken: string;
+ * }
+ * @list op listPets(@continuationToken continuationToken: string): Page<Pet>;
+ * ```
+ */
+extern dec continuationToken(target: ModelProperty);
+
+/**
+ * Pagination property defining a link to the next page.
+ *
+ * It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ *   @nextLink next: url;
+ *   @prevLink prev: url;
+ *   @firstLink first: url;
+ *   @lastLink last: url;
+ * }
+ * @list op listPets(): Page<Pet>;
+ * ```
+ */
+extern dec nextLink(target: ModelProperty);
+
+/**
+ * Pagination property defining a link to the previous page.
+ *
+ * It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ *   @nextLink next: url;
+ *   @prevLink prev: url;
+ *   @firstLink first: url;
+ *   @lastLink last: url;
+ * }
+ * @list op listPets(): Page<Pet>;
+ * ```
+ */
+extern dec prevLink(target: ModelProperty);
+
+/**
+ * Pagination property defining a link to the first page.
+ *
+ * It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ *   @nextLink next: url;
+ *   @prevLink prev: url;
+ *   @firstLink first: url;
+ *   @lastLink last: url;
+ * }
+ * @list op listPets(): Page<Pet>;
+ * ```
+ */
+extern dec firstLink(target: ModelProperty);
+
+/**
+ * Pagination property defining a link to the last page.
+ *
+ * It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ *   @nextLink next: url;
+ *   @prevLink prev: url;
+ *   @firstLink first: url;
+ *   @lastLink last: url;
+ * }
+ * @list op listPets(): Page<Pet>;
+ * ```
+ */
+extern dec lastLink(target: ModelProperty);
+
+//---------------------------------------------------------------------------
 // Debugging
 //---------------------------------------------------------------------------
 
@@ -704,15 +800,3 @@ extern dec inspectType(target: unknown, text: valueof string);
  * @param text Custom text to log
  */
 extern dec inspectTypeName(target: unknown, text: valueof string);
-
-/**
- * Sets which visibilities apply to parameters for the given operation.
- * @param visibilities List of visibility strings which apply to this operation.
- */
-extern dec parameterVisibility(target: Operation, ...visibilities: valueof string[]);
-
-/**
- * Sets which visibilities apply to the return type for the given operation.
- * @param visibilities List of visibility strings which apply to this operation.
- */
-extern dec returnTypeVisibility(target: Operation, ...visibilities: valueof string[]);

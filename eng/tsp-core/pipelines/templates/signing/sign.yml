@@ -1,0 +1,27 @@
+parameters:
+  - name: displayName
+    type: string
+    default: Sign
+  - name: path
+    type: string
+  - name: pattern
+    type: string
+  - name: inlineOperation
+    type: string
+
+steps:
+  - task: EsrpCodeSigning@5
+    displayName: ${{ parameters.displayName }}
+    inputs:
+      ConnectedServiceName: "Azure SDK PME Managed Identity"
+      UseMSIAuthentication: true
+      AppRegistrationClientId: "4fa2001b-ad7a-4a1e-9185-d6ea881f8712"
+      AppRegistrationTenantId: "975f013f-7f24-47e8-a7d3-abc4752bf346"
+      EsrpClientId: "5e796b8d-3c4d-4e28-93f6-12a44f4368a0"
+      AuthAKVName: "kv-azuresdk-codesign"
+      AuthSignCertName: "azure-sdk-esrp-signing-certificate"
+      FolderPath: ${{ parameters.path }}
+      Pattern: ${{ parameters.pattern }}
+      UseMinimatch: true
+      signConfigType: inlineSignParams
+      inlineOperation: ${{parameters.inlineOperation}}

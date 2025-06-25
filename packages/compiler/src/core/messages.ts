@@ -64,6 +64,9 @@ const diagnostics = {
 
   "triple-quote-indent": {
     severity: "error",
+    description:
+      "Report when a triple-quoted string has lines with less indentation as the closing triple quotes.",
+    url: "https://typespec.io/docs/standard-library/diags/triple-quote-indent",
     messages: {
       default:
         "All lines in triple-quoted string lines must have the same indentation as closing triple quotes.",
@@ -139,18 +142,11 @@ const diagnostics = {
       unexpected: paramMessage`Unexpected token ${"token"}`,
       numericOrStringLiteral: "Expected numeric or string literal.",
       identifier: "Identifier expected.",
-      projectionDirection: "from or to expected.",
       expression: "Expression expected.",
       statement: "Statement expected.",
       property: "Property expected.",
       enumMember: "Enum member expected.",
       typeofTarget: "Typeof expects a value literal or value reference.",
-    },
-  },
-  "trailing-token": {
-    severity: "error",
-    messages: {
-      default: paramMessage`Trailing ${"token"}`,
     },
   },
   "unknown-directive": {
@@ -163,7 +159,9 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: `Augment decorator first argument must be a type reference.`,
-      noInstance: `Cannot reference template instances`,
+      noInstance: `Cannot reference template instances.`,
+      noModelExpression: `Cannot augment model expressions.`,
+      noUnionExpression: `Cannot augment union expressions.`,
     },
   },
   "duplicate-decorator": {
@@ -182,6 +180,7 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: "Keyword cannot be used as identifier.",
+      future: paramMessage`${"name"} is a reserved keyword`,
     },
   },
   "invalid-directive-location": {
@@ -194,15 +193,6 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Cannot decorate ${"nodeName"}.`,
-    },
-  },
-  "invalid-projection": {
-    severity: "error",
-    messages: {
-      default: "Invalid projection",
-      wrongType: "Non-projection can't be used to project",
-      noTo: "Projection missing to projection",
-      projectionError: paramMessage`An error occurred when projecting this type: ${"message"}`,
     },
   },
   "default-required": {
@@ -318,18 +308,6 @@ const diagnostics = {
       default: paramMessage`Intersection contains duplicate property definitions for ${"propName"}`,
     },
   },
-  "unknown-identifier": {
-    severity: "error",
-    messages: {
-      default: paramMessage`Unknown identifier ${"id"}`,
-    },
-  },
-  "unknown-decorator": {
-    severity: "error",
-    messages: {
-      default: "Unknown decorator",
-    },
-  },
   "invalid-decorator": {
     severity: "error",
     messages: {
@@ -340,9 +318,11 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Cannot resolve ${"id"}`,
+      identifier: paramMessage`Unknown identifier ${"id"}`,
+      decorator: paramMessage`Unknown decorator @${"id"}`,
       inDecorator: paramMessage`Cannot resolve ${"id"} in decorator`,
       underNamespace: paramMessage`Namespace ${"namespace"} doesn't have member ${"id"}`,
-      underContainer: paramMessage`${"kind"} doesn't have member ${"id"}`,
+      member: paramMessage`${"kind"} doesn't have member ${"id"}`,
       metaProperty: paramMessage`${"kind"} doesn't have meta property ${"id"}`,
       node: paramMessage`Cannot resolve '${"id"}' in node ${"nodeName"} since it has no members. Did you mean to use "::" instead of "."?`,
     },
@@ -412,7 +392,8 @@ const diagnostics = {
     messages: {
       default: paramMessage`${"name"} refers to a type, but is being used as a value here.`,
       model: paramMessage`${"name"} refers to a model type, but is being used as a value here. Use #{} to create an object value.`,
-      tuple: paramMessage`${"name"} refers to a tuple type, but is being used as a value here. Use #[] to create an array value.`,
+      modelExpression: `Is a model expression type, but is being used as a value here. Use #{} to create an object value.`,
+      tuple: `Is a tuple type, but is being used as a value here. Use #[] to create an array value.`,
       templateConstraint: paramMessage`${"name"} template parameter can be a type but is being used as a value here.`,
     },
   },
@@ -558,6 +539,12 @@ const diagnostics = {
       default: "A function declaration must be prefixed with the 'extern' modifier.",
     },
   },
+  "function-unsupported": {
+    severity: "error",
+    messages: {
+      default: "Function are currently not supported.",
+    },
+  },
   "missing-implementation": {
     severity: "error",
     messages: {
@@ -611,6 +598,12 @@ const diagnostics = {
       default: paramMessage`Path "${"path"}" cannot be relative. Use {cwd} or {project-root} to specify what the path should be relative to.`,
     },
   },
+  "config-invalid-name": {
+    severity: "error",
+    messages: {
+      default: paramMessage`The configuration name "${"name"}" is invalid because it contains a dot ("."). Using a dot will conflict with using nested configuration values.`,
+    },
+  },
   "path-unix-style": {
     severity: "warning",
     messages: {
@@ -653,8 +646,7 @@ const diagnostics = {
   "library-invalid": {
     severity: "error",
     messages: {
-      tspMain: paramMessage`Library "${"path"}" has an invalid tspMain file.`,
-      default: paramMessage`Library "${"path"}" has an invalid main file.`,
+      default: paramMessage`Library "${"path"}" is invalid: ${"message"}`,
     },
   },
   "incompatible-library": {
@@ -680,13 +672,6 @@ const diagnostics = {
     messages: {
       default: "dec must have at least one parameter.",
       required: "dec first parameter must be required.",
-    },
-  },
-  "projections-are-experimental": {
-    severity: "warning",
-    messages: {
-      default:
-        "Projections are experimental - your code will need to change as this feature evolves.",
     },
   },
   "mixed-string-template": {
@@ -732,7 +717,13 @@ const diagnostics = {
   "invalid-emitter": {
     severity: "error",
     messages: {
-      default: paramMessage`Requested emitter package ${"emitterPackage"} does not provide an "onEmit" function.`,
+      default: paramMessage`Requested emitter package ${"emitterPackage"} does not provide an "$onEmit" function.`,
+    },
+  },
+  "js-error": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Failed to load ${"specifier"} due to the following JS error: ${"error"}`,
     },
   },
   "missing-import": {
@@ -783,6 +774,13 @@ const diagnostics = {
   /**
    * Decorator
    */
+  "invalid-pattern-regex": {
+    severity: "warning",
+    messages: {
+      default: "@pattern decorator expects a valid regular expression pattern.",
+    },
+  },
+
   "decorator-wrong-target": {
     severity: "error",
     messages: {
@@ -839,6 +837,9 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Union variant "${"name"}" must be a model type.`,
+      noEnvelopeModel: paramMessage`Union variant "${"name"}" must be a model type when the union has envelope: none.`,
+      discriminantMismatch: paramMessage`Variant "${"name"}" explicitly defines the discriminator property "${"discriminant"}" but the value "${"propertyValue"}" do not match the variant name "${"variantName"}".`,
+      duplicateDefaultVariant: `Discriminated union only allow a single default variant(Without a variant name).`,
       noDiscriminant: paramMessage`Variant "${"name"}" type is missing the discriminant property "${"discriminant"}".`,
       wrongDiscriminantType: paramMessage`Variant "${"name"}" type's discriminant property "${"discriminant"}" must be a string literal or string enum member.`,
     },
@@ -889,6 +890,32 @@ const diagnostics = {
     },
   },
 
+  "incompatible-paging-props": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Paging property has multiple types: '${"kinds"}'`,
+    },
+  },
+  "invalid-paging-prop": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Paging property '${"kind"}' is not valid in this context.`,
+      input: paramMessage`Paging property '${"kind"}' cannot be used in the parameters of an operation.`,
+      output: paramMessage`Paging property '${"kind"}' cannot be used in the return type of an operation.`,
+    },
+  },
+  "duplicate-paging-prop": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Duplicate property paging '${"kind"}' for operation ${"operationName"}.`,
+    },
+  },
+  "missing-paging-items": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Paged operation '${"operationName"}' return type must have a property annotated with @pageItems.`,
+    },
+  },
   /**
    * Service
    */
@@ -987,6 +1014,30 @@ const diagnostics = {
     },
   },
 
+  // #region Visibility
+  "visibility-sealed": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Visibility of property '${"propName"}' is sealed and cannot be changed.`,
+    },
+  },
+  "default-visibility-not-member": {
+    severity: "error",
+    messages: {
+      default: "The default visibility modifiers of a class must be members of the class enum.",
+    },
+  },
+  "operation-visibility-constraint-empty": {
+    severity: "error",
+    messages: {
+      default: "Operation visibility constraints with no arguments are not allowed.",
+      returnType: "Return type visibility constraints with no arguments are not allowed.",
+      parameter:
+        "Parameter visibility constraints with no arguments are not allowed. To disable effective PATCH optionality, use @patch(#{ implicitOptionality: false }) instead.",
+    },
+  },
+  // #endregion
+
   // #region CLI
   "no-compatible-vs-installed": {
     severity: "error",
@@ -1006,6 +1057,12 @@ const diagnostics = {
       default:
         "Couldn't find VS Code 'code' command in PATH. Make sure you have the VS Code executable added to the system PATH.",
       osx: "Couldn't find VS Code 'code' command in PATH. Make sure you have the VS Code executable added to the system PATH.\nSee instruction for Mac OS here https://code.visualstudio.com/docs/setup/mac",
+    },
+  },
+  "invalid-option-flag": {
+    severity: "error",
+    messages: {
+      default: paramMessage`The --option parameter value "${"value"}" must be in the format: <emitterName>.some-options=value`,
     },
   },
   // #endregion CLI

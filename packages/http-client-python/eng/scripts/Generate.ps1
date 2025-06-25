@@ -9,3 +9,6 @@ Write-Host "Building project ..."
 
 Write-Host "Regenerating project ..."
 & npm run regenerate
+
+Write-Host "Regenerating docs ..."
+& npm run regen-docs

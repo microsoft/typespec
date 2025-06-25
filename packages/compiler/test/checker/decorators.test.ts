@@ -1,14 +1,13 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
+import { numericRanges } from "../../src/core/numeric-ranges.js";
+import { Numeric } from "../../src/core/numeric.js";
 import {
   DecoratorFunction,
   Namespace,
   PackageFlags,
-  isNullType,
   setTypeSpecNamespace,
-} from "../../src/core/index.js";
-import { numericRanges } from "../../src/core/numeric-ranges.js";
-import { Numeric } from "../../src/core/numeric.js";
+} from "../../src/index.js";
 import {
   BasicTestRunner,
   TestHost,
@@ -16,7 +15,6 @@ import {
   createTestWrapper,
   expectDiagnostics,
 } from "../../src/testing/index.js";
-import { mutate } from "../../src/utils/misc.js";
 
 describe("compiler: checker: decorators", () => {
   let testHost: TestHost;
@@ -139,20 +137,6 @@ describe("compiler: checker: decorators", () => {
         code: "missing-implementation",
         message: "Extern declaration must have an implementation in JS file.",
       });
-    });
-
-    describe("emit deprecated warning if decorator is expecting valueof", () => {
-      it.each(["numeric", "int64", "uint64", "integer", "float", "decimal", "decimal128", "null"])(
-        "%s",
-        async (type) => {
-          const diagnostics = await runner.diagnose(`
-          extern dec testDec(target: unknown, value: valueof ${type});
-        `);
-          expectDiagnostics(diagnostics, {
-            code: "deprecated",
-          });
-        },
-      );
     });
   });
 
@@ -366,7 +350,6 @@ describe("compiler: checker: decorators", () => {
         value: string,
         suppress?: boolean,
       ): Promise<any> {
-        mutate($flags).decoratorArgMarshalling = "new";
         await runner.compile(`
           extern dec testDec(target: unknown, arg1: ${type});
           
@@ -462,169 +445,6 @@ describe("compiler: checker: decorators", () => {
         it("sends null", async () => {
           const arg = await testCallDecorator("valueof null", `null`);
           strictEqual(arg, null);
-        });
-      });
-
-      describe("passing an object value", () => {
-        it("valueof model cast the value to a JS object", async () => {
-          const arg = await testCallDecorator("valueof {name: string}", `#{name: "foo"}`);
-          deepStrictEqual(arg, { name: "foo" });
-        });
-
-        it("valueof model cast the value recursively to a JS object", async () => {
-          const arg = await testCallDecorator(
-            "valueof {name: unknown}",
-            `#{name: #{other: "foo"}}`,
-          );
-          deepStrictEqual(arg, { name: { other: "foo" } });
-        });
-      });
-
-      describe("passing an array value", () => {
-        it("valueof model cast the value to a JS array", async () => {
-          const arg = await testCallDecorator("valueof string[]", `#["foo"]`);
-          deepStrictEqual(arg, ["foo"]);
-        });
-
-        it("valueof model cast the value recursively to a JS object", async () => {
-          const arg = await testCallDecorator("valueof unknown[]", `#[#["foo"]]`);
-          deepStrictEqual(arg, [["foo"]]);
-        });
-      });
-
-      // This functionality is to provide a smooth transition from the old way of passing a model/tuple as values
-      // It is to be removed in the future.
-      describe("legacy type to value casting", () => {
-        describe("passing an model gets converted to an object", () => {
-          it("valueof model cast the tuple to a JS object", async () => {
-            const arg = await testCallDecorator("valueof {name: string}", `{name: "foo"}`, true);
-            deepStrictEqual(arg, { name: "foo" });
-          });
-
-          it("valueof model cast the tuple recursively to a JS object", async () => {
-            const arg = await testCallDecorator(
-              "valueof {name: unknown}",
-              `{name: {other: "foo"}}`,
-              true,
-            );
-            deepStrictEqual(arg, { name: { other: "foo" } });
-          });
-        });
-
-        describe("passing an tuple gets converted to an object", () => {
-          it("valueof model cast the tuple to a JS array", async () => {
-            const arg = await testCallDecorator("valueof string[]", `["foo"]`, true);
-            deepStrictEqual(arg, ["foo"]);
-          });
-
-          it("valueof model cast the tuple recursively to a JS object", async () => {
-            const arg = await testCallDecorator("valueof unknown[]", `[["foo"]]`, true);
-            deepStrictEqual(arg, [["foo"]]);
-          });
-        });
-      });
-    });
-
-    describe("value marshalling (LEGACY)", () => {
-      async function testCallDecorator(
-        type: string,
-        value: string,
-        suppress?: boolean,
-      ): Promise<any> {
-        // Default so shouldn't be needed
-        // mutate($flags).decoratorArgMarshalling = "legacy";
-        await runner.compile(`
-          #suppress "deprecated" "for testing"
-          extern dec testDec(target: unknown, arg1: ${type});
-          
-          ${suppress ? `#suppress "deprecated" "for testing"` : ""}
-          @testDec(${value})
-          @test
-          model Foo {}
-        `);
-        return calledArgs![2];
-      }
-
-      describe("passing a string literal", () => {
-        it("`: valueof string` cast the value to a JS string", async () => {
-          const arg = await testCallDecorator("valueof string", `"one"`);
-          strictEqual(arg, "one");
-        });
-
-        it("`: string` keeps the StringLiteral type", async () => {
-          const arg = await testCallDecorator("string", `"one"`);
-          strictEqual(arg.kind, "String");
-        });
-      });
-
-      describe("passing a string template", () => {
-        it("`: valueof string` cast the value to a JS string", async () => {
-          const arg = await testCallDecorator(
-            "valueof string",
-            '"Start ${"one"} middle ${"two"} end"',
-          );
-          strictEqual(arg, "Start one middle two end");
-        });
-
-        it("`: string` keeps the StringTemplate type", async () => {
-          const arg = await testCallDecorator("string", '"Start ${"one"} middle ${"two"} end"');
-          strictEqual(arg.kind, "StringTemplate");
-        });
-      });
-
-      describe("passing a numeric literal is always converted to a number", () => {
-        const explicit: Required<Record<keyof typeof numericRanges, string>> = {
-          int8: "number",
-          uint8: "number",
-          int16: "number",
-          uint16: "number",
-          int32: "number",
-          uint32: "number",
-          safeint: "number",
-          float32: "number",
-          float64: "number",
-          // Unsafe to convert to JS Number
-          int64: "number",
-          uint64: "number",
-        };
-
-        const others = [
-          ["integer", "number"],
-          ["numeric", "number"],
-          ["float", "number"],
-          ["decimal", "number"],
-          ["decimal128", "number"],
-
-          // Union of safe numeric
-          ["int8 | int16", "number", "int8(123)"],
-
-          // Union of unsafe numeric
-          ["int64 | decimal128", "number", "int8(123)"],
-
-          // Union of safe and unsafe numeric
-          ["int64 | float64", "number", "int8(123)"],
-        ];
-
-        it.each([...Object.entries(explicit), ...others])(
-          "valueof %s marshal to a %s",
-          async (type, expectedKind, cstr) => {
-            const arg = await testCallDecorator(`valueof ${type}`, cstr ?? `123`);
-            strictEqual(arg, 123);
-          },
-        );
-      });
-
-      describe("passing a boolean literal", () => {
-        it("valueof boolean cast the value to a JS boolean", async () => {
-          const arg = await testCallDecorator("valueof boolean", `true`);
-          strictEqual(arg, true);
-        });
-      });
-
-      describe("passing null", () => {
-        it("return NullType", async () => {
-          const arg = await testCallDecorator("valueof null", `null`);
-          ok(isNullType(arg));
         });
       });
 

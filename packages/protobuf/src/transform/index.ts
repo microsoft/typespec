@@ -23,10 +23,11 @@ import {
   resolvePath,
   Scalar,
   StringLiteral,
-  SyntaxKind,
   Type,
   Union,
 } from "@typespec/compiler";
+import { SyntaxKind } from "@typespec/compiler/ast";
+import { capitalize } from "@typespec/compiler/casing";
 import {
   map,
   matchType,
@@ -66,7 +67,7 @@ export function createProtobufEmitter(
     // Convert the program to a set of proto files.
     const files = tspToProto(program, options);
 
-    if (!program.compilerOptions.noEmit && !options?.noEmit && !program.hasError()) {
+    if (!program.compilerOptions.dryRun && !options?.noEmit && !program.hasError()) {
       for (const file of files) {
         // If the file has a package, emit it to a path that is shaped like the package name. Otherwise emit to
         // main.proto
@@ -380,7 +381,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
 
     if (!emptyType) {
       throw new Error(
-        `Could not resolve the empty type: ${diagnostics.map(formatDiagnostic).join("\n")}`,
+        `Could not resolve the empty type: ${diagnostics.map((x) => formatDiagnostic(x)).join("\n")}`,
       );
     }
 
@@ -573,7 +574,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     if (isArray(valueType)) {
       reportDiagnostic(program, {
         code: "nested-array",
-        target: valueType,
+        target: t,
       });
       return ref("<unreachable>");
     }
@@ -609,7 +610,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
 
       for (const [[type, diagnostics]] of entries) {
         if (!type) {
-          const diagnosticString = diagnostics.map(formatDiagnostic).join("\n");
+          const diagnosticString = diagnostics.map((x) => formatDiagnostic(x)).join("\n");
           throw new Error(
             `Failed to construct TypeSpec -> Protobuf scalar map. Unexpected failure to resolve TypeSpec scalar: ${diagnosticString}`,
           );
@@ -1006,13 +1007,6 @@ function isArray(t: Type) {
 }
 
 /**
- * Simple utility function to capitalize a string.
- */
-function capitalize<S extends string>(s: S) {
-  return (s.slice(0, 1).toUpperCase() + s.slice(1)) as Capitalize<S>;
-}
-
-/**
  * Gets the syntactic return type target for an operation.
  *
  * Helps us squiggle the right things for operation return types.
@@ -1021,7 +1015,7 @@ function capitalize<S extends string>(s: S) {
  * emitters to implement this functionality.
  */
 function getOperationReturnSyntaxTarget(op: Operation): DiagnosticTarget {
-  const signature = op.node.signature;
+  const signature = op.node!.signature;
   switch (signature.kind) {
     case SyntaxKind.OperationSignatureDeclaration:
       return signature.returnType;
@@ -1030,7 +1024,7 @@ function getOperationReturnSyntaxTarget(op: Operation): DiagnosticTarget {
     default:
       const __exhaust: never = signature;
       throw new Error(
-        `Internal Emitter Error: reached unreachable operation signature: ${op.node.signature.kind}`,
+        `Internal Emitter Error: reached unreachable operation signature: ${op.node?.signature.kind}`,
       );
   }
 }
@@ -1043,20 +1037,19 @@ function getOperationReturnSyntaxTarget(op: Operation): DiagnosticTarget {
  */
 function getPropertyNameSyntaxTarget(property: ModelProperty): DiagnosticTarget {
   const node = property.node;
-
+  if (node === undefined) {
+    return property;
+  }
   switch (node.kind) {
     case SyntaxKind.ModelProperty:
     case SyntaxKind.ObjectLiteralProperty:
       return node.id;
     case SyntaxKind.ModelSpreadProperty:
       return node;
-    case SyntaxKind.ProjectionModelProperty:
-    case SyntaxKind.ProjectionModelSpreadProperty:
-      return property;
     default:
       const __exhaust: never = node;
       throw new Error(
-        `Internal Emitter Error: reached unreachable model property node: ${property.node.kind}`,
+        `Internal Emitter Error: reached unreachable model property node: ${property.node?.kind}`,
       );
   }
 }

@@ -5,7 +5,7 @@ export function getScopeAndName(originalName: string): ScopeAndName {
   const path = originalName.split(".");
   const name = path.pop()!;
 
-  return { scope: path.map(printIdentifier), name: printIdentifier(name), rawName: name };
+  return { scope: path.map((x) => printIdentifier(x)), name: printIdentifier(name), rawName: name };
 }
 
 export function scopesMatch(a: string[], b: string[]): boolean {

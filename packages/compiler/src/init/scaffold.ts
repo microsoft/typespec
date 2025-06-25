@@ -1,17 +1,22 @@
 import { stringify } from "yaml";
-import { TypeSpecConfigFilename } from "../config/config-loader.js";
-import { formatTypeSpec } from "../core/formatter.js";
-import { NodePackage } from "../core/module-resolver.js";
+import type { TypeSpecRawConfig } from "../config/types.js";
 import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
-import { CompilerHost } from "../core/types.js";
+import type { SystemHost } from "../core/types.js";
+import type { PackageJson } from "../types/package-json.js";
 import { readUrlOrPath, resolveRelativeUrlOrPath } from "../utils/misc.js";
-import { FileTemplatingContext, createFileTemplatingContext, render } from "./file-templating.js";
 import {
+  createFileTemplatingContext,
+  type FileTemplatingContext,
+  render,
+} from "./file-templating.js";
+import type {
   InitTemplate,
   InitTemplateFile,
   InitTemplateLibrary,
   InitTemplateLibrarySpec,
 } from "./init-template.js";
+
+export const TypeSpecConfigFilename = "tspconfig.yaml";
 
 export interface ScaffoldingConfig {
   /** Template used to resolve that config */
@@ -26,11 +31,6 @@ export interface ScaffoldingConfig {
    * Directory full path where the project should be initialized.
    */
   directory: string;
-
-  /**
-   * folder name where the project should be initialized.
-   */
-  folderName: string;
 
   /**
    * Name of the project.
@@ -48,9 +48,14 @@ export interface ScaffoldingConfig {
   includeGitignore: boolean;
 
   /**
-   * Custom parameters provided in the tempalates.
+   * Custom parameters provided in the templates.
    */
   parameters: Record<string, any>;
+
+  /**
+   * Selected emitters the tempalates.
+   */
+  emitters: Record<string, any>;
 }
 
 export function normalizeLibrary(library: InitTemplateLibrary): InitTemplateLibrarySpec {
@@ -70,9 +75,9 @@ export function makeScaffoldingConfig(
     baseUri: config.baseUri ?? ".",
     name: config.name ?? "",
     directory: config.directory ?? "",
-    folderName: config.folderName ?? "",
     parameters: config.parameters ?? {},
     includeGitignore: config.includeGitignore ?? true,
+    emitters: config.emitters ?? {},
     ...config,
   };
 }
@@ -82,7 +87,7 @@ export function makeScaffoldingConfig(
  * @param host
  * @param config
  */
-export async function scaffoldNewProject(host: CompilerHost, config: ScaffoldingConfig) {
+export async function scaffoldNewProject(host: SystemHost, config: ScaffoldingConfig) {
   await host.mkdirp(config.directory);
   await writePackageJson(host, config);
   await writeConfig(host, config);
@@ -91,7 +96,7 @@ export async function scaffoldNewProject(host: CompilerHost, config: Scaffolding
   await writeFiles(host, config);
 }
 
-function isFileSkipGeneration(fileName: string, files: InitTemplateFile[]): boolean {
+export function isFileSkipGeneration(fileName: string, files: InitTemplateFile[]): boolean {
   for (const file of files) {
     if (file.destination === fileName) {
       return file.skipGeneration ?? false;
@@ -100,31 +105,38 @@ function isFileSkipGeneration(fileName: string, files: InitTemplateFile[]): bool
   return false;
 }
 
-async function writePackageJson(host: CompilerHost, config: ScaffoldingConfig) {
+async function writePackageJson(host: SystemHost, config: ScaffoldingConfig) {
   if (isFileSkipGeneration("package.json", config.template.files ?? [])) {
     return;
   }
-  const peerDependencies: Record<string, string> = {};
-  const devDependencies: Record<string, string> = {};
+
+  const dependencies: Record<string, string> = {};
 
   if (!config.template.skipCompilerPackage) {
-    peerDependencies["@typespec/compiler"] = "latest";
-    devDependencies["@typespec/compiler"] = "latest";
+    dependencies["@typespec/compiler"] = "latest";
   }
 
   for (const library of config.libraries) {
-    peerDependencies[library.name] = await getLibraryVersion(library);
-    devDependencies[library.name] = await getLibraryVersion(library);
+    dependencies[library.name] = await getPackageVersion(library);
   }
 
-  const packageJson: NodePackage = {
+  for (const key of Object.keys(config.emitters)) {
+    dependencies[key] = await getPackageVersion(config.emitters[key]);
+  }
+
+  const packageJson: PackageJson = {
     name: config.name,
     version: "0.1.0",
     type: "module",
-    peerDependencies,
-    devDependencies,
     private: true,
   };
+
+  if (config.template.target === "library") {
+    packageJson.peerDependencies = dependencies;
+    packageJson.devDependencies = dependencies;
+  } else {
+    packageJson.dependencies = dependencies;
+  }
 
   return host.writeFile(
     joinPaths(config.directory, "package.json"),
@@ -150,28 +162,42 @@ const placeholderConfig = `
 # warn-as-error: true                           # Treat warnings as errors
 # output-dir: "{project-root}/_generated"       # Configure the base output directory for all emitters
 `.trim();
-async function writeConfig(host: CompilerHost, config: ScaffoldingConfig) {
+async function writeConfig(host: SystemHost, config: ScaffoldingConfig) {
   if (isFileSkipGeneration(TypeSpecConfigFilename, config.template.files ?? [])) {
     return;
   }
-  const content = config.template.config ? stringify(config.template.config) : placeholderConfig;
+
+  let rawConfig: TypeSpecRawConfig | undefined;
+  if (config.template.config !== undefined && Object.keys(config.template.config).length > 0) {
+    rawConfig = config.template.config;
+  }
+
+  if (Object.keys(config.emitters).length > 0) {
+    rawConfig ??= {};
+
+    rawConfig.emit = Object.keys(config.emitters);
+    rawConfig.options = Object.fromEntries(
+      Object.entries(config.emitters).map(([key, emitter]) => [key, emitter.options]),
+    );
+  }
+  const content = rawConfig ? stringify(rawConfig) : placeholderConfig;
   return host.writeFile(joinPaths(config.directory, TypeSpecConfigFilename), content);
 }
 
-async function writeMain(host: CompilerHost, config: ScaffoldingConfig) {
+async function writeMain(host: SystemHost, config: ScaffoldingConfig) {
   if (isFileSkipGeneration("main.tsp", config.template.files ?? [])) {
     return;
   }
   const dependencies: Record<string, string> = {};
 
   for (const library of config.libraries) {
-    dependencies[library.name] = await getLibraryVersion(library);
+    dependencies[library.name] = await getPackageVersion(library);
   }
 
   const lines = [...config.libraries.map((x) => `import "${x.name}";`), ""];
   const content = lines.join("\n");
 
-  return host.writeFile(joinPaths(config.directory, "main.tsp"), await formatTypeSpec(content));
+  return host.writeFile(joinPaths(config.directory, "main.tsp"), content);
 }
 
 const defaultGitignore = `
@@ -185,7 +211,7 @@ dist/
 # Dependency directories
 node_modules/
 `.trim();
-async function writeGitignore(host: CompilerHost, config: ScaffoldingConfig) {
+async function writeGitignore(host: SystemHost, config: ScaffoldingConfig) {
   if (!config.includeGitignore || isFileSkipGeneration(".gitignore", config.template.files ?? [])) {
     return;
   }
@@ -193,7 +219,7 @@ async function writeGitignore(host: CompilerHost, config: ScaffoldingConfig) {
   return host.writeFile(joinPaths(config.directory, ".gitignore"), defaultGitignore);
 }
 
-async function writeFiles(host: CompilerHost, config: ScaffoldingConfig) {
+async function writeFiles(host: SystemHost, config: ScaffoldingConfig) {
   const templateContext = createFileTemplatingContext(config);
   if (!config.template.files) {
     return;
@@ -206,7 +232,7 @@ async function writeFiles(host: CompilerHost, config: ScaffoldingConfig) {
 }
 
 async function writeFile(
-  host: CompilerHost,
+  host: SystemHost,
   config: ScaffoldingConfig,
   context: FileTemplatingContext,
   file: InitTemplateFile,
@@ -220,7 +246,7 @@ async function writeFile(
   return host.writeFile(joinPaths(config.directory, file.destination), content);
 }
 
-async function getLibraryVersion(library: InitTemplateLibrarySpec): Promise<string> {
+async function getPackageVersion(packageInfo: { version?: string }): Promise<string> {
   // TODO: Resolve 'latest' version from npm, issue #1919
-  return library.version ?? "latest";
+  return packageInfo.version ?? "latest";
 }

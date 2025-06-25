@@ -78,12 +78,12 @@ class YamlUpdatePlugin(Plugin):
     """A plugin that update the YAML as input."""
 
     def get_yaml(self) -> Dict[str, Any]:
-        # cadl file doesn't have to be relative to output folder
-        with open(self.options["cadl_file"], "r", encoding="utf-8-sig") as fd:
+        # tsp file doesn't have to be relative to output folder
+        with open(self.options["tsp_file"], "r", encoding="utf-8-sig") as fd:
             return yaml.safe_load(fd.read())
 
     def write_yaml(self, yaml_string: str) -> None:
-        with open(self.options["cadl_file"], "w", encoding="utf-8-sig") as fd:
+        with open(self.options["tsp_file"], "w", encoding="utf-8-sig") as fd:
             fd.write(yaml_string)
 
     def process(self) -> bool:

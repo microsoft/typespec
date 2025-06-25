@@ -1,4 +1,3 @@
-import type { Checker } from "./checker.js";
 import { compilerAssert } from "./diagnostics.js";
 import { numericRanges } from "./numeric-ranges.js";
 import { Numeric } from "./numeric.js";
@@ -7,39 +6,10 @@ import type {
   MarshalledValue,
   NumericValue,
   ObjectValue,
+  Scalar,
   Type,
   Value,
 } from "./types.js";
-
-/**
- * Legacy marshalling of values to replicate before 0.56.0 behavior
- *  - string value -> `string`
- *  - numeric value -> `number`
- *  - boolean value -> `boolean`
- *  - null value -> `NullType`
- */
-export function legacyMarshallTypeForJS(
-  checker: Checker,
-  value: Value,
-): Type | Value | Record<string, unknown> | unknown[] | string | number | boolean {
-  switch (value.valueKind) {
-    case "BooleanValue":
-    case "StringValue":
-      return value.value;
-    case "NumericValue":
-      return Number(value.value.toString());
-    case "ObjectValue":
-      return objectValueToJs(value);
-    case "ArrayValue":
-      return arrayValueToJs(value);
-    case "EnumValue":
-      return value.value;
-    case "NullValue":
-      return checker.nullType;
-    case "ScalarValue":
-      return value;
-  }
-}
 
 export function marshallTypeForJS<T extends Value>(
   value: T,
@@ -64,11 +34,27 @@ export function marshallTypeForJS<T extends Value>(
   }
 }
 
+function isNumericScalar(scalar: Scalar) {
+  let current: Scalar | undefined = scalar;
+
+  while (current) {
+    if (current.name === "numeric" && current.namespace?.name === "TypeSpec") {
+      return true;
+    }
+    current = current.baseScalar;
+  }
+  return false;
+}
+
 export function canNumericConstraintBeJsNumber(type: Type | undefined): boolean {
   if (type === undefined) return true;
   switch (type.kind) {
     case "Scalar":
-      return numericRanges[type.name as keyof typeof numericRanges]?.[2].isJsNumber;
+      if (isNumericScalar(type)) {
+        return numericRanges[type.name as keyof typeof numericRanges]?.[2].isJsNumber;
+      } else {
+        return true;
+      }
     case "Union":
       return [...type.variants.values()].every((x) => canNumericConstraintBeJsNumber(x.type));
     default:

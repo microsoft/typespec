@@ -1,0 +1,8 @@
+{
+  "flavor": "generic", 
+  "CrossLanguageDefinitionId": {
+    "type.enumnamespace.fixed.DaysOfWeekEnum": "Type.Enum.Fixed.DaysOfWeekEnum",
+    "type.enumnamespace.fixed.FixedClient": "Type.Enum.Fixed.String",
+    "type.enumnamespace.fixed.FixedClientBuilder": "Type.Enum.Fixed"
+  }
+}

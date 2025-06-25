@@ -4,14 +4,15 @@
   "compilerOptions": {
     "incremental": false,
     "composite": false,
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "preserve",
+    "moduleResolution": "bundler",
     "sourceMap": false,
     "resolveJsonModule": true,
+    "noEmitOnError": true,
     "outDir": "dist",
     "skipLibCheck": true,
     "types": ["mocha"],
     "rootDir": "."
   },
-  "include": ["rollup.config.ts", "src/**/*.ts", "test/**/*.ts"]
+  "exclude": ["dist", "templates", "vitest.config.ts"]
 }

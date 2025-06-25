@@ -181,7 +181,7 @@ function resolveVersionsForNamespace(
   }
 }
 
-function getAllVersions(p: Program, t: Type): Version[] | undefined {
+export function getAllVersions(p: Program, t: Type): Version[] | undefined {
   const [namespace, _] = getVersions(p, t);
   if (namespace === undefined) return undefined;
 
@@ -209,6 +209,26 @@ function getParentAddedVersion(
   if (parentMap === undefined) return undefined;
   for (const [key, value] of parentMap.entries()) {
     if (value === Availability.Added) {
+      return versions.find((x) => x.name === key);
+    }
+  }
+  return undefined;
+}
+
+function getParentRemovedVersion(
+  program: Program,
+  type: Type,
+  versions: Version[],
+): Version | undefined {
+  let parentMap: Map<string, Availability> | undefined = undefined;
+  if (type.kind === "ModelProperty" && type.model !== undefined) {
+    parentMap = getAvailabilityMap(program, type.model);
+  } else if (type.kind === "Operation" && type.interface !== undefined) {
+    parentMap = getAvailabilityMap(program, type.interface);
+  }
+  if (parentMap === undefined) return undefined;
+  for (const [key, value] of parentMap.entries()) {
+    if (value === Availability.Removed) {
       return versions.find((x) => x.name === key);
     }
   }
@@ -275,6 +295,20 @@ function resolveWhenFirstAdded(
   return added;
 }
 
+function resolveRemoved(added: Version[], removed: Version[], parentRemoved?: Version): Version[] {
+  if (removed.length) {
+    return removed;
+  }
+
+  const implicitlyRemoved =
+    !added.length || (parentRemoved && added[0].index < parentRemoved.index);
+  if (parentRemoved && implicitlyRemoved) {
+    return [parentRemoved];
+  }
+
+  return [];
+}
+
 export function getAvailabilityMap(
   program: Program,
   type: Type,
@@ -287,8 +321,9 @@ export function getAvailabilityMap(
 
   const firstVersion = allVersions[0];
   const parentAdded = getParentAddedVersion(program, type, allVersions) ?? firstVersion;
+  const parentRemoved = getParentRemovedVersion(program, type, allVersions);
   let added = getAddedOnVersions(program, type) ?? [];
-  const removed = getRemovedOnVersions(program, type) ?? [];
+  let removed = getRemovedOnVersions(program, type) ?? [];
   const typeChanged = getTypeChangedFrom(program, type);
   const returnTypeChanged = getReturnTypeChangedFrom(program, type);
   // if there's absolutely no versioning information, return undefined
@@ -303,6 +338,7 @@ export function getAvailabilityMap(
     return undefined;
 
   added = resolveWhenFirstAdded(added, removed, parentAdded);
+  removed = resolveRemoved(added, removed, parentRemoved);
 
   // something isn't available by default
   let isAvail = false;
@@ -372,7 +408,6 @@ export function getAvailabilityMapInTimeline(
 
 export function getVersionForEnumMember(program: Program, member: EnumMember): Version | undefined {
   // Always lookup for the original type. This ensure reference equality when comparing versions.
-  member = (member.projectionBase as EnumMember) ?? member;
   const parentEnum = member.enum;
   const [, versions] = getVersionsForEnum(program, parentEnum);
   return versions?.getVersionForEnumMember(member);

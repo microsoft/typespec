@@ -2,10 +2,8 @@ import "@typespec/rest";
 
 using TypeSpec.Http;
 
-@service({
-  title: "SpecialChars",
-})
-namespace Cadl.SpecialChars;
+@service(#{ title: "SpecialChars" })
+namespace TspTest.SpecialChars;
 
 model Resource {
   @doc("id")

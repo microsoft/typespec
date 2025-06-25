@@ -30,13 +30,12 @@ public class FluentLiveTestsTemplate {
                 classBlock.privateMemberVariable(liveTests.getManagerType().getName(), liveTests.getManagerName());
                 // write setup
                 classBlock.annotation("Override");
-                classBlock.publicMethod("void beforeTest()",
-                    methodBlock -> methodBlock.line(String.format(
-                        "%s = %s.configure().withLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC))"
-                            + ".authenticate("
-                            + "new DefaultAzureCredentialBuilder().build(), new AzureProfile(AzureEnvironment.AZURE)"
-                            + ");",
-                        liveTests.getManagerName(), liveTests.getManagerType().getName())));
+                classBlock.publicMethod("void beforeTest()", methodBlock -> methodBlock.line(String.format(
+                    "%s = %s.configure().withLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC))"
+                        + ".authenticate("
+                        + "new DefaultAzureCredentialBuilder().build(), new AzureProfile(AzureCloud.AZURE_PUBLIC_CLOUD)"
+                        + ");",
+                    liveTests.getManagerName(), liveTests.getManagerType().getName())));
                 // write method signature
                 if (!CoreUtils.isNullOrEmpty(testCase.getDescription())) {
                     classBlock.javadocComment(testCase.getDescription());
@@ -75,7 +74,7 @@ public class FluentLiveTestsTemplate {
         javaFile.declareImport(liveTests.getManagerType().getFullName());
         javaFile.declareImport("org.junit.jupiter.api.Test", "org.junit.jupiter.api.BeforeEach");
         javaFile.declareImport("com.azure.identity.DefaultAzureCredentialBuilder",
-            "com.azure.core.management.profile.AzureProfile", "com.azure.core.management.AzureEnvironment");
+            "com.azure.core.management.profile.AzureProfile", "com.azure.core.models.AzureCloud");
         javaFile.declareImport("com.azure.core.test.annotation.DoNotRecord", "com.azure.core.test.TestBase");
         javaFile.declareImport("com.azure.core.http.policy.HttpLogOptions",
             "com.azure.core.http.policy.HttpLogDetailLevel");

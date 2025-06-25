@@ -6,11 +6,8 @@ import {
   CompletionList,
   MarkupKind,
 } from "vscode-languageserver/node.js";
-import {
-  createTestServerHost,
-  extractCursor,
-  extractSquiggles,
-} from "../../src/testing/test-server-host.js";
+import { extractCursor, extractSquiggles } from "../../src/testing/source-utils.js";
+import { createTestServerHost } from "../../src/testing/test-server-host.js";
 
 // cspell:ignore 𐌰𐌲𐌰𐌲𐌰𐌲
 
@@ -479,6 +476,97 @@ describe("identifiers", () => {
     ]);
   });
 
+  it("completes meta property '::type' on model property", async () => {
+    const completions = await complete(
+      `
+      model A{
+        name: string;
+      }
+
+      model B{
+          a: A;
+      }
+
+      model C {
+          ...B.a::┆;
+      }
+      `,
+    );
+
+    check(completions, [
+      {
+        label: "type",
+        insertText: "type",
+        kind: CompletionItemKind.Field,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "(model property)\n```typespec\nB.a: A\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes meta property '::parameters' and '::returnType' on operation", async () => {
+    const completions = await complete(
+      `
+      op base(one: string): void;    
+      @@doc(base::par┆, "Override");
+      `,
+    );
+
+    check(completions, [
+      {
+        label: "parameters",
+        insertText: "parameters",
+        kind: CompletionItemKind.Method,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\nop base(one: string): void\n```",
+        },
+      },
+      {
+        label: "returnType",
+        insertText: "returnType",
+        kind: CompletionItemKind.Method,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\nop base(one: string): void\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes meta property '::parameters' and '::returnType' using alias on operation", async () => {
+    const completions = await complete(
+      `
+      op a(@doc("base doc") one: string): void;
+      op b is a;
+      @@doc(b::par┆, "override for b");
+      `,
+    );
+
+    check(completions, [
+      {
+        label: "parameters",
+        insertText: "parameters",
+        kind: CompletionItemKind.Method,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\nop b(one: string): void\n```",
+        },
+      },
+      {
+        label: "returnType",
+        insertText: "returnType",
+        kind: CompletionItemKind.Method,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\nop b(one: string): void\n```",
+        },
+      },
+    ]);
+  });
+
   it("completes partial identifiers", async () => {
     const completions = await complete(
       `
@@ -655,6 +743,118 @@ describe("identifiers", () => {
           documentation: {
             kind: MarkupKind.Markdown,
             value: "(union variant)\n```typespec\nFruit.banana: Banana\n```",
+          },
+        },
+      ],
+      {
+        allowAdditionalCompletions: false,
+      },
+    );
+  });
+
+  it("completes union variants(models) of template parameters", async () => {
+    const completions = await complete(
+      `
+      model Options {
+        a: string;
+        b: Nested;
+      }
+      model Nested {
+        c:Foo2;
+      }
+      model Foo1 {
+        foo1: string;
+      }
+      model Foo2 {
+        foo2: string;
+      }
+
+      model Test<T extends valueof string | Foo1 | Options> {}
+
+      alias A = Test<#{┆}>;
+      `,
+    );
+
+    check(
+      completions,
+      [
+        {
+          label: "foo1",
+          insertText: "foo1",
+          kind: CompletionItemKind.Field,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(model property)\n```typespec\nFoo1.foo1: string\n```",
+          },
+        },
+        {
+          label: "a",
+          insertText: "a",
+          kind: CompletionItemKind.Field,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(model property)\n```typespec\nOptions.a: string\n```",
+          },
+        },
+        {
+          label: "b",
+          insertText: "b",
+          kind: CompletionItemKind.Field,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(model property)\n```typespec\nOptions.b: Nested\n```",
+          },
+        },
+      ],
+      {
+        allowAdditionalCompletions: false,
+      },
+    );
+  });
+
+  it("completes specific type in union variants(models) of template parameters", async () => {
+    const completions = await complete(
+      `
+      model Options {
+        a: string;
+        b: Nested;
+      }
+      model Nested {
+        c:Foo2;
+        d:string;
+      }
+      model Foo1 {
+        foo1: string;
+      }
+      model Foo2 {
+        foo2: string;
+      }
+
+      model Test<T extends valueof string | Foo1 | Options> {}
+
+      alias A = Test<#{a:"",b:#{┆}}>;
+      `,
+    );
+
+    check(
+      completions,
+      [
+        {
+          label: "c",
+          insertText: "c",
+          kind: CompletionItemKind.Field,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(model property)\n```typespec\nNested.c: Foo2\n```",
+          },
+        },
+        {
+          label: "d",
+          insertText: "d",
+          kind: CompletionItemKind.Field,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(model property)\n```typespec\nNested.d: string\n```",
           },
         },
       ],
@@ -1245,7 +1445,7 @@ describe("identifiers", () => {
         /**
          * my log context
          */
-        context: MyLogContext<string>[];
+        ctx: MyLogContext<string>[];
       }
       `;
 
@@ -1280,13 +1480,13 @@ describe("identifiers", () => {
             },
           },
           {
-            label: "context",
-            insertText: "context",
+            label: "ctx",
+            insertText: "ctx",
             kind: CompletionItemKind.Field,
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>[]\n```\n\nmy log context",
+                "(model property)\n```typespec\nMyLogArg.ctx: MyLogContext<string>[]\n```\n\nmy log context",
             },
           },
         ],
@@ -1298,8 +1498,8 @@ describe("identifiers", () => {
     });
 
     it.each([
-      `model TestModel<T extends MyLogArg = {context: [{┆}]}>{};`,
-      `model TestModel<T extends valueof MyLogArg = #{context: #[#{┆}]}>{};`,
+      `model TestModel<T extends MyLogArg = {ctx: [{┆}]}>{};`,
+      `model TestModel<T extends valueof MyLogArg = #{ctx: #[#{┆}]}>{};`,
     ])(
       `show all properties of literal model -> literal array -> literal model: %s`,
       async (code) => {
@@ -1619,7 +1819,7 @@ describe("identifiers", () => {
       /**
        * my log context
        */
-      context: MyLogContext<string>[];
+      ctx: MyLogContext<string>[];
     }
 
     scalar TestString extends string{
@@ -1658,13 +1858,13 @@ describe("identifiers", () => {
             },
           },
           {
-            label: "context",
-            insertText: "context",
+            label: "ctx",
+            insertText: "ctx",
             kind: CompletionItemKind.Field,
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>[]\n```\n\nmy log context",
+                "(model property)\n```typespec\nMyLogArg.ctx: MyLogContext<string>[]\n```\n\nmy log context",
             },
           },
         ],
@@ -1702,13 +1902,13 @@ describe("identifiers", () => {
             },
           },
           {
-            label: "context",
-            insertText: "context",
+            label: "ctx",
+            insertText: "ctx",
             kind: CompletionItemKind.Field,
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>[]\n```\n\nmy log context",
+                "(model property)\n```typespec\nMyLogArg.ctx: MyLogContext<string>[]\n```\n\nmy log context",
             },
           },
         ],
@@ -1746,13 +1946,13 @@ describe("identifiers", () => {
             },
           },
           {
-            label: "context",
-            insertText: "context",
+            label: "ctx",
+            insertText: "ctx",
             kind: CompletionItemKind.Field,
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>[]\n```\n\nmy log context",
+                "(model property)\n```typespec\nMyLogArg.ctx: MyLogContext<string>[]\n```\n\nmy log context",
             },
           },
         ],
@@ -1819,11 +2019,11 @@ describe("identifiers", () => {
       /**
        * my log context
        */
-      context: MyLogContext<string>[];
+      ctx: MyLogContext<string>[];
       /**
        * my log context2
        */
-      context2: [MyLogContext<string>, int16];
+      ctx2: [MyLogContext<string>, int16];
     }
     `;
     it("show all properties literal model", async () => {
@@ -1854,23 +2054,23 @@ describe("identifiers", () => {
             },
           },
           {
-            label: "context",
-            insertText: "context",
+            label: "ctx",
+            insertText: "ctx",
             kind: CompletionItemKind.Field,
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>[]\n```\n\nmy log context",
+                "(model property)\n```typespec\nMyLogArg.ctx: MyLogContext<string>[]\n```\n\nmy log context",
             },
           },
           {
-            label: "context2",
-            insertText: "context2",
+            label: "ctx2",
+            insertText: "ctx2",
             kind: CompletionItemKind.Field,
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogArg.context2: [MyLogContext<string>, int16]\n```\n\nmy log context2",
+                "(model property)\n```typespec\nMyLogArg.ctx2: [MyLogContext<string>, int16]\n```\n\nmy log context2",
             },
           },
         ],
@@ -1909,23 +2109,23 @@ describe("identifiers", () => {
             },
           },
           {
-            label: "context",
-            insertText: "context",
+            label: "ctx",
+            insertText: "ctx",
             kind: CompletionItemKind.Field,
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>[]\n```\n\nmy log context",
+                "(model property)\n```typespec\nMyLogArg.ctx: MyLogContext<string>[]\n```\n\nmy log context",
             },
           },
           {
-            label: "context2",
-            insertText: "context2",
+            label: "ctx2",
+            insertText: "ctx2",
             kind: CompletionItemKind.Field,
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogArg.context2: [MyLogContext<string>, int16]\n```\n\nmy log context2",
+                "(model property)\n```typespec\nMyLogArg.ctx2: [MyLogContext<string>, int16]\n```\n\nmy log context2",
             },
           },
         ],
@@ -1939,7 +2139,7 @@ describe("identifiers", () => {
     it("show all properties of literal model -> literal array -> literal model", async () => {
       const completions = await complete(
         `${def}
-         const c : MyLogArg = #{context:#[#{┆}]};
+         const c : MyLogArg = #{ctx:#[#{┆}]};
         `,
       );
       check(
@@ -1976,7 +2176,7 @@ describe("identifiers", () => {
     it("show all properties of literal model -> tuple -> literal model", async () => {
       const completions = await complete(
         `${def}
-         const c : MyLogArg = #{context2:#[#{┆}]};
+         const c : MyLogArg = #{ctx2:#[#{┆}]};
         `,
       );
       check(
@@ -2014,7 +2214,7 @@ describe("identifiers", () => {
       const completions = await complete(
         `${def}
          alias A = [MyLogArg];
-         const c : A = #[#{context:#[#{┆}]}];
+         const c : A = #[#{ctx:#[#{┆}]}];
         `,
       );
       check(
@@ -2051,7 +2251,7 @@ describe("identifiers", () => {
     it("no completion for scalar array in literal object", async () => {
       const completions = await complete(
         `${def}
-         const c : MyLogArg = #{context:#[#{item: #[┆]}]};
+         const c : MyLogArg = #{ctx:#[#{item: #[┆]}]};
         `,
       );
       ok(completions.items.length === 0, "No completions expected for scalar array");
@@ -2118,7 +2318,7 @@ describe("identifiers", () => {
         /**
          * my log context
          */
-        context: MyLogContext<string>;
+        ctx: MyLogContext<string>;
       }
 
       extern dec myDec(target, arg: MyLogArg, arg2: valueof MyLogArg, arg3: [string, MyLogArg, int], arg4: valueof [MyLogArg]);
@@ -2166,13 +2366,13 @@ describe("identifiers", () => {
             },
           },
           {
-            label: "context",
-            insertText: "context",
+            label: "ctx",
+            insertText: "ctx",
             kind: CompletionItemKind.Field,
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>\n```\n\nmy log context",
+                "(model property)\n```typespec\nMyLogArg.ctx: MyLogContext<string>\n```\n\nmy log context",
             },
           },
         ],
@@ -2193,9 +2393,9 @@ describe("identifiers", () => {
     });
 
     it.each([
-      `@myDec({ context: {┆} })`,
-      `@myDec({ context: {} }, #{ context: #{┆} })`,
-      `@myDec({ context: {} }, { context: {┆} })`,
+      `@myDec({ ctx: {┆} })`,
+      `@myDec({ ctx: {} }, #{ ctx: #{┆} })`,
+      `@myDec({ ctx: {} }, { ctx: {┆} })`,
     ])("show all properties of nested model: %s", async (code) => {
       const js = {
         name: "test/decorators.js",
@@ -2241,7 +2441,7 @@ describe("identifiers", () => {
 
       const result = await complete(
         `${decArgModelDef}
-        @myDec(#{ context: #{┆} }, { context: {} })
+        @myDec(#{ ctx: #{┆} }, { ctx: {} })
         model M {}
         `,
         js,
@@ -2250,9 +2450,9 @@ describe("identifiers", () => {
     });
 
     it.each([
-      `@myDec({ context: { name: "abc", ┆} })`,
-      `@myDec({}, #{ context: #{ name: "abc", ┆} })`,
-      `@myDec({}, { context: { name: "abc", ┆} })`,
+      `@myDec({ ctx: { name: "abc", ┆} })`,
+      `@myDec({}, #{ ctx: #{ name: "abc", ┆} })`,
+      `@myDec({}, { ctx: { name: "abc", ┆} })`,
     ])("show the left properties: %s", async (code) => {
       const js = {
         name: "test/decorators.js",
@@ -2289,7 +2489,7 @@ describe("identifiers", () => {
 
       const result = await complete(
         `${decArgModelDef}
-      @myDec(#{ context: #{ name: "abc", ┆} })
+      @myDec(#{ ctx: #{ name: "abc", ┆} })
       model M {}
       `,
         js,
@@ -2327,13 +2527,13 @@ describe("identifiers", () => {
             },
           },
           {
-            label: "context",
-            insertText: "context",
+            label: "ctx",
+            insertText: "ctx",
             kind: CompletionItemKind.Field,
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>\n```\n\nmy log context",
+                "(model property)\n```typespec\nMyLogArg.ctx: MyLogContext<string>\n```\n\nmy log context",
             },
           },
         ],

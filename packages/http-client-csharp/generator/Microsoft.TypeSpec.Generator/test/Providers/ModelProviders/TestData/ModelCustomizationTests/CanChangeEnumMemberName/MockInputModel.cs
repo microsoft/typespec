@@ -1,0 +1,15 @@
+#nullable disable
+
+using Sample;
+using SampleTypeSpec;
+
+namespace Sample.Models
+{
+    public enum MockInputModel
+    {
+        Red,
+        Green,
+        [CodeGenMember("Blue")]
+        SkyBlue
+    }
+}

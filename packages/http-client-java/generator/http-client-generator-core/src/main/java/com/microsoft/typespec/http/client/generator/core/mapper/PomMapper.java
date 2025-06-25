@@ -7,20 +7,24 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Pom;
 import com.microsoft.typespec.http.client.generator.core.model.projectmodel.Project;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class PomMapper implements IMapper<Project, Pom> {
 
+    private static final PomMapper INSTANCE = new PomMapper();
+
+    public static PomMapper getInstance() {
+        return INSTANCE;
+    }
+
     protected static final String TEST_SUFFIX = ":test";
 
     @Override
     public Pom map(Project project) {
-        if (!JavaSettings.getInstance().isBranded()) {
+        if (!JavaSettings.getInstance().isAzureV1()) {
             return createGenericPom(project);
         } else {
             return createAzurePom(project);
@@ -75,16 +79,11 @@ public class PomMapper implements IMapper<Project, Pom> {
 
         pom.setServiceName(project.getServiceName());
         pom.setServiceDescription(project.getServiceDescriptionForPom());
-        Map<String, String> repositories = new HashMap<>();
-        repositories.put("clientcore", "https://clientcore.blob.core.windows.net/artifacts");
-        pom.setRepositories(repositories);
 
         Set<String> addedDependencyPrefixes = new HashSet<>();
         List<String> dependencyIdentifiers = new ArrayList<>();
         // for generic pom, stream style is always true
         addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes, Project.Dependency.CLIENTCORE, false);
-        addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes, Project.Dependency.CLIENTCORE_JSON,
-            false);
 
         // merge dependencies in POM and dependencies added above
         dependencyIdentifiers.addAll(project.getPomDependencyIdentifiers()
@@ -92,6 +91,9 @@ public class PomMapper implements IMapper<Project, Pom> {
             .filter(
                 dependencyIdentifier -> addedDependencyPrefixes.stream().noneMatch(dependencyIdentifier::startsWith))
             .collect(Collectors.toList()));
+
+        pom.setLicenseName(project.getLicenseName());
+        pom.setLicenseUrl(project.getLicenseUrl());
 
         pom.setDependencyIdentifiers(dependencyIdentifiers);
         pom.setRequireCompilerPlugins(true);

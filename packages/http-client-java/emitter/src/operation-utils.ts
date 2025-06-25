@@ -1,17 +1,15 @@
-import { Parameter } from "@autorest/codemodel";
-import { LroMetadata } from "@azure-tools/typespec-azure-core";
-import { SdkHttpOperation } from "@azure-tools/typespec-client-generator-core";
-import { ModelProperty, Operation, Program, Type, Union } from "@typespec/compiler";
+import { ObjectSchema, Parameter, Property, SchemaResponse } from "@autorest/codemodel";
 import {
-  HttpOperation,
-  getHeaderFieldName,
-  getPathParamName,
-  getQueryParamName,
-  isStatusCode,
-} from "@typespec/http";
+  SdkHttpOperation,
+  SdkLroServiceMetadata,
+  SdkModelPropertyType,
+} from "@azure-tools/typespec-client-generator-core";
+import { Operation, Program, Type, Union } from "@typespec/compiler";
+import { HttpOperation } from "@typespec/http";
 import { Client as CodeModelClient, ServiceVersion } from "./common/client.js";
 import { CodeModel } from "./common/code-model.js";
-import { modelIs, unionReferredByType } from "./type-utils.js";
+import { Operation as CodeModelOperation } from "./common/operation.js";
+import { getPropertySerializedName, modelIs, unionReferredByType } from "./type-utils.js";
 import { getNamespace, pascalCase } from "./utils.js";
 
 export const SPECIAL_HEADER_NAMES = new Set([
@@ -119,17 +117,6 @@ export function operationRefersUnion(
   return null;
 }
 
-export function isPayloadProperty(program: Program, property: ModelProperty | undefined): boolean {
-  if (property === undefined) {
-    return false;
-  }
-  const headerInfo = getHeaderFieldName(program, property);
-  const queryInfo = getQueryParamName(program, property);
-  const pathInfo = getPathParamName(program, property);
-  const statusCodeInfo = isStatusCode(program, property);
-  return !(headerInfo || queryInfo || pathInfo || statusCodeInfo);
-}
-
 export function getServiceVersion(client: CodeModelClient | CodeModel): ServiceVersion {
   let name = client.language.default.name;
   let description = name;
@@ -148,28 +135,26 @@ export function getServiceVersion(client: CodeModelClient | CodeModel): ServiceV
 }
 
 export function isLroNewPollingStrategy(
-  httpOperation: HttpOperation,
-  lroMetadata: LroMetadata,
+  operation: SdkHttpOperation,
+  lroMetadata: SdkLroServiceMetadata,
 ): boolean {
-  const operation = httpOperation.operation;
   let useNewStrategy = false;
   if (
-    lroMetadata.pollingInfo &&
-    lroMetadata.statusMonitorStep &&
-    modelIs(lroMetadata.pollingInfo.responseModel, "OperationStatus", "Azure.Core.Foundations")
+    lroMetadata.pollingStep.responseBody &&
+    modelIs(lroMetadata.pollingStep.responseBody, "OperationStatus", "Azure.Core.Foundations")
   ) {
     useNewStrategy = operationIs(operation, undefined, "Azure.Core");
   }
 
   if (!useNewStrategy) {
     // LroMetadata: following 2 pattern in LroMetadata requires new polling strategy, regardless whether they uses Azure.Core template
-    if (httpOperation.verb === "put" && !lroMetadata.finalStep) {
+    if (operation.verb === "put" && !lroMetadata.finalStep) {
       // PUT without last GET on resource
       useNewStrategy = true;
     } else if (
       lroMetadata.finalStep &&
       lroMetadata.finalStep.kind === "pollingSuccessProperty" &&
-      lroMetadata.finalStep.target
+      lroMetadata.finalResponse?.resultSegments
     ) {
       // final result is the value in lroMetadata.finalStep.target
       useNewStrategy = true;
@@ -200,8 +185,55 @@ export function cloneOperationParameter(parameter: Parameter): Parameter {
   );
 }
 
-function operationIs(operation: Operation, name: string | undefined, namespace: string): boolean {
-  let currentOp: Operation | undefined = operation;
+/**
+ * Constructs a list of property path (json path) from the response schema based on the provided property segments.
+ *
+ * @param op the code model operation
+ * @param propertySegments the segments of the property path (json path) to find in the response schema
+ * @returns the list of property path (json path)
+ */
+export function findResponsePropertySegments(
+  op: CodeModelOperation,
+  propertySegments: SdkModelPropertyType[] | undefined,
+): Property[] | undefined {
+  if (op.responses && op.responses.length > 0 && op.responses[0] instanceof SchemaResponse) {
+    const schema = op.responses[0].schema;
+    if (propertySegments && schema instanceof ObjectSchema && schema.properties) {
+      const propertyArray: Property[] = [];
+
+      let currentSchemaProperties: Property[] | undefined = schema.properties;
+      for (const propertySegment of propertySegments) {
+        // abort if no properties in current schema. this should not happen though
+        if (!currentSchemaProperties) {
+          break;
+        }
+
+        // skip non-property segments. again, this should not happen
+        if (propertySegment.kind === "property") {
+          const serializedName = getPropertySerializedName(propertySegment);
+          for (const property of currentSchemaProperties) {
+            if (property.serializedName === serializedName) {
+              propertyArray.push(property);
+
+              currentSchemaProperties =
+                property.schema instanceof ObjectSchema ? property.schema.properties : undefined;
+            }
+          }
+        }
+      }
+
+      return propertyArray.length > 0 ? propertyArray : undefined;
+    }
+  }
+  return undefined;
+}
+
+function operationIs(
+  operation: SdkHttpOperation,
+  name: string | undefined,
+  namespace: string,
+): boolean {
+  let currentOp: Operation | undefined = operation.__raw.operation;
   while (currentOp) {
     if ((!name || currentOp.name === name) && getNamespace(currentOp) === namespace) {
       return true;

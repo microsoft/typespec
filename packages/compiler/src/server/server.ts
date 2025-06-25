@@ -3,6 +3,7 @@ import { mkdir, writeFile } from "fs/promises";
 import inspector from "inspector";
 import { join } from "path";
 import { fileURLToPath } from "url";
+import { inspect } from "util";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
   ApplyWorkspaceEditParams,
@@ -13,9 +14,10 @@ import {
   createConnection,
 } from "vscode-languageserver/node.js";
 import { NodeHost } from "../core/node-host.js";
-import { typespecVersion } from "../utils/misc.js";
+import { typespecVersion } from "../manifest.js";
+import { createClientConfigProvider } from "./client-config-provider.js";
 import { createServer } from "./serverlib.js";
-import { Server, ServerHost, ServerLog } from "./types.js";
+import { CustomRequestName, Server, ServerHost, ServerLog } from "./types.js";
 
 let server: Server | undefined = undefined;
 
@@ -50,8 +52,7 @@ function main() {
       let detail: string | undefined = undefined;
       let fullMessage = message;
       if (log.detail) {
-        detail =
-          typeof log.detail === "string" ? log.detail : JSON.stringify(log.detail, undefined, 2);
+        detail = typeof log.detail === "string" ? log.detail : inspect(log.detail);
         fullMessage = `${message}:\n${detail}`;
       }
 
@@ -86,7 +87,8 @@ function main() {
     },
   };
 
-  const s = createServer(host);
+  const clientConfigProvider = createClientConfigProvider();
+  const s = createServer(host, clientConfigProvider);
   server = s;
   s.log({ level: `info`, message: `TypeSpec language server v${typespecVersion}` });
   s.log({ level: `info`, message: `Module: ${fileURLToPath(import.meta.url)}` });
@@ -106,10 +108,13 @@ function main() {
     return await s.initialize(params);
   });
 
-  connection.onInitialized((params) => {
+  connection.onInitialized(async (params) => {
     if (clientHasWorkspaceFolderCapability) {
       connection.workspace.onDidChangeWorkspaceFolders(s.workspaceFoldersChanged);
     }
+
+    // Initialize client configurations
+    await clientConfigProvider.initialize(connection, host);
     s.initialized(params);
   });
 
@@ -128,6 +133,16 @@ function main() {
   connection.onCodeAction(profile(s.getCodeActions));
   connection.onExecuteCommand(profile(s.executeCommand));
   connection.languages.semanticTokens.on(profile(s.buildSemanticTokens));
+  connection.workspace.onDidRenameFiles(profile(s.renameFiles));
+
+  const validateInitProjectTemplate: CustomRequestName = "typespec/validateInitProjectTemplate";
+  connection.onRequest(validateInitProjectTemplate, profile(s.validateInitProjectTemplate));
+  const getInitProjectContextRequestName: CustomRequestName = "typespec/getInitProjectContext";
+  connection.onRequest(getInitProjectContextRequestName, profile(s.getInitProjectContext));
+  const initProjectRequestName: CustomRequestName = "typespec/initProject";
+  connection.onRequest(initProjectRequestName, profile(s.initProject));
+  const compileProjectRequestName: CustomRequestName = "typespec/internalCompile";
+  connection.onRequest(compileProjectRequestName, profile(s.internalCompile));
 
   documents.onDidChangeContent(profile(s.checkChange));
   documents.onDidClose(profile(s.documentClosed));

@@ -1,2 +1,3 @@
 /test/main.tsp:15:7 - error @typespec/protobuf/unspeakable-template-argument: template Templated cannot be converted to a Protobuf message because it has an unspeakable argument (try using the '@friendlyName' decorator on the template)
+  /test/main.tsp:12:30 - occurred while instantiating template
 /test/main.tsp:12:40 - error @typespec/protobuf/anonymous-model: anonymous models cannot be used in Protobuf messages

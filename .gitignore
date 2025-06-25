@@ -107,7 +107,7 @@ venv.bak/
 .mypy_cache/
 node_modules/
 package-lock.json
-report.xml 
+report.xml
 *.tgz
 
 # Logs
@@ -126,7 +126,9 @@ lib-cov
 
 # Coverage directory used by tools like istanbul
 coverage
-!packages/spec-core/src/coverage
+!packages/spector/src/coverage
+spec-coverage.json
+manifest.json
 
 # nyc test coverage
 .nyc_output
@@ -175,6 +177,9 @@ package-deps.json
 # Default TypeSpec output
 tsp-output/
 
+# Story book output
+storybook-static/
+
 # Visual Studio / C#
 bin/
 obj/
@@ -197,10 +202,14 @@ developer/
 
 *.vsix
 *.zip
+vite.config.ts.timestamp-*
+
+# Astro
+.astro/
 
 # Api extractor
 packages/*/etc/
-docs/**/js-api/
+**/docs/**/js-api/
 
 # VS Code test web temp files
 .vscode-test-web/
@@ -217,4 +226,8 @@ BenchmarkDotnet.Artifacts/
 packages/http-client-python/generator/test/**/generated/
 packages/http-client-python/generator/test/**/cadl-ranch-coverage.json
 !packages/http-client-python/package-lock.json
+packages/http-client-python/micropip.lock
+packages/http-client-python/venv_build_wheel/
 
+# http-server-js emitter
+packages/http-server-js/test/e2e/generated

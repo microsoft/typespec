@@ -3,13 +3,10 @@ import "@azure-tools/typespec-azure-core";
 import "@azure-tools/typespec-client-generator-core";
 
 using TypeSpec.Http;
-using Azure.Core;
 using Azure.ClientGenerator.Core;
 
-@service({
-  title: "EnumService",
-})
-namespace Cadl.EnumService;
+@service(#{ title: "EnumService" })
+namespace TspTest.EnumService;
 
 #suppress "@azure-tools/typespec-azure-core/use-extensible-enum" "For testing"
 enum Color {
@@ -35,6 +32,12 @@ union PriorityModel {
   int32,
   High: 100,
   Low: 0,
+}
+
+union OlympicRecordModel {
+  float32,
+  Olympic_100_Meters: 9.58,
+  Olympic_200_Meters: 19.30,
 }
 
 #suppress "@azure-tools/typespec-azure-core/use-extensible-enum" "For testing"
@@ -69,21 +72,27 @@ model Operation {
   colorValue: Color.Green;
   colorModelValue: ColorModel.Blue;
   unitValue?: Unit.Milligram;
+  olympicRecord?: OlympicRecordModel;
+  olympicRecordValue?: OlympicRecordModel.Olympic_100_Meters;
 }
 
 @client({
-  service: Cadl.EnumService,
+  service: TspTest.EnumService,
   name: "EnumServiceClient",
 })
 @route("/enum")
 interface EnumOp {
   @get
   @route("/color")
-  getColor(): Color;
+  getColor(): {
+    @header contentType: "application/json";
+    @body body: Color;
+  };
 
   @get
   @route("/colormodel")
   getColorModel(): {
+    @header contentType: "application/json";
     @body body: ColorModel;
   };
 
@@ -122,7 +131,7 @@ interface EnumOp {
 
     @query
     priorityArrayOpt?: Priority[],
-  ): string;
+  ): void;
 
   @post
   @route("operation/stringarray")
@@ -132,7 +141,7 @@ interface EnumOp {
 
     @query
     stringArrayOpt?: string[],
-  ): string;
+  ): void;
 
   @post
   @route("operation/intarray")
@@ -142,7 +151,7 @@ interface EnumOp {
 
     @query
     intArrayOpt?: int32[],
-  ): string;
+  ): void;
 
   @post
   @route("operation/stringenummulti")
@@ -152,7 +161,7 @@ interface EnumOp {
 
     @query(#{ explode: true })
     colorArrayOpt?: ColorModel[],
-  ): string;
+  ): void;
 
   @post
   @route("operation/intenummulti")
@@ -162,7 +171,7 @@ interface EnumOp {
 
     @query(#{ explode: true })
     priorityArrayOpt?: Priority[],
-  ): string;
+  ): void;
 
   @post
   @route("operation/stringmulti")
@@ -172,7 +181,7 @@ interface EnumOp {
 
     @query(#{ explode: true })
     stringArrayOpt?: string[],
-  ): string;
+  ): void;
 
   @post
   @route("operation/intmulti")
@@ -182,19 +191,15 @@ interface EnumOp {
 
     @query(#{ explode: true })
     intArrayOpt?: int32[],
-  ): string;
+  ): void;
 
   @post
   @route("operation/stringenumarrayheader")
   setStringEnumArrayHeader(
-    @header({
-      format: "csv",
-    })
+    @header
     colorArray: ColorModel[],
 
-    @header({
-      format: "csv",
-    })
+    @header
     colorArrayOpt?: ColorModel[],
-  ): string;
+  ): void;
 }

@@ -24,7 +24,7 @@ try {
             # test the generator
             Invoke-LoggedCommand "dotnet test ./generator" -GroupOutput
 
-            Invoke-LoggedCommand "./eng/scripts/Get-CadlRanch-Coverage.ps1" -GroupOutput
+            Invoke-LoggedCommand "./eng/scripts/Get-Spector-Coverage.ps1" -GroupOutput
         }
         finally {
             Pop-Location
@@ -32,6 +32,14 @@ try {
     }
     if ($GenerationChecks) {
         Set-StrictMode -Version 1
+
+        Write-Host "Installing pnpm" -ForegroundColor Cyan
+        Invoke-LoggedCommand "npm install -g pnpm" -GroupOutput
+
+        Write-Host "Setting up workspace" -ForegroundColor Cyan
+        Invoke-LoggedCommand "pnpm setup:min" $packageRoot/../..
+
+        Invoke-LoggedCommand "npm run build && npm run regen-docs" -GroupOutput
         # run E2E Test for TypeSpec emitter
         Write-Host "Generating test projects ..."
         & "$packageRoot/eng/scripts/Generate.ps1"

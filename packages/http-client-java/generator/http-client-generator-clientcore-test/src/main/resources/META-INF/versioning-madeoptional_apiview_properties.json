@@ -1,0 +1,8 @@
+{
+  "flavor": "generic", 
+  "CrossLanguageDefinitionId": {
+    "versioning.madeoptional.MadeOptionalClient": "Versioning.MadeOptional",
+    "versioning.madeoptional.MadeOptionalClientBuilder": "Versioning.MadeOptional",
+    "versioning.madeoptional.TestModel": "Versioning.MadeOptional.TestModel"
+  }
+}

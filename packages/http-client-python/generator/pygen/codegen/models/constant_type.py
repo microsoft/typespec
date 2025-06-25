@@ -56,14 +56,13 @@ class ConstantType(BaseType):
             f"Default value is {self.get_declaration()}.",
         )
 
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         """Returns the serialization value for msrest.
 
         :return: The serialization value for msrest
         :rtype: str
         """
-        return self.value_type.serialization_type
+        return self.value_type.serialization_type(**kwargs)
 
     def docstring_text(self, **kwargs: Any) -> str:
         return "constant"

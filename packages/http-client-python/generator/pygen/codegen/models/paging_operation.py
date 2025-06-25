@@ -16,6 +16,7 @@ from .imports import ImportType, FileImport, TypingSection
 from .parameter_list import ParameterList
 from .model_type import ModelType
 from .list_type import ListType
+from .parameter import Parameter
 
 if TYPE_CHECKING:
     from .code_model import CodeModel
@@ -58,6 +59,18 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
         self.override_success_response_to_200 = override_success_response_to_200
         self.pager_sync: str = yaml_data.get("pagerSync") or f"{self.code_model.core_library}.paging.ItemPaged"
         self.pager_async: str = yaml_data.get("pagerAsync") or f"{self.code_model.core_library}.paging.AsyncItemPaged"
+        self.continuation_token: Dict[str, Any] = yaml_data.get("continuationToken", {})
+        self.next_link_reinjected_parameters: List[Parameter] = [
+            Parameter.from_yaml(p, code_model) for p in yaml_data.get("nextLinkReInjectedParameters", [])
+        ]
+
+    @property
+    def has_continuation_token(self) -> bool:
+        return bool(self.continuation_token.get("input") and self.continuation_token.get("output"))
+
+    @property
+    def next_variable_name(self) -> str:
+        return "_continuation_token" if self.has_continuation_token else "next_link"
 
     def _get_attr_name(self, wire_name: str) -> str:
         response_type = self.responses[0].type
@@ -74,8 +87,8 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
         return self.responses[0].get_pager(async_mode)
 
     @property
-    def continuation_token_name(self) -> Optional[str]:
-        wire_name = self.yaml_data.get("continuationTokenName")
+    def next_link_name(self) -> Optional[str]:
+        wire_name = self.yaml_data.get("nextLinkName")
         if not wire_name:
             # That's an ok scenario, it just means no next page possible
             return None
@@ -103,21 +116,29 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
     def operation_type(self) -> str:
         return "paging"
 
-    def cls_type_annotation(self, *, async_mode: bool) -> str:
-        return f"ClsType[{Response.type_annotation(self.responses[0], async_mode=async_mode)}]"
+    def cls_type_annotation(self, *, async_mode: bool, **kwargs: Any) -> str:
+        return f"ClsType[{Response.type_annotation(self.responses[0], async_mode=async_mode, **kwargs)}]"
 
     def _imports_shared(self, async_mode: bool, **kwargs: Any) -> FileImport:
         file_import = super()._imports_shared(async_mode, **kwargs)
         if async_mode:
-            file_import.add_submodule_import("typing", "AsyncIterable", ImportType.STDLIB, TypingSection.CONDITIONAL)
+            default_paging_submodule = f"{'async_' if self.code_model.is_azure_flavor else ''}paging"
+            file_import.add_submodule_import(
+                f"{self.code_model.core_library}.{default_paging_submodule}",
+                "AsyncItemPaged",
+                ImportType.SDKCORE,
+                TypingSection.CONDITIONAL,
+            )
         else:
-            file_import.add_submodule_import("typing", "Iterable", ImportType.STDLIB, TypingSection.CONDITIONAL)
+            file_import.add_submodule_import(
+                f"{self.code_model.core_library}.paging", "ItemPaged", ImportType.SDKCORE, TypingSection.CONDITIONAL
+            )
         if (
             self.next_request_builder
             and self.code_model.options["builders_visibility"] == "embedded"
             and not async_mode
         ):
-            file_import.merge(self.next_request_builder.imports())
+            file_import.merge(self.next_request_builder.imports(**kwargs))
         return file_import
 
     @property
@@ -129,6 +150,7 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
             return FileImport(self.code_model)
         file_import = self._imports_shared(async_mode, **kwargs)
         file_import.merge(super().imports(async_mode, **kwargs))
+        serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         if self.code_model.options["tracing"] and self.want_tracing:
             file_import.add_submodule_import(
                 "azure.core.tracing.decorator",
@@ -136,7 +158,9 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
                 ImportType.SDKCORE,
             )
         if self.next_request_builder:
-            file_import.merge(self.get_request_builder_import(self.next_request_builder, async_mode))
+            file_import.merge(
+                self.get_request_builder_import(self.next_request_builder, async_mode, serialize_namespace)
+            )
         elif any(p.is_api_version for p in self.client.parameters):
             file_import.add_import("urllib.parse", ImportType.STDLIB)
             file_import.add_submodule_import(
@@ -145,10 +169,12 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
                 ImportType.SDKCORE,
             )
         if self.code_model.options["models_mode"] == "dpg":
-            relative_path = "..." if async_mode else ".."
+            relative_path = self.code_model.get_relative_import_path(
+                serialize_namespace, module_name="_utils.model_base"
+            )
             file_import.merge(self.item_type.imports(**kwargs))
-            if self.default_error_deserialization or any(r.type for r in self.responses):
-                file_import.add_submodule_import(f"{relative_path}_model_base", "_deserialize", ImportType.LOCAL)
+            if self.default_error_deserialization or self.need_deserialize:
+                file_import.add_submodule_import(relative_path, "_deserialize", ImportType.LOCAL)
         return file_import
 
 

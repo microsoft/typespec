@@ -41,7 +41,7 @@ public class TypeUtil {
             try {
                 return Optional.of(Class.forName(key));
             } catch (ClassNotFoundException e) {
-                LOGGER.warn("class " + key + " not found!", e);
+                LOGGER.warn("class {} not found, skip subclass checking.", key);
                 return Optional.empty();
             }
         }).orElse(null);

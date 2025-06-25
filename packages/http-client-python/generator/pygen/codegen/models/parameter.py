@@ -81,10 +81,12 @@ class _ParameterBase(BaseModel, abc.ABC):  # pylint: disable=too-many-instance-a
         self.grouper: bool = self.yaml_data.get("grouper", False)
         self.check_client_input: bool = self.yaml_data.get("checkClientInput", False)
         self.added_on: Optional[str] = self.yaml_data.get("addedOn")
+        self.api_versions: Optional[List[str]] = self.yaml_data.get("apiVersions", [])
         self.is_api_version: bool = self.yaml_data.get("isApiVersion", False)
         self.in_overload: bool = self.yaml_data.get("inOverload", False)
         self.default_to_unset_sentinel: bool = self.yaml_data.get("defaultToUnsetSentinel", False)
         self.hide_in_method: bool = self.yaml_data.get("hideInMethod", False)
+        self.is_continuation_token: bool = bool(self.yaml_data.get("isContinuationToken"))
 
     def get_declaration(self, value: Any = None) -> Any:
         return self.type.get_declaration(value)
@@ -155,23 +157,23 @@ class _ParameterBase(BaseModel, abc.ABC):  # pylint: disable=too-many-instance-a
     def docstring_type(self, **kwargs: Any) -> str:
         return self.type.docstring_type(**kwargs)
 
-    @property
-    def serialization_type(self) -> str:
-        return self.type.serialization_type
+    def serialization_type(self, **kwargs: Any) -> str:
+        return self.type.serialization_type(**kwargs)
 
-    def _imports_shared(self, async_mode: bool, **_: Any) -> FileImport:
+    def _imports_shared(self, async_mode: bool, **kwargs: Any) -> FileImport:  # pylint: disable=unused-argument
         file_import = FileImport(self.code_model)
         if self.optional and self.client_default_value is None:
             file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
+        serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         if self.added_on and self.implementation != "Client":
             file_import.add_submodule_import(
-                f"{'.' if async_mode else ''}.._validation",
+                self.code_model.get_relative_import_path(serialize_namespace, module_name="_validation"),
                 "api_version_validation",
                 ImportType.LOCAL,
             )
         if isinstance(self.type, CombinedType) and self.type.name:
             file_import.add_submodule_import(
-                "..." if async_mode else "..",
+                self.code_model.get_relative_import_path(serialize_namespace),
                 "_types",
                 ImportType.LOCAL,
                 TypingSection.TYPING,
@@ -212,8 +214,8 @@ class _ParameterBase(BaseModel, abc.ABC):  # pylint: disable=too-many-instance-a
     @abc.abstractmethod
     def in_method_signature(self) -> bool: ...
 
-    def method_signature(self, async_mode: bool) -> str:
-        type_annotation = self.type_annotation(async_mode=async_mode)
+    def method_signature(self, async_mode: bool, **kwargs: Any) -> str:
+        type_annotation = self.type_annotation(async_mode=async_mode, **kwargs)
         if self.client_default_value is not None or self.optional:
             return f"{self.client_name}: {type_annotation} = {self.client_default_value_declaration},"
         if self.default_to_unset_sentinel:
@@ -272,9 +274,9 @@ class BodyParameter(_ParameterBase):
     def imports(self, async_mode: bool, **kwargs: Any) -> FileImport:
         file_import = super().imports(async_mode, **kwargs)
         if self.is_form_data:
-            relative_path = "..." if async_mode else ".."
+            serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             file_import.add_submodule_import(
-                f"{relative_path}_vendor",
+                self.code_model.get_relative_import_path(serialize_namespace, module_name="_utils.utils"),
                 "prepare_multipart_form_data",
                 ImportType.LOCAL,
             )
@@ -314,7 +316,7 @@ class Parameter(_ParameterBase):
     def hide_in_operation_signature(self) -> bool:
         if self.code_model.options["version_tolerant"] and self.client_name == "maxpagesize":
             return True
-        return False
+        return self.is_continuation_token
 
     @property
     def in_method_signature(self) -> bool:
@@ -355,6 +357,9 @@ class Parameter(_ParameterBase):
             ParameterLocation.QUERY,
         )
         if self.code_model.options["only_path_and_body_params_positional"] and query_or_header:
+            return ParameterMethodLocation.KEYWORD_ONLY
+        # for optional path parameter, we need to use keyword only
+        if self.location == ParameterLocation.PATH and self.optional:
             return ParameterMethodLocation.KEYWORD_ONLY
         return ParameterMethodLocation.POSITIONAL
 

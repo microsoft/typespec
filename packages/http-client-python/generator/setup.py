@@ -23,6 +23,7 @@ if not version:
 setup(
     name="pygen",
     version=version,
+    include_package_data=True,
     description="Core Library for Python Generation",
     long_description=open("README.md", "r").read(),
     long_description_content_type="text/markdown",
@@ -34,7 +35,6 @@ setup(
         "Development Status :: 4 - Beta",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
@@ -47,9 +47,11 @@ setup(
         ]
     ),
     install_requires=[
-        "Jinja2 >= 2.11",  # I need "include" and auto-context + blank line are not indented by default
-        "pyyaml",
-        "m2r2",
-        "black",
+        "black==24.8.0",
+        "docutils>=0.20.1",
+        "Jinja2==3.1.6",
+        "PyYAML==6.0.1",
+        "tomli==2.0.1",
+        "setuptools==70.0.0",
     ],
 )

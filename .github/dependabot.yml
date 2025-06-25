@@ -1,0 +1,26 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directories:
+      - "/packages/http-client-python/eng/"
+      - "/packages/http-client-python/generator/test"
+      - "/packages/http-client-python/generator/test/azure"
+      - "/packages/http-client-python/generator/test/unbranded"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "pip prod"
+      prefix-development: "pip dev"
+      include: "scope"
+    labels:
+      - "emitter:client:python"
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    groups:
+      alloy:
+        patterns:
+          - "@alloy-js/*"
+    allow:
+      - dependency-name: "@alloy-js/*"

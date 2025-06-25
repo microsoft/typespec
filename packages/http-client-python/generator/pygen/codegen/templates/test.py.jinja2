@@ -1,9 +1,11 @@
 {% set prefix_lower = test.prefix|lower %}
 {% set client_var = "self.client" if code_model.options["azure_arm"] else "client" %}
-{% set async = "async " if test.is_async else "" %}
-{% set async_suffix = "_async" if test.is_async else "" %}
+{% set async = "async " if test.async_mode else "" %}
+{% set async_suffix = "_async" if test.async_mode else "" %}
 # coding=utf-8
-{{ code_model.options['license_header'] }}
+{% if code_model.license_header %}
+{{ code_model.license_header }}
+{% endif %}
 import pytest
 {{ imports }}
 
@@ -15,7 +17,7 @@ AZURE_LOCATION = "eastus"
 class {{ test.test_class_name }}({{ test.base_test_class_name }}):
 {% if code_model.options["azure_arm"] %}
     def setup_method(self, method):
-        {% if test.is_async %}
+        {% if test.async_mode %}
         self.client = self.create_mgmt_client({{ test.client_name }}, is_async=True)
         {% else %}
         self.client = self.create_mgmt_client({{ test.client_name }})

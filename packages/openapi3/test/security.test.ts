@@ -1,9 +1,9 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
-import { describe, expect, it } from "vitest";
-import { diagnoseOpenApiFor, openApiFor } from "./test-host.js";
+import { expect, it } from "vitest";
+import { worksFor } from "./works-for.js";
 
-describe("openapi3: security", () => {
+worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
   it("set a basic auth", async () => {
     const res = await openApiFor(
       `
@@ -15,7 +15,7 @@ describe("openapi3: security", () => {
     deepStrictEqual(res.components.securitySchemes, {
       BasicAuth: {
         type: "http",
-        scheme: "basic",
+        scheme: "Basic",
       },
     });
     deepStrictEqual(res.security, [{ BasicAuth: [] }]);
@@ -32,7 +32,7 @@ describe("openapi3: security", () => {
     deepStrictEqual(res.components.securitySchemes, {
       BearerAuth: {
         type: "http",
-        scheme: "bearer",
+        scheme: "Bearer",
       },
     });
     deepStrictEqual(res.security, [{ BearerAuth: [] }]);
@@ -274,7 +274,7 @@ describe("openapi3: security", () => {
     deepStrictEqual(res.components.securitySchemes, {
       MyAuth: {
         type: "http",
-        scheme: "basic",
+        scheme: "Basic",
         description: "My custom basic auth",
       },
     });
@@ -295,7 +295,7 @@ describe("openapi3: security", () => {
     deepStrictEqual(res.components.securitySchemes, {
       MyAuth: {
         type: "http",
-        scheme: "basic",
+        scheme: "Basic",
         "x-foo": "bar",
       },
     });
@@ -317,11 +317,11 @@ describe("openapi3: security", () => {
         type: "apiKey",
       },
       BasicAuth: {
-        scheme: "basic",
+        scheme: "Basic",
         type: "http",
       },
       BearerAuth: {
-        scheme: "bearer",
+        scheme: "Bearer",
         type: "http",
       },
     });

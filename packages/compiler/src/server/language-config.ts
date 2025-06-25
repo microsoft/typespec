@@ -99,9 +99,3 @@ export const TypeSpecLanguageConfiguration = {
     },
   ],
 } as const;
-
-/**
- * @deprecated Use TypeSpecLanguageConfiguration
- * @hidden
- */
-export const CadlLanguageConfiguration = TypeSpecLanguageConfiguration;

@@ -6,9 +6,10 @@ package com.microsoft.typespec.http.client.generator.model;
 import com.azure.core.util.CoreUtils;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
+import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.PollingSettings;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -16,8 +17,7 @@ import java.util.Map;
 
 public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private String namespace;
-    private String outputDir;
-    private String flavor = "Azure";
+    private String flavor = "generic";
     private String serviceName;
     private List<String> serviceVersions;
     private Boolean generateTests = true;
@@ -29,17 +29,37 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private String customTypeSubpackage;
     private String customizationClass;
     private Boolean includeApiViewProperties = true;
-    private Map<String, JavaSettings.PollingDetails> polling = new HashMap<>();
-    private Boolean arm = false;
+    private String packageVersion;
+    private Boolean useObjectForUnknown = false;
+    private Map<String, PollingSettings> polling = new HashMap<>();
     private String modelsSubpackage;
+    private String apiVersion;
+    private Boolean useRestProxy;
+    private String renameModel;
+    private Boolean useDefaultHttpStatusCodeToExceptionTypeMapping = true;
     private DevOptions devOptions;
+
+    // internal
+    private String outputDir;
+    private Boolean arm = false;
+    private String licenseHeader;
 
     public String getNamespace() {
         return namespace;
     }
 
+    public EmitterOptions setNamespace(String namespace) {
+        this.namespace = namespace;
+        return this;
+    }
+
     public String getOutputDir() {
         return outputDir;
+    }
+
+    public EmitterOptions setOutputDir(String outputDir) {
+        this.outputDir = outputDir;
+        return this;
     }
 
     public String getServiceName() {
@@ -66,14 +86,8 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return streamStyleSerialization;
     }
 
-    public EmitterOptions setNamespace(String namespace) {
-        this.namespace = namespace;
-        return this;
-    }
-
-    public EmitterOptions setOutputDir(String outputDir) {
-        this.outputDir = outputDir;
-        return this;
+    public Boolean getUseObjectForUnknown() {
+        return useObjectForUnknown;
     }
 
     public List<String> getServiceVersions() {
@@ -96,16 +110,12 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return customizationClass;
     }
 
-    public Boolean includeApiViewProperties() {
-        return includeApiViewProperties;
-    }
-
-    public Map<String, JavaSettings.PollingDetails> getPolling() {
+    public Map<String, PollingSettings> getPolling() {
         return polling;
     }
 
-    public void setPolling(Map<String, JavaSettings.PollingDetails> polling) {
-        this.polling = polling;
+    public Boolean getIncludeApiViewProperties() {
+        return includeApiViewProperties;
     }
 
     public Boolean getArm() {
@@ -120,28 +130,34 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return flavor;
     }
 
+    public String getPackageVersion() {
+        return packageVersion;
+    }
+
+    public String getLicenseHeader() {
+        return licenseHeader;
+    }
+
+    public String getApiVersion() {
+        return apiVersion;
+    }
+
+    public Boolean getUseRestProxy() {
+        return useRestProxy;
+    }
+
+    public String getRenameModel() {
+        return renameModel;
+    }
+
+    public Boolean getUseDefaultHttpStatusCodeToExceptionTypeMapping() {
+        return useDefaultHttpStatusCodeToExceptionTypeMapping;
+    }
+
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject()
-            .writeStringField("namespace", namespace)
-            .writeStringField("output-dir", outputDir)
-            .writeStringField("flavor", flavor)
-            .writeStringField("service-name", serviceName)
-            .writeArrayField("service-versions", serviceVersions, JsonWriter::writeString)
-            .writeBooleanField("generate-tests", generateTests)
-            .writeBooleanField("generate-samples", generateSamples)
-            .writeBooleanField("enable-sync-stack", enableSyncStack)
-            .writeBooleanField("stream-style-serialization", streamStyleSerialization)
-            .writeBooleanField("partial-update", partialUpdate)
-            .writeStringField("custom-types", customTypes)
-            .writeStringField("custom-types-subpackage", customTypeSubpackage)
-            .writeStringField("customization-class", customizationClass)
-            .writeBooleanField("include-api-view-properties", includeApiViewProperties)
-            .writeMapField("polling", polling, JsonWriter::writeJson)
-            .writeBooleanField("arm", arm)
-            .writeStringField("models-subpackage", modelsSubpackage)
-            .writeJsonField("dev-options", devOptions)
-            .writeEndObject();
+        // it does not need to be written to JSON
+        return jsonWriter.writeStartObject().writeEndObject();
     }
 
     public static EmitterOptions fromJson(JsonReader jsonReader) throws IOException {
@@ -157,15 +173,15 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
             } else if ("service-versions".equals(fieldName)) {
                 options.serviceVersions = reader.readArray(JsonReader::getString);
             } else if ("generate-tests".equals(fieldName)) {
-                options.generateTests = reader.getNullable(JsonReader::getBoolean);
+                options.generateTests = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("generate-samples".equals(fieldName)) {
-                options.generateSamples = reader.getNullable(JsonReader::getBoolean);
+                options.generateSamples = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("enable-sync-stack".equals(fieldName)) {
-                options.enableSyncStack = reader.getNullable(JsonReader::getBoolean);
+                options.enableSyncStack = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("stream-style-serialization".equals(fieldName)) {
-                options.streamStyleSerialization = reader.getNullable(JsonReader::getBoolean);
+                options.streamStyleSerialization = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("partial-update".equals(fieldName)) {
-                options.partialUpdate = reader.getNullable(JsonReader::getBoolean);
+                options.partialUpdate = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("custom-types".equals(fieldName)) {
                 options.customTypes = emptyToNull(reader.getString());
             } else if ("custom-types-subpackage".equals(fieldName)) {
@@ -173,22 +189,71 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
             } else if ("customization-class".equals(fieldName)) {
                 options.customizationClass = emptyToNull(reader.getString());
             } else if ("include-api-view-properties".equals(fieldName)) {
-                options.includeApiViewProperties = reader.getNullable(JsonReader::getBoolean);
+                options.includeApiViewProperties = reader.getNullable(EmitterOptions::getBoolean);
+            } else if ("use-object-for-unknown".equals(fieldName)) {
+                options.useObjectForUnknown = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("polling".equals(fieldName)) {
-                options.polling = reader.readMap(JavaSettings.PollingDetails::fromJson);
+                options.polling = reader.readMap(PollingSettings::fromJson);
             } else if ("arm".equals(fieldName)) {
-                options.arm = reader.getNullable(JsonReader::getBoolean);
+                options.arm = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("models-subpackage".equals(fieldName)) {
                 options.modelsSubpackage = emptyToNull(reader.getString());
+            } else if ("package-version".equals(fieldName)) {
+                options.packageVersion = emptyToNull(reader.getString());
+            } else if ("license-header".equals(fieldName)) {
+                options.licenseHeader = emptyToNull(reader.getString());
             } else if ("dev-options".equals(fieldName)) {
                 options.devOptions = DevOptions.fromJson(reader);
+            } else if ("api-version".equals(fieldName)) {
+                options.apiVersion = emptyToNull(reader.getString());
+            } else if ("use-rest-proxy".equals(fieldName)) {
+                options.useRestProxy = reader.getNullable(JsonReader::getBoolean);
+            } else if ("rename-model".equals(fieldName)) {
+                options.renameModel = reader.getNullable(EmitterOptions::getStringOrMap);
+            } else if ("use-default-http-status-code-to-exception-type-mapping".equals(fieldName)) {
+                options.useDefaultHttpStatusCodeToExceptionTypeMapping = reader.getNullable(EmitterOptions::getBoolean);
             } else {
                 reader.skipChildren();
             }
         });
     }
 
+    /*
+     * Protection for use of undocumented emitter options in unbranded.
+     * Without description in "EmitterOptions" in $lib of emitter,
+     * tsp compiler will not automatically convert "true" option to JSON boolean.
+     * We did not expect user to use these undocumented options in unbranded,
+     * but we currently have such tests in test cases.
+     */
+    private static boolean getBoolean(JsonReader jsonReader) throws IOException {
+        JsonToken currentToken = jsonReader.currentToken();
+        if (currentToken == JsonToken.STRING) {
+            return Boolean.parseBoolean(jsonReader.getString());
+        } else {
+            return jsonReader.getBoolean();
+        }
+    }
+
     private static String emptyToNull(String str) {
         return CoreUtils.isNullOrEmpty(str) ? null : str;
+    }
+
+    private static String getStringOrMap(JsonReader jsonReader) throws IOException {
+        JsonToken currentToken = jsonReader.currentToken();
+        if (currentToken == JsonToken.STRING) {
+            return jsonReader.getString();
+        } else if (currentToken == JsonToken.START_OBJECT) {
+            Map<String, String> renameMap = jsonReader.readMap(JsonReader::getString);
+            if (!renameMap.isEmpty()) {
+                return renameMap.entrySet()
+                    .stream()
+                    .map(e -> e.getKey() + ":" + e.getValue())
+                    .reduce("", (s1, s2) -> s1 + "," + s2);
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
     }
 }

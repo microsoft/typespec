@@ -1,59 +1,93 @@
 import {
-  Diagnostic,
+  DiagnosticResult,
+  LiteralType,
   Model,
   ModelProperty,
   Program,
+  Scalar,
+  StringTemplate,
   Tuple,
   Type,
+  Union,
   createDiagnosticCollector,
   filterModelProperties,
   getDiscriminator,
   getEncode,
-  ignoreDiagnostics,
+  getMediaTypeHint,
   isArrayModelType,
   navigateType,
 } from "@typespec/compiler";
+import { SyntaxKind } from "@typespec/compiler/ast";
 import { DuplicateTracker } from "@typespec/compiler/utils";
 import { getContentTypes } from "./content-types.js";
-import { isHeader, isPathParam, isQueryParam, isStatusCode } from "./decorators.js";
+import { isCookieParam, isHeader, isPathParam, isQueryParam, isStatusCode } from "./decorators.js";
+import { isMergePatchBody } from "./experimental/merge-patch/internal.js";
 import {
   GetHttpPropertyOptions,
   HeaderProperty,
   HttpProperty,
   resolvePayloadProperties,
 } from "./http-property.js";
-import { createDiagnostic } from "./lib.js";
+import { createDiagnostic, reportDiagnostic } from "./lib.js";
 import { Visibility } from "./metadata.js";
 import { HttpFileModel, getHttpFileModel, getHttpPart } from "./private.decorators.js";
-import { HttpOperationBody, HttpOperationMultipartBody, HttpOperationPart } from "./types.js";
+import {
+  HttpOperationFileBody,
+  HttpOperationModelPart,
+  HttpOperationMultipartBody,
+  HttpOperationPartCommon,
+  HttpOperationTuplePart,
+  HttpPayloadBody,
+} from "./types.js";
 
 export interface HttpPayload {
-  readonly body?: HttpOperationBody | HttpOperationMultipartBody;
+  readonly body?: HttpPayloadBody;
   readonly metadata: HttpProperty[];
 }
+
 export interface ExtractBodyAndMetadataOptions extends GetHttpPropertyOptions {}
+
+/**
+ * The disposition of a payload in an HTTP operation.
+ */
+export enum HttpPayloadDisposition {
+  /**
+   * The payload appears in a request.
+   */
+  Request,
+  /**
+   * The payload appears in a response.
+   */
+  Response,
+  /**
+   * The payload appears in a multipart part.
+   */
+  Multipart,
+}
+
 export function resolveHttpPayload(
   program: Program,
   type: Type,
   visibility: Visibility,
-  usedIn: "request" | "response" | "multipart",
+  disposition: HttpPayloadDisposition,
   options: ExtractBodyAndMetadataOptions = {},
-): [HttpPayload, readonly Diagnostic[]] {
+): DiagnosticResult<HttpPayload> {
   const diagnostics = createDiagnosticCollector();
 
-  const metadata = diagnostics.pipe(resolvePayloadProperties(program, type, visibility, options));
+  const metadata = diagnostics.pipe(
+    resolvePayloadProperties(program, type, visibility, disposition, options),
+  );
 
-  const body = diagnostics.pipe(resolveBody(program, type, metadata, visibility, usedIn));
+  const body = diagnostics.pipe(resolveBody(program, type, metadata, visibility, disposition));
 
   if (body) {
     if (
-      body.contentTypes.includes("multipart/form-data") &&
-      body.bodyKind === "single" &&
-      body.type.kind !== "Model"
+      body.contentTypes.some((x) => x.startsWith("multipart/")) &&
+      body.bodyKind !== "multipart"
     ) {
       diagnostics.add(
         createDiagnostic({
-          code: "multipart-model",
+          code: "no-implicit-multipart",
           target: body.property ?? type,
         }),
       );
@@ -69,29 +103,42 @@ function resolveBody(
   requestOrResponseType: Type,
   metadata: HttpProperty[],
   visibility: Visibility,
-  usedIn: "request" | "response" | "multipart",
-): [HttpOperationBody | HttpOperationMultipartBody | undefined, readonly Diagnostic[]] {
+  disposition: HttpPayloadDisposition,
+): DiagnosticResult<HttpPayloadBody | undefined> {
   const diagnostics = createDiagnosticCollector();
-  const resolvedContentTypes = diagnostics.pipe(resolveContentTypes(program, metadata, usedIn));
 
-  const file = getHttpFileModel(program, requestOrResponseType);
+  const contentTypeProperty = metadata.find((x) => x.kind === "contentType");
+
+  const file = getHttpFileModel(
+    program,
+    requestOrResponseType,
+    createHttpFileModelFilter(metadata),
+  );
   if (file !== undefined) {
-    const file = getHttpFileModel(program, requestOrResponseType)!;
-    return diagnostics.wrap({
-      bodyKind: "single",
-      contentTypes: diagnostics.pipe(getContentTypes(file.contentType)),
-      contentTypeProperty: file.contentType,
-      type: file.contents.type,
-      isExplicit: false,
-      containsMetadataAnnotations: false,
-    });
+    if (!contentTypeProperty) {
+      // If no content-type property was specified, then this is a _literal_ file.
+      return diagnostics.join(getFileBody(file));
+    } else {
+      const contentTypes =
+        contentTypeProperty && diagnostics.pipe(getContentTypes(contentTypeProperty.property));
+
+      reportDiagnostic(program, {
+        code: "http-file-structured",
+        format: {
+          contentTypes: contentTypes!.join(", "),
+        },
+        target: contentTypeProperty.property,
+      });
+    }
   }
 
   // non-model or intrinsic/array model -> response body is response type
   if (requestOrResponseType.kind !== "Model" || isArrayModelType(program, requestOrResponseType)) {
     return diagnostics.wrap({
       bodyKind: "single",
-      ...resolvedContentTypes,
+      ...diagnostics.pipe(
+        resolveContentTypesForBody(program, contentTypeProperty, requestOrResponseType),
+      ),
       type: requestOrResponseType,
       isExplicit: false,
       containsMetadataAnnotations: false,
@@ -99,17 +146,19 @@ function resolveBody(
   }
 
   // look for explicit body
-  const resolvedBody: HttpOperationBody | HttpOperationMultipartBody | undefined = diagnostics.pipe(
-    resolveExplicitBodyProperty(program, metadata, resolvedContentTypes, visibility, usedIn),
+  const resolvedBody: HttpPayloadBody | undefined = diagnostics.pipe(
+    resolveExplicitBodyProperty(program, metadata, contentTypeProperty, visibility, disposition),
   );
 
   if (resolvedBody === undefined) {
-    // Special case if the model as a parent model then we'll return an empty object as this is assumed to be a nominal type.
+    // Special case if the model has a parent model then we'll return an empty object as this is assumed to be a nominal type.
     // Special Case if the model has an indexer then it means it can return props so cannot be void.
     if (requestOrResponseType.baseModel || requestOrResponseType.indexer) {
       return diagnostics.wrap({
         bodyKind: "single",
-        ...resolvedContentTypes,
+        ...diagnostics.pipe(
+          resolveContentTypesForBody(program, contentTypeProperty, requestOrResponseType),
+        ),
         type: requestOrResponseType,
         isExplicit: false,
         containsMetadataAnnotations: false,
@@ -123,7 +172,9 @@ function resolveBody(
     ) {
       return diagnostics.wrap({
         bodyKind: "single",
-        ...resolvedContentTypes,
+        ...diagnostics.pipe(
+          resolveContentTypesForBody(program, contentTypeProperty, requestOrResponseType),
+        ),
         type: requestOrResponseType,
         isExplicit: false,
         containsMetadataAnnotations: false,
@@ -139,7 +190,9 @@ function resolveBody(
     if (resolvedBody === undefined) {
       return diagnostics.wrap({
         bodyKind: "single",
-        ...resolvedContentTypes,
+        ...diagnostics.pipe(
+          resolveContentTypesForBody(program, contentTypeProperty, requestOrResponseType),
+        ),
         type: unannotatedProperties,
         isExplicit: false,
         containsMetadataAnnotations: false,
@@ -154,11 +207,11 @@ function resolveBody(
       );
     }
   }
-  if (resolvedBody === undefined && resolvedContentTypes.contentTypeProperty) {
+  if (resolvedBody === undefined && contentTypeProperty) {
     diagnostics.add(
       createDiagnostic({
         code: "content-type-ignored",
-        target: resolvedContentTypes.contentTypeProperty,
+        target: contentTypeProperty.property,
       }),
     );
   }
@@ -169,35 +222,16 @@ interface ResolvedContentType {
   readonly contentTypes: string[];
   readonly contentTypeProperty?: ModelProperty;
 }
-function resolveContentTypes(
-  program: Program,
-  metadata: HttpProperty[],
-  usedIn: "request" | "response" | "multipart",
-): [ResolvedContentType, readonly Diagnostic[]] {
-  for (const prop of metadata) {
-    if (prop.kind === "contentType") {
-      const [contentTypes, diagnostics] = getContentTypes(prop.property);
-      return [{ contentTypes, contentTypeProperty: prop.property }, diagnostics];
-    }
-  }
-  switch (usedIn) {
-    case "multipart":
-      // Figure this out later
-      return [{ contentTypes: [] }, []];
-    default:
-      return [{ contentTypes: ["application/json"] }, []];
-  }
-}
 
 function resolveExplicitBodyProperty(
   program: Program,
   metadata: HttpProperty[],
-  resolvedContentTypes: ResolvedContentType,
+  contentTypeProperty: HttpProperty | undefined,
   visibility: Visibility,
-  usedIn: "request" | "response" | "multipart",
-): [HttpOperationBody | HttpOperationMultipartBody | undefined, readonly Diagnostic[]] {
+  disposition: HttpPayloadDisposition,
+): DiagnosticResult<HttpPayloadBody | undefined> {
   const diagnostics = createDiagnosticCollector();
-  let resolvedBody: HttpOperationBody | HttpOperationMultipartBody | undefined;
+  let resolvedBody: HttpPayloadBody | undefined;
   const duplicateTracker = new DuplicateTracker<string, Type>();
 
   for (const item of metadata) {
@@ -210,24 +244,56 @@ function resolveExplicitBodyProperty(
       case "bodyRoot":
         let containsMetadataAnnotations = false;
         if (item.kind === "body") {
-          const valid = diagnostics.pipe(validateBodyProperty(program, item.property, usedIn));
+          const valid = diagnostics.pipe(validateBodyProperty(program, item.property, disposition));
           containsMetadataAnnotations = !valid;
         }
-        if (resolvedBody === undefined) {
-          resolvedBody = {
-            bodyKind: "single",
-            ...resolvedContentTypes,
-            type: item.property.type,
-            isExplicit: item.kind === "body",
-            containsMetadataAnnotations,
-            property: item.property,
-            parameter: item.property,
-          };
+
+        const file = getHttpFileModel(
+          program,
+          item.property.type,
+          createHttpFileModelFilter(metadata),
+        );
+
+        const isFile = file !== undefined && !contentTypeProperty;
+
+        if (file && contentTypeProperty) {
+          const contentTypes = diagnostics.pipe(getContentTypes(contentTypeProperty.property));
+          reportDiagnostic(program, {
+            code: "http-file-structured",
+            format: {
+              contentTypes: contentTypes!.join(", "),
+            },
+            target: contentTypeProperty.property,
+          });
         }
+
+        if (item.property.type.kind === "Union" && unionContainsFile(program, item.property.type)) {
+          reportDiagnostic(program, {
+            code: "http-file-structured",
+            messageId: "union",
+            target:
+              item.property.node?.kind === SyntaxKind.ModelProperty
+                ? item.property.node.value
+                : item.property,
+          });
+        }
+
+        resolvedBody ??= isFile
+          ? diagnostics.pipe(getFileBody(file, item.property))
+          : {
+              bodyKind: "single",
+              ...diagnostics.pipe(
+                resolveContentTypesForBody(program, contentTypeProperty, item.property.type),
+              ),
+              type: item.property.type,
+              isExplicit: item.kind === "body",
+              containsMetadataAnnotations,
+              property: item.property,
+            };
         break;
       case "multipartBody":
         resolvedBody = diagnostics.pipe(
-          resolveMultiPartBody(program, item.property, resolvedContentTypes, visibility),
+          resolveMultiPartBody(program, item.property, contentTypeProperty, visibility),
         );
         break;
     }
@@ -246,12 +312,33 @@ function resolveExplicitBodyProperty(
   return diagnostics.wrap(resolvedBody);
 }
 
+function unionContainsFile(program: Program, u: Union): boolean {
+  return unionContainsFileWorker(u);
+
+  function unionContainsFileWorker(u: Union, visited = new Set()): boolean {
+    if (visited.has(u)) return false;
+
+    visited.add(u);
+
+    for (const { type } of u.variants.values()) {
+      if (
+        !!getHttpFileModel(program, type) ||
+        (type.kind === "Union" && unionContainsFileWorker(type, visited))
+      ) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+}
+
 /** Validate a property marked with `@body` */
 function validateBodyProperty(
   program: Program,
   property: ModelProperty,
-  usedIn: "request" | "response" | "multipart",
-): [boolean, readonly Diagnostic[]] {
+  disposition: HttpPayloadDisposition,
+): DiagnosticResult<boolean> {
   const diagnostics = createDiagnosticCollector();
   navigateType(
     property.type,
@@ -259,13 +346,20 @@ function validateBodyProperty(
       modelProperty: (prop) => {
         const kind = isHeader(program, prop)
           ? "header"
-          : (usedIn === "request" || usedIn === "multipart") && isQueryParam(program, prop)
-            ? "query"
-            : usedIn === "request" && isPathParam(program, prop)
-              ? "path"
-              : usedIn === "response" && isStatusCode(program, prop)
-                ? "statusCode"
-                : undefined;
+          : // also emit metadata-ignored for response cookie
+            (disposition === HttpPayloadDisposition.Request ||
+                disposition === HttpPayloadDisposition.Response) &&
+              isCookieParam(program, prop)
+            ? "cookie"
+            : (disposition === HttpPayloadDisposition.Request ||
+                  disposition === HttpPayloadDisposition.Multipart) &&
+                isQueryParam(program, prop)
+              ? "query"
+              : disposition === HttpPayloadDisposition.Request && isPathParam(program, prop)
+                ? "path"
+                : disposition === HttpPayloadDisposition.Response && isStatusCode(program, prop)
+                  ? "statusCode"
+                  : undefined;
 
         if (kind) {
           diagnostics.add(
@@ -286,16 +380,39 @@ function validateBodyProperty(
 function resolveMultiPartBody(
   program: Program,
   property: ModelProperty,
-  resolvedContentTypes: ResolvedContentType,
+  contentTypeProperty: HttpProperty | undefined,
   visibility: Visibility,
-): [HttpOperationMultipartBody | undefined, readonly Diagnostic[]] {
+): DiagnosticResult<HttpOperationMultipartBody | undefined> {
+  const diagnostics = createDiagnosticCollector();
+
   const type = property.type;
+
+  const contentTypes =
+    contentTypeProperty && diagnostics.pipe(getContentTypes(contentTypeProperty.property));
+
+  for (const contentType of contentTypes ?? []) {
+    if (!multipartContentTypesValues.includes(contentType as any)) {
+      diagnostics.add(
+        createDiagnostic({
+          code: "multipart-invalid-content-type",
+          format: { contentType, supportedContentTypes: multipartContentTypesValues.join(", ") },
+          target: type,
+        }),
+      );
+    }
+  }
+
   if (type.kind === "Model") {
-    return resolveMultiPartBodyFromModel(program, property, type, resolvedContentTypes, visibility);
+    return diagnostics.join(
+      resolveMultiPartBodyFromModel(program, property, type, contentTypeProperty, visibility),
+    );
   } else if (type.kind === "Tuple") {
-    return resolveMultiPartBodyFromTuple(program, property, type, resolvedContentTypes, visibility);
+    return diagnostics.join(
+      resolveMultiPartBodyFromTuple(program, property, type, contentTypeProperty, visibility),
+    );
   } else {
-    return [undefined, [createDiagnostic({ code: "multipart-model", target: property })]];
+    diagnostics.add(createDiagnostic({ code: "multipart-model", target: property }));
+    return diagnostics.wrap(undefined);
   }
 }
 
@@ -303,20 +420,36 @@ function resolveMultiPartBodyFromModel(
   program: Program,
   property: ModelProperty,
   type: Model,
-  resolvedContentTypes: ResolvedContentType,
+  contentTypeProperty: HttpProperty | undefined,
   visibility: Visibility,
-): [HttpOperationMultipartBody | undefined, readonly Diagnostic[]] {
+): DiagnosticResult<HttpOperationMultipartBody | undefined> {
   const diagnostics = createDiagnosticCollector();
-  const parts: HttpOperationPart[] = [];
+  const parts: HttpOperationModelPart[] = [];
   for (const item of type.properties.values()) {
-    const part = diagnostics.pipe(resolvePartOrParts(program, item.type, visibility));
+    const part = diagnostics.pipe(resolvePartOrParts(program, item.type, visibility, item));
     if (part) {
-      parts.push({ ...part, name: part.name ?? item.name, optional: item.optional });
+      parts.push({
+        partKind: "model",
+        ...part,
+        name: part.name ?? item.name,
+        optional: item.optional,
+        property: item,
+      });
     }
   }
 
+  const resolvedContentTypes: ResolvedContentType = contentTypeProperty
+    ? {
+        contentTypeProperty: contentTypeProperty.property,
+        contentTypes: diagnostics.pipe(getContentTypes(contentTypeProperty.property)),
+      }
+    : {
+        contentTypes: [multipartContentTypes.formData],
+      };
+
   return diagnostics.wrap({
     bodyKind: "multipart",
+    multipartKind: "model",
     ...resolvedContentTypes,
     parts,
     property,
@@ -334,43 +467,42 @@ function resolveMultiPartBodyFromTuple(
   program: Program,
   property: ModelProperty,
   type: Tuple,
-  resolvedContentTypes: ResolvedContentType,
+  contentTypeProperty: HttpProperty | undefined,
   visibility: Visibility,
-): [HttpOperationMultipartBody | undefined, readonly Diagnostic[]] {
+): DiagnosticResult<HttpOperationMultipartBody | undefined> {
   const diagnostics = createDiagnosticCollector();
-  const parts: HttpOperationPart[] = [];
+  const parts: HttpOperationTuplePart[] = [];
 
-  for (const contentType of resolvedContentTypes.contentTypes) {
-    if (!multipartContentTypesValues.includes(contentType as any)) {
-      diagnostics.add(
-        createDiagnostic({
-          code: "multipart-invalid-content-type",
-          format: { contentType, supportedContentTypes: multipartContentTypesValues.join(", ") },
-          target: type,
-        }),
-      );
-    }
-  }
+  const contentTypes =
+    contentTypeProperty && diagnostics.pipe(getContentTypes(contentTypeProperty?.property));
+
   for (const [index, item] of type.values.entries()) {
     const part = diagnostics.pipe(resolvePartOrParts(program, item, visibility));
-    if (
-      part?.name === undefined &&
-      resolvedContentTypes.contentTypes.includes(multipartContentTypes.formData)
-    ) {
+    if (part?.name === undefined && contentTypes?.includes(multipartContentTypes.formData)) {
       diagnostics.add(
         createDiagnostic({
           code: "formdata-no-part-name",
-          target: type.node.values[index],
+          target: type.node?.values[index] ?? type.values[index],
         }),
       );
     }
     if (part) {
-      parts.push(part);
+      parts.push({ partKind: "tuple", ...part, optional: false });
     }
   }
 
+  const resolvedContentTypes: ResolvedContentType = contentTypeProperty
+    ? {
+        contentTypeProperty: contentTypeProperty.property,
+        contentTypes: diagnostics.pipe(getContentTypes(contentTypeProperty.property)),
+      }
+    : {
+        contentTypes: [multipartContentTypes.formData],
+      };
+
   return diagnostics.wrap({
     bodyKind: "multipart",
+    multipartKind: "tuple",
     ...resolvedContentTypes,
     parts,
     property,
@@ -382,15 +514,16 @@ function resolvePartOrParts(
   program: Program,
   type: Type,
   visibility: Visibility,
-): [HttpOperationPart | undefined, readonly Diagnostic[]] {
+  property?: ModelProperty,
+): DiagnosticResult<HttpOperationPartCommon | undefined> {
   if (type.kind === "Model" && isArrayModelType(program, type)) {
-    const [part, diagnostics] = resolvePart(program, type.indexer.value, visibility);
+    const [part, diagnostics] = resolvePart(program, type.indexer.value, visibility, property);
     if (part) {
       return [{ ...part, multi: true }, diagnostics];
     }
     return [part, diagnostics];
   } else {
-    return resolvePart(program, type, visibility);
+    return resolvePart(program, type, visibility, property);
   }
 }
 
@@ -398,94 +531,217 @@ function resolvePart(
   program: Program,
   type: Type,
   visibility: Visibility,
-): [HttpOperationPart | undefined, readonly Diagnostic[]] {
+  property?: ModelProperty,
+): DiagnosticResult<HttpOperationPartCommon | undefined> {
+  const diagnostics = createDiagnosticCollector();
   const part = getHttpPart(program, type);
   if (part) {
-    const file = getHttpFileModel(program, part.type);
-    if (file !== undefined) {
-      return getFilePart(part.options.name, file);
-    }
-    let [{ body, metadata }, diagnostics] = resolveHttpPayload(
-      program,
-      part.type,
-      visibility,
-      "multipart",
+    let { body, metadata } = diagnostics.pipe(
+      resolveHttpPayload(program, part.type, visibility, HttpPayloadDisposition.Multipart),
     );
+
+    const contentTypeProperty = metadata.find((x) => x.kind === "contentType");
+
     if (body === undefined) {
-      return [undefined, diagnostics];
+      return diagnostics.wrap(undefined);
     } else if (body.bodyKind === "multipart") {
-      return [undefined, [createDiagnostic({ code: "multipart-nested", target: type })]];
+      diagnostics.add(createDiagnostic({ code: "multipart-nested", target: type }));
+      return diagnostics.wrap(undefined);
     }
 
     if (body.contentTypes.length === 0) {
-      body = { ...body, contentTypes: resolveDefaultContentTypeForPart(program, body.type) };
+      body = {
+        ...body,
+        contentTypes: diagnostics.pipe(
+          resolveContentTypesForBody(program, contentTypeProperty, body.type),
+        ).contentTypes,
+      };
     }
-    return [
-      {
-        multi: false,
-        name: part.options.name,
-        body,
-        optional: false,
-        headers: metadata.filter((x): x is HeaderProperty => x.kind === "header"),
-      },
-      diagnostics,
-    ];
+
+    return diagnostics.wrap({
+      multi: false,
+      property,
+      name: part.options.name,
+      body,
+      optional: false,
+      headers: metadata.filter((x): x is HeaderProperty => x.kind === "header"),
+      filename: body.bodyKind === "file" ? body.filename : undefined,
+    });
   }
-  return [undefined, [createDiagnostic({ code: "multipart-part", target: type })]];
+
+  diagnostics.add(createDiagnostic({ code: "multipart-part", target: type }));
+
+  return diagnostics.wrap(undefined);
 }
 
-function getFilePart(
-  name: string | undefined,
+/**
+ * Creates a filter function to determine if a property is applicable metadata for the purposes
+ * of effective File model calculation.
+ */
+function createHttpFileModelFilter(metadata: HttpProperty[]): (property: ModelProperty) => boolean {
+  const metadataPropToMetadata = new Map<ModelProperty, HttpProperty>(
+    metadata.map((x) => [x.property, x]),
+  );
+
+  return function isApplicableMetadata(property) {
+    const httpProperty = metadataPropToMetadata.get(property);
+    if (["filename"].includes(property.name)) return true;
+    if (!httpProperty) return true;
+    if (httpProperty.kind !== "bodyProperty") return false;
+
+    return true;
+  };
+}
+
+/**
+ * Gets a file body from an HttpFileModel.
+ *
+ * @param file - the resolved file model
+ * @param property - the property that references the file model, if any
+ */
+function getFileBody(
   file: HttpFileModel,
-): [HttpOperationPart | undefined, readonly Diagnostic[]] {
+  property?: ModelProperty,
+): DiagnosticResult<HttpOperationFileBody> {
   const [contentTypes, diagnostics] = getContentTypes(file.contentType);
+
+  const isText = isOrExtendsString(file.contents.type);
+
   return [
     {
-      multi: false,
-      name,
-      body: {
-        bodyKind: "single",
-        contentTypeProperty: file.contentType,
-        contentTypes: contentTypes,
-        type: file.contents.type,
-        isExplicit: false,
-        containsMetadataAnnotations: false,
-      },
+      bodyKind: "file",
+      type: file.type,
+      contents: file.contents,
       filename: file.filename,
-      optional: false,
-      headers: [],
+      isText,
+      contentTypeProperty: file.contentType,
+      contentTypes,
+      property,
     },
     diagnostics,
   ];
-}
 
-function resolveDefaultContentTypeForPart(program: Program, type: Type): string[] {
-  function resolve(type: Type): string[] {
-    if (type.kind === "Scalar") {
-      const encodedAs = getEncode(program, type);
-      if (encodedAs) {
-        type = encodedAs.type;
-      }
+  function isOrExtendsString(type: Scalar): boolean {
+    return isString(type) || (!!type.baseScalar && isOrExtendsString(type.baseScalar));
 
-      if (
-        ignoreDiagnostics(
-          program.checker.isTypeAssignableTo(
-            type.projectionBase ?? type,
-            program.checker.getStdType("bytes"),
-            type,
-          ),
-        )
-      ) {
-        return ["application/octet-stream"];
-      } else {
-        return ["text/plain"];
-      }
-    } else if (type.kind === "Union") {
-      return [...type.variants.values()].flatMap((x) => resolve(x.type));
-    } else {
-      return ["application/json"];
+    function isString(type: Scalar): boolean {
+      return (
+        type.name === "string" &&
+        !!type.namespace &&
+        type.namespace.name === "TypeSpec" &&
+        !!type.namespace.namespace &&
+        type.namespace.namespace.name === "" &&
+        !type.namespace.namespace.namespace
+      );
     }
   }
+}
 
-  return [...new Set(resolve(type))];
+function getDefaultContentTypeForKind(type: Type): string {
+  return type.kind === "Scalar" ? "text/plain" : "application/json";
+}
+
+function isLiteralType(type: Type): type is LiteralType | StringTemplate {
+  return (
+    type.kind === "String" ||
+    type.kind === "Number" ||
+    type.kind === "Boolean" ||
+    type.kind === "StringTemplate"
+  );
+}
+
+function resolveContentTypesForBody(
+  program: Program,
+  contentTypeProperty: HttpProperty | undefined,
+  type: Type,
+  getDefaultContentType: (type: Type) => string = getDefaultContentTypeForKind,
+): DiagnosticResult<ResolvedContentType> {
+  const diagnostics = createDiagnosticCollector();
+
+  return diagnostics.wrap(resolve());
+
+  function resolve(): ResolvedContentType {
+    let mpContentType: string | undefined;
+    if (isMergePatchBody(program, type)) {
+      mpContentType = "application/merge-patch+json";
+    }
+    if (contentTypeProperty) {
+      const explicitContentTypes = diagnostics.pipe(getContentTypes(contentTypeProperty.property));
+
+      if (mpContentType) {
+        const badContentTypes = explicitContentTypes.filter((c) => !c.startsWith(mpContentType));
+        if (badContentTypes.length > 0) {
+          diagnostics.add(
+            createDiagnostic({
+              code: "merge-patch-content-type",
+              target: contentTypeProperty.property ?? type,
+              format: { contentType: badContentTypes[0] },
+            }),
+          );
+        }
+      }
+      return {
+        contentTypes: explicitContentTypes,
+        contentTypeProperty: contentTypeProperty.property,
+      };
+    }
+
+    if (mpContentType) return { contentTypes: [mpContentType] };
+
+    if (isLiteralType(type)) {
+      switch (type.kind) {
+        case "StringTemplate":
+        case "String":
+          type = program.checker.getStdType("string");
+          break;
+        case "Boolean":
+          type = program.checker.getStdType("boolean");
+          break;
+        case "Number":
+          type = program.checker.getStdType("numeric");
+          break;
+        default:
+          void (type satisfies never);
+      }
+    }
+
+    let encoded;
+
+    while (
+      (type.kind === "Scalar" || type.kind === "ModelProperty") &&
+      (encoded = getEncode(program, type))
+    ) {
+      type = encoded.type;
+    }
+
+    if (type.kind === "Union") {
+      const variants = [...type.variants.values()];
+      const containsNull = variants.some(
+        (v) => v.type.kind === "Intrinsic" && v.type.name === "null",
+      );
+
+      // If the union contains null, we just collapse to JSON in this default case.
+
+      if (containsNull) {
+        return { contentTypes: ["application/json"] };
+      }
+
+      const set = new Set<string>();
+
+      for (const variant of variants) {
+        const resolved = diagnostics.pipe(
+          resolveContentTypesForBody(program, contentTypeProperty, variant.type),
+        );
+
+        for (const contentType of resolved.contentTypes) {
+          set.add(contentType);
+        }
+      }
+      return { contentTypes: [...set] };
+    } else {
+      const contentType = getMediaTypeHint(program, type) ?? getDefaultContentType(type);
+
+      return { contentTypes: [contentType] };
+    }
+  }
 }

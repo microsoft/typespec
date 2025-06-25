@@ -1,18 +1,21 @@
+import { compilerAssert } from "../core/diagnostics.js";
+import { visitChildren } from "../core/parser.js";
+import {
+  createScanner,
+  isKeyword,
+  isPunctuation,
+  isReservedKeyword,
+  Token,
+  TokenFlags,
+} from "../core/scanner.js";
 import {
   IdentifierNode,
   Node,
   StringLiteralNode,
   SyntaxKind,
   TextRange,
-  Token,
-  TokenFlags,
   TypeSpecScriptNode,
-  compilerAssert,
-  createScanner,
-  isKeyword,
-  isPunctuation,
-  visitChildren,
-} from "../core/index.js";
+} from "../core/types.js";
 import { SemanticToken, SemanticTokenKind } from "./types.js";
 
 /**
@@ -165,6 +168,9 @@ export function getSemanticTokens(ast: TypeSpecScriptNode): SemanticToken[] {
       case Token.SingleLineComment:
         return SemanticTokenKind.Comment;
       default:
+        if (isReservedKeyword(token)) {
+          return defer;
+        }
         if (isKeyword(token)) {
           return SemanticTokenKind.Keyword;
         }
@@ -270,28 +276,6 @@ export function getSemanticTokens(ast: TypeSpecScriptNode): SemanticToken[] {
       case SyntaxKind.MemberExpression:
         classifyReference(node);
         break;
-      case SyntaxKind.ProjectionStatement:
-        classifyReference(node.selector);
-        classify(node.id, SemanticTokenKind.Variable);
-        break;
-      case SyntaxKind.Projection:
-        classify(node.directionId, SemanticTokenKind.Keyword);
-        for (const modifierId of node.modifierIds) {
-          classify(modifierId, SemanticTokenKind.Keyword);
-        }
-        break;
-      case SyntaxKind.ProjectionParameterDeclaration:
-        classifyReference(node.id, SemanticTokenKind.Parameter);
-        break;
-      case SyntaxKind.ProjectionCallExpression:
-        classifyReference(node.target, SemanticTokenKind.Function);
-        for (const arg of node.arguments) {
-          classifyReference(arg);
-        }
-        break;
-      case SyntaxKind.ProjectionMemberExpression:
-        classifyReference(node.id);
-        break;
       case SyntaxKind.DocParamTag:
       case SyntaxKind.DocTemplateTag:
         classifyDocTag(node.tagName, SemanticTokenKind.DocCommentTag);
@@ -341,10 +325,6 @@ export function getSemanticTokens(ast: TypeSpecScriptNode): SemanticToken[] {
     switch (node.kind) {
       case SyntaxKind.MemberExpression:
         classifyIdentifier(node.base, SemanticTokenKind.Namespace);
-        classifyIdentifier(node.id, kind);
-        break;
-      case SyntaxKind.ProjectionMemberExpression:
-        classifyReference(node.base, SemanticTokenKind.Namespace);
         classifyIdentifier(node.id, kind);
         break;
       case SyntaxKind.TypeReference:

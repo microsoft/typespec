@@ -2,10 +2,8 @@ import "@typespec/rest";
 
 using TypeSpec.Http;
 
-@service({
-  title: "Optional",
-})
-namespace Cadl.Optional;
+@service(#{ title: "Optional" })
+namespace TspTest.Optional;
 
 model Optional {
   boolean?: boolean = true;
@@ -36,7 +34,7 @@ model Optional {
 model Immutable {
   stringReadWriteRequired: string;
 
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   stringReadOnlyOptional?: string;
 }
 

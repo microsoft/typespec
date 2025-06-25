@@ -1,13 +1,12 @@
 // Contains all intrinsic data setter or getter
 // Anything that the TypeSpec check might should be here.
 
-import type { Model, Type, Union } from "./index.js";
+import { DiscriminatedOptions } from "../../generated-defs/TypeSpec.js";
+import { createStateSymbol } from "../lib/utils.js";
+import { useStateMap } from "../utils/state-accessor.js";
 import type { Numeric } from "./numeric.js";
 import type { Program } from "./program.js";
-
-function createStateSymbol(name: string) {
-  return Symbol.for(`TypeSpec.${name}`);
-}
+import type { Model, Type, Union } from "./types.js";
 
 const stateKeys = {
   minValues: createStateSymbol("minValues"),
@@ -229,4 +228,8 @@ export function getDiscriminatedTypes(program: Program): [Model | Union, Discrim
   return [...program.stateMap(stateKeys.discriminator).entries()] as any;
 }
 
+export const [getDiscriminatedOptions, setDiscriminatedOptions] = useStateMap<
+  Union,
+  Required<DiscriminatedOptions>
+>(createStateSymbol("discriminated"));
 // #endregion

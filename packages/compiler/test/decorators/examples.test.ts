@@ -47,6 +47,19 @@ describe("@example", () => {
       expect(serializeValueAsJson(program, examples[0].value, target)).toEqual({ a: 1, b: 2 });
     });
 
+    it("use const with type of model", async () => {
+      const { program, examples, target } = await getExamplesFor(`
+      const example: Test = #{ a: 1, b: 2 };
+      @example(example)
+      @test("test") model Test {
+        a: int32;
+        b: int32;
+      }
+    `);
+      expect(examples).toHaveLength(1);
+      expect(serializeValueAsJson(program, examples[0].value, target)).toEqual({ a: 1, b: 2 });
+    });
+
     it("emit diagnostic for missing property", async () => {
       const diagnostics = await diagnoseCode(`
         @example(#{ a: 1 })
@@ -98,6 +111,16 @@ describe("@example", () => {
       expect(serializeValueAsJson(program, examples[0].value, target)).toEqual("11:32");
     });
 
+    it("use const with type of scalar", async () => {
+      const { program, examples, target } = await getExamplesFor(`
+        const example: test = test.fromISO("11:32");
+        @example(example)
+        @test scalar test extends utcDateTime;
+      `);
+      expect(examples).toHaveLength(1);
+      expect(serializeValueAsJson(program, examples[0].value, target)).toEqual("11:32");
+    });
+
     it("emit diagnostic for unassignable value", async () => {
       const diagnostics = await diagnoseCode(`
         @example("11:32")
@@ -122,6 +145,19 @@ describe("@example", () => {
       expect(serializeValueAsJson(program, examples[0].value, target)).toEqual("a");
     });
 
+    it("use const with type of enum", async () => {
+      const { program, examples, target } = await getExamplesFor(`
+      const example: Test = Test.a;
+      @example(example)
+      @test("test") enum Test {
+        a,
+        b,
+      }
+    `);
+      expect(examples).toHaveLength(1);
+      expect(serializeValueAsJson(program, examples[0].value, target)).toEqual("a");
+    });
+
     it("emit diagnostic for unassignable value", async () => {
       const diagnostics = await diagnoseCode(`
         @example(1)
@@ -137,13 +173,37 @@ describe("@example", () => {
   });
 
   describe("union", () => {
-    it("valid", async () => {
+    it("valid for union member reference", async () => {
       const { program, examples, target } = await getExamplesFor(`
       @example(test.a)
       @test union test {a: "a", b: "b"}
     `);
       expect(examples).toHaveLength(1);
       expect(serializeValueAsJson(program, examples[0].value, target)).toEqual("a");
+    });
+
+    it("valid for object value", async () => {
+      const { program, examples, target } = await getExamplesFor(`
+        model A {
+          type: "a";
+          a: string;
+        }
+        model B {
+          type: "b";
+          b: numeric;
+        }
+
+        @example(#{
+          type: "a",
+          a: "a string",
+        })
+        @test union test {a: A, b: B}
+      `);
+      expect(examples).toHaveLength(1);
+      expect(serializeValueAsJson(program, examples[0].value, target)).toEqual({
+        type: "a",
+        a: "a string",
+      });
     });
 
     it("emit diagnostic for unassignable value", async () => {

@@ -3,22 +3,16 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import static com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils.readObject;
-
-import com.azure.json.JsonReader;
-import com.azure.json.JsonSerializable;
-import com.azure.json.JsonWriter;
-import java.io.IOException;
-
 /**
  * Represents the per-language metadata.
  */
-public class Language implements JsonSerializable<Language> {
+public class Language {
     private String name;
     private String serializedName;
     private String description;
     private String summary;
     private String namespace;
+    private String crossLanguageDefinitionId;
     private String comment;
 
     /**
@@ -135,47 +129,26 @@ public class Language implements JsonSerializable<Language> {
         this.comment = comment;
     }
 
-    @Override
-    public String toString() {
-        return "Language{name='" + name + "', serializedName='" + serializedName + "'}";
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject()
-            .writeStringField("name", name)
-            .writeStringField("serializedName", serializedName)
-            .writeStringField("description", description)
-            .writeStringField("summary", summary)
-            .writeStringField("namespace", namespace)
-            .writeStringField("comment", comment)
-            .writeEndObject();
+    /**
+     * Gets the crossLanguageDefinitionId.
+     *
+     * @return The crossLanguageDefinitionId.
+     */
+    public String getCrossLanguageDefinitionId() {
+        return crossLanguageDefinitionId;
     }
 
     /**
-     * Deserializes a Language instance from the JSON data.
+     * Sets the crossLanguageDefinitionId.
      *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return A Language instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
+     * @param crossLanguageDefinitionId The crossLanguageDefinitionId.
      */
-    public static Language fromJson(JsonReader jsonReader) throws IOException {
-        return readObject(jsonReader, Language::new, (language, fieldName, reader) -> {
-            if ("name".equals(fieldName)) {
-                language.name = reader.getString();
-            } else if ("serializedName".equals(fieldName)) {
-                language.serializedName = reader.getString();
-            } else if ("description".equals(fieldName)) {
-                language.description = reader.getString();
-            } else if ("summary".equals(fieldName)) {
-                language.summary = reader.getString();
-            } else if ("namespace".equals(fieldName)) {
-                language.namespace = reader.getString();
-            } else if ("comment".equals(fieldName)) {
-                language.comment = reader.getString();
-            } else {
-                reader.skipChildren();
-            }
-        });
+    public void setCrossLanguageDefinitionId(String crossLanguageDefinitionId) {
+        this.crossLanguageDefinitionId = crossLanguageDefinitionId;
+    }
+
+    @Override
+    public String toString() {
+        return "Language{name='" + name + "', serializedName='" + serializedName + "'}";
     }
 }

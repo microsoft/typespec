@@ -94,7 +94,7 @@ function computeReferences(node: TypeGraphNode): {
 }
 
 function computeTree(program: Program): TypeGraphListNode {
-  const root = program.checker!.getGlobalNamespaceType();
+  const root = program.getGlobalNamespaceType();
 
   const namespaces = expandNamespaces(root);
 
@@ -117,7 +117,7 @@ function computeTypeNode(parentPath: string, type: NamedType, name?: string): Ty
 function computeTypeNodeProps(path: string, type: NamedType, name?: string): TypeGraphTypeNode {
   const typeRendering = (TypeConfig as any)[type.kind];
   const children: TypeGraphNode[] = Object.entries(type)
-    .filter(([key]) => typeRendering?.[key] === "nested")
+    .filter(([key]) => typeRendering?.[key]?.kind === "nested-items")
     .map(([key, value]): TypeGraphNode => {
       const propPath = path + "." + key;
       if (isMapLike(value)) {

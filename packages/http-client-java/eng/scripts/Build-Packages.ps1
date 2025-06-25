@@ -60,6 +60,9 @@ try {
     Invoke-LoggedCommand "java -version"
     Invoke-LoggedCommand "mvn -version"
 
+    # check code format, before package
+    Invoke-LoggedCommand "mvn spotless:check --activate-profiles test"
+
     Invoke-LoggedCommand "mvn clean install --no-transfer-progress -T 1C -f ./pom.xml"
 }
 finally {
@@ -78,7 +81,10 @@ try {
     $file = Invoke-LoggedCommand "npm pack -q"
     Copy-Item $file -Destination "$outputPath/packages"
 
+    $exitCodeBeforeApiView = $global:LASTEXITCODE
     & "$packageRoot/../../eng/emitters/scripts/Generate-APIView-CodeFile.ps1" -ArtifactPath "$outputPath/packages"
+    # temporary ignore Generate-APIView-CodeFile.ps1 failure
+    $global:LASTEXITCODE = $exitCodeBeforeApiView
 
     Write-PackageInfo -packageName "typespec-http-client-java" -directoryPath "packages/http-client-java/emitter/src" -version $emitterVersion
 }

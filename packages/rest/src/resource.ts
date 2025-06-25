@@ -1,4 +1,6 @@
 import {
+  $invisible,
+  $removeVisibility,
   $visibility,
   DecoratorContext,
   getKeyName,
@@ -9,7 +11,6 @@ import {
   Program,
   setTypeSpecNamespace,
   Type,
-  validateDecoratorTarget,
 } from "@typespec/compiler";
 import { $path } from "@typespec/http";
 import { ParentResourceDecorator } from "../generated-defs/TypeSpec.Rest.js";
@@ -82,10 +83,6 @@ export function $resourceTypeForKeyParam(
   entity: Type,
   resourceType: Type,
 ) {
-  if (!validateDecoratorTarget(context, entity, "@resourceTypeForKeyParam", "ModelProperty")) {
-    return;
-  }
-
   context.program.stateMap(resourceTypeForKeyParamKey).set(entity, resourceType);
 }
 
@@ -97,6 +94,8 @@ export function getResourceTypeForKeyParam(
 ): Model | undefined {
   return program.stateMap(resourceTypeForKeyParamKey).get(param);
 }
+
+const VISIBILITY_DECORATORS = [$visibility, $invisible, $removeVisibility];
 
 function cloneKeyProperties(context: DecoratorContext, target: Model, resourceType: Model) {
   const { program } = context;
@@ -112,19 +111,24 @@ function cloneKeyProperties(context: DecoratorContext, target: Model, resourceTy
     const keyName = getKeyName(program, keyProperty)!;
 
     const decorators = [
-      // Filter out the @visibility decorator because it might affect metadata
+      // Filter out all visibility decorators because they affect metadata
       // filtering. NOTE: Check for name equality instead of function equality
       // to deal with multiple copies of core being used.
-      ...keyProperty.decorators.filter((d) => d.decorator.name !== $visibility.name),
-      {
-        decorator: $path,
-        args: [],
-      },
+      ...keyProperty.decorators.filter((d) =>
+        VISIBILITY_DECORATORS.every((visDec) => d.decorator.name !== visDec.name),
+      ),
       {
         decorator: $resourceTypeForKeyParam,
         args: [{ node: target.node, value: resourceType, jsValue: resourceType }],
       },
     ];
+
+    if (!keyProperty.decorators.some((d) => d.decorator.name === $path.name)) {
+      decorators.push({
+        decorator: $path,
+        args: [],
+      });
+    }
 
     // Clone the key property and ensure that an optional key property doesn't
     // become an optional path parameter

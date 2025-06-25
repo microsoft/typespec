@@ -1,3 +1,4 @@
+import { mutate } from "../utils/misc.js";
 import type { Program } from "./program.js";
 import type {
   Diagnostic,
@@ -56,8 +57,11 @@ export function createDiagnosticCreator<T extends { [code: string]: DiagnosticMe
       message: messageStr,
       target: diagnostic.target,
     };
+    if (diagnosticDef.url) {
+      mutate(result).url = diagnosticDef.url;
+    }
     if (diagnostic.codefixes) {
-      (result as any).codefixes = diagnostic.codefixes;
+      mutate(result).codefixes = diagnostic.codefixes;
     }
     return result;
   }

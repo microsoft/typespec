@@ -3,13 +3,14 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import List
+from typing import List, Optional
 from abc import ABC, abstractmethod
 
 from ..models import ModelType, Property, ConstantType, EnumValue
 from ..models.imports import FileImport, TypingSection, MsrestImportType, ImportType
 from .import_serializer import FileImportSerializer
 from .base_serializer import BaseSerializer
+from ..models.utils import NamespaceType
 
 
 def _documentation_string(prop: Property, description_keyword: str, docstring_type_keyword: str) -> List[str]:
@@ -22,6 +23,12 @@ def _documentation_string(prop: Property, description_keyword: str, docstring_ty
 
 
 class _ModelSerializer(BaseSerializer, ABC):
+    def __init__(
+        self, code_model, env, async_mode=False, *, models: List[ModelType], client_namespace: Optional[str] = None
+    ):
+        super().__init__(code_model, env, async_mode, client_namespace=client_namespace)
+        self.models = models
+
     @abstractmethod
     def imports(self) -> FileImport: ...
 
@@ -33,6 +40,7 @@ class _ModelSerializer(BaseSerializer, ABC):
             imports=FileImportSerializer(self.imports()),
             str=str,
             serializer=self,
+            models=self.models,
         )
 
     @abstractmethod
@@ -63,12 +71,12 @@ class _ModelSerializer(BaseSerializer, ABC):
             typing = "str"
         return f"self.{prop.client_name}: {typing}  = {discriminator_value}"
 
-    @staticmethod
-    def initialize_standard_property(prop: Property):
+    def initialize_standard_property(self, prop: Property):
         if not (prop.optional or prop.client_default_value is not None):
-            return f"{prop.client_name}: {prop.type_annotation()},{prop.pylint_disable()}"
+            type_annotation = prop.type_annotation(serialize_namespace=self.serialize_namespace)
+            return f"{prop.client_name}: {type_annotation},{prop.pylint_disable()}"
         return (
-            f"{prop.client_name}: {prop.type_annotation()} = "
+            f"{prop.client_name}: {prop.type_annotation(serialize_namespace=self.serialize_namespace)} = "
             f"{prop.client_default_value_declaration},{prop.pylint_disable()}"
         )
 
@@ -108,32 +116,48 @@ class _ModelSerializer(BaseSerializer, ABC):
     def initialize_properties(self, model: ModelType) -> List[str]: ...
 
     def need_init(self, model: ModelType) -> bool:
-        return (not model.internal) and bool(self.init_line(model) or model.discriminator)
+        return bool(self.init_line(model) or model.discriminator)
 
-    def pylint_disable(self, model: ModelType) -> str:
+    def pylint_disable_items(self, model: ModelType) -> List[str]:
         if model.flattened_property or self.initialize_properties(model):
-            return ""
+            return [""]
         if any(p for p in model.properties if p.is_discriminator and model.discriminator_value):
-            return ""
+            return [""]
         if model.parents and any(
             "=" in prop for parent in model.parents for prop in self.init_line(parent) if self.need_init(parent)
         ):
-            return ""
-        return "  # pylint: disable=useless-super-delegation"
+            return [""]
+        return ["useless-super-delegation"]
+
+    def pylint_disable(self, model: ModelType) -> str:
+        return "  # pylint: disable=" + ", ".join(self.pylint_disable_items(model))
+
+    def global_pylint_disables(self) -> str:
+        return ""
+
+    @property
+    def serialize_namespace(self) -> str:
+        return self.code_model.get_serialize_namespace(self.client_namespace, client_namespace_type=NamespaceType.MODEL)
 
 
 class MsrestModelSerializer(_ModelSerializer):
     def imports(self) -> FileImport:
         file_import = FileImport(self.code_model)
         file_import.add_msrest_import(
-            relative_path="..",
+            serialize_namespace=self.serialize_namespace,
             msrest_import_type=MsrestImportType.Module,
             typing_section=TypingSection.REGULAR,
         )
-        for model in self.code_model.model_types:
+        for model in self.models:
             file_import.merge(model.imports(is_operation_file=False))
             for param in self._init_line_parameters(model):
-                file_import.merge(param.imports())
+                file_import.merge(
+                    param.imports(
+                        serialize_namespace=self.serialize_namespace,
+                        serialize_namespace_type=NamespaceType.MODEL,
+                        called_by_property=True,
+                    )
+                )
 
         return file_import
 
@@ -168,7 +192,8 @@ class MsrestModelSerializer(_ModelSerializer):
             if prop.is_discriminator:
                 init_args.append(self.initialize_discriminator_property(model, prop))
             elif prop.readonly:
-                init_args.append(f"self.{prop.client_name} = None")
+                # we want typing for readonly since typing isn't provided from the command line
+                init_args.append(f"self.{prop.client_name}: {prop.type_annotation()} = None")
             elif not prop.constant:
                 init_args.append(f"self.{prop.client_name} = {prop.client_name}")
         return init_args
@@ -203,19 +228,42 @@ class DpgModelSerializer(_ModelSerializer):
 
     def imports(self) -> FileImport:
         file_import = FileImport(self.code_model)
-        file_import.add_submodule_import(
-            "..",
-            "_model_base",
-            ImportType.LOCAL,
-            TypingSection.REGULAR,
-        )
-
-        for model in self.code_model.model_types:
+        if any(not m.parents for m in self.models):
+            file_import.add_submodule_import(
+                self.code_model.get_relative_import_path(self.serialize_namespace, module_name="_utils.model_base"),
+                "Model",
+                ImportType.LOCAL,
+                TypingSection.REGULAR,
+                alias="_Model",
+            )
+        for model in self.models:
             if model.base == "json":
                 continue
-            file_import.merge(model.imports(is_operation_file=False))
+            file_import.merge(
+                model.imports(
+                    is_operation_file=False,
+                    serialize_namespace=self.serialize_namespace,
+                    serialize_namespace_type=NamespaceType.MODEL,
+                )
+            )
             for prop in model.properties:
-                file_import.merge(prop.imports())
+                file_import.merge(
+                    prop.imports(
+                        serialize_namespace=self.serialize_namespace,
+                        serialize_namespace_type=NamespaceType.MODEL,
+                        called_by_property=True,
+                    )
+                )
+            for parent in model.parents:
+                if parent.client_namespace != model.client_namespace:
+                    file_import.add_submodule_import(
+                        self.code_model.get_relative_import_path(
+                            self.serialize_namespace,
+                            self.code_model.get_imported_namespace_for_model(parent.client_namespace),
+                        ),
+                        parent.name,
+                        ImportType.LOCAL,
+                    )
             if model.is_polymorphic:
                 file_import.add_submodule_import("typing", "Dict", ImportType.STDLIB)
             if not model.internal and self.init_line(model):
@@ -225,7 +273,7 @@ class DpgModelSerializer(_ModelSerializer):
         return file_import
 
     def declare_model(self, model: ModelType) -> str:
-        basename = "_model_base.Model"
+        basename = "_Model"
         if model.parents:
             basename = ", ".join([m.name for m in model.parents])
         if model.discriminator_value:
@@ -252,8 +300,7 @@ class DpgModelSerializer(_ModelSerializer):
             raise ValueError("We do not generate anonymous properties")
         return properties_to_declare
 
-    @staticmethod
-    def declare_property(prop: Property) -> str:
+    def declare_property(self, prop: Property) -> str:
         args = []
         if prop.client_name != prop.wire_name or prop.is_discriminator:
             args.append(f'name="{prop.wire_name}"')
@@ -277,14 +324,9 @@ class DpgModelSerializer(_ModelSerializer):
             if prop.is_discriminator and isinstance(prop.type, (ConstantType, EnumValue)) and prop.type.value
             else ""
         )
-        generated_code = f'{prop.client_name}: {prop.type_annotation()} = {field}({", ".join(args)})'
-        # there is 4 spaces indentation so original line length limit 120 - 4 = 116
-        pylint_disable = (
-            " # pylint: disable=line-too-long"
-            if len(generated_code) <= 116 < (len(generated_code) + len(type_ignore))
-            else ""
-        )
-        return f"{generated_code}{type_ignore}{pylint_disable}"
+        type_annotation = prop.type_annotation(serialize_namespace=self.serialize_namespace)
+        generated_code = f'{prop.client_name}: {type_annotation} = {field}({", ".join(args)})'
+        return f"{generated_code}{type_ignore}"
 
     def initialize_properties(self, model: ModelType) -> List[str]:
         init_args = []
@@ -315,3 +357,15 @@ class DpgModelSerializer(_ModelSerializer):
                     properties_to_pass_to_super.append(f"{prop.client_name}={prop.get_declaration()}")
         properties_to_pass_to_super.append("**kwargs")
         return ", ".join(properties_to_pass_to_super)
+
+    def global_pylint_disables(self) -> str:
+        result = []
+        for model in self.models:
+            if self.need_init(model):
+                for item in self.pylint_disable_items(model):
+                    if item:
+                        result.append(item)
+        final_result = set(result)
+        if final_result:
+            return "# pylint: disable=" + ", ".join(final_result)
+        return ""

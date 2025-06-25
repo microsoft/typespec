@@ -2,7 +2,7 @@ import type {
   CompilerHost,
   CompilerOptions,
   LinterDefinition,
-  NodePackage,
+  PackageJson,
   TypeSpecLibrary,
 } from "@typespec/compiler";
 
@@ -19,7 +19,7 @@ export interface PlaygroundSample {
 
 export interface PlaygroundTspLibrary {
   name: string;
-  packageJson: NodePackage;
+  packageJson: PackageJson;
   isEmitter: boolean;
   definition?: TypeSpecLibrary<any>;
   linter?: LinterDefinition;

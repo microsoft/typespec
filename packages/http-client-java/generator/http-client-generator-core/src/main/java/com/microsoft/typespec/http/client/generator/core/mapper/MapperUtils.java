@@ -8,7 +8,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ChoiceSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ChoiceValue;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Response;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SchemaContext;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
@@ -21,7 +20,6 @@ import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Contains utility methods to help map from modelerfour to Java Autorest.
@@ -29,7 +27,7 @@ import java.util.Objects;
 public final class MapperUtils {
     /**
      * Create enum client type from code model.
-     * 
+     *
      * @param enumType code model schema for enum
      * @param expandable whether it's expandable enum
      * @param useCodeModelNameForEnumMember whether to use code model enum member name for client enum member name
@@ -37,20 +35,43 @@ public final class MapperUtils {
      */
     public static IType createEnumType(ChoiceSchema enumType, boolean expandable,
         boolean useCodeModelNameForEnumMember) {
+        return createEnumType(enumType, expandable, useCodeModelNameForEnumMember, null, null);
+    }
+
+    /**
+     * Create enum client type from code model.
+     *
+     * @param enumType code model schema for enum
+     * @param expandable whether it's expandable enum
+     * @param useCodeModelNameForEnumMember whether to use code model enum member name for client enum member name
+     * @param serializationMethodName method name for serialization
+     * @param deserializationMethodName method name for deserialization
+     * @return enum client type
+     */
+    public static IType createEnumType(ChoiceSchema enumType, boolean expandable, boolean useCodeModelNameForEnumMember,
+        String serializationMethodName, String deserializationMethodName) {
         JavaSettings settings = JavaSettings.getInstance();
         String enumTypeName = enumType.getLanguage().getJava().getName();
 
         if (enumTypeName == null || enumTypeName.isEmpty() || enumTypeName.equals("enum")) {
             return ClassType.STRING;
         } else {
-            String enumPackage = settings.getPackage(settings.getModelsSubpackage());
+            String enumPackage = settings.getPackage();
+            String[] packageSuffixes;
             if (settings.isCustomType(enumTypeName)) {
-                enumPackage = settings.getPackage(settings.getCustomTypesSubpackage());
+                packageSuffixes = new String[] { settings.getCustomTypesSubpackage() };
             } else if (settings.isDataPlaneClient()
                 && (enumType.getUsage() != null && enumType.getUsage().contains(SchemaContext.INTERNAL))) {
                 // internal type, which is not exposed to user
-                enumPackage
-                    = settings.getPackage(settings.getImplementationSubpackage(), settings.getModelsSubpackage());
+                packageSuffixes
+                    = new String[] { settings.getImplementationSubpackage(), settings.getModelsSubpackage() };
+            } else {
+                packageSuffixes = new String[] { settings.getModelsSubpackage() };
+            }
+            if (!CoreUtils.isNullOrEmpty(enumType.getLanguage().getJava().getNamespace())) {
+                enumPackage = settings.getPackageName(enumType.getLanguage().getJava().getNamespace(), packageSuffixes);
+            } else {
+                enumPackage = settings.getPackage(packageSuffixes);
             }
 
             String summary = enumType.getSummary();
@@ -97,35 +118,31 @@ public final class MapperUtils {
                 .implementationDetails(
                     new ImplementationDetails.Builder().usages(SchemaUtil.mapSchemaContext(enumType.getUsage()))
                         .build())
-                .crossLanguageDefinitionId(enumType.getCrossLanguageDefinitionId())
+                .crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(enumType))
+                .fromMethodName(deserializationMethodName)
+                .toMethodName(serializationMethodName)
                 .build();
         }
     }
 
-    static IType handleResponseSchema(Operation operation, JavaSettings settings) {
-        Schema responseBodySchema = SchemaUtil.getLowestCommonParent(
-            operation.getResponses().stream().map(Response::getSchema).filter(Objects::nonNull).iterator());
-        boolean xmlWrapperResponse = responseBodySchema != null
-            && responseBodySchema.getSerialization() != null
-            && responseBodySchema.getSerialization().getXml() != null
-            && responseBodySchema.getSerialization().getXml().isWrapped();
-
-        if (!xmlWrapperResponse) {
-            return SchemaUtil.getOperationResponseType(responseBodySchema, operation, settings);
+    public static IType getExpectedResponseBodyType(Operation operation, JavaSettings settings) {
+        final Schema responseSchema = SchemaUtil.getLowestCommonParent(operation.getResponseSchemas().iterator());
+        if (responseSchema != null && responseSchema.isXmlWrapped()) {
+            // Create and return type for the XML wrapped schema.
+            //
+            // Note: XML wrapped response schemas are defined as ArraySchema but in reality it's a specialized
+            // ObjectSchema.
+            final ArraySchema arraySchema = (ArraySchema) responseSchema;
+            final String className = arraySchema.getElementType().getLanguage().getJava().getName() + "Wrapper";
+            final String classPackage = settings.isCustomType(className)
+                ? settings.getPackage(className)
+                : settings.getPackage(settings.getImplementationSubpackage() + ".models");
+            return new ClassType.Builder().packageName(classPackage)
+                .name(className)
+                .extensions(responseSchema.getExtensions())
+                .build();
         }
-
-        // XML wrapped response types are tricky as they're defined as ArraySchema but in reality it's a specialized
-        // ObjectSchema.
-        ArraySchema arraySchema = (ArraySchema) responseBodySchema;
-        String className = arraySchema.getElementType().getLanguage().getJava().getName() + "Wrapper";
-        String classPackage = settings.isCustomType(className)
-            ? settings.getPackage(className)
-            : settings.getPackage(settings.getImplementationSubpackage() + ".models");
-
-        return new ClassType.Builder().packageName(classPackage)
-            .name(className)
-            .extensions(responseBodySchema.getExtensions())
-            .build();
+        return SchemaUtil.getOperationResponseType(responseSchema, operation, settings);
     }
 
     private MapperUtils() {

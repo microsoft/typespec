@@ -47,15 +47,21 @@ New-Item -ItemType Directory -Force -Path "$outputPath/packages" | Out-Null
 Write-Host "Getting existing version"
 $emitterVersion = node -p -e "require('$packageRoot/package.json').version"
 
-# build the generator jar
+# build the generator
 Push-Location "$packageRoot/generator"
 
-# build and pack the emitter with the generator jar
+# build and pack the emitter with the generator
 Push-Location "$packageRoot"
 try {
     Write-Host "Working in $PWD"
 
     Invoke-LoggedCommand "npm run build" -GroupOutput
+
+    # Only run lint:py on Linux OS
+    if ($IsLinux) {
+        Write-Host "run lint check for pygen"
+        Invoke-LoggedCommand "npm run lint:py" -GroupOutput
+    }
 
     # pack the emitter
     Invoke-LoggedCommand "npm pack"

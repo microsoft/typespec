@@ -1,4 +1,4 @@
-import { createDiagnosticCollector, ignoreDiagnostics } from "../core/diagnostics.js";
+import { createDiagnosticCollector } from "../core/diagnostics.js";
 import { createDiagnostic } from "../core/messages.js";
 import { Diagnostic, NoTarget } from "../core/types.js";
 import {
@@ -25,22 +25,22 @@ export function expandConfigVariables(
     cwd: expandOptions.cwd,
   };
 
+  const resolvedArgsParameters = diagnostics.pipe(
+    resolveArgs(config.parameters, expandOptions.args),
+  );
   const commonVars = {
     ...builtInVars,
-    ...diagnostics.pipe(resolveArgs(config.parameters, expandOptions.args, builtInVars)),
-    env: diagnostics.pipe(
-      resolveArgs(config.environmentVariables, expandOptions.env, builtInVars, true),
-    ),
+    ...resolvedArgsParameters,
+    env: diagnostics.pipe(resolveArgs(config.environmentVariables, expandOptions.env, true)),
+    "output-dir": expandOptions.outputDir ?? config.outputDir ?? "{cwd}/tsp-output",
   };
-  const outputDir = diagnostics.pipe(
-    resolveValue(expandOptions.outputDir ?? config.outputDir, commonVars),
-  );
-
+  const resolvedCommonVars = diagnostics.pipe(resolveValues(commonVars));
+  const outputDir = resolvedCommonVars["output-dir"];
   const result = { ...config, outputDir };
   if (config.options) {
     const options: Record<string, EmitterOptions> = {};
     for (const [name, emitterOptions] of Object.entries(config.options)) {
-      const emitterVars = { ...commonVars, "output-dir": outputDir, "emitter-name": name };
+      const emitterVars = { ...resolvedCommonVars, "output-dir": outputDir, "emitter-name": name };
       options[name] = diagnostics.pipe(resolveValues(emitterOptions, emitterVars));
     }
     result.options = options;
@@ -52,17 +52,15 @@ export function expandConfigVariables(
 function resolveArgs(
   declarations: Record<string, ConfigParameter | ConfigEnvironmentVariable> | undefined,
   args: Record<string, string | undefined> | undefined,
-  predefinedVariables: Record<string, string | Record<string, string>>,
   allowUnspecified = false,
 ): [Record<string, string>, readonly Diagnostic[]] {
   const unmatchedArgs = new Set(Object.keys(args ?? {}));
   const result: Record<string, string> = {};
+
   if (declarations !== undefined) {
     for (const [name, definition] of Object.entries(declarations)) {
       unmatchedArgs.delete(name);
-      result[name] = ignoreDiagnostics(
-        resolveValue(args?.[name] ?? definition.default, predefinedVariables),
-      );
+      result[name] = args?.[name] ?? definition.default;
     }
   }
 
@@ -79,15 +77,13 @@ function resolveArgs(
   return [result, []];
 }
 
-const VariableInterpolationRegex = /{([a-zA-Z-_.]+)}/g;
-
-function resolveValue(
-  value: string,
-  predefinedVariables: Record<string, string | Record<string, string>>,
-): [string, readonly Diagnostic[]] {
-  const [result, diagnostics] = resolveValues({ value }, predefinedVariables);
-  return [result.value, diagnostics];
+function hasNestedValues(value: any): boolean {
+  return (
+    value && typeof value === "object" && !Array.isArray(value) && Object.keys(value).length > 0
+  );
 }
+
+const VariableInterpolationRegex = /{([a-zA-Z-_.]+)}/g;
 
 export function resolveValues<T extends Record<string, unknown>>(
   values: T,
@@ -97,22 +93,35 @@ export function resolveValues<T extends Record<string, unknown>>(
   const resolvedValues: Record<string, unknown> = {};
   const resolvingValues = new Set<string>();
 
-  function resolveValue(key: string) {
-    resolvingValues.add(key);
-    const value = values[key];
-    if (!(typeof value === "string")) {
+  function resolveValuePath(obj: any, path: string[]): any {
+    return path.reduce((acc, key) => (acc && typeof acc === "object" ? acc[key] : undefined), obj);
+  }
+
+  function resolveValue(keys: string[]): unknown {
+    const keyPath = keys.join(".");
+    resolvingValues.add(keyPath);
+    let value: any = resolveValuePath(values, keys);
+    if (typeof value !== "string") {
+      if (hasNestedValues(value)) {
+        value = value as Record<string, any>;
+        const resultObject: Record<string, any> = {};
+        for (const [nestedKey] of Object.entries(value)) {
+          resultObject[nestedKey] = resolveValue(keys.concat(nestedKey)) as any;
+        }
+        resolvingValues.delete(keyPath);
+        return resultObject;
+      }
+      resolvingValues.delete(keyPath);
       return value;
     }
-    return value.replace(VariableInterpolationRegex, (match, expression) => {
+    const replaced = value.replace(VariableInterpolationRegex, (_, expression) => {
       return (resolveExpression(expression) as string) ?? `{${expression}}`;
     });
+    resolvingValues.delete(keyPath);
+    return replaced;
   }
 
   function resolveExpression(expression: string): unknown | undefined {
-    if (expression in resolvedValues) {
-      return resolvedValues[expression];
-    }
-
     if (resolvingValues.has(expression)) {
       diagnostics.push(
         createDiagnostic({
@@ -123,34 +132,15 @@ export function resolveValues<T extends Record<string, unknown>>(
       );
       return undefined;
     }
-
-    if (expression in values) {
-      return resolveValue(expression) as any;
-    }
-
     const segments = expression.split(".");
-    let resolved: any = predefinedVariables;
-    for (const segment of segments) {
-      resolved = resolved[segment];
-      if (resolved === undefined) {
-        return undefined;
-      }
-    }
-
-    if (typeof resolved === "string") {
-      return resolved;
-    } else {
-      return undefined;
-    }
+    return resolveValue(segments) ?? resolveValuePath(predefinedVariables, segments);
   }
 
   for (const key of Object.keys(values)) {
-    resolvingValues.clear();
     if (key in resolvedValues) {
       continue;
     }
-
-    resolvedValues[key] = resolveValue(key) as any;
+    resolvedValues[key] = resolveValue([key]) as any;
   }
 
   return [resolvedValues as any, diagnostics];

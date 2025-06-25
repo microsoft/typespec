@@ -8,9 +8,7 @@ TypeSpec HTTP protocol binding
 npm install @typespec/http
 ```
 
-## Linter
-
-### Usage
+## Usage
 
 Add the following in `tspconfig.yaml`:
 
@@ -20,13 +18,13 @@ linter:
     - "@typespec/http/all"
 ```
 
-### RuleSets
+## RuleSets
 
 Available ruleSets:
 
 - `@typespec/http/all`
 
-### Rules
+## Rules
 
 | Name                                                                                                                        | Description                                                                               |
 | --------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
@@ -39,11 +37,11 @@ Available ruleSets:
 - [`@body`](#@body)
 - [`@bodyIgnore`](#@bodyignore)
 - [`@bodyRoot`](#@bodyroot)
+- [`@cookie`](#@cookie)
 - [`@delete`](#@delete)
 - [`@get`](#@get)
 - [`@head`](#@head)
 - [`@header`](#@header)
-- [`@includeInapplicableMetadataInPayload`](#@includeinapplicablemetadatainpayload)
 - [`@multipartBody`](#@multipartbody)
 - [`@patch`](#@patch)
 - [`@path`](#@path)
@@ -147,6 +145,47 @@ op download(): {
 };
 ```
 
+#### `@cookie`
+
+Specify this property is to be sent or received in the cookie.
+
+```typespec
+@TypeSpec.Http.cookie(cookieNameOrOptions?: valueof string | TypeSpec.Http.CookieOptions)
+```
+
+##### Target
+
+`ModelProperty`
+
+##### Parameters
+
+| Name                | Type                                            | Description                                                                                                                                                                                       |
+| ------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| cookieNameOrOptions | `valueof string \| TypeSpec.Http.CookieOptions` | Optional name of the cookie in the cookie or cookie options.<br />By default the cookie name will be the property name converted from camelCase to snake_case. (e.g. `authToken` -> `auth_token`) |
+
+##### Examples
+
+```typespec
+op read(@cookie token: string): {
+  data: string[];
+};
+op create(
+  @cookie({
+    name: "auth_token",
+  })
+  data: string[],
+): void;
+```
+
+###### Implicit header name
+
+```typespec
+op read(): {
+  @cookie authToken: string;
+}; // headerName: auth_token
+op update(@cookie AuthToken: string): void; // headerName: auth_token
+```
+
 #### `@delete`
 
 Specify the HTTP verb for the target operation to be `DELETE`.
@@ -218,7 +257,7 @@ None
 Specify this property is to be sent or received as an HTTP header.
 
 ```typespec
-@TypeSpec.Http.header(headerNameOrOptions?: string | TypeSpec.Http.HeaderOptions)
+@TypeSpec.Http.header(headerNameOrOptions?: valueof string | TypeSpec.Http.HeaderOptions)
 ```
 
 ##### Target
@@ -227,9 +266,9 @@ Specify this property is to be sent or received as an HTTP header.
 
 ##### Parameters
 
-| Name                | Type                                    | Description                                                                                                                                                                                                 |
-| ------------------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| headerNameOrOptions | `string \| TypeSpec.Http.HeaderOptions` | Optional name of the header when sent over HTTP or header options.<br />By default the header name will be the property name converted from camelCase to kebab-case. (e.g. `contentType` -> `content-type`) |
+| Name                | Type                                            | Description                                                                                                                                                                                                 |
+| ------------------- | ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| headerNameOrOptions | `valueof string \| TypeSpec.Http.HeaderOptions` | Optional name of the header when sent over HTTP or header options.<br />By default the header name will be the property name converted from camelCase to kebab-case. (e.g. `contentType` -> `content-type`) |
 
 ##### Examples
 
@@ -254,24 +293,6 @@ op read(): {
 }; // headerName: content-type
 op update(@header ifMatch: string): void; // headerName: if-match
 ```
-
-#### `@includeInapplicableMetadataInPayload`
-
-Specify if inapplicable metadata should be included in the payload for the given entity.
-
-```typespec
-@TypeSpec.Http.includeInapplicableMetadataInPayload(value: valueof boolean)
-```
-
-##### Target
-
-`unknown`
-
-##### Parameters
-
-| Name  | Type              | Description                                                     |
-| ----- | ----------------- | --------------------------------------------------------------- |
-| value | `valueof boolean` | If true, inapplicable metadata will be included in the payload. |
 
 #### `@multipartBody`
 
@@ -304,7 +325,7 @@ op upload(
 Specify the HTTP verb for the target operation to be `PATCH`.
 
 ```typespec
-@TypeSpec.Http.patch
+@TypeSpec.Http.patch(options?: valueof TypeSpec.Http.PatchOptions)
 ```
 
 ##### Target
@@ -313,12 +334,21 @@ Specify the HTTP verb for the target operation to be `PATCH`.
 
 ##### Parameters
 
-None
+| Name    | Type                                    | Description                      |
+| ------- | --------------------------------------- | -------------------------------- |
+| options | [valueof `PatchOptions`](#patchoptions) | Options for the PATCH operation. |
 
 ##### Examples
 
 ```typespec
 @patch op update(pet: Pet): void;
+```
+
+```typespec
+// Disable implicit optionality, making the body of the PATCH operation use the
+// optionality as defined in the `Pet` model.
+@patch(#{ implicitOptionality: false })
+op update(pet: Pet): void;
 ```
 
 #### `@path`
@@ -422,7 +452,7 @@ Defines the relative route URI template for the target operation as defined by [
 `@route` can only be applied to operations, namespaces, and interfaces.
 
 ```typespec
-@TypeSpec.Http.route(path: valueof string, options?: { shared: boolean })
+@TypeSpec.Http.route(path: valueof string)
 ```
 
 ##### Target
@@ -431,10 +461,9 @@ Defines the relative route URI template for the target operation as defined by [
 
 ##### Parameters
 
-| Name    | Type             | Description                                                                                                                                               |
-| ------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| path    | `valueof string` |                                                                                                                                                           |
-| options | `{...}`          | _DEPRECATED_ Set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations. |
+| Name | Type             | Description |
+| ---- | ---------------- | ----------- |
+| path | `valueof string` |             |
 
 ##### Examples
 
@@ -462,7 +491,7 @@ Defines the relative route URI template for the target operation as defined by [
 Specify an endpoint for this service. Multiple `@server` decorators can be used to specify multiple endpoints.
 
 ```typespec
-@TypeSpec.Http.server(url: valueof string, description: valueof string, parameters?: Record<unknown>)
+@TypeSpec.Http.server(url: valueof string, description?: valueof string, parameters?: Record<unknown>)
 ```
 
 ##### Target
@@ -478,6 +507,14 @@ Specify an endpoint for this service. Multiple `@server` decorators can be used 
 | parameters  | `Record<unknown>` | Optional set of parameters used to interpolate the url. |
 
 ##### Examples
+
+```typespec
+@service
+@server("https://example.com")
+namespace PetStore;
+```
+
+###### With a description
 
 ```typespec
 @service

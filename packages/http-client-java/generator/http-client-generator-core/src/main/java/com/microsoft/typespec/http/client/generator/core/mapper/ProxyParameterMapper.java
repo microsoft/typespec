@@ -13,6 +13,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterSynthesizedOrigin;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
@@ -37,7 +38,7 @@ public class ProxyParameterMapper implements IMapper<Parameter, ProxyMethodParam
 
         String name = parameter.getLanguage().getJava().getName();
 
-        ProxyMethodParameter.Builder builder = createProxyMethodParameterBuilder()
+        ProxyMethodParameter.Builder builder = new ProxyMethodParameter.Builder()
             .requestParameterName(parameter.getLanguage().getDefault().getSerializedName())
             .name(name)
             .required(parameter.isRequired())
@@ -66,12 +67,13 @@ public class ProxyParameterMapper implements IMapper<Parameter, ProxyMethodParam
 
         IType clientType = wireType.getClientType();
 
-        if (settings.isDataPlaneClient()) {
+        if (isRemoveModelFromParameter(parameter, clientType)) {
             clientType = SchemaUtil.removeModelFromParameter(parameterRequestLocation, clientType);
         }
+
         builder.clientType(clientType);
 
-        if (wireType instanceof ListType
+        if (wireType instanceof IterableType
             && SchemaUtil.treatAsXml(parameterJvWireType)
             && parameterRequestLocation == RequestParameterLocation.BODY) {
             String modelTypeName
@@ -88,10 +90,10 @@ public class ProxyParameterMapper implements IMapper<Parameter, ProxyMethodParam
             if (parameterRequestLocation
                 != RequestParameterLocation.BODY /* && parameterRequestLocation != RequestParameterLocation.FormData */) {
                 wireType = ClassType.STRING;
-            } else if (settings.isDataPlaneClient()) {
+            } else if (isRemoveModelFromParameter(parameter, wireType)) {
                 wireType = SchemaUtil.removeModelFromParameter(parameterRequestLocation, wireType);
             }
-        } else if (wireType instanceof ListType
+        } else if (wireType instanceof IterableType
             && parameter.getProtocol().getHttp().getIn()
                 != RequestParameterLocation.BODY /*
                                                   * && parameter.getProtocol().getHttp().getIn() !=
@@ -102,7 +104,7 @@ public class ProxyParameterMapper implements IMapper<Parameter, ProxyMethodParam
             } else {
                 wireType = ClassType.STRING;
             }
-        } else if (settings.isDataPlaneClient()) {
+        } else if (isRemoveModelFromParameter(parameter, wireType)) {
             wireType = SchemaUtil.removeModelFromParameter(parameterRequestLocation, wireType);
         }
         builder.wireType(wireType);
@@ -126,7 +128,7 @@ public class ProxyParameterMapper implements IMapper<Parameter, ProxyMethodParam
             String caller = (operationGroupName == null || operationGroupName.isEmpty()) ? "this" : "this.client";
             String clientPropertyName = parameter.getLanguage().getJava().getName();
             boolean isServiceVersion = false;
-            if (settings.isDataPlaneClient()
+            if ((settings.isDataPlaneClient() || !settings.isAzureV1() || settings.isAzureV2())
                 && ParameterSynthesizedOrigin.fromValue(parameter.getOrigin())
                     == ParameterSynthesizedOrigin.API_VERSION) {
                 isServiceVersion = true;
@@ -173,7 +175,7 @@ public class ProxyParameterMapper implements IMapper<Parameter, ProxyMethodParam
                     collectionFormat = CollectionFormat.CSV;
             }
         }
-        if (collectionFormat == null && clientType instanceof ListType && ClassType.STRING == wireType) {
+        if (collectionFormat == null && clientType instanceof IterableType && ClassType.STRING == wireType) {
             collectionFormat = CollectionFormat.CSV;
         }
         builder.collectionFormat(collectionFormat);
@@ -182,8 +184,7 @@ public class ProxyParameterMapper implements IMapper<Parameter, ProxyMethodParam
         return builder.build();
     }
 
-    protected ProxyMethodParameter.Builder createProxyMethodParameterBuilder() {
-        return new ProxyMethodParameter.Builder();
+    protected boolean isRemoveModelFromParameter(Parameter parameter, IType clientType) {
+        return JavaSettings.getInstance().isDataPlaneClient();
     }
-
 }

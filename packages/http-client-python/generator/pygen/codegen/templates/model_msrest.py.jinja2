@@ -21,9 +21,7 @@
     {% if model.properties != None %}
         {% for p in model.properties %}
             {% for line in serializer.variable_documentation_string(p) %}
-                {% for doc_string in line.replace('\n', '\n ').split('\n') %}
-    {{ macros.wrap_model_string(doc_string, '\n     ') -}}
-                {% endfor %}
+    {{ macros.wrap_model_string(line, '\n    ') -}}
             {% endfor %}
         {% endfor %}
     {% endif %}
@@ -75,9 +73,7 @@
         {% for p in model.properties %}
             {% if p.is_input %}
                 {% for line in serializer.input_documentation_string(p) %}
-                    {% for doc_string in line.replace('\n', '\n ').split('\n') %}
-        {{ macros.wrap_model_string(doc_string, '\n         ') -}}
-                    {% endfor %}
+        {{ macros.wrap_model_string(line, '\n        ') -}}
                 {% endfor %}
             {% endif %}
         {% endfor %}

@@ -3,8 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-"""The preprocessing autorest plugin.
-"""
+"""The preprocessing autorest plugin."""
 import copy
 from typing import Callable, Dict, Any, List, Optional
 
@@ -14,7 +13,7 @@ from .helpers import (
     pad_builtin_namespaces,
     pad_special_chars,
 )
-from .python_mappings import CADL_RESERVED_WORDS, RESERVED_WORDS, PadType
+from .python_mappings import TSP_RESERVED_WORDS, RESERVED_WORDS, PadType
 
 from .. import YamlUpdatePlugin
 from ..utils import (
@@ -92,9 +91,9 @@ def add_overloads_for_body_param(yaml_data: Dict[str, Any]) -> None:
     for body_type in body_parameter["type"]["types"]:
         if any(o for o in yaml_data["overloads"] if id(o["bodyParameter"]["type"]) == id(body_type)):
             continue
-        yaml_data["overloads"].append(add_overload(yaml_data, body_type))
         if body_type.get("type") == "model" and body_type.get("base") == "json":
             yaml_data["overloads"].append(add_overload(yaml_data, body_type, for_flatten_params=True))
+        yaml_data["overloads"].append(add_overload(yaml_data, body_type))
     content_type_param = next(p for p in yaml_data["parameters"] if p["wireName"].lower() == "content-type")
     content_type_param["inOverload"] = False
     content_type_param["inOverridden"] = True
@@ -182,11 +181,11 @@ class PreProcessPlugin(YamlUpdatePlugin):
 
     @property
     def models_mode(self) -> Optional[str]:
-        return self.options.get("models-mode", "dpg" if self.is_cadl else None)
+        return self.options.get("models-mode", "dpg" if self.is_tsp else None)
 
     @property
-    def is_cadl(self) -> bool:
-        return self.options.get("cadl_file", False)
+    def is_tsp(self) -> bool:
+        return self.options.get("tsp_file", False)
 
     def add_body_param_type(
         self,
@@ -197,9 +196,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
         if (  # pylint: disable=too-many-boolean-expressions
             body_parameter
             and body_parameter["type"]["type"] in ("model", "dict", "list")
-            and (
-                has_json_content_type(body_parameter) or (self.is_cadl and has_multi_part_content_type(body_parameter))
-            )
+            and (has_json_content_type(body_parameter) or (self.is_tsp and has_multi_part_content_type(body_parameter)))
             and not body_parameter["type"].get("xmlMetadata")
             and not any(t for t in ["flattened", "groupedBy"] if body_parameter.get(t))
         ):
@@ -210,7 +207,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
                 "types": [body_parameter["type"]],
             }
             # don't add binary overload for multipart content type
-            if not (self.is_cadl and has_multi_part_content_type(body_parameter)):
+            if not (self.is_tsp and has_multi_part_content_type(body_parameter)):
                 body_parameter["type"]["types"].append(KNOWN_TYPES["binary"])
 
             if origin_type == "model" and is_dpg_model and self.models_mode == "dpg":
@@ -223,8 +220,8 @@ class PreProcessPlugin(YamlUpdatePlugin):
             # we'll pass in empty operation groups sometime etc.
             return name
 
-        if self.is_cadl:
-            reserved_words = {k: (v + CADL_RESERVED_WORDS.get(k, [])) for k, v in RESERVED_WORDS.items()}
+        if self.is_tsp:
+            reserved_words = {k: (v + TSP_RESERVED_WORDS.get(k, [])) for k, v in RESERVED_WORDS.items()}
         else:
             reserved_words = RESERVED_WORDS
         name = pad_special_chars(name)
@@ -501,15 +498,11 @@ class PreProcessPlugin(YamlUpdatePlugin):
         for client in yaml_data["clients"]:
             self.update_client(client)
             self.update_operation_groups(yaml_data, client)
-        for clients in yaml_data["subnamespaceToClients"].values():
-            for client in clients:
-                self.update_client(client)
-                self.update_operation_groups(yaml_data, client)
         if yaml_data.get("namespace"):
             yaml_data["namespace"] = pad_builtin_namespaces(yaml_data["namespace"])
 
 
 if __name__ == "__main__":
-    # CADL pipeline will call this
+    # TSP pipeline will call this
     args, unknown_args = parse_args()
-    PreProcessPlugin(output_folder=args.output_folder, cadl_file=args.cadl_file, **unknown_args).process()
+    PreProcessPlugin(output_folder=args.output_folder, tsp_file=args.tsp_file, **unknown_args).process()

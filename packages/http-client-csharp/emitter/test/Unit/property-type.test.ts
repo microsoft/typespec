@@ -1,12 +1,14 @@
+vi.resetModules();
+
 import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import { TestHost } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import {
+  createCSharpSdkContext,
   createEmitterContext,
   createEmitterTestHost,
-  createNetSdkContext,
   typeSpecCompile,
 } from "./utils/test-util.js";
 
@@ -25,9 +27,13 @@ describe("Test GetInputType for array", () => {
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const type = root.Clients[0].Operations[0].Parameters[3].Type;
+    const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
+      (p) => p.name === "input",
+    );
+    strictEqual(1, inputParamArray.length);
+    const type = inputParamArray[0].type;
     strictEqual(type.kind, "array");
     strictEqual(type.crossLanguageDefinitionId, "TypeSpec.Array");
     strictEqual(type.valueType.kind, "string");
@@ -42,9 +48,9 @@ describe("Test GetInputType for array", () => {
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const bodyType = root.Clients[0].Operations[0].Responses[0].BodyType;
+    const bodyType = root.clients[0].methods[0].operation.responses[0].bodyType;
     strictEqual(bodyType?.kind, "array");
     strictEqual(bodyType.crossLanguageDefinitionId, "TypeSpec.Array");
     strictEqual(bodyType.valueType.kind, "string");
@@ -81,13 +87,17 @@ describe("Test GetInputType for enum", () => {
       { IsNamespaceNeeded: true, IsAzureCoreNeeded: true },
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const type = root.Clients[0].Operations[0].Parameters[3].Type;
+    const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
+      (p) => p.name === "input",
+    );
+    strictEqual(1, inputParamArray.length);
+    const type = inputParamArray[0].type;
     strictEqual(type.kind, "enum");
     strictEqual(type.name, "SimpleEnum");
     strictEqual(type.isFixed, true);
-    strictEqual(type.description, "fixed string enum");
+    strictEqual(type.doc, "fixed string enum");
     strictEqual(type.crossLanguageDefinitionId, "Azure.Csharp.Testing.SimpleEnum");
     strictEqual(type.access, undefined);
     strictEqual(type.valueType.kind, "string");
@@ -123,14 +133,18 @@ describe("Test GetInputType for enum", () => {
       { IsNamespaceNeeded: true, IsAzureCoreNeeded: true },
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const type = root.Clients[0].Operations[0].Parameters[3].Type;
+    const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
+      (p) => p.name === "input",
+    );
+    strictEqual(1, inputParamArray.length);
+    const type = inputParamArray[0].type;
     strictEqual(type.kind, "enum");
     strictEqual(type.name, "FixedIntEnum");
     strictEqual(type.crossLanguageDefinitionId, "Azure.Csharp.Testing.FixedIntEnum");
     strictEqual(type.access, undefined);
-    strictEqual(type.description, "Fixed int enum");
+    strictEqual(type.doc, "Fixed int enum");
     strictEqual(type.valueType.crossLanguageDefinitionId, "TypeSpec.int32");
     strictEqual(type.valueType.kind, "int32");
     strictEqual(type.values.length, 3);
@@ -158,14 +172,18 @@ describe("Test GetInputType for enum", () => {
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const type = root.Clients[0].Operations[0].Parameters[3].Type;
+    const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
+      (p) => p.name === "input",
+    );
+    strictEqual(1, inputParamArray.length);
+    const type = inputParamArray[0].type;
     strictEqual(type.kind, "enum");
     strictEqual(type.name, "FixedEnum");
     strictEqual(type.crossLanguageDefinitionId, "Azure.Csharp.Testing.FixedEnum");
     strictEqual(type.access, undefined);
-    strictEqual(type.description, "Fixed enum");
+    strictEqual(type.doc, "Fixed enum");
     strictEqual(type.valueType.kind, "string");
     strictEqual(type.valueType.crossLanguageDefinitionId, "TypeSpec.string");
     strictEqual(type.values.length, 3);

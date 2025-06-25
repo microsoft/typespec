@@ -1,5 +1,291 @@
 # Change Log - @typespec/http
 
+## 1.1.0
+
+No changes, version bump only.
+
+## 1.0.1
+
+### Bug Fixes
+
+- [#7259](https://github.com/microsoft/typespec/pull/7259) Fix diagnostic for `PatchOptions.implicitOptionality`, which refers a non-existing property and the incorrect value.
+  To keep the old behavior, you will need to use `@patch(#{ implicitOptionality: true })` instead.
+
+
+## 1.0.0
+
+### Breaking Changes
+
+- [#7230](https://github.com/microsoft/typespec/pull/7230) Changed `@patch` so that it does not apply the "implicit optionality" transform by default anymore.
+  
+  ```diff lang=tsp
+  @patch op update(@body pet: Pet): void;
+  ```
+  
+  To use JSON Merge-Patch to update resources, replace the body property with an instance of `MergePatchUpdate` as follows:
+  
+  ```tsp
+  @patch op update(@body pet: MergePatchUpdate<Pet>): void;
+  ```
+  
+  Or, keep the old behavior by explicitly enabling `implicitOptionality` in the `@patch` options:
+  
+  ```tsp
+  @patch(#{ implicitOptionality: true }) op update(@body pet: Pet): void;
+  ```
+
+### Features
+
+- [#7207](https://github.com/microsoft/typespec/pull/7207) Implemented JSON Merge-Patch wrappers. This allows converting a type to a JSON Merge-Patch compatible update record using the `MergePatchUpdate` and `MergePatchCreateOrUpdate` templates.
+
+### Bug Fixes
+
+- [#7168](https://github.com/microsoft/typespec/pull/7168) Replace optional param validation requiring use with path expansion and replace with a warning when the resulting url might have a double `/`
+
+
+## 1.0.0-rc.1
+
+### Features
+
+- [#7049](https://github.com/microsoft/typespec/pull/7049) Updates `$.httpOperation.get` to be a diagnosable - use `$.httpOperation.get.withDiagnostics` to get diagnostics
+- [#6949](https://github.com/microsoft/typespec/pull/6949) Improved types for HTTP multipart payloads for more precise guarantees and additional information about the resolution of individual parts.
+
+### Bug Fixes
+
+- [#6962](https://github.com/microsoft/typespec/pull/6962) Fixes issue where each variant of a `@discriminated` union was treated as a separate response instead of the whole union being treated as a single response.
+- [#7069](https://github.com/microsoft/typespec/pull/7069) Handle types without node
+- [#7065](https://github.com/microsoft/typespec/pull/7065) Handle tuples without nodes
+
+
+## 1.0.0-rc.0
+
+### Breaking Changes
+
+- [#6557](https://github.com/microsoft/typespec/pull/6557) Remove support for deprecated implicit multipart, migrate to explicit part with `@multipartBody` and `HttpPart<T>`
+  
+    ```diff lang=tsp
+    op upload(
+      @header contentType: "multipart/form-data",
+    -  @body body: {
+    +  @multipartBody body: {
+    -    name: string;
+    +    name: HttpPart<string>;
+    -    avatar: bytes;
+    +    avatar: HttpPart<bytes>;
+      }
+    ): void;
+    ```
+- [#6563](https://github.com/microsoft/typespec/pull/6563) Separate file bodies into their own `bodyKind`.
+  
+  The HTTP library will now return a body with `bodyKind: "file"` in all cases where emitters should treat the body as a file upload or download. Emitters that previously attempted to recognize File bodies by checking the `type` of an HTTP `"single"` body may now simply check if the `bodyKind` is `"file"`. This applies to all HTTP payloads where an `HttpOperationBody` can appear, including requests, responses, and multipart parts.
+
+### Features
+
+- [#6559](https://github.com/microsoft/typespec/pull/6559) [API] Expose `property?` on `HttpOperationPart`
+- [#6652](https://github.com/microsoft/typespec/pull/6652) Add validation when using path or query options with the default value while the parameter is referenced in the uri template
+
+### Bump dependencies
+
+- [#6595](https://github.com/microsoft/typespec/pull/6595) Upgrade dependencies
+
+### Bug Fixes
+
+- [#6542](https://github.com/microsoft/typespec/pull/6542) Query parameter with `-` will be correctly represented in the resulting uri template
+- [#6472](https://github.com/microsoft/typespec/pull/6472) Path parameters can now be optional under specific circumstances. This fix updates the validation to ensure it doesn't trigger in these scenarios.
+  
+  An optional parameter should have a leading `/` inside the `{}`.
+  
+  For example:
+  
+  ```tsp
+  @route("optional{/param}/list")
+  op optional(@path param?: string): void;
+  ```
+  
+  Another supported scenario is using `@autoRoute`:
+  ```tsp
+  @autoRoute
+  op optional(@path param?: string): void;
+  ```
+
+
+## 0.67.0
+
+### Breaking Changes
+
+- [#6387](https://github.com/microsoft/typespec/pull/6387) Removing deprecated items
+
+- `isContentTypeHeader`
+- `setLegacyStatusCodeState`
+
+Moved to internal
+
+- `setStatusCode`
+- [#6305](https://github.com/microsoft/typespec/pull/6305) Remove deprecated items:
+
+- `format` option from `@header` and `@query` decorators. Use `explode` option instead.
+
+  ```diff
+  -@header(#{ format: "multi"})
+  -@query(#{ format: "multi"})
+  +@header(#{ explode: true })
+  +@query(#{ explode: true })
+  ```
+- `shared` option from `@route` decorator. Please use `@sharedRoute` instead.
+
+  ```diff
+  -@route("/doStuff", { shared: true })
+  +@sharedRoute
+  +@route("/doStuff")
+  ```
+
+- Javascript functions and typescript types:
+
+  - `HeaderOptions.format`
+  - `HeaderFieldOptions.format`
+  - `QueryOptions.format`
+  - `QueryParameterOptions.format`
+  - `MetadataInfo.isEmptied`
+  - `includeInterfaceRoutesInNamespace`
+  - `getAllRoutes` -> `getAllHttpServices`
+  - `OperationDetails` -> `HttpOperation`
+  - `ServiceAuthentication` -> `Authentication`
+  - `HttpOperationParameters.bodyType` -> `body.type`
+  - `HttpOperationParameters.bodyParameter` -> `body.parameter`
+  - `StatusCode` -> `HttpStatusCodesEntry`
+- [#6433](https://github.com/microsoft/typespec/pull/6433) Stop exposing APIs that were not meant for external users. Please file issue if you had legitmate use of some of those APIs.
+  - `@includeInapplicableMetadataInPayload` decorator was moved to `Private` namespace and stop exposing the accessor.
+  - Functions used in  `getHttpOperation` to resolve the finalized view of the http operation but shouldn't be used directly.
+    - `resolvePathAndParameters`
+  - `validateRouteUnique` internal api used in http library validation
+  - Moved custom route producer related APIs to experimental with `unsafe_` prefix. Those APIs are not ready for public use and **will** change in future.
+    - `DefaultRouteProducer` -> `unsafe_DefaultRouteProducer`
+    - `getRouteProducer` -> `unsafe_getRouteProducer`
+    - `setRouteProducer` -> `unsafe_setRouteProducer`
+    - `setRouteOptionsForNamespace` -> `unsafe_setRouteOptionsForNamespace`
+    - `RouteProducer` -> `unsafe_RouteProducer`
+    - `RouteProducerResult` -> `unsafe_RouteProducerResult`
+    - `RouteResolutionOptions` -> `unsafe_RouteResolutionOptions`
+    - `RouteOptions` -> `unsafe_RouteOptions`
+- [#5977](https://github.com/microsoft/typespec/pull/5977) Minimum node version is now 20
+- [#6357](https://github.com/microsoft/typespec/pull/6357) Changed the default content-type resolution behavior as follows:
+
+- As before, if the content-type header is _explicitly_ specified (`@header contentType: valueof string`), the explicit content type is used (this behavior has not changed).
+- If the type of an HTTP payload body has a Media Type hint (`@mediaTypeHint`), that media type is preferred as the default content-type for the request.
+- The default content-type for `TypeSpec.bytes` has been changed to `application/octet-stream` to avoid serializing the data to base64-encoded JSON.
+- The default content-type for all other scalar types has been changed to `text/plain` (previously, it was `application/json`).
+- For multipart payloads, the default content-type of the payload has been changed to `multipart/form-data` if the `@multipartBody` parameter has a Model type and `multipart/mixed` if the multipart payload has a tuple type.
+  - The content-type of individual parts in the multipart request has been changed to be the same as for HTTP payload bodies and follows the logic described above.
+
+### Deprecations
+
+- [#6464](https://github.com/microsoft/typespec/pull/6464) Deprecate implicit multipart body
+
+  ```diff lang=tsp
+  op upload(
+    @header contentType: "multipart/form-data",
+  -  @body body: {
+  +  @multipartBody body: {
+  -    name: string;
+  +    name: HttpPart<string>;
+  -    avatar: bytes;
+  +    avatar: HttpPart<bytes>;
+    }
+  ): void;
+  ```
+
+### Features
+
+- [#6345](https://github.com/microsoft/typespec/pull/6345) Update `BasicAuth` and `BearerAuth` types scheme to use standard name for scheme `Basic`, `Bearer`
+- [#6327](https://github.com/microsoft/typespec/pull/6327) Remove reference to delete projection feature
+
+### Bump dependencies
+
+- [#6266](https://github.com/microsoft/typespec/pull/6266) Update dependencies
+
+### Bug Fixes
+
+- [#6513](https://github.com/microsoft/typespec/pull/6513) HTTP Media type resolution logic now treats literal types (String, Boolean, Numeric, and StringTemplate types) as equivalent to their given scalar types for the purposes of resolving their Media Type.
+
+
+## 0.66.0
+
+### Deprecations
+
+- [#6130](https://github.com/microsoft/typespec/pull/6130) Updates `@header` decorator to accept values and adds the `explode` option.
+Note that using the model expression syntax to pass in arguments, or using the
+`format` field, are now deprecated.
+
+```diff lang="tsp"
+op example1(
+-  @header({ name: "ETag" }) etag: string
++  @header(#{ name: "ETag" }) etag: string 
+): void;
+
+op example2(
+-  @header({ format: "csv" }) list: string[]
++  @header list: string[]
+): void;
+```
+
+### Features
+
+- [#5996](https://github.com/microsoft/typespec/pull/5996) Emitter Framework V2
+
+
+## 0.65.0
+
+### Bump dependencies
+
+- [#5690](https://github.com/microsoft/typespec/pull/5690) Upgrade dependencies
+
+### Features
+
+- [#5340](https://github.com/microsoft/typespec/pull/5340) Add Experimental Typekit helpers for `@typespec/http`
+
+
+## 0.64.0
+
+### Features
+
+- [#5153](https://github.com/microsoft/typespec/pull/5153) Adds getStreamMetadata JS API to simplify getting stream metadata from operation parameters and responses.
+
+
+## 0.63.0
+
+### Bug Fixes
+
+- [#5016](https://github.com/microsoft/typespec/pull/5016) Uri template attributes were not extracted when parameter was explicitly mark with `@path` or `@query` as well
+
+
+## 0.62.0
+
+### Bug Fixes
+
+- [#4932](https://github.com/microsoft/typespec/pull/4932) [API] Fix: Generated `uriTemplate` correctly include `*` for explode query params
+- [#4804](https://github.com/microsoft/typespec/pull/4804) The description parameter of `@server` is now optional.
+
+### Bump dependencies
+
+- [#4679](https://github.com/microsoft/typespec/pull/4679) Upgrade dependencies - October 2024
+
+### Features
+
+- [#4761](https://github.com/microsoft/typespec/pull/4761) Add `@cookie` decorator to specify cookie parameters
+- [#4470](https://github.com/microsoft/typespec/pull/4470) Add new `LinkHeader` pagination type
+
+
+## 0.61.0
+
+### Bump dependencies
+
+- [#4424](https://github.com/microsoft/typespec/pull/4424) Bump dependencies
+
+### Features
+
+- [#4513](https://github.com/microsoft/typespec/pull/4513) Adds HttpStream and JsonlStream models to to support streaming use-cases.
+
+
 ## 0.60.0
 
 ### Bug Fixes

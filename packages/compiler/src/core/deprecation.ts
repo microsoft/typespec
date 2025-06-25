@@ -1,9 +1,6 @@
+import { createStateSymbol } from "../lib/utils.js";
 import type { Program } from "./program.js";
 import { BaseNode, Node, SyntaxKind, Type } from "./types.js";
-
-function createStateSymbol(name: string) {
-  return Symbol.for(`TypeSpec.${name}`);
-}
 
 const deprecatedKey = createStateSymbol("deprecated");
 

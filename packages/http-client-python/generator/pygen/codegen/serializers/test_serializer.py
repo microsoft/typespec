@@ -19,7 +19,7 @@ from ..models import (
     CombinedType,
     FileImport,
 )
-from .utils import get_namespace_from_package_name, json_dumps_template
+from .utils import json_dumps_template
 
 
 def is_lro(operation_type: str) -> bool:
@@ -35,18 +35,18 @@ def is_common_operation(operation_type: str) -> bool:
 
 
 class TestName:
-    def __init__(self, code_model: CodeModel, client_name: str, *, is_async: bool = False) -> None:
+    def __init__(self, code_model: CodeModel, client_name: str, *, async_mode: bool = False) -> None:
         self.code_model = code_model
         self.client_name = client_name
-        self.is_async = is_async
+        self.async_mode = async_mode
 
     @property
     def async_suffix_capt(self) -> str:
-        return "Async" if self.is_async else ""
+        return "Async" if self.async_mode else ""
 
     @property
     def create_client_name(self) -> str:
-        return "create_async_client" if self.is_async else "create_client"
+        return "create_async_client" if self.async_mode else "create_client"
 
     @property
     def prefix(self) -> str:
@@ -72,12 +72,12 @@ class TestCase:
         params: Dict[str, Any],
         operation: OperationType,
         *,
-        is_async: bool = False,
+        async_mode: bool = False,
     ) -> None:
         self.operation_groups = operation_groups
         self.params = params
         self.operation = operation
-        self.is_async = is_async
+        self.async_mode = async_mode
 
     @property
     def name(self) -> str:
@@ -93,7 +93,7 @@ class TestCase:
 
     @property
     def response(self) -> str:
-        if self.is_async:
+        if self.async_mode:
             if is_lro(self.operation.operation_type):
                 return "response = await (await "
             if is_common_operation(self.operation.operation_type):
@@ -107,14 +107,14 @@ class TestCase:
     @property
     def operation_suffix(self) -> str:
         if is_lro(self.operation.operation_type):
-            extra = ")" if self.is_async else ""
+            extra = ")" if self.async_mode else ""
             return f"{extra}.result(){self.lro_comment}"
         return ""
 
     @property
     def extra_operation(self) -> str:
         if is_paging(self.operation.operation_type):
-            async_str = "async " if self.is_async else ""
+            async_str = "async " if self.async_mode else ""
             return f"result = [r {async_str}for r in response]"
         return ""
 
@@ -128,43 +128,39 @@ class Test(TestName):
         testcases: List[TestCase],
         test_class_name: str,
         *,
-        is_async: bool = False,
+        async_mode: bool = False,
     ) -> None:
-        super().__init__(code_model, client_name, is_async=is_async)
+        super().__init__(code_model, client_name, async_mode=async_mode)
         self.operation_group = operation_group
         self.testcases = testcases
         self.test_class_name = test_class_name
 
 
 class TestGeneralSerializer(BaseSerializer):
-    def __init__(self, code_model: CodeModel, env: Environment, *, is_async: bool = False) -> None:
-        super().__init__(code_model, env)
-        self.is_async = is_async
 
     @property
     def aio_str(self) -> str:
-        return ".aio" if self.is_async else ""
+        return ".aio" if self.async_mode else ""
 
     @property
     def test_names(self) -> List[TestName]:
-        return [TestName(self.code_model, c.name, is_async=self.is_async) for c in self.code_model.clients]
+        return [TestName(self.code_model, c.name, async_mode=self.async_mode) for c in self.code_model.clients]
 
     def add_import_client(self, imports: FileImport) -> None:
-        namespace = get_namespace_from_package_name(self.code_model.options["package_name"])
         for client in self.code_model.clients:
-            imports.add_submodule_import(namespace + self.aio_str, client.name, ImportType.STDLIB)
+            imports.add_submodule_import(client.client_namespace + self.aio_str, client.name, ImportType.STDLIB)
 
     @property
     def import_clients(self) -> FileImportSerializer:
         imports = self.init_file_import()
 
         imports.add_submodule_import("devtools_testutils", "AzureRecordedTestCase", ImportType.STDLIB)
-        if not self.is_async:
+        if not self.async_mode:
             imports.add_import("functools", ImportType.STDLIB)
             imports.add_submodule_import("devtools_testutils", "PowerShellPreparer", ImportType.STDLIB)
         self.add_import_client(imports)
 
-        return FileImportSerializer(imports, self.is_async)
+        return FileImportSerializer(imports, self.async_mode)
 
     def serialize_conftest(self) -> str:
         return self.env.get_template("conftest.py.jinja2").render(
@@ -188,17 +184,17 @@ class TestSerializer(TestGeneralSerializer):
         *,
         client: Client,
         operation_group: OperationGroup,
-        is_async: bool = False,
+        async_mode: bool = False,
     ) -> None:
-        super().__init__(code_model, env, is_async=is_async)
+        super().__init__(code_model, env, async_mode=async_mode)
         self.client = client
         self.operation_group = operation_group
 
     @property
     def import_test(self) -> FileImportSerializer:
         imports = self.init_file_import()
-        test_name = TestName(self.code_model, self.client.name, is_async=self.is_async)
-        async_suffix = "_async" if self.is_async else ""
+        test_name = TestName(self.code_model, self.client.name, async_mode=self.async_mode)
+        async_suffix = "_async" if self.async_mode else ""
         imports.add_submodule_import(
             "devtools_testutils" if self.code_model.options["azure_arm"] else "testpreparer" + async_suffix,
             test_name.base_test_class_name,
@@ -216,7 +212,7 @@ class TestSerializer(TestGeneralSerializer):
         )
         if self.code_model.options["azure_arm"]:
             self.add_import_client(imports)
-        return FileImportSerializer(imports, self.is_async)
+        return FileImportSerializer(imports, self.async_mode)
 
     @property
     def breadth_search_operation_group(self) -> List[List[OperationGroup]]:
@@ -263,7 +259,7 @@ class TestSerializer(TestGeneralSerializer):
                     operation_groups=operation_groups,
                     params=operation_params,
                     operation=operation,
-                    is_async=self.is_async,
+                    async_mode=self.async_mode,
                 )
                 testcases.append(testcase)
         if not testcases:
@@ -275,12 +271,12 @@ class TestSerializer(TestGeneralSerializer):
             operation_group=self.operation_group,
             testcases=testcases,
             test_class_name=self.test_class_name,
-            is_async=self.is_async,
+            async_mode=self.async_mode,
         )
 
     @property
     def test_class_name(self) -> str:
-        test_name = TestName(self.code_model, self.client.name, is_async=self.is_async)
+        test_name = TestName(self.code_model, self.client.name, async_mode=self.async_mode)
         class_name = "" if self.operation_group.is_mixin else self.operation_group.class_name
         return f"Test{test_name.prefix}{class_name}{test_name.async_suffix_capt}"
 

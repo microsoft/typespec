@@ -7,6 +7,7 @@ from typing import List
 from jinja2 import Environment
 
 from ..models import FileImport
+from ..models.utils import NamespaceType
 from .import_serializer import FileImportSerializer
 from ..models import CodeModel, RequestBuilderType
 from .builder_serializer import RequestBuilderSerializer
@@ -39,6 +40,12 @@ class RequestBuildersSerializer(BaseSerializer):
             request_builders=[r for r in self.request_builders if not r.is_overload],
         )
 
+    @property
+    def serialize_namespace(self) -> str:
+        return self.code_model.get_serialize_namespace(
+            self.client_namespace, client_namespace_type=NamespaceType.OPERATION
+        )
+
     def serialize_request_builders(self) -> str:
         template = self.env.get_template("request_builders.py.jinja2")
 
@@ -48,5 +55,7 @@ class RequestBuildersSerializer(BaseSerializer):
             imports=FileImportSerializer(
                 self.imports,
             ),
-            request_builder_serializer=RequestBuilderSerializer(self.code_model, async_mode=False),
+            request_builder_serializer=RequestBuilderSerializer(
+                self.code_model, async_mode=False, client_namespace=self.client_namespace
+            ),
         )

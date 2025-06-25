@@ -3,17 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonSerializable;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
 import java.util.Objects;
 
 /**
  * Represents a constant value.
  */
-public class ConstantValue implements JsonSerializable<ConstantValue> {
+public class ConstantValue {
     private Languages language;
     private Object value;
     private DictionaryAny extensions;
@@ -103,35 +98,5 @@ public class ConstantValue implements JsonSerializable<ConstantValue> {
         return Objects.equals(language, rhs.language)
             && Objects.equals(extensions, rhs.extensions)
             && Objects.equals(value, rhs.value);
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject()
-            .writeJsonField("language", language)
-            .writeUntypedField("value", value)
-            .writeJsonField("extensions", extensions)
-            .writeEndObject();
-    }
-
-    /**
-     * Deserializes a ConstantValue instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return A ConstantValue instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static ConstantValue fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, ConstantValue::new, (value, fieldName, reader) -> {
-            if ("language".equals(fieldName)) {
-                value.language = Languages.fromJson(reader);
-            } else if ("value".equals(fieldName)) {
-                value.value = reader.readUntyped();
-            } else if ("extensions".equals(fieldName)) {
-                value.extensions = DictionaryAny.fromJson(reader);
-            } else {
-                reader.skipChildren();
-            }
-        });
     }
 }

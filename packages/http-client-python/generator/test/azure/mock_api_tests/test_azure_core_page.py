@@ -49,3 +49,12 @@ def test_two_models_as_page_item(client: PageClient):
     result = list(client.two_models_as_page_item.list_second_item())
     assert len(result) == 1
     assert result[0].name == "Madge"
+
+
+def test_list_with_parameterized_next_link(client: PageClient):
+    result = list(client.with_parameterized_next_link(select="name", include_pending=True))
+    assert len(result) == 2
+    assert result[0].id == 1
+    assert result[0].name == "User1"
+    assert result[1].id == 2
+    assert result[1].name == "User2"

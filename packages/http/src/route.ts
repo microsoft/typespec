@@ -1,13 +1,13 @@
 import {
   createDiagnosticCollector,
   DecoratorContext,
+  Diagnostic,
   DiagnosticResult,
   Interface,
   Namespace,
   Operation,
   Program,
   Type,
-  validateDecoratorTarget,
 } from "@typespec/compiler";
 import { createDiagnostic, HttpStateKeys, reportDiagnostic } from "./lib.js";
 import { getOperationParameters } from "./parameters.js";
@@ -16,6 +16,7 @@ import {
   HttpOperationParameter,
   HttpOperationParameters,
   HttpOperationPathParameter,
+  HttpOperationQueryParameter,
   PathParameterOptions,
   RouteOptions,
   RoutePath,
@@ -28,8 +29,15 @@ import { parseUriTemplate, UriTemplate } from "./uri-template.js";
 // The set of allowed segment separator characters
 const AllowedSegmentSeparators = ["/", ":"];
 
+function needsSlashPrefix(fragment: string) {
+  return !(
+    AllowedSegmentSeparators.indexOf(fragment[0]) !== -1 ||
+    (fragment[0] === "{" && fragment[1] === "/")
+  );
+}
+
 function normalizeFragment(fragment: string, trimLast = false) {
-  if (fragment.length > 0 && AllowedSegmentSeparators.indexOf(fragment[0]) < 0) {
+  if (fragment.length > 0 && needsSlashPrefix(fragment)) {
     // Insert the default separator
     fragment = `/${fragment}`;
   }
@@ -52,8 +60,8 @@ function buildPath(pathFragments: string[]) {
   // Join all fragments with leading and trailing slashes trimmed
   const path = pathFragments.length === 0 ? "/" : joinPathSegments(pathFragments);
 
-  // The final path must start with a '/'
-  return path[0] === "/" ? path : `/${path}`;
+  // The final path must start with a '/' or {/ (path expansion)
+  return path[0] === "/" || (path[0] === "{" && path[1] === "/") ? path : `/${path}`;
 }
 
 export function resolvePathAndParameters(
@@ -80,8 +88,10 @@ export function resolvePathAndParameters(
       .map((x) => x.name),
   );
 
+  validateDoubleSlash(parsedUriTemplate, operation, parameters).forEach((d) => diagnostics.add(d));
+
   // Ensure that all of the parameters defined in the route are accounted for in
-  // the operation parameters
+  // the operation parameters and are correctly defined when optional
   for (const routeParam of parsedUriTemplate.parameters) {
     const decoded = decodeURIComponent(routeParam.name);
     if (!paramByName.has(routeParam.name) && !paramByName.has(decoded)) {
@@ -101,6 +111,38 @@ export function resolvePathAndParameters(
     path,
     parameters,
   });
+}
+
+function validateDoubleSlash(
+  parsedUriTemplate: UriTemplate,
+  operation: Operation,
+  parameters: HttpOperationParameters,
+): readonly Diagnostic[] {
+  const diagnostics = createDiagnosticCollector();
+  if (parsedUriTemplate.segments) {
+    const [firstSeg, ...rest] = parsedUriTemplate.segments;
+    let lastSeg = firstSeg;
+    for (const seg of rest) {
+      if (typeof seg !== "string") {
+        const parameter = parameters.parameters.find((x) => x.name === seg.name);
+
+        if (seg.operator === "/") {
+          if (typeof lastSeg === "string" && lastSeg.endsWith("/")) {
+            diagnostics.add(
+              createDiagnostic({
+                code: "double-slash",
+                messageId: parameter?.param.optional ? "optionalUnset" : "default",
+                format: { paramName: seg.name },
+                target: operation,
+              }),
+            );
+          }
+        }
+        lastSeg = seg;
+      }
+    }
+  }
+  return diagnostics.diagnostics;
 }
 
 function produceLegacyPathFromUriTemplate(uriTemplate: UriTemplate) {
@@ -155,26 +197,7 @@ function getUriTemplateAndParameters(
   ];
 }
 
-/**
- * @deprecated DO NOT USE. For internal use only as a workaround.
- * @param program Program
- * @param target Target namespace
- * @param sourceInterface Interface that should be included in namespace.
- */
-export function includeInterfaceRoutesInNamespace(
-  program: Program,
-  target: Namespace,
-  sourceInterface: string,
-) {
-  let array = program.stateMap(HttpStateKeys.externalInterfaces).get(target);
-  if (array === undefined) {
-    array = [];
-    program.stateMap(HttpStateKeys.externalInterfaces).set(target, array);
-  }
-
-  array.push(sourceInterface);
-}
-
+/** @experimental */
 export function DefaultRouteProducer(
   program: Program,
   operation: Operation,
@@ -190,7 +213,6 @@ export function DefaultRouteProducer(
       : joinPathSegments([...parentSegments, ...(routePath ? [routePath] : [])]);
 
   const parsedUriTemplate = parseUriTemplate(uriTemplate);
-
   const parameters: HttpOperationParameters = diagnostics.pipe(
     getOperationParameters(program, operation, uriTemplate, overloadBase, options.paramOptions),
   );
@@ -225,8 +247,16 @@ const styleToOperator: Record<PathParameterOptions["style"], string> = {
 };
 
 export function getUriTemplatePathParam(param: HttpOperationPathParameter) {
-  const operator = param.allowReserved ? "+" : styleToOperator[param.style];
+  const operator = param.param.optional
+    ? "/"
+    : param.allowReserved
+      ? "+"
+      : styleToOperator[param.style];
   return `{${operator}${param.name}${param.explode ? "*" : ""}}`;
+}
+
+function getUriTemplateQueryParamPart(param: HttpOperationQueryParameter) {
+  return `${escapeUriTemplateParamName(param.name)}${param.explode ? "*" : ""}`;
 }
 
 export function addQueryParamsToUriTemplate(uriTemplate: string, params: HttpOperationParameter[]) {
@@ -235,7 +265,7 @@ export function addQueryParamsToUriTemplate(uriTemplate: string, params: HttpOpe
   return (
     uriTemplate +
     (queryParams.length > 0
-      ? `{?${queryParams.map((x) => escapeUriTemplateParamName(x.name)).join(",")}}`
+      ? `{?${queryParams.map((x) => getUriTemplateQueryParamPart(x)).join(",")}}`
       : "")
   );
 }
@@ -249,7 +279,9 @@ function addOperationTemplateToUriTemplate(uriTemplate: string, params: HttpOper
 }
 
 function escapeUriTemplateParamName(name: string) {
-  return name.replaceAll(":", "%3A");
+  return encodeURIComponent(name).replace(/[:-]/g, function (c) {
+    return "%" + c.charCodeAt(0).toString(16).toUpperCase();
+  });
 }
 
 export function setRouteProducer(
@@ -265,12 +297,6 @@ export function getRouteProducer(program: Program, operation: Operation): RouteP
 }
 
 export function setRoute(context: DecoratorContext, entity: Type, details: RoutePath) {
-  if (
-    !validateDecoratorTarget(context, entity, "@route", ["Namespace", "Interface", "Operation"])
-  ) {
-    return;
-  }
-
   const state = context.program.stateMap(HttpStateKeys.routes);
 
   if (state.has(entity) && entity.kind === "Namespace") {

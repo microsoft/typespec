@@ -2,7 +2,7 @@ export type ScenarioManifest = {
   commit: string;
   version: string;
   scenarios: ScenarioData[];
-  modes: string[];
+  setName: string;
 };
 
 export type ScenarioData = {
@@ -51,13 +51,14 @@ export interface CoverageReport {
   createdAt: string;
 }
 
-export interface ResolvedCoverageReport extends CoverageReport {
+export interface ResolvedCoverageReport extends Record<number, CoverageReport> {
   generatorMetadata: GeneratorMetadata;
 }
 
 export interface ScenariosMetadata {
   version: string;
   commit: string;
+  packageName: string;
 }
 
 export interface GeneratorMetadata {

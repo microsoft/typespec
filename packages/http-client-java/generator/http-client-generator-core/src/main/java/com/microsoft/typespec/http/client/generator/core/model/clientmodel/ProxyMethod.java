@@ -7,6 +7,8 @@ import com.azure.core.http.ContentType;
 import com.azure.core.http.HttpMethod;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.HttpExceptionType;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.mapper.CollectionUtil;
+import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodNamer;
 import java.util.List;
@@ -23,10 +25,11 @@ public class ProxyMethod {
      * Get the Content-Type of the request.
      */
     private final String requestContentType;
+    private String implementation;
     /**
      * The value that is returned from this method.
      */
-    protected IType returnType;
+    private final IType returnType;
     /**
      * Get the HTTP method that will be used for this method.
      */
@@ -102,17 +105,31 @@ public class ProxyMethod {
     private ProxyMethod syncProxy;
     private final boolean customHeaderIgnored;
 
-    protected ProxyMethod(String requestContentType, IType returnType, HttpMethod httpMethod, String baseUrl,
-        String urlPath, List<Integer> responseExpectedStatusCodes, ClassType unexpectedResponseExceptionType,
-        Map<ClassType, List<Integer>> unexpectedResponseExceptionTypes, String name,
-        List<ProxyMethodParameter> parameters, List<ProxyMethodParameter> allParameters, String description,
-        IType returnValueWireType, IType responseBodyType, IType rawResponseBodyType, boolean isResumable,
-        Set<String> responseContentTypes, String operationId, Map<String, ProxyMethodExample> examples,
-        List<String> specialHeaders) {
-        this(requestContentType, returnType, httpMethod, baseUrl, urlPath, responseExpectedStatusCodes,
-            unexpectedResponseExceptionType, unexpectedResponseExceptionTypes, name, parameters, allParameters,
-            description, returnValueWireType, responseBodyType, rawResponseBodyType, isResumable, responseContentTypes,
-            operationId, examples, specialHeaders, false, name, false);
+    public ProxyMethod.Builder newBuilder() {
+        return new ProxyMethod.Builder().requestContentType(requestContentType)
+            .returnType(returnType)
+            .httpMethod(httpMethod)
+            .baseURL(baseUrl)
+            .urlPath(urlPath)
+            .unexpectedResponseExceptionTypes(unexpectedResponseExceptionTypes)
+            .responseExpectedStatusCodes(responseExpectedStatusCodes)
+            .unexpectedResponseExceptionType(unexpectedResponseExceptionType)
+            .name(name)
+            .baseName(baseName)
+            .parameters(parameters)
+            .allParameters(allParameters)
+            .description(description)
+            .returnValueWireType(returnValueWireType)
+            .responseBodyType(responseBodyType)
+            .rawResponseBodyType(rawResponseBodyType)
+            .isResumable(isResumable)
+            .responseContentTypes(responseContentTypes)
+            .examples(examples)
+            .specialHeaders(specialHeaders)
+            .operationId(operationId)
+            .isSync(isSync)
+            .implementation(implementation)
+            .customHeaderIgnored(customHeaderIgnored);
     }
 
     /**
@@ -138,13 +155,14 @@ public class ProxyMethod {
      * @param isSync indicates if this proxy method is a synchronous method.
      * @param baseName the base name of the REST method.
      */
-    protected ProxyMethod(String requestContentType, IType returnType, HttpMethod httpMethod, String baseUrl,
+    private ProxyMethod(String requestContentType, IType returnType, HttpMethod httpMethod, String baseUrl,
         String urlPath, List<Integer> responseExpectedStatusCodes, ClassType unexpectedResponseExceptionType,
         Map<ClassType, List<Integer>> unexpectedResponseExceptionTypes, String name,
         List<ProxyMethodParameter> parameters, List<ProxyMethodParameter> allParameters, String description,
         IType returnValueWireType, IType responseBodyType, IType rawResponseBodyType, boolean isResumable,
         Set<String> responseContentTypes, String operationId, Map<String, ProxyMethodExample> examples,
-        List<String> specialHeaders, boolean isSync, String baseName, boolean customHeaderIgnored) {
+        List<String> specialHeaders, boolean isSync, String baseName, boolean customHeaderIgnored,
+        String implementation) {
         this.requestContentType = requestContentType;
         this.returnType = returnType;
         this.httpMethod = httpMethod;
@@ -168,6 +186,7 @@ public class ProxyMethod {
         this.isSync = isSync;
         this.baseName = baseName;
         this.customHeaderIgnored = customHeaderIgnored;
+        this.implementation = implementation;
     }
 
     public final String getRequestContentType() {
@@ -234,6 +253,10 @@ public class ProxyMethod {
         return rawResponseBodyType;
     }
 
+    public IType getResponseType() {
+        return rawResponseBodyType != null ? rawResponseBodyType : responseBodyType;
+    }
+
     public final boolean isResumable() {
         return isResumable;
     }
@@ -282,6 +305,24 @@ public class ProxyMethod {
         return customHeaderIgnored;
     }
 
+    /**
+     * Check if this method has a parameter of the given type.
+     *
+     * @param type the type to check.
+     * @return true if this method has a parameter of the given type, false otherwise.
+     */
+    public boolean hasParameterOfType(IType type) {
+        return parameters.stream().anyMatch(p -> p.getClientType() == type);
+    }
+
+    public String getImplementation() {
+        return implementation;
+    }
+
+    public void updateImplementation(String implementation) {
+        this.implementation = implementation;
+    }
+
     public ProxyMethod toSync() {
         if (isSync) {
             return this;
@@ -297,9 +338,11 @@ public class ProxyMethod {
         List<ProxyMethodParameter> allSyncParams
             = this.getAllParameters().stream().map(this::mapToSyncParam).collect(Collectors.toList());
 
+        String syncMethodName = this.getName()
+            + (JavaSettings.getInstance().isAzureV2() || !JavaSettings.getInstance().isAzureV1() ? "" : "Sync");
         this.syncProxy = new ProxyMethod.Builder().parameters(syncParams)
             .httpMethod(this.getHttpMethod())
-            .name(this.getName() + "Sync")
+            .name(syncMethodName)
             .baseName(this.getName())
             .description(this.getDescription())
             .baseURL(this.getBaseUrl())
@@ -334,7 +377,9 @@ public class ProxyMethod {
 
     private IType mapToSyncType(IType type) {
         if (type == GenericType.FLUX_BYTE_BUFFER) {
-            return ClassType.BINARY_DATA;
+            return JavaSettings.getInstance().isInputStreamForBinary()
+                ? GenericType.Response(ClassType.INPUT_STREAM)
+                : GenericType.Response(ClassType.BINARY_DATA);
         }
 
         if (type instanceof GenericType) {
@@ -348,6 +393,11 @@ public class ProxyMethod {
                             JavaSettings.getInstance().isInputStreamForBinary()
                                 ? ClassType.INPUT_STREAM
                                 : ClassType.BINARY_DATA);
+                    } else if ((innerGenericType.getName().equals("Response")
+                        && innerGenericType.getTypeArguments()[0] == GenericType.FLUX_BYTE_BUFFER)) {
+                        return JavaSettings.getInstance().isInputStreamForBinary()
+                            ? GenericType.Response(ClassType.INPUT_STREAM)
+                            : GenericType.Response(ClassType.BINARY_DATA);
                     }
                 }
 
@@ -382,15 +432,33 @@ public class ProxyMethod {
     public void addImportsTo(Set<String> imports, boolean includeImplementationImports, JavaSettings settings) {
         Annotation.HTTP_REQUEST_INFORMATION.addImportsTo(imports);
         Annotation.UNEXPECTED_RESPONSE_EXCEPTION_INFORMATION.addImportsTo(imports);
+        ClassType.HTTP_RESPONSE_EXCEPTION.addImportsTo(imports, false);
         if (includeImplementationImports) {
             if (getUnexpectedResponseExceptionType() != null) {
                 Annotation.UNEXPECTED_RESPONSE_EXCEPTION_TYPE.addImportsTo(imports);
                 getUnexpectedResponseExceptionType().addImportsTo(imports, includeImplementationImports);
+
+                if (!settings.isAzureV1()) {
+                    ClientModel errorModel
+                        = ClientModelUtil.getErrorModelFromException(getUnexpectedResponseExceptionType());
+                    if (errorModel != null) {
+                        errorModel.addImportsTo(imports, settings);
+                    }
+                }
             }
             if (getUnexpectedResponseExceptionTypes() != null) {
                 Annotation.UNEXPECTED_RESPONSE_EXCEPTION_TYPE.addImportsTo(imports);
                 getUnexpectedResponseExceptionTypes().keySet()
                     .forEach(e -> e.addImportsTo(imports, includeImplementationImports));
+
+                if (!settings.isAzureV1()) {
+                    for (ClassType exceptionType : getUnexpectedResponseExceptionTypes().keySet()) {
+                        ClientModel errorModel = ClientModelUtil.getErrorModelFromException(exceptionType);
+                        if (errorModel != null) {
+                            errorModel.addImportsTo(imports, settings);
+                        }
+                    }
+                }
             }
             if (isResumable()) {
                 imports.add("com.azure.core.annotation.ResumeOperation");
@@ -414,7 +482,7 @@ public class ProxyMethod {
                 Annotation.FORM_PARAM.addImportsTo(imports);
             }
 
-            for (ProxyMethodParameter parameter : parameters) {
+            for (ProxyMethodParameter parameter : allParameters) {
                 parameter.addImportsTo(imports, includeImplementationImports, settings);
             }
         }
@@ -462,6 +530,7 @@ public class ProxyMethod {
         protected boolean isSync;
         protected String baseName;
         protected boolean customHeaderIgnored;
+        protected String implementation;
 
         /*
          * Sets the Content-Type of the request.
@@ -708,15 +777,22 @@ public class ProxyMethod {
             return this;
         }
 
+        public Builder implementation(String implementation) {
+            this.implementation = implementation;
+            return this;
+        }
+
         /**
          * @return an immutable ProxyMethod instance with the configurations on this builder.
          */
         public ProxyMethod build() {
             return new ProxyMethod(requestContentType, returnType, httpMethod, baseUrl, urlPath,
-                responseExpectedStatusCodes, unexpectedResponseExceptionType, unexpectedResponseExceptionTypes, name,
-                parameters, allParameters, description, returnValueWireType, responseBodyType, rawResponseBodyType,
-                isResumable, responseContentTypes, operationId, examples, specialHeaders, isSync, baseName,
-                customHeaderIgnored);
+                CollectionUtil.toImmutableList(responseExpectedStatusCodes), unexpectedResponseExceptionType,
+                CollectionUtil.toImmutableMapOfList(unexpectedResponseExceptionTypes), name,
+                CollectionUtil.toImmutableList(parameters), CollectionUtil.toImmutableList(allParameters), description,
+                returnValueWireType, responseBodyType, rawResponseBodyType, isResumable,
+                CollectionUtil.toImmutableSet(responseContentTypes), operationId, examples,
+                CollectionUtil.toImmutableList(specialHeaders), isSync, baseName, customHeaderIgnored, implementation);
         }
     }
 }

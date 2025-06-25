@@ -1,5 +1,5 @@
 import { AzureCliCredential } from "@azure/identity";
-import { findWorkspacePackagesNoCheck } from "@pnpm/find-workspace-packages";
+import { findWorkspacePackagesNoCheck } from "@pnpm/workspace.find-packages";
 import { createTypeSpecBundle } from "@typespec/bundler";
 import { resolve } from "path";
 import { join as joinUnix } from "path/posix";
@@ -38,7 +38,9 @@ export interface BundleAndUploadPackagesOptions {
 export async function getPackageVersion(repoRoot: string, pkgName: string) {
   const projects = await findWorkspacePackagesNoCheck(repoRoot);
 
-  const project = projects.find((x) => x.manifest.name === pkgName);
+  const project = projects
+    .filter((x) => x.manifest.name && x.manifest.version)
+    .find((x) => x.manifest.name === pkgName);
   if (project === undefined) {
     throw new Error(
       `Cannot get version for package: "${pkgName}", pnpm couldn't find a package with that name in the workspace`,
@@ -67,7 +69,7 @@ export async function bundleAndUploadPackages({
   const existingIndex = await uploader.getIndex(indexName, indexVersion);
   const importMap: Record<string, string> = { ...existingIndex?.imports };
   for (const project of projects) {
-    const bundle = await createTypeSpecBundle(resolve(repoRoot, project.dir));
+    const bundle = await createTypeSpecBundle(resolve(repoRoot, project.rootDir));
     const manifest = bundle.manifest;
     const result = await uploader.upload(bundle);
     if (result.status === "uploaded") {

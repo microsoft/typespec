@@ -59,13 +59,11 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
             Set<ImplementationDetails.Usage> usages = SchemaUtil.mapSchemaContext(compositeType.getUsage());
             if (isPredefinedModel(modelType)) {
                 // TODO (weidxu): a more consistent handling of external model for all data-plane
-                if (settings.isDataPlaneClient()) {
+                if (settings.isAzureV1() && !settings.isDataPlaneClient()) {
+                    return result;
+                } else {
                     usages = new HashSet<>(usages);
                     usages.add(ImplementationDetails.Usage.EXTERNAL);
-                } else {
-                    // abort handling external model, if not DPG
-                    // vanilla and fluent currently does not have mechanism to handle model that not to be outputted.
-                    return result;
                 }
             }
 
@@ -76,7 +74,7 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
                 usages.remove(ImplementationDetails.Usage.JSON_MERGE_PATCH);
             }
 
-            ClientModel.Builder builder = createModelBuilder().name(modelName)
+            ClientModel.Builder builder = new ClientModel.Builder().name(modelName)
                 .packageName(modelType.getPackage())
                 .type(modelType)
                 .stronglyTypedHeader(compositeType.isStronglyTypedHeader())
@@ -350,7 +348,7 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
 
             builder.properties(properties);
             builder.propertyReferences(propertyReferences);
-            builder.crossLanguageDefinitionId(compositeType.getCrossLanguageDefinitionId());
+            builder.crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(compositeType));
 
             result = builder.build();
 
@@ -507,10 +505,6 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
             .build();
     }
 
-    protected ClientModel.Builder createModelBuilder() {
-        return new ClientModel.Builder();
-    }
-
     /**
      * Collect property reference from flattened model.
      *
@@ -527,8 +521,8 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
 
         List<ClientModelPropertyReference> propertyReferences = new ArrayList<>();
         ObjectSchema targetModelSchema = (ObjectSchema) property.getSchema();
-        String originalFlattenedPropertyName = property.getLanguage().getJava().getName();  // not
-                                                                                            // modelProperty.getName()
+        // use "property.getLanguage().getJava().getName()", not "modelProperty.getName()"
+        String originalFlattenedPropertyName = property.getLanguage().getJava().getName();
         ClientModel targetModel = this.map(targetModelSchema);
         if (targetModel != null && targetModel.getProperties() != null) {
             // gather this type and its parents
@@ -663,9 +657,11 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
      * @return Whether the type is predefined.
      */
     protected boolean isPredefinedModel(ClassType compositeType) {
-        if (JavaSettings.getInstance().isDataPlaneClient()) {
+        if ((JavaSettings.getInstance().isDataPlaneClient() && JavaSettings.getInstance().isAzureV1())
+            || JavaSettings.getInstance().isAzureV2()
+            || !JavaSettings.getInstance().isAzureV1()) {
             // see ObjectMapper.mapPredefinedModel
-            // this might be too simplified, and Android might require a different implementation
+            // this might be too simplified.
             return compositeType.getPackage().startsWith(ExternalPackage.CORE.getPackageName() + ".");
         } else {
             return false;

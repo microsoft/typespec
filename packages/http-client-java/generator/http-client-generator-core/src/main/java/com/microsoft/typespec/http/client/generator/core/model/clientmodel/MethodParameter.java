@@ -152,6 +152,24 @@ public abstract class MethodParameter {
     }
 
     /**
+     * Checks if this parameter is of primitive type.
+     *
+     * @return true if this parameter is of primitive type, false otherwise.
+     */
+    public final boolean isPrimitiveClientType() {
+        return clientType instanceof PrimitiveType;
+    }
+
+    /**
+     * Checks if this parameter type is a java reference.
+     *
+     * @return true if this parameter is of java reference type, false otherwise.
+     */
+    public final boolean isReferenceClientType() {
+        return !isPrimitiveClientType();
+    }
+
+    /**
      * Gets whether this parameter's value comes from a ServiceClientProperty.
      *
      * @return Whether this parameter's value comes from a ServiceClientProperty.

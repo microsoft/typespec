@@ -6,9 +6,7 @@ using TypeSpec.Http;
 using TypeSpec.Versioning;
 using Azure.ClientGenerator.Core;
 
-@service({
-  title: "Flatten",
-})
+@service(#{ title: "Flatten" })
 @server(
   "{endpoint}/openai",
   "Flatten",
@@ -17,7 +15,7 @@ using Azure.ClientGenerator.Core;
   }
 )
 @versioned(ServiceApiVersions)
-namespace Cadl.Flatten;
+namespace TspTest.Flatten;
 
 enum ServiceApiVersions {
   v2022_06_01_preview: "2022-06-01-preview",
@@ -32,7 +30,7 @@ model ApiVersionParameter {
 }
 
 alias Request = {
-  @visibility("read") @key name: string;
+  @visibility(Lifecycle.Read) @key name: string;
   endpoint: string;
   user?: User;
   input: string;
@@ -51,6 +49,9 @@ alias LongRequest = {
   @clientName("dataFloat")
   @encodedName("application/json", "data_float")
   float?: float64;
+
+  // reserved keyword
+  long?: int64;
 };
 
 model User {
@@ -59,7 +60,7 @@ model User {
 
 model TodoItem {
   /** The item's unique id */
-  @visibility("read") @key id: safeint;
+  @visibility(Lifecycle.Read) @key id: safeint;
 
   /** The item's title */
   @maxLength(255)
@@ -72,17 +73,17 @@ model TodoItem {
   status: "NotStarted" | "InProgress" | "Completed";
 
   /** When the todo item was created. */
-  @visibility("read") createdAt: utcDateTime;
+  @visibility(Lifecycle.Read) createdAt: utcDateTime;
 
   /** When the todo item was last updated */
-  @visibility("read") updatedAt: utcDateTime;
+  @visibility(Lifecycle.Read) updatedAt: utcDateTime;
 
   /** When the todo item was makred as completed */
-  @visibility("read") completedAt?: utcDateTime;
+  @visibility(Lifecycle.Read) completedAt?: utcDateTime;
 
   // hack to get a different schema for create
   // (fastify glue doesn't support readonly)
-  @visibility("create") _dummy?: string;
+  @visibility(Lifecycle.Create) _dummy?: string;
 }
 
 model TodoItemPatch {
@@ -97,7 +98,7 @@ model TodoItemPatch {
 }
 
 @client({
-  service: Cadl.Flatten,
+  service: TspTest.Flatten,
   name: "FlattenClient",
 })
 @route("/flatten")
@@ -106,6 +107,7 @@ interface FlattenOp {
   @post
   send(
     @query id: string,
+    @query maxpagesize?: int32,
     @query constantQueryParam: "constant",
     ...Request,
     ...ApiVersionParameter,
@@ -117,7 +119,7 @@ interface FlattenOp {
     @query id: string,
 
     @encodedName("application/json", "file_id")
-    @projectedName("client", "fileIdentifier")
+    @clientName("fileIdentifier")
     fileId: string,
   ): OkResponse;
 
@@ -142,26 +144,7 @@ interface FlattenOp {
     @body response: TodoItem;
   };
 
-  @route("upload/{name}")
+  @route("optional-body")
   @post
-  uploadFile(
-    @path name: string,
-    @header contentType: "multipart/form-data",
-    file_data: bytes,
-
-    // this field should not be serialized to form-data
-    @visibility("read") readOnly: string,
-
-    constant: "constant",
-  ): OkResponse;
-
-  @route("upload-todo")
-  @post
-  uploadTodo(
-    @header contentType: "multipart/form-data",
-    ...TodoItem,
-    prop1?: string,
-    prop2?: string,
-    prop3?: string,
-  ): OkResponse;
+  sendOptionalBody(name?: string): OkResponse;
 }

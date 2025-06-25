@@ -19,7 +19,7 @@ def client():
         yield client
 
 
-# ========== test for cadl-ranch ==========
+# ========== test for spector ==========
 
 
 def test_put_flatten_model(client: FlattenPropertyClient):

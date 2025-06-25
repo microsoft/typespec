@@ -1,6 +1,6 @@
 import "@typespec/rest";
 
-using TypeSpec.Http;
+using Http;
 
 model Jpeg extends File {
   contentType: "image/jpeg";

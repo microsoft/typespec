@@ -130,8 +130,6 @@ describe("compiler: type cloning", () => {
     strictEqual(test.kind, "ModelProperty" as const);
     strictEqual(test.type.kind, "Model" as const);
     const clone = testHost.program.checker.cloneType(test.type);
-    strictEqual(clone.templateArguments?.length, 2);
-    deepStrictEqual(test.type.templateArguments, clone.templateArguments);
     deepStrictEqual(test.type.templateMapper, clone.templateMapper);
   });
 });

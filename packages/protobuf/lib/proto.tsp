@@ -252,7 +252,7 @@ model PackageDetails {
  *
  * @param details the optional details of the package
  */
-extern dec package(target: TypeSpec.Reflection.Namespace, details?: PackageDetails);
+extern dec `package`(target: TypeSpec.Reflection.Namespace, details?: PackageDetails);
 
 /**
  * The streaming mode of an operation. One of:

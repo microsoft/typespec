@@ -1,20 +1,35 @@
 import {
-  BooleanLiteral,
-  DiagnosticTarget,
-  Enum,
-  EnumMember,
-  IntrinsicType,
-  Model,
-  ModelProperty,
-  NumericLiteral,
-  Program,
-  Scalar,
-  StringLiteral,
-  StringTemplate,
-  Tuple,
-  Type,
-  Union,
-  UnionVariant,
+  ArrayBuilder,
+  type Context,
+  Declaration,
+  type EmitEntity,
+  type EmittedSourceFile,
+  type EmitterOutput,
+  ObjectBuilder,
+  Placeholder,
+  type Scope,
+  type SourceFile,
+  type SourceFileScope,
+  TypeEmitter,
+} from "@typespec/asset-emitter";
+import {
+  type BooleanLiteral,
+  type DiagnosticTarget,
+  type Enum,
+  type EnumMember,
+  type IntrinsicType,
+  type Model,
+  type ModelProperty,
+  type NumericLiteral,
+  type Program,
+  type Scalar,
+  type StringLiteral,
+  type StringTemplate,
+  type Tuple,
+  type Type,
+  type Union,
+  type UnionVariant,
+  type Value,
   compilerAssert,
   emitFile,
   explainStringTemplateNotSerializable,
@@ -34,30 +49,14 @@ import {
   getPattern,
   getRelativePathFromDirectory,
   getSummary,
-  isArrayModelType,
-  isNullType,
   isType,
   joinPaths,
   serializeValueAsJson,
 } from "@typespec/compiler";
-import {
-  ArrayBuilder,
-  Context,
-  Declaration,
-  EmitEntity,
-  EmittedSourceFile,
-  EmitterOutput,
-  ObjectBuilder,
-  Placeholder,
-  Scope,
-  SourceFile,
-  SourceFileScope,
-  TypeEmitter,
-} from "@typespec/compiler/emitter-framework";
 import { DuplicateTracker } from "@typespec/compiler/utils";
 import { stringify } from "yaml";
 import {
-  JsonSchemaDeclaration,
+  type JsonSchemaDeclaration,
   findBaseUri,
   getContains,
   getContentEncoding,
@@ -75,10 +74,26 @@ import {
   isJsonSchemaDeclaration,
   isOneOf,
 } from "./index.js";
-import { JSONSchemaEmitterOptions, reportDiagnostic } from "./lib.js";
+import { type JSONSchemaEmitterOptions, reportDiagnostic } from "./lib.js";
+import { includeDerivedModel } from "./utils.js";
+
+/** @internal */
 export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSchemaEmitterOptions> {
   #idDuplicateTracker = new DuplicateTracker<string, DiagnosticTarget>();
   #typeForSourceFile = new Map<SourceFile<any>, JsonSchemaDeclaration>();
+
+  #applyModelIndexer(schema: ObjectBuilder<unknown>, model: Model) {
+    if (model.indexer) {
+      schema.set("unevaluatedProperties", this.emitter.emitTypeReference(model.indexer.value));
+      return;
+    }
+    if (!this.emitter.getOptions()["seal-object-schemas"]) return;
+
+    const derivedModels = model.derivedModels.filter(includeDerivedModel);
+    if (!derivedModels.length) {
+      schema.set("unevaluatedProperties", { not: {} });
+    }
+  }
 
   modelDeclaration(model: Model, name: string): EmitterOutput<object> {
     const schema = this.#initializeSchema(model, name, {
@@ -93,9 +108,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       schema.set("allOf", allOf);
     }
 
-    if (model.indexer) {
-      schema.set("additionalProperties", this.emitter.emitTypeReference(model.indexer.value));
-    }
+    this.#applyModelIndexer(schema, model);
 
     this.#applyConstraints(model, schema);
     return this.#createDeclaration(model, name, schema);
@@ -108,9 +121,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       required: this.#requiredModelProperties(model),
     });
 
-    if (model.indexer) {
-      schema.set("additionalProperties", this.emitter.emitTypeReference(model.indexer.value));
-    }
+    this.#applyModelIndexer(schema, model);
 
     return schema;
   }
@@ -170,10 +181,8 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
     const result = new ObjectBuilder(propertyType.value);
 
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    if (property.default) {
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
-      result.default = this.#getDefaultValue(property.type, property.default);
+    if (property.defaultValue) {
+      result.default = this.#getDefaultValue(property, property.defaultValue);
     }
 
     if (result.anyOf && isOneOf(this.emitter.getProgram(), property)) {
@@ -186,51 +195,8 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     return result;
   }
 
-  #getDefaultValue(type: Type, defaultType: Type): any {
-    const program = this.emitter.getProgram();
-
-    switch (defaultType.kind) {
-      case "String":
-        return defaultType.value;
-      case "Number":
-        return defaultType.value;
-      case "Boolean":
-        return defaultType.value;
-      case "Tuple":
-        compilerAssert(
-          type.kind === "Tuple" || (type.kind === "Model" && isArrayModelType(program, type)),
-          "setting tuple default to non-tuple value",
-        );
-
-        if (type.kind === "Tuple") {
-          return defaultType.values.map((defaultTupleValue, index) =>
-            this.#getDefaultValue(type.values[index], defaultTupleValue),
-          );
-        } else {
-          return defaultType.values.map((defaultTuplevalue) =>
-            this.#getDefaultValue(type.indexer!.value, defaultTuplevalue),
-          );
-        }
-
-      case "Intrinsic":
-        return isNullType(defaultType)
-          ? null
-          : reportDiagnostic(program, {
-              code: "invalid-default",
-              format: { type: defaultType.kind },
-              target: defaultType,
-            });
-      case "EnumMember":
-        return defaultType.value ?? defaultType.name;
-      case "UnionVariant":
-        return this.#getDefaultValue(type, defaultType.type);
-      default:
-        reportDiagnostic(program, {
-          code: "invalid-default",
-          format: { type: defaultType.kind },
-          target: defaultType,
-        });
-    }
+  #getDefaultValue(modelProperty: ModelProperty, defaultType: Value): any {
+    return serializeValueAsJson(this.emitter.getProgram(), defaultType, modelProperty);
   }
 
   booleanLiteral(boolean: BooleanLiteral): EmitterOutput<object> {
@@ -300,6 +266,14 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       values.push(this.emitter.emitType(value));
     }
     return values;
+  }
+
+  unionInstantiation(union: Union, name: string): EmitterOutput<Record<string, any>> {
+    if (!name) {
+      return this.unionLiteral(union);
+    }
+
+    return this.unionDeclaration(union, name);
   }
 
   unionDeclaration(union: Union, name: string): EmitterOutput<object> {
@@ -565,7 +539,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       }
     };
 
-    const applyTypeConstraint = (fn: (p: Program, t: Type) => Type, key: string) => {
+    const applyTypeConstraint = (fn: (p: Program, t: Type) => Type | undefined, key: string) => {
       const constraintType = fn(this.emitter.getProgram(), type);
       if (constraintType) {
         const ref = this.emitter.emitTypeReference(constraintType);
@@ -702,7 +676,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     }
   }
   async writeOutput(sourceFiles: SourceFile<Record<string, any>>[]): Promise<void> {
-    if (this.emitter.getOptions().noEmit) {
+    if (this.emitter.getProgram().compilerOptions.dryRun) {
       return;
     }
     this.#reportDuplicateIds();
@@ -846,7 +820,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
   modelInstantiationContext(model: Model, name: string | undefined): Context {
     if (name === undefined) {
-      return {};
+      return { scope: this.emitter.createScope({}, "", this.emitter.getContext().scope) };
     } else {
       return this.#newFileScope(model);
     }

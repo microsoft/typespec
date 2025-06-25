@@ -13,27 +13,34 @@ export {
   validateValueFormat,
   validateXmlBodyEquals,
 } from "./request-validations.js";
-export { json, xml } from "./response-utils.js";
-export { mockapi } from "./routes.js";
-export { WithKeysScenarioExpect, passOnCode, passOnSuccess, withKeys } from "./scenarios.js";
+export { dyn, dynItem, expandDyns, json, multipart, xml } from "./response-utils.js";
+export {
+  WithKeysScenarioExpect,
+  passOnCode,
+  passOnSuccess,
+  withKeys,
+  withServiceKeys,
+} from "./scenarios.js";
 export {
   CollectionFormat,
   Fail,
   HttpMethod,
-  KeyedMockApi,
   KeyedMockRequestHandler,
   KeyedMockResponse,
-  MockApi,
-  MockApiForHandler,
+  MockApiDefinition,
+  MockBody,
+  MockMultipartBody,
   MockRequestHandler,
   MockResponse,
-  MockResponseBody,
   PassByKeyScenario,
   PassOnCodeScenario,
   PassOnSuccessScenario,
   RequestExt,
+  Resolver,
+  ResolverConfig,
   ScenarioMockApi,
   ScenarioPassCondition,
+  ServiceRequestFile,
   SimpleMockRequestHandler,
 } from "./types.js";
 export { ValidationError } from "./validation-error.js";

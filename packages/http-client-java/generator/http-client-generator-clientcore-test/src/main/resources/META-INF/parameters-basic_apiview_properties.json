@@ -1,0 +1,10 @@
+{
+  "flavor": "generic", 
+  "CrossLanguageDefinitionId": {
+    "parameters.basic.BasicClientBuilder": "Parameters.Basic",
+    "parameters.basic.ExplicitBodyClient": "Parameters.Basic.ExplicitBody",
+    "parameters.basic.ImplicitBodyClient": "Parameters.Basic.ImplicitBody",
+    "parameters.basic.explicitbody.User": "Parameters.Basic.ExplicitBody.User",
+    "parameters.basic.implicitbody.implementation.SimpleRequest": "Parameters.Basic.ImplicitBody.simple.Request.anonymous"
+  }
+}

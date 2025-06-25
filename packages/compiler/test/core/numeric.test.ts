@@ -8,7 +8,7 @@ describe("instantiate", () => {
   });
   it("prevent new Numeric()", () => {
     // @ts-expect-error 'new' expression, whose target lacks a construct signature
-    expect(() => new Numeric("123")).toThrow(new TypeError("Numeric is not a constructor"));
+    expect(() => new Numeric("123")).toThrow(new Error("Numeric is not a constructor"));
   });
 });
 describe("parsing", () => {
@@ -215,6 +215,7 @@ describe("asNumber", () => {
     ["123.456", 123.456],
     ["123.00", 123],
     ["123456789123456789123456789123456789", null],
+    ["-123456789123456789123456789123456789", null],
     ["123456789123456789.123456789123456789", null],
   ])("%s => %d", (a, b) => {
     const numeric = Numeric(a);
@@ -229,6 +230,7 @@ describe("asBigInt", () => {
     ["123.456", null],
     ["123.00", 123n],
     ["123456789123456789123456789123456789", 123456789123456789123456789123456789n],
+    ["-123456789123456789123456789123456789", -123456789123456789123456789123456789n],
     ["123456789123456789.123456789123456789", null],
   ])("%s => %d", (a, b) => {
     const numeric = Numeric(a);

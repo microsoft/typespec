@@ -1,6 +1,6 @@
 import { ExtensionKey } from "@typespec/openapi";
 import { Extensions, OpenAPI3Parameter, OpenAPI3Schema, Refable } from "../../../../types.js";
-import { TypeSpecDecorator } from "../interfaces.js";
+import { TSValue, TypeSpecDecorator } from "../interfaces.js";
 
 const validLocations = ["header", "query", "path"];
 const extensionDecoratorName = "extension";
@@ -44,38 +44,82 @@ function getLocationDecorator(parameter: OpenAPI3Parameter): TypeSpecDecorator |
     args: [],
   };
 
-  let format: string | undefined;
+  let decoratorArgs: TypeSpecDecorator["args"][0] | undefined;
   switch (parameter.in) {
     case "header":
-      format = getHeaderFormat(parameter.style);
+      decoratorArgs = getHeaderArgs(parameter);
       break;
     case "query":
-      format = getQueryFormat(parameter.explode, parameter.style);
+      decoratorArgs = getQueryArgs(parameter);
       break;
   }
 
-  if (format) {
-    decorator.args.push({ format });
+  if (decoratorArgs) {
+    decorator.args.push(decoratorArgs);
   }
 
   return decorator;
 }
 
-function getQueryFormat(explode?: boolean, style?: string): string | undefined {
-  if (explode) {
-    return "form";
-  } else if (style === "form") {
-    return "simple";
-  } else if (style === "spaceDelimited") {
-    return "ssv";
-  } else if (style === "pipeDelimited") {
-    return "pipes";
+function getQueryArgs(parameter: OpenAPI3Parameter): TSValue | undefined {
+  const queryOptions = getNormalizedQueryOptions(parameter);
+  if (Object.keys(queryOptions).length) {
+    return {
+      __kind: "value",
+      value: `#{${Object.entries(queryOptions)
+        .map(([key, value]) => {
+          return `${key}: ${JSON.stringify(value)}`;
+        })
+        .join(", ")}}`,
+    };
   }
+
   return;
 }
 
-function getHeaderFormat(style?: string): string | undefined {
-  return style === "simple" ? "simple" : undefined;
+type QueryOptions = { explode?: boolean; format?: string };
+
+function getNormalizedQueryOptions({
+  explode,
+  style = "",
+}: {
+  explode?: boolean;
+  style?: string;
+}): QueryOptions {
+  const queryOptions: QueryOptions = {};
+  // In OpenAPI 3, default style is 'form', and explode is true when 'form' is the style
+  if (typeof explode !== "boolean") {
+    if (style === "form" || !style) {
+      explode = true;
+    } else {
+      explode = false;
+    }
+  }
+
+  // Format only emits additional data if set to one of the following:
+  // ssv (spaceDelimited), pipes (pipeDelimited)
+  if (style === "spaceDelimited") {
+    queryOptions.format = "ssv";
+  } else if (style === "pipeDelimited") {
+    queryOptions.format = "pipes";
+  }
+
+  // In TypeSpec, default explode is "false"
+  if (!explode && queryOptions.format) {
+    queryOptions.explode = false;
+  } else if (explode) {
+    queryOptions.explode = true;
+  }
+
+  return queryOptions;
+}
+
+function getHeaderArgs({ explode }: OpenAPI3Parameter): TSValue | undefined {
+  if (explode === true) {
+    return createTSValue(`#{ explode: true }`);
+  }
+
+  return;
 }
 
 export function getDecoratorsForSchema(schema: Refable<OpenAPI3Schema>): TypeSpecDecorator[] {
@@ -102,8 +146,23 @@ export function getDecoratorsForSchema(schema: Refable<OpenAPI3Schema>): TypeSpe
       break;
   }
 
+  if (schema.title) {
+    decorators.push({ name: "summary", args: [schema.title] });
+  }
+
   if (schema.discriminator) {
-    decorators.push({ name: "discriminator", args: [schema.discriminator.propertyName] });
+    if (schema.oneOf || schema.anyOf) {
+      decorators.push({
+        name: "discriminated",
+        args: [
+          createTSValue(
+            `#{ envelope: "none", discriminatorPropertyName: ${JSON.stringify(schema.discriminator.propertyName)} }`,
+          ),
+        ],
+      });
+    } else {
+      decorators.push({ name: "discriminator", args: [schema.discriminator.propertyName] });
+    }
   }
 
   if (schema.oneOf) {
@@ -111,6 +170,10 @@ export function getDecoratorsForSchema(schema: Refable<OpenAPI3Schema>): TypeSpe
   }
 
   return decorators;
+}
+
+function createTSValue(value: string): TSValue {
+  return { __kind: "value", value };
 }
 
 function getOneOfSchemaDecorators(schema: OpenAPI3Schema): TypeSpecDecorator[] {

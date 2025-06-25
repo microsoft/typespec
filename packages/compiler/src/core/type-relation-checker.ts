@@ -1,6 +1,6 @@
 import { MultiKeyMap } from "../utils/misc.js";
 import { Checker, walkPropertiesInherited } from "./checker.js";
-import { compilerAssert, reportDeprecated } from "./diagnostics.js";
+import { compilerAssert } from "./diagnostics.js";
 import { getEntityName, getTypeName } from "./helpers/type-name-utils.js";
 import {
   getMaxItems,
@@ -246,35 +246,6 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     diagnosticTarget: Entity | Node,
     relationCache: MultiKeyMap<[Entity, Entity], Related>,
   ): [Related, readonly TypeRelationError[]] {
-    // BACKCOMPAT: Allow certain type to be accepted as values
-    if (
-      "kind" in source &&
-      "entityKind" in target &&
-      source.kind === "TemplateParameter" &&
-      source.constraint?.type &&
-      source.constraint.valueType === undefined &&
-      target.entityKind === "MixedParameterConstraint" &&
-      target.valueType
-    ) {
-      const [assignable] = isTypeAssignableToInternal(
-        source.constraint.type,
-        target.valueType,
-        diagnosticTarget,
-        relationCache,
-      );
-      if (assignable) {
-        const constraint = getEntityName(source.constraint);
-        reportDeprecated(
-          program,
-          `Template constrainted to '${constraint}' will not be assignable to '${getEntityName(
-            target,
-          )}' in the future. Update the constraint to be 'valueof ${constraint}'`,
-          diagnosticTarget,
-        );
-        return [Related.true, []];
-      }
-    }
-
     if ("kind" in source && source.kind === "TemplateParameter") {
       source = source.constraint ?? checker.anyType;
     }
@@ -597,9 +568,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
 
   function isNumericAssignableToNumericScalar(source: Numeric, target: Scalar) {
     // if the target does not derive from numeric, then it can't be assigned a numeric literal
-    if (
-      !areScalarsRelated((target.projectionBase as any) ?? target, checker.getStdType("numeric"))
-    ) {
+    if (!areScalarsRelated(target, checker.getStdType("numeric"))) {
       return false;
     }
 
@@ -627,9 +596,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
   }
 
   function isStringLiteralRelatedTo(source: StringLiteral | StringTemplate, target: Scalar) {
-    if (
-      !areScalarsRelated((target.projectionBase as any) ?? target, checker.getStdType("string"))
-    ) {
+    if (!areScalarsRelated(target, checker.getStdType("string"))) {
       return false;
     }
     if (source.kind === "StringTemplate") {
@@ -946,9 +913,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     namespace: Namespace,
   ): namespace is Namespace & { name: "TypeSpec"; namespace: Namespace } {
     return (
-      namespace.name === "TypeSpec" &&
-      (namespace.namespace === checker.getGlobalNamespaceType() ||
-        namespace.namespace?.projectionBase === checker.getGlobalNamespaceType())
+      namespace.name === "TypeSpec" && namespace.namespace === checker.getGlobalNamespaceType()
     );
   }
 }

@@ -32,33 +32,47 @@ changeKinds:
     description: Changes that break existing features
 
 versionPolicies:
-  - name: typespec
+  - name: typespec-stable
     type: lockstep
     step: minor
     packages:
       - "@typespec/compiler"
       - "@typespec/http"
-      - "@typespec/versioning"
-      - "@typespec/rest"
       - "@typespec/openapi"
       - "@typespec/openapi3"
-      - "@typespec/protobuf"
+      - "@typespec/json-schema"
+      - "typespec-vscode"
       - "@typespec/prettier-plugin-typespec"
+
+  - name: typespec-preview
+    type: lockstep
+    step: minor
+    packages:
+      - "@typespec/versioning"
+      - "@typespec/rest"
+      - "@typespec/protobuf"
       - "@typespec/eslint-plugin"
       - "@typespec/html-program-viewer"
-      - "@typespec/json-schema"
       - "@typespec/internal-build-utils"
       - "typespec-vs"
-      - "typespec-vscode"
       - "@typespec/library-linter"
+      - "@typespec/events"
+      - "@typespec/sse"
+      - "@typespec/streams"
+      - "@typespec/xml"
+      - "@typespec/standalone-cli"
+
+  - name: standalone
+    type: independent
+    packages:
+      - "@typespec/http-client-python"
 
 changelog: ["@chronus/github/changelog", { repo: "microsoft/typespec" }]
 
-ignore:
-  - "@typespec/http-client-csharp"
-  - "@typespec/http-client-java"
-  - "@typespec/http-client-python"
+additionalPackages:
+  - packages/http-client-python
 
 changedFiles:
   - "!**/*.md"
   - "!**/*.test.ts"
+  - "!**/*.e2e.ts"

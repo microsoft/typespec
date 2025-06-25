@@ -8,9 +8,7 @@ TypeSpec library and emitter for Protobuf (gRPC)
 npm install @typespec/protobuf
 ```
 
-## Emitter
-
-### Usage
+## Emitter usage
 
 1. Via the command line
 
@@ -35,15 +33,22 @@ options:
     option: value
 ```
 
-### Emitter options
+## Emitter options
 
-#### `noEmit`
+### `emitter-output-dir`
+
+**Type:** `absolutePath`
+
+Defines the emitter output directory. Defaults to `{output-dir}/@typespec/protobuf`
+See [Configuring output directory for more info](https://typespec.io/docs/handbook/configuration/configuration/#configuring-output-directory)
+
+### `noEmit`
 
 **Type:** `boolean`
 
 If set to `true`, this emitter will not write any files. It will still validate the TypeSpec sources to ensure they are compatible with Protobuf, but the files will simply not be written to the output directory.
 
-#### `omit-unreachable-types`
+### `omit-unreachable-types`
 
 **Type:** `boolean`
 

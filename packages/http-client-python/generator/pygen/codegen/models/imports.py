@@ -5,6 +5,7 @@
 # --------------------------------------------------------------------------
 from enum import Enum, auto
 from typing import Dict, List, Optional, Tuple, Union, Set, TYPE_CHECKING
+from .._utils import get_parent_namespace
 
 if TYPE_CHECKING:
     from .code_model import CodeModel
@@ -29,9 +30,11 @@ class TypingSection(str, Enum):
 
 
 class MsrestImportType(Enum):
-    Module = auto()  # import _serialization.py or msrest.serialization as Module
-    Serializer = auto()  # from _serialization.py or msrest.serialization import Serializer
-    SerializerDeserializer = auto()  # from _serialization.py or msrest.serialization import Serializer and Deserializer
+    Module = auto()  # import _utils/serialization.py or msrest.serialization as Module
+    Serializer = auto()  # from _utils/serialization.py or msrest.serialization import Serializer
+    SerializerDeserializer = (
+        auto()
+    )  # from _utils/serialization.py or msrest.serialization import Serializer and Deserializer
 
 
 class ImportModel:
@@ -167,23 +170,12 @@ class FileImport:
         self.type_definitions.update(file_import.type_definitions)
 
     def add_mutable_mapping_import(self) -> None:
-        self.add_import("sys", ImportType.STDLIB)
-        self.add_submodule_import(
-            "typing",
-            "MutableMapping",
-            ImportType.BY_VERSION,
-            TypingSection.REGULAR,
-            None,
-            (((3, 9), "collections.abc", None),),
-        )
+        self.add_submodule_import("collections.abc", "MutableMapping", ImportType.STDLIB)
 
     def define_mutable_mapping_type(self) -> None:
         """Helper function for defining the mutable mapping type"""
         self.add_mutable_mapping_import()
-        self.define_mypy_type(
-            "JSON",
-            "MutableMapping[str, Any] # pylint: disable=unsubscriptable-object",
-        )
+        self.define_mypy_type("JSON", "MutableMapping[str, Any]")
         self.add_submodule_import("typing", "Any", ImportType.STDLIB)
 
     def to_dict(
@@ -259,7 +251,7 @@ class FileImport:
     def add_msrest_import(
         self,
         *,
-        relative_path: str,
+        serialize_namespace: str,
         msrest_import_type: MsrestImportType,
         typing_section: TypingSection,
     ):
@@ -271,21 +263,24 @@ class FileImport:
                 if msrest_import_type == MsrestImportType.SerializerDeserializer:
                     self.add_submodule_import("msrest", "Deserializer", ImportType.THIRDPARTY, typing_section)
         else:
+            # _utils/serialization.py is always in root namespace
+            imported_namespace = f"{self.code_model.namespace}._utils"
             if self.code_model.options["multiapi"]:
-                relative_path += "."
+                # for multiapi, the namespace is azure.mgmt.xxx.v20XX_XX_XX
+                # while _utils/serialization.py is in azure.mgmt.xxx
+                imported_namespace = f"{get_parent_namespace(imported_namespace)}._utils"
             if msrest_import_type == MsrestImportType.Module:
-                self.add_submodule_import(relative_path, "_serialization", ImportType.LOCAL, typing_section)
-            else:
                 self.add_submodule_import(
-                    f"{relative_path}_serialization",
-                    "Serializer",
+                    self.code_model.get_relative_import_path(serialize_namespace, imported_namespace),
+                    "serialization",
                     ImportType.LOCAL,
                     typing_section,
+                    alias="_serialization",
                 )
+            else:
+                relative_path = self.code_model.get_relative_import_path(
+                    serialize_namespace, f"{self.code_model.namespace}._utils.serialization"
+                )
+                self.add_submodule_import(relative_path, "Serializer", ImportType.LOCAL, typing_section)
                 if msrest_import_type == MsrestImportType.SerializerDeserializer:
-                    self.add_submodule_import(
-                        f"{relative_path}_serialization",
-                        "Deserializer",
-                        ImportType.LOCAL,
-                        typing_section,
-                    )
+                    self.add_submodule_import(relative_path, "Deserializer", ImportType.LOCAL, typing_section)

@@ -73,7 +73,7 @@ export async function compileAndDiagnoseValueOrType(
   const host = await createTestHost();
   host.addJsFile("collect.js", {
     $collect: () => {},
-    $flags: definePackageFlags({ decoratorArgMarshalling: "new" }),
+    $flags: definePackageFlags({}),
   });
   host.addTypeSpecFile(
     "main.tsp",

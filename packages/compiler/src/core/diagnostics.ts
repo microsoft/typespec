@@ -1,4 +1,3 @@
-import { formatLog } from "./logger/console-sink.js";
 import type { Program } from "./program.js";
 import { createSourceFile } from "./source-file.js";
 import {
@@ -10,21 +9,12 @@ import {
   Node,
   NodeFlags,
   NoTarget,
+  RelatedSourceLocation,
   SourceLocation,
   SymbolFlags,
   SyntaxKind,
   Type,
 } from "./types.js";
-
-/**
- * Represents a failure while interpreting a projection.
- */
-export class ProjectionError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "ProjectionError";
-  }
-}
 
 export type WriteLine = (text?: string) => void;
 export type DiagnosticHandler = (diagnostic: Diagnostic) => void;
@@ -37,21 +27,19 @@ export function logDiagnostics(diagnostics: readonly Diagnostic[], logger: LogSi
       code: diagnostic.code,
       url: diagnostic.url,
       sourceLocation: getSourceLocation(diagnostic.target, { locateId: true }),
+      related: getRelatedLocations(diagnostic),
     });
   }
 }
 
-export function formatDiagnostic(diagnostic: Diagnostic) {
-  return formatLog(
-    {
-      code: diagnostic.code,
-      level: diagnostic.severity,
-      message: diagnostic.message,
-      url: diagnostic.url,
-      sourceLocation: getSourceLocation(diagnostic.target, { locateId: true }),
-    },
-    { pretty: false },
-  );
+/** @internal */
+export function getRelatedLocations(diagnostic: Diagnostic): RelatedSourceLocation[] {
+  return getDiagnosticTemplateInstantitationTrace(diagnostic.target).map((x) => {
+    return {
+      message: "occurred while instantiating template",
+      location: getSourceLocation(x),
+    };
+  });
 }
 
 export interface SourceLocationOptions {
@@ -85,7 +73,12 @@ export function getSourceLocation(
     return target;
   }
 
-  if (!("kind" in target) && !("valueKind" in target) && !("entityKind" in target)) {
+  if (!("kind" in target) && !("entityKind" in target)) {
+    // TemplateInstanceTarget
+    if (!("declarations" in target)) {
+      return getSourceLocationOfNode(target.node, options);
+    }
+
     // symbol
     if (target.flags & SymbolFlags.Using) {
       target = target.symbolSource!;
@@ -109,6 +102,25 @@ export function getSourceLocation(
 
     return createSyntheticSourceLocation();
   }
+}
+
+/**
+ * @internal
+ */
+export function getDiagnosticTemplateInstantitationTrace(
+  target: DiagnosticTarget | typeof NoTarget | undefined,
+): Node[] {
+  if (typeof target !== "object" || !("templateMapper" in target)) {
+    return [];
+  }
+
+  const result = [];
+  let current = target.templateMapper;
+  while (current) {
+    result.push(current.source.node);
+    current = current.source.mapper;
+  }
+  return result;
 }
 
 function createSyntheticSourceLocation(loc = "<unknown location>") {
@@ -216,7 +228,7 @@ export function assertType<TKind extends Type["kind"][]>(
   ...kinds: TKind
 ): asserts t is Type & { kind: TKind[number] } {
   if (kinds.indexOf(t.kind) === -1) {
-    throw new ProjectionError(`Expected ${typeDescription} to be type ${kinds.join(", ")}`);
+    throw new Error(`Expected ${typeDescription} to be type ${kinds.join(", ")}`);
   }
 }
 
@@ -263,6 +275,13 @@ export interface DiagnosticCollector {
    * @example return diagnostics.wrap(routes);
    */
   wrap<T>(value: T): DiagnosticResult<T>;
+
+  /**
+   * Join the given result with the diagnostics in this collector.
+   * @param result - result to join with the diagnostics
+   * @returns - the result with the combined diagnostics
+   */
+  join<T>(result: DiagnosticResult<T>): DiagnosticResult<T>;
 }
 
 /**
@@ -276,6 +295,7 @@ export function createDiagnosticCollector(): DiagnosticCollector {
     add,
     pipe,
     wrap,
+    join,
   };
 
   function add(diagnostic: Diagnostic) {
@@ -291,6 +311,14 @@ export function createDiagnosticCollector(): DiagnosticCollector {
   }
 
   function wrap<T>(value: T): DiagnosticResult<T> {
+    return [value, diagnostics];
+  }
+
+  function join<T>(result: DiagnosticResult<T>): DiagnosticResult<T> {
+    const [value, diags] = result;
+    for (const diag of diags) {
+      diagnostics.push(diag);
+    }
     return [value, diagnostics];
   }
 }

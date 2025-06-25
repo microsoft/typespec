@@ -20,7 +20,7 @@ from ..models import (
     BodyParameter,
     FileImport,
 )
-from .utils import get_namespace_config, get_namespace_from_package_name
+from .._utils import get_parent_namespace
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -44,15 +44,12 @@ class SampleSerializer(BaseSerializer):
 
     def _imports(self) -> FileImportSerializer:
         imports = FileImport(self.code_model)
-        namespace_from_package_name = get_namespace_from_package_name(self.code_model.options["package_name"])
-        namespace_config = get_namespace_config(self.code_model.namespace, self.code_model.options["multiapi"])
-        namespace = namespace_from_package_name or namespace_config
-        # mainly for "azure-mgmt-rdbms"
-        if not self.code_model.options["multiapi"] and namespace_config.count(".") > namespace_from_package_name.count(
-            "."
-        ):
-            namespace = namespace_config
-        client = self.code_model.clients[0]
+        client = self.operation_group.client
+        namespace = (
+            get_parent_namespace(client.client_namespace)
+            if self.code_model.options["multiapi"]
+            else client.client_namespace
+        )
         imports.add_submodule_import(namespace, client.name, ImportType.LOCAL)
         credential_type = getattr(client.credential, "type", None)
         if isinstance(credential_type, TokenCredentialType):
@@ -65,7 +62,7 @@ class SampleSerializer(BaseSerializer):
                 ImportType.SDKCORE,
             )
         for param in self.operation.parameters.positional + self.operation.parameters.keyword_only:
-            if not param.client_default_value and not param.optional and param.wire_name in self.sample_params:
+            if param.client_default_value is None and not param.optional and param.wire_name in self.sample_params:
                 imports.merge(param.type.imports_for_sample())
         return FileImportSerializer(imports, True)
 
@@ -83,7 +80,7 @@ class SampleSerializer(BaseSerializer):
             for p in (
                 self.code_model.clients[0].parameters.positional + self.code_model.clients[0].parameters.keyword_only
             )
-            if not (p.optional or p.client_default_value)
+            if not p.optional and p.client_default_value is None
         ]
         client_params = {
             p.client_name: special_param.get(

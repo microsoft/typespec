@@ -33,7 +33,14 @@ export function listOperationsIn(
       }
     }
 
-    if (current.kind === "Namespace") {
+    if (
+      current.kind === "Namespace" &&
+      !(
+        current.name === "Prototypes" &&
+        current.namespace?.name === "TypeSpec" &&
+        current.namespace.namespace?.name === ""
+      )
+    ) {
       const recursive = options.recursive ?? true;
 
       const children = [

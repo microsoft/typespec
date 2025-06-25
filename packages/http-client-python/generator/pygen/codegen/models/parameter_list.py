@@ -200,22 +200,22 @@ class _ParameterListBase(
         """Sorted method params. First positional, then keyword only, then kwarg"""
         return self.positional + self.keyword_only + self.kwarg
 
-    def method_signature(self, async_mode: bool) -> List[str]:
+    def method_signature(self, async_mode: bool, **kwargs: Any) -> List[str]:
         """Method signature for this parameter list."""
         return method_signature_helper(
-            positional=self.method_signature_positional(async_mode),
-            keyword_only=self.method_signature_keyword_only(async_mode),
+            positional=self.method_signature_positional(async_mode, **kwargs),
+            keyword_only=self.method_signature_keyword_only(async_mode, **kwargs),
             kwarg_params=self.method_signature_kwargs,
         )
 
-    def method_signature_positional(self, async_mode: bool) -> List[str]:
+    def method_signature_positional(self, async_mode: bool, **kwargs: Any) -> List[str]:
         """Signature for positional parameters"""
-        return [parameter.method_signature(async_mode) for parameter in self.positional]
+        return [parameter.method_signature(async_mode, **kwargs) for parameter in self.positional]
 
-    def method_signature_keyword_only(self, async_mode: bool) -> List[str]:
+    def method_signature_keyword_only(self, async_mode: bool, **kwargs: Any) -> List[str]:
         """Signature for keyword only parameters"""
         result = [
-            parameter.method_signature(async_mode)
+            parameter.method_signature(async_mode, **kwargs)
             for parameter in self.keyword_only
             if not parameter.hide_in_operation_signature
         ]

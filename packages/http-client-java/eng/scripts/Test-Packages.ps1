@@ -20,49 +20,78 @@ Invoke-LoggedCommand "mvn -version"
 Push-Location $packageRoot
 try {
     if ($UnitTests) {
-        Push-Location "$packageRoot"
+        Invoke-LoggedCommand "npm run test"
+        Write-Host "Emitter unit tests passed"
+
+        Write-Host "Current PATH: $env:PATH"
+        Write-Host "Current JAVA_HOME: $Env:JAVA_HOME"
+        $env:JAVA_HOME = $env:JAVA_HOME_21_X64
+        Write-Host "Updated JAVA_HOME: $Env:JAVA_HOME"
+
+        $env:PATH = "$env:JAVA_HOME\bin;$env:PATH"
+
+        Write-Host "Updated PATH: $env:PATH"
+        
+        # Run Spector tests (unit tests included in java/typescript package build)
         try {
-            Write-Host "Current PATH: $env:PATH"
-            Write-Host "Current JAVA_HOME: $Env:JAVA_HOME"
-            $env:JAVA_HOME = $env:JAVA_HOME_21_X64
-            Write-Host "Updated JAVA_HOME: $Env:JAVA_HOME"
+            $generatorTestDir = Join-Path $packageRoot 'generator/http-client-generator-test'
+            Push-Location $generatorTestDir
+            try {
+                & ./Setup.ps1
+                & ./Spector-Tests.ps1
+            }
+            finally {
+                Pop-Location
+            }
 
-            $env:PATH = "$env:JAVA_HOME\bin;$env:PATH"
+            $generatorTestDir = Join-Path $packageRoot 'generator/http-client-generator-clientcore-test'
+            Push-Location $generatorTestDir
+            try {
+                & ./Setup.ps1
+                & ./Spector-Tests.ps1
+            }
+            finally {
+                Pop-Location
+            }
 
-            Write-Host "Updated PATH: $env:PATH"
-            # test the emitter
-            Invoke-LoggedCommand "npm run build" -GroupOutput
-            
+            Write-Host "Spector tests passed"
+        } 
+        catch {
+            Write-Error "Spector tests failed: $_"
         }
-        finally {
-            Pop-Location
+        # Copy coverage report to artifacts directory
+        try {
+            $coverageReportDir = Join-Path $packageRoot 'generator/artifacts/coverage'
+            if (!(Test-Path $coverageReportDir)) {
+                New-Item -ItemType Directory -Path $coverageReportDir
+
+                $sourceFile = Join-Path $packageRoot 'generator/http-client-generator-clientcore-test/tsp-spector-coverage-java-standard.json'
+                $targetFile = Join-Path $coverageReportDir 'tsp-spector-coverage-java-standard.json'
+                Copy-Item $sourceFile -Destination $targetFile
+            }
+        } catch {
+            Write-Error "Failed to copy coverage report file: $_"
         }
     }
     if ($GenerationChecks) {
-        Set-StrictMode -Version 1
-        # run E2E Test for TypeSpec emitter
-        Write-Host "Generating test projects ..."
-        & "$packageRoot/eng/scripts/Generate.ps1"
-        Write-Host 'Code generation is completed.'
+        try {
+            # Generate code for Spector tests
+            Write-Host "Generating test projects ..."
+            & "$packageRoot/eng/scripts/Generate.ps1"
+            Write-Host "Code generation is completed."
+        }
+        catch {
+            Write-Error "Code generation failed: $_"
+        }
 
+        # Check difference between code in branch, and code just generated
         try {
             Write-Host 'Checking for differences in generated code...'
             & "$packageRoot/eng/scripts/Check-GitChanges.ps1"
             Write-Host 'Done. No code generation differences detected.'
         }
         catch {
-            Write-Error 'Generated code is not up to date. Please run: eng/Generate.ps1'
-        }
-
-        try {
-            $generatorTestDir = Join-Path $packageRoot 'generator/http-client-generator-test'
-            Set-Location $generatorTestDir
-            & ./CadlRanch-Tests.ps1
-            Set-Location $packageRoot
-            Write-Host 'Cadl ranch tests passed'
-        } 
-        catch {
-            Write-Error "Cadl ranch tests failed:  $_"
+            Write-Error 'Generated code is not up to date. Please run: eng/scripts/Generate.ps1'
         }
     }
 }

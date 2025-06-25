@@ -1,10 +1,12 @@
 {% import 'operation_tools.jinja2' as op_tools %}
 # coding=utf-8
-{{ code_model.options['license_header'] }}
+{% if code_model.license_header %}
+{{ code_model.license_header }}
+{% endif %}
 
 from enum import Enum
 from {{ code_model.core_library }}{{ "" if code_model.is_azure_flavor else ".utils" }} import CaseInsensitiveEnumMeta
 
-{% for enum in code_model.enums | sort %}
+{% for enum in enums | sort %}
 {% include "enum.py.jinja2" %}
 {% endfor %}

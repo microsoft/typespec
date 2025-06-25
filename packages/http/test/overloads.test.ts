@@ -1,30 +1,23 @@
-import { Operation } from "@typespec/compiler";
-import { BasicTestRunner, expectDiagnostics } from "@typespec/compiler/testing";
+import { expectDiagnostics, t } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { describe, it } from "vitest";
 import { getHttpOperation, listHttpOperationsIn } from "../src/index.js";
-import { createHttpTestRunner } from "./test-host.js";
+import { Tester } from "./test-host.js";
 
 describe("http: overloads", () => {
-  let runner: BasicTestRunner;
-
-  beforeEach(async () => {
-    runner = await createHttpTestRunner();
-  });
-
   it("overloads inherit base overload route and verb", async () => {
-    const { uploadString, uploadBytes } = (await runner.compile(`
+    const { uploadString, uploadBytes, program } = await Tester.compile(t.code`
       @route("/upload")
       @put
       op upload(data: string | bytes, @header contentType: "text/plain" | "application/octet-stream"): void;
       @overload(upload)
-      @test op uploadString(data: string, @header contentType: "text/plain" ): void;
+      op ${t.op("uploadString")}(data: string, @header contentType: "text/plain" ): void;
       @overload(upload)
-      @test  op uploadBytes(data: bytes, @header contentType: "application/octet-stream"): void;
-    `)) as { uploadString: Operation; uploadBytes: Operation };
+      op ${t.op("uploadBytes")}(data: bytes, @header contentType: "application/octet-stream"): void;
+    `);
 
-    const [uploadStringHttp] = getHttpOperation(runner.program, uploadString);
-    const [uploadBytesHttp] = getHttpOperation(runner.program, uploadBytes);
+    const [uploadStringHttp] = getHttpOperation(program, uploadString);
+    const [uploadBytesHttp] = getHttpOperation(program, uploadBytes);
 
     strictEqual(uploadStringHttp.path, "/upload");
     strictEqual(uploadStringHttp.verb, "put");
@@ -33,20 +26,20 @@ describe("http: overloads", () => {
   });
 
   it("overloads can change their route or verb", async () => {
-    const { upload, uploadString, uploadBytes } = (await runner.compile(`
+    const { upload, uploadString, uploadBytes, program } = await Tester.compile(t.code`
       @route("/upload")
       @put
-      @test op upload(data: string | bytes, @header contentType: "text/plain" | "application/octet-stream"): void;
+      op ${t.op("upload")}(data: string | bytes, @header contentType: "text/plain" | "application/octet-stream"): void;
       @overload(upload)
       @route("/uploadString")
-      @test op uploadString(data: string, @header contentType: "text/plain" ): void;
+      op ${t.op("uploadString")}(data: string, @header contentType: "text/plain" ): void;
       @overload(upload)
-      @post @test op uploadBytes(data: bytes, @header contentType: "application/octet-stream"): void;
-    `)) as { upload: Operation; uploadString: Operation; uploadBytes: Operation };
+      @post op ${t.op("uploadBytes")}(data: bytes, @header contentType: "application/octet-stream"): void;
+    `);
 
-    const [uploadHttp] = getHttpOperation(runner.program, upload);
-    const [uploadStringHttp] = getHttpOperation(runner.program, uploadString);
-    const [uploadBytesHttp] = getHttpOperation(runner.program, uploadBytes);
+    const [uploadHttp] = getHttpOperation(program, upload);
+    const [uploadStringHttp] = getHttpOperation(program, uploadString);
+    const [uploadBytesHttp] = getHttpOperation(program, uploadBytes);
 
     strictEqual(uploadHttp.path, "/upload");
     strictEqual(uploadHttp.verb, "put");
@@ -61,7 +54,7 @@ describe("http: overloads", () => {
   });
 
   it("links overloads", async () => {
-    await runner.compile(`
+    const { program } = await Tester.compile(t.code`
       @route("/upload")
       @put
       op upload(data: string | bytes, @header contentType: "text/plain" | "application/octet-stream"): void;
@@ -72,8 +65,8 @@ describe("http: overloads", () => {
     `);
 
     const [[overload, uploadString, uploadBytes]] = listHttpOperationsIn(
-      runner.program,
-      runner.program.getGlobalNamespaceType(),
+      program,
+      program.getGlobalNamespaceType(),
     );
 
     strictEqual(uploadString.overloading, overload);
@@ -83,7 +76,7 @@ describe("http: overloads", () => {
   });
 
   it("overload base route should still be unique with other operations", async () => {
-    const diagnostics = await runner.diagnose(`
+    const diagnostics = await Tester.diagnose(`
       @route("/upload")
       op otherUpload(data: bytes): void;
 
@@ -107,7 +100,7 @@ describe("http: overloads", () => {
   });
 
   it("overloads route should still be unique with other operations", async () => {
-    const diagnostics = await runner.diagnose(`
+    const diagnostics = await Tester.diagnose(`
       @route("/uploadString")
       op otherUploadString(data: string): void;
 

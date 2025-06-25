@@ -1,0 +1,21 @@
+parameters:
+  custom-dir:
+    default: default-value
+  service-name:
+    default: "TypeSpec"
+  argName:
+    default: "Bar"
+  owner:
+    default: "None"
+
+options:
+  emitter1:
+    header: "By {by.owners.primary}"
+    name: "Testing name: {argName}"
+    details: "Succeeded: {name} by {owner}"
+    by:
+      owners:
+        primary: "Owner: {owner}"
+        secondary: "Undefined secondary owner"
+
+output-dir: "{project-root}/tsp-output/{custom-dir}"

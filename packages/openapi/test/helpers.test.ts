@@ -3,6 +3,7 @@ import { BasicTestRunner, createTestRunner } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { resolveOperationId } from "../src/helpers.js";
+
 describe("openapi: helpers", () => {
   let runner: BasicTestRunner;
 
@@ -23,7 +24,7 @@ describe("openapi: helpers", () => {
 
     it("return operation name if operation is defined under service namespace", async () => {
       const id = await testResolveOperationId(`
-        @service({title: "Abc"})
+        @service(#{title: "Abc"})
         namespace MyService;
 
         @test op foo(): string;
@@ -42,7 +43,7 @@ describe("openapi: helpers", () => {
 
     it("return group name and operation name if operation is defined under namespace that is not the service namespace", async () => {
       const id = await testResolveOperationId(`
-        @service({title: "Abc"})
+        @service(#{title: "Abc"})
         namespace MyService;
 
         namespace Bar {

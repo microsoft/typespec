@@ -1,18 +1,37 @@
+# Default pool image selection. Set as variable so we can override at pipeline level
+
 variables:
   - name: LINUXPOOL
-    value: azsdk-pool-mms-ubuntu-2004-general
+    value: azsdk-pool
   - name: WINDOWSPOOL
-    value: azsdk-pool-mms-win-2022-general
+    value: azsdk-pool
+  - name: MACPOOL
+    value: Azure Pipelines
+  - name: LINUXARMPOOL
+    value: azsdk-pool-arm64
+  - name: ARMPOOL
+    value: azsdk-pool-arm64
 
   - name: LINUXVMIMAGE
-    value: azsdk-pool-mms-ubuntu-2004-1espt
+    value: ubuntu-24.04
   - name: LINUXNEXTVMIMAGE
-    value: azsdk-pool-mms-ubuntu-2204-1espt
+    value: ubuntu-24.04
+  - name: LINUXARMVMIMAGE
+    value: azsdk-pool-mms-mariner-2-arm-1espt
   - name: WINDOWSVMIMAGE
-    value: azsdk-pool-mms-win-2022-1espt
+    value: windows-2022
+  - name: WINDOWSARMVMIMAGE
+    value: windows-2022-arm64-1espt
+  - name: MACVMIMAGE # mac - arm64
+    value: macos-latest
+  - name: MACVMIMAGE13 # mac - x64
+    value: macos-13
 
-  # Values required for pool.os field in 1es pipeline templates
+  # Values required for pool.os field in 1es pipeline templates. Variable form
+  # cannot be used, instead those values must be written directly into pool.os.
   - name: LINUXOS
     value: linux
   - name: WINDOWSOS
     value: windows
+  - name: MACOS
+    value: macOS

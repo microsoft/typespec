@@ -3,7 +3,6 @@ import {
   Decorator,
   EnumMember,
   FunctionParameter,
-  FunctionType,
   getEntityName,
   getTypeName,
   Interface,
@@ -11,10 +10,10 @@ import {
   ModelProperty,
   Operation,
   StringTemplate,
-  TemplateParameterDeclarationNode,
   Type,
   UnionVariant,
 } from "@typespec/compiler";
+import { TemplateParameterDeclarationNode } from "@typespec/compiler/ast";
 
 /** @internal */
 export function getTypeSignature(type: Type): string {
@@ -32,8 +31,6 @@ export function getTypeSignature(type: Type): string {
       return getInterfaceSignature(type);
     case "Decorator":
       return getDecoratorSignature(type);
-    case "Function":
-      return getFunctionSignature(type);
     case "Operation":
       return getOperationSignature(type);
     case "String":
@@ -57,15 +54,11 @@ export function getTypeSignature(type: Type): string {
     case "EnumMember":
       return `(enum member) ${getEnumMemberSignature(type)}`;
     case "TemplateParameter":
-      return type.node.id.sv;
+      return (type.node! as any).id.sv;
     case "UnionVariant":
       return `(union variant) ${getUnionVariantSignature(type)}`;
     case "Tuple":
       return `(tuple) [${type.values.map(getTypeSignature).join(", ")}]`;
-    case "Projection":
-      return "(projection)";
-    case "Object":
-      return "(object)";
     default:
       const _assertNever: never = type;
       compilerAssert(false, "Unexpected type kind");
@@ -91,16 +84,10 @@ function getDecoratorSignature(type: Decorator) {
   return signature;
 }
 
-function getFunctionSignature(type: FunctionType) {
-  const ns = getQualifier(type.namespace);
-  const parameters = type.parameters.map((x) => getFunctionParameterSignature(x));
-  return `fn ${ns}${type.name}(${parameters.join(", ")}): ${getTypeName(type.returnType)}`;
-}
-
 function getInterfaceSignature(type: Interface) {
   const ns = getQualifier(type.namespace);
 
-  const templateParams = type.node.templateParameters
+  const templateParams = type.node?.templateParameters
     ? getTemplateParameters(type.node.templateParameters)
     : "";
   return `interface ${ns}${type.name}${templateParams}`;

@@ -69,4 +69,4 @@ def run_check(name, call_back, log_info):
         response = call_back(dirs[0])
     if not response:
         logging.error("%s fails", log_info)
-        exit(0)
+        exit(1)

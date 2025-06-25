@@ -10,16 +10,13 @@ using TypeSpec.Rest;
 using TypeSpec.Versioning;
 using Azure.Core;
 using Azure.ResourceManager;
-using TypeSpec.OpenAPI;
 using Azure.ClientGenerator.Core;
 
 @armProviderNamespace
-@service({
-  title: "ArmStreamStyleSerialization",
-})
+@service(#{ title: "ArmStreamStyleSerialization" })
 @versioned(Versions)
 @doc("Arm Resource Provider management API.")
-namespace Cadl.ArmStreamStyleSerialization;
+namespace TspTest.ArmStreamStyleSerialization;
 
 @doc("Azure API versions.")
 enum Versions {
@@ -34,7 +31,7 @@ enum Versions {
 model Fish {
   age: int32;
 
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   dna: string;
 
   properties: FishProperties;
@@ -63,7 +60,7 @@ model FishProperties {
 model TailProperties {
   length: float32;
 
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   patten: string;
 
   requiredString: string;
@@ -76,7 +73,7 @@ model AnotherFishProperties {
 model EyeProperties {
   length: float32;
 
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   patten: string;
 
   requiredString: string;
@@ -149,7 +146,7 @@ model ErrorMin {
 model OutputOnlyModel {
   name: string;
 
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   id: string;
 
   @flattenProperty
@@ -158,11 +155,68 @@ model OutputOnlyModel {
 
 model OutputOnlyModelProperties {
   title: string;
+  dog: Golden;
+}
+
+@doc("extensible enum type for discriminator")
+union DogKind {
+  string,
+
+  @doc("Species golden")
+  Golden: "golden",
+}
+
+@doc("Test extensible enum type for discriminator")
+@discriminator("kind")
+model Dog {
+  @doc("discriminator property")
+  kind: DogKind;
+
+  @doc("Weight of the dog")
+  weight: int32;
+
+  @doc("dna of the dog")
+  @visibility(Lifecycle.Read)
+  dna: string;
+}
+
+@doc("Golden dog model")
+model Golden extends Dog {
+  @doc("discriminator property")
+  kind: DogKind.Golden;
 }
 
 model OutputOnlyModelChild extends OutputOnlyModel {
   kind: "child";
   childName: string;
+}
+
+model FunctionConfiguration {
+  input?: string;
+  output?: string;
+}
+
+@discriminator("kind")
+model FunctionProperties {
+  properties: FunctionConfiguration;
+}
+
+model AggregateFunctionProperties extends FunctionProperties {
+  kind: "aggregate";
+}
+
+model Function {
+  properties: FunctionProperties;
+}
+
+union Priority {
+  int32,
+
+  @doc("high priority")
+  HIGH: 0,
+
+  @doc("low priority")
+  LOW: 1,
 }
 
 @route("/model")
@@ -182,7 +236,42 @@ interface TopLevelArmResources {
   update is ArmCustomPatchAsync<TopLevelArmResource>;
 }
 
+@route("/function")
+interface Functions {
+  @put
+  createFunction(@body function: Function): Function;
+}
+
+@route("/priority")
+interface Priorities {
+  @post
+  setPriority(@query priority: Priority): {
+    @body body: Priority;
+  };
+}
+
+@route("/items")
+interface Items {
+  // op of LRO + pageable
+  @get
+  list(): ListResult & ArmLroLocationHeader;
+}
+
+@pagedResult
+model ListResult {
+  @items
+  items: Result[];
+
+  @nextLink
+  nextLink?: string;
+}
+
+model Result {
+  name: string;
+}
+
 @@flattenProperty(Fish.properties);
 @@flattenProperty(FishProperties.tailProperties);
 @@flattenProperty(Fish.anotherProperties);
 @@flattenProperty(AnotherFishProperties.eyeProperties);
+@@flattenProperty(FunctionProperties.properties);

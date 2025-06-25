@@ -26,7 +26,7 @@
     }
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
@@ -43,26 +43,30 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@typespec/best-practices": "workspace:~",
-    "@typespec/compiler": "workspace:~",
-    "@typespec/html-program-viewer": "workspace:~",
-    "@typespec/http": "workspace:~",
-    "@typespec/http-server-javascript": "workspace:~",
-    "@typespec/json-schema": "workspace:~",
-    "@typespec/openapi": "workspace:~",
-    "@typespec/openapi3": "workspace:~",
-    "@typespec/rest": "workspace:~",
-    "@typespec/versioning": "workspace:~"
+    "@typespec/best-practices": "workspace:^",
+    "@typespec/compiler": "workspace:^",
+    "@typespec/events": "workspace:^",
+    "@typespec/html-program-viewer": "workspace:^",
+    "@typespec/http": "workspace:^",
+    "@typespec/http-server-csharp": "workspace:^",
+    "@typespec/http-server-js": "workspace:^",
+    "@typespec/json-schema": "workspace:^",
+    "@typespec/openapi": "workspace:^",
+    "@typespec/openapi3": "workspace:^",
+    "@typespec/protobuf": "workspace:^",
+    "@typespec/rest": "workspace:^",
+    "@typespec/sse": "workspace:^",
+    "@typespec/streams": "workspace:^",
+    "@typespec/versioning": "workspace:^"
   },
   "devDependencies": {
-    "@types/node": "~22.7.1",
-    "@typespec/internal-build-utils": "workspace:~",
-    "@vitest/coverage-v8": "^2.1.1",
-    "@vitest/ui": "^2.1.1",
-    "autorest": "~3.7.1",
+    "@types/node": "~24.0.3",
+    "@typespec/internal-build-utils": "workspace:^",
+    "@vitest/coverage-v8": "^3.1.2",
+    "@vitest/ui": "^3.1.2",
     "cross-env": "~7.0.3",
     "rimraf": "~6.0.1",
-    "typescript": "~5.6.2",
-    "vitest": "^2.1.1"
+    "typescript": "~5.8.2",
+    "vitest": "^3.1.2"
   }
 }

@@ -17,6 +17,8 @@ public class Pom {
     private String serviceDescription;
     private List<String> dependencyIdentifiers;
     private Map<String, String> repositories;
+    private String licenseName;
+    private String licenseUrl;
 
     private boolean requireCompilerPlugins = false;
 
@@ -116,5 +118,21 @@ public class Pom {
     public Pom setRepositories(Map<String, String> repositories) {
         this.repositories = repositories;
         return this;
+    }
+
+    public String getLicenseUrl() {
+        return licenseUrl;
+    }
+
+    public void setLicenseUrl(String licenseUrl) {
+        this.licenseUrl = licenseUrl;
+    }
+
+    public String getLicenseName() {
+        return licenseName;
+    }
+
+    public void setLicenseName(String licenseName) {
+        this.licenseName = licenseName;
     }
 }

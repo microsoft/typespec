@@ -6,11 +6,15 @@ dictionaries:
   - typescript
 words:
   - Adoptium
+  - agentic
   - aiohttp
   - alzimmer
   - amqp
   - AQID
+  - arraya
   - astimezone
+  - astro
+  - astrojs
   - asyncio
   - atrule
   - atteo
@@ -19,6 +23,8 @@ words:
   - azsdkengsys
   - azurecr
   - azuresdk
+  - azurev
+  - azurevnext
   - bifilter
   - blib
   - blockful
@@ -44,6 +50,7 @@ words:
   - debugpy
   - Declipse
   - Dedupes
+  - deps
   - destructures
   - devdiv
   - Diagnoser
@@ -54,6 +61,8 @@ words:
   - Dosgi
   - dotenv
   - Dskip
+  - duplicative
+  - Dyns
   - eastus
   - ecmarkup
   - elif
@@ -66,22 +75,34 @@ words:
   - espt
   - ESRP
   - etree
+  - fastify
   - fluentui
+  - français
+  - fslib
   - genproto
   - getpgid
   - giacamo
   - globby
   - graalvm
+  - Gson
+  - Hdvcmxk
   - headasbooleanfalse
   - headasbooleantrue
-  - Gson
+  - hresult
+  - hscs
+  - hsjs
+  - HSTS
+  - httpx
   - imple
   - Infima
+  - initcs
+  - Initializable
   - inlines
   - inmemory
   - instanceid
   - interner
   - intrinsics
+  - ints
   - IOHTTP
   - isdigit
   - isinstance
@@ -90,13 +111,18 @@ words:
   - itor
   - ivar
   - Jacoco
+  - javac
   - jdwp
   - jobject
+  - Johan
   - jsyaml
   - keyer
   - killpg
   - kwargs
+  - labelledby
+  - libc
   - lifecyle
+  - LINUXARMVMIMAGE
   - LINUXNEXTVMIMAGE
   - LINUXOS
   - LINUXVMIMAGE
@@ -106,6 +132,7 @@ words:
   - lstrip
   - lzutf
   - MACVMIMAGE
+  - MACVMIMAGEM
   - mday
   - mgmt
   - mgmtplane
@@ -119,18 +146,23 @@ words:
   - multis
   - munge
   - mylib
+  - myname
   - mypy
   - nanos
   - nexted
   - nihao
+  - nint
+  - NODEFS
   - noformat
   - noopener
   - noreferrer
   - nosec
   - nostdlib
   - noverify
+  - npath
   - npmjs
   - nspkg
+  - nuint
   - nupkg
   - oapi
   - ODATA
@@ -142,9 +174,12 @@ words:
   - onwarn
   - openapi
   - openapiv
+  - Packument
   - Perfolizer
   - picocolors
+  - pnpx
   - posargs
+  - primitivea
   - prismjs
   - proto
   - protobuf
@@ -152,18 +187,25 @@ words:
   - psscriptanalyzer
   - ptvsd
   - pwsh
+  - pycache
   - pyexpat
   - pygen
+  - pyimport
   - pylint
   - pylintrc
+  - pyodide
   - pyproject
   - pyright
   - pyrightconfig
   - pytest
+  - pyyaml
   - rcfile
   - reactivex
   - recase
+  - recorda
   - regen
+  - rehype
+  - reinjected
   - repr
   - respecify
   - rjust
@@ -177,6 +219,7 @@ words:
   - segmentof
   - serde
   - sfixed
+  - shiki
   - sint
   - snakeyaml
   - srnagar
@@ -185,12 +228,15 @@ words:
   - ssvs
   - statment
   - strs
+  - swaggerui
   - syncpack
   - TCGC
+  - terlson
   - timegm
   - tomli
   - triaging
   - TRYIT
+  - tsconfigs
   - tsdoc
   - TSES
   - tspd
@@ -218,6 +264,7 @@ words:
   - venvtools
   - VITE
   - vitest
+  - VNEXT
   - vsix
   - VSSDK
   - Vsts
@@ -225,10 +272,12 @@ words:
   - wday
   - weidxu
   - westus
+  - WINDOWSARMVMIMAGE
   - WINDOWSVMIMAGE
   - xiangyan
   - xiaofei
   - xlarge
+  - Xlint
   - xmsclientrequestid
   - xors
   - xplat
@@ -246,9 +295,14 @@ ignorePaths:
   - common/scripts/*
   - "**/ThirdPartyNotices.txt"
   - packages/compiler/test/formatter/scenarios/**
+  - packages/http-client-java/generator/http-client-generator/src/main/resources/PerfAutomation.jfc
   - packages/http-client-java/generator/http-client-generator-test/**
+  - packages/http-client-java/generator/http-client-generator-clientcore-test/**
+  - packages/http-client-js/test/e2e/**
+  - packages/http-client-js/sample/**
   - pnpm-lock.yaml
   - "**/*.mp4"
+  - "**/*.plist"
   - .git/**
   - .gitignore
   - .vscode/**

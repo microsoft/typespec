@@ -1,5 +1,128 @@
 # Change Log - @typespec/openapi
 
+## 1.1.0
+
+### Bug Fixes
+
+- [#7509](https://github.com/microsoft/typespec/pull/7509) Fix `@tagMetadata` decorator emitting error when incorrectly not finding `@service` decorator
+
+
+## 1.0.0
+
+No changes, version bump only.
+
+## 1.0.0-rc.1
+
+### Bug Fixes
+
+- [#6947](https://github.com/microsoft/typespec/pull/6947) Fix crash when using enum values in extension
+
+
+## 1.0.0-rc.0
+
+### Bump dependencies
+
+- [#6595](https://github.com/microsoft/typespec/pull/6595) Upgrade dependencies
+
+### Bug Fixes
+
+- [#6651](https://github.com/microsoft/typespec/pull/6651) Adds diagnostic when passing in a `Type` to the `$extension` decorator function directly
+
+
+## 0.67.0
+
+### Breaking Changes
+
+- [#5977](https://github.com/microsoft/typespec/pull/5977) Minimum node version is now 20
+
+### Bump dependencies
+
+- [#6266](https://github.com/microsoft/typespec/pull/6266) Update dependencies
+
+
+## 0.66.0
+
+### Deprecations
+
+- [#6078](https://github.com/microsoft/typespec/pull/6078) Updates the `@extension` decorator with 3 changes:
+
+1. Removes the extension name starts with `x-` constraint.
+1. Adds support for passing in values to emit raw data.
+1. Adds a deprecation warning for passing in types. Passed in types will emit Open API schemas in a future release.
+
+Scalar literals (e.g. string, boolean, number values) are automatically treated as values.
+Model or tuple expression usage needs to be converted to values to retain current behavior in future releases.
+
+```diff lang="tsp"
+-@extension("x-obj", { foo: true })
++@extension("x-obj", #{ foo: true })
+-@extension("x-tuple", [ "foo" ])
++@extension("x-tuple", #[ "foo" ])
+model Foo {}
+```
+- [#6108](https://github.com/microsoft/typespec/pull/6108) Migrate `@info` decorator to expect a value
+
+```diff lang="tsp"
+-@info({ version: "1.0.0" })
++@info(#{ version: "1.0.0" })
+```
+
+```diff lang="tsp"
+-@info({
++@info(#{
+  termsOfService: "http://example.com/terms/",
+-  contact: {
++  contact: #{
+    name: "API Support",
+    url: "http://www.example.com/support",
+    email: "support@example.com"
+  },
+})
+```
+
+
+## 0.65.0
+
+### Bump dependencies
+
+- [#5690](https://github.com/microsoft/typespec/pull/5690) Upgrade dependencies
+
+### Features
+
+- [#5699](https://github.com/microsoft/typespec/pull/5699) Promote `unsafe_useStateMap` and `unsafe_useStateSet` experimental APIs to stable version `useStateMap` and `useStateSet`. Old ones are deprecated
+
+
+## 0.64.0
+
+No changes, version bump only.
+
+## 0.63.0
+
+No changes, version bump only.
+
+## 0.62.0
+
+### Bump dependencies
+
+- [#4679](https://github.com/microsoft/typespec/pull/4679) Upgrade dependencies - October 2024
+
+### Features
+
+- [#4834](https://github.com/microsoft/typespec/pull/4834) Add new `@tagMetadata` decorator to specify OpenAPI tag properties
+
+
+## 0.61.0
+
+### Bug Fixes
+
+- [#4505](https://github.com/microsoft/typespec/pull/4505) `@info` decorator validate no extra properties not starting with `x-` are provided.
+- [#4483](https://github.com/microsoft/typespec/pull/4483) `@info` decorator validate `termsOfService` is a valid url
+
+### Bump dependencies
+
+- [#4424](https://github.com/microsoft/typespec/pull/4424) Bump dependencies
+
+
 ## 0.60.0
 
 ### Features

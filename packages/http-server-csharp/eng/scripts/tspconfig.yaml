@@ -1,0 +1,17 @@
+parameters:
+  service-port-http:
+    default: "8080"
+  service-port-https:
+    default: "8443"
+emit:
+  - "@typespec/http-server-csharp"
+  - "@typespec/openapi3"
+options:
+  "@typespec/http-server-csharp":
+    emitter-output-dir: "{output-dir}"
+    emit-mocks: "mocks-and-project-files"
+    overwrite: true
+    http-port: "{service-port-http}"
+    https-port: "{service-port-https}"
+  "@typespec/openapi3":
+    emitter-output-dir: "{output-dir}/spec"

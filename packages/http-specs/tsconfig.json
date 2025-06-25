@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": ".",
+    "tsBuildInfoFile": "temp/.tsbuildinfo",
+    "types": ["multer"],
+    "allowJs": true
+  },
+  "include": ["specs/**/*.ts", "specs/**/*.js"]
+}

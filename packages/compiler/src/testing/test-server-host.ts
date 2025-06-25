@@ -1,12 +1,14 @@
-import { ok } from "assert";
 import { pathToFileURL } from "url";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { Diagnostic } from "vscode-languageserver/node.js";
+import { Diagnostic, FileChangeType } from "vscode-languageserver/node.js";
 import { parse, visitChildren } from "../core/parser.js";
+import { resolvePath } from "../core/path-utils.js";
 import { IdentifierNode, SyntaxKind } from "../core/types.js";
+import { createClientConfigProvider } from "../server/client-config-provider.js";
 import { Server, ServerHost, createServer } from "../server/index.js";
 import { createStringMap } from "../utils/misc.js";
-import { StandardTestLibrary, TestHostOptions, createTestFileSystem } from "./test-host.js";
+import { createTestFileSystem } from "./fs.js";
+import { StandardTestLibrary, TestHostOptions } from "./test-compiler-host.js";
 import { resolveVirtualPath } from "./test-utils.js";
 import { TestFileSystem } from "./types.js";
 
@@ -77,14 +79,39 @@ export async function createTestServerHost(options?: TestHostOptions & { workspa
       }
       return pathToFileURL(resolveVirtualPath(path)).href;
     },
-    applyEdit(paramOrEdit) {
-      return Promise.resolve({ applied: false });
+    async applyEdit(paramOrEdit) {
+      if ("changes" in paramOrEdit) {
+        const changes = paramOrEdit.changes || {};
+        for (const uri in changes) {
+          const path = resolvePath(this.compilerHost.fileURLToPath(uri));
+          const document = this.fs.get(path);
+          if (document) {
+            const lines = document.split("\n");
+            changes[uri].map((edit) => {
+              const curLineIdx = edit.range.start.line;
+              lines[curLineIdx] =
+                lines[curLineIdx].slice(0, edit.range.start.character) +
+                edit.newText +
+                lines[curLineIdx].slice(edit.range.end.character);
+
+              this.fs.set(path, lines.join("\n"));
+            });
+          }
+
+          server.watchedFilesChanged({
+            changes: [{ uri, type: FileChangeType.Changed }],
+          });
+        }
+      }
+
+      return Promise.resolve({ applied: true });
     },
   };
 
   const workspaceDir = options?.workspaceDir ?? "./";
   const rootUri = serverHost.getURL(workspaceDir);
-  const server = createServer(serverHost);
+  const clientConfigProvider = createClientConfigProvider();
+  const server = createServer(serverHost, clientConfigProvider);
   await server.initialize({
     rootUri: options?.caseInsensitiveFileSystem ? rootUri.toUpperCase() : rootUri,
     capabilities: {},
@@ -94,35 +121,6 @@ export async function createTestServerHost(options?: TestHostOptions & { workspa
   server.initialized({});
   serverHost.server = server;
   return serverHost;
-}
-
-/**
- * Takes source code with a cursor position indicated by the given marker
- * ("┆" by default), and returns the source without the marker along with
- * the cursor position.
- */
-export function extractCursor(
-  sourceWithCursor: string,
-  marker = "┆",
-): { source: string; pos: number } {
-  const pos = sourceWithCursor.indexOf(marker);
-  ok(pos >= 0, "marker not found");
-  const source = sourceWithCursor.replace(marker, "");
-  return { source, pos };
-}
-
-/**
- * Takes source code with start and end positions indicated by given marker
- * ("~~~" by default) and returns the source without the markers along with
- * the start and end positions.
- */
-export function extractSquiggles(
-  sourceWithSquiggles: string,
-  marker = "~~~",
-): { source: string; pos: number; end: number } {
-  const { source: sourceWithoutFistSquiggle, pos } = extractCursor(sourceWithSquiggles, marker);
-  const { source, pos: end } = extractCursor(sourceWithoutFistSquiggle, marker);
-  return { source, pos, end };
 }
 
 /**

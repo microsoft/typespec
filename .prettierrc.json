@@ -8,13 +8,21 @@
   "tabWidth": 2,
   "plugins": [
     "./packages/prettier-plugin-typespec/dist/index.js",
-    "./node_modules/prettier-plugin-organize-imports/index.js"
+    "./node_modules/prettier-plugin-organize-imports/index.js",
+    "prettier-plugin-astro",
+    "prettier-plugin-sh"
   ],
   "overrides": [
     {
       "files": "*.tsp",
       "options": {
         "parser": "typespec"
+      }
+    },
+    {
+      "files": "*.astro",
+      "options": {
+        "parser": "astro"
       }
     }
   ]

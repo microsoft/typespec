@@ -30,10 +30,6 @@ export function needsParens(path: AstPath<Node>, options: TypeSpecPrettierOption
         parent.kind === SyntaxKind.IntersectionExpression ||
         parent.kind === SyntaxKind.ArrayExpression
       );
-    case SyntaxKind.ProjectionLogicalExpression:
-      return parent.kind === SyntaxKind.ProjectionLogicalExpression;
-    case SyntaxKind.ProjectionArithmeticExpression:
-      return parent.kind === SyntaxKind.ProjectionArithmeticExpression;
     default:
       return false;
   }

@@ -1,5 +1,171 @@
 # Change Log - typespec-vscode
 
+## 1.1.0
+
+### Features
+
+- [#7317](https://github.com/microsoft/typespec/pull/7317) Enable emit code command on tspconfig.yaml.
+- [#6783](https://github.com/microsoft/typespec/pull/6783) Install packages for unrecognized import via npm command
+- [#7239](https://github.com/microsoft/typespec/pull/7239) Use language server to compile project instead of CLI
+- [#7331](https://github.com/microsoft/typespec/pull/7331) Support prompting to install compiler proactively if no compiler is found when starting LSP
+- [#7541](https://github.com/microsoft/typespec/pull/7541) Add extension API for other vscode extension to be able to register more TypeSpec InitTemplate to choose when scaffolding TypeSpec project.
+
+### Bump dependencies
+
+- [#7323](https://github.com/microsoft/typespec/pull/7323) Upgrade dependencies
+
+### Bug Fixes
+
+- [#7300](https://github.com/microsoft/typespec/pull/7300) Unify the writing of OpenAPI 3
+- [#7353](https://github.com/microsoft/typespec/pull/7353) Fix openapi3 preview error when path contains space
+- [#7374](https://github.com/microsoft/typespec/pull/7374) Check whether the compiler language server supports project compilation.
+- [#7302](https://github.com/microsoft/typespec/pull/7302) Telemetry data item result displays `cancelled` when the `Select file` step of `Preview API Documentation` is `cancelled`
+
+
+## 1.0.0
+
+### Features
+
+- [#7042](https://github.com/microsoft/typespec/pull/7042) send compile startTime and endTime telemetry
+
+
+## 0.69.0
+
+### Bug Fixes
+
+- [#6894](https://github.com/microsoft/typespec/pull/6894) Fix the issue where the emitter version is undefined in telemetry.
+- [#7021](https://github.com/microsoft/typespec/pull/7021) Fix crash when initialize telemetry client
+
+
+## 0.68.0
+
+### Bump dependencies
+
+- [#6595](https://github.com/microsoft/typespec/pull/6595) Upgrade dependencies
+
+### Bug Fixes
+
+- [#6668](https://github.com/microsoft/typespec/pull/6668) Fix error when upgrading to use latest telemetry library
+- [#6690](https://github.com/microsoft/typespec/pull/6690) Fix the issue to log compiler information as an error. And remove PREVIEW prefix for server code emitter
+- [#6694](https://github.com/microsoft/typespec/pull/6694) compiler can be resolved automatically when it's not installed in the root folder of the first opened workspace.
+- [#6620](https://github.com/microsoft/typespec/pull/6620) Update menu item and command text for "Show OpenAPI3 Documentation" and "Import TypeSpec from OpenApi3"
+
+
+## 0.67.0
+
+### Features
+
+- [#6178](https://github.com/microsoft/typespec/pull/6178) Update references to JS emitter
+- [#5972](https://github.com/microsoft/typespec/pull/5972) Select multiple emitters to generate multiple codes at one time
+- [#6295](https://github.com/microsoft/typespec/pull/6295) Improve the "Create TypeSpec Project" user experience
+- [#6015](https://github.com/microsoft/typespec/pull/6015) add openapi3 preview
+- [#6123](https://github.com/microsoft/typespec/pull/6123) Support telemetry
+
+### Bump dependencies
+
+- [#6266](https://github.com/microsoft/typespec/pull/6266) Update dependencies
+
+### Bug Fixes
+
+- [#6144](https://github.com/microsoft/typespec/pull/6144) Add missing node to list of suggestion when tsp server cannot start
+
+
+## 0.66.0
+
+### Features
+
+- [#6014](https://github.com/microsoft/typespec/pull/6014) Add "Import TypeSpec from OpenApi3" menu item into explorer context menu
+- [#6210](https://github.com/microsoft/typespec/pull/6210) Support starting LSP using standalone tsp cli
+- [#6164](https://github.com/microsoft/typespec/pull/6164) Renamed package `@typespec/http-server-javascript` to `@typespec/http-server-js`.
+
+### Bug Fixes
+
+- [#6137](https://github.com/microsoft/typespec/pull/6137) Fix code snippet for union in typespec-vscode
+
+
+## 0.65.0
+
+### Bug Fixes
+
+- [#5752](https://github.com/microsoft/typespec/pull/5752) Disable coloring text when generating code
+- [#5754](https://github.com/microsoft/typespec/pull/5754) Add example to the vscode setting "initTemplatesUrls"
+- [#5886](https://github.com/microsoft/typespec/pull/5886) refine the quickpick placeholder and the log
+- [#5834](https://github.com/microsoft/typespec/pull/5834) Update extension configuration URLs in error message
+
+### Bump dependencies
+
+- [#5690](https://github.com/microsoft/typespec/pull/5690) Upgrade dependencies
+
+### Features
+
+- [#5451](https://github.com/microsoft/typespec/pull/5451) Support importing TypeSpec from OpenAPI 3.0 doc
+
+
+## 0.64.0
+
+### Bug Fixes
+
+- [#5413](https://github.com/microsoft/typespec/pull/5413) Do not start TypeSpec Language Server when there is no workspace opened
+- [#5131](https://github.com/microsoft/typespec/pull/5131) Support 'See Document' quick action to view the details of linter rules
+- [#5428](https://github.com/microsoft/typespec/pull/5428) improve console output when tsp-server not found
+
+### Features
+
+- [#5312](https://github.com/microsoft/typespec/pull/5312) integrate client SDK generation
+- [#5314](https://github.com/microsoft/typespec/pull/5314) Rename vscode extension from "TypeSpec for VS Code" to "TypeSpec"
+- [#5594](https://github.com/microsoft/typespec/pull/5594) Support Emitters section in Init Template when creating TypeSpec project in vscode
+- [#5294](https://github.com/microsoft/typespec/pull/5294) Support "Create TypeSpec Project" in vscode command and EXPLORER when no folder opened
+Add Setting "typespec.initTemplatesUrls" where user can configure additional template to use to create TypeSpec project
+example:
+```
+{
+  "typespec.initTemplatesUrls": [
+    {
+      "name": "displayName",
+      "url": "https://urlToTheFileContainsTemplates"
+    }],
+}
+```
+Support "Install TypeSpec Compiler/CLI globally" in vscode command to install TypeSpec compiler globally easily
+
+
+## 0.63.0
+
+No changes, version bump only.
+
+## 0.62.0
+
+### Bug Fixes
+
+- [#4912](https://github.com/microsoft/typespec/pull/4912) Fix the issue when Typespec Language Server can't be restarted when the server wasn't running before
+
+### Bump dependencies
+
+- [#4679](https://github.com/microsoft/typespec/pull/4679) Upgrade dependencies - October 2024
+
+### Features
+
+- [#4790](https://github.com/microsoft/typespec/pull/4790) Support completion for tspconfig.yaml file in vscode
+- [#4737](https://github.com/microsoft/typespec/pull/4737) Add basic snippets for typespec
+- [#4912](https://github.com/microsoft/typespec/pull/4912) TypeSpec Language Server would be restarted with new settings when setting "typespec.tsp-server.path" is changed
+
+
+## 0.61.0
+
+### Bug Fixes
+
+- [#4430](https://github.com/microsoft/typespec/pull/4430) Use "shell" when spawning execution of .cmd file(i.e. tsp-server.cmd) in windows
+
+### Bump dependencies
+
+- [#4424](https://github.com/microsoft/typespec/pull/4424) Bump dependencies
+
+### Features
+
+- [#4330](https://github.com/microsoft/typespec/pull/4330) Support Compile Task and Watch Task in vscode.
+- [#4498](https://github.com/microsoft/typespec/pull/4498) Make extension web compatible with minimal functionality
+
+
 ## 0.60.0
 
 No changes, version bump only.

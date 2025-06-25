@@ -1,0 +1,42 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+package type.property.nullable;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+import java.util.Arrays;
+import org.junit.jupiter.api.Test;
+import type.property.nullable.models.CollectionsModelProperty;
+import type.property.nullable.models.InnerModel;
+
+class CollectionsModelClientTest {
+
+    CollectionsModelClient client = new NullableClientBuilder().buildCollectionsModelClient();
+
+    @Test
+    void patchNonNullWithResponse() {
+        CollectionsModelProperty property = new CollectionsModelProperty().setRequiredProperty("foo")
+            .setNullableProperty(
+                Arrays.asList(new InnerModel().setProperty("hello"), new InnerModel().setProperty("world")));
+        client.patchNonNull(property);
+    }
+
+    @Test
+    void patchNullWithResponse() {
+        client.patchNull(new CollectionsModelProperty().setRequiredProperty("foo").setNullableProperty(null));
+    }
+
+    @Test
+    void getNonNull() {
+        CollectionsModelProperty response = client.getNonNull();
+        assertNotNull(response.getNullableProperty());
+    }
+
+    @Test
+    void getNull() {
+        CollectionsModelProperty response = client.getNull();
+        assertNull(response.getNullableProperty());
+    }
+}

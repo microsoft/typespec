@@ -1,29 +1,40 @@
 import {
+  compilerAssert,
+  createDiagnosticCollector,
   DiagnosticResult,
   Model,
   Type,
-  compilerAssert,
-  createDiagnosticCollector,
   walkPropertiesInherited,
   type Diagnostic,
   type ModelProperty,
   type Program,
 } from "@typespec/compiler";
+import { PathOptions, QueryOptions } from "../generated-defs/TypeSpec.Http.js";
 import {
+  getCookieParamOptions,
   getHeaderFieldOptions,
-  getPathParamOptions,
-  getQueryParamOptions,
+  getPathOptions,
+  getQueryOptions,
   isBody,
   isBodyRoot,
   isMultipartBodyProperty,
   isStatusCode,
+  resolvePathOptionsWithDefaults,
+  resolveQueryOptionsWithDefaults,
 } from "./decorators.js";
 import { createDiagnostic } from "./lib.js";
-import { Visibility, isVisible } from "./metadata.js";
-import { HeaderFieldOptions, PathParameterOptions, QueryParameterOptions } from "./types.js";
+import { isVisible, Visibility } from "./metadata.js";
+import { HttpPayloadDisposition } from "./payload.js";
+import {
+  CookieParameterOptions,
+  HeaderFieldOptions,
+  PathParameterOptions,
+  QueryParameterOptions,
+} from "./types.js";
 
 export type HttpProperty =
   | HeaderProperty
+  | CookieProperty
   | ContentTypeProperty
   | QueryProperty
   | PathProperty
@@ -44,17 +55,22 @@ export interface HeaderProperty extends HttpPropertyBase {
   readonly options: HeaderFieldOptions;
 }
 
+export interface CookieProperty extends HttpPropertyBase {
+  readonly kind: "cookie";
+  readonly options: CookieParameterOptions;
+}
+
 export interface ContentTypeProperty extends HttpPropertyBase {
   readonly kind: "contentType";
 }
 
 export interface QueryProperty extends HttpPropertyBase {
   readonly kind: "query";
-  readonly options: QueryParameterOptions;
+  readonly options: Required<QueryOptions>;
 }
 export interface PathProperty extends HttpPropertyBase {
   readonly kind: "path";
-  readonly options: PathParameterOptions;
+  readonly options: Required<PathOptions>;
 }
 export interface StatusCodeProperty extends HttpPropertyBase {
   readonly kind: "statusCode";
@@ -88,6 +104,7 @@ function getHttpProperty(
   options: GetHttpPropertyOptions = {},
 ): [HttpProperty, readonly Diagnostic[]] {
   const diagnostics: Diagnostic[] = [];
+
   function createResult<T extends Omit<HttpProperty, "path" | "property">>(
     opts: T,
   ): [HttpProperty & T, readonly Diagnostic[]] {
@@ -96,8 +113,9 @@ function getHttpProperty(
 
   const annotations = {
     header: getHeaderFieldOptions(program, property),
-    query: getQueryParamOptions(program, property),
-    path: getPathParamOptions(program, property),
+    cookie: getCookieParamOptions(program, property),
+    query: getQueryOptions(program, property),
+    path: getPathOptions(program, property),
     body: isBody(program, property),
     bodyRoot: isBodyRoot(program, property),
     multipartBody: isMultipartBodyProperty(program, property),
@@ -109,9 +127,9 @@ function getHttpProperty(
   if (implicit && defined.length > 0) {
     if (implicit.type === "path" && annotations.path) {
       if (
-        annotations.path.explode ||
-        annotations.path.style !== "simple" ||
-        annotations.path.allowReserved
+        annotations.path.explode !== undefined ||
+        annotations.path.style !== undefined ||
+        annotations.path.allowReserved !== undefined
       ) {
         diagnostics.push(
           createDiagnostic({
@@ -124,7 +142,7 @@ function getHttpProperty(
         );
       }
     } else if (implicit.type === "query" && annotations.query) {
-      if (annotations.query.explode) {
+      if (annotations.query.explode !== undefined) {
         diagnostics.push(
           createDiagnostic({
             code: "use-uri-template",
@@ -149,14 +167,15 @@ function getHttpProperty(
       );
     }
   }
+  // if implicit just returns as it is. Validation above would have checked nothing was set explicitly apart from the type and that the type match
+  if (implicit) {
+    return createResult({
+      kind: implicit.type,
+      options: implicit as any,
+      property,
+    });
+  }
   if (defined.length === 0) {
-    if (implicit) {
-      return createResult({
-        kind: implicit.type,
-        options: implicit as any,
-        property,
-      });
-    }
     return createResult({ kind: "bodyProperty" });
   } else if (defined.length > 1) {
     diagnostics.push(
@@ -174,10 +193,18 @@ function getHttpProperty(
     } else {
       return createResult({ kind: "header", options: annotations.header });
     }
+  } else if (annotations.cookie) {
+    return createResult({ kind: "cookie", options: annotations.cookie });
   } else if (annotations.query) {
-    return createResult({ kind: "query", options: annotations.query });
+    return createResult({
+      kind: "query",
+      options: resolveQueryOptionsWithDefaults(annotations.query),
+    });
   } else if (annotations.path) {
-    return createResult({ kind: "path", options: annotations.path });
+    return createResult({
+      kind: "path",
+      options: resolvePathOptionsWithDefaults(annotations.path),
+    });
   } else if (annotations.statusCode) {
     return createResult({ kind: "statusCode" });
   } else if (annotations.body) {
@@ -199,6 +226,7 @@ export function resolvePayloadProperties(
   program: Program,
   type: Type,
   visibility: Visibility,
+  disposition: HttpPayloadDisposition,
   options: GetHttpPropertyOptions = {},
 ): DiagnosticResult<HttpProperty[]> {
   const diagnostics = createDiagnosticCollector();
@@ -221,8 +249,21 @@ export function resolvePayloadProperties(
       }
 
       let httpProperty = diagnostics.pipe(getHttpProperty(program, property, propPath, options));
-      if (shouldTreatAsBodyProperty(httpProperty, visibility)) {
+      if (shouldTreatAsBodyProperty(httpProperty, disposition)) {
         httpProperty = { kind: "bodyProperty", property, path: propPath };
+      }
+
+      // Ignore cookies in response to avoid future breaking changes to @cookie.
+      // https://github.com/microsoft/typespec/pull/4761#discussion_r1805082132
+      if (httpProperty.kind === "cookie" && disposition === HttpPayloadDisposition.Response) {
+        diagnostics.add(
+          createDiagnostic({
+            code: "response-cookie-not-supported",
+            target: property,
+            format: { propName: property.name },
+          }),
+        );
+        continue;
       }
 
       if (
@@ -260,13 +301,21 @@ function isModelWithProperties(type: Type): type is Model {
   return type.kind === "Model" && !type.indexer && type.properties.size > 0;
 }
 
-function shouldTreatAsBodyProperty(property: HttpProperty, visibility: Visibility): boolean {
-  if (visibility & Visibility.Read) {
-    return property.kind === "query" || property.kind === "path";
+function shouldTreatAsBodyProperty(
+  property: HttpProperty,
+  disposition: HttpPayloadDisposition,
+): boolean {
+  switch (disposition) {
+    case HttpPayloadDisposition.Request:
+      return property.kind === "statusCode";
+    case HttpPayloadDisposition.Response:
+      return property.kind === "query" || property.kind === "path";
+    case HttpPayloadDisposition.Multipart:
+      return (
+        property.kind === "path" || property.kind === "query" || property.kind === "statusCode"
+      );
+    default:
+      void (disposition satisfies never);
+      return false;
   }
-
-  if (!(visibility & Visibility.Read)) {
-    return property.kind === "statusCode";
-  }
-  return false;
 }

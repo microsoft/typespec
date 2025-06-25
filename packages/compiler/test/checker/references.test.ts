@@ -2,7 +2,12 @@
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { Enum, Interface, Model, Operation, Type } from "../../src/core/types.js";
-import { TestHost, createTestHost, expectDiagnostics } from "../../src/testing/index.js";
+import {
+  TestHost,
+  createTestHost,
+  expectDiagnostics,
+  expectTypeEquals,
+} from "../../src/testing/index.js";
 
 describe("compiler: references", () => {
   let testHost: TestHost;
@@ -26,7 +31,7 @@ describe("compiler: references", () => {
         target: any;
       };
       const expectedTarget = resolveTarget ? resolveTarget(target) : target;
-      strictEqual(RefContainer.properties.get("y")!.type, expectedTarget);
+      expectTypeEquals(RefContainer.properties.get("y")!.type, expectedTarget);
     }
     const refCode = `
       @test model RefContainer { y: ${ref} }
@@ -225,17 +230,17 @@ describe("compiler: references", () => {
         testHost.addTypeSpecFile(
           "main.tsp",
           `
-      @test model Foo {
-        a: string;
-        b: Foo.a;
-      }
-      `,
+          @test model Foo {
+            a: string;
+            b: Foo.a;
+          }
+          `,
         );
 
         const { Foo } = (await testHost.compile("./main.tsp")) as {
           Foo: Model;
         };
-        strictEqual(Foo.properties.get("b")!.type, Foo.properties.get("a"));
+        expectTypeEquals(Foo.properties.get("b")!.type, Foo.properties.get("a")!);
       });
 
       it("can reference sibling property defined after", async () => {
@@ -573,7 +578,7 @@ describe("compiler: references", () => {
 
     expectDiagnostics(diagnostics, [
       {
-        code: "unknown-identifier",
+        code: "invalid-ref",
         message: `Unknown identifier NotDefined`,
       },
     ]);
@@ -592,6 +597,37 @@ describe("compiler: references", () => {
         ref: "Person.address::type.city",
       }));
 
+    describe("ModelProperty::type that is an anonymous model", () =>
+      itCanReference({
+        code: `
+          model A {  a: string }
+          model B { b: string }
+          model Person {
+            @test("target") address: { ...A, ...B };
+          }
+        `,
+        ref: "Person.address::type.a",
+        resolveTarget: (prop) => {
+          // Abc
+          return prop.type.properties.get("a");
+        },
+      }));
+
+    describe("ModelProperty::type that is an intersection", () =>
+      itCanReference({
+        code: `
+          model A { a: string }
+          model B { b: string }
+          model Person {
+            @test("target") address: A & B;
+          }
+        `,
+        ref: "Person.address::type.a",
+        resolveTarget: (prop) => {
+          // Abc
+          return prop.type.properties.get("a");
+        },
+      }));
     describe("ModelProperty::type that is a type reference", () =>
       itCanReference({
         code: `
@@ -646,8 +682,7 @@ describe("compiler: references", () => {
       ]);
     });
 
-    // Error should be removed when this is fixed https://github.com/microsoft/typespec/issues/2213
-    it("(TEMP) emits a diagnostic when referencing a non-resolved meta type property", async () => {
+    it("allows spreading meta type property", async () => {
       testHost.addTypeSpecFile(
         "main.tsp",
         `
@@ -659,20 +694,39 @@ describe("compiler: references", () => {
           a: A;
         }
 
-        model Spread {
+        @test model Spread {
           ... B.a::type;
         }
         `,
       );
 
-      const diagnostics = await testHost.diagnose("./main.tsp");
+      const { Spread } = (await testHost.compile("./main.tsp")) as { Spread: Model };
+      strictEqual(Spread.properties.size, 1);
+      ok(Spread.properties.get("name"));
+    });
 
-      expectDiagnostics(diagnostics, [
-        {
-          code: "invalid-ref",
-          message: `ModelProperty doesn't have meta property type`,
-        },
-      ]);
+    it("the Johan test case", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model Completion { 
+          choices: string[];
+        }
+        
+        op baseVersion("model": string, top_n: int32): Completion;
+        
+        @test op azureVersion(... baseVersion::parameters, dataSources: string[]): baseVersion::returnType & { rai: string[] };
+        `,
+      );
+
+      const { azureVersion } = (await testHost.compile("./main.tsp")) as {
+        azureVersion: Operation;
+      };
+      const existingNames = [...azureVersion.parameters.properties.values()].map((v) => v.name);
+      strictEqual(existingNames.length, 3);
+      ok(existingNames.includes("model"));
+      ok(existingNames.includes("top_n"));
+      ok(existingNames.includes("dataSources"));
     });
   });
 });

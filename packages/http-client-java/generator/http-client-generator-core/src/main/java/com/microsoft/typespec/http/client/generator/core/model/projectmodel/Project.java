@@ -43,9 +43,11 @@ public class Project {
     protected String serviceName;
     protected String serviceDescription;
     protected String namespace;
-    protected String groupId = AZURE_GROUP_ID;
+    protected String groupId;
     protected String artifactId;
     protected String version = "1.0.0-beta.1";
+    protected String licenseName;
+    protected String licenseUrl;
     protected final List<String> pomDependencyIdentifiers = new ArrayList<>();
     protected String sdkRepositoryPath;
 
@@ -56,15 +58,16 @@ public class Project {
     public enum Dependency {
         // azure
         AZURE_CLIENT_SDK_PARENT("com.azure", "azure-client-sdk-parent", "1.7.0"),
-        AZURE_CORE("com.azure", "azure-core", "1.52.0"),
-        AZURE_CORE_MANAGEMENT("com.azure", "azure-core-management", "1.15.3"),
-        AZURE_CORE_HTTP_NETTY("com.azure", "azure-core-http-netty", "1.15.4"),
-        AZURE_CORE_TEST("com.azure", "azure-core-test", "1.27.0-beta.1"),
-        AZURE_IDENTITY("com.azure", "azure-identity", "1.13.3"),
-        AZURE_CORE_EXPERIMENTAL("com.azure", "azure-core-experimental", "1.0.0-beta.53"),
+        AZURE_CLIENT_SDK_PARENT_V2("com.azure.v2", "azure-client-sdk-parent", "2.0.0-beta.1"),
+        AZURE_CORE("com.azure", "azure-core", "1.55.4"),
+        AZURE_CORE_V2("com.azure.v2", "azure-core", "2.0.0-beta.1"),
+        AZURE_CORE_MANAGEMENT("com.azure", "azure-core-management", "1.18.0"),
+        AZURE_CORE_HTTP_NETTY("com.azure", "azure-core-http-netty", "1.15.12"),
+        AZURE_CORE_TEST("com.azure", "azure-core-test", "1.27.0-beta.9"),
+        AZURE_IDENTITY("com.azure", "azure-identity", "1.16.2"),
+        AZURE_CORE_EXPERIMENTAL("com.azure", "azure-core-experimental", "1.0.0-beta.61"),
 
-        CLIENTCORE("io.clientcore", "core", "1.0.0-beta.1"),
-        CLIENTCORE_JSON("io.clientcore", "core-json", "1.0.0-beta.1");
+        CLIENTCORE("io.clientcore", "core", "1.0.0-beta.10");
 
         private final String groupId;
         private final String artifactId;
@@ -111,6 +114,13 @@ public class Project {
         this.serviceName = serviceName;
         this.namespace = JavaSettings.getInstance().getPackage();
         this.artifactId = ClientModelUtil.getArtifactId();
+        if (JavaSettings.getInstance().isAzureV2()) {
+            this.groupId = "com.azure.v2";
+        } else if (JavaSettings.getInstance().isAzureV1()) {
+            this.groupId = "com.azure";
+        } else {
+            this.groupId = "io.clientcore";
+        }
 
         this.serviceDescription = TemplateHelper.getPomProjectDescription(serviceName);
 
@@ -367,6 +377,19 @@ public class Project {
 
     public boolean isGenerateSamples() {
         return JavaSettings.getInstance().isGenerateSamples();
+    }
+
+    public void setLicenseInfo(String name, String url) {
+        this.licenseName = name;
+        this.licenseUrl = url;
+    }
+
+    public String getLicenseName() {
+        return licenseName;
+    }
+
+    public String getLicenseUrl() {
+        return licenseUrl;
     }
 
     static List<String> findPomDependencies(Path pomPath) {

@@ -9,6 +9,9 @@ configuration:
     eventResponderTasks:
       - if:
           - payloadType: Pull_Request
+          - not:
+              isActivitySender:
+                user: Copilot
         then:
           - if:
               - includesModifiedFiles:
@@ -62,6 +65,13 @@ configuration:
           - if:
               - includesModifiedFiles:
                   files:
+                    - packages/http-specs/**/*
+            then:
+              - addLabel:
+                  label: lib:http-specs
+          - if:
+              - includesModifiedFiles:
+                  files:
                     - blog/**/*
             then:
               - addLabel:
@@ -80,6 +90,19 @@ configuration:
             then:
               - addLabel:
                   label: tspd
+          - if:
+              - includesModifiedFiles:
+                  files: []
+            then:
+              - addLabel:
+                  label: emitter:client:all
+          - if:
+              - includesModifiedFiles:
+                  files:
+                    - packages/http-client-js/**/*
+            then:
+              - addLabel:
+                  label: emitter:client:js
           - if:
               - includesModifiedFiles:
                   files:
@@ -101,6 +124,13 @@ configuration:
             then:
               - addLabel:
                   label: emitter:client:python
+          - if:
+              - includesModifiedFiles:
+                  files:
+                    - packages/graphql/**/*
+            then:
+              - addLabel:
+                  label: emitter:graphql
           - if:
               - includesModifiedFiles:
                   files:
@@ -131,16 +161,24 @@ configuration:
                   label: openapi3:converter
           - if:
               - includesModifiedFiles:
-                  files: []
+                  files:
+                    - packages/http-server-csharp
             then:
               - addLabel:
                   label: emitter:service:csharp
           - if:
               - includesModifiedFiles:
-                  files: []
+                  files:
+                    - packages/http-server-js
             then:
               - addLabel:
                   label: emitter:service:js
+          - if:
+              - includesModifiedFiles:
+                  files: []
+            then:
+              - addLabel:
+                  label: emitter:service:java
           - if:
               - includesModifiedFiles:
                   files:
@@ -163,3 +201,11 @@ configuration:
             then:
               - addLabel:
                   label: ui:type-graph-viewer
+          - if:
+              - includesModifiedFiles:
+                  files:
+                    - packages/spector/**/*
+                    - packages/http-specs
+            then:
+              - addLabel:
+                  label: spector

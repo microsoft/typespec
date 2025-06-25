@@ -1,5 +1,7 @@
 import { fail, match, strictEqual } from "assert";
-import { Diagnostic, NoTarget, Type, formatDiagnostic, getSourceLocation } from "../core/index.js";
+import { getSourceLocation } from "../core/diagnostics.js";
+import { formatDiagnostic } from "../core/logger/console-sink.js";
+import { NoTarget, type Diagnostic } from "../core/types.js";
 import { isArray } from "../utils/misc.js";
 import { resolveVirtualPath } from "./test-utils.js";
 
@@ -14,7 +16,7 @@ export function expectDiagnosticEmpty(diagnostics: readonly Diagnostic[]) {
 }
 
 function formatDiagnostics(diagnostics: readonly Diagnostic[]) {
-  return diagnostics.map(formatDiagnostic).join("\n");
+  return diagnostics.map((x) => formatDiagnostic(x)).join("\n");
 }
 /**
  * Condition to match
@@ -142,18 +144,5 @@ function matchStrOrRegex(value: string, expectation: string | RegExp, assertMess
     strictEqual(value, expectation, assertMessage);
   } else {
     match(value, expectation, assertMessage);
-  }
-}
-
-/**
- * Replacement for strictEqual for identity check against types. strictEqual
- * does a really slow deep comparison for the error message when it fails in
- * order to show the diff. Just show the type names instead.
- */
-export function expectIdenticalTypes(a: Type, b: Type) {
-  if (a !== b) {
-    // Note: `||` instead of `??` is intentional to allow for anonymous types with name = `""`
-    strictEqual((a as any).name || "(anonymous type 1)", (b as any).name || "(anonymous type 2)");
-    fail(`Types are both named "${(a as any).name}", but they are not identical.`);
   }
 }

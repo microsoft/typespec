@@ -32,6 +32,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.template.ReadmeTemplate
 import com.microsoft.typespec.http.client.generator.mgmt.template.ResourceManagerUtilsTemplate;
 import com.microsoft.typespec.http.client.generator.mgmt.template.SampleTemplate;
 import java.util.List;
+import java.util.Optional;
 
 public class FluentJavaPackage extends JavaPackage {
 
@@ -96,11 +97,15 @@ public class FluentJavaPackage extends JavaPackage {
         addJavaFile(javaFile);
     }
 
-    public final JavaFile addSample(FluentExample example) {
+    public final Optional<JavaFile> addSample(FluentExample example) {
         JavaFile javaFile = getJavaFileFactory().createSampleFile(example.getPackageName(), example.getClassName());
         FluentExampleTemplate.getInstance().write(example, javaFile);
-        addJavaFile(javaFile);
-        return javaFile;
+        if (!checkDuplicateFile(javaFile.getFilePath())) {
+            addJavaFile(javaFile);
+            return Optional.of(javaFile);
+        } else {
+            return Optional.empty();
+        }
     }
 
     public void addOperationUnitTest(FluentMethodMockUnitTest unitTest) {
@@ -108,19 +113,16 @@ public class FluentJavaPackage extends JavaPackage {
         String className = unitTest.getResourceCollection().getInterfaceType().getName()
             + CodeNamer.toPascalCase(unitTest.getCollectionMethod().getMethodName());
 
-        final String classNameSuffix = "MockTests";
-
-        className = ClassNameUtil.truncateClassName(JavaSettings.getInstance().getPackage(), "src/tests/java"
-            // a hack to count "MockTests" suffix into the length of the full path
-            + classNameSuffix, packageName, className);
-
-        className += classNameSuffix;
+        className = ClassNameUtil.truncateClassName(JavaSettings.getInstance().getPackage(), "src/test/java",
+            packageName, className, "MockTests");
 
         JavaFile javaFile = getJavaFileFactory().createTestFile(packageName, className);
         FluentMethodMockTestTemplate.ClientMethodInfo info
             = new FluentMethodMockTestTemplate.ClientMethodInfo(className, unitTest);
         FluentMethodMockTestTemplate.getInstance().write(info, javaFile);
-        addJavaFile(javaFile);
+        if (!checkDuplicateFile(javaFile.getFilePath())) {
+            addJavaFile(javaFile);
+        }
     }
 
     public void addLiveTests(FluentLiveTests liveTests) {

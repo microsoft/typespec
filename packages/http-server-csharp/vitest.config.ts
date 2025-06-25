@@ -5,8 +5,9 @@ export default mergeConfig(
   defaultTypeSpecVitestConfig,
   defineConfig({
     test: {
-      testTimeout: 10000,
-      watchExclude: ["dist/**"],
+      testTimeout: 100_000,
+      include: ["test/**/*.test.ts"],
+      exclude: ["src/cli/*.ts"],
     },
   }),
 );

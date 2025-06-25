@@ -1,0 +1,49 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Generate typespec",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "args": [
+        "compile",
+        "${workspaceFolder}/node_modules/@azure-tools/azure-http-specs/specs/azure/core/page",
+        "--emit=${workspaceFolder}",
+        "--option=@typespec/http-client-python.debug=true"
+      ],
+      "program": "${workspaceFolder}/node_modules/@typespec/compiler/entrypoints/cli.js",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "node",
+      "smartStep": true,
+      "sourceMaps": true
+    },
+    {
+      "name": "Python: Attach",
+      "type": "debugpy",
+      "request": "attach",
+      "connect": {
+        "host": "localhost",
+        "port": 5678
+      }
+    },
+    {
+      "name": "alpha",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "args": [
+        "compile",
+        "${workspaceFolder}/alpha/main.tsp",
+        "--emit=${workspaceFolder}",
+        "--option=@typespec/http-client-python.flavor=azure"
+      ],
+      "program": "${workspaceFolder}/node_modules/@typespec/compiler/entrypoints/cli.js",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "node",
+      "smartStep": true,
+      "sourceMaps": true
+    }
+  ]
+}

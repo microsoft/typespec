@@ -33,6 +33,7 @@ extends:
                 persistCredentials: true
 
               - template: /eng/tsp-core/pipelines/templates/install.yml
+              - template: /eng/tsp-core/pipelines/templates/install-browsers.yml
 
               - template: /eng/tsp-core/pipelines/templates/build.yml
 
@@ -61,21 +62,47 @@ extends:
                       --destination \$web \
                       --account-name "tspwebsitepr" \
                       --destination-path $(TYPESPEC_WEBSITE_BASE_PATH) \
-                      --source "./packages/website/build/" \
+                      --source "./website/dist/" \
                       --overwrite
+              - task: CopyFiles@2
+                displayName: "Copy VSCode extension .vsix to artifact directory"
+                inputs:
+                  SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vscode"
+                  Contents: "*.vsix"
+                  TargetFolder: "$(Build.ArtifactStagingDirectory)/vscode-extension"
+            templateContext:
+              outputs:
+                - output: pipelineArtifact
+                  path: $(Build.ArtifactStagingDirectory)/vscode-extension
+                  artifact: vscode-extension
+                  displayName: Copy VSCode extension .vsix to artifact directory
+          - job: tryit_comment
+            displayName: Create TryIt comment
+            dependsOn: tryit
+            steps:
+              - pwsh: |
+                  $curlCommand = 'curl -s -u :$(System.AccessToken) "$(System.TeamFoundationCollectionUri)/$(System.TeamProject)/_apis/build/builds/$(Build.BuildId)/artifacts?artifactName=vscode-extension"'
+                  $response = Invoke-Expression $curlCommand
+                  $responseObject = $response | ConvertFrom-Json
+                  Write-Host "response: $response"
+                  $downloadUrl = $responseObject.resource.downloadUrl
+                  Write-Output "Artifact URL: $downloadUrl"
+                  Write-Host "##vso[task.setvariable variable=vscodeUrl]$downloadUrl"
+                displayName: Get vscode artifact URL
 
               - script: npx tsx eng/tsp-core/scripts/create-tryit-comment.ts
                 displayName: Check already commented
                 env:
                   GH_TOKEN: $(azuresdk-github-pat)
+                  VSCODE_DOWNLOAD_URL: $(vscodeUrl)
 
-          - job: change_comment
-            displayName: Describe changes on PR
-            condition: and(succeeded(), eq(startsWith(variables['System.PullRequest.SourceBranch'], 'publish/'), false))
-            steps:
-              - checkout: self
+          # - job: change_comment
+          #   displayName: Describe changes on PR
+          #   condition: and(succeeded(), eq(startsWith(variables['System.PullRequest.SourceBranch'], 'publish/'), false))
+          #   steps:
+          #     - checkout: self
 
-              - script: npx -p @chronus/github-pr-commenter@0.5.0 chronus-github-pr-commenter
-                displayName: Make comment about changes
-                env:
-                  GITHUB_TOKEN: $(azuresdk-github-pat)
+          #     - script: npx -p @chronus/github-pr-commenter@0.5.0 chronus-github-pr-commenter
+          #       displayName: Make comment about changes
+          #       env:
+          #         GITHUB_TOKEN: $(azuresdk-github-pat)

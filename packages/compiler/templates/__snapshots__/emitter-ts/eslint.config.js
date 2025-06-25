@@ -7,5 +7,5 @@ export default tsEslint.config(
     ignores: ["**/dist/**/*", "**/.temp/**/*"],
   },
   eslint.configs.recommended,
-  ...tsEslint.configs.recommended
+  ...tsEslint.configs.recommended,
 );

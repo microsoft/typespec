@@ -1,22 +1,22 @@
 import {
-  DecoratorContext,
-  Enum,
-  Model,
-  ModelProperty,
-  Namespace,
-  Numeric,
-  Program,
-  Scalar,
-  Tuple,
-  Type,
-  Union,
+  type DecoratorContext,
+  type Enum,
   isType,
+  type Model,
+  type Namespace,
+  type Program,
+  type Scalar,
+  serializeValueAsJson,
   setTypeSpecNamespace,
+  type Tuple,
+  type Type,
   typespecTypeToJson,
+  type Union,
+  type Value,
 } from "@typespec/compiler";
-import { ValidatesRawJsonDecorator } from "../generated-defs/TypeSpec.JsonSchema.Private.js";
-import {
-  BaseUriDecorator,
+import { useStateMap, useStateSet } from "@typespec/compiler/utils";
+import type { ValidatesRawJsonDecorator } from "../generated-defs/TypeSpec.JsonSchema.Private.js";
+import type {
   ContainsDecorator,
   ContentEncodingDecorator,
   ContentMediaTypeDecorator,
@@ -33,18 +33,26 @@ import {
   PrefixItemsDecorator,
   UniqueItemsDecorator,
 } from "../generated-defs/TypeSpec.JsonSchema.js";
-import { createStateSymbol } from "./lib.js";
+import { JsonSchemaStateKeys } from "./lib.js";
+import { createDataDecorator } from "./utils.js";
 
+/**
+ * TypeSpec Types that can create a json schmea declaration
+ */
 export type JsonSchemaDeclaration = Model | Union | Enum | Scalar;
 
-const jsonSchemaKey = createStateSymbol("JsonSchema");
-
+export const [
+  /** Check if the given type is annotated with `@jsonSchema`  */
+  getJsonSchema,
+  markJsonSchema,
+] = useStateSet(JsonSchemaStateKeys.JsonSchema);
+/** {@inheritdoc JsonSchemaDecorator} */
 export const $jsonSchema: JsonSchemaDecorator = (
   context: DecoratorContext,
   target: Type,
   baseUriOrId?: string,
 ) => {
-  context.program.stateSet(jsonSchemaKey).add(target);
+  markJsonSchema(context.program, target);
   if (baseUriOrId) {
     if (target.kind === "Namespace") {
       context.call($baseUri, target, baseUriOrId);
@@ -54,19 +62,15 @@ export const $jsonSchema: JsonSchemaDecorator = (
   }
 };
 
-const baseUriKey = createStateSymbol("JsonSchema.baseURI");
-export const $baseUri: BaseUriDecorator = (
-  context: DecoratorContext,
-  target: Namespace,
-  baseUri: string,
-) => {
-  context.program.stateMap(baseUriKey).set(target, baseUri);
-};
+export const [
+  /** Get base uri set via `@baseUri` decorator */
+  getBaseUri,
+  setBaseUri,
+  /** {@inheritdoc BaseUriDecorator} */
+  $baseUri,
+] = createDataDecorator(JsonSchemaStateKeys["JsonSchema.baseURI"]);
 
-export function getBaseUri(program: Program, target: Type) {
-  return program.stateMap(baseUriKey).get(target);
-}
-
+/** Find base uri for the given type. */
 export function findBaseUri(
   program: Program,
   target: JsonSchemaDeclaration | Namespace,
@@ -81,7 +85,12 @@ export function findBaseUri(
   return baseUrl;
 }
 
-export function isJsonSchemaDeclaration(program: Program, target: JsonSchemaDeclaration) {
+/**
+ * Check if the given type is annoted with `@jsonSchema` or within a container annoted with `@jsonSchema`.
+ * @param program TypeSpec program
+ * @param target Type
+ */
+export function isJsonSchemaDeclaration(program: Program, target: JsonSchemaDeclaration): boolean {
   let current: JsonSchemaDeclaration | Namespace | undefined = target;
   do {
     if (getJsonSchema(program, current)) {
@@ -94,195 +103,250 @@ export function isJsonSchemaDeclaration(program: Program, target: JsonSchemaDecl
   return false;
 }
 
+/**
+ * Returns types that are annotated with `@jsonSchema` or contained within a namespace that is annoted with `@jsonSchema`.
+ * @param program TypeSpec program
+ */
 export function getJsonSchemaTypes(program: Program): (Namespace | Model)[] {
-  return [...(program.stateSet(jsonSchemaKey) || [])] as (Namespace | Model)[];
+  const types: (Model | Namespace)[] = [];
+
+  function visitNamespace(ns: Namespace) {
+    if (getJsonSchema(program, ns)) {
+      types.push(ns);
+    }
+
+    for (const member of ns.models.values()) {
+      visitModel(member);
+    }
+    for (const member of ns.namespaces.values()) {
+      visitNamespace(member);
+    }
+  }
+
+  function visitModel(model: Model) {
+    if (isJsonSchemaDeclaration(program, model)) {
+      types.push(model);
+    }
+  }
+
+  visitNamespace(program.getGlobalNamespaceType());
+
+  return types;
 }
 
-export function getJsonSchema(program: Program, target: Type) {
-  return program.stateSet(jsonSchemaKey).has(target);
-}
+export const [
+  /** Get value set by `@multipleOf` decorator as a `Numeric` type. */
+  getMultipleOfAsNumeric,
+  setMultipleOf,
+  /** {@inheritdoc MultipleOfDecorator} */
 
-const multipleOfKey = createStateSymbol("JsonSchema.multipleOf");
-export const $multipleOf: MultipleOfDecorator = (
-  context: DecoratorContext,
-  target: Scalar | ModelProperty,
-  value: Numeric,
-) => {
-  context.program.stateMap(multipleOfKey).set(target, value);
-};
+  $multipleOf,
+] = createDataDecorator<MultipleOfDecorator, Type>(JsonSchemaStateKeys["JsonSchema.multipleOf"]);
 
-export function getMultipleOfAsNumeric(program: Program, target: Type): Numeric | undefined {
-  return program.stateMap(multipleOfKey).get(target);
-}
+/** Get value set by `@multipleOf` decorator as a `number` type. If the value is not representable as a number or not set, returns undefined. */
 export function getMultipleOf(program: Program, target: Type): number | undefined {
   return getMultipleOfAsNumeric(program, target)?.asNumber() ?? undefined;
 }
 
-const idKey = createStateSymbol("JsonSchema.id");
-export const $id: IdDecorator = (context: DecoratorContext, target: Type, value: string) => {
-  context.program.stateMap(idKey).set(target, value);
-};
+export const [
+  /** Get id as set with `@id` decorator. */
+  getId,
+  setId,
+  /** {@inheritdoc IdDecorator} */
+  $id,
+] = createDataDecorator<IdDecorator>(JsonSchemaStateKeys["JsonSchema.id"]);
 
-export function getId(program: Program, target: Type) {
-  return program.stateMap(idKey).get(target);
-}
+export const [
+  /** Check if given type is annotated with `@oneOf` decorator */
+  isOneOf,
+  markOneOf,
+] = useStateSet(JsonSchemaStateKeys["JsonSchema.oneOf"]);
 
-const oneOfKey = createStateSymbol("JsonSchema.oneOf");
+/** {@inheritdoc OneOfDecorator} */
 export const $oneOf: OneOfDecorator = (context: DecoratorContext, target: Type) => {
-  context.program.stateMap(oneOfKey).set(target, true);
+  markOneOf(context.program, target);
 };
 
-export function isOneOf(program: Program, target: Type) {
-  return program.stateMap(oneOfKey).has(target);
-}
+export const [
+  /** Get contains value set by `@contains` decorator */
+  getContains,
+  setContains,
+  /** {@inheritdoc ContainsDecorator} */
+  $contains,
+] = createDataDecorator<ContainsDecorator>(JsonSchemaStateKeys["JsonSchema.contains"]);
 
-const containsKey = createStateSymbol("JsonSchema.contains");
-export const $contains: ContainsDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  value: Type,
-) => {
-  context.program.stateMap(containsKey).set(target, value);
-};
+export const [
+  /** Get value set by `@minContains` decorator */
+  getMinContains,
+  setMinContains,
+  /** {@inheritdoc MinContainsDecorator} */
+  $minContains,
+] = createDataDecorator<MinContainsDecorator>(JsonSchemaStateKeys["JsonSchema.minContains"]);
 
-export function getContains(program: Program, target: Type) {
-  return program.stateMap(containsKey).get(target);
-}
+export const [
+  /** Get value set by `@maxContains` decorator */
+  getMaxContains,
+  setMaxContains,
+  /** {@inheritdoc MaxContainsDecorator} */
+  $maxContains,
+] = createDataDecorator<MaxContainsDecorator>(JsonSchemaStateKeys["JsonSchema.maxContains"]);
 
-const minContainsKey = createStateSymbol("JsonSchema.minContains");
-export const $minContains: MinContainsDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  value: number,
-) => {
-  context.program.stateMap(minContainsKey).set(target, value);
-};
+export const [
+  /** Check if the given array is annotated with `@uniqueItems` decorator */
+  getUniqueItems,
+  setUniqueItems,
+] = useStateMap(JsonSchemaStateKeys["JsonSchema.uniqueItems"]);
+/** {@inheritdoc UniqueItemsDecorator} */
+export const $uniqueItems: UniqueItemsDecorator = (context: DecoratorContext, target: Type) =>
+  setUniqueItems(context.program, target, true);
 
-export function getMinContains(program: Program, target: Type) {
-  return program.stateMap(minContainsKey).get(target);
-}
+export const [
+  /** Get minimum number of properties set by `@minProperties` decorator */
+  getMinProperties,
+  setMinProperties,
+  /** {@inheritdoc MinPropertiesDecorator} */
+  $minProperties,
+] = createDataDecorator<MinPropertiesDecorator>(JsonSchemaStateKeys["JsonSchema.minProperties"]);
 
-const maxContainsKey = createStateSymbol("JsonSchema.maxContains");
-export const $maxContains: MaxContainsDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  value: number,
-) => {
-  context.program.stateMap(maxContainsKey).set(target, value);
-};
+export const [
+  /** Get maximum number of properties set by `@maxProperties` decorator */
 
-export function getMaxContains(program: Program, target: Type) {
-  return program.stateMap(maxContainsKey).get(target);
-}
+  getMaxProperties,
+  setMaxProperties,
+  /** {@inheritdoc MaxPropertiesDecorator} */
+  $maxProperties,
+] = createDataDecorator<MaxPropertiesDecorator>(JsonSchemaStateKeys["JsonSchema.maxProperties"]);
 
-const uniqueItemsKey = createStateSymbol("JsonSchema.uniqueItems");
-export const $uniqueItems: UniqueItemsDecorator = (context: DecoratorContext, target: Type) => {
-  context.program.stateMap(uniqueItemsKey).set(target, true);
-};
+export const [
+  /** Get content encoding as configured by `@contentEncoding` decorator. */
+  getContentEncoding,
+  setContentEncoding,
+  /** {@inheritdoc ContentEncodingDecorator} */
+  $contentEncoding,
+] = createDataDecorator<ContentEncodingDecorator, Type>(
+  JsonSchemaStateKeys["JsonSchema.contentEncoding"],
+);
 
-export function getUniqueItems(program: Program, target: Type) {
-  return program.stateMap(uniqueItemsKey).get(target);
-}
+export const [
+  /** Get content media type as configured by `@contentMediaType` decorator. */
+  getContentMediaType,
+  setContentMediaType,
+  /** {@inheritdoc ContentMediaTypeDecorator} */
+  $contentMediaType,
+] = createDataDecorator<ContentMediaTypeDecorator, Type>(
+  JsonSchemaStateKeys["JsonSchema.contentMediaType"],
+);
 
-const minPropertiesKey = createStateSymbol("JsonSchema.minProperties");
-export const $minProperties: MinPropertiesDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  value: number,
-) => {
-  context.program.stateMap(minPropertiesKey).set(target, value);
-};
+export const [
+  /** Get content schema set with `@contentSchema` decorator */
+  getContentSchema,
+  setContentSchema,
+  /** {@inheritdoc ContentSchemaDecorator} */
+  $contentSchema,
+] = createDataDecorator<ContentSchemaDecorator, Type>(
+  JsonSchemaStateKeys["JsonSchema.contentSchema"],
+);
 
-export function getMinProperties(program: Program, target: Type) {
-  return program.stateMap(minPropertiesKey).get(target);
-}
+export const [
+  /** Get prefix items set with `@prefixItems` decorator */
+  getPrefixItems,
+  setPrefixItems,
+] = useStateMap<Type, Tuple>(JsonSchemaStateKeys["JsonSchema.prefixItems"]);
 
-const maxPropertiesKey = createStateSymbol("JsonSchema.maxProperties");
-export const $maxProperties: MaxPropertiesDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  value: number,
-) => {
-  context.program.stateMap(maxPropertiesKey).set(target, value);
-};
-
-export function getMaxProperties(program: Program, target: Type) {
-  return program.stateMap(maxPropertiesKey).get(target);
-}
-
-const contentEncodingKey = createStateSymbol("JsonSchema.contentEncoding");
-export const $contentEncoding: ContentEncodingDecorator = (
-  context: DecoratorContext,
-  target: Scalar | ModelProperty,
-  value: string,
-) => {
-  context.program.stateMap(contentEncodingKey).set(target, value);
-};
-
-export function getContentEncoding(program: Program, target: Type): string {
-  return program.stateMap(contentEncodingKey).get(target);
-}
-
-const contentMediaType = createStateSymbol("JsonSchema.contentMediaType");
-export const $contentMediaType: ContentMediaTypeDecorator = (
-  context: DecoratorContext,
-  target: Scalar | ModelProperty,
-  value: string,
-) => {
-  context.program.stateMap(contentMediaType).set(target, value);
-};
-
-export function getContentMediaType(program: Program, target: Type): string {
-  return program.stateMap(contentMediaType).get(target);
-}
-
-const contentSchemaKey = createStateSymbol("JsonSchema.contentSchema");
-export const $contentSchema: ContentSchemaDecorator = (
-  context: DecoratorContext,
-  target: Scalar | ModelProperty,
-  value: Type,
-) => {
-  context.program.stateMap(contentSchemaKey).set(target, value);
-};
-
-export function getContentSchema(program: Program, target: Type) {
-  return program.stateMap(contentSchemaKey).get(target);
-}
-
-const prefixItemsKey = createStateSymbol("JsonSchema.prefixItems");
+/** {@inheritdoc PrefixItemsDecorator} */
 export const $prefixItems: PrefixItemsDecorator = (
   context: DecoratorContext,
   target: Type,
   value: Type,
 ) => {
-  context.program.stateMap(prefixItemsKey).set(target, value);
+  setPrefixItems(context.program, target, value as Tuple); // This cast is incorrect and would cause a crash https://github.com/microsoft/typespec/issues/4742
 };
 
-export function getPrefixItems(program: Program, target: Type): Tuple | undefined {
-  return program.stateMap(prefixItemsKey).get(target);
-}
-
+/**
+ * Data type containing information about an extension.
+ */
 export interface ExtensionRecord {
+  /** Extension key */
   key: string;
+  /** Extension value */
   value: Type | unknown;
 }
 
-const extensionsKey = createStateSymbol("JsonSchema.extension");
+const [getExtensionsInternal, _, getExtensionsStateMap] = useStateMap<Type, ExtensionRecord[]>(
+  JsonSchemaStateKeys["JsonSchema.extension"],
+);
+/** {@inheritdoc ExtensionDecorator} */
 export const $extension: ExtensionDecorator = (
   context: DecoratorContext,
   target: Type,
   key: string,
   value: unknown,
 ) => {
+  if (!isTypeLike(value)) {
+    value = convertRemainingValuesToExtensions(context.program, value);
+  }
   setExtension(context.program, target, key, value);
 };
 
-export function getExtensions(program: Program, target: Type): ExtensionRecord[] {
-  return program.stateMap(extensionsKey).get(target) ?? [];
+// Workaround until we have a way to disable arg marshalling and just call serializeValueAsJson
+// https://github.com/microsoft/typespec/issues/3570
+function convertRemainingValuesToExtensions(program: Program, value: unknown): unknown {
+  switch (typeof value) {
+    case "string":
+    case "number":
+    case "boolean":
+      return value;
+    case "object":
+      if (value === null) {
+        return null;
+      }
+      if (Array.isArray(value)) {
+        return value.map((x) => convertRemainingValuesToExtensions(program, x));
+      }
+
+      if (isTypeSpecValue(value)) {
+        return serializeValueAsJson(program, value, value.type);
+      } else {
+        const result: Record<string, unknown> = {};
+        for (const [key, val] of Object.entries(value)) {
+          if (val === undefined) {
+            continue;
+          }
+          result[key] = convertRemainingValuesToExtensions(program, val);
+        }
+        return result;
+      }
+    default:
+      return value;
+  }
 }
 
+function isTypeLike(value: any): value is Type {
+  return typeof value === "object" && value !== null && isType(value);
+}
+
+function isTypeSpecValue(value: object): value is Value {
+  return "entityKind" in value && value.entityKind === "Value";
+}
+
+/**
+ * Get extensions set via the `@extension` decorator on the given type
+ * @param program TypeSpec program
+ * @param target Type
+ */
+export function getExtensions(program: Program, target: Type): ExtensionRecord[] {
+  return getExtensionsInternal(program, target) ?? [];
+}
+/**
+ * Set extension on the given type(Same as calling `@extension` decorator)
+ * @param program TypeSpec program
+ * @param target Type
+ * @param key Extension key
+ * @param value Extension value
+ */
 export function setExtension(program: Program, target: Type, key: string, value: unknown) {
-  const stateMap = program.stateMap(extensionsKey) as Map<Type, ExtensionRecord[]>;
+  const stateMap = getExtensionsStateMap(program);
+
   const extensions = stateMap.has(target)
     ? stateMap.get(target)!
     : stateMap.set(target, []).get(target)!;
@@ -311,6 +375,7 @@ function isJsonTemplateType(
   );
 }
 
+/** @internal */
 export const $validatesRawJson: ValidatesRawJsonDecorator = (
   context: DecoratorContext,
   target: Model,

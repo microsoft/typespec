@@ -3,17 +3,14 @@
 
 package com.microsoft.typespec.http.client.generator.core.util;
 
-import com.azure.core.http.HttpMethod;
 import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.AnySchema;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Header;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.KnownMediaType;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Metadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Property;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Response;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SchemaContext;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
@@ -98,38 +95,40 @@ public class SchemaUtil {
      * For vanilla/mgmt, returns InputStream
      */
     public static IType getOperationResponseType(Operation operation, JavaSettings settings) {
-        Schema responseBodySchema = SchemaUtil.getLowestCommonParent(
-            operation.getResponses().stream().map(Response::getSchema).filter(Objects::nonNull).iterator());
-
+        final Schema responseBodySchema = SchemaUtil.getLowestCommonParent(operation.getResponseSchemas().iterator());
         return getOperationResponseType(responseBodySchema, operation, settings);
     }
 
     /*
      * Returns raw response type.
      * In case of binary response:
-     * For DPG, returns BinaryData
-     * For vanilla/mgmt, returns InputStream
+     *
+     * 1. response.binary=true(e.g. Content-Type=application/zip):
+     * For DPG, returns BinaryData.
+     * For vanilla/mgmt, returns InputStream if use-input-stream-for-binary=true, otherwise, returns BinaryData.
+     *
+     * 2. response with BinarySchema(e.g. Content-Type=text/powershell):
+     * For vanilla, returns Flux<ByteBuffer>.
+     * For DPG/mgmt, returns BinaryData.
      */
     public static IType getOperationResponseType(Schema responseBodySchema, Operation operation,
         JavaSettings settings) {
-        IType responseBodyType = Mappers.getSchemaMapper().map(responseBodySchema);
-
-        if (responseBodyType == null) {
-            if (operationIsHeadAsBoolean(operation)) {
-                // Azure core would internally convert the response status code to boolean.
-                responseBodyType = PrimitiveType.BOOLEAN;
-            } else if (containsBinaryResponse(operation)) {
-                if (settings.isDataPlaneClient() || !settings.isInputStreamForBinary()) {
-                    responseBodyType = ClassType.BINARY_DATA;
-                } else {
-                    responseBodyType = ClassType.INPUT_STREAM;
-                }
+        final IType responseBodyType = Mappers.getSchemaMapper().map(responseBodySchema);
+        if (responseBodyType != null) {
+            return responseBodyType;
+        }
+        if (operation.checksResourceExistenceWithHead()) {
+            // Azure core would internally convert the response status code of HEAD to boolean.
+            return PrimitiveType.BOOLEAN;
+        }
+        if (operation.hasBinaryResponse()) {
+            if (settings.isDataPlaneClient() || !settings.isInputStreamForBinary()) {
+                return ClassType.BINARY_DATA;
             } else {
-                responseBodyType = PrimitiveType.VOID;
+                return ClassType.INPUT_STREAM;
             }
         }
-
-        return responseBodyType;
+        return PrimitiveType.VOID;
     }
 
     public static Property getDiscriminatorProperty(ObjectSchema compositeType) {
@@ -173,23 +172,18 @@ public class SchemaUtil {
 
     /**
      * Whether response contains header schemas.
-     * <p>
-     * Response headers will be omitted, as polling method has return type as SyncPoller or PollerFlux, not Response.
      *
      * @param operation the operation
      * @param settings the JavaSetting object
      * @return whether response of the operation contains headers
      */
     public static boolean responseContainsHeaderSchemas(Operation operation, JavaSettings settings) {
-        return operation.getResponses()
-            .stream()
-            .filter(r -> r.getProtocol() != null
-                && r.getProtocol().getHttp() != null
-                && r.getProtocol().getHttp().getHeaders() != null)
-            .flatMap(r -> r.getProtocol().getHttp().getHeaders().stream().map(Header::getSchema))
-            .anyMatch(Objects::nonNull)
-            && operationIsNotFluentLRO(operation, settings)
-            && operationIsNotDataPlaneLRO(operation, settings);
+        if (operation.isLro() && (settings.isFluent() || settings.isDataPlaneClient())) {
+            // Response headers will be omitted, as LRO method has return type as SyncPoller or PollerFlux, not
+            // Response.
+            return false;
+        }
+        return operation.hasHeaderSchemaResponse();
     }
 
     /**
@@ -218,39 +212,32 @@ public class SchemaUtil {
     }
 
     public static IType removeModelFromParameter(RequestParameterLocation parameterRequestLocation, IType type) {
-        IType returnType = type;
         if (parameterRequestLocation == RequestParameterLocation.BODY) {
-            returnType = ClassType.BINARY_DATA;
-        } else if (!(returnType instanceof PrimitiveType)) {
-            if (type instanceof EnumType) {
-                returnType = ClassType.STRING;
-            }
-            if (type instanceof IterableType && ((IterableType) type).getElementType() instanceof EnumType) {
-                returnType = new IterableType(ClassType.STRING);
-            }
-            if (type instanceof ListType && ((ListType) type).getElementType() instanceof EnumType) {
-                returnType = new ListType(ClassType.STRING);
-            }
+            return ClassType.BINARY_DATA;
         }
-        return returnType;
-    }
-
-    public static IType removeModelFromResponse(IType type, Operation operation) {
-        if (type.asNullable() != ClassType.VOID) {
-            if (!operationIsHeadAsBoolean(operation)) {
-                type = ClassType.BINARY_DATA;
-            }
+        if (type instanceof PrimitiveType) {
+            return type;
+        }
+        if (type instanceof EnumType) {
+            return ClassType.STRING;
+        }
+        if (type instanceof ListType && ((ListType) type).getElementType() instanceof EnumType) {
+            return new ListType(ClassType.STRING);
+        }
+        if (type instanceof IterableType && ((IterableType) type).getElementType() instanceof EnumType) {
+            return new IterableType(ClassType.STRING);
         }
         return type;
     }
 
-    private static boolean operationIsHeadAsBoolean(Operation operation) {
-        return operation.getRequests()
-            .stream()
-            .anyMatch(req -> HttpMethod.HEAD.name().equalsIgnoreCase(req.getProtocol().getHttp().getMethod()))
-            && operation.getResponses()
-                .stream()
-                .anyMatch(r -> r.getProtocol().getHttp().getStatusCodes().contains("404"));
+    public static IType tryMapToBinaryData(IType type, Operation operation) {
+        if (type.asNullable() == ClassType.VOID) {
+            return type;
+        }
+        if (operation.checksResourceExistenceWithHead()) {
+            return type;
+        }
+        return ClassType.BINARY_DATA;
     }
 
     /**
@@ -270,13 +257,17 @@ public class SchemaUtil {
             if (!CoreUtils.isNullOrEmpty(namespace) && !CoreUtils.isNullOrEmpty(name)) {
                 if (Objects.equals(namespace, "Azure.Core.Foundations")) {
                     // https://github.com/Azure/azure-sdk-for-java/blob/main/sdk/core/azure-core/src/main/java/com/azure/core/models/ResponseError.java
-                    if (Objects.equals(name, "Error")) {
+                    if (Objects.equals(name, "Error")
+                        || (Objects.equals(SchemaUtil.getCrossLanguageDefinitionId(compositeType),
+                            "Azure.Core.Foundations.Error"))
+                        || Objects.equals(name, "ErrorResponse")) {
                         classType = ClassType.RESPONSE_ERROR;
-                    } else if (Objects.equals(name, "InnerError")) {
-                        // InnerError is not public, but usually it is only referenced from Error
-                        classType = ClassType.RESPONSE_INNER_ERROR;
                     }
-                    // ErrorResponse is not available, but that should only be used in Exception
+                    /*
+                     * ResponseInnerError is not public, however it could be exposed via "innererror" when a model
+                     * extends Error.
+                     * In this case, generator would had to generate a class.
+                     */
                 }
 
                 if (compositeType.getLanguage().getJava() != null
@@ -287,11 +278,11 @@ public class SchemaUtil {
                         && Objects.equals(compositeType.getLanguage().getJava().getNamespace(),
                             ClassType.POLL_OPERATION_DETAILS.getPackage())) {
                         classType = ClassType.POLL_OPERATION_DETAILS;
-                    } else if (Objects.equals(name, ClassType.REQUEST_CONDITIONS.getName())
+                    } else if (ClassType.REQUEST_CONDITIONS.getName().endsWith(name)
                         && Objects.equals(compositeType.getLanguage().getJava().getNamespace(),
                             ClassType.REQUEST_CONDITIONS.getPackage())) {
                         classType = ClassType.REQUEST_CONDITIONS;
-                    } else if (Objects.equals(name, ClassType.MATCH_CONDITIONS.getName())
+                    } else if (ClassType.MATCH_CONDITIONS.getName().endsWith(name)
                         && Objects.equals(compositeType.getLanguage().getJava().getNamespace(),
                             ClassType.REQUEST_CONDITIONS.getPackage())) {
                         classType = ClassType.MATCH_CONDITIONS;
@@ -315,28 +306,18 @@ public class SchemaUtil {
         return schemaContexts.stream().map(ImplementationDetails.Usage::fromSchemaContext).collect(Collectors.toSet());
     }
 
-    private static boolean containsBinaryResponse(Operation operation) {
-        return operation.getResponses().stream().anyMatch(r -> Boolean.TRUE.equals(r.getBinary()));
-    }
-
-    // SyncPoller or PollerFlux does not contain full Response and hence does not have headers
-    private static boolean operationIsNotFluentLRO(Operation operation, JavaSettings settings) {
-        return !(settings.isFluent()
-            && operation.getExtensions() != null
-            && operation.getExtensions().isXmsLongRunningOperation());
-    }
-
-    private static boolean operationIsNotDataPlaneLRO(Operation operation, JavaSettings settings) {
-        return !(settings.isDataPlaneClient()
-            && operation.getExtensions() != null
-            && operation.getExtensions().isXmsLongRunningOperation());
-    }
-
     public static String getDefaultName(Metadata m) {
         if (m.getLanguage() == null || m.getLanguage().getDefault() == null) {
             return null;
         }
         return m.getLanguage().getDefault().getName();
+    }
+
+    public static String getCrossLanguageDefinitionId(Metadata m) {
+        if (m.getLanguage() == null || m.getLanguage().getDefault() == null) {
+            return null;
+        }
+        return m.getLanguage().getDefault().getCrossLanguageDefinitionId();
     }
 
     public static String getJavaName(Metadata m) {

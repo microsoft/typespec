@@ -1,11 +1,14 @@
+vi.resetModules();
+
 import { TestHost } from "@typespec/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { ok } from "assert/strict";
+import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import {
+  createCSharpSdkContext,
   createEmitterContext,
   createEmitterTestHost,
-  createNetSdkContext,
   typeSpecCompile,
 } from "./utils/test-util.js";
 
@@ -28,13 +31,16 @@ describe("Test emitting decorator list", () => {
       { IsTCGCNeeded: true, IsXmlNeeded: true },
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context, {
+    const sdkContext = await createCSharpSdkContext(context, {
       additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@clientName"],
     });
     const root = createModel(sdkContext);
-    const clients = root.Clients;
-    strictEqual(clients.length, 2);
-    deepStrictEqual(clients[1].Decorators, [
+    const clients = root.clients;
+    strictEqual(clients.length, 1);
+    ok(clients[0].children);
+    strictEqual(clients[0].children.length, 1);
+    const childClient = clients[0].children[0];
+    deepStrictEqual(childClient.decorators, [
       {
         name: "Azure.ClientGenerator.Core.@clientName",
         arguments: {
@@ -57,13 +63,14 @@ describe("Test emitting decorator list", () => {
       { IsTCGCNeeded: true, IsXmlNeeded: true },
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context, {
+    const sdkContext = await createCSharpSdkContext(context, {
       additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@clientName"],
     });
     const root = createModel(sdkContext);
-    const operations = root.Clients[0].Operations;
-    strictEqual(operations.length, 1);
-    deepStrictEqual(operations[0].Decorators, [
+    const methods = root.clients[0].methods;
+    strictEqual(methods.length, 1);
+    const operation = methods[0].operation;
+    deepStrictEqual(operation.decorators, [
       {
         name: "Azure.ClientGenerator.Core.@clientName",
         arguments: {
@@ -87,11 +94,11 @@ describe("Test emitting decorator list", () => {
       { IsTCGCNeeded: true, IsXmlNeeded: true },
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context, {
+    const sdkContext = await createCSharpSdkContext(context, {
       additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@clientName"],
     });
     const root = createModel(sdkContext);
-    const models = root.Models;
+    const models = root.models;
     strictEqual(models.length, 1);
     deepStrictEqual(models[0].decorators, [
       {
@@ -117,11 +124,11 @@ describe("Test emitting decorator list", () => {
       { IsTCGCNeeded: true, IsXmlNeeded: true },
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context, {
+    const sdkContext = await createCSharpSdkContext(context, {
       additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@clientName"],
     });
     const root = createModel(sdkContext);
-    const models = root.Models;
+    const models = root.models;
     strictEqual(models.length, 1);
     deepStrictEqual(models[0].properties[0].decorators, [
       {
@@ -143,15 +150,16 @@ describe("Test emitting decorator list", () => {
       { IsTCGCNeeded: true, IsXmlNeeded: true },
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context, {
+    const sdkContext = await createCSharpSdkContext(context, {
       additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@clientName"],
     });
     const root = createModel(sdkContext);
-    const operations = root.Clients[0].Operations;
-    strictEqual(operations.length, 1);
-    const idParameters = operations[0].Parameters.filter((p) => p.Name === "ClientId");
+    const methods = root.clients[0].methods;
+    strictEqual(methods.length, 1);
+    const operation = methods[0].operation;
+    const idParameters = operation.parameters.filter((p) => p.name === "ClientId");
     strictEqual(idParameters.length, 1);
-    deepStrictEqual(idParameters[0].Decorators, [
+    deepStrictEqual(idParameters[0].decorators, [
       {
         name: "Azure.ClientGenerator.Core.@clientName",
         arguments: {

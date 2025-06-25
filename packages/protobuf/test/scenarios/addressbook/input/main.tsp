@@ -1,8 +1,8 @@
 import "@typespec/protobuf";
 import "./addressbook.tsp";
 
-using TypeSpec.Protobuf;
-using TypeSpec.Protobuf.WellKnown;
+using Protobuf;
+using Protobuf.WellKnown;
 
 @package
 namespace Example;

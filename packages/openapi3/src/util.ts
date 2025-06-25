@@ -1,5 +1,20 @@
-import { HttpOperation } from "@typespec/http";
-
+import {
+  BooleanLiteral,
+  getEncode,
+  IntrinsicScalarName,
+  isTemplateDeclaration,
+  Model,
+  ModelProperty,
+  NumericLiteral,
+  Program,
+  Scalar,
+  serializeValueAsJson,
+  StringLiteral,
+  Type,
+  Value,
+} from "@typespec/compiler";
+import { HttpOperation, HttpProperty } from "@typespec/http";
+import { createDiagnostic } from "./lib.js";
 /**
  * Checks if two objects are deeply equal.
  *
@@ -86,4 +101,102 @@ export function isSharedHttpOperation(
   operation: HttpOperation | SharedHttpOperation,
 ): operation is SharedHttpOperation {
   return (operation as SharedHttpOperation).kind === "shared";
+}
+
+export function isStdType(
+  program: Program,
+  type: Type,
+): type is Scalar & { name: IntrinsicScalarName } {
+  return program.checker.isStdType(type);
+}
+
+export function isLiteralType(type: Type): type is StringLiteral | NumericLiteral | BooleanLiteral {
+  return type.kind === "Boolean" || type.kind === "String" || type.kind === "Number";
+}
+
+export function literalType(type: StringLiteral | NumericLiteral | BooleanLiteral) {
+  switch (type.kind) {
+    case "String":
+      return "string";
+    case "Number":
+      return "number";
+    case "Boolean":
+      return "boolean";
+  }
+}
+
+export function includeDerivedModel(model: Model): boolean {
+  return (
+    !isTemplateDeclaration(model) &&
+    (model.templateMapper?.args === undefined ||
+      model.templateMapper.args?.length === 0 ||
+      model.derivedModels.length > 0)
+  );
+}
+
+export function isScalarExtendsBytes(type: Type): boolean {
+  if (type.kind !== "Scalar") {
+    return false;
+  }
+  let current: Scalar | undefined = type;
+  while (current) {
+    if (current.name === "bytes") {
+      return true;
+    }
+    current = current.baseScalar;
+  }
+  return false;
+}
+
+export function getDefaultValue(
+  program: Program,
+  defaultType: Value,
+  modelProperty: ModelProperty,
+): any {
+  return serializeValueAsJson(program, defaultType, modelProperty);
+}
+
+export function isBytesKeptRaw(program: Program, type: Type) {
+  return type.kind === "Scalar" && type.name === "bytes" && getEncode(program, type) === undefined;
+}
+
+export function ensureValidComponentFixedFieldKey(
+  program: Program,
+  type: Type,
+  oldKey: string,
+): string {
+  if (isValidComponentFixedFieldKey(oldKey)) return oldKey;
+  reportInvalidKey(program, type, oldKey);
+  return createValidKey(oldKey);
+}
+
+function isValidComponentFixedFieldKey(key: string) {
+  const validPattern = /^[a-zA-Z0-9.\-_]+$/;
+  return validPattern.test(key);
+}
+
+function reportInvalidKey(program: Program, type: Type, key: string) {
+  const diagnostic = createDiagnostic({
+    code: "invalid-component-fixed-field-key",
+    format: {
+      value: key,
+    },
+    target: type,
+  });
+  return program.reportDiagnostic(diagnostic);
+}
+
+function createValidKey(invalidKey: string): string {
+  return invalidKey.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+}
+
+export type HttpParameterProperties = Extract<
+  HttpProperty,
+  { kind: "header" | "query" | "path" | "cookie" }
+>;
+
+export function isHttpParameterProperty(
+  httpProperty: HttpProperty,
+): httpProperty is HttpParameterProperties {
+  return ["header", "query", "path", "cookie"].includes(httpProperty.kind);
 }

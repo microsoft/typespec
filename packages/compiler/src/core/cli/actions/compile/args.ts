@@ -1,11 +1,16 @@
 import { resolveCompilerOptions } from "../../../../config/config-to-options.js";
 import { omitUndefined } from "../../../../utils/misc.js";
 import { createDiagnosticCollector } from "../../../diagnostics.js";
+import { createDiagnostic } from "../../../messages.js";
 import { CompilerOptions } from "../../../options.js";
 import { resolvePath } from "../../../path-utils.js";
-import { CompilerHost, Diagnostic } from "../../../types.js";
+import { CompilerHost, Diagnostic, NoTarget } from "../../../types.js";
 
 export interface CompileCliArgs {
+  path?: string;
+  pretty?: boolean;
+  /** Print statistics about the compilation(Task duration, types created, etc.) */
+  stats?: boolean;
   "output-dir"?: string;
   "output-path"?: string;
   nostdlib?: boolean;
@@ -17,7 +22,9 @@ export interface CompileCliArgs {
   debug?: boolean;
   config?: string;
   "warn-as-error"?: boolean;
+  "list-files"?: boolean;
   "no-emit"?: boolean;
+  "dry-run"?: boolean;
   "ignore-deprecated"?: boolean;
   args?: string[];
 }
@@ -38,7 +45,7 @@ export async function getCompilerOptions(
       : resolvePath(cwd, pathArg)
     : undefined;
 
-  const cliOptions = resolveCliOptions(args);
+  const cliOptions = diagnostics.pipe(resolveCliOptions(args));
   const resolvedOptions = diagnostics.pipe(
     await resolveCompilerOptions(host, {
       entrypoint,
@@ -58,6 +65,10 @@ export async function getCompilerOptions(
   );
   if (args["no-emit"]) {
     resolvedOptions.noEmit = true;
+  } else if (args["list-files"]) {
+    resolvedOptions.listFiles = true;
+  } else if (args["dry-run"]) {
+    resolvedOptions.dryRun = true;
   }
 
   return diagnostics.wrap(
@@ -81,20 +92,30 @@ function resolveConfigArgs(args: CompileCliArgs): Record<string, string> {
 
   return map;
 }
-function resolveCliOptions(args: CompileCliArgs): {
-  options: Record<string, Record<string, unknown>>;
-  miscOptions: Record<string, string> | undefined;
-} {
+
+function resolveCliOptions(args: CompileCliArgs): [
+  {
+    options: Record<string, Record<string, unknown>>;
+    miscOptions: Record<string, string> | undefined;
+  },
+  readonly Diagnostic[],
+] {
+  const diagnostics: Diagnostic[] = [];
   let miscOptions: Record<string, string> | undefined;
-  const options: Record<string, Record<string, string>> = {};
+  const options: Record<string, any> = {};
   for (const option of args.options ?? []) {
     const optionParts = option.split("=");
     if (optionParts.length !== 2) {
-      throw new Error(
-        `The --option parameter value "${option}" must be in the format: <emitterName>.some-options=value`,
+      diagnostics.push(
+        createDiagnostic({
+          code: "invalid-option-flag",
+          target: NoTarget,
+          format: { value: option },
+        }),
       );
+      continue;
     }
-    let optionKeyParts = optionParts[0].split(".");
+    const optionKeyParts = optionParts[0].split(".");
     if (optionKeyParts.length === 1) {
       const key = optionKeyParts[0];
       if (miscOptions === undefined) {
@@ -102,19 +123,21 @@ function resolveCliOptions(args: CompileCliArgs): {
       }
       miscOptions[key] = optionParts[1];
       continue;
-    } else if (optionKeyParts.length > 2) {
-      // support emitter/path/file.js.option=xyz
-      optionKeyParts = [
-        optionKeyParts.slice(0, -1).join("."),
-        optionKeyParts[optionKeyParts.length - 1],
-      ];
     }
-    const emitterName = optionKeyParts[0];
-    const key = optionKeyParts[1];
-    if (!(emitterName in options)) {
-      options[emitterName] = {};
+
+    let current: any = options;
+    for (let i = 0; i < optionKeyParts.length; i++) {
+      const part = optionKeyParts[i];
+      if (i === optionKeyParts.length - 1) {
+        current[part] = optionParts[1];
+      } else {
+        if (!current[part]) {
+          current[part] = {};
+        }
+        current = current[part];
+      }
     }
-    options[emitterName][key] = optionParts[1];
   }
-  return { options, miscOptions };
+
+  return [{ options, miscOptions }, diagnostics];
 }

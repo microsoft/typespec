@@ -7,9 +7,9 @@
         super().__init__()
     {% endif %}
         {% if client.has_parameterized_host %}
-        {{ serializer.host_variable_name }} = {{ keywords.escape_str(client.url) }}{{ client.url_pylint_disable }}
+        {{ serializer.host_variable_name }} = {{ keywords.escape_str(client.url) }}
         {% endif %}
-        {{ serializer.initialize_config() }}
+        {{ op_tools.serialize(serializer.initialize_config()) | indent(8) }}
         {{ op_tools.serialize(serializer.initialize_pipeline_client(async_mode)) | indent(8) }}
 
         {{ op_tools.serialize(serializer.serializers_and_operation_groups_properties()) | indent(8) }}

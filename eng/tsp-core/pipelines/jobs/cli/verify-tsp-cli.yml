@@ -1,0 +1,51 @@
+# Job to verify the tsp cli was built/signed correctly
+
+parameters:
+  - name: platform
+    type: string
+  - name: artifactName
+    type: string
+  - name: exePath # Path relative to the artifact root
+    type: string
+
+jobs:
+  - job: verify_${{ replace(parameters.platform, '-', '_') }}
+    displayName: Verify ${{ parameters.platform }}
+    pool:
+      ${{ if eq(parameters.platform, 'linux-x64') }}:
+        name: $(LINUXPOOL)
+        image: $(LINUXVMIMAGE)
+        os: linux
+      ${{ if eq(parameters.platform, 'linux-arm64') }}:
+        name: $(LINUXARMPOOL)
+        image: $(LINUXARMVMIMAGE)
+        os: linux
+        hostArchitecture: arm64
+      ${{ if eq(parameters.platform, 'macos-x64') }}:
+        name: $(MACPOOL)
+        vmImage: $(MACVMIMAGE13)
+        os: macOS
+      ${{ if eq(parameters.platform, 'macos-arm64') }}:
+        name: $(MACPOOL)
+        vmImage: $(MACVMIMAGE)
+        os: macOS
+      ${{ if eq(parameters.platform, 'windows-x64') }}:
+        name: $(WINDOWSPOOL)
+        image: $(WINDOWSVMIMAGE)
+        os: windows
+      ${{ if eq(parameters.platform, 'windows-arm64') }}:
+        name: $(ARMPOOL)
+        image: $(WINDOWSARMVMIMAGE)
+        os: windows
+
+    steps:
+      - download: current
+        artifact: ${{ parameters.artifactName }}
+        displayName: Download binary
+
+      - ${{ if not(startsWith(parameters.platform, 'windows')) }}:
+          - script: chmod +x $(Pipeline.Workspace)/${{parameters.artifactName}}/${{parameters.exePath}}
+            displayName: Set permissions
+
+      - script: $(Pipeline.Workspace)/${{parameters.artifactName}}/${{parameters.exePath}} --help
+        displayName: Verify binary

@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceVersion;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
@@ -23,7 +24,7 @@ public class ServiceVersionTemplate implements IJavaTemplate<ServiceVersion, Jav
     public void write(ServiceVersion serviceVersion, JavaFile javaFile) {
         // imports
         Set<String> imports = new HashSet<>();
-        imports.add("com.azure.core.util.ServiceVersion");
+        ClassType.SERVICE_VERSION.addImportsTo(imports, false);
         javaFile.declareImport(imports);
 
         javaFile.javadocComment(comment -> {

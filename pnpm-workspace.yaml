@@ -1,6 +1,7 @@
 packages:
   - "packages/*"
   - "e2e"
+  - "website"
   - "!packages/http-client-csharp/**"
   - "!packages/http-client-java/**"
   - "!packages/http-client-python/**"

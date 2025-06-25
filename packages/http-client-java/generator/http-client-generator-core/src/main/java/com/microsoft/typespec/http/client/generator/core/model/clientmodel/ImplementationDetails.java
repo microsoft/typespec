@@ -4,6 +4,7 @@
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SchemaContext;
+import com.microsoft.typespec.http.client.generator.core.mapper.CollectionUtil;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -248,6 +249,10 @@ public class ImplementationDetails {
         this.comment = comment;
     }
 
+    public Builder newBuilder() {
+        return new Builder().implementationOnly(implementationOnly).usages(usages).comment(comment);
+    }
+
     /**
      * Builder for {@link ImplementationDetails}.
      */
@@ -301,7 +306,7 @@ public class ImplementationDetails {
          * @return the ImplementationDetails instance.
          */
         public ImplementationDetails build() {
-            return new ImplementationDetails(implementationOnly, usages, comment);
+            return new ImplementationDetails(implementationOnly, CollectionUtil.toImmutableSet(usages), comment);
         }
     }
 }

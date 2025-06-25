@@ -1,3 +1,4 @@
+import { getSymNode } from "../core/binder.js";
 import { compilerAssert } from "../core/diagnostics.js";
 import { printIdentifier } from "../core/helpers/syntax-utils.js";
 import { getEntityName, getTypeName, isStdNamespace } from "../core/helpers/type-name-utils.js";
@@ -8,7 +9,8 @@ import {
   Decorator,
   EnumMember,
   FunctionParameter,
-  FunctionType,
+  Interface,
+  Model,
   ModelProperty,
   Operation,
   StringTemplate,
@@ -18,19 +20,37 @@ import {
   UnionVariant,
   Value,
 } from "../core/types.js";
+import { walkPropertiesInherited } from "../index.js";
+
+interface GetSymbolSignatureOptions {
+  /**
+   * Whether to include the body in the signature. Only support Model and Interface type now
+   */
+  includeBody: boolean;
+}
 
 /** @internal */
-export function getSymbolSignature(program: Program, sym: Sym): string {
-  const decl = sym.declarations[0];
+export function getSymbolSignature(
+  program: Program,
+  sym: Sym,
+  options: GetSymbolSignatureOptions = {
+    includeBody: false,
+  },
+): string {
+  const decl = getSymNode(sym);
   switch (decl?.kind) {
     case SyntaxKind.AliasStatement:
       return fence(`alias ${getAliasSignature(decl)}`);
   }
   const entity = sym.type ?? program.checker.getTypeOrValueForNode(decl);
-  return getEntitySignature(sym, entity);
+  return getEntitySignature(sym, entity, options);
 }
 
-function getEntitySignature(sym: Sym, entity: Type | Value | null): string {
+function getEntitySignature(
+  sym: Sym,
+  entity: Type | Value | null,
+  options: GetSymbolSignatureOptions,
+): string {
   if (entity === null) {
     return "(error)";
   }
@@ -38,24 +58,24 @@ function getEntitySignature(sym: Sym, entity: Type | Value | null): string {
     return fence(`const ${sym.name}: ${getTypeName(entity.type)}`);
   }
 
-  return getTypeSignature(entity);
+  return getTypeSignature(entity, options);
 }
 
-function getTypeSignature(type: Type): string {
+function getTypeSignature(type: Type, options: GetSymbolSignatureOptions): string {
   switch (type.kind) {
     case "Scalar":
     case "Enum":
     case "Union":
-    case "Interface":
-    case "Model":
     case "Namespace":
       return fence(`${type.kind.toLowerCase()} ${getPrintableTypeName(type)}`);
+    case "Interface":
+      return fence(getInterfaceSignature(type, options.includeBody));
+    case "Model":
+      return fence(getModelSignature(type, options.includeBody));
     case "ScalarConstructor":
-      return fence(`init ${getTypeSignature(type.scalar)}.${type.name}`);
+      return fence(`init ${getTypeSignature(type.scalar, options)}.${type.name}`);
     case "Decorator":
       return fence(getDecoratorSignature(type));
-    case "Function":
-      return fence(getFunctionSignature(type));
     case "Operation":
       return fence(getOperationSignature(type));
     case "String":
@@ -82,11 +102,7 @@ function getTypeSignature(type: Type): string {
     case "UnionVariant":
       return `(union variant)\n${fence(getUnionVariantSignature(type))}`;
     case "Tuple":
-      return `(tuple)\n[${fence(type.values.map(getTypeSignature).join(", "))}]`;
-    case "Projection":
-      return "(projection)";
-    case "Object":
-      return "(object)";
+      return `(tuple)\n[${fence(type.values.map((v) => getTypeSignature(v, options)).join(", "))}]`;
     default:
       const _assertNever: never = type;
       compilerAssert(false, "Unexpected type kind");
@@ -100,23 +116,47 @@ function getDecoratorSignature(type: Decorator) {
   return `dec ${ns}${name}(${parameters.join(", ")})`;
 }
 
-function getFunctionSignature(type: FunctionType) {
-  const ns = getQualifier(type.namespace);
-  const parameters = type.parameters.map((x) => getFunctionParameterSignature(x));
-  return `fn ${ns}${printIdentifier(type.name)}(${parameters.join(", ")}): ${getPrintableTypeName(
-    type.returnType,
-  )}`;
+function getOperationSignature(type: Operation, includeQualifier: boolean = true) {
+  const parameters = [...type.parameters.properties.values()].map((p) =>
+    getModelPropertySignature(p, false /* includeQualifier */),
+  );
+  return `op ${getTypeName(type, {
+    nameOnly: !includeQualifier,
+  })}(${parameters.join(", ")}): ${getPrintableTypeName(type.returnType)}`;
 }
 
-function getOperationSignature(type: Operation) {
-  const parameters = [...type.parameters.properties.values()].map(getModelPropertySignature);
-  return `op ${getTypeName(type)}(${parameters.join(", ")}): ${getPrintableTypeName(type.returnType)}`;
+function getInterfaceSignature(type: Interface, includeBody: boolean) {
+  if (includeBody) {
+    const INDENT = "  ";
+    const opDesc = Array.from(type.operations).map(
+      ([name, op]) => INDENT + getOperationSignature(op, false /* includeQualifier */) + ";",
+    );
+    return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)} {\n${opDesc.join("\n")}\n}`;
+  } else {
+    return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)}`;
+  }
+}
+
+/**
+ * All properties from 'extends' and 'is' will be included if includeBody is true.
+ */
+function getModelSignature(type: Model, includeBody: boolean) {
+  if (includeBody) {
+    const propDesc = [];
+    const INDENT = "  ";
+    for (const prop of walkPropertiesInherited(type)) {
+      propDesc.push(INDENT + getModelPropertySignature(prop, false /*includeQualifier*/));
+    }
+    return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)}{\n${propDesc.map((d) => `${d};`).join("\n")}\n}`;
+  } else {
+    return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)}`;
+  }
 }
 
 function getFunctionParameterSignature(parameter: FunctionParameter) {
   const rest = parameter.rest ? "..." : "";
   const optional = parameter.optional ? "?" : "";
-  return `${rest}${printIdentifier(parameter.name)}${optional}: ${getEntityName(parameter.type)}`;
+  return `${rest}${printIdentifier(parameter.name, "allow-reserved")}${optional}: ${getEntityName(parameter.type)}`;
 }
 
 function getStringTemplateSignature(stringTemplate: StringTemplate) {
@@ -131,9 +171,9 @@ function getStringTemplateSignature(stringTemplate: StringTemplate) {
   );
 }
 
-function getModelPropertySignature(property: ModelProperty) {
-  const ns = getQualifier(property.model);
-  return `${ns}${printIdentifier(property.name)}: ${getPrintableTypeName(property.type)}`;
+function getModelPropertySignature(property: ModelProperty, includeQualifier: boolean = true) {
+  const ns = includeQualifier ? getQualifier(property.model) : "";
+  return `${ns}${printIdentifier(property.name, "allow-reserved")}: ${getPrintableTypeName(property.type)}`;
 }
 
 function getUnionVariantSignature(variant: UnionVariant) {
@@ -141,15 +181,15 @@ function getUnionVariantSignature(variant: UnionVariant) {
     return getPrintableTypeName(variant.type);
   }
   const ns = getQualifier(variant.union);
-  return `${ns}${printIdentifier(variant.name)}: ${getPrintableTypeName(variant.type)}`;
+  return `${ns}${printIdentifier(variant.name, "allow-reserved")}: ${getPrintableTypeName(variant.type)}`;
 }
 
 function getEnumMemberSignature(member: EnumMember) {
   const ns = getQualifier(member.enum);
   const value = typeof member.value === "string" ? `"${member.value}"` : member.value;
   return value === undefined
-    ? `${ns}${printIdentifier(member.name)}`
-    : `${ns}${printIdentifier(member.name)}: ${value}`;
+    ? `${ns}${printIdentifier(member.name, "allow-reserved")}`
+    : `${ns}${printIdentifier(member.name, "allow-reserved")}: ${value}`;
 }
 
 function getAliasSignature(alias: AliasStatementNode) {

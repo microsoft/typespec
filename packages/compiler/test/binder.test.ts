@@ -12,9 +12,6 @@ import {
   JsSourceFileNode,
   ModelStatementNode,
   NodeFlags,
-  ProjectionExpressionStatementNode,
-  ProjectionLambdaExpressionNode,
-  ProjectionStatementNode,
   Sym,
   SymbolFlags,
   SymbolTable,
@@ -42,17 +39,17 @@ describe("compiler: binder", () => {
     assertBindings("root", script.symbol.exports!, {
       A: {
         declarations: [SyntaxKind.NamespaceStatement],
-        flags: SymbolFlags.Namespace,
+        flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
         exports: {
           B: {
-            flags: SymbolFlags.Namespace,
+            flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
             exports: {
               C: {
-                flags: SymbolFlags.Namespace,
+                flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
                 exports: {},
               },
               D: {
-                flags: SymbolFlags.Model,
+                flags: SymbolFlags.Model | SymbolFlags.Declaration,
               },
             },
           },
@@ -73,20 +70,20 @@ describe("compiler: binder", () => {
     assertBindings("root", script.symbol.exports!, {
       A: {
         declarations: [SyntaxKind.NamespaceStatement],
-        flags: SymbolFlags.Namespace,
+        flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
         exports: {
           B: {
-            flags: SymbolFlags.Namespace,
+            flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
             exports: {
               A: {
                 declarations: [SyntaxKind.NamespaceStatement],
-                flags: SymbolFlags.Namespace,
+                flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
                 exports: {
                   B: {
-                    flags: SymbolFlags.Namespace,
+                    flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
                     exports: {
                       D: {
-                        flags: SymbolFlags.Model,
+                        flags: SymbolFlags.Model | SymbolFlags.Declaration,
                       },
                     },
                   },
@@ -111,10 +108,10 @@ describe("compiler: binder", () => {
     assertBindings("root", script.symbol.exports!, {
       A: {
         declarations: [SyntaxKind.NamespaceStatement],
-        flags: SymbolFlags.Namespace,
+        flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
         exports: {
           B: {
-            flags: SymbolFlags.Namespace,
+            flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
             exports: {},
           },
         },
@@ -146,22 +143,22 @@ describe("compiler: binder", () => {
     assertBindings("root", script.symbol.exports!, {
       test: {
         declarations: [SyntaxKind.NamespaceStatement],
-        flags: SymbolFlags.Namespace,
+        flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
         exports: {
           A: {
             declarations: [SyntaxKind.NamespaceStatement, SyntaxKind.NamespaceStatement],
-            flags: SymbolFlags.Namespace,
+            flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
             exports: {
               B: {
                 declarations: [SyntaxKind.NamespaceStatement, SyntaxKind.NamespaceStatement],
-                flags: SymbolFlags.Namespace,
+                flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
                 exports: {},
               },
               get1: {
-                flags: SymbolFlags.Operation,
+                flags: SymbolFlags.Operation | SymbolFlags.Declaration,
               },
               get2: {
-                flags: SymbolFlags.Operation,
+                flags: SymbolFlags.Operation | SymbolFlags.Declaration,
               },
             },
           },
@@ -183,23 +180,23 @@ describe("compiler: binder", () => {
     assertBindings("root", script.symbol.exports!, {
       A: {
         declarations: [SyntaxKind.NamespaceStatement],
-        flags: SymbolFlags.Namespace,
+        flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
         exports: {
           A: {
-            flags: SymbolFlags.Model,
+            flags: SymbolFlags.Model | SymbolFlags.Declaration,
           },
         },
       },
       B: {
         declarations: [SyntaxKind.ModelStatement],
-        flags: SymbolFlags.Model,
+        flags: SymbolFlags.Model | SymbolFlags.Declaration,
       },
     });
 
     const BNode = script.statements[1] as ModelStatementNode;
     assertBindings("B", BNode.locals!, {
-      Foo: { flags: SymbolFlags.TemplateParameter },
-      Bar: { flags: SymbolFlags.TemplateParameter },
+      Foo: { flags: SymbolFlags.TemplateParameter | SymbolFlags.Declaration },
+      Bar: { flags: SymbolFlags.TemplateParameter | SymbolFlags.Declaration },
     });
   });
   it("binds enums", () => {
@@ -215,16 +212,16 @@ describe("compiler: binder", () => {
     assertBindings("root", script.symbol.exports!, {
       A: {
         declarations: [SyntaxKind.NamespaceStatement],
-        flags: SymbolFlags.Namespace,
+        flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
         exports: {
           A: {
-            flags: SymbolFlags.Enum,
+            flags: SymbolFlags.Enum | SymbolFlags.Declaration,
           },
         },
       },
       B: {
         declarations: [SyntaxKind.EnumStatement],
-        flags: SymbolFlags.Enum,
+        flags: SymbolFlags.Enum | SymbolFlags.Declaration,
       },
     });
   });
@@ -242,17 +239,17 @@ describe("compiler: binder", () => {
     assertBindings("root", script.symbol.exports!, {
       A: {
         declarations: [SyntaxKind.NamespaceStatement],
-        flags: SymbolFlags.Namespace,
+        flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
         exports: {
           Foo: {
             declarations: [SyntaxKind.OperationStatement],
-            flags: SymbolFlags.Operation,
+            flags: SymbolFlags.Operation | SymbolFlags.Declaration,
           },
         },
       },
       Foo: {
         declarations: [SyntaxKind.OperationStatement],
-        flags: SymbolFlags.Operation,
+        flags: SymbolFlags.Operation | SymbolFlags.Declaration,
       },
     });
   });
@@ -270,24 +267,24 @@ describe("compiler: binder", () => {
     assertBindings("root", script.symbol.exports!, {
       A: {
         declarations: [SyntaxKind.NamespaceStatement],
-        flags: SymbolFlags.Namespace,
+        flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
         exports: {
           Foo: {
             declarations: [SyntaxKind.InterfaceStatement],
-            flags: SymbolFlags.Interface,
+            flags: SymbolFlags.Interface | SymbolFlags.Declaration,
           },
         },
       },
       Bar: {
         declarations: [SyntaxKind.InterfaceStatement],
-        flags: SymbolFlags.Interface,
+        flags: SymbolFlags.Interface | SymbolFlags.Declaration,
       },
     });
 
     const INode = script.statements[1] as InterfaceStatementNode;
     assertBindings("Bar", INode.locals!, {
-      T: { flags: SymbolFlags.TemplateParameter },
-      U: { flags: SymbolFlags.TemplateParameter },
+      T: { flags: SymbolFlags.TemplateParameter | SymbolFlags.Declaration },
+      U: { flags: SymbolFlags.TemplateParameter | SymbolFlags.Declaration },
     });
   });
 
@@ -304,24 +301,24 @@ describe("compiler: binder", () => {
     assertBindings("root", script.symbol.exports!, {
       A: {
         declarations: [SyntaxKind.NamespaceStatement],
-        flags: SymbolFlags.Namespace,
+        flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
         exports: {
           Foo: {
             declarations: [SyntaxKind.UnionStatement],
-            flags: SymbolFlags.Union,
+            flags: SymbolFlags.Union | SymbolFlags.Declaration,
           },
         },
       },
       Bar: {
         declarations: [SyntaxKind.UnionStatement],
-        flags: SymbolFlags.Union,
+        flags: SymbolFlags.Union | SymbolFlags.Declaration,
       },
     });
 
     const UNode = script.statements[1] as UnionStatementNode;
     assertBindings("Bar", UNode.locals!, {
-      T: { flags: SymbolFlags.TemplateParameter },
-      U: { flags: SymbolFlags.TemplateParameter },
+      T: { flags: SymbolFlags.TemplateParameter | SymbolFlags.Declaration },
+      U: { flags: SymbolFlags.TemplateParameter | SymbolFlags.Declaration },
     });
   });
 
@@ -338,73 +335,24 @@ describe("compiler: binder", () => {
     assertBindings("root", script.symbol.exports!, {
       A: {
         declarations: [SyntaxKind.NamespaceStatement],
-        flags: SymbolFlags.Namespace,
+        flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
         exports: {
           Foo: {
             declarations: [SyntaxKind.AliasStatement],
-            flags: SymbolFlags.Alias,
+            flags: SymbolFlags.Alias | SymbolFlags.Declaration,
           },
         },
       },
       Bar: {
         declarations: [SyntaxKind.AliasStatement],
-        flags: SymbolFlags.Alias,
+        flags: SymbolFlags.Alias | SymbolFlags.Declaration,
       },
     });
 
     const ANode = script.statements[1] as AliasStatementNode;
     assertBindings("Bar", ANode.locals!, {
-      T: { flags: SymbolFlags.TemplateParameter },
-      U: { flags: SymbolFlags.TemplateParameter },
-    });
-  });
-
-  it("binds projection statements", () => {
-    const code = `
-      projection Foo#proj {
-        to(a) { }
-      }
-      projection model#proj {
-        to(a) { }
-        from(a) { }
-      }
-      projection op#proj {
-        to(a) { }
-      }
-    `;
-    const script = bindTypeSpec(code);
-    strictEqual(script.namespaces.length, 0);
-    assertBindings("root", script.symbol.exports!, {
-      proj: {
-        declarations: [
-          SyntaxKind.ProjectionStatement,
-          SyntaxKind.ProjectionStatement,
-          SyntaxKind.ProjectionStatement,
-        ],
-        flags: SymbolFlags.Projection,
-      },
-    });
-    const toNode = (script.statements[0] as ProjectionStatementNode).to!;
-    assertBindings("Foo#proj to", toNode.locals!, {
-      a: { flags: SymbolFlags.ProjectionParameter },
-    });
-  });
-
-  it("binds projection lambda expressions", () => {
-    const code = `
-      projection model#proj {
-        to() {
-          (a) => { 1; };
-        }
-      }
-    `;
-    const script = bindTypeSpec(code);
-    const lambdaNode = (
-      (script.statements[0] as ProjectionStatementNode).to!
-        .body[0] as ProjectionExpressionStatementNode
-    ).expr as ProjectionLambdaExpressionNode;
-    assertBindings("lambda", lambdaNode.locals!, {
-      a: { flags: SymbolFlags.FunctionParameter },
+      T: { flags: SymbolFlags.TemplateParameter | SymbolFlags.Declaration },
+      U: { flags: SymbolFlags.TemplateParameter | SymbolFlags.Declaration },
     });
   });
 
@@ -428,29 +376,29 @@ describe("compiler: binder", () => {
     const sourceFile = bindJs(exports);
     assertBindings("jsFile", sourceFile.symbol.exports!, {
       Foo: {
-        flags: SymbolFlags.Namespace,
+        flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
         declarations: [SyntaxKind.JsNamespaceDeclaration],
         exports: {
           Bar: {
-            flags: SymbolFlags.Namespace,
+            flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
             declarations: [SyntaxKind.JsNamespaceDeclaration],
             exports: {
               "@myDec2": {
-                flags: SymbolFlags.Decorator | SymbolFlags.Implementation,
+                flags: SymbolFlags.Decorator | SymbolFlags.Declaration | SymbolFlags.Implementation,
                 declarations: [SyntaxKind.JsSourceFile],
               },
               fn2: {
-                flags: SymbolFlags.Function | SymbolFlags.Implementation,
+                flags: SymbolFlags.Function | SymbolFlags.Declaration | SymbolFlags.Implementation,
                 declarations: [SyntaxKind.JsSourceFile],
               },
             },
           },
           "@myDec": {
-            flags: SymbolFlags.Decorator | SymbolFlags.Implementation,
+            flags: SymbolFlags.Decorator | SymbolFlags.Declaration | SymbolFlags.Implementation,
             declarations: [SyntaxKind.JsSourceFile],
           },
           fn: {
-            flags: SymbolFlags.Function | SymbolFlags.Implementation,
+            flags: SymbolFlags.Function | SymbolFlags.Declaration | SymbolFlags.Implementation,
             declarations: [SyntaxKind.JsSourceFile],
           },
         },
@@ -469,21 +417,21 @@ describe("compiler: binder", () => {
     const sourceFile = bindJs(exports);
     assertBindings("jsFile", sourceFile.symbol.exports!, {
       Foo: {
-        flags: SymbolFlags.Namespace,
+        flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
         declarations: [SyntaxKind.JsNamespaceDeclaration],
         exports: {
           Bar: {
-            flags: SymbolFlags.Namespace,
+            flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
             declarations: [SyntaxKind.JsNamespaceDeclaration],
             exports: {
               "@myDec2": {
-                flags: SymbolFlags.Decorator | SymbolFlags.Implementation,
+                flags: SymbolFlags.Decorator | SymbolFlags.Declaration | SymbolFlags.Implementation,
                 declarations: [SyntaxKind.JsSourceFile],
               },
             },
           },
           "@myDec": {
-            flags: SymbolFlags.Decorator | SymbolFlags.Implementation,
+            flags: SymbolFlags.Decorator | SymbolFlags.Declaration | SymbolFlags.Implementation,
             declarations: [SyntaxKind.JsSourceFile],
           },
         },

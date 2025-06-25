@@ -1,0 +1,55 @@
+{
+  "name": "@typespec/http-client",
+  "version": "0.7.0",
+  "type": "module",
+  "main": "dist/src/index.js",
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "import": "./dist/src/index.js"
+    },
+    "./testing": {
+      "import": "./dist/src/testing/index.js"
+    },
+    "./typekit": {
+      "import": "./dist/src/typekit/index.js"
+    },
+    "./components": {
+      "import": "./dist/src/components/index.js"
+    }
+  },
+  "peerDependencies": {
+    "@alloy-js/core": "^0.17.0",
+    "@alloy-js/typescript": "^0.17.0",
+    "@typespec/compiler": "workspace:^",
+    "@typespec/emitter-framework": "workspace:^",
+    "@typespec/http": "workspace:^"
+  },
+  "devDependencies": {
+    "@alloy-js/cli": "^0.17.0",
+    "@alloy-js/core": "^0.17.0",
+    "@alloy-js/rollup-plugin": "^0.1.0",
+    "@alloy-js/typescript": "^0.17.0",
+    "@types/node": "~24.0.3",
+    "@typespec/compiler": "workspace:^",
+    "@typespec/emitter-framework": "workspace:^",
+    "@typespec/http": "workspace:^",
+    "eslint": "^9.23.0",
+    "prettier": "~3.5.3",
+    "typescript": "~5.8.2",
+    "vitest": "^3.1.2"
+  },
+  "scripts": {
+    "build": "alloy build",
+    "clean": "rimraf ./dist",
+    "watch": "alloy build --watch",
+    "test": "vitest run",
+    "test:ui": "vitest --ui",
+    "test:watch": "vitest -w",
+    "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
+    "lint": "eslint src/ test/ --report-unused-disable-directives --max-warnings=0",
+    "lint:fix": "eslint . --report-unused-disable-directives --fix",
+    "format": "prettier .  --write",
+    "format:check": "prettier --check ."
+  }
+}

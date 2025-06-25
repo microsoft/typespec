@@ -29,9 +29,6 @@ export function getLibraryUrlsLoaded(): Set<string> {
   return loadedUrls;
 }
 
-/** @deprecated use createTypeSpecLibrary */
-export const createCadlLibrary = createTypeSpecLibrary;
-
 function createStateKeys<T extends string>(
   libName: string,
   state: Record<T, StateDef> | undefined,
@@ -50,7 +47,7 @@ function createStateKeys<T extends string>(
  * @returns Library with utility functions.
  *
  *
- * @tutorial Create the lib object with `as const` to get the full typing.
+ * @remarks Create the lib object with `as const` to get the full typing.
  *
  * @example
  * const libDef = {
@@ -118,9 +115,6 @@ export function createLinterRule<const N extends string, const T extends Diagnos
   compilerAssert(!definition.name.includes("/"), "Rule name cannot contain a '/'.");
   return definition;
 }
-
-/** @deprecated use setTypeSpecNamespace */
-export const setCadlNamespace = setTypeSpecNamespace;
 
 /**
  * Set the TypeSpec namespace for that function.

@@ -1,7 +1,7 @@
 import type { JSONSchemaType } from "ajv";
 import { EmitterOptions, TypeSpecRawConfig } from "./types.js";
 
-const emitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
+export const emitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
   type: "object",
   additionalProperties: true,
   required: [],
@@ -28,6 +28,7 @@ export const TypeSpecConfigJsonSchema: JSONSchemaType<TypeSpecRawConfig> = {
           default: { type: "string" },
         },
         required: ["default"],
+        additionalProperties: false,
       },
     },
     parameters: {
@@ -40,6 +41,7 @@ export const TypeSpecConfigJsonSchema: JSONSchemaType<TypeSpecRawConfig> = {
           default: { type: "string" },
         },
         required: ["default"],
+        additionalProperties: false,
       },
     },
 
@@ -76,15 +78,6 @@ export const TypeSpecConfigJsonSchema: JSONSchemaType<TypeSpecRawConfig> = {
       required: [],
       additionalProperties: emitterOptionsSchema,
     },
-    emitters: {
-      type: "object",
-      nullable: true,
-      required: [],
-      additionalProperties: {
-        oneOf: [{ type: "boolean" }, emitterOptionsSchema],
-      },
-    },
-
     linter: {
       type: "object",
       nullable: true,

@@ -1,6 +1,6 @@
 # @typespec/openapi3
 
-TypeSpec library for emitting OpenAPI 3.0 from the TypeSpec REST protocol binding and converting OpenAPI3 to TypeSpec
+TypeSpec library for emitting OpenAPI 3.0 and OpenAPI 3.1 from the TypeSpec REST protocol binding and converting OpenAPI3 to TypeSpec
 
 ## Install
 
@@ -8,9 +8,7 @@ TypeSpec library for emitting OpenAPI 3.0 from the TypeSpec REST protocol bindin
 npm install @typespec/openapi3
 ```
 
-## Emitter
-
-### Usage
+## Emitter usage
 
 1. Via the command line
 
@@ -35,25 +33,33 @@ options:
     option: value
 ```
 
-### Emitter options
+## Emitter options
 
-#### `file-type`
+### `emitter-output-dir`
+
+**Type:** `absolutePath`
+
+Defines the emitter output directory. Defaults to `{output-dir}/@typespec/openapi3`
+See [Configuring output directory for more info](https://typespec.io/docs/handbook/configuration/configuration/#configuring-output-directory)
+
+### `file-type`
 
 **Type:** `"yaml" | "json"`
 
 If the content should be serialized as YAML or JSON. Default 'yaml', it not specified infer from the `output-file` extension
 
-#### `output-file`
+### `output-file`
 
 **Type:** `string`
 
 Name of the output file.
 Output file will interpolate the following values:
 
-- service-name: Name of the service if multiple
+- service-name: Name of the service
+- service-name-if-multiple: Name of the service if multiple
 - version: Version of the service if multiple
 
-Default: `{service-name}.{version}.openapi.yaml` or `.json` if `file-type` is `"json"`
+Default: `{service-name-if-multiple}.{version}.openapi.yaml` or `.json` if `file-type` is `"json"`
 
 Example Single service no versioning
 
@@ -76,27 +82,31 @@ Example Multiple service with versioning
 - `openapi.Org1.Service2.v1.0.yaml`
 - `openapi.Org1.Service2.v1.1.yaml`
 
-#### `new-line`
+### `openapi-versions`
+
+**Type:** `array`
+
+### `new-line`
 
 **Type:** `"crlf" | "lf"`
 
 Set the newline character for emitting files.
 
-#### `omit-unreachable-types`
+### `omit-unreachable-types`
 
 **Type:** `boolean`
 
 Omit unreachable types.
 By default all types declared under the service namespace will be included. With this flag on only types references in an operation will be emitted.
 
-#### `include-x-typespec-name`
+### `include-x-typespec-name`
 
 **Type:** `"inline-only" | "never"`
 
 If the generated openapi types should have the `x-typespec-name` extension set with the name of the TypeSpec type that created it.
 This extension is meant for debugging and should not be depended on.
 
-#### `safeint-strategy`
+### `safeint-strategy`
 
 **Type:** `"double-int" | "int64"`
 
@@ -106,6 +116,23 @@ How to handle safeint type. Options are:
 - `int64`: Will produce `type: integer, format: int64`
 
 Default: `int64`
+
+### `seal-object-schemas`
+
+**Type:** `boolean`
+
+If true, then for models emitted as object schemas we default `additionalProperties` to false for
+OpenAPI 3.0, and `unevaluatedProperties` to false for OpenAPI 3.1, if not explicitly specified elsewhere.
+Default: `false`
+
+### `experimental-parameter-examples`
+
+**Type:** `"data" | "serialized"`
+
+Determines how to emit examples on parameters.
+Note: This is an experimental feature and may change in future versions.
+See https://spec.openapis.org/oas/v3.0.4.html#style-examples for parameter example serialization rules
+See https://github.com/OAI/OpenAPI-Specification/discussions/4622 for discussion on handling parameter examples.
 
 ## Decorators
 

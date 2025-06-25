@@ -2,7 +2,9 @@
 {% import 'operation_tools.jinja2' as op_tools %}
 {# actual template starts here #}
 # coding=utf-8
-{{ code_model.options['license_header'] }}
+{% if code_model.license_header %}
+{{ code_model.license_header }}
+{% endif %}
 
 {{ imports }}
 
@@ -11,6 +13,6 @@ VERSION = "unknown"
 {% endif %}
 
 {% for client in clients %}
-    {% set serializer = get_serializer(client) %}
+    {% set serializer = get_serializer(client, serialize_namespace) %}
 {% include "config.py.jinja2" %}
 {% endfor %}

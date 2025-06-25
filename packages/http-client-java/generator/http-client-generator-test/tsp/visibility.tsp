@@ -4,34 +4,31 @@ import "@azure-tools/typespec-client-generator-core";
 using TypeSpec.Http;
 using Azure.ClientGenerator.Core;
 
-@service({
-  title: "Visibility",
-})
-namespace Cadl.Visibility;
+@service(#{ title: "Visibility" })
+namespace TspTest.Visibility;
 
 model Dog {
-  @visibility("read") id: int32;
-  @visibility("update") secretName: string;
+  @visibility(Lifecycle.Read) id: int32;
+  @visibility(Lifecycle.Create, Lifecycle.Update) secretName: string;
 
-  // no flags are like specifying all flags at once, so in this case
-  // equivalent to @visibility("read", "write")
+  // no flags are same as specifying all Lifecycle
   name: string;
 }
 
 model RoundTripModel {
   name: string;
-  @visibility("create", "update") secretName: string;
+  @visibility(Lifecycle.Create, Lifecycle.Update) secretName: string;
 }
 
 // The spread operator will copy all the properties of Dog into ReadDog,
 // and withVisibility will remove any that don't match the current
 // visibility setting
-@withVisibility("read")
+@withVisibility(Lifecycle.Read)
 model ReadDog {
   ...Dog;
 }
 
-@withVisibility("write")
+@withVisibility(Lifecycle.Create, Lifecycle.Update)
 model WriteDog {
   ...Dog;
 }
@@ -58,8 +55,8 @@ interface VisibilityWrite {
 interface VisibilityOp extends VisibilityRead, VisibilityWrite {
   @post
   @route("/query")
-  query(@body dog: ReadDog): {
-    @body body: Dog;
+  query(@body dog: WriteDog): {
+    @body body: ReadDog;
   };
 
   @put

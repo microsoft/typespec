@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\Microsoft.TypeSpec.Generator.Input.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="TestData\StringEnum\tspCodeModel.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

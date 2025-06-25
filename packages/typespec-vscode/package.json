@@ -1,6 +1,6 @@
 {
   "name": "typespec-vscode",
-  "version": "0.60.0",
+  "version": "1.1.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec language support for VS Code",
   "homepage": "https://typespec.io",
@@ -16,24 +16,39 @@
   "keywords": [
     "typespec"
   ],
-  "preview": true,
+  "preview": false,
   "publisher": "typespec",
-  "displayName": "TypeSpec for VS Code",
+  "displayName": "TypeSpec",
   "categories": [
-    "Programming Languages"
+    "Programming Languages",
+    "Snippets"
   ],
-  "type": "module",
   "main": "./dist/src/extension.cjs",
   "browser": "./dist/src/web/extension.js",
   "engines": {
-    "vscode": "^1.93.0"
+    "vscode": "^1.100.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/declaration/src/index.d.ts"
+    }
   },
   "activationEvents": [
     "onLanguage:typespec",
-    "onCommand:typespec.restartServer"
+    "onCommand:typespec.restartServer",
+    "onCommand:typespec.createProject",
+    "workspaceContains:**/tspconfig.yaml"
   ],
   "icon": "./icons/logo.png",
+  "telemetryKey": "00000000-0000-0000-0000-000000000000",
   "contributes": {
+    "viewsWelcome": [
+      {
+        "view": "explorer",
+        "contents": "You may [open a folder](command:vscode.openFolder) of an existing TypeSpec project; or create a new TypeSpec project in VS Code.\n[Create TypeSpec Project](command:typespec.createProject)\nTo manually create a  TypeSpec project, follow [this guide](https://typespec.io/docs/).",
+        "when": "!workspaceFolderCount"
+      }
+    ],
     "languages": [
       {
         "id": "typespec",
@@ -61,8 +76,41 @@
           "typespec.tsp-server.path": {
             "type": "string",
             "default": "",
-            "description": "Path to `tsp-server` command that runs the TypeSpec language server.\n\nIf not specified, then `tsp-server` found on PATH is used.\n\nExample (User): /usr/local/bin/tsp-server\nExample (Workspace): ${workspaceFolder}/node_modules/@typespec/compiler",
+            "description": "Path to 'tsp-server' command that runs the TypeSpec language server. If not specified, then 'tsp-server' will be resolved in following sequence:\n\n1. from workspace node_modules folder\nExample: ${workspaceFolder}/node_modules/@typespec/compiler\n\n2. from PATH environment variable\nExample: /usr/local/bin/tsp-server",
             "scope": "machine-overridable"
+          },
+          "typespec.initTemplatesUrls": {
+            "type": "array",
+            "default": [],
+            "description": "List of URLs to fetch templates from when creating a new project.\n\nExample:\n\"typespec.initTemplatesUrls\": [{\n\"name\": \"displayName\",\n\"url\": \"https://urlToTheFileContainsTemplates\"\n}],",
+            "scope": "machine-overridable",
+            "items": {
+              "type": "object",
+              "required": [
+                "name",
+                "url"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Name of the template."
+                },
+                "url": {
+                  "type": "string",
+                  "description": "URL to fetch the template from."
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "typespec.lsp.emit": {
+            "type": "array",
+            "default": null,
+            "description": "List of emitters that should be included in compilation in typespec LSP server when supporting LSP related functionalities. And only supports emitter running in dry mode.\n\nExample:\n\"typespec.lsp.emit\": [\n  \"@typespec/openapi3\"\n]",
+            "scope": "machine-overridable",
+            "items": {
+              "type": "string"
+            }
           },
           "typespec.trace.server": {
             "scope": "window",
@@ -78,6 +126,36 @@
         }
       }
     ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "typespec.importFromOpenApi3",
+          "group": "typespec@3"
+        },
+        {
+          "command": "typespec.emitCode",
+          "when": "explorerResourceIsFolder || resourceLangId == typespec || resourceFilename == 'tspconfig.yaml'",
+          "group": "typespec@1"
+        },
+        {
+          "command": "typespec.showOpenApi3",
+          "when": "resourceLangId == typespec",
+          "group": "typespec@2"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "typespec.emitCode",
+          "when": "resourceLangId == typespec || resourceFilename == 'tspconfig.yaml'",
+          "group": "typespec@1"
+        },
+        {
+          "command": "typespec.showOpenApi3",
+          "when": "resourceLangId == typespec",
+          "group": "typespec@2"
+        }
+      ]
+    },
     "grammars": [
       {
         "language": "typespec",
@@ -105,6 +183,31 @@
       {
         "command": "typespec.showOutputChannel",
         "title": "Show Output Channel",
+        "category": "TypeSpec"
+      },
+      {
+        "command": "typespec.emitCode",
+        "title": "Emit from TypeSpec",
+        "category": "TypeSpec"
+      },
+      {
+        "command": "typespec.createProject",
+        "title": "Create TypeSpec Project",
+        "category": "TypeSpec"
+      },
+      {
+        "command": "typespec.installGlobalCompilerCli",
+        "title": "Install TypeSpec Compiler/CLI globally",
+        "category": "TypeSpec"
+      },
+      {
+        "command": "typespec.importFromOpenApi3",
+        "title": "Import TypeSpec from OpenAPI 3",
+        "category": "TypeSpec"
+      },
+      {
+        "command": "typespec.showOpenApi3",
+        "title": "Preview API Documentation",
         "category": "TypeSpec"
       }
     ],
@@ -141,42 +244,60 @@
           }
         }
       }
+    ],
+    "snippets": [
+      {
+        "language": "typespec",
+        "path": "./snippets.json"
+      }
     ]
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "npm run compile && npm run copy-tmlanguage && npm run generate-language-configuration && npm run generate-third-party-notices && npm run package-vsix",
-    "compile": "rollup --config rollup.config.ts --configPlugin typescript --failAfterWarnings 2>&1",
-    "watch": "rollup --config rollup.config.ts --configPlugin typescript --watch",
+    "build": "pnpm compile && pnpm check && pnpm declaration-only && pnpm copy-templates && pnpm copy-tmlanguage && pnpm generate-language-configuration && pnpm generate-third-party-notices && pnpm package-vsix",
+    "check": "tsc --noEmit",
+    "declaration-only": "tsc --project tsconfig.declaration.json",
+    "compile": "tsx ./scripts/build.ts",
+    "watch": "tsx ./scripts/build.ts --watch",
     "dogfood": "node scripts/dogfood.js",
+    "copy-templates": "node scripts/copy-templates.js",
     "copy-tmlanguage": "node scripts/copy-tmlanguage.js",
     "generate-language-configuration": "node scripts/generate-language-configuration.js",
     "generate-third-party-notices": "typespec-build-tool generate-third-party-notices",
+    "update-telemetry-key": "node scripts/update-telemetry-key.js",
     "package-vsix": "vsce package",
     "deploy": "vsce publish",
     "open-in-browser": "vscode-test-web --extensionDevelopmentPath=. .",
     "test:e2e": "pnpm test:web",
-    "test:web": "vscode-test-web --extensionDevelopmentPath=. --headless --extensionTestsPath=dist/test/suite.js ./test/data"
+    "test:web": "vscode-test-web --quality stable --extensionDevelopmentPath=. --headless --extensionTestsPath=dist/test/web/suite.js ./test/web/data"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "~28.0.0",
-    "@rollup/plugin-node-resolve": "~15.3.0",
-    "@rollup/plugin-typescript": "~12.1.0",
-    "@types/mocha": "^10.0.8",
-    "@types/node": "~22.7.1",
-    "@types/vscode": "~1.93.0",
-    "@typespec/compiler": "workspace:~",
-    "@typespec/internal-build-utils": "workspace:~",
-    "@vitest/coverage-v8": "^2.1.1",
-    "@vitest/ui": "^2.1.1",
-    "@vscode/test-web": "^0.0.60",
-    "@vscode/vsce": "~3.1.0",
-    "c8": "^10.1.2",
-    "mocha": "^10.7.3",
+    "@types/cross-spawn": "~6.0.6",
+    "@types/mocha": "^10.0.9",
+    "@types/node": "~24.0.3",
+    "@types/semver": "^7.5.8",
+    "@types/vscode": "~1.100.0",
+    "@types/which": "^3.0.4",
+    "@typespec/compiler": "workspace:^",
+    "@typespec/internal-build-utils": "workspace:^",
+    "@vitest/coverage-v8": "^3.1.2",
+    "@vitest/ui": "^3.1.2",
+    "@vscode/extension-telemetry": "^1.0.0",
+    "@vscode/test-web": "^0.0.70",
+    "@vscode/vsce": "~3.5.0",
+    "ajv": "~8.17.1",
+    "c8": "^10.1.3",
+    "cross-spawn": "^7.0.6",
+    "esbuild": "^0.25.1",
+    "mocha": "^11.1.0",
+    "playwright": "^1.51.1",
     "rimraf": "~6.0.1",
-    "rollup": "~4.22.4",
-    "typescript": "~5.6.2",
-    "vitest": "^2.1.1",
-    "vscode-languageclient": "~9.0.1"
+    "semver": "^7.7.1",
+    "swagger-ui-dist": "^5.20.1",
+    "typescript": "~5.8.2",
+    "vitest": "^3.1.2",
+    "vscode-languageclient": "~9.0.1",
+    "which": "^5.0.0",
+    "yaml": "~2.8.0"
   }
 }

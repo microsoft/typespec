@@ -1,26 +1,11 @@
-import { DiagnosticHandler } from "../core/diagnostics.js";
-import { createDiagnostic } from "../core/messages.js";
-import {
-  getDirectoryPath,
-  isPathAbsolute,
-  isUrl,
-  joinPaths,
-  normalizePath,
-  resolvePath,
-} from "../core/path-utils.js";
-import { createSourceFile } from "../core/source-file.js";
-import {
-  CompilerHost,
-  Diagnostic,
-  DiagnosticTarget,
-  NoTarget,
+import { isPathAbsolute, isUrl, normalizePath, resolvePath } from "../core/path-utils.js";
+import type {
+  MutableSymbolTable,
   RekeyableMap,
   SourceFile,
-  Sym,
   SymbolTable,
+  SystemHost,
 } from "../core/types.js";
-
-export { typespecVersion } from "../manifest.js";
 
 /**
  * Recursively calls Object.freeze such that all objects and arrays
@@ -135,7 +120,7 @@ export function mapEquals<K, V>(
   return true;
 }
 
-export async function getNormalizedRealPath(host: CompilerHost, path: string) {
+export async function getNormalizedRealPath(host: SystemHost, path: string) {
   try {
     return normalizePath(await host.realpath(path));
   } catch (error: any) {
@@ -147,81 +132,7 @@ export async function getNormalizedRealPath(host: CompilerHost, path: string) {
   }
 }
 
-export interface FileHandlingOptions {
-  allowFileNotFound?: boolean;
-  diagnosticTarget?: DiagnosticTarget | typeof NoTarget;
-  jsDiagnosticTarget?: DiagnosticTarget;
-}
-
-export async function doIO<T>(
-  action: (path: string) => Promise<T>,
-  path: string,
-  reportDiagnostic: DiagnosticHandler,
-  options?: FileHandlingOptions,
-): Promise<T | undefined> {
-  let result;
-  try {
-    result = await action(path);
-  } catch (e: any) {
-    let diagnostic: Diagnostic;
-    let target = options?.diagnosticTarget ?? NoTarget;
-
-    // blame the JS file, not the TypeSpec import statement for JS syntax errors.
-    if (e instanceof SyntaxError && options?.jsDiagnosticTarget) {
-      target = options.jsDiagnosticTarget;
-    }
-
-    switch (e.code) {
-      case "ENOENT":
-        if (options?.allowFileNotFound) {
-          return undefined;
-        }
-        diagnostic = createDiagnostic({ code: "file-not-found", target, format: { path } });
-        break;
-      default:
-        diagnostic = createDiagnostic({
-          code: "file-load",
-          target,
-          format: { message: e.message },
-        });
-        break;
-    }
-
-    reportDiagnostic(diagnostic);
-    return undefined;
-  }
-
-  return result;
-}
-
-export async function loadFile<T>(
-  host: CompilerHost,
-  path: string,
-  load: (contents: string) => T,
-  reportDiagnostic: DiagnosticHandler,
-  options?: FileHandlingOptions,
-): Promise<[T | undefined, SourceFile]> {
-  const file = await doIO(host.readFile, path, reportDiagnostic, options);
-  if (!file) {
-    return [undefined, createSourceFile("", path)];
-  }
-  let data: T;
-  try {
-    data = load(file.text);
-  } catch (e: any) {
-    reportDiagnostic({
-      code: "file-load",
-      message: e.message,
-      severity: "error",
-      target: { file, pos: 1, end: 1 },
-    });
-    return [undefined, file];
-  }
-
-  return [data, file];
-}
-
-export async function readUrlOrPath(host: CompilerHost, pathOrUrl: string): Promise<SourceFile> {
+export async function readUrlOrPath(host: SystemHost, pathOrUrl: string): Promise<SourceFile> {
   if (isUrl(pathOrUrl)) {
     return host.readUrl(pathOrUrl);
   }
@@ -256,6 +167,42 @@ export function isDefined<T>(arg: T | undefined): arg is T {
   return arg !== undefined;
 }
 
+export function isWhitespaceStringOrUndefined(str: string | undefined): boolean {
+  return !str || /^\s*$/.test(str);
+}
+
+export function firstNonWhitespaceCharacterIndex(line: string): number {
+  return line.search(/\S/);
+}
+
+export function distinctArray<T, P>(arr: T[], keySelector: (item: T) => P): T[] {
+  const map = new Map<P, T>();
+  for (const item of arr) {
+    map.set(keySelector(item), item);
+  }
+  return Array.from(map.values());
+}
+
+export function tryParseJson(content: string): any | undefined {
+  try {
+    return JSON.parse(content);
+  } catch {
+    return undefined;
+  }
+}
+
+export function debounce<T extends (...args: any[]) => any>(fn: T, delayInMs: number): T {
+  let timer: NodeJS.Timeout | undefined;
+  return function (this: any, ...args: Parameters<T>) {
+    if (timer) {
+      clearTimeout(timer);
+    }
+    timer = setTimeout(() => {
+      fn.apply(this, args);
+    }, delayInMs);
+  } as T;
+}
+
 /**
  * Remove undefined properties from object.
  */
@@ -264,45 +211,13 @@ export function omitUndefined<T extends Record<string, unknown>>(data: T): T {
 }
 
 /**
- * Look for the project root by looking up until a `package.json` is found.
- * @param path Path to start looking
- * @param lookIn
- */
-export async function findProjectRoot(
-  statFn: CompilerHost["stat"],
-  path: string,
-): Promise<string | undefined> {
-  let current = path;
-  while (true) {
-    const pkgPath = joinPaths(current, "package.json");
-    const stat = await doIO(
-      () => statFn(pkgPath),
-      pkgPath,
-      () => {},
-    );
-    if (stat?.isFile()) {
-      return current;
-    }
-    const parent = getDirectoryPath(current);
-    if (parent === current) {
-      return undefined;
-    }
-    current = parent;
-  }
-}
-
-/**
- * Extract package.json's tspMain entry point in a given path. Note, it takes into
- * back compat for deprecated cadlMain
+ * Extract package.json's tspMain entry point in a given path.
  * @param path Path that contains package.json
  * @param reportDiagnostic optional diagnostic handler.
  */
 export function resolveTspMain(packageJson: any): string | undefined {
   if (packageJson?.tspMain !== undefined) {
     return packageJson.tspMain;
-  }
-  if (packageJson?.cadlMain !== undefined) {
-    return packageJson.cadlMain;
   }
   return undefined;
 }
@@ -419,12 +334,21 @@ export class Queue<T> {
  */
 //prettier-ignore
 export type Mutable<T> =
-  T extends SymbolTable ? T & { set(key: string, value: Sym): void } :
+  T extends SymbolTable ? T & MutableSymbolTable :
   T extends ReadonlyMap<infer K, infer V> ? Map<K, V> :
   T extends ReadonlySet<infer T> ? Set<T> :
   T extends readonly (infer V)[] ? V[] :
   // brand to force explicit conversion.
-  { -readonly [P in keyof T]: T[P] } & { __writableBrand: never };
+  { -readonly [P in keyof T]: T[P] };
+
+//prettier-ignore
+type MutableExt<T> =
+T extends SymbolTable ? T & MutableSymbolTable :
+T extends ReadonlyMap<infer K, infer V> ? Map<K, V> :
+T extends ReadonlySet<infer T> ? Set<T> :
+T extends readonly (infer V)[] ? V[] :
+// brand to force explicit conversion.
+{ -readonly [P in keyof T]: T[P] } & { __writableBrand: never };
 
 /**
  * Casts away readonly typing.
@@ -432,8 +356,8 @@ export type Mutable<T> =
  * Use it like this when it is safe to override readonly typing:
  *   mutate(item).prop = value;
  */
-export function mutate<T>(value: T): Mutable<T> {
-  return value as Mutable<T>;
+export function mutate<T>(value: T): MutableExt<T> {
+  return value as MutableExt<T>;
 }
 
 export function createStringMap<T>(caseInsensitive: boolean): Map<string, T> {
@@ -455,7 +379,7 @@ class CaseInsensitiveMap<T> extends Map<string, T> {
   }
 }
 
-export function createRekeyableMap<K, V>(entries?: [K, V][]): RekeyableMap<K, V> {
+export function createRekeyableMap<K, V>(entries?: Iterable<[K, V]>): RekeyableMap<K, V> {
   return new RekeyableMapImpl<K, V>(entries);
 }
 
@@ -467,7 +391,7 @@ class RekeyableMapImpl<K, V> implements RekeyableMap<K, V> {
   #keys = new Map<K, RekeyableMapKey<K>>();
   #values = new Map<RekeyableMapKey<K>, V>();
 
-  constructor(entries?: [K, V][]) {
+  constructor(entries?: Iterable<[K, V]>) {
     if (entries) {
       for (const [key, value] of entries) {
         this.set(key, value);
@@ -519,23 +443,23 @@ class RekeyableMapImpl<K, V> implements RekeyableMap<K, V> {
     return this.#values.size;
   }
 
-  *entries(): IterableIterator<[K, V]> {
+  *entries(): MapIterator<[K, V]> {
     for (const [k, v] of this.#values) {
       yield [k.key, v];
     }
   }
 
-  *keys(): IterableIterator<K> {
+  *keys(): MapIterator<K> {
     for (const k of this.#values.keys()) {
       yield k.key;
     }
   }
 
-  values(): IterableIterator<V> {
+  values(): MapIterator<V> {
     return this.#values.values();
   }
 
-  [Symbol.iterator](): IterableIterator<[K, V]> {
+  [Symbol.iterator](): MapIterator<[K, V]> {
     return this.entries();
   }
 

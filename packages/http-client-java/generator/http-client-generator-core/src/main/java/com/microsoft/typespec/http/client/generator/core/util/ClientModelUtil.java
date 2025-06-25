@@ -22,10 +22,12 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelPropertyAccess;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModels;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvenienceMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ExternalPackage;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ImplementationDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodGroupClient;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelPropertySegment;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClient;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import java.net.URI;
@@ -39,6 +41,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -62,6 +65,9 @@ public class ClientModelUtil {
     public static final String OPERATION_LOCATION_POLLING_STRATEGY = "OperationLocationPollingStrategy";
     public static final String SYNC_OPERATION_LOCATION_POLLING_STRATEGY = "SyncOperationLocationPollingStrategy";
     public static final String POLLING_UTILS = "PollingUtils";
+    public static final String CLIENT_CORE_POLLING_UTILS = "ClientCorePollingUtils";
+    public static final String CLIENT_CORE_OPERATION_LOCATION_POLLING_STRATEGY
+        = "ClientCoreOperationLocationPollingStrategy";
 
     private ClientModelUtil() {
     }
@@ -79,10 +85,14 @@ public class ClientModelUtil {
         boolean generateAsyncMethods = JavaSettings.getInstance().isGenerateAsyncMethods();
         boolean generateSyncMethods = JavaSettings.getInstance().isGenerateSyncMethods();
 
-        if (serviceClient.getProxy() != null) {
+        if (serviceClient.getProxy() != null || !CoreUtils.isNullOrEmpty(serviceClient.getClientAccessorMethods())) {
+            // need wrapper for either
+            // 1. ServiceClient has operations
+            // 2. ServiceClient has sub clients
+
             AsyncSyncClient.Builder builder = new AsyncSyncClient.Builder().packageName(packageName)
                 .serviceClient(serviceClient)
-                .crossLanguageDefinitionId(client.getCrossLanguageDefinitionId());
+                .crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(client));
 
             final List<ConvenienceMethod> convenienceMethods = client.getOperationGroups()
                 .stream()
@@ -90,26 +100,34 @@ public class ClientModelUtil {
                 .findAny()
                 .map(og -> getConvenienceMethods(serviceClient::getClientMethods, og))
                 .orElse(Collections.emptyList());
-            builder.convenienceMethods(convenienceMethods);
+            if (JavaSettings.getInstance().isAzureV1()) {
+                builder.convenienceMethods(convenienceMethods);
+            }
 
             if (generateAsyncMethods) {
                 String asyncClassName = clientNameToAsyncClientName(serviceClient.getClientBaseName());
-                asyncClients.add(builder.className(asyncClassName).build());
+                AsyncSyncClient asyncClient = builder.className(asyncClassName).build();
+                serviceClient.setAsyncClient(asyncClient);
+                asyncClients.add(asyncClient);
             }
 
             if (generateSyncMethods) {
                 String syncClassName = serviceClient.getClientBaseName().endsWith("Client")
                     ? serviceClient.getClientBaseName()
                     : serviceClient.getClientBaseName() + "Client";
-                syncClients.add(builder.className(syncClassName).build());
+                AsyncSyncClient syncClient = builder.className(syncClassName).build();
+                serviceClient.setSyncClient(syncClient);
+                syncClients.add(syncClient);
             }
         }
 
-        final int count = serviceClient.getMethodGroupClients().size() + asyncClients.size();
+        final int count
+            = serviceClient.getMethodGroupClients().size() + Math.max(asyncClients.size(), syncClients.size());
         for (MethodGroupClient methodGroupClient : serviceClient.getMethodGroupClients()) {
             AsyncSyncClient.Builder builder = new AsyncSyncClient.Builder().packageName(packageName)
                 .serviceClient(serviceClient)
-                .methodGroupClient(methodGroupClient);
+                .methodGroupClient(methodGroupClient)
+                .crossLanguageDefinitionId(methodGroupClient.getCrossLanguageDefinitionId());
 
             final List<ConvenienceMethod> convenienceMethods = client.getOperationGroups()
                 .stream()
@@ -117,7 +135,9 @@ public class ClientModelUtil {
                 .findAny()
                 .map(og -> getConvenienceMethods(methodGroupClient::getClientMethods, og))
                 .orElse(Collections.emptyList());
-            builder.convenienceMethods(convenienceMethods);
+            if (JavaSettings.getInstance().isAzureV1()) {
+                builder.convenienceMethods(convenienceMethods);
+            }
 
             if (count == 1) {
                 // if it is the only method group, use service client name as base.
@@ -309,21 +329,33 @@ public class ClientModelUtil {
     }
 
     public static String getClientDefaultValueOrConstantValue(Parameter parameter) {
-        String clientDefaultValueOrConstantValue = parameter.getClientDefaultValue();
-        if (clientDefaultValueOrConstantValue == null) {
-            if (parameter.getSchema() != null && parameter.getSchema() instanceof ConstantSchema) {
-                ConstantSchema constantSchema = (ConstantSchema) parameter.getSchema();
-                if (constantSchema.getValue() != null) {
-                    clientDefaultValueOrConstantValue = constantSchema.getValue().getValue().toString();
-                }
+        if (parameter.getClientDefaultValue() != null) {
+            return parameter.getClientDefaultValue();
+        }
+        if (parameter.getSchema() != null && parameter.getSchema() instanceof ConstantSchema) {
+            final ConstantSchema constantSchema = (ConstantSchema) parameter.getSchema();
+            if (constantSchema.getValue() != null) {
+                return constantSchema.getValue().getValue().toString();
             }
         }
-        return clientDefaultValueOrConstantValue;
+        return null;
+    }
+
+    public static List<OperationGroup> getAllOperationGroups(CodeModel codeModel) {
+        List<OperationGroup> allOperationGroups;
+        if (!CoreUtils.isNullOrEmpty(codeModel.getClients())) {
+            allOperationGroups = codeModel.getClients()
+                .stream()
+                .flatMap(client -> client.getOperationGroups().stream())
+                .collect(Collectors.toList());
+        } else {
+            allOperationGroups = codeModel.getOperationGroups();
+        }
+        return allOperationGroups;
     }
 
     private static String getFirstApiVersionFromOperation(CodeModel codeModel) {
-        return codeModel.getOperationGroups()
-            .stream()
+        return getAllOperationGroups(codeModel).stream()
             .flatMap(og -> og.getOperations().stream())
             .filter(o -> o.getApiVersions() != null)
             .flatMap(o -> o.getApiVersions().stream())
@@ -355,9 +387,17 @@ public class ClientModelUtil {
     public static String getArtifactId() {
         JavaSettings settings = JavaSettings.getInstance();
         String artifactId = settings.getArtifactId();
-        if (settings.isDataPlaneClient() && CoreUtils.isNullOrEmpty(artifactId)) {
+        if ((settings.isDataPlaneClient() || !settings.isAzureV1()) && CoreUtils.isNullOrEmpty(artifactId)) {
             // convert package/namespace to artifact
             artifactId = settings.getPackage().toLowerCase(Locale.ROOT).replace("com.", "").replace(".", "-");
+        }
+
+        if (settings.isAzureV2()) {
+            artifactId = settings.getPackage()
+                .toLowerCase(Locale.ROOT)
+                .replace("com.", "")
+                .replace(".v2.", ".")
+                .replace(".", "-");
         }
         return artifactId;
     }
@@ -424,8 +464,21 @@ public class ClientModelUtil {
     public static boolean isClientModel(IType type) {
         if (type instanceof ClassType) {
             ClassType classType = (ClassType) type;
-            return classType.getPackage().startsWith(JavaSettings.getInstance().getPackage())
-                && getClientModel(classType.getName()) != null;
+            /*
+             * It is possible in TypeSpec that the models be in different package of the package in JavaSettings.
+             * Therefore, we now check:
+             * 1. The package of the class is not in java.*
+             * 2. The package of the class is not in core package (clientcore or azure-core)
+             */
+            // final boolean typeInExternalPackage =
+            // !classType.getPackage().startsWith(JavaSettings.getInstance().getPackage());
+            final boolean typeInExternalPackage = classType.getPackage().startsWith("java.")
+                || classType.getPackage().startsWith(ExternalPackage.CLIENTCORE_PACKAGE_NAME)
+                || classType.getPackage().startsWith(ExternalPackage.CLIENTCORE_JSON_PACKAGE_NAME)
+                || classType.getPackage().startsWith(ExternalPackage.AZURE_CORE_PACKAGE_NAME)
+                || classType.getPackage().startsWith(ExternalPackage.AZURE_JSON_PACKAGE_NAME)
+                || classType.getPackage().startsWith("com.azure.v2.core");
+            return !typeInExternalPackage && getClientModel(classType.getName()) != null;
         } else {
             return false;
         }
@@ -607,7 +660,9 @@ public class ClientModelUtil {
      * @return whether the property will have a setter method.
      */
     public static boolean needsPublicSetter(ClientModelPropertyAccess property, JavaSettings settings) {
-        return !isReadOnlyOrInConstructor(property, settings) && !isFlattenedProperty(property);
+        return !isReadOnlyOrInConstructor(property, settings)
+            && !isFlattenedProperty(property)
+            && !property.isConstant();
     }
 
     private static boolean isReadOnlyOrInConstructor(ClientModelPropertyAccess property, JavaSettings settings) {
@@ -645,7 +700,11 @@ public class ClientModelUtil {
         // the constructor.
         boolean polymorphicDiscriminatorIsRequired = property.isPolymorphicDiscriminator() && property.isRequired();
 
-        return requiredAndIncluded && (notReadOnlyOrIncludeReadOnly || polymorphicDiscriminatorIsRequired);
+        boolean notConstant = !property.isConstant();
+
+        return requiredAndIncluded
+            && (notReadOnlyOrIncludeReadOnly || polymorphicDiscriminatorIsRequired)
+            && notConstant;
     }
 
     /**
@@ -853,12 +912,48 @@ public class ClientModelUtil {
     }
 
     public static boolean readOnlyNotInCtor(ClientModel model, ClientModelProperty property, JavaSettings settings) {
-        return  // not required and in constructor
-        !(property.isRequired() && settings.isRequiredFieldsAsConstructorArgs()) && (
+        return
         // must be read-only and not appear in constructor
-        (property.isReadOnly() && !settings.isIncludeReadOnlyInConstructorArgs())
-            // immutable output model only has package-private setters, making its properties read-only
-            || isImmutableOutputModel(getDefiningModel(model, property), settings));
+        ((property.isReadOnly() && !settings.isIncludeReadOnlyInConstructorArgs())
+            // immutable output model only has package-private setters, making its properties effectively read-only
+            || (isImmutableOutputModel(getDefiningModel(model, property), settings))
+                // if property.isReadOnly(), whether it's required or not will not affect it being in constructor or not
+                // , thus only check when !property.isReadOnly() and the model is immutable output(effectively
+                // read-only)
+                && !(property.isRequired() && settings.isRequiredFieldsAsConstructorArgs()));
+    }
+
+    /**
+     * If stream-style serialization is being generated, some additional setters may need to be added to
+     * support read-only properties that aren't included in the constructor.
+     * Jackson handles this by reflectively setting the value in the parent model, but stream-style
+     * serialization doesn't perform reflective cracking like Jackson Databind does, so it needs a way
+     * to access the readonly property (aka one without a public setter method).
+     * The package-private setter is added when the property isn't included in the constructor and is
+     * defined by this model, except for JSON merge patch models as those use the access helper pattern
+     * to enable subtypes to set the property.
+     *
+     * @param model the model to generate package-private setter for
+     * @param property the field property to generate package-private setter for, either defined by the model,
+     * or the shadow one from parent
+     * @param settings JavaSettings instance
+     * @param streamStyle whether stream-style-serialization is enabled
+     * @return whether the model needs package-private setter for this field property
+     */
+    public static boolean needsPackagePrivateSetter(ClientModel model, ClientModelProperty property,
+        JavaSettings settings, boolean streamStyle) {
+        boolean hasDerivedTypes = !CoreUtils.isNullOrEmpty(model.getDerivedModels());
+        boolean notIncludedInConstructor = !includePropertyInConstructor(property, settings);
+        boolean definedByModel = modelDefinesProperty(model, property);
+        boolean modelIsJsonMergePatch = isJsonMergePatchModel(model, settings);
+        boolean hasPackagePrivateSetter = hasDerivedTypes
+            && notIncludedInConstructor
+            && definedByModel
+            && streamStyle
+            && !property.isPolymorphicDiscriminator()
+            && !modelIsJsonMergePatch
+            && !property.isConstant();
+        return hasPackagePrivateSetter;
     }
 
     /**
@@ -875,6 +970,33 @@ public class ClientModelUtil {
 
     public static boolean isMultipartModel(ClientModel model) {
         return model.getSerializationFormats().contains(KnownMediaType.MULTIPART.value());
+    }
+
+    public static ClientModel getErrorModelFromException(ClassType exceptionType) {
+        String errorBodyClassName = exceptionType.getName();
+        if (errorBodyClassName.endsWith("Exception")) {
+            errorBodyClassName = errorBodyClassName.substring(0, errorBodyClassName.length() - "Exception".length());
+        }
+        return ClientModels.getInstance().getModel(errorBodyClassName);
+    }
+
+    /**
+     * Gets a ModelPropertySegment represents the model and property.
+     *
+     * @param modelType the type of the model
+     * @param propertySerializedName the serialized name of the property
+     * @return the ModelPropertySegment represents the model and property
+     */
+    public static ModelPropertySegment getModelPropertySegment(IType modelType, String propertySerializedName) {
+        final ClientModel responseBodyModel = ClientModelUtil.getClientModel(modelType.toString());
+        final Optional<ClientModelProperty> propertyOpt = findProperty(responseBodyModel, propertySerializedName);
+        return propertyOpt.map(property -> new ModelPropertySegment(responseBodyModel, property)).orElse(null);
+    }
+
+    public static Optional<ClientModelProperty> findProperty(ClientModel model, String propertyName) {
+        final Stream<ClientModelProperty> allProperties
+            = Stream.concat(model.getProperties().stream(), ClientModelUtil.getParentProperties(model).stream());
+        return allProperties.filter(p -> p.getSerializedName().equals(propertyName)).findFirst();
     }
 
     private static boolean hasNoUsage(ClientModel model) {

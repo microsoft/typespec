@@ -1,0 +1,6 @@
+# not ignore here which is for testing
+!node_modules/
+!demo_tsp/
+!demo_yaml/
+!**/package.json
+!tspconfigtest0.yaml

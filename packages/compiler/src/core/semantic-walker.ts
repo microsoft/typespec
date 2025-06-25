@@ -27,6 +27,10 @@ export interface NavigationOptions {
    * Skip non instantiated templates.
    */
   includeTemplateDeclaration?: boolean;
+  /**
+   * Visit derived types.
+   */
+  visitDerivedTypes?: boolean;
 }
 
 export interface NamespaceNavigationOptions {
@@ -176,7 +180,9 @@ function navigateNamespaceType(namespace: Namespace, context: NavigationContext)
   }
 
   for (const subNamespace of namespace.namespaces.values()) {
-    navigateNamespaceType(subNamespace, context);
+    if (!(namespace.name === "TypeSpec" && subNamespace.name === "Prototypes")) {
+      navigateNamespaceType(subNamespace, context);
+    }
   }
 
   for (const union of namespace.unions.values()) {
@@ -194,6 +200,8 @@ function navigateNamespaceType(namespace: Namespace, context: NavigationContext)
   for (const decorator of namespace.decoratorDeclarations.values()) {
     navigateDecoratorDeclaration(decorator, context);
   }
+
+  context.emit("exitNamespace", namespace);
 }
 
 function checkVisited(visited: Set<any>, item: Type) {
@@ -249,6 +257,13 @@ function navigateModelType(model: Model, context: NavigationContext) {
   if (model.indexer && model.indexer.value) {
     navigateTypeInternal(model.indexer.value, context);
   }
+
+  if (context.options.visitDerivedTypes) {
+    for (const derived of model.derivedModels) {
+      navigateModelType(derived, context);
+    }
+  }
+
   context.emit("exitModel", model);
 }
 
@@ -288,6 +303,8 @@ function navigateInterfaceType(type: Interface, context: NavigationContext) {
   for (const op of type.operations.values()) {
     navigateOperationType(op, context);
   }
+
+  context.emit("exitInterface", type);
 }
 
 function navigateEnumType(type: Enum, context: NavigationContext) {
@@ -296,6 +313,11 @@ function navigateEnumType(type: Enum, context: NavigationContext) {
   }
 
   context.emit("enum", type);
+  for (const member of type.members.values()) {
+    navigateTypeInternal(member, context);
+  }
+
+  context.emit("exitEnum", type);
 }
 
 function navigateUnionType(type: Union, context: NavigationContext) {
@@ -309,6 +331,8 @@ function navigateUnionType(type: Union, context: NavigationContext) {
   for (const variant of type.variants.values()) {
     navigateUnionTypeVariant(variant, context);
   }
+
+  context.emit("exitUnion", type);
 }
 
 function navigateUnionTypeVariant(type: UnionVariant, context: NavigationContext) {
@@ -317,6 +341,8 @@ function navigateUnionTypeVariant(type: UnionVariant, context: NavigationContext
   }
   if (context.emit("unionVariant", type) === ListenerFlow.NoRecursion) return;
   navigateTypeInternal(type.type, context);
+
+  context.emit("exitUnionVariant", type);
 }
 
 function navigateTupleType(type: Tuple, context: NavigationContext) {
@@ -327,6 +353,8 @@ function navigateTupleType(type: Tuple, context: NavigationContext) {
   for (const value of type.values) {
     navigateTypeInternal(value, context);
   }
+
+  context.emit("exitTuple", type);
 }
 function navigateStringTemplate(type: StringTemplate, context: NavigationContext) {
   if (checkVisited(context.visited, type)) {
@@ -398,9 +426,6 @@ function navigateTypeInternal(type: Type, context: NavigationContext) {
       return navigateDecoratorDeclaration(type, context);
     case "ScalarConstructor":
       return navigateScalarConstructor(type, context);
-    case "Object":
-    case "Projection":
-    case "Function":
     case "FunctionParameter":
     case "Boolean":
     case "EnumMember":
@@ -483,10 +508,4 @@ const eventNames: Array<keyof SemanticNodeListener> = [
   "exitUnionVariant",
   "intrinsic",
   "exitIntrinsic",
-  "function",
-  "exitFunction",
-  "object",
-  "exitObject",
-  "projection",
-  "exitProjection",
 ];

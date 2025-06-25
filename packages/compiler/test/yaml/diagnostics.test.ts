@@ -1,7 +1,7 @@
 import { strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { expectDiagnosticEmpty } from "../../src/testing/expect.js";
-import { extractCursor } from "../../src/testing/test-server-host.js";
+import { extractCursor } from "../../src/testing/source-utils.js";
 import { getLocationInYamlScript } from "../../src/yaml/diagnostics.js";
 import { parseYaml } from "../../src/yaml/parser.js";
 

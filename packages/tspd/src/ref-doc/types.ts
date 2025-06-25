@@ -1,4 +1,4 @@
-import {
+import type {
   Decorator,
   Enum,
   EnumMember,
@@ -8,8 +8,8 @@ import {
   MixedFunctionParameter,
   Model,
   ModelProperty,
-  NodePackage,
   Operation,
+  PackageJson,
   Scalar,
   Type,
   Union,
@@ -26,7 +26,7 @@ export type TypeSpecLibraryRefDoc = TypeSpecRefDocBase & {
   /**
    * Library package.json
    */
-  readonly packageJson: NodePackage;
+  readonly packageJson: PackageJson;
 
   /**
    * Library description

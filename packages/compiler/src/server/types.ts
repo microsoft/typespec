@@ -25,6 +25,7 @@ import {
   PublishDiagnosticsParams,
   Range,
   ReferenceParams,
+  RenameFilesParams,
   RenameParams,
   SemanticTokens,
   SemanticTokensParams,
@@ -36,8 +37,20 @@ import {
   WorkspaceFolder,
   WorkspaceFoldersChangeEvent,
 } from "vscode-languageserver";
-import { TextDocument, TextEdit } from "vscode-languageserver-textdocument";
-import type { CompilerHost, Program, SourceFile, TypeSpecScriptNode } from "../core/index.js";
+import type { TextDocument, TextEdit } from "vscode-languageserver-textdocument";
+import type { CompilerOptions } from "../core/options.js";
+import type { Program } from "../core/program.js";
+import type {
+  CompilerHost,
+  Diagnostic,
+  NoTarget,
+  SourceFile,
+  SourceLocation,
+  TypeSpecScriptNode,
+} from "../core/types.js";
+import { LoadedCoreTemplates } from "../init/core-templates.js";
+import { EmitterTemplate, InitTemplate, InitTemplateLibrarySpec } from "../init/init-template.js";
+import { ScaffoldingConfig } from "../init/scaffold.js";
 
 export type ServerLogLevel = "trace" | "debug" | "info" | "warning" | "error";
 export interface ServerLog {
@@ -59,8 +72,20 @@ export interface ServerHost {
 
 export interface CompileResult {
   readonly program: Program;
-  readonly document: TextDocument;
+  readonly document: TextDocument | undefined;
   readonly script: TypeSpecScriptNode;
+  readonly optionsFromConfig: CompilerOptions;
+}
+
+export interface ServerDiagnostic extends Diagnostic {
+  target: (SourceLocation & { position?: { line: number; column: number } }) | typeof NoTarget;
+}
+
+export interface InternalCompileResult {
+  readonly hasError: boolean;
+  readonly diagnostics: ServerDiagnostic[];
+  readonly entrypoint?: string;
+  readonly options?: CompilerOptions;
 }
 
 export interface Server {
@@ -78,6 +103,7 @@ export interface Server {
   findDocumentHighlight(params: DocumentHighlightParams): Promise<DocumentHighlight[]>;
   prepareRename(params: PrepareRenameParams): Promise<Range | undefined>;
   rename(params: RenameParams): Promise<WorkspaceEdit>;
+  renameFiles(params: RenameFilesParams): Promise<void>;
   getSemanticTokens(params: SemanticTokensParams): Promise<SemanticToken[]>;
   buildSemanticTokens(params: SemanticTokensParams): Promise<SemanticTokens>;
   checkChange(change: TextDocumentChangeEvent<TextDocument>): Promise<void>;
@@ -89,6 +115,19 @@ export interface Server {
   getCodeActions(params: CodeActionParams): Promise<CodeAction[]>;
   executeCommand(params: ExecuteCommandParams): Promise<void>;
   log(log: ServerLog): void;
+
+  // Following custom capacities are added for supporting tsp init project from IDE (vscode for now) so that IDE can trigger compiler
+  // to do the real job while collecting the necessary information accordingly from the user.
+  // We can't do the tsp init experience by simple cli interface because the experience needs to talk
+  // with the compiler for multiple times in different steps (i.e. get core templates, validate the selected template, scaffold the project)
+  // and it's not a good idea to expose these capacity in cli interface and call cli again and again.
+  getInitProjectContext(): Promise<InitProjectContext>;
+  validateInitProjectTemplate(param: { template: InitTemplate }): Promise<boolean>;
+  initProject(param: { config: InitProjectConfig }): Promise<boolean>;
+  internalCompile(param: {
+    doc: TextDocumentIdentifier;
+    options: CompilerOptions;
+  }): Promise<InternalCompileResult>;
 }
 
 export interface ServerSourceFile extends SourceFile {
@@ -135,3 +174,31 @@ export interface SemanticToken {
   pos: number;
   end: number;
 }
+
+export type CustomRequestName =
+  | "typespec/getInitProjectContext"
+  | "typespec/initProject"
+  | "typespec/validateInitProjectTemplate"
+  | "typespec/internalCompile";
+export interface ServerCustomCapacities {
+  getInitProjectContext?: boolean;
+  validateInitProjectTemplate?: boolean;
+  initProject?: boolean;
+  internalCompile?: boolean;
+}
+
+export interface ServerInitializeResult extends InitializeResult {
+  customCapacities?: ServerCustomCapacities;
+  compilerRootFolder?: string;
+  compilerCliJsPath?: string;
+}
+
+export interface InitProjectContext {
+  /** provide the default templates current compiler/cli supports */
+  coreInitTemplates: LoadedCoreTemplates;
+}
+
+export type InitProjectConfig = ScaffoldingConfig;
+export type InitProjectTemplate = InitTemplate;
+export type InitProjectTemplateLibrarySpec = InitTemplateLibrarySpec;
+export type InitProjectTemplateEmitterTemplate = EmitterTemplate;

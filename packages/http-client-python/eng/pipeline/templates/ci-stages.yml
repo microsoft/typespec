@@ -26,3 +26,4 @@ stages:
       Condition: ${{ parameters.Condition }}
       DependsOn: ${{ parameters.DependsOn }}
       LanguageShortName: "python"
+      PythonVersion: "3.9"

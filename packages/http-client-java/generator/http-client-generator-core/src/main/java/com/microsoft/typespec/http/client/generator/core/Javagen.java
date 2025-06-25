@@ -11,8 +11,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
-import com.microsoft.typespec.http.client.generator.core.mapper.PomMapper;
-import com.microsoft.typespec.http.client.generator.core.mapper.android.AndroidMapperFactory;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.AsyncSyncClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientBuilder;
@@ -38,8 +36,6 @@ import com.microsoft.typespec.http.client.generator.core.model.projectmodel.Text
 import com.microsoft.typespec.http.client.generator.core.model.xmlmodel.XmlFile;
 import com.microsoft.typespec.http.client.generator.core.postprocessor.Postprocessor;
 import com.microsoft.typespec.http.client.generator.core.preprocessor.Preprocessor;
-import com.microsoft.typespec.http.client.generator.core.template.Templates;
-import com.microsoft.typespec.http.client.generator.core.template.android.AndroidTemplateFactory;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import java.util.Collections;
@@ -47,15 +43,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
-import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.LoaderOptions;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
-import org.yaml.snakeyaml.inspector.TrustedTagInspector;
-import org.yaml.snakeyaml.introspector.Property;
-import org.yaml.snakeyaml.nodes.NodeTuple;
-import org.yaml.snakeyaml.nodes.Tag;
-import org.yaml.snakeyaml.representer.Representer;
 
 public class Javagen extends NewPlugin {
     private final Logger logger = new PluginLogger(this, Javagen.class);
@@ -73,13 +60,12 @@ public class Javagen extends NewPlugin {
     @Override
     public boolean processInternal() {
         this.clear();
-
-        JavaSettings settings = JavaSettings.getInstance();
-        return settings.isAndroid() ? generateAndroid(settings) : generateJava(settings);
+        return generateJava(JavaSettings.getInstance());
     }
 
     private boolean generateJava(JavaSettings settings) {
         try {
+
             // Step 1: Parse input yaml as CodeModel
             CodeModel codeModel = new Preprocessor(this, connection, pluginName, sessionId).processCodeModel();
 
@@ -113,123 +99,6 @@ public class Javagen extends NewPlugin {
             return false;
         }
         return true;
-    }
-
-    private boolean generateAndroid(JavaSettings settings) {
-        try {
-            // Step 1: Parse input yaml as CodeModel
-            CodeModel codeModel = new Preprocessor(this, connection, pluginName, sessionId).processCodeModel();
-
-            // Step 2: Map
-            Mappers.setFactory(new AndroidMapperFactory());
-            Client client = Mappers.getClientMapper().map(codeModel);
-
-            // Step 3: Write to templates
-            Templates.setFactory(new AndroidTemplateFactory());
-            JavaPackage javaPackage = new JavaPackage(this);
-            // Service client
-            javaPackage.addServiceClient(client.getServiceClient().getPackage(),
-                client.getServiceClient().getClassName(), client.getServiceClient());
-
-            if (JavaSettings.getInstance().isGenerateClientInterfaces()) {
-                javaPackage.addServiceClientInterface(client.getServiceClient().getInterfaceName(),
-                    client.getServiceClient());
-            }
-
-            // Async/sync service clients
-            for (AsyncSyncClient asyncClient : client.getAsyncClients()) {
-                javaPackage.addAsyncServiceClient(asyncClient.getPackageName(), asyncClient);
-            }
-
-            for (AsyncSyncClient syncClient : client.getSyncClients()) {
-                javaPackage.addSyncServiceClient(syncClient.getPackageName(), syncClient);
-            }
-
-            // Service client builder
-            for (ClientBuilder clientBuilder : client.getClientBuilders()) {
-                javaPackage.addServiceClientBuilder(clientBuilder);
-            }
-
-            // Method group
-            for (MethodGroupClient methodGroupClient : client.getServiceClient().getMethodGroupClients()) {
-                javaPackage.addMethodGroup(methodGroupClient.getPackage(), methodGroupClient.getClassName(),
-                    methodGroupClient);
-                if (JavaSettings.getInstance().isGenerateClientInterfaces()) {
-                    javaPackage.addMethodGroupInterface(methodGroupClient.getInterfaceName(), methodGroupClient);
-                }
-            }
-
-            // Response
-            for (ClientResponse response : client.getResponseModels()) {
-                javaPackage.addClientResponse(response.getPackage(), response.getName(), response);
-            }
-
-            // Client model
-            for (ClientModel model : client.getModels()) {
-                javaPackage.addModel(model.getPackage(), model.getName(), model);
-            }
-
-            // Enum
-            for (EnumType enumType : client.getEnums()) {
-                javaPackage.addEnum(enumType.getPackage(), enumType.getName(), enumType);
-            }
-
-            // Exception
-            for (ClientException exception : client.getExceptions()) {
-                javaPackage.addException(exception.getPackage(), exception.getName(), exception);
-            }
-
-            // XML sequence wrapper
-            for (XmlSequenceWrapper xmlSequenceWrapper : client.getXmlSequenceWrappers()) {
-                javaPackage.addXmlSequenceWrapper(xmlSequenceWrapper.getPackage(),
-                    xmlSequenceWrapper.getWrapperClassName(), xmlSequenceWrapper);
-            }
-
-            // Package-info
-            for (PackageInfo packageInfo : client.getPackageInfos()) {
-                javaPackage.addPackageInfo(packageInfo.getPackage(), "package-info", packageInfo);
-            }
-
-            // TODO: POM, Manager
-            // Step 4: Print to files
-            new Postprocessor(this).postProcess(javaPackage.getJavaFiles()
-                .stream()
-                .collect(Collectors.toMap(JavaFile::getFilePath, file -> file.getContents().toString())));
-
-            String artifactId = JavaSettings.getInstance().getArtifactId();
-            if (!(artifactId == null || artifactId.isEmpty())) {
-                writeFile("src/main/resources/" + artifactId + ".properties",
-                    "name=${project.artifactId}\nversion=${project.version}\n", null);
-            }
-        } catch (Exception ex) {
-            logger.error("Failed to generate code.", ex);
-            return false;
-        }
-        return true;
-    }
-
-    CodeModel parseCodeModel(String fileName) {
-        String file = readFile(fileName);
-        Representer representer = new Representer(new DumperOptions()) {
-            @Override
-            protected NodeTuple representJavaBeanProperty(Object javaBean, Property property, Object propertyValue,
-                Tag customTag) {
-                // if value of property is null, ignore it.
-                if (propertyValue == null) {
-                    return null;
-                } else {
-                    return super.representJavaBeanProperty(javaBean, property, propertyValue, customTag);
-                }
-            }
-        };
-
-        LoaderOptions loaderOptions = new LoaderOptions();
-        loaderOptions.setCodePointLimit(50 * 1024 * 1024);
-        loaderOptions.setMaxAliasesForCollections(Integer.MAX_VALUE);
-        loaderOptions.setNestingDepthLimit(Integer.MAX_VALUE);
-        loaderOptions.setTagInspector(new TrustedTagInspector());
-        Yaml newYaml = new Yaml(new Constructor(loaderOptions), representer, new DumperOptions(), loaderOptions);
-        return newYaml.loadAs(file, CodeModel.class);
     }
 
     protected JavaPackage writeToTemplates(CodeModel codeModel, Client client, JavaSettings settings,
@@ -294,7 +163,7 @@ public class Javagen extends NewPlugin {
             // Test
             if (settings.isDataPlaneClient() && settings.isGenerateTests()) {
                 if (!client.getSyncClients().isEmpty()
-                    && client.getSyncClients().iterator().next().getClientBuilder() != null) {
+                    && client.getSyncClients().stream().anyMatch(c -> c.getClientBuilder() != null)) {
                     List<ServiceClient> serviceClients = client.getServiceClients();
                     if (CoreUtils.isNullOrEmpty(serviceClients)) {
                         serviceClients = Collections.singletonList(client.getServiceClient());
@@ -319,7 +188,7 @@ public class Javagen extends NewPlugin {
             }
 
             // Service version
-            if (settings.isDataPlaneClient()) {
+            if (settings.isDataPlaneClient() || !settings.isAzureV1() || settings.isAzureV2()) {
                 String packageName = settings.getPackage();
                 if (CoreUtils.isNullOrEmpty(client.getServiceClients())) {
                     List<String> serviceVersions = settings.getServiceVersions();
@@ -385,7 +254,7 @@ public class Javagen extends NewPlugin {
             javaPackage.addPackageInfo(packageInfo.getPackage(), "package-info", packageInfo);
         }
 
-        if (settings.isDataPlaneClient()) {
+        if (settings.isDataPlaneClient() || settings.isUnbranded() || settings.isAzureV2()) {
             Project project = new Project(client, ClientModelUtil.getApiVersions(codeModel));
             if (settings.isSdkIntegration()) {
                 project.integrateWithSdk();
@@ -395,29 +264,36 @@ public class Javagen extends NewPlugin {
                 = ClientModelUtil.getExternalPackageNamesUsedInClient(client.getModels(), codeModel);
             client.getModuleInfo().checkForAdditionalDependencies(externalPackageNames);
             project.checkForAdditionalDependencies(externalPackageNames);
+            if (codeModel.getInfo() != null && codeModel.getInfo().getLicense() != null) {
+                project.setLicenseInfo(codeModel.getInfo().getLicense().getName(),
+                    codeModel.getInfo().getLicense().getUrl());
+            }
 
             // Module-info
             javaPackage.addModuleInfo(client.getModuleInfo());
 
             // POM
             if (settings.isRegeneratePom()) {
-                Pom pom = new PomMapper().map(project);
+                Pom pom = Mappers.getPomMapper().map(project);
                 javaPackage.addPom("pom.xml", pom);
             }
 
             // Readme, Changelog
             if (settings.isSdkIntegration()) {
                 javaPackage.addReadmeMarkdown(project);
-                if (generateSwaggerMarkdown) {
-                    javaPackage.addSwaggerReadmeMarkdown(project);
+
+                if (!settings.isUnbranded()) {
+                    if (generateSwaggerMarkdown) {
+                        javaPackage.addSwaggerReadmeMarkdown(project);
+                    }
+                    javaPackage.addChangelogMarkdown(project);
+
+                    // test proxy asserts.json
+                    javaPackage.addTestProxyAssetsJson(project);
+
+                    // Blank readme sample
+                    javaPackage.addProtocolExamplesBlank();
                 }
-                javaPackage.addChangelogMarkdown(project);
-
-                // test proxy asserts.json
-                javaPackage.addTestProxyAssetsJson(project);
-
-                // Blank readme sample
-                javaPackage.addProtocolExamplesBlank();
             }
         }
         return javaPackage;

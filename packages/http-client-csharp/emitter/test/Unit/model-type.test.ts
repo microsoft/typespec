@@ -1,11 +1,13 @@
+vi.resetModules();
+
 import { TestHost } from "@typespec/compiler/testing";
 import assert, { deepStrictEqual, ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import {
+  createCSharpSdkContext,
   createEmitterContext,
   createEmitterTestHost,
-  createNetSdkContext,
   typeSpecCompile,
 } from "./utils/test-util.js";
 
@@ -47,9 +49,9 @@ op test(@body input: Pet): Pet;
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const models = root.Models;
+    const models = root.models;
     const petModel = models.find((m) => m.name === "Pet");
     const catModel = models.find((m) => m.name === "Cat");
     const dogModel = models.find((m) => m.name === "Dog");
@@ -59,13 +61,14 @@ op test(@body input: Pet): Pet;
     const discriminatorProperty = petModel?.properties.find(
       (p) => p === petModel?.discriminatorProperty,
     );
-    strictEqual(discriminatorProperty?.name, "kind");
+    ok(discriminatorProperty);
+    strictEqual(discriminatorProperty.kind, "property");
+    strictEqual(discriminatorProperty.name, "kind");
     strictEqual(discriminatorProperty.serializedName, "kind");
     strictEqual(discriminatorProperty.type.kind, "string");
     strictEqual(discriminatorProperty.optional, false);
     strictEqual(discriminatorProperty.readOnly, false);
     strictEqual(discriminatorProperty.discriminator, true);
-    strictEqual(discriminatorProperty.flattenedNames, undefined);
     // assert we will NOT have a DiscriminatorProperty on the derived models
     assert(
       catModel?.discriminatorProperty === undefined,
@@ -130,25 +133,26 @@ op test(@body input: Pet): Pet;
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const codeModel = createModel(sdkContext);
-    const models = codeModel.Models;
+    const models = codeModel.models;
     const pet = models.find((m) => m.name === "Pet");
     assert(pet !== undefined);
     // assert the discriminator property name
     strictEqual("kind", pet?.discriminatorProperty?.name);
     // assert we have a property corresponding to the discriminator property above on the base model
     const discriminatorProperty = pet?.properties.find((p) => p === pet?.discriminatorProperty);
-    strictEqual(discriminatorProperty?.name, "kind");
+    ok(discriminatorProperty);
+    strictEqual(discriminatorProperty.kind, "property");
+    strictEqual(discriminatorProperty.name, "kind");
     strictEqual(discriminatorProperty.serializedName, "kind");
-    strictEqual(discriminatorProperty.description, "The kind of the pet");
+    strictEqual(discriminatorProperty.doc, "The kind of the pet");
     strictEqual(discriminatorProperty.type.kind, "enum");
     strictEqual(discriminatorProperty.type.name, "PetKind");
     strictEqual(discriminatorProperty.type.valueType.kind, "string");
     strictEqual(discriminatorProperty.optional, false);
     strictEqual(discriminatorProperty.readOnly, false);
     strictEqual(discriminatorProperty.discriminator, true);
-    strictEqual(discriminatorProperty.flattenedNames, undefined);
 
     // verify derived model Cat
     const cat = models.find((m) => m.name === "Cat");
@@ -223,25 +227,26 @@ op test(@body input: Pet): Pet;
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const codeModel = createModel(sdkContext);
-    const models = codeModel.Models;
+    const models = codeModel.models;
     const pet = models.find((m) => m.name === "Pet");
     assert(pet !== undefined);
     // assert the discriminator property name
     strictEqual("kind", pet?.discriminatorProperty?.name);
     // assert we have a property corresponding to the discriminator property above on the base model
     const discriminatorProperty = pet?.properties.find((p) => p === pet?.discriminatorProperty);
-    strictEqual(discriminatorProperty?.name, "kind");
+    ok(discriminatorProperty);
+    strictEqual(discriminatorProperty.kind, "property");
+    strictEqual(discriminatorProperty.name, "kind");
     strictEqual(discriminatorProperty.serializedName, "kind");
-    strictEqual(discriminatorProperty.description, "The kind of the pet");
+    strictEqual(discriminatorProperty.doc, "The kind of the pet");
     strictEqual(discriminatorProperty.type.kind, "enum");
     strictEqual(discriminatorProperty.type.name, "PetKind");
     strictEqual(discriminatorProperty.type.valueType.kind, "string");
     strictEqual(discriminatorProperty.optional, false);
     strictEqual(discriminatorProperty.readOnly, false);
     strictEqual(discriminatorProperty.discriminator, true);
-    strictEqual(discriminatorProperty.flattenedNames, undefined);
 
     // verify derived model Cat
     const cat = models.find((m) => m.name === "Cat");
@@ -343,9 +348,9 @@ op op5(@body body: ExtendsFooArray): ExtendsFooArray;
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const models = root.Models;
+    const models = root.models;
     const extendsUnknownModel = models.find((m) => m.name === "ExtendsUnknown");
     const extendsStringModel = models.find((m) => m.name === "ExtendsString");
     const extendsInt32Model = models.find((m) => m.name === "ExtendsInt32");
@@ -435,9 +440,9 @@ op op5(@body body: IsFooArray): IsFooArray;
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const models = root.Models;
+    const models = root.models;
     const isUnknownModel = models.find((m) => m.name === "IsUnknown");
     const isStringModel = models.find((m) => m.name === "IsString");
     const isInt32Model = models.find((m) => m.name === "IsInt32");
@@ -486,11 +491,177 @@ op op1(): void;
       { IsTCGCNeeded: true },
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const models = root.Models;
+    const models = root.models;
     const isEmptyModel = models.find((m) => m.name === "Empty");
     ok(isEmptyModel);
+  });
+});
+
+describe("Spec with no operations should still compile", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("Model should be returned even though no operations", async () => {
+    const program = await typeSpecCompile(
+      `
+@doc("Foo model")
+@usage(Usage.output)
+model Foo {
+  Bar: string;
+}
+
+`,
+      runner,
+      { IsVersionNeeded: false, IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const models = root.models;
+    const model = models.find((m) => m.name === "Foo");
+    ok(model);
+    strictEqual(model?.properties.length, 1);
+    strictEqual(model?.properties[0].name, "Bar");
+    strictEqual(root.clients.length, 0);
+  });
+});
+
+describe("Header property", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("Header property should be included in the model", async () => {
+    const program = await typeSpecCompile(
+      `
+model HeaderModel {
+    @header("x-foo")
+    foo: string;
+
+    bar: int32;
+}
+
+op testOperation(@bodyRoot body: HeaderModel): void;
+`,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const models = root.models;
+    const isEmptyModel = models.find((m) => m.name === "HeaderModel");
+    ok(isEmptyModel);
+
+    const headerProperty = isEmptyModel?.properties.find((p) => p.name === "foo");
+    ok(headerProperty);
+    strictEqual(headerProperty.name, "foo");
+    strictEqual(headerProperty.serializedName, "x-foo");
+    strictEqual(headerProperty.type.kind, "string");
+    strictEqual(headerProperty.optional, false);
+    strictEqual(headerProperty.readOnly, false);
+  });
+
+  it("Header property should be included in the model if it's read-only", async () => {
+    const program = await typeSpecCompile(
+      `
+model HeaderModel {
+    @header("x-foo")
+    @visibility(Lifecycle.Read)
+    foo: string;
+
+    bar: int32;
+}
+
+op testOperation(@bodyRoot body: HeaderModel): void;
+`,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const models = root.models;
+    const isEmptyModel = models.find((m) => m.name === "HeaderModel");
+    ok(isEmptyModel);
+
+    const headerProperty = isEmptyModel?.properties.find((p) => p.name === "foo");
+    ok(headerProperty);
+    strictEqual(headerProperty.name, "foo");
+    strictEqual(headerProperty.serializedName, "x-foo");
+    strictEqual(headerProperty.type.kind, "string");
+    strictEqual(headerProperty.optional, false);
+    strictEqual(headerProperty.readOnly, true);
+  });
+
+  it("Header property should not be included in the model if visibility is none", async () => {
+    const program = await typeSpecCompile(
+      `
+model HeaderModel {
+    @header("x-foo")
+    @invisible(Lifecycle)
+    foo: string;
+
+    bar: int32;
+}
+
+op testOperation(@bodyRoot body: HeaderModel): void;
+`,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const models = root.models;
+    const isEmptyModel = models.find((m) => m.name === "HeaderModel");
+    ok(isEmptyModel);
+
+    const headerProperty = isEmptyModel?.properties.find((p) => p.name === "foo");
+    strictEqual(undefined, headerProperty);
+  });
+
+  it("Header property should be included in the model if it has a default value", async () => {
+    const program = await typeSpecCompile(
+      `
+model HeaderModel {
+    @header("x-foo")
+    foo: "cat";
+
+    bar: int32;
+}
+
+op testOperation(@bodyRoot body: HeaderModel): void;
+`,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const models = root.models;
+    const isEmptyModel = models.find((m) => m.name === "HeaderModel");
+    ok(isEmptyModel);
+
+    const headerProperty = isEmptyModel?.properties.find((p) => p.name === "foo");
+    ok(headerProperty);
+    strictEqual(headerProperty.name, "foo");
+    strictEqual(headerProperty.serializedName, "x-foo");
+    strictEqual(headerProperty.type.kind, "constant");
+    strictEqual(headerProperty.type.value, "cat");
+    strictEqual(headerProperty.optional, false);
+    strictEqual(headerProperty.readOnly, false);
   });
 });
 
@@ -515,9 +686,9 @@ describe("typespec-client-generator-core: general decorators list", () => {
     );
 
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const models = root.Models;
+    const models = root.models;
     strictEqual(models.length, 1);
     deepStrictEqual(models[0].decorators, [
       {

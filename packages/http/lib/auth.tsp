@@ -32,7 +32,7 @@ model BasicAuth {
   type: AuthType.http;
 
   @doc("basic auth scheme")
-  scheme: "basic";
+  scheme: "Basic";
 }
 
 /**
@@ -49,7 +49,7 @@ model BearerAuth {
   type: AuthType.http;
 
   @doc("bearer auth scheme")
-  scheme: "bearer";
+  scheme: "Bearer";
 }
 
 @doc("Describes the location of the API key")

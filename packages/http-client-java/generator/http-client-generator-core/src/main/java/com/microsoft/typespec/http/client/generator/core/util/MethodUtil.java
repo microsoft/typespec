@@ -19,10 +19,12 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SealedChoiceSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.StringSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientEnumValue;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
@@ -48,7 +50,8 @@ public class MethodUtil {
         = CodeNamer.toCamelCase(REPEATABILITY_REQUEST_ID_HEADER);
     public static final String REPEATABILITY_FIRST_SENT_VARIABLE_NAME
         = CodeNamer.toCamelCase(REPEATABILITY_FIRST_SENT_HEADER);
-    public static final String REPEATABILITY_REQUEST_ID_EXPRESSION = "CoreUtils.randomUuid().toString()";
+    public static final String REPEATABILITY_REQUEST_ID_EXPRESSION
+        = JavaSettings.getInstance().isAzureV1() ? "CoreUtils.randomUuid().toString()" : "UUID.randomUUID().toString()";
     public static final String REPEATABILITY_FIRST_SENT_EXPRESSION
         = "DateTimeRfc1123.toRfc1123String(OffsetDateTime.now())";
 
@@ -294,23 +297,6 @@ public class MethodUtil {
     }
 
     /**
-     * Checks if the parameter is "maxpagesize".
-     * <p>
-     * It checks if the serialized name is "maxpagesize", or client name is "maxPageSize".
-     *
-     * @param parameter the parameter
-     * @return whether the parameter is "maxpagesize".
-     */
-    public static boolean isMaxPageSizeParameter(Parameter parameter) {
-        return parameter.getProtocol() != null && parameter.getProtocol().getHttp() != null
-        // query parameter
-            && parameter.getProtocol().getHttp().getIn() == RequestParameterLocation.QUERY
-            // serialized name == maxpagesize, or relax a bit, client name == maxPageSize
-            && (Objects.equals(parameter.getLanguage().getDefault().getSerializedName(), "maxpagesize")
-                || Objects.equals(SchemaUtil.getJavaName(parameter), "maxPageSize"));
-    }
-
-    /**
      * Finds the serialized name of "maxpagesize" parameter, if exists.
      *
      * @param proxyMethod the proxy method
@@ -324,6 +310,20 @@ public class MethodUtil {
                     || Objects.equals(p.getName(), "maxPageSize")))
             .map(ProxyMethodParameter::getRequestParameterName)
             .findFirst();
+    }
+
+    /**
+     * Gets method parameter description, or a default description if not exists.
+     * 
+     * @param p the client method parameter
+     * @return the method parameter description
+     */
+    public static String methodParameterDescriptionOrDefault(ClientMethodParameter p) {
+        String doc = p.getDescription();
+        if (CoreUtils.isNullOrEmpty(doc)) {
+            doc = String.format("The %1$s parameter", p.getName());
+        }
+        return doc;
     }
 
     /**

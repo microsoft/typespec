@@ -11,6 +11,7 @@ async function main() {
   const repo = process.env["BUILD_REPOSITORY_ID"];
   const prNumber = process.env["SYSTEM_PULLREQUEST_PULLREQUESTNUMBER"];
   const ghToken = process.env.GH_TOKEN;
+  const vscodeDownloadUrl = process.env.VSCODE_DOWNLOAD_URL;
   if (repo === undefined) {
     throw new Error("BUILD_REPOSITORY_ID environment variable is not set");
   }
@@ -29,21 +30,28 @@ async function main() {
 
   const tryItComments = data.filter((x) => x.body.includes(TRY_ID_COMMENT_IDENTIFIER));
   console.log(`Found ${azoComments.length} Cadl Try It comment(s)`);
+  const comment = makeComment(folderName, prNumber, vscodeDownloadUrl);
   if (tryItComments.length > 0) {
+    await updateComment(repo, tryItComments[0].id, comment, ghAuth);
     return;
   }
 
-  const comment = makeComment(folderName, prNumber);
   await writeComment(repo, prNumber, comment, ghAuth);
 }
 
-function makeComment(folderName: string, prNumber: string): string {
+function makeComment(
+  folderName: string,
+  prNumber: string,
+  vscodeDownloadUrl: string | undefined,
+): string {
   const links = [
     `[🛝 Playground]( https://cadlplayground.z22.web.core.windows.net${folderName}/prs/${prNumber}/)`,
     `[🌐 Website](https://tspwebsitepr.z22.web.core.windows.net${folderName}/prs/${prNumber}/)`,
-    `[📚 Next docs](https://tspwebsitepr.z22.web.core.windows.net${folderName}/prs/${prNumber}/docs/next.html)`,
   ];
 
+  if (vscodeDownloadUrl) {
+    links.push(`[🛝 VSCode Extension]( ${vscodeDownloadUrl})`);
+  }
   return [
     `<!-- ${TRY_ID_COMMENT_IDENTIFIER} -->`,
     `You can try these changes here`,
@@ -75,6 +83,24 @@ async function writeComment(repo: string, prNumber: string, comment: string, ghA
   });
 
   console.log("Comment created", response);
+}
+
+async function updateComment(repo: string, commentId: string, comment: string, ghAuth: string) {
+  const url = `https://api.github.com/repos/${repo}/issues/comments/${commentId}`;
+  const body = {
+    body: comment,
+  };
+  const headers = {
+    "Content-Type": "application/json",
+  };
+
+  const response = await request("PATCH", url, {
+    headers,
+    body: JSON.stringify(body),
+    ghAuth,
+  });
+
+  console.log("Comment updated", response);
 }
 
 async function request(method: string, url: string, data: any): Promise<string> {

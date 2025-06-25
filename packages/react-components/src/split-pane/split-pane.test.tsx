@@ -70,8 +70,17 @@ describe("sizes", () => {
     if (pageY !== undefined) (evt as any).pageY = pageY;
     return evt;
   }
+  function mockTouchEvent(
+    target: HTMLElement,
+    type: keyof typeof createEvent,
+    { touches }: { touches: Partial<TouchEvent["touches"][number]>[] },
+  ) {
+    const evt = createEvent[type](target);
+    (evt as any).touches = touches;
+    return evt;
+  }
 
-  it("resize", async () => {
+  it("resize (mouse)", async () => {
     render(
       <SplitPane initialSizes={[undefined, undefined]}>
         <Pane>Pane 1</Pane>
@@ -93,6 +102,46 @@ describe("sizes", () => {
 
     fireEvent(separator, mockMouseEvent(separator, "mouseUp"));
     fireEvent(separator, mockMouseEvent(separator, "mouseMove", { pageX: 700, pageY: 0 }));
+
+    // Should not update after we mouse up
+    expect(pane1).toHaveStyle({ width: "600px" });
+    expect(pane2).toHaveStyle({ width: "400px" });
+  });
+
+  it("resize (touch)", async () => {
+    render(
+      <SplitPane initialSizes={[undefined, undefined]}>
+        <Pane>Pane 1</Pane>
+        <Pane>Pane 2</Pane>
+      </SplitPane>,
+    );
+    const separator = await screen.getByRole("separator");
+    const pane1 = await screen.findByText("Pane 1");
+    const pane2 = await screen.findByText("Pane 2");
+
+    expect(pane1).toHaveStyle({ width: "500px" });
+    expect(pane2).toHaveStyle({ width: "500px" });
+
+    fireEvent(
+      separator,
+      mockTouchEvent(separator, "touchStart", { touches: [{ clientX: 500, clientY: 0 }] }),
+    );
+    fireEvent(
+      separator,
+      mockTouchEvent(separator, "touchMove", { touches: [{ clientX: 600, clientY: 0 }] }),
+    );
+
+    expect(pane1).toHaveStyle({ width: "600px" });
+    expect(pane2).toHaveStyle({ width: "400px" });
+
+    fireEvent(
+      separator,
+      mockTouchEvent(separator, "touchEnd", { touches: [{ clientX: 600, clientY: 0 }] }),
+    );
+    fireEvent(
+      separator,
+      mockTouchEvent(separator, "touchMove", { touches: [{ clientX: 700, clientY: 0 }] }),
+    );
 
     // Should not update after we mouse up
     expect(pane1).toHaveStyle({ width: "600px" });

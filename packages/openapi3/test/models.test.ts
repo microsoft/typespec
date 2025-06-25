@@ -1,9 +1,10 @@
+import { DiagnosticTarget } from "@typespec/compiler";
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
-import { diagnoseOpenApiFor, oapiForModel, openApiFor } from "./test-host.js";
+import { worksFor } from "./works-for.js";
 
-describe("openapi3: models", () => {
+worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
   it("defines models", async () => {
     const res = await oapiForModel(
       "Foo",
@@ -22,48 +23,11 @@ describe("openapi3: models", () => {
     });
   });
 
-  it("uses json name specified via @projectedName (LEGACY)", async () => {
-    const res = await oapiForModel(
-      "Foo",
-      `model Foo {
-        #suppress "deprecated" "for testing"
-        @projectedName("json", "xJson")
-        x: int32;
-      };`,
-    );
-
-    expect(res.schemas.Foo).toMatchObject({
-      required: ["xJson"],
-      properties: {
-        xJson: { type: "integer", format: "int32" },
-      },
-    });
-  });
-
   it("uses json name specified via @encodedName", async () => {
     const res = await oapiForModel(
       "Foo",
       `model Foo {
         @encodedName("application/json", "xJson")
-        x: int32;
-      };`,
-    );
-
-    expect(res.schemas.Foo).toMatchObject({
-      required: ["xJson"],
-      properties: {
-        xJson: { type: "integer", format: "int32" },
-      },
-    });
-  });
-
-  it("uses json name specified via @encodedName even if @projectedName is provided", async () => {
-    const res = await oapiForModel(
-      "Foo",
-      `model Foo {
-        #suppress "deprecated" "for testing"
-        @encodedName("application/json", "xJson")
-        @projectedName("json", "projectedJson")
         x: int32;
       };`,
     );
@@ -100,6 +64,67 @@ describe("openapi3: models", () => {
         message: /type/,
       },
     ]);
+  });
+
+  describe("errors on invalid model names", () => {
+    const symbols = [
+      "!",
+      "@",
+      "#",
+      "$",
+      "%",
+      "^",
+      "&",
+      "*",
+      "(",
+      ")",
+      "=",
+      "+",
+      "[",
+      "]",
+      "{",
+      "}",
+      "|",
+      ";",
+      ":",
+      "<",
+      ">",
+      ",",
+      "/",
+      "?",
+      "~",
+    ];
+    it.each(symbols)("%sName01", async (model) => {
+      const diagnostics = await diagnoseOpenApiFor(
+        `
+        model \`${model}Name01\` { name: string; }
+       `,
+      );
+      expectDiagnostics(diagnostics, [
+        {
+          code: "@typespec/openapi3/invalid-component-fixed-field-key",
+        },
+      ]);
+      diagnostics.forEach((d) => {
+        const diagnosticTarget = d.target as DiagnosticTarget;
+        strictEqual(
+          diagnosticTarget && "kind" in diagnosticTarget && diagnosticTarget.kind === "Model",
+          true,
+        );
+      });
+    });
+  });
+
+  describe("no errors on valid model names", () => {
+    const symbols = [".", "-", "_"];
+    it.each(symbols)("%sName01", async (model) => {
+      const diagnostics = await diagnoseOpenApiFor(
+        `
+        model \`${model}Name01\` { name: string; }
+       `,
+      );
+      expectDiagnostics(diagnostics, []);
+    });
   });
 
   it("doesn't define anonymous models", async () => {
@@ -231,29 +256,6 @@ describe("openapi3: models", () => {
         optionalUnion: {
           allOf: [{ $ref: "#/components/schemas/MyUnion" }],
           default: "a-value",
-        },
-      },
-    });
-  });
-
-  it("specify default value on nullable property", async () => {
-    const res = await oapiForModel(
-      "Foo",
-      `
-      model Foo {
-        optional?: string | null = null;
-      };
-      `,
-    );
-
-    ok(res.schemas.Foo, "expected definition named Foo");
-    deepStrictEqual(res.schemas.Foo, {
-      type: "object",
-      properties: {
-        optional: {
-          type: "string",
-          nullable: true,
-          default: null,
         },
       },
     });
@@ -591,75 +593,6 @@ describe("openapi3: models", () => {
     ok(res.isRef);
     strictEqual(res.schemas.Pet.properties.type.$ref, "#/components/schemas/PetType");
     deepStrictEqual(res.schemas.PetType.enum, [0, 1]);
-  });
-
-  it("defines known values", async () => {
-    const res = await oapiForModel(
-      "Pet",
-      `
-      enum KnownPetType {
-        Dog, Cat
-      }
-
-      #suppress "deprecated" "For testing"
-      @knownValues(KnownPetType)
-      scalar PetType extends string;
-      model Pet { type: PetType };
-      `,
-    );
-    ok(res.isRef);
-    strictEqual(res.schemas.Pet.properties.type.$ref, "#/components/schemas/PetType");
-    deepStrictEqual(res.schemas.PetType, {
-      oneOf: [{ type: "string" }, { type: "string", enum: ["Dog", "Cat"] }],
-    });
-  });
-
-  it("defines nullable properties", async () => {
-    const res = await oapiForModel(
-      "Pet",
-      `
-      model Pet {
-        name: string | null;
-      };
-      `,
-    );
-    ok(res.isRef);
-    deepStrictEqual(res.schemas.Pet, {
-      type: "object",
-      properties: {
-        name: {
-          type: "string",
-          nullable: true,
-        },
-      },
-      required: ["name"],
-    });
-  });
-
-  it("defines nullable array", async () => {
-    const res = await oapiForModel(
-      "Pet",
-      `
-      model Pet {
-        name: int32[] | null;
-      };
-      `,
-    );
-    ok(res.isRef);
-    deepStrictEqual(res.schemas.Pet, {
-      type: "object",
-      properties: {
-        name: {
-          type: "array",
-          items: {
-            type: "integer",
-            format: "int32",
-          },
-          nullable: true,
-        },
-      },
-      required: ["name"],
-    });
   });
 
   it("defines request bodies as unions of models", async () => {
@@ -1075,6 +1008,157 @@ describe("openapi3: models", () => {
         allOf: [{ $ref: "#/components/schemas/Foo" }],
         description: "Some doc",
       });
+    });
+  });
+});
+
+worksFor(["3.0.0"], ({ oapiForModel }) => {
+  it("specify default value on nullable property", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+      model Foo {
+        optional?: string | null = null;
+      };
+      `,
+    );
+
+    ok(res.schemas.Foo, "expected definition named Foo");
+    deepStrictEqual(res.schemas.Foo, {
+      type: "object",
+      properties: {
+        optional: {
+          type: "string",
+          nullable: true,
+          default: null,
+        },
+      },
+    });
+  });
+
+  it("defines nullable properties", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+      model Pet {
+        name: string | null;
+      };
+      `,
+    );
+    ok(res.isRef);
+    deepStrictEqual(res.schemas.Pet, {
+      type: "object",
+      properties: {
+        name: {
+          type: "string",
+          nullable: true,
+        },
+      },
+      required: ["name"],
+    });
+  });
+
+  it("defines nullable array", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+      model Pet {
+        name: int32[] | null;
+      };
+      `,
+    );
+    ok(res.isRef);
+    deepStrictEqual(res.schemas.Pet, {
+      type: "object",
+      properties: {
+        name: {
+          type: "array",
+          items: {
+            type: "integer",
+            format: "int32",
+          },
+          nullable: true,
+        },
+      },
+      required: ["name"],
+    });
+  });
+});
+
+worksFor(["3.1.0"], ({ oapiForModel }) => {
+  // eslint-disable-next-line vitest/no-identical-title
+  it("specify default value on nullable property", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+      model Foo {
+        optional?: string | null = null;
+      };
+      `,
+    );
+
+    ok(res.schemas.Foo, "expected definition named Foo");
+    deepStrictEqual(res.schemas.Foo, {
+      type: "object",
+      properties: {
+        optional: {
+          anyOf: [{ type: "string" }, { type: "null" }],
+          default: null,
+        },
+      },
+    });
+  });
+
+  // eslint-disable-next-line vitest/no-identical-title
+  it("defines nullable properties", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+      model Pet {
+        name: string | null;
+      };
+      `,
+    );
+    ok(res.isRef);
+    deepStrictEqual(res.schemas.Pet, {
+      type: "object",
+      properties: {
+        name: {
+          anyOf: [{ type: "string" }, { type: "null" }],
+        },
+      },
+      required: ["name"],
+    });
+  });
+
+  // eslint-disable-next-line vitest/no-identical-title
+  it("defines nullable array", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+      model Pet {
+        name: int32[] | null;
+      };
+      `,
+    );
+    ok(res.isRef);
+    deepStrictEqual(res.schemas.Pet, {
+      type: "object",
+      properties: {
+        name: {
+          anyOf: [
+            {
+              type: "array",
+              items: {
+                type: "integer",
+                format: "int32",
+              },
+            },
+            { type: "null" },
+          ],
+        },
+      },
+      required: ["name"],
     });
   });
 });

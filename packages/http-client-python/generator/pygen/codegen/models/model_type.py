@@ -7,7 +7,7 @@ from enum import Enum
 from collections import OrderedDict
 from typing import Any, Dict, List, Optional, TYPE_CHECKING, cast
 import sys
-from .utils import add_to_pylint_disable
+from .utils import add_to_pylint_disable, NamespaceType
 from .base import BaseType
 from .constant_type import ConstantType
 from .property import Property
@@ -82,6 +82,7 @@ class ModelType(BaseType):  # pylint: disable=too-many-instance-attributes, too-
         self.snake_case_name: str = self.yaml_data["snakeCaseName"]
         self.cross_language_definition_id: Optional[str] = self.yaml_data.get("crossLanguageDefinitionId")
         self.usage: int = self.yaml_data.get("usage", UsageFlags.Input.value | UsageFlags.Output.value)
+        self.client_namespace: str = self.yaml_data.get("clientNamespace", code_model.namespace)
 
     @property
     def is_usage_output(self) -> bool:
@@ -236,8 +237,6 @@ class ModelType(BaseType):  # pylint: disable=too-many-instance-attributes, too-
 
     def pylint_disable(self) -> str:
         retval: str = ""
-        if len(self.properties) > 10:
-            retval = add_to_pylint_disable(retval, "too-many-instance-attributes")
         if len(self.name) > NAME_LENGTH_LIMIT:
             retval = add_to_pylint_disable(retval, "name-too-long")
         return retval
@@ -256,8 +255,7 @@ class JSONModelType(ModelType):
     def type_annotation(self, **kwargs: Any) -> str:
         return "ET.Element" if self.is_xml else "JSON"
 
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return "object"
 
     def docstring_type(self, **kwargs: Any) -> str:
@@ -283,13 +281,18 @@ class GeneratedModelType(ModelType):
     def type_annotation(self, **kwargs: Any) -> str:
         is_operation_file = kwargs.pop("is_operation_file", False)
         skip_quote = kwargs.get("skip_quote", False)
-        module_name = "_models." if kwargs.get("need_module_name", True) else ""
+        module_name = ""
+        if kwargs.get("need_model_alias", True):
+            serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+            model_alias = self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace)
+            module_name = f"{model_alias}."
         file_name = f"{self.code_model.models_filename}." if self.internal else ""
         retval = module_name + file_name + self.name
         return retval if is_operation_file or skip_quote else f'"{retval}"'
 
     def docstring_type(self, **kwargs: Any) -> str:
-        return f"~{self.code_model.namespace}.models.{self.type_annotation(need_module_name=False, skip_quote=True)}"
+        type_annotation = self.type_annotation(need_model_alias=False, skip_quote=True, **kwargs)
+        return f"~{self.client_namespace}.models.{type_annotation}"
 
     def docstring_text(self, **kwargs: Any) -> str:
         return self.name
@@ -300,32 +303,44 @@ class GeneratedModelType(ModelType):
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = super().imports(**kwargs)
-        relative_path = kwargs.pop("relative_path", None)
-        if relative_path:
-            # add import for models in operations or _types file
+        serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+        relative_path = self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace)
+        alias = self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace)
+        serialize_namespace_type = kwargs.get("serialize_namespace_type")
+        called_by_property = kwargs.get("called_by_property", False)
+        # add import for models in operations or _types file
+        if serialize_namespace_type in [NamespaceType.OPERATION, NamespaceType.CLIENT]:
             file_import.add_submodule_import(
                 relative_path,
                 "models",
                 ImportType.LOCAL,
-                alias="_models",
-                typing_section=(TypingSection.TYPING if kwargs.get("model_typing") else TypingSection.REGULAR),
+                alias=alias,
             )
             if self.is_form_data:
                 file_import.add_submodule_import(
-                    relative_path,
-                    "_model_base",
+                    self.code_model.get_relative_import_path(serialize_namespace, module_name="_utils.model_base"),
+                    "Model",
                     ImportType.LOCAL,
-                    typing_section=(TypingSection.TYPING if kwargs.get("model_typing") else TypingSection.REGULAR),
+                    alias="_Model",
                 )
+        elif serialize_namespace_type == NamespaceType.TYPES_FILE or (
+            serialize_namespace_type == NamespaceType.MODEL and called_by_property
+        ):
+            file_import.add_submodule_import(
+                relative_path,
+                "models",
+                ImportType.LOCAL,
+                alias=alias,
+                typing_section=TypingSection.TYPING,
+            )
         return file_import
 
 
 class MsrestModelType(GeneratedModelType):
     base = "msrest"
 
-    @property
-    def serialization_type(self) -> str:
-        return self.type_annotation(skip_quote=True) if self.internal else self.name
+    def serialization_type(self, **kwargs: Any) -> str:
+        return self.type_annotation(skip_quote=True, **kwargs) if self.internal else self.name
 
     @property
     def instance_check_template(self) -> str:
@@ -340,17 +355,16 @@ class MsrestModelType(GeneratedModelType):
 class DPGModelType(GeneratedModelType):
     base = "dpg"
 
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return (
-            self.type_annotation(skip_quote=True)
+            self.type_annotation(skip_quote=True, **kwargs)
             if self.internal
-            else self.type_annotation(need_module_name=False, skip_quote=True)
+            else self.type_annotation(need_model_alias=False, skip_quote=True, **kwargs)
         )
 
     @property
     def instance_check_template(self) -> str:
-        return "isinstance({}, _model_base.Model)"
+        return "isinstance({}, " + f"_models.{self.name})"
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = super().imports(**kwargs)

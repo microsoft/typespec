@@ -19,7 +19,7 @@ async def client():
         yield client
 
 
-# ========== test for cadl-ranch ==========
+# ========== test for spector ==========
 
 
 @pytest.mark.asyncio

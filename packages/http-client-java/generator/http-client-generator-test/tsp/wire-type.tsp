@@ -5,10 +5,8 @@ using TypeSpec.Http;
 using Azure.ClientGenerator.Core;
 
 @doc("Test for mismatch of wire type and client type on class constructors.")
-@service({
-  title: "WireType",
-})
-namespace Cadl.WireType;
+@service(#{ title: "WireType" })
+namespace TspTest.WireType;
 
 model SuperClassMismatch {
   @encode(DateTimeKnownEncoding.rfc7231, string)

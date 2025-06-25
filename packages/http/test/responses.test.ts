@@ -64,6 +64,24 @@ describe("body resolution", () => {
   });
 });
 
+describe("response cookie", () => {
+  it("emit diagnostics for implicit @cookie in the response", async () => {
+    const [_, diagnostics] = await compileOperations(`
+        op get(): { @cookie token: string };
+      `);
+
+    expectDiagnostics(diagnostics, { code: "@typespec/http/response-cookie-not-supported" });
+  });
+
+  it("doesn't emit response-cookie-not-supported diagnostics for explicit @cookie in the response", async () => {
+    const [_, diagnostics] = await compileOperations(`
+        op get(): { @body explicit: { @cookie token: string } };
+      `);
+
+    expectDiagnostics(diagnostics, { code: "@typespec/http/metadata-ignored" });
+  });
+});
+
 it("doesn't emit diagnostic if the metadata is not applicable in the response", async () => {
   const [_, diagnostics] = await compileOperations(
     `op read(): { @body explicit: {@path id: string} };`,
@@ -151,4 +169,48 @@ it("empty response model becomes body if it has children", async () => {
   const body = response.responses[0].body;
   ok(body);
   strictEqual((body.type as Model).name, "A");
+});
+
+it("chooses correct content-type for extensible union body", async () => {
+  const [routes, diagnostics] = await getOperationsWithServiceNamespace(`
+    union DaysOfWeekExtensibleEnum {
+      string,
+
+      @doc("Monday.")
+      Monday: "Monday",
+
+      @doc("Tuesday.")
+      Tuesday: "Tuesday",
+
+      @doc("Wednesday.")
+      Wednesday: "Wednesday",
+
+      @doc("Thursday.")
+      Thursday: "Thursday",
+
+      @doc("Friday.")
+      Friday: "Friday",
+
+      @doc("Saturday.")
+      Saturday: "Saturday",
+
+      @doc("Sunday.")
+      Sunday: "Sunday",
+    }
+
+    @get
+    @route("/unknown-value")
+    op getUnknownValue(): {
+      @body body: DaysOfWeekExtensibleEnum;
+    };
+  `);
+
+  expectDiagnosticEmpty(diagnostics);
+  strictEqual(routes.length, 1);
+  const responses = routes[0].responses;
+  strictEqual(responses.length, 1);
+  const response = responses[0];
+  const body = response.responses[0].body;
+  ok(body);
+  deepStrictEqual(body.contentTypes, ["text/plain"]);
 });

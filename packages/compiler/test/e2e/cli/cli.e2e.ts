@@ -80,7 +80,8 @@ async function cleanOutputDir(scenarioName: string) {
   const dir = resolvePath(getScenarioDir(scenarioName), "tsp-output");
   await rm(dir, { recursive: true, force: true });
 }
-describe("cli", () => {
+
+describe("help", () => {
   it("shows help", async () => {
     const { stdout } = await execCliSuccess(["--help"], {
       cwd: getScenarioDir("simple"),
@@ -89,7 +90,19 @@ describe("cli", () => {
     expect(stdout).toContain("tsp compile <path>       Compile TypeSpec source.");
     expect(stdout).toContain("tsp format <include...>  Format given list of TypeSpec files.");
   });
+});
 
+describe("info", () => {
+  it("shows information about the current", async () => {
+    const { stdout } = await execCliSuccess(["info"], {
+      cwd: getScenarioDir("with-config"),
+    });
+    expect(stdout).toContain(`User Config:`);
+    expect(stdout).toContain(`outputDir: "{project-root}/tsp-output/{custom-dir}"`);
+  });
+});
+
+describe("compile", () => {
   describe("compiling spec with warning", () => {
     it("logs warning and succeed", async () => {
       const { stdout } = await execCliSuccess(["compile", ".", "--pretty", "false"], {
@@ -189,5 +202,37 @@ describe("cli", () => {
     );
     expect(stdout).toContain("Compilation completed successfully.");
     await access(resolvePath(getScenarioDir("with-config"), "tsp-output/custom-dir-name/out.txt"));
+  });
+
+  it("set config parameter with --option", async () => {
+    await cleanOutputDir("with-option");
+    const { stdout } = await execCliSuccess(
+      [
+        "compile",
+        ".",
+        "--emit",
+        "./emitter.js",
+        "--arg",
+        "custom-dir=custom-dir-name",
+        "--arg",
+        "owner=TypeSpec",
+        "--option",
+        "emitter1.name=TypeSpec with options",
+        "--option",
+        "emitter1.by.owners.secondary=Co-owner is defined by this test",
+      ],
+      {
+        cwd: getScenarioDir("with-option"),
+      },
+    );
+    expect(stdout).toContain("Compilation completed successfully.");
+    const file = await readFile(
+      resolvePath(getScenarioDir("with-option"), "tsp-output/custom-dir-name/out.txt"),
+    );
+    expect(file.toString()).toContain(`By Owner: TypeSpec
+TypeSpec with options
+Succeeded: TypeSpec with options by TypeSpec
+Owner: TypeSpec
+Co-owner is defined by this test`);
   });
 });

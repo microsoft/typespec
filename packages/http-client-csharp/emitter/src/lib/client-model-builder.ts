@@ -1,198 +1,80 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import {
-  SdkClientType,
-  SdkContext,
-  SdkEndpointParameter,
-  SdkEndpointType,
-  SdkHttpOperation,
-  SdkServiceMethod,
-  SdkType,
-  UsageFlags,
-} from "@azure-tools/typespec-client-generator-core";
-import { getDoc } from "@typespec/compiler";
-import { NetEmitterOptions, resolveOptions } from "../options.js";
+import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
+import { CSharpEmitterContext } from "../sdk-context.js";
 import { CodeModel } from "../type/code-model.js";
-import { InputClient } from "../type/input-client.js";
-import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
-import { InputParameter } from "../type/input-parameter.js";
-import { InputEnumType, InputModelType, InputType } from "../type/input-type.js";
-import { RequestLocation } from "../type/request-location.js";
-import { SdkTypeMap } from "../type/sdk-type-map.js";
-import { fromSdkType } from "./converter.js";
-import { Logger } from "./logger.js";
+import { fromSdkClients } from "./client-converter.js";
 import { navigateModels } from "./model.js";
-import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-converter.js";
 import { processServiceAuthentication } from "./service-authentication.js";
+import { firstLetterToUpperCase, getClientNamespaceString } from "./utils.js";
 
-export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeModel {
+/**
+ * Creates the code model from the SDK context.
+ * @param sdkContext - The SDK context
+ * @returns The code model
+ * @beta
+ */
+export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   const sdkPackage = sdkContext.sdkPackage;
 
-  const sdkTypeMap: SdkTypeMap = {
-    types: new Map<SdkType, InputType>(),
-    models: new Map<string, InputModelType>(),
-    enums: new Map<string, InputEnumType>(),
-  };
-
-  navigateModels(sdkContext, sdkTypeMap);
+  navigateModels(sdkContext);
 
   const sdkApiVersionEnums = sdkPackage.enums.filter((e) => e.usage === UsageFlags.ApiVersionEnum);
+
+  const rootClients = sdkPackage.clients;
 
   const rootApiVersions =
     sdkApiVersionEnums.length > 0
       ? sdkApiVersionEnums[0].values.map((v) => v.value as string).flat()
-      : getRootApiVersions(sdkPackage.clients);
+      : (rootClients[0]?.apiVersions ?? []);
 
-  const inputClients: InputClient[] = [];
-  fromSdkClients(
-    sdkPackage.clients.filter((c) => c.initialization.access === "public"),
-    inputClients,
-    [],
-  );
+  const inputClients = fromSdkClients(sdkContext, rootClients, rootApiVersions);
+
+  // TODO - TCGC has two issues which come from the same root cause: the name determination algorithm based on the typespec node of the constant.
+  // typespec itself will always use the same node/Type instance for the same value constant, therefore a lot of names are not correct.
+  // issues:
+  // - https://github.com/Azure/typespec-azure/issues/2572 (constants in operations)
+  // - https://github.com/Azure/typespec-azure/issues/2563 (constants in models)
+  // First we correct the names of the constants in models.
+  for (const model of sdkContext.__typeCache.models.values()) {
+    // because this `models` list already contains all the models, therefore we just need to iterate all of them to find if any their properties is constant
+    for (const property of model.properties) {
+      const type = property.type;
+      if (type.kind === "constant") {
+        // if a property is constant, we need to override its name, namespace, access and usage.
+        type.name = `${model.name}${firstLetterToUpperCase(property.name)}`;
+        type.namespace = model.namespace;
+        type.access = model.access;
+        type.usage = model.usage;
+      }
+    }
+  }
+  // hopefully the above would resolve all those name conflicts in those constants used in models.
+  // but it would not cover the constant used as operation parameters
+  // therefore here we just number them if we find other name collisions.
+  const constantNameMap = new Map<string, number>();
+  for (const constant of sdkContext.__typeCache.constants.values()) {
+    const count = constantNameMap.get(constant.name);
+    if (count) {
+      constantNameMap.set(constant.name, count + 1);
+      constant.name = `${constant.name}${count}`;
+    } else {
+      constantNameMap.set(constant.name, 1);
+    }
+  }
 
   const clientModel: CodeModel = {
-    Name: sdkPackage.rootNamespace,
-    ApiVersions: rootApiVersions,
-    Enums: Array.from(sdkTypeMap.enums.values()),
-    Models: Array.from(sdkTypeMap.models.values()),
-    Clients: inputClients,
-    Auth: processServiceAuthentication(sdkPackage),
+    // To ensure deterministic library name, customers would need to set the package-name property as the ordering of the namespaces could change
+    // if the typespec is changed.
+    name: getClientNamespaceString(sdkContext)!,
+    apiVersions: rootApiVersions,
+    enums: Array.from(sdkContext.__typeCache.enums.values()),
+    constants: Array.from(sdkContext.__typeCache.constants.values()),
+    models: Array.from(sdkContext.__typeCache.models.values()),
+    clients: inputClients,
+    auth: processServiceAuthentication(sdkContext, sdkPackage),
   };
+
   return clientModel;
-
-  function fromSdkClients(
-    clients: SdkClientType<SdkHttpOperation>[],
-    inputClients: InputClient[],
-    parentClientNames: string[],
-  ) {
-    for (const client of clients) {
-      const inputClient = emitClient(client, parentClientNames);
-      inputClients.push(inputClient);
-      const subClients = client.methods
-        .filter((m) => m.kind === "clientaccessor")
-        .map((m) => m.response as SdkClientType<SdkHttpOperation>);
-      parentClientNames.push(inputClient.Name);
-      fromSdkClients(subClients, inputClients, parentClientNames);
-      parentClientNames.pop();
-    }
-  }
-
-  function emitClient(client: SdkClientType<SdkHttpOperation>, parentNames: string[]): InputClient {
-    const endpointParameter = client.initialization.properties.find(
-      (p) => p.kind === "endpoint",
-    ) as SdkEndpointParameter;
-    const uri = getMethodUri(endpointParameter);
-    const clientParameters = fromSdkEndpointParameter(endpointParameter);
-    return {
-      Name: getClientName(client, parentNames),
-      Description: client.description,
-      Operations: client.methods
-        .filter((m) => m.kind !== "clientaccessor")
-        .map((m) =>
-          fromSdkServiceMethod(
-            m as SdkServiceMethod<SdkHttpOperation>,
-            uri,
-            clientParameters,
-            rootApiVersions,
-            sdkContext,
-            sdkTypeMap,
-          ),
-        ),
-      Protocol: {},
-      Parent: parentNames.length > 0 ? parentNames[parentNames.length - 1] : undefined,
-      Parameters: clientParameters,
-      Decorators: client.decorators,
-    };
-  }
-
-  function getClientName(
-    client: SdkClientType<SdkHttpOperation>,
-    parentClientNames: string[],
-  ): string {
-    const clientName = client.name;
-
-    if (parentClientNames.length === 0) return clientName;
-    if (parentClientNames.length >= 2)
-      return `${parentClientNames.slice(parentClientNames.length - 1).join("")}${clientName}`;
-
-    if (
-      clientName === "Models" &&
-      resolveOptions(sdkContext.emitContext)["model-namespace"] !== false
-    ) {
-      Logger.getInstance().warn(`Invalid client name "${clientName}"`);
-      return "ModelsOps";
-    }
-
-    return clientName;
-  }
-
-  function fromSdkEndpointParameter(p: SdkEndpointParameter): InputParameter[] {
-    if (p.type.kind === "union") {
-      return fromSdkEndpointType(p.type.variantTypes[0]);
-    } else {
-      return fromSdkEndpointType(p.type);
-    }
-  }
-
-  function fromSdkEndpointType(type: SdkEndpointType): InputParameter[] {
-    // TODO: support free-style endpoint url with multiple parameters
-    const endpointExpr = type.serverUrl
-      .replace("https://", "")
-      .replace("http://", "")
-      .split("/")[0];
-    if (!/^\{\w+\}$/.test(endpointExpr))
-      throw new Error(`Unsupported server url "${type.serverUrl}"`);
-    const endpointVariableName = endpointExpr.substring(1, endpointExpr.length - 1);
-
-    const parameters: InputParameter[] = [];
-    for (const parameter of type.templateArguments) {
-      const isEndpoint = parameter.name === endpointVariableName;
-      const parameterType: InputType = isEndpoint
-        ? {
-            kind: "url",
-            name: "url",
-            crossLanguageDefinitionId: "TypeSpec.url",
-          }
-        : fromSdkType(parameter.type, sdkContext, sdkTypeMap); // TODO: consolidate with converter.fromSdkEndpointType
-      parameters.push({
-        Name: parameter.name,
-        NameInRequest: parameter.serializedName,
-        // TODO: remove this workaround after https://github.com/Azure/typespec-azure/issues/1212 is fixed
-        Description: parameter.__raw ? getDoc(sdkContext.program, parameter.__raw) : undefined,
-        // TODO: we should do the magic in generator
-        Type: parameterType,
-        Location: RequestLocation.Uri,
-        IsApiVersion: parameter.isApiVersionParam,
-        IsResourceParameter: false,
-        IsContentType: false,
-        IsRequired: !parameter.optional,
-        IsEndpoint: isEndpoint,
-        SkipUrlEncoding: false,
-        Explode: false,
-        Kind: InputOperationParameterKind.Client,
-        DefaultValue: getParameterDefaultValue(parameter.clientDefaultValue, parameterType),
-      });
-    }
-    return parameters;
-  }
-}
-
-function getRootApiVersions(clients: SdkClientType<SdkHttpOperation>[]): string[] {
-  // find any root client since they should have the same api versions
-  const oneRootClient = clients.find((c) => c.initialization.access === "public");
-  if (!oneRootClient) throw new Error("Root client not found");
-
-  return oneRootClient.apiVersions;
-}
-
-function getMethodUri(p: SdkEndpointParameter | undefined): string {
-  if (!p) return "";
-
-  if (p.type.kind === "endpoint" && p.type.templateArguments.length > 0) return p.type.serverUrl;
-
-  if (p.type.kind === "union" && p.type.variantTypes.length > 0)
-    return (p.type.variantTypes[0] as SdkEndpointType).serverUrl;
-
-  return `{${p.name}}`;
 }

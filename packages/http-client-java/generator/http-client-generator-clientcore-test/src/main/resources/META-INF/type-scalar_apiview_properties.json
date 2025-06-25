@@ -1,0 +1,13 @@
+{
+  "flavor": "generic", 
+  "CrossLanguageDefinitionId": {
+    "type.scalar.BooleanOperationClient": "Type.Scalar.Boolean",
+    "type.scalar.Decimal128TypeClient": "Type.Scalar.Decimal128Type",
+    "type.scalar.Decimal128VerifyClient": "Type.Scalar.Decimal128Verify",
+    "type.scalar.DecimalTypeClient": "Type.Scalar.DecimalType",
+    "type.scalar.DecimalVerifyClient": "Type.Scalar.DecimalVerify",
+    "type.scalar.ScalarClientBuilder": "Type.Scalar",
+    "type.scalar.StringOperationClient": "Type.Scalar.String",
+    "type.scalar.UnknownClient": "Type.Scalar.Unknown"
+  }
+}

@@ -11,6 +11,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlu
 import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class TypeSpecFluentNamer extends FluentNamer {
     private final Map<String, Object> settingsMap;
@@ -25,6 +26,13 @@ public class TypeSpecFluentNamer extends FluentNamer {
 
     @Override
     protected CodeModel getCodeModelAndWriteToTargetFolder(Path codeModelFolder) {
+        // todo(xiaofei) remove below line after fixing mix usage of CodeModel.getOperationGroups() and
+        // CodeModel.getClients().getOperationGroups()
+        // add client's operation groups to root operation group
+        codeModel.setOperationGroups(codeModel.getClients()
+            .stream()
+            .flatMap(client -> client.getOperationGroups().stream())
+            .collect(Collectors.toList()));
         return this.codeModel;
     }
 

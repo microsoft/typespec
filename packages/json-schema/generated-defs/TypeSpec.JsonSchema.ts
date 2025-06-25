@@ -26,7 +26,7 @@ export type JsonSchemaDecorator = (
 /**
  * Set the base URI for any schemas emitted from types within this namespace.
  *
- * @param baseUri the base URI. Schema IDs inside this namespace are relative to this URI.
+ * @param baseUri The base URI. Schema IDs inside this namespace are relative to this URI.
  */
 export type BaseUriDecorator = (
   context: DecoratorContext,
@@ -40,7 +40,7 @@ export type BaseUriDecorator = (
  *
  * By default, the id will be constructed based on the declaration's name.
  *
- * @param id the id of the JSON schema for this declaration.
+ * @param id The id of the JSON schema for this declaration.
  */
 export type IdDecorator = (context: DecoratorContext, target: Type, id: string) => void;
 
@@ -73,8 +73,8 @@ export type ContainsDecorator = (
 ) => void;
 
 /**
- * Specify that the array must contain at least some number of the types provided
- * by the contains decorator.
+ * Used in conjunction with the `@contains` decorator,
+ * specifies that the array must contain at least a certain number of the types provided by the `@contains` decorator.
  *
  * @param value The minimum number of instances the array must contain
  */
@@ -85,8 +85,8 @@ export type MinContainsDecorator = (
 ) => void;
 
 /**
- * Specify that the array must contain at most some number of the types provided
- * by the contains decorator.
+ * Used in conjunction with the `@contains` decorator,
+ * specifies that the array must contain at most a certain number of the types provided by the `@contains` decorator.
  *
  * @param value The maximum number of instances the array must contain
  */
@@ -142,7 +142,7 @@ export type ContentEncodingDecorator = (
 /**
  * Specify that the target array must begin with the provided types.
  *
- * @param value a tuple containing the types that must be present at the start of the array
+ * @param value A tuple containing the types that must be present at the start of the array
  */
 export type PrefixItemsDecorator = (
   context: DecoratorContext,
@@ -153,7 +153,7 @@ export type PrefixItemsDecorator = (
 /**
  * Specify the content type of content stored in a string.
  *
- * @param value the media type of the string contents
+ * @param value The media type of the string contents
  */
 export type ContentMediaTypeDecorator = (
   context: DecoratorContext,
@@ -165,7 +165,7 @@ export type ContentMediaTypeDecorator = (
  * Specify the schema for the contents of a string when interpreted according to the content's
  * media type and encoding.
  *
- * @param value the schema of the string contents
+ * @param value The schema of the string contents
  */
 export type ContentSchemaDecorator = (
   context: DecoratorContext,
@@ -174,23 +174,23 @@ export type ContentSchemaDecorator = (
 ) => void;
 
 /**
- * Specify a custom property to add to the emitted schema. Useful for adding custom keywords
+ * Specify a custom property to add to the emitted schema. This is useful for adding custom keywords
  * and other vendor-specific extensions. Scalar values need to be specified using `typeof` to be converted to a schema.
  *
  * For example, `@extension("x-schema", typeof "foo")` will emit a JSON schema value for `x-schema`,
  * whereas `@extension("x-schema", "foo")` will emit the raw code `"foo"`.
  *
  * The value will be treated as a raw value if any of the following are true:
- * 1. The value is a scalar value (e.g. string, number, boolean, etc.)
- * 2. The value is wrapped in the `Json<Data>` template
- * 3. The value is provided using the value syntax (e.g. `#{}`, `#[]`)
+ * - The value is a scalar value (e.g. string, number, boolean, etc.)
+ * - The value is wrapped in the `Json<Data>` template
+ * - The value is provided using the value syntax (e.g. `#{}`, `#[]`)
  *
  * For example, `@extension("x-schema", { x: "value" })` will emit a JSON schema value for `x-schema`,
  * whereas `@extension("x-schema", #{x: "value"})` and `@extension("x-schema", Json<{x: "value"}>)`
  * will emit the raw JSON code `{x: "value"}`.
  *
- * @param key the name of the keyword of vendor extension, e.g. `x-custom`.
- * @param value the value of the keyword.
+ * @param key The name of the keyword of vendor extension, e.g. `x-custom`.
+ * @param value The value of the keyword.
  */
 export type ExtensionDecorator = (
   context: DecoratorContext,

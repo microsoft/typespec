@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Version>1.1.0</Version>
+    <ApiCompatVersion>1.0.0</ApiCompatVersion>
+    <TargetFrameworks>$(SomeUnevalValue)</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+</Project>

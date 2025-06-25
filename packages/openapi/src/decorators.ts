@@ -1,29 +1,31 @@
 import {
   compilerAssert,
   DecoratorContext,
-  Diagnostic,
-  DiagnosticTarget,
   getDoc,
-  getProperty,
   getService,
   getSummary,
+  isType,
   Model,
   Namespace,
   Operation,
   Program,
+  serializeValueAsJson,
   Type,
-  typespecTypeToJson,
-  TypeSpecValue,
+  Value,
 } from "@typespec/compiler";
-import { setStatusCode } from "@typespec/http";
+import { useStateMap } from "@typespec/compiler/utils";
+import * as http from "@typespec/http";
 import {
   DefaultResponseDecorator,
   ExtensionDecorator,
   ExternalDocsDecorator,
   InfoDecorator,
   OperationIdDecorator,
+  TagMetadata,
+  TagMetadataDecorator,
 } from "../generated-defs/TypeSpec.OpenAPI.js";
-import { createDiagnostic, createStateSymbol, reportDiagnostic } from "./lib.js";
+import { validateAdditionalInfoModel, validateIsUri } from "./helpers.js";
+import { createStateSymbol, OpenAPIKeys, reportDiagnostic } from "./lib.js";
 import { AdditionalInfo, ExtensionKey, ExternalDocs } from "./types.js";
 
 const operationIdsKey = createStateSymbol("operationIds");
@@ -55,22 +57,53 @@ export const $extension: ExtensionDecorator = (
   context: DecoratorContext,
   entity: Type,
   extensionName: string,
-  value: TypeSpecValue,
+  value: unknown,
 ) => {
-  if (!isOpenAPIExtensionKey(extensionName)) {
-    reportDiagnostic(context.program, {
-      code: "invalid-extension-key",
-      format: { value: extensionName },
-      target: entity,
-    });
-  }
-
-  const [data, diagnostics] = typespecTypeToJson(value, entity);
-  if (diagnostics.length > 0) {
-    context.program.reportDiagnostics(diagnostics);
-  }
-  setExtension(context.program, entity, extensionName as ExtensionKey, data);
+  compilerAssert(
+    !value || !isType(value as any),
+    "OpenAPI extension value must be a value but was a type",
+    context.getArgumentTarget(1),
+  );
+  const processed = convertRemainingValuesToExtensions(context.program, value);
+  setExtension(context.program, entity, extensionName as ExtensionKey, processed);
 };
+
+// Workaround until we have a way to disable arg marshalling and just call serializeValueAsJson
+// https://github.com/microsoft/typespec/issues/3570
+function convertRemainingValuesToExtensions(program: Program, value: unknown): unknown {
+  switch (typeof value) {
+    case "string":
+    case "number":
+    case "boolean":
+      return value;
+    case "object":
+      if (value === null) {
+        return null;
+      }
+      if (Array.isArray(value)) {
+        return value.map((x) => convertRemainingValuesToExtensions(program, x));
+      }
+
+      if (isTypeSpecValue(value)) {
+        return serializeValueAsJson(program, value, value.type);
+      } else {
+        const result: Record<string, unknown> = {};
+        for (const [key, val] of Object.entries(value)) {
+          if (val === undefined) {
+            continue;
+          }
+          result[key] = convertRemainingValuesToExtensions(program, val);
+        }
+        return result;
+      }
+    default:
+      return value;
+  }
+}
+
+function isTypeSpecValue(value: object): value is Value {
+  return "entityKind" in value && value.entityKind === "Value";
+}
 
 /**
  * Set the OpenAPI info node on for the given service namespace.
@@ -93,12 +126,7 @@ export function setInfo(
  * @param extensionName Extension key
  * @param data Extension value
  */
-export function setExtension(
-  program: Program,
-  entity: Type,
-  extensionName: ExtensionKey,
-  data: unknown,
-) {
+export function setExtension(program: Program, entity: Type, extensionName: string, data: unknown) {
   const openApiExtensions = program.stateMap(openApiExtensionKey);
   const typeExtensions = openApiExtensions.get(entity) ?? new Map<string, any>();
   typeExtensions.set(extensionName, data);
@@ -114,10 +142,6 @@ export function getExtensions(program: Program, entity: Type): ReadonlyMap<Exten
   return program.stateMap(openApiExtensionKey).get(entity) ?? new Map<ExtensionKey, any>();
 }
 
-function isOpenAPIExtensionKey(key: string): key is ExtensionKey {
-  return key.startsWith("x-");
-}
-
 /**
  * The @defaultResponse decorator can be applied to a model. When that model is used
  * as the return type of an operation, this return type will be the default response.
@@ -129,8 +153,7 @@ export const $defaultResponse: DefaultResponseDecorator = (
   context: DecoratorContext,
   entity: Model,
 ) => {
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-  setStatusCode(context.program, entity, ["*"]);
+  (http as any).setStatusCode(context.program, entity, ["*"]);
   context.program.stateSet(defaultResponseKey).add(entity);
 };
 
@@ -179,19 +202,34 @@ const infoKey = createStateSymbol("info");
 export const $info: InfoDecorator = (
   context: DecoratorContext,
   entity: Namespace,
-  model: TypeSpecValue,
+  data: AdditionalInfo & Record<ExtensionKey, unknown>,
 ) => {
-  const [data, diagnostics] = typespecTypeToJson<AdditionalInfo & Record<ExtensionKey, unknown>>(
-    model,
-    context.getArgumentTarget(0)!,
-  );
-  context.program.reportDiagnostics(diagnostics);
   if (data === undefined) {
     return;
   }
-  validateAdditionalInfoModel(context, model);
+
+  // Validate the AdditionalInfo model
+  if (
+    !validateAdditionalInfoModel(
+      context.program,
+      context.getArgumentTarget(0)!,
+      data,
+      "TypeSpec.OpenAPI.AdditionalInfo",
+    )
+  ) {
+    return;
+  }
+
+  // Validate termsOfService
   if (data.termsOfService) {
-    if (!validateIsUri(context, data.termsOfService, "TermsOfService")) {
+    if (
+      !validateIsUri(
+        context.program,
+        context.getArgumentTarget(0)!,
+        data.termsOfService,
+        "TermsOfService",
+      )
+    ) {
       return;
     }
   }
@@ -214,8 +252,7 @@ export function resolveInfo(program: Program, entity: Namespace): AdditionalInfo
   return omitUndefined({
     ...info,
     title: info?.title ?? service?.title,
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    version: info?.version ?? service?.version,
+    version: info?.version,
     summary: info?.summary ?? getSummary(program, entity),
     description: info?.description ?? getDoc(program, entity),
   });
@@ -225,64 +262,84 @@ function omitUndefined<T extends Record<string, unknown>>(data: T): T {
   return Object.fromEntries(Object.entries(data).filter(([k, v]) => v !== undefined)) as any;
 }
 
-function validateIsUri(context: DecoratorContext, url: string, propertyName: string) {
-  try {
-    new URL(url);
-    return true;
-  } catch {
+/** Get TagsMetadata set with `@tagMetadata` decorator */
+const [getTagsMetadata, setTagsMetadata] = useStateMap<Type, { [name: string]: TagMetadata }>(
+  OpenAPIKeys.tagsMetadata,
+);
+
+/**
+ * Decorator to add metadata to a tag associated with a namespace.
+ * @param context - The decorator context.
+ * @param entity - The namespace entity to associate the tag with.
+ * @param name - The name of the tag.
+ * @param tagMetadata - Optional metadata for the tag.
+ */
+export const tagMetadataDecorator: TagMetadataDecorator = (
+  context: DecoratorContext,
+  entity: Namespace,
+  name: string,
+  tagMetadata: TagMetadata,
+) => {
+  // Check if the namespace is a service namespace
+  if (
+    !entity.decorators.some(
+      (decorator) =>
+        decorator.definition?.name === "@service" &&
+        decorator.definition?.namespace.name === "TypeSpec",
+    )
+  ) {
     reportDiagnostic(context.program, {
-      code: "not-url",
+      code: "tag-metadata-target-service",
+      format: {
+        namespace: entity.name,
+      },
       target: context.getArgumentTarget(0)!,
-      format: { property: propertyName, value: url },
     });
-    return false;
+    return;
   }
-}
 
-function validateAdditionalInfoModel(context: DecoratorContext, typespecType: TypeSpecValue) {
-  const propertyModel = context.program.resolveTypeReference(
-    "TypeSpec.OpenAPI.AdditionalInfo",
-  )[0]! as Model;
+  // Retrieve existing tags metadata or initialize an empty object
+  const tags = getTagsMetadata(context.program, entity) ?? {};
 
-  if (typeof typespecType === "object" && propertyModel) {
-    const diagnostics = checkNoAdditionalProperties(
-      typespecType,
+  // Check for duplicate tag names
+  if (tags[name]) {
+    reportDiagnostic(context.program, {
+      code: "duplicate-tag",
+      format: { tagName: name },
+      target: context.getArgumentTarget(0)!,
+    });
+    return;
+  }
+
+  // Validate the additionalInfo model
+  if (
+    !validateAdditionalInfoModel(
+      context.program,
       context.getArgumentTarget(0)!,
-      propertyModel,
-    );
-    context.program.reportDiagnostics(diagnostics);
+      tagMetadata,
+      "TypeSpec.OpenAPI.TagMetadata",
+    )
+  ) {
+    return;
   }
-}
 
-function checkNoAdditionalProperties(
-  typespecType: Type,
-  target: DiagnosticTarget,
-  source: Model,
-): Diagnostic[] {
-  const diagnostics: Diagnostic[] = [];
-  compilerAssert(typespecType.kind === "Model", "Expected type to be a Model.");
-
-  for (const [name, type] of typespecType.properties.entries()) {
-    const sourceProperty = getProperty(source, name);
-    if (sourceProperty) {
-      if (sourceProperty.type.kind === "Model") {
-        const nestedDiagnostics = checkNoAdditionalProperties(
-          type.type,
-          target,
-          sourceProperty.type,
-        );
-        diagnostics.push(...nestedDiagnostics);
-      }
-    } else if (!isOpenAPIExtensionKey(name)) {
-      diagnostics.push(
-        createDiagnostic({
-          code: "invalid-extension-key",
-          format: { value: name },
-          target,
-        }),
-      );
+  // Validate the externalDocs.url property
+  if (tagMetadata.externalDocs?.url) {
+    if (
+      !validateIsUri(
+        context.program,
+        context.getArgumentTarget(0)!,
+        tagMetadata.externalDocs.url,
+        "externalDocs.url",
+      )
+    ) {
+      return;
     }
   }
 
-  return diagnostics;
-}
+  // Update the tags metadata with the new tag
+  tags[name] = tagMetadata;
+  setTagsMetadata(context.program, entity, tags);
+};
+
+export { getTagsMetadata };

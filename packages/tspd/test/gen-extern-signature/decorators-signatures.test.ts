@@ -13,9 +13,7 @@ async function generateDecoratorSignatures(code: string) {
     ${code}`,
   );
   host.addJsFile("lib.js", {
-    $flags: definePackageFlags({
-      decoratorArgMarshalling: "new",
-    }),
+    $flags: definePackageFlags({}),
   });
   await host.diagnose("main.tsp", {
     parseOptions: { comments: true, docs: true },
@@ -26,8 +24,10 @@ async function generateDecoratorSignatures(code: string) {
   );
 
   const result = await generateExternDecorators(host.program, "test-lib", {
-    printWidth: 160, // So there is no inconsistency in the .each test with different parameter length
-    plugins: [],
+    prettierConfig: {
+      printWidth: 160, // So there is no inconsistency in the .each test with different parameter length
+      plugins: [],
+    },
   });
 
   return result["__global__.ts"];
@@ -188,7 +188,7 @@ export type Decorators = {
       [`valueof "abc" | "def" | string`, `"abc" | "def" | string`],
       [`valueof string[]`, `readonly string[]`],
       [`valueof ("abc" | "def")[]`, `readonly ("abc" | "def")[]`],
-      [`valueof {name: string, age?: int32}`, `{ readonly name: string; readonly age?: number }`],
+      [`valueof Record<int32>`, `Record<string, number>`],
     ])("%s => %s", async (ref, expected) => {
       await expectSignatures({
         code: `extern dec simple(target, arg1: ${ref});`,
@@ -196,6 +196,50 @@ export type Decorators = {
 ${importLine(["Type", ...(expected === "Numeric" ? ["Numeric"] : [])])}
 
 export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: ${expected}) => void;
+
+export type Decorators = {
+  simple: SimpleDecorator;
+};
+    `,
+      });
+    });
+
+    it("valueof {...Record<int32>, other: string}", async () => {
+      await expectSignatures({
+        code: `extern dec simple(target, arg1: valueof {...Record<int32>, other: string});`,
+        expected: `
+${importLine(["Type"])}
+
+export type SimpleDecorator = (
+  context: DecoratorContext,
+  target: Type,
+  arg1: {
+    readonly [key: string]: number;
+    readonly other: string;
+  },
+) => void;
+
+export type Decorators = {
+  simple: SimpleDecorator;
+};
+    `,
+      });
+    });
+
+    it("valueof {name: string, age?: int32}", async () => {
+      await expectSignatures({
+        code: `extern dec simple(target, arg1: valueof {name: string, age?: int32});`,
+        expected: `
+${importLine(["Type"])}
+
+export type SimpleDecorator = (
+  context: DecoratorContext,
+  target: Type,
+  arg1: {
+    readonly name: string;
+    readonly age?: number;
+  },
+) => void;
 
 export type Decorators = {
   simple: SimpleDecorator;

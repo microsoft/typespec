@@ -3,18 +3,19 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import List
+from typing import List, cast
 
 from . import utils
-from ..models import Client, ParameterMethodLocation
+from ..models import Client, ParameterMethodLocation, Parameter, ParameterLocation
 from .parameter_serializer import ParameterSerializer, PopKwargType
 from ...utils import build_policies
 
 
 class ClientSerializer:
-    def __init__(self, client: Client) -> None:
+    def __init__(self, client: Client, serialize_namespace: str) -> None:
         self.client = client
-        self.parameter_serializer = ParameterSerializer()
+        self.parameter_serializer = ParameterSerializer(serialize_namespace)
+        self.serialize_namespace = serialize_namespace
 
     def _init_signature(self, async_mode: bool) -> str:
         pylint_disable = ""
@@ -24,7 +25,9 @@ class ClientSerializer:
             function_def="def",
             method_name="__init__",
             need_self_param=True,
-            method_param_signatures=self.client.parameters.method_signature(async_mode),
+            method_param_signatures=self.client.parameters.method_signature(
+                async_mode, serialize_namespace=self.serialize_namespace
+            ),
             pylint_disable=pylint_disable,
         )
 
@@ -74,17 +77,40 @@ class ClientSerializer:
         retval.append('"""')
         return retval
 
-    def initialize_config(self) -> str:
+    def initialize_config(self) -> List[str]:
+        retval = []
+        additional_signatures = []
+        if self.client.need_cloud_setting:
+            additional_signatures.append("credential_scopes=credential_scopes")
+            endpoint_parameter = cast(Parameter, self.client.endpoint_parameter)
+            retval.extend(
+                [
+                    '_cloud = kwargs.pop("cloud_setting", None) or settings.current.azure_cloud  # type: ignore',
+                    "_endpoints = get_arm_endpoints(_cloud)",
+                    f"if not {endpoint_parameter.client_name}:",
+                    f'    {endpoint_parameter.client_name} = _endpoints["resource_manager"]',
+                    'credential_scopes = kwargs.pop("credential_scopes", _endpoints["credential_scopes"])',
+                ]
+            )
         config_name = f"{self.client.name}Configuration"
         config_call = ", ".join(
             [
-                f"{p.client_name}={p.client_name}"
+                (
+                    f"{p.client_name}="
+                    + (
+                        f"cast(str, {p.client_name})"
+                        if self.client.need_cloud_setting and p.location == ParameterLocation.ENDPOINT_PATH
+                        else p.client_name
+                    )
+                )
                 for p in self.client.config.parameters.method
                 if p.method_location != ParameterMethodLocation.KWARG
             ]
+            + additional_signatures
             + ["**kwargs"]
         )
-        return f"self._config = {config_name}({config_call})"
+        retval.append(f"self._config = {config_name}({config_call})")
+        return retval
 
     @property
     def host_variable_name(self) -> str:
@@ -101,8 +127,11 @@ class ClientSerializer:
         result = []
         pipeline_client_name = self.client.pipeline_class(async_mode)
         endpoint_name = "base_url" if self.client.code_model.is_azure_flavor else "endpoint"
+        host_variable_name = (
+            f"cast(str, {self.host_variable_name})" if self.client.need_cloud_setting else self.host_variable_name
+        )
         params = {
-            endpoint_name: self.host_variable_name,
+            endpoint_name: host_variable_name,
             "policies": "_policies",
         }
         if not self.client.code_model.is_legacy and self.client.request_id_header_name:
@@ -244,9 +273,10 @@ class ClientSerializer:
 
 
 class ConfigSerializer:
-    def __init__(self, client: Client) -> None:
+    def __init__(self, client: Client, serialize_namespace: str) -> None:
         self.client = client
-        self.parameter_serializer = ParameterSerializer()
+        self.parameter_serializer = ParameterSerializer(serialize_namespace)
+        self.serialize_namespace = serialize_namespace
 
     def _init_signature(self, async_mode: bool) -> str:
         return self.parameter_serializer.serialize_method(

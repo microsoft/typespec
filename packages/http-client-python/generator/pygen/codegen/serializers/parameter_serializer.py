@@ -52,8 +52,11 @@ SPECIAL_HEADER_SERIALIZATION: Dict[str, List[str]] = {
 
 
 class ParameterSerializer:
-    @staticmethod
-    def serialize_parameter(parameter: ParameterType, serializer_name: str) -> str:
+
+    def __init__(self, serialize_namespace: str) -> None:
+        self.serialize_namespace = serialize_namespace
+
+    def serialize_parameter(self, parameter: ParameterType, serializer_name: str) -> str:
         optional_parameters = []
 
         if parameter.skip_url_encoding:
@@ -88,7 +91,7 @@ class ParameterSerializer:
         parameters = [
             f'"{origin_name.lstrip("_")}"',
             "q" if parameter.explode else origin_name,
-            f"'{type.serialization_type}'",
+            f"'{type.serialization_type(serialize_namespace=self.serialize_namespace)}'",
             *optional_parameters,
         ]
         parameters_line = ", ".join(parameters)
@@ -106,8 +109,9 @@ class ParameterSerializer:
             return f"[{serialize_line} if q is not None else '' for q in {origin_name}]"
         return serialize_line
 
-    @staticmethod
+    # pylint: disable=line-too-long
     def serialize_path(
+        self,
         parameters: Union[
             List[Parameter],
             List[RequestBuilderParameter],
@@ -121,7 +125,11 @@ class ParameterSerializer:
             [
                 '    "{}": {},'.format(
                     path_parameter.wire_name,
-                    ParameterSerializer.serialize_parameter(path_parameter, serializer_name),
+                    (
+                        f'"" if {path_parameter.full_client_name} is None else "/" + {self.serialize_parameter(path_parameter, serializer_name)}'
+                        if path_parameter.optional and isinstance(path_parameter, RequestBuilderParameter)
+                        else self.serialize_parameter(path_parameter, serializer_name)
+                    ),
                 )
                 for path_parameter in parameters
             ]
@@ -129,8 +137,8 @@ class ParameterSerializer:
         retval.append("}")
         return retval
 
-    @staticmethod
     def serialize_query_header(
+        self,
         param: Parameter,
         kwarg_name: str,
         serializer_name: str,
@@ -146,7 +154,7 @@ class ParameterSerializer:
         set_parameter = "_{}['{}'] = {}".format(
             kwarg_name,
             param.wire_name,
-            ParameterSerializer.serialize_parameter(param, serializer_name),
+            self.serialize_parameter(param, serializer_name),
         )
         if not param.optional and (param.in_method_signature or param.constant):
             retval = [set_parameter]

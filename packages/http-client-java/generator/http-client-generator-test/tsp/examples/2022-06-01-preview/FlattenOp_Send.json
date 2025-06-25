@@ -3,6 +3,7 @@
   "title": "FlattenOp Send",
   "parameters": {
     "id": "myRequiredId",
+    "maxpagesize": 50,
     "sendRequest": {
       "user": {
         "user": "myOptionalUser"

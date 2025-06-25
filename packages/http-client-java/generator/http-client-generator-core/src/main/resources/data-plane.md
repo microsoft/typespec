@@ -1,8 +1,6 @@
 #### data-plane
 
 ```yaml
-azure-arm: false
-
 license-header: MICROSOFT_MIT_SMALL
 
 generate-client-interfaces: false

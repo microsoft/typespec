@@ -7,6 +7,9 @@ import com.azure.core.util.serializer.CollectionFormat;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Set;
 
 /**
@@ -29,6 +32,66 @@ public class ProxyMethodParameter extends MethodParameter {
         .parameterReference("requestOptions")
         .origin(ParameterSynthesizedOrigin.REQUEST_OPTIONS)
         .build();
+
+    public static final ProxyMethodParameter REQUEST_CONTEXT_PARAMETER = new ProxyMethodParameter.Builder()
+        .description("The options to configure the HTTP request before HTTP client sends it.")
+        .wireType(ClassType.REQUEST_CONTEXT)
+        .clientType(ClassType.REQUEST_CONTEXT)
+        .name("requestContext")
+        .requestParameterLocation(RequestParameterLocation.NONE)
+        .requestParameterName("requestContext")
+        .alreadyEncoded(true)
+        .constant(false)
+        .required(false)
+        .nullable(false)
+        .fromClient(false)
+        .parameterReference("requestContext")
+        .origin(ParameterSynthesizedOrigin.REQUEST_CONTEXT)
+        .build();
+
+    public static final ProxyMethodParameter CONTEXT_PARAMETER
+        = new ProxyMethodParameter.Builder().description("The context to associate with this operation.")
+            .wireType(ClassType.CONTEXT)
+            .clientType(ClassType.CONTEXT)
+            .name("context")
+            .requestParameterLocation(RequestParameterLocation.NONE)
+            .requestParameterName("context")
+            .alreadyEncoded(true)
+            .constant(false)
+            .required(false)
+            .nullable(false)
+            .fromClient(false)
+            .parameterReference("context")
+            .origin(ParameterSynthesizedOrigin.CONTEXT)
+            .build();
+
+    public static final ProxyMethodParameter REPEATABILITY_REQUEST_ID_PARAMETER
+        = new ProxyMethodParameter.Builder().name(MethodUtil.REPEATABILITY_REQUEST_ID_VARIABLE_NAME)
+            .parameterReference(MethodUtil.REPEATABILITY_REQUEST_ID_EXPRESSION)
+            .requestParameterName(MethodUtil.REPEATABILITY_REQUEST_ID_HEADER)
+            .description("Repeatability request ID header")
+            .rawType(ClassType.STRING)
+            .wireType(ClassType.STRING)
+            .clientType(ClassType.STRING)
+            .requestParameterLocation(RequestParameterLocation.HEADER)
+            .required(false)
+            .nullable(true)
+            .fromClient(false)
+            .build();
+
+    public static final ProxyMethodParameter REPEATABILITY_FIRST_SENT_PARAMETER
+        = new ProxyMethodParameter.Builder().name(MethodUtil.REPEATABILITY_FIRST_SENT_VARIABLE_NAME)
+            .parameterReference(MethodUtil.REPEATABILITY_FIRST_SENT_EXPRESSION)
+            .requestParameterName(MethodUtil.REPEATABILITY_FIRST_SENT_HEADER)
+            .description("Repeatability first sent header as HTTP-date")
+            .rawType(ClassType.STRING)
+            .wireType(ClassType.STRING)
+            .clientType(ClassType.STRING)
+            .requestParameterLocation(RequestParameterLocation.HEADER)
+            .required(false)
+            .nullable(true)
+            .fromClient(false)
+            .build();
 
     /**
      * Get the name of this parameter when it is serialized.
@@ -174,21 +237,22 @@ public class ProxyMethodParameter extends MethodParameter {
     public void addImportsTo(Set<String> imports, boolean includeImplementationImports, JavaSettings settings) {
         if (getRequestParameterLocation()
             != RequestParameterLocation.NONE/* && getRequestParameterLocation() != RequestParameterLocation.FormData */) {
-            if (settings.isBranded()) {
+            if (settings.isAzureV1()) {
                 imports.add(String.format("%1$s.annotation.%2$sParam", ExternalPackage.CORE.getPackageName(),
                     CodeNamer.toPascalCase(getRequestParameterLocation().toString())));
             } else {
-                imports.add(String.format("%1$s.http.annotation.%2$sParam", ExternalPackage.CORE.getPackageName(),
+                imports.add(String.format("%1$s.http.annotations.%2$sParam", ExternalPackage.CORE.getPackageName(),
                     CodeNamer.toPascalCase(getRequestParameterLocation().toString())));
             }
         }
         if (getRequestParameterLocation() != RequestParameterLocation.BODY) {
             if (getClientType() == ArrayType.BYTE_ARRAY) {
-                imports.add("com.azure.core.util.Base64Util");
-            } else if (getClientType() instanceof ListType && !getExplode()) {
+                ClassType.BASE_64_UTIL.addImportsTo(imports, false);
+                imports.add(Base64.class.getName());
+            } else if (getClientType() instanceof IterableType && !getExplode()) {
                 imports.add("com.azure.core.util.serializer.CollectionFormat");
                 imports.add("com.azure.core.util.serializer.JacksonAdapter");
-            } else if (getClientType() instanceof ListType && getExplode()) {
+            } else if (getClientType() instanceof IterableType && getExplode()) {
                 imports.add("java.util.stream.Collectors");
             }
         }
@@ -196,11 +260,23 @@ public class ProxyMethodParameter extends MethodParameter {
 //            imports.add(String.format("com.azure.core.annotation.FormParam"));
 //        }
 
-        if (!settings.isBranded()) {
+        if (!settings.isAzureV1()) {
             imports.add("io.clientcore.core.http.models.HttpMethod");
         }
 
-        getWireType().addImportsTo(imports, includeImplementationImports);
+        if (includeImplementationImports) {
+            getWireType().addImportsTo(imports, includeImplementationImports);
+            if (getRawType() != null) {
+                getRawType().addImportsTo(imports, includeImplementationImports);
+            }
+
+            if (getExplode()) {
+                imports.add("java.util.Optional");
+                imports.add("java.util.stream.Stream");
+                imports.add(ArrayList.class.getName());
+                imports.add("java.util.Collection");
+            }
+        }
     }
 
     /**

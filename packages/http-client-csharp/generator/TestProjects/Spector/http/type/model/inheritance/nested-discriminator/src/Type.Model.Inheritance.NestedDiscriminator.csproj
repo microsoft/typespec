@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>This is the Type.Model.Inheritance.NestedDiscriminator client library for developing .NET applications with rich experience.</Description>
+    <AssemblyTitle>SDK Code Generation Type.Model.Inheritance.NestedDiscriminator</AssemblyTitle>
+    <Version>1.0.0-beta.1</Version>
+    <PackageTags>Type.Model.Inheritance.NestedDiscriminator</PackageTags>
+    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.ClientModel" Version="1.4.1" />
+  </ItemGroup>
+</Project>

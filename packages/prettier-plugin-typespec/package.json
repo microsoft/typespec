@@ -1,10 +1,12 @@
 {
   "name": "@typespec/prettier-plugin-typespec",
-  "version": "0.60.0",
+  "version": "1.1.0",
   "description": "",
   "main": "dist/index.js",
+  "type": "module",
   "scripts": {
-    "build": "rollup --config 2>&1 && npm run generate-third-party-notices",
+    "build": "pnpm compile && pnpm generate-third-party-notices",
+    "compile": "tsx ./scripts/build.ts",
     "test": "vitest run",
     "test:ci": "vitest run",
     "generate-third-party-notices": "typespec-build-tool generate-third-party-notices"
@@ -12,17 +14,13 @@
   "author": "Microsoft Corporation",
   "license": "MIT",
   "dependencies": {
-    "prettier": "~3.3.3"
+    "prettier": "~3.5.3"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "~28.0.0",
-    "@rollup/plugin-json": "~6.1.0",
-    "@rollup/plugin-node-resolve": "~15.3.0",
-    "@rollup/plugin-replace": "~6.0.1",
-    "@typespec/compiler": "workspace:~",
-    "@typespec/internal-build-utils": "workspace:~",
-    "rollup": "~4.22.4",
-    "vitest": "^2.1.1"
+    "@typespec/compiler": "workspace:^",
+    "@typespec/internal-build-utils": "workspace:^",
+    "esbuild": "^0.25.1",
+    "vitest": "^3.1.2"
   },
   "files": [
     "dist/**/*",

@@ -1,12 +1,12 @@
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { Model } from "../../src/core/index.js";
+import { Model } from "../../src/index.js";
 import {
   BasicTestRunner,
   createTestHost,
   createTestWrapper,
   expectDiagnostics,
-  expectIdenticalTypes,
+  expectTypeEquals,
 } from "../../src/testing/index.js";
 
 describe("compiler: scalars", () => {
@@ -87,7 +87,7 @@ describe("compiler: scalars", () => {
       strictEqual(M.kind, "Model");
       const p = M.properties.get("p");
       ok(p);
-      expectIdenticalTypes(p.type, S);
+      expectTypeEquals(p.type, S);
       strictEqual(p.defaultValue?.valueKind, "NumericValue");
       strictEqual(p.defaultValue.value.asNumber(), 42);
     });
@@ -102,7 +102,7 @@ describe("compiler: scalars", () => {
       strictEqual(M.kind, "Model");
       const p = M.properties.get("p");
       ok(p);
-      expectIdenticalTypes(p.type, S);
+      expectTypeEquals(p.type, S);
       strictEqual(p.defaultValue?.valueKind, "BooleanValue");
       strictEqual(p.defaultValue.value, true);
     });
@@ -117,7 +117,7 @@ describe("compiler: scalars", () => {
       strictEqual(M.kind, "Model");
       const p = M.properties.get("p");
       ok(p);
-      expectIdenticalTypes(p.type, S);
+      expectTypeEquals(p.type, S);
       strictEqual(p.defaultValue?.valueKind, "StringValue");
       strictEqual(p.defaultValue.value, "hello");
     });
@@ -137,6 +137,38 @@ describe("compiler: scalars", () => {
       model M { p?: S = 42; }
     `);
       expectDiagnostics(diagnostics, [{ code: "unassignable", message: /42.*S/ }]);
+    });
+  });
+
+  describe("circular references", () => {
+    describe("emit diagnostic when circular reference in extends", () => {
+      it("reference itself", async () => {
+        const diagnostics = await runner.diagnose(`scalar a extends a;`);
+        expectDiagnostics(diagnostics, {
+          code: "circular-base-type",
+          message: "Type 'a' recursively references itself as a base type.",
+        });
+      });
+      it("reference itself via another scalar", async () => {
+        const diagnostics = await runner.diagnose(`
+          scalar a extends b;
+          scalar b extends a;
+        `);
+        expectDiagnostics(diagnostics, {
+          code: "circular-base-type",
+          message: "Type 'a' recursively references itself as a base type.",
+        });
+      });
+      it("reference itself via an alias", async () => {
+        const diagnostics = await runner.diagnose(`
+          scalar a extends b;
+          alias b = a;
+        `);
+        expectDiagnostics(diagnostics, {
+          code: "circular-base-type",
+          message: "Type 'a' recursively references itself as a base type.",
+        });
+      });
     });
   });
 });

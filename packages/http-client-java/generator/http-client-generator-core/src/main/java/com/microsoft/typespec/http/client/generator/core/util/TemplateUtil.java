@@ -48,7 +48,7 @@ public class TemplateUtil {
     public static final String ARTIFACT_ID = "artifact-id";
     public static final String ARTIFACT_VERSION = "artifact-version";
     public static final String PACKAGE_NAME = "package-name";
-    public static final String IMPRESSION_PIXEL = "impression-pixel";
+    // public static final String IMPRESSION_PIXEL = "impression-pixel";
 
     public static final String MANAGER_CLASS = "manager-class";
 
@@ -144,13 +144,14 @@ public class TemplateUtil {
             // getLongRunningOperationTypeReferenceExpression
             if (clientMethod.getType() == ClientMethodType.LongRunningBeginAsync
                 && clientMethod.getMethodPollingDetails() != null) {
-                if (clientMethod.getMethodPollingDetails().getIntermediateType() instanceof GenericType) {
+                if (clientMethod.getMethodPollingDetails().getPollResultType() instanceof GenericType) {
                     typeReferenceStaticClasses
-                        .add((GenericType) clientMethod.getMethodPollingDetails().getIntermediateType());
+                        .add((GenericType) clientMethod.getMethodPollingDetails().getPollResultType());
                 }
 
-                if (clientMethod.getMethodPollingDetails().getFinalType() instanceof GenericType) {
-                    typeReferenceStaticClasses.add((GenericType) clientMethod.getMethodPollingDetails().getFinalType());
+                if (clientMethod.getMethodPollingDetails().getFinalResultType() instanceof GenericType) {
+                    typeReferenceStaticClasses
+                        .add((GenericType) clientMethod.getMethodPollingDetails().getFinalResultType());
                 }
             }
         }
@@ -161,7 +162,9 @@ public class TemplateUtil {
         }
 
         // helper methods for LLC
-        if (settings.isDataPlaneClient() && clientMethods.stream().anyMatch(m -> m.getMethodPageDetails() != null)) {
+        if (settings.isDataPlaneClient()
+            && settings.isAzureV1()
+            && clientMethods.stream().anyMatch(m -> m.getMethodPageDetails() != null)) {
             writePagingHelperMethods(classBlock);
         }
     }
@@ -174,8 +177,8 @@ public class TemplateUtil {
      */
     public static String getLongRunningOperationTypeReferenceExpression(MethodPollingDetails details) {
         // see writeTypeReferenceStaticClass
-        return getTypeReferenceCreation(details.getIntermediateType()) + ", "
-            + getTypeReferenceCreation(details.getFinalType());
+        return getTypeReferenceCreation(details.getPollResultType()) + ", "
+            + getTypeReferenceCreation(details.getFinalResultType());
     }
 
     /**
@@ -190,7 +193,7 @@ public class TemplateUtil {
         // Array, class, enum, and primitive types are all able to use TypeReference.createInstance which will create
         // or use a singleton instance.
         // Generic types must use a custom instance that supports complex generic parameters.
-        if (!JavaSettings.getInstance().isBranded()) {
+        if (!JavaSettings.getInstance().isAzureV1()) {
             return (type instanceof ArrayType
                 || type instanceof ClassType
                 || type instanceof EnumType
@@ -217,7 +220,7 @@ public class TemplateUtil {
     public static void writeTypeReferenceStaticVariable(JavaClass classBlock, GenericType type) {
         // see getLongRunningOperationTypeReferenceExpression
 
-        if (!JavaSettings.getInstance().isBranded()) {
+        if (!JavaSettings.getInstance().isAzureV1()) {
             StringBuilder sb = new StringBuilder();
             for (IType typeArgument : type.getTypeArguments()) {
                 if (sb.length() > 0) {
@@ -278,9 +281,7 @@ public class TemplateUtil {
                 break;
 
             default:
-                if (JavaSettings.getInstance().isBranded()) {
-                    typeBlock.annotation("ServiceMethod(returns = ReturnType.SINGLE)");
-                }
+                typeBlock.annotation("ServiceMethod(returns = ReturnType.SINGLE)");
                 break;
         }
     }
@@ -367,5 +368,13 @@ public class TemplateUtil {
 
         builder.append(str, last, str.length());
         return builder.toString();
+    }
+
+    public static String getContextNone() {
+        return JavaSettings.getInstance().isAzureV1() ? "Context.NONE" : "Context.none()";
+    }
+
+    public static String getRequestContextNone() {
+        return "RequestContext.none()";
     }
 }

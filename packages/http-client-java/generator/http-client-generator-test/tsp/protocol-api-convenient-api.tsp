@@ -10,11 +10,9 @@ using Azure.Core.Foundations;
 using Azure.Core.Traits;
 using Azure.ClientGenerator.Core;
 
-@service({
-  title: "ProtocolAndConvenient",
-})
+@service(#{ title: "ProtocolAndConvenient" })
 @versioned(ApiVersions)
-namespace Cadl.ProtocolAndConvenient;
+namespace TspTest.ProtocolAndConvenient;
 
 enum ApiVersions {
   @useDependency(global.Azure.Core.Versions.v1_0_Preview_2)
@@ -22,56 +20,56 @@ enum ApiVersions {
 }
 
 model ResourceA {
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   id: string;
 
   name: string;
 }
 
 model ResourceB {
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   id: string;
 
   name: string;
 }
 
 model ResourceC {
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   id: string;
 
   name: string;
 }
 
 model ResourceD {
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   id: string;
 
   name: string;
 }
 
 model ResourceE {
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   id: string;
 
   name: string;
 }
 
 model ResourceF {
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   id: string;
 
   name: string;
 }
 
 model ResourceG {
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   id: string;
 
   name: string;
 }
 
 model ResourceH {
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   id: string;
 
   name: string;
@@ -79,10 +77,10 @@ model ResourceH {
 
 @resource("resources")
 model ResourceI {
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   id: string;
 
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   @key
   name: string;
 
@@ -91,10 +89,10 @@ model ResourceI {
 
 @resource("resources")
 model ResourceJ {
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   id: string;
 
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   @key
   name: string;
 

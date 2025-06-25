@@ -1,11 +1,9 @@
 import "@typespec/rest";
 
-@service({
-  title: "Parameter Decorators",
-})
+@service(#{ title: "Parameter Decorators" })
 namespace TypeSpec.Samples;
 
-using TypeSpec.Http;
+using Http;
 
 @route("/thing")
 namespace Operations {

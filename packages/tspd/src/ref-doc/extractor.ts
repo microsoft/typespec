@@ -5,7 +5,6 @@ import {
   Decorator,
   Diagnostic,
   DocContent,
-  DocUnknownTagNode,
   Enum,
   EnumMember,
   getDeprecated,
@@ -27,19 +26,19 @@ import {
   navigateProgram,
   navigateTypesInNamespace,
   NodeHost,
-  NodePackage,
   NoTarget,
   Operation,
   Program,
   resolveLinterDefinition,
   resolvePath,
   Scalar,
-  SyntaxKind,
   TemplatedType,
   Type,
   TypeSpecLibrary,
   Union,
+  type PackageJson,
 } from "@typespec/compiler";
+import { SyntaxKind, type DocUnknownTagNode } from "@typespec/compiler/ast";
 import { readFile } from "fs/promises";
 import { pathToFileURL } from "url";
 import { reportDiagnostic } from "./lib.js";
@@ -80,6 +79,10 @@ type Mutable<T> =
   // brand to force explicit conversion.
   { -readonly [P in keyof T]: T[P]};
 
+function getExport(pkgJson: PackageJson, path: string, condition: string) {
+  return (pkgJson as any).exports?.[path]?.[condition];
+}
+
 export async function extractLibraryRefDocs(
   libraryPath: string,
 ): Promise<[TypeSpecLibraryRefDoc, readonly Diagnostic[]]> {
@@ -92,8 +95,9 @@ export async function extractLibraryRefDocs(
     namespaces: [],
     getNamedTypeRefDoc: (type) => undefined,
   };
-  if (pkgJson.tspMain) {
-    const main = resolvePath(libraryPath, pkgJson.tspMain);
+  const tspMain = getExport(pkgJson, ".", "typespec");
+  if (tspMain) {
+    const main = resolvePath(libraryPath, tspMain);
     const program = await compile(NodeHost, main, {
       parseOptions: { comments: true, docs: true },
     });
@@ -104,16 +108,16 @@ export async function extractLibraryRefDocs(
     }
   }
 
-  if (pkgJson.main) {
-    const entrypoint = await import(pathToFileURL(resolvePath(libraryPath, pkgJson.main)).href);
+  const main = getExport(pkgJson, ".", "import") ?? getExport(pkgJson, ".", "default");
+  if (main) {
+    const entrypoint = await import(pathToFileURL(resolvePath(libraryPath, main)).href);
     const lib: TypeSpecLibrary<any> | undefined = entrypoint.$lib;
     if (lib?.emitter?.options) {
       refDoc.emitter = {
         options: extractEmitterOptionsRefDoc(lib.emitter.options),
       };
     }
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    const linter = entrypoint.$linter ?? lib?.linter;
+    const linter = entrypoint.$linter;
     if (lib && linter) {
       refDoc.linter = extractLinterRefDoc(lib.name, resolveLinterDefinition(lib.name, linter));
     }
@@ -122,7 +126,7 @@ export async function extractLibraryRefDocs(
   return diagnostics.wrap(refDoc);
 }
 
-async function readPackageJson(libraryPath: string): Promise<NodePackage> {
+async function readPackageJson(libraryPath: string): Promise<PackageJson> {
   const buffer = await readFile(joinPaths(libraryPath, "package.json"));
   return JSON.parse(buffer.toString());
 }

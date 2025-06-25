@@ -1,0 +1,23 @@
+{
+  "flavor": "generic", 
+  "CrossLanguageDefinitionId": {
+    "routes.InInterfaceClient": "Routes.InInterface",
+    "routes.PathParametersClient": "Routes.PathParameters",
+    "routes.PathParametersLabelExpansionExplodeClient": "Routes.PathParameters.LabelExpansion.Explode",
+    "routes.PathParametersLabelExpansionStandardClient": "Routes.PathParameters.LabelExpansion.Standard",
+    "routes.PathParametersMatrixExpansionExplodeClient": "Routes.PathParameters.MatrixExpansion.Explode",
+    "routes.PathParametersMatrixExpansionStandardClient": "Routes.PathParameters.MatrixExpansion.Standard",
+    "routes.PathParametersPathExpansionExplodeClient": "Routes.PathParameters.PathExpansion.Explode",
+    "routes.PathParametersPathExpansionStandardClient": "Routes.PathParameters.PathExpansion.Standard",
+    "routes.PathParametersReservedExpansionClient": "Routes.PathParameters.ReservedExpansion",
+    "routes.PathParametersSimpleExpansionExplodeClient": "Routes.PathParameters.SimpleExpansion.Explode",
+    "routes.PathParametersSimpleExpansionStandardClient": "Routes.PathParameters.SimpleExpansion.Standard",
+    "routes.QueryParametersClient": "Routes.QueryParameters",
+    "routes.QueryParametersQueryContinuationExplodeClient": "Routes.QueryParameters.QueryContinuation.Explode",
+    "routes.QueryParametersQueryContinuationStandardClient": "Routes.QueryParameters.QueryContinuation.Standard",
+    "routes.QueryParametersQueryExpansionExplodeClient": "Routes.QueryParameters.QueryExpansion.Explode",
+    "routes.QueryParametersQueryExpansionStandardClient": "Routes.QueryParameters.QueryExpansion.Standard",
+    "routes.RoutesClient": "Routes",
+    "routes.RoutesClientBuilder": "Routes"
+  }
+}

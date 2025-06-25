@@ -1,12 +1,10 @@
 import "@typespec/rest";
 import "@typespec/openapi";
 
-using TypeSpec.Http;
-using TypeSpec.OpenAPI;
+using Http;
+using OpenAPI;
 
-@service({
-  title: "sample",
-})
+@service(#{ title: "sample" })
 namespace Sample;
 
 @doc("Error")

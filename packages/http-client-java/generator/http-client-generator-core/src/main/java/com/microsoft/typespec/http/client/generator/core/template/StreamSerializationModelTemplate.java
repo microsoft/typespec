@@ -7,10 +7,7 @@ import static com.microsoft.typespec.http.client.generator.core.util.ClientModel
 import static com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil.includePropertyInConstructor;
 
 import com.azure.core.util.CoreUtils;
-import com.azure.xml.XmlReader;
 import com.azure.xml.XmlSerializable;
-import com.azure.xml.XmlToken;
-import com.azure.xml.XmlWriter;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.implementation.ClientModelPropertiesManager;
 import com.microsoft.typespec.http.client.generator.core.implementation.ClientModelPropertyWithMetadata;
@@ -77,10 +74,11 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
             imports.add(QName.class.getName());
             imports.add(XMLStreamException.class.getName());
 
-            imports.add(XmlSerializable.class.getName());
-            imports.add(XmlWriter.class.getName());
-            imports.add(XmlReader.class.getName());
-            imports.add(XmlToken.class.getName());
+            ClassType.XML_SERIALIZABLE.addImportsTo(imports, false);
+            ClassType.XML_WRITER.addImportsTo(imports, false);
+            ClassType.XML_READER.addImportsTo(imports, false);
+            ClassType.XML_TOKEN.addImportsTo(imports, false);
+
         } else {
             imports.add(IOException.class.getName());
 
@@ -144,8 +142,8 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
         classBlock.annotation("Override");
         classBlock.publicMethod(
             "XmlWriter toXml(XmlWriter xmlWriter, String rootElementName) throws XMLStreamException", writerMethod -> {
-                writerMethod.line("rootElementName = CoreUtils.isNullOrEmpty(rootElementName) ? \"" + xmlRootElementName
-                    + "\" : rootElementName;");
+                writerMethod.line("rootElementName = rootElementName == null || rootElementName.isEmpty() ? \""
+                    + xmlRootElementName + "\" : rootElementName;");
                 String writeStartElement = (xmlRootElementNamespace != null)
                     ? "xmlWriter.writeStartElement(\"" + xmlRootElementNamespace + "\", rootElementName);"
                     : "xmlWriter.writeStartElement(rootElementName);";
@@ -170,8 +168,8 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
         classBlock.publicStaticMethod(
             wrapperClassName + " fromXml(XmlReader xmlReader, String rootElementName) throws XMLStreamException",
             readerMethod -> {
-                readerMethod.line("rootElementName = CoreUtils.isNullOrEmpty(rootElementName) ? \"" + xmlRootElementName
-                    + "\" : rootElementName;");
+                readerMethod.line("rootElementName = rootElementName == null || rootElementName.isEmpty() ? \""
+                    + xmlRootElementName + "\" : rootElementName;");
                 String readObject = (xmlRootElementNamespace != null)
                     ? "return xmlReader.readObject(\"" + xmlRootElementNamespace + "\", rootElementName, reader -> {"
                     : "return xmlReader.readObject(rootElementName, reader -> {";
@@ -247,7 +245,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
 
         // If the model is polymorphic and all the models in the polymorphic hierarchy are in the same package we don't
         // need to shade parent properties.
-        if (canUseFromJsonShared(propertiesManager)) {
+        if (propertiesManager.getModel().isAllPolymorphicModelsInSamePackage()) {
             return fieldProperties;
         }
 
@@ -615,8 +613,12 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                     ifAction.indent(() -> {
                         if (valueType == ClassType.BINARY_DATA) {
                             // Special handling for BinaryData
-                            ifAction.line(
-                                "jsonWriter.writeUntypedField(additionalProperty.getKey(), additionalProperty.getValue() == null ? null : additionalProperty.getValue().toObject(Object.class));");
+                            ifAction.line("jsonWriter.writeFieldName(additionalProperty.getKey());");
+                            ifAction
+                                .ifBlock("additionalProperty.getValue() == null",
+                                    ifBlock -> ifBlock.line("jsonWriter.writeNull();"))
+                                .elseBlock(
+                                    elseBlock -> elseBlock.line("additionalProperty.getValue().writeTo(jsonWriter);"));
                         } else {
                             ifAction.line(
                                 "jsonWriter.writeUntypedField(additionalProperty.getKey(), additionalProperty.getValue());");
@@ -709,12 +711,14 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                 // Special handling for BinaryData (instead of using "serializationMethodBase" and
                 // "serializationValueGetterModifier")
                 // The reason is that some backend would fail the request on "null" value (e.g. OpenAI)
-                String writeBinaryDataExpr = "jsonWriter.writeUntypedField(\"" + serializedName + "\", "
-                    + propertyValueGetter + ".toObject(Object.class));";
+                String writeBinaryDataExpr = propertyValueGetter + ".writeTo(jsonWriter);";
                 if (!property.isRequired()) {
-                    methodBlock.ifBlock(propertyValueGetter + " != null",
-                        ifAction -> ifAction.line(writeBinaryDataExpr));
+                    methodBlock.ifBlock(propertyValueGetter + " != null", ifAction -> {
+                        ifAction.line("jsonWriter.writeFieldName(\"" + serializedName + "\");");
+                        ifAction.line(writeBinaryDataExpr);
+                    });
                 } else {
+                    methodBlock.line("jsonWriter.writeFieldName(\"" + serializedName + "\");");
                     methodBlock.line(writeBinaryDataExpr);
                 }
             } else if (fieldSerializationMethod != null) {
@@ -736,8 +740,15 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                         + "Accessor().prepareModelForJsonMergePatch(" + propertyValueGetter + ", false);");
                 }
             } else if (wireType == ClassType.OBJECT) {
-                methodBlock
-                    .line("jsonWriter.writeUntypedField(\"" + serializedName + "\", " + propertyValueGetter + ");");
+                if (!property.isRequired() && !property.isRequiredForCreate()
+                // In json-merge-patch, we don't need to check whether the optional untyped property is null again.
+                    && !isJsonMergePatch) {
+                    methodBlock.ifBlock(propertyValueGetter + " != null", ifBlock -> ifBlock.line(
+                        "jsonWriter.writeUntypedField(\"" + serializedName + "\", " + propertyValueGetter + ");"));
+                } else {
+                    methodBlock
+                        .line("jsonWriter.writeUntypedField(\"" + serializedName + "\", " + propertyValueGetter + ");");
+                }
             } else if (wireType instanceof IterableType) {
                 serializeJsonContainerProperty(methodBlock, "writeArrayField", wireType,
                     ((IterableType) wireType).getElementType(), serializedName, propertyValueGetter, 0,
@@ -843,7 +854,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                         ((MapType) elementType).getValueType(), serializedName, propertyValueGetter, depth + 1,
                         isJsonMergePatch);
                 } else if (elementType == ClassType.BINARY_DATA) {
-                    methodBlock.line(lambdaWriterName + ".writeUntyped(" + elementName + ")");
+                    methodBlock.line(elementName + ".writeTo(" + lambdaWriterName + ")");
                 } else {
                     throw new RuntimeException("Unknown value type " + elementType + " in " + containerType
                         + " serialization. Need to add support for it.");
@@ -1887,8 +1898,10 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
             // If the property is defined in a super class use the setter as this will be able to set the value in the
             // super class.
             if (fromSuper
-                // If the property is flattened or read-only from parent, it will be shadowed in child class.
-                && (!ClientModelUtil.readOnlyNotInCtor(model, property, settings) && !property.getClientFlatten())) {
+                // If the property is flattened or read-only from parent, and not all polymorphic models are in the same
+                // package, it will be shadowed in child class.
+                && (!ClientModelUtil.readOnlyNotInCtor(model, property, settings) && !property.getClientFlatten()
+                    || model.isAllPolymorphicModelsInSamePackage())) {
                 if (model.isPolymorphic() && isJsonMergePatchModel) {
                     // Polymorphic JSON merge patch needs special handling as the setter methods are used to track
                     // whether
@@ -1938,8 +1951,8 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                 "XmlWriter toXml(XmlWriter xmlWriter, String rootElementName) throws XMLStreamException",
                 methodBlock -> {
                     String modelXmlName = propertiesManager.getXmlRootElementName();
-                    methodBlock.line("rootElementName = CoreUtils.isNullOrEmpty(rootElementName) ? \"" + modelXmlName
-                        + "\" : rootElementName;");
+                    methodBlock.line("rootElementName = rootElementName == null || rootElementName.isEmpty() ? \""
+                        + modelXmlName + "\" : rootElementName;");
                     methodBlock.line("xmlWriter.writeStartElement(rootElementName);");
 
                     String modelXmlNamespace = propertiesManager.getXmlRootElementNamespace();
@@ -2182,8 +2195,9 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                     String requiredElementName = propertiesManager.getXmlRootElementName();
                     String requiredNamespace = propertiesManager.getXmlRootElementNamespace();
 
-                    methodBlock.line("String finalRootElementName = CoreUtils.isNullOrEmpty(rootElementName) ? " + "\""
-                        + requiredElementName + "\" : rootElementName;");
+                    methodBlock
+                        .line("String finalRootElementName = rootElementName == null || rootElementName.isEmpty() ? "
+                            + "\"" + requiredElementName + "\" : rootElementName;");
                     if (requiredNamespace != null) {
                         methodBlock.line("return xmlReader.readObject("
                             + propertiesManager.getXmlNamespaceConstant(requiredNamespace)
@@ -2304,10 +2318,20 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
 
                     // Loop over all properties and generate their deserialization handling.
                     AtomicReference<JavaIfBlock> ifBlockReference = new AtomicReference<>(ifBlock);
-                    propertiesManager.forEachSuperXmlElement(
-                        element -> handleXmlPropertyDeserialization(element, whileBlock, ifBlockReference, true));
-                    propertiesManager.forEachXmlElement(
-                        element -> handleXmlPropertyDeserialization(element, whileBlock, ifBlockReference, false));
+                    propertiesManager.forEachSuperXmlElement(element -> {
+                        if (element.isRequired() && element.isConstant()) {
+                            return;
+                        }
+                        handleXmlPropertyDeserialization(element, whileBlock, ifBlockReference, true);
+                    });
+                    propertiesManager.forEachXmlElement(element -> {
+                        if (element.isRequired() && element.isConstant()) {
+                            // the element is element of a constant, which can only have one value
+                            // skip de-serialize
+                            return;
+                        }
+                        handleXmlPropertyDeserialization(element, whileBlock, ifBlockReference, false);
+                    });
 
                     ifBlock = ifBlockReference.get();
 

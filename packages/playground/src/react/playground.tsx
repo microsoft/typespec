@@ -13,6 +13,7 @@ import {
   type ReactNode,
 } from "react";
 import { CompletionItemTag } from "vscode-languageserver";
+import { resolveVirtualPath } from "../browser-host.js";
 import { EditorCommandBar } from "../editor-command-bar/editor-command-bar.js";
 import { getMonacoRange } from "../services.js";
 import type { BrowserHost, PlaygroundSample } from "../types.js";
@@ -108,6 +109,10 @@ export interface PlaygroundLinks {
 export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   const { host, onSave } = props;
   const editorRef = useRef<editor.IStandaloneCodeEditor | undefined>(undefined);
+
+  useEffect(() => {
+    editor.setTheme(props.editorOptions?.theme ?? "typespec");
+  }, [props.editorOptions?.theme]);
 
   const [selectedEmitter, onSelectedEmitterChange] = useControllableValue(
     props.emitter,
@@ -331,7 +336,7 @@ const verticalPaneSizesConst = {
   collapsed: [undefined, 30],
   expanded: [undefined, 200],
 };
-const outputDir = "./tsp-output";
+const outputDir = resolveVirtualPath("tsp-output");
 
 async function compile(
   host: BrowserHost,
@@ -343,16 +348,16 @@ async function compile(
   await emptyOutputDir(host);
   try {
     const typespecCompiler = host.compiler;
-    const program = await typespecCompiler.compile(host, "main.tsp", {
+    const program = await typespecCompiler.compile(host, resolveVirtualPath("main.tsp"), {
       ...options,
       options: {
         ...options.options,
         [selectedEmitter]: {
           ...options.options?.[selectedEmitter],
-          "emitter-output-dir": "tsp-output",
+          "emitter-output-dir": outputDir,
         },
       },
-      outputDir: "tsp-output",
+      outputDir,
       emit: selectedEmitter ? [selectedEmitter] : [],
     });
     const outputFiles = await findOutputFiles(host);

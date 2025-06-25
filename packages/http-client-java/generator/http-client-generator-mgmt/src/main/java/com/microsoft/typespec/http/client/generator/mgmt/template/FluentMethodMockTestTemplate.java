@@ -4,6 +4,7 @@
 package com.microsoft.typespec.http.client.generator.mgmt.template;
 
 import com.azure.core.credential.AccessToken;
+import com.azure.core.http.HttpMethod;
 import com.azure.core.http.HttpResponse;
 import com.azure.core.management.profile.AzureProfile;
 import com.azure.json.JsonProviders;
@@ -59,7 +60,7 @@ public class FluentMethodMockTestTemplate
             = new HashSet<>(Arrays.asList(AccessToken.class.getName(), ClassType.HTTP_CLIENT.getFullName(),
                 ClassType.HTTP_HEADERS.getFullName(), ClassType.HTTP_REQUEST.getFullName(),
                 HttpResponse.class.getName(), "com.azure.core.test.http.MockHttpResponse",
-                ClassType.AZURE_ENVIRONMENT.getFullName(), AzureProfile.class.getName(), "org.junit.jupiter.api.Test",
+                ClassType.AZURE_CLOUD.getFullName(), AzureProfile.class.getName(), "org.junit.jupiter.api.Test",
                 ByteBuffer.class.getName(), Mono.class.getName(), Flux.class.getName(),
                 StandardCharsets.class.getName(), OffsetDateTime.class.getName()));
 
@@ -72,6 +73,8 @@ public class FluentMethodMockTestTemplate
             fluentReturnType = FluentUtils.getValueTypeFromResponseType(fluentReturnType);
         }
         final boolean hasReturnValue = fluentReturnType.asNullable() != ClassType.VOID;
+        final boolean isCheckExistence = fluentReturnType.asNullable() == ClassType.BOOLEAN
+            && clientMethod.getProxyMethod().getHttpMethod() == HttpMethod.HEAD;
 
         // method invocation
         String clientMethodInvocationWithResponse;
@@ -141,14 +144,20 @@ public class FluentMethodMockTestTemplate
                     methodBlock.line(exampleMethodName + " manager = " + exampleMethodName + ".configure()"
                         + ".withHttpClient(httpClient).authenticate(tokenRequestContext -> "
                         + "Mono.just(new AccessToken(\"this_is_a_token\", OffsetDateTime.MAX)), "
-                        + "new AzureProfile(\"\", \"\", AzureEnvironment.AZURE));");
+                        + "new AzureProfile(\"\", \"\", AzureCloud.AZURE_PUBLIC_CLOUD));");
                     methodBlock.line();
                     // method invocation
                     methodBlock.line(clientMethodInvocationWithResponse);
                     methodBlock.line();
                     // verification
                     if (hasReturnValue) {
-                        assertionVisitor.getAssertions().forEach(methodBlock::line);
+                        if (isCheckExistence) {
+                            // checkExistence operation will have 200/204 as its normal response status code.
+                            // Here we could ignore the randomly generated response and assert accordingly.
+                            methodBlock.line("Assertions.assertTrue(" + verificationObjectName + ");");
+                        } else {
+                            assertionVisitor.getAssertions().forEach(methodBlock::line);
+                        }
                     }
                 });
 

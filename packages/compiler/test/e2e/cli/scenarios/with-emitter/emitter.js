@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from "fs/promises";
 
 export async function $onEmit(context) {
-  if (!context.program.compilerOptions.noEmit) {
+  if (!context.program.compilerOptions.dryRun) {
     await mkdir(context.program.compilerOptions.outputDir, { recursive: true });
     await writeFile(
       context.program.compilerOptions.outputDir + "/out.txt",

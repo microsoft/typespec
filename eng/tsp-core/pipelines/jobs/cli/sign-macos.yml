@@ -1,0 +1,47 @@
+jobs:
+  - job: SignMac
+    pool:
+      name: $(WINDOWSPOOL)
+      image: $(WINDOWSVMIMAGE)
+      os: windows
+
+    steps:
+      - download: current
+        artifact: standalone-macos-x64
+        patterns: tsp
+        displayName: Download x64 binary
+      - download: current
+        artifact: standalone-macos-arm64
+        patterns: tsp
+        displayName: Download arm64 binary
+
+      - pwsh: |
+          New-Item -ItemType Directory -Path macos
+
+          Compress-Archive `
+            -Path $(Pipeline.Workspace)/standalone-macos-x64 `
+            -DestinationPath macos/standalone-macos-x64.zip
+
+          Compress-Archive `
+            -Path $(Pipeline.Workspace)/standalone-macos-arm64 `
+            -DestinationPath macos/standalone-macos-arm64.zip
+        displayName: Package mac binary for signing
+
+      - template: /eng/tsp-core/pipelines/templates/signing/macos.yml
+        parameters:
+          path: macos
+
+      - pwsh: |
+          Expand-Archive -Path macos/standalone-macos-x64.zip -DestinationPath signed-macos/
+          Expand-Archive -Path macos/standalone-macos-arm64.zip -DestinationPath signed-macos/
+
+          Remove-Item macos/standalone-macos-x64.zip
+          Remove-Item macos/standalone-macos-arm64.zip
+        displayName: Extract signed binaries
+
+    templateContext:
+      outputs:
+        - output: pipelineArtifact
+          path: signed-macos
+          artifact: standalone-macos-signed
+          displayName: Publish signed binaries

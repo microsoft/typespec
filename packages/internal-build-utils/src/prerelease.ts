@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { NodeChronusHost, loadChronusWorkspace } from "@chronus/chronus";
 import { readChangeDescriptions } from "@chronus/chronus/change";
-import { findWorkspacePackagesNoCheck } from "@pnpm/find-workspace-packages";
+import { findWorkspacePackagesNoCheck } from "@pnpm/workspace.find-packages";
 import { readFile, writeFile } from "fs/promises";
 import { join } from "path";
 import { parse } from "semver";
@@ -59,10 +59,10 @@ async function getPackages(
 ): Promise<Record<string, { path: string; version: string }>> {
   const paths: Record<string, { path: string; version: string }> = {};
   for (const project of await findWorkspacePackagesNoCheck(workspaceRoot)) {
-    if (project.manifest.private) {
+    if (project.manifest.private || !project.manifest.name || !project.manifest.version) {
       continue;
     }
-    const packagePath = join(workspaceRoot, project.dir);
+    const packagePath = join(workspaceRoot, project.rootDir);
     paths[project.manifest.name!] = {
       path: packagePath,
       version: project.manifest.version!,
@@ -106,8 +106,20 @@ function updateDependencyVersions(
   return clone;
 }
 
-function getPrereleaseVersionRange(manifest: BumpManifest, prereleaseTag: string) {
-  return `~${manifest.oldVersion} || >=${manifest.nextVersion}-${prereleaseTag} <${manifest.nextVersion}`;
+export function getPrereleaseVersionRange(manifest: BumpManifest, prereleaseTag: string) {
+  const parsedOldVersion = parse(manifest.oldVersion);
+  const parsedNextVersion = parse(manifest.nextVersion);
+  if (parsedOldVersion === null) {
+    throw new Error(`Invalid semver version ${manifest.oldVersion}`);
+  }
+  if (parsedNextVersion === null) {
+    throw new Error(`Invalid semver version ${manifest.nextVersion}`);
+  }
+
+  if (parsedOldVersion.major > 0 && parsedOldVersion.major === parsedNextVersion.major) {
+    return `^${manifest.oldVersion}`;
+  }
+  return `^${manifest.oldVersion} || >=${manifest.nextVersion}-${prereleaseTag} <${manifest.nextVersion}`;
 }
 
 function getDevVersion(version: string, changeCount: number) {
@@ -118,7 +130,7 @@ function getDevVersion(version: string, changeCount: number) {
   return devVersion;
 }
 
-function getNextVersion(version: string) {
+export function getNextVersion(version: string) {
   const parsed = parse(version);
   if (parsed === null) {
     throw new Error(`Invalid semver version ${version}`);

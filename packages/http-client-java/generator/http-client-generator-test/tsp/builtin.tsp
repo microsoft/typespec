@@ -4,10 +4,8 @@ import "@azure-tools/typespec-client-generator-core";
 using TypeSpec.Http;
 using Azure.ClientGenerator.Core;
 
-@service({
-  title: "Builtin",
-})
-namespace Cadl.Builtin;
+@service(#{ title: "Builtin" })
+namespace TspTest.Builtin;
 
 model Builtin {
   boolean: boolean;
@@ -52,6 +50,15 @@ model Encoded {
 
   @encode(BytesKnownEncoding.base64url)
   base64url?: bytes;
+
+  @encode("unknown-duration")
+  unknownDurationFormat?: duration;
+
+  @encode("unknown-datetime")
+  unknownDateTimeFormat?: utcDateTime;
+
+  @encode("unknown-bytes")
+  unknownBytes?: bytes;
 }
 
 model Request {

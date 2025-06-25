@@ -1,17 +1,17 @@
 import { ok, strictEqual } from "assert";
 import { applyCodeFix as applyCodeFixReal } from "../core/code-fixes.js";
+import { createDiagnosticCollector } from "../core/diagnostics.js";
+import { createLinterRuleContext } from "../core/linter.js";
+import { navigateProgram } from "../core/semantic-walker.js";
 import {
   CompilerHost,
   Diagnostic,
   DiagnosticMessages,
   LinterRuleDefinition,
-  createDiagnosticCollector,
-  navigateProgram,
-} from "../core/index.js";
-import { createLinterRuleContext } from "../core/linter.js";
+} from "../core/types.js";
 import { DiagnosticMatch, expectDiagnosticEmpty, expectDiagnostics } from "./expect.js";
 import { resolveVirtualPath, trimBlankLines } from "./test-utils.js";
-import { BasicTestRunner } from "./types.js";
+import { BasicTestRunner, TesterInstance } from "./types.js";
 
 export interface LinterRuleTester {
   expect(code: string): LinterRuleTestExpect;
@@ -28,7 +28,7 @@ export interface ApplyCodeFixExpect {
 }
 
 export function createLinterRuleTester(
-  runner: BasicTestRunner,
+  runner: BasicTestRunner | TesterInstance,
   ruleDef: LinterRuleDefinition<string, DiagnosticMessages>,
   libraryName: string,
 ): LinterRuleTester {
@@ -71,7 +71,8 @@ export function createLinterRuleTester(
         await applyCodeFixReal(host, codefix);
 
         ok(content, "No content was written to the host.");
-        const offset = runner.fs.get(resolveVirtualPath("./main.tsp"))?.indexOf(code);
+        const fs = "keys" in runner.fs ? runner.fs : runner.fs.fs;
+        const offset = fs.get(resolveVirtualPath("./main.tsp"))?.indexOf(code);
         strictEqual(trimBlankLines(content.slice(offset)), trimBlankLines(expectedCode));
       }
     }

@@ -2,11 +2,8 @@
 {% set original_result = doc_string | wordwrap(width=95, break_long_words=False, break_on_hyphens=False, wrapstring=wrap_string) %}
 {% set list_result = original_result.split('\n') %}
 {% for line in list_result %}
+    {% set prefix = "" if loop.index == 1 else " " %}
     {% set suffix = suffix_string if list_result | length == loop.index %}
-    {% if line | length > 120 %}
-{{ line + "  # pylint: disable=line-too-long" }}{{ suffix }}
-    {% else %}
-{{ line }}{{ suffix }}
-    {% endif %}
+{{ prefix }}{{ line }}{{ suffix }}
 {% endfor %}
 {% endmacro %}

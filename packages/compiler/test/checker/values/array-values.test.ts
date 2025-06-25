@@ -1,14 +1,7 @@
-import { ok, strictEqual } from "assert";
-import { describe, expect, it } from "vitest";
-import { isValue } from "../../../src/index.js";
-import { expectDiagnosticEmpty, expectDiagnostics } from "../../../src/testing/index.js";
-import {
-  compileAndDiagnoseValueOrType,
-  compileValue,
-  compileValueOrType,
-  diagnoseUsage,
-  diagnoseValue,
-} from "./utils.js";
+import { strictEqual } from "assert";
+import { describe, it } from "vitest";
+import { expectDiagnostics } from "../../../src/testing/index.js";
+import { compileValue, diagnoseUsage, diagnoseValue } from "./utils.js";
 
 it("no values", async () => {
   const object = await compileValue(`#[]`);
@@ -65,6 +58,19 @@ it("emit diagnostic if referencing a non literal type", async () => {
   });
 });
 
+it("emit diagnostic when trying to use a tuple", async () => {
+  const { diagnostics, pos } = await diagnoseUsage(`
+    model Test<T extends valueof string[]> {}
+    model Test1 is Test<┆["John"]> {}
+  `);
+  expectDiagnostics(diagnostics, {
+    code: "expect-value",
+    pos,
+    message:
+      "Is a tuple type, but is being used as a value here. Use #[] to create an array value.",
+  });
+});
+
 describe("emit diagnostic when used in", () => {
   it("emit diagnostic when used in a model", async () => {
     const { diagnostics, pos } = await diagnoseUsage(`
@@ -88,76 +94,5 @@ describe("emit diagnostic when used in", () => {
       message: "A value cannot be used as a type.",
       pos,
     });
-  });
-});
-
-describe("(LEGACY) cast tuple to array value", () => {
-  it("create the value", async () => {
-    const value = await compileValueOrType(`valueof string[]`, `["foo", "bar"]`);
-    ok(value && isValue(value));
-    strictEqual(value.valueKind, "ArrayValue");
-    expect(value.values).toHaveLength(2);
-    strictEqual(value.values[0].valueKind, "StringValue");
-    strictEqual(value.values[0].value, "foo");
-    strictEqual(value.values[1].valueKind, "StringValue");
-    strictEqual(value.values[1].value, "bar");
-  });
-
-  it("emit a warning diagnostic", async () => {
-    const { diagnostics, pos } = await diagnoseUsage(`
-      model Test<T extends valueof string[]> {}
-      alias A = Test<┆["foo"]>;
-  `);
-
-    expectDiagnostics(diagnostics, {
-      code: "deprecated",
-      message:
-        "Deprecated: Using a tuple as a value is deprecated. Use an array value instead(with #[]).",
-      pos,
-    });
-  });
-
-  it("doesn't cast or emit diagnostic if constraint also allow tuples", async () => {
-    const [entity, diagnostics] = await compileAndDiagnoseValueOrType(
-      `(valueof unknown) | unknown`,
-      `["foo"]`,
-      { disableDeprecatedSuppression: true },
-    );
-    expectDiagnosticEmpty(diagnostics);
-    strictEqual(entity?.entityKind, "Type");
-    strictEqual(entity.kind, "Tuple");
-  });
-
-  it("emit a error if element in tuple expression are not castable to value", async () => {
-    const { diagnostics, pos } = await diagnoseUsage(`
-      model Test<T extends valueof string[]> {}
-
-      #suppress "deprecated" "for testing"
-      alias A = Test<┆[string]>;
-  `);
-
-    expectDiagnostics(diagnostics, {
-      code: "invalid-argument",
-      message:
-        "Argument of type '[string]' is not assignable to parameter of type 'valueof string[]'",
-      pos,
-    });
-  });
-
-  it("emit a error if element in tuple expression are not assignable", async () => {
-    const { diagnostics, pos } = await diagnoseUsage(`
-      model Test<T extends valueof string[]> {}
-
-      alias A = Test<┆[123]>;
-  `);
-
-    expectDiagnostics(diagnostics, [
-      { code: "deprecated" }, // deprecated diagnostic still emitted
-      {
-        code: "unassignable",
-        message: "Type '123' is not assignable to type 'string'",
-        pos,
-      },
-    ]);
   });
 });

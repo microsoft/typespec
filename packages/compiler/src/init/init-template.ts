@@ -16,6 +16,13 @@ export interface InitTemplateInput {
 
 export interface InitTemplate {
   /**
+   * The kind of project this tempolate initialize. This will change things like where dependencies are added.
+   * For example, a library will add dependencies to `peer` and `dev` dependencies, while a project will add them to `dependencies`.
+   * @default "project"
+   */
+  target?: "library" | "project";
+
+  /**
    * Name of the template
    */
   title: string;
@@ -32,6 +39,11 @@ export interface InitTemplate {
    * List of libraries to include
    */
   libraries?: InitTemplateLibrary[];
+
+  /**
+   * List of emitters to include
+   */
+  emitters?: Record<string, EmitterTemplate>;
 
   /**
    * Config
@@ -53,6 +65,24 @@ export interface InitTemplate {
    * List of files to copy.
    */
   files?: InitTemplateFile[];
+}
+
+/**
+ * Describes emitter dependencies that will be added to the generated project.
+ */
+export interface EmitterTemplate {
+  /** Friendly name for the emitter */
+  label?: string;
+  /** Emitter Selection Description */
+  description?: string;
+  /** Whether emitter is selected by default in the list */
+  selected?: boolean;
+  /** Optional emitter Options to populate the tspconfig.yaml */
+  options?: any;
+  /** Optional message to display to the user post creation */
+  message?: string;
+  /** Optional specific emitter version. `latest` if not specified */
+  version?: string;
 }
 
 /**
@@ -91,6 +121,7 @@ export const InitTemplateSchema: JSONSchemaType<InitTemplate> = {
   properties: {
     title: { type: "string" },
     description: { type: "string" },
+    target: { type: "string", enum: ["library", "project"], default: "project", nullable: true },
     compilerVersion: { type: "string", nullable: true },
     libraries: {
       type: "array",
@@ -98,6 +129,23 @@ export const InitTemplateSchema: JSONSchemaType<InitTemplate> = {
         oneOf: [{ type: "string" }, InitTemplateLibrarySpecSchema],
       },
       nullable: true,
+    },
+    emitters: {
+      type: "object",
+      nullable: true,
+      additionalProperties: {
+        type: "object",
+        properties: {
+          label: { type: "string", nullable: true },
+          description: { type: "string", nullable: true },
+          selected: { type: "boolean", nullable: true },
+          options: {} as any,
+          message: { type: "string", nullable: true },
+          version: { type: "string", nullable: true },
+        },
+        required: [],
+      },
+      required: [],
     },
     skipCompilerPackage: { type: "boolean", nullable: true },
     config: { nullable: true, ...TypeSpecConfigJsonSchema },

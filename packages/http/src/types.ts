@@ -7,21 +7,14 @@ import {
   Namespace,
   Operation,
   Program,
+  Scalar,
   Tuple,
   Type,
 } from "@typespec/compiler";
-import { PathOptions, QueryOptions } from "../generated-defs/TypeSpec.Http.js";
+import { CookieOptions, PathOptions, QueryOptions } from "../generated-defs/TypeSpec.Http.js";
 import { HeaderProperty, HttpProperty } from "./http-property.js";
 
-/**
- * @deprecated use `HttpOperation`. To remove in November 2022 release.
- */
-export type OperationDetails = HttpOperation;
-
 export type HttpVerb = "get" | "put" | "post" | "patch" | "delete" | "head";
-
-/** @deprecated use Authentication */
-export type ServiceAuthentication = Authentication;
 
 export interface Authentication {
   /**
@@ -70,7 +63,7 @@ export interface HttpAuthBase {
  */
 export interface BasicAuth extends HttpAuthBase {
   type: "http";
-  scheme: "basic";
+  scheme: "Basic";
 }
 
 /**
@@ -83,7 +76,7 @@ export interface BasicAuth extends HttpAuthBase {
  */
 export interface BearerAuth extends HttpAuthBase {
   type: "http";
-  scheme: "bearer";
+  scheme: "Bearer";
 }
 
 type ApiKeyLocation = "header" | "query" | "cookie";
@@ -256,15 +249,18 @@ export interface HttpServiceAuthentication {
 
 export type OperationContainer = Namespace | Interface;
 
+/** @experimental */
 export type OperationVerbSelector = (
   program: Program,
   operation: Operation,
 ) => HttpVerb | undefined;
 
+/** @experimental */
 export interface OperationParameterOptions {
   verbSelector?: OperationVerbSelector;
 }
 
+/** @experimental */
 export interface RouteOptions {
   // Other options can be passed through the interface
   [prop: string]: any;
@@ -272,15 +268,18 @@ export interface RouteOptions {
   paramOptions?: OperationParameterOptions;
 }
 
+/** @experimental */
 export interface RouteResolutionOptions extends RouteOptions {
   listOptions?: ListOperationOptions;
 }
 
+/** @experimental */
 export interface RouteProducerResult {
   uriTemplate: string;
   parameters: HttpOperationParameters;
 }
 
+/** @experimental */
 export type RouteProducer = (
   program: Program,
   operation: Operation,
@@ -292,19 +291,26 @@ export type RouteProducer = (
 export interface HeaderFieldOptions {
   type: "header";
   name: string;
+
   /**
-   * The string format of the array. "csv" and "simple" are used interchangeably, as are
-   * "multi" and "form".
+   * Equivalent of adding `*` in the path parameter as per [RFC-6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3)
+   *
+   *  | Style  | Explode | Primitive value = 5 | Array = [3, 4, 5] | Object = {"role": "admin", "firstName": "Alex"} |
+   *  | ------ | ------- | ------------------- | ----------------- | ----------------------------------------------- |
+   *  | simple | false   | `id=5`              | `3,4,5`           | `role,admin,firstName,Alex`                     |
+   *  | simple | true    | `id=5`              | `3,4,5`           | `role=admin,firstName=Alex`                     |
+   *
    */
-  format?: "csv" | "multi" | "ssv" | "tsv" | "pipes" | "simple" | "form";
+  explode?: boolean;
 }
 
-export interface QueryParameterOptions extends Required<Omit<QueryOptions, "format">> {
+export interface CookieParameterOptions extends Required<CookieOptions> {
+  type: "cookie";
+  name: string;
+}
+
+export interface QueryParameterOptions extends Required<QueryOptions> {
   type: "query";
-  /**
-   * @deprecated use explode and `@encode` decorator instead.
-   */
-  format?: "csv" | "multi" | "ssv" | "tsv" | "pipes" | "simple" | "form";
 }
 
 export interface PathParameterOptions extends Required<PathOptions> {
@@ -313,10 +319,14 @@ export interface PathParameterOptions extends Required<PathOptions> {
 
 export type HttpOperationParameter =
   | HttpOperationHeaderParameter
+  | HttpOperationCookieParameter
   | HttpOperationQueryParameter
   | HttpOperationPathParameter;
 
 export type HttpOperationHeaderParameter = HeaderFieldOptions & {
+  param: ModelProperty;
+};
+export type HttpOperationCookieParameter = CookieParameterOptions & {
   param: ModelProperty;
 };
 export type HttpOperationQueryParameter = QueryParameterOptions & {
@@ -326,27 +336,13 @@ export type HttpOperationPathParameter = PathParameterOptions & {
   param: ModelProperty;
 };
 
-/**
- * @deprecated use {@link HttpOperationBody}
- */
-export type HttpOperationRequestBody = HttpOperationBody;
-/**
- * @deprecated use {@link HttpOperationBody}
- */
-export type HttpOperationResponseBody = HttpOperationBody;
-
 export interface HttpOperationParameters {
   /** Http properties */
   readonly properties: HttpProperty[];
 
   parameters: HttpOperationParameter[];
 
-  body?: HttpOperationBody | HttpOperationMultipartBody;
-
-  /** @deprecated use {@link body.type} */
-  bodyType?: Type;
-  /** @deprecated use {@link body.parameter} */
-  bodyParameter?: ModelProperty;
+  body?: HttpPayloadBody;
 
   /**
    * @internal
@@ -377,12 +373,6 @@ export interface HttpOperation {
    * Not recommended use {@link uriTemplate} instead. This will not work for complex cases like not-escaping reserved chars.
    */
   path: string;
-
-  /**
-   * Path segments
-   * @deprecated use {@link uriTemplate} instead
-   */
-  pathSegments: string[];
 
   /**
    * Route verb.
@@ -431,10 +421,6 @@ export interface RoutePath {
 }
 
 export interface HttpOperationResponse {
-  /** @deprecated use {@link statusCodes} */
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-  statusCode: StatusCode;
-
   /**
    * Status code or range of status code for the response.
    */
@@ -461,14 +447,25 @@ export interface HttpOperationResponseContent {
   readonly properties: HttpProperty[];
 
   headers?: Record<string, ModelProperty>;
-  body?: HttpOperationBody | HttpOperationMultipartBody;
+  body?: HttpPayloadBody;
 }
+
+/** The possible bodies of an HTTP operation. */
+export type HttpPayloadBody =
+  | HttpOperationBody
+  | HttpOperationMultipartBody
+  | HttpOperationFileBody;
 
 export interface HttpOperationBodyBase {
   /** Content types. */
   readonly contentTypes: string[];
   /** Property used to set the content type if exists */
   readonly contentTypeProperty?: ModelProperty;
+
+  /**
+   * The payload property that defined this body, if any.
+   */
+  readonly property?: ModelProperty;
 }
 
 export interface HttpBody {
@@ -479,16 +476,6 @@ export interface HttpBody {
 
   /** If the body contains metadata annotations to ignore. For example `@header`. */
   readonly containsMetadataAnnotations: boolean;
-
-  /**
-   * @deprecated use {@link property}
-   */
-  parameter?: ModelProperty;
-
-  /**
-   * If the body was explicitly set as a property. Correspond to the property with `@body` or `@bodyRoot`
-   */
-  readonly property?: ModelProperty;
 }
 
 export interface HttpOperationBody extends HttpOperationBodyBase, HttpBody {
@@ -496,39 +483,113 @@ export interface HttpOperationBody extends HttpOperationBodyBase, HttpBody {
 }
 
 /** Body marked with `@multipartBody` */
-export interface HttpOperationMultipartBody extends HttpOperationBodyBase {
+export type HttpOperationMultipartBody =
+  | HttpOperationMultipartBodyModel
+  | HttpOperationMultipartBodyTuple;
+
+export interface HttpOperationMultipartBodyCommon extends HttpOperationBodyBase {
   readonly bodyKind: "multipart";
-  readonly type: Model | Tuple;
   /** Property annotated with `@multipartBody` */
   readonly property: ModelProperty;
   readonly parts: HttpOperationPart[];
 }
 
-/** Represent an part in a multipart body. */
-export interface HttpOperationPart {
-  /** Part name */
-  readonly name?: string;
-  /** If the part is optional */
-  readonly optional: boolean;
+export interface HttpOperationMultipartBodyModel extends HttpOperationMultipartBodyCommon {
+  readonly multipartKind: "model";
+  readonly type: Model;
+  readonly parts: HttpOperationModelPart[];
+}
+
+export interface HttpOperationMultipartBodyTuple extends HttpOperationMultipartBodyCommon {
+  readonly multipartKind: "tuple";
+  readonly type: Tuple;
+  readonly parts: HttpOperationTuplePart[];
+}
+
+/** The possible bodies of a multipart part. */
+export type HttpOperationMultipartPartBody = HttpOperationBody | HttpOperationFileBody;
+
+export interface HttpOperationPartCommon {
   /** Part body */
-  readonly body: HttpOperationBody;
+  readonly body: HttpOperationMultipartPartBody;
   /** If the Part is an HttpFile this is the property defining the filename */
   readonly filename?: ModelProperty;
   /** Part headers */
   readonly headers: HeaderProperty[];
   /** If there can be multiple of that part */
   readonly multi: boolean;
+  /** The part name, if any. */
+  readonly name?: string;
+  /** If the part is optional */
+  readonly optional: boolean;
+}
+
+export type HttpOperationPart = HttpOperationModelPart | HttpOperationTuplePart;
+
+/** Represents a part in a multipart body that comes from a model property. */
+export interface HttpOperationModelPart extends HttpOperationPartCommon {
+  readonly partKind: "model";
+  /** Property that defined the part if the model form is used. */
+  readonly property: ModelProperty;
+  /** Part name */
+  readonly name: string;
+}
+
+/** Represents a part in a multipart body that comes from a tuple entry. */
+export interface HttpOperationTuplePart extends HttpOperationPartCommon {
+  readonly partKind: "tuple";
+  /** Property that defined the part -- always undefined for tuple entry parts. */
+  readonly property?: undefined;
+}
+
+/**
+ * The type of an HTTP body that is a file upload or download.
+ */
+export interface HttpOperationFileBody extends HttpOperationBodyBase {
+  readonly bodyKind: "file";
+  /**
+   * The model type of the body that is or extends `Http.File`.
+   */
+  readonly type: Model;
+
+  /**
+   * Whether the file contents should be represented as a string or raw byte stream.
+   *
+   * True if the `contents` property is a `string`, `false` if it is `bytes`.
+   *
+   * Emitters may choose to represent textual files as strings or streams of textual characters.
+   * If this property is `false`, emitters must expect that the contents may contain non-textual
+   * data.
+   */
+  readonly isText: boolean;
+
+  /**
+   * The list of inner media types of the file. In other words, what kind of files can be returned.
+   *
+   * This is determined by the `contentType` property of the file model.
+   */
+  readonly contentTypes: string[];
+
+  /**
+   * The `contentType` property.
+   */
+  readonly contentTypeProperty: ModelProperty;
+
+  /**
+   * The filename property.
+   */
+  readonly filename: ModelProperty;
+
+  /**
+   * The `contents` property.
+   */
+  readonly contents: ModelProperty & { type: Scalar };
 }
 
 export interface HttpStatusCodeRange {
   start: number;
   end: number;
 }
-
-/**
- * @deprecated Use `HttpStatusCodesEntry` instead.
- */
-export type StatusCode = `${number}` | "*";
 
 export type HttpStatusCodesEntry = HttpStatusCodeRange | number | "*";
 export type HttpStatusCodes = HttpStatusCodesEntry[];

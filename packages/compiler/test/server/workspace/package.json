@@ -1,0 +1,21 @@
+{
+  "name": "@typespec/tspconfig-test",
+  "version": "1.0.0",
+  "description": "test project for testing tsp config",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@typespec/fake-emitter-no-schema": "0.1.2",
+    "@typespec/fake-linter-no-schema": "0.1.2"
+  },
+  "dependencies": {
+    "@typespec/fake-emitter": "0.0.2",
+    "@typespec/fake-linter": "0.0.2",
+    "@typespec/fake-yaml": "0.0.1",
+    "@typespec/not-exist": "0.0.1"
+  }
+}

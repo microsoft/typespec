@@ -1,0 +1,54 @@
+stages:
+  - stage: sign_tsp_cli
+    displayName: Sign tsp cli binaries
+    dependsOn: build
+
+    jobs:
+      - template: /eng/tsp-core/pipelines/jobs/cli/sign-macos.yml
+      - template: /eng/tsp-core/pipelines/jobs/cli/sign-windows.yml
+
+  - stage: verify_tsp_cli
+    displayName: Verify tsp cli
+    dependsOn: sign_tsp_cli
+    jobs:
+      - template: /eng/tsp-core/pipelines/jobs/cli/verify-tsp-cli.yml
+        parameters:
+          platform: linux-x64
+          artifactName: standalone-linux-x64
+          exePath: tsp
+
+      - template: /eng/tsp-core/pipelines/jobs/cli/verify-tsp-cli.yml
+        parameters:
+          platform: linux-arm64
+          artifactName: standalone-linux-arm64
+          exePath: tsp
+
+      - template: /eng/tsp-core/pipelines/jobs/cli/verify-tsp-cli.yml
+        parameters:
+          platform: macos-x64
+          artifactName: standalone-macos-signed
+          exePath: standalone-macos-x64/tsp
+
+      - template: /eng/tsp-core/pipelines/jobs/cli/verify-tsp-cli.yml
+        parameters:
+          platform: macos-arm64
+          artifactName: standalone-macos-signed
+          exePath: standalone-macos-arm64/tsp
+
+      - template: /eng/tsp-core/pipelines/jobs/cli/verify-tsp-cli.yml
+        parameters:
+          platform: windows-x64
+          artifactName: standalone-windows-signed
+          exePath: standalone-windows-x64/tsp.exe
+
+      # - template: /eng/tsp-core/pipelines/jobs/cli/verify-tsp-cli.yml
+      #   parameters:
+      #     platform: windows-arm64
+      #     artifactName: standalone-windows-signed
+      #     exePath: standalone-windows-arm64/tsp.exe
+
+  - stage: publish_tsp_cli
+    displayName: Publish tsp cli
+    dependsOn: verify_tsp_cli
+    jobs:
+      - template: /eng/tsp-core/pipelines/jobs/cli/publish-artifacts.yml

@@ -3,19 +3,17 @@ import "@azure-tools/typespec-client-generator-core";
 
 using TypeSpec.Http;
 
-@service({
-  title: "Model",
-})
-namespace Cadl.Model;
+@service(#{ title: "Model" })
+namespace TspTest.Model;
 
 // input-output
 model Resource1 {
   name: string;
 
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   outputData: OutputData;
 
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   outputData2: InputOutputData2;
 }
 

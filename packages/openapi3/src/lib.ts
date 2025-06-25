@@ -1,6 +1,8 @@
 import { createTypeSpecLibrary, JSONSchemaType, paramMessage } from "@typespec/compiler";
 
 export type FileType = "yaml" | "json";
+export type OpenAPIVersion = "3.0.0" | "3.1.0";
+export type ExperimentalParameterExamplesStrategy = "data" | "serialized";
 export interface OpenAPI3EmitterOptions {
   /**
    * If the content should be serialized as YAML or JSON.
@@ -12,10 +14,11 @@ export interface OpenAPI3EmitterOptions {
   /**
    * Name of the output file.
    * Output file will interpolate the following values:
-   *  - service-name: Name of the service if multiple
+   *  - service-name: Name of the service
+   *  - service-name-if-multiple: Name of the service if multiple
    *  - version: Version of the service if multiple
    *
-   * @default `{service-name}.{version}.openapi.yaml` or `.json` if {@link OpenAPI3EmitterOptions["file-type"]} is `"json"`
+   * @default `{service-name-if-multiple}.{version}.openapi.yaml` or `.json` if {@link OpenAPI3EmitterOptions["file-type"]} is `"json"`
    *
    * @example Single service no versioning
    *  - `openapi.yaml`
@@ -35,6 +38,16 @@ export interface OpenAPI3EmitterOptions {
    *  - `openapi.Org1.Service2.v1.1.yaml`
    */
   "output-file"?: string;
+
+  /**
+   * The Open API specification versions to emit.
+   * If more than one version is specified, then the output file
+   * will be created inside a directory matching each specification version.
+   *
+   * @default ["v3.0"]
+   * @internal
+   */
+  "openapi-versions"?: OpenAPIVersion[];
 
   /**
    * Set the newline character for emitting files.
@@ -62,6 +75,22 @@ export interface OpenAPI3EmitterOptions {
    * @default "int64"
    */
   "safeint-strategy"?: "double-int" | "int64";
+
+  /**
+   * If true, then for models emitted as object schemas we default `additionalProperties` to false for
+   * OpenAPI 3.0, and `unevaluatedProperties` to false for OpenAPI 3.1, if not explicitly specified elsewhere.
+   * @default false
+   */
+  "seal-object-schemas"?: boolean;
+
+  /**
+   * Determines how to emit examples on parameters.
+   *
+   * Note: This is an experimental feature and may change in future versions.
+   * @see https://spec.openapis.org/oas/v3.0.4.html#style-examples for parameter example serialization rules.
+   * @see https://github.com/OAI/OpenAPI-Specification/discussions/4622 for discussion on handling parameter examples.
+   */
+  "experimental-parameter-examples"?: ExperimentalParameterExamplesStrategy;
 }
 
 const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
@@ -81,10 +110,11 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
       description: [
         "Name of the output file.",
         " Output file will interpolate the following values:",
-        "  - service-name: Name of the service if multiple",
+        "  - service-name: Name of the service",
+        "  - service-name-if-multiple: Name of the service if multiple",
         "  - version: Version of the service if multiple",
         "",
-        ' Default: `{service-name}.{version}.openapi.yaml` or `.json` if `file-type` is `"json"`',
+        ' Default: `{service-name-if-multiple}.{version}.openapi.yaml` or `.json` if `file-type` is `"json"`',
         "",
         " Example Single service no versioning",
         "  - `openapi.yaml`",
@@ -103,6 +133,18 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
         "  - `openapi.Org1.Service2.v1.0.yaml`",
         "  - `openapi.Org1.Service2.v1.1.yaml`    ",
       ].join("\n"),
+    },
+    "openapi-versions": {
+      type: "array",
+      items: {
+        type: "string",
+        enum: ["3.0.0", "3.1.0"],
+        nullable: true,
+        description: "The versions of OpenAPI to emit. Defaults to `[3.0.0]`",
+      },
+      nullable: true,
+      uniqueItems: true,
+      minItems: 1,
     },
     "new-line": {
       type: "string",
@@ -138,12 +180,36 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
         "Default: `int64`",
       ].join("\n"),
     },
+    "seal-object-schemas": {
+      type: "boolean",
+      nullable: true,
+      default: false,
+      description: [
+        "If true, then for models emitted as object schemas we default `additionalProperties` to false for",
+        "OpenAPI 3.0, and `unevaluatedProperties` to false for OpenAPI 3.1, if not explicitly specified elsewhere.",
+        "Default: `false`",
+      ].join("\n"),
+    },
+    "experimental-parameter-examples": {
+      type: "string",
+      enum: ["data", "serialized"],
+      nullable: true,
+      description: [
+        "Determines how to emit examples on parameters.",
+        "Note: This is an experimental feature and may change in future versions.",
+        "See https://spec.openapis.org/oas/v3.0.4.html#style-examples for parameter example serialization rules",
+        "See https://github.com/OAI/OpenAPI-Specification/discussions/4622 for discussion on handling parameter examples.",
+      ].join("\n"),
+    },
   },
   required: [],
 };
 
-export const libDef = {
+export const $lib = createTypeSpecLibrary({
   name: "@typespec/openapi3",
+  capabilities: {
+    dryRun: true,
+  },
   diagnostics: {
     "oneof-union": {
       severity: "error",
@@ -174,6 +240,7 @@ export const libDef = {
       severity: "warning",
       messages: {
         default: paramMessage`Style '${"style"}' is not supported in OpenAPI3 ${"paramType"} parameters. Defaulting to style 'simple'.`,
+        optionalPath: paramMessage`Style '${"style"}' is not supported in OpenAPI3 ${"paramType"} parameters. The style ${"style"} could be introduced by an optional parameter. Defaulting to style 'simple'.`,
       },
     },
     "path-reserved-expansion": {
@@ -263,13 +330,29 @@ export const libDef = {
         default: paramMessage`Authentication "${"authType"}" is not a known authentication by the openapi3 emitter, it will be ignored.`,
       },
     },
+    "xml-attribute-invalid-property-type": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`XML \`@attribute\` can only be primitive types in the OpenAPI 3 emitter, Property '${"name"}' type will be changed to type: string.`,
+      },
+    },
+    "xml-unwrapped-invalid-property-type": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`XML \`@unwrapped\` can only used on array properties or primitive ones in the OpenAPI 3 emitter, Property '${"name"}' will be ignored.`,
+      },
+    },
+    "invalid-component-fixed-field-key": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`Invalid key '${"value"}' used in a fixed field of the Component object. Only alphanumerics, dot (.), hyphen (-), and underscore (_) characters are allowed in keys.`,
+      },
+    },
   },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<OpenAPI3EmitterOptions>,
   },
-} as const;
-
-export const $lib = createTypeSpecLibrary(libDef);
+});
 export const { createDiagnostic, reportDiagnostic, createStateSymbol } = $lib;
 
 export type OpenAPILibrary = typeof $lib;

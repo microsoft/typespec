@@ -95,10 +95,16 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
             = convenienceMethod.getType() == ClientMethodType.SimpleSyncRestResponse ? "" : ".getValue()";
 
         if (convenienceMethod.getType() == ClientMethodType.PagingSync) {
-            methodBlock.methodReturn(String.format("serviceClient.%1$s(%2$s).mapPage(bodyItemValue -> %3$s)",
-                protocolMethod.getName(), invocationExpression,
-                expressionConvertFromBinaryData(responseBodyType, rawResponseBodyType, "bodyItemValue",
-                    protocolMethod.getProxyMethod().getResponseContentTypes(), typeReferenceStaticClasses)));
+            String mapPageExpression = "";
+            if (JavaSettings.getInstance().isAzureV1()) {
+                mapPageExpression
+                    = ".mapPage(bodyItemValue -> "
+                        + expressionConvertFromBinaryData(responseBodyType, rawResponseBodyType, "bodyItemValue",
+                            protocolMethod.getProxyMethod().getResponseContentTypes(), typeReferenceStaticClasses)
+                        + ")";
+            }
+            methodBlock.methodReturn(String.format("serviceClient.%1$s(%2$s)%3$s", protocolMethod.getName(),
+                invocationExpression, mapPageExpression));
         } else if (convenienceMethod.getType() == ClientMethodType.LongRunningBeginSync) {
             String methodName = protocolMethod.getName();
             methodBlock.methodReturn(String.format("serviceClient.%1$s(%2$s)", methodName, invocationExpression));
@@ -230,7 +236,9 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
                 } else if (responseBodyType == ArrayType.BYTE_ARRAY) {
                     // byte[]
                     if (rawType == ClassType.BASE_64_URL) {
-                        return String.format("%1$s.toObject(Base64Url.class).decodedBytes()", invocationExpression);
+                        return String.format(
+                            "%1$s.toObject(" + ClassType.BASE_64_URL.getName() + ".class).decodedBytes()",
+                            invocationExpression);
                     } else {
                         return String.format("%1$s.toObject(byte[].class)", invocationExpression);
                     }

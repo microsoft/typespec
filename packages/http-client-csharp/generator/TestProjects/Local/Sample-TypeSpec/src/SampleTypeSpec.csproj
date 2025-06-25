@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>This is the SampleTypeSpec client library for developing .NET applications with rich experience.</Description>
+    <AssemblyTitle>SDK Code Generation SampleTypeSpec</AssemblyTitle>
+    <Version>1.0.0-beta.1</Version>
+    <PackageTags>SampleTypeSpec</PackageTags>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.ClientModel" Version="1.3.0" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    <PackageReference Include="Azure.Core.Experimental" Version="0.1.0-preview.37" />
+  </ItemGroup>
+</Project>

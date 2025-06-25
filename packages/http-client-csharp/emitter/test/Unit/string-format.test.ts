@@ -1,11 +1,13 @@
+vi.resetModules();
+
 import { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import {
+  createCSharpSdkContext,
   createEmitterContext,
   createEmitterTestHost,
-  createNetSdkContext,
   typeSpecCompile,
 } from "./utils/test-util.js";
 
@@ -24,9 +26,13 @@ describe("Test string format", () => {
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const type = root.Clients[0].Operations[0].Parameters[1].Type;
+    const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
+      (p) => p.name === "sourceUrl",
+    );
+    strictEqual(1, inputParamArray.length);
+    const type = inputParamArray[0].type;
     strictEqual(type.kind, "url");
   });
 
@@ -44,9 +50,9 @@ describe("Test string format", () => {
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const codeModel = createModel(sdkContext);
-    const models = codeModel.Models;
+    const models = codeModel.models;
     const foo = models.find((m) => m.name === "Foo");
     ok(foo);
     const type = foo?.properties[0].type;

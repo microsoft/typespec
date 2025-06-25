@@ -42,14 +42,9 @@ const Token = {
     alias: createToken("alias", "keyword.other.tsp"),
     dec: createToken("dec", "keyword.other.tsp"),
     fn: createToken("fn", "keyword.other.tsp"),
-    projection: createToken("projection", "keyword.other.tsp"),
     extends: createToken("extends", "keyword.other.tsp"),
     extern: createToken("extern", "keyword.other.tsp"),
     is: createToken("is", "keyword.other.tsp"),
-    if: createToken("if", "keyword.other.tsp"),
-    else: createToken("else", "keyword.other.tsp"),
-    to: createToken("to", "keyword.other.tsp"),
-    from: createToken("from", "keyword.other.tsp"),
     valueof: createToken("valueof", "keyword.other.tsp"),
     typeof: createToken("typeof", "keyword.other.tsp"),
     const: createToken("const", "keyword.other.tsp"),
@@ -918,6 +913,26 @@ function testColorization(description: string, tokenize: Tokenize) {
         ]);
       });
 
+      it("decorators on escaped members", async () => {
+        const tokens = await tokenize("enum Direction { @foo `Val 123`, @foo(123) `456 after`}");
+        deepStrictEqual(tokens, [
+          Token.keywords.enum,
+          Token.identifiers.type("Direction"),
+          Token.punctuation.openBrace,
+          Token.identifiers.tag("@"),
+          Token.identifiers.tag("foo"),
+          Token.identifiers.variable("`Val 123`"),
+          Token.punctuation.comma,
+          Token.identifiers.tag("@"),
+          Token.identifiers.tag("foo"),
+          Token.punctuation.openParen,
+          Token.literals.numeric("123"),
+          Token.punctuation.closeParen,
+          Token.identifiers.variable("`456 after`"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
       it("enum with string values", async () => {
         const tokens = await tokenize(`enum Direction { up: "Up", down: "Down"}`);
         deepStrictEqual(tokens, [
@@ -1542,137 +1557,6 @@ function testColorization(description: string, tokenize: Tokenize) {
         ]);
       });
     });
-
-    describe("projections", () => {
-      it("simple projection", async () => {
-        const tokens = await tokenize(`
-      projection op#foo {
-        to(arg1) {
-          calling(arg1);
-        }
-      }
-      `);
-        deepStrictEqual(tokens, [
-          Token.keywords.projection,
-          Token.keywords.operation,
-          Token.operators.selector,
-          Token.identifiers.variable("foo"),
-          Token.punctuation.openBrace,
-          Token.keywords.to,
-          Token.punctuation.openParen,
-          Token.identifiers.variable("arg1"),
-          Token.punctuation.closeParen,
-          Token.punctuation.openBrace,
-          Token.identifiers.functionName("calling"),
-          Token.punctuation.openParen,
-          Token.identifiers.type("arg1"),
-          Token.punctuation.closeParen,
-          Token.punctuation.semicolon,
-          Token.punctuation.closeBrace,
-          Token.punctuation.closeBrace,
-        ]);
-      });
-
-      async function testProjectionBody(body: string, expectedTokens: Token[]) {
-        const tokens = await tokenize(`
-      projection op#foo {
-        to(arg1) {
-          ${body}
-        }
-      }
-      `);
-        deepStrictEqual(tokens, [
-          Token.keywords.projection,
-          Token.keywords.operation,
-          Token.operators.selector,
-          Token.identifiers.variable("foo"),
-          Token.punctuation.openBrace,
-          Token.keywords.to,
-          Token.punctuation.openParen,
-          Token.identifiers.variable("arg1"),
-          Token.punctuation.closeParen,
-          Token.punctuation.openBrace,
-          ...expectedTokens,
-          Token.punctuation.closeBrace,
-          Token.punctuation.closeBrace,
-        ]);
-      }
-
-      it("if expression with body", async () => {
-        await testProjectionBody(
-          `
-        if hasFoo(arg1) {
-          doFoo(arg1);
-        };
-      `,
-          [
-            Token.keywords.if,
-            Token.identifiers.functionName("hasFoo"),
-            Token.punctuation.openParen,
-            Token.identifiers.type("arg1"),
-            Token.punctuation.closeParen,
-            Token.punctuation.openBrace,
-            Token.identifiers.functionName("doFoo"),
-            Token.punctuation.openParen,
-            Token.identifiers.type("arg1"),
-            Token.punctuation.closeParen,
-            Token.punctuation.semicolon,
-            Token.punctuation.closeBrace,
-            Token.punctuation.semicolon,
-          ],
-        );
-      });
-
-      it("if, else if, else expression", async () => {
-        await testProjectionBody(
-          `
-        if hasFoo() {
-        } else if hasBar() {
-        } else {
-        };
-      `,
-          [
-            Token.keywords.if,
-            Token.identifiers.functionName("hasFoo"),
-            Token.punctuation.openParen,
-            Token.punctuation.closeParen,
-            Token.punctuation.openBrace,
-            Token.punctuation.closeBrace,
-
-            Token.keywords.else,
-            Token.keywords.if,
-            Token.identifiers.functionName("hasBar"),
-            Token.punctuation.openParen,
-            Token.punctuation.closeParen,
-            Token.punctuation.openBrace,
-            Token.punctuation.closeBrace,
-
-            Token.keywords.else,
-            Token.punctuation.openBrace,
-            Token.punctuation.closeBrace,
-
-            Token.punctuation.semicolon,
-          ],
-        );
-      });
-
-      it("property accessor", async () => {
-        await testProjectionBody(
-          `
-        doFoo(self::name);
-        `,
-          [
-            Token.identifiers.functionName("doFoo"),
-            Token.punctuation.openParen,
-            Token.identifiers.type("self"),
-            ...(tokenize === tokenizeSemantic ? [Token.punctuation.valueAccessor] : []),
-            Token.identifiers.type("name"),
-            Token.punctuation.closeParen,
-            Token.punctuation.semicolon,
-          ],
-        );
-      });
-    });
   });
 
   async function tokenizeWithConst(text: string) {
@@ -1769,7 +1653,7 @@ async function createOnigLib(): Promise<IOnigLib> {
   const require = createRequire(import.meta.url);
   const onigWasm = await readFile(`${dirname(require.resolve("vscode-oniguruma"))}/onig.wasm`);
 
-  await loadWASM(onigWasm.buffer);
+  await loadWASM(onigWasm.buffer as any);
 
   return {
     createOnigScanner: (sources) => createOnigScanner(sources),

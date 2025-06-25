@@ -20,9 +20,16 @@ export class SpecCoverageClient {
 
   constructor(
     storageAccountName: string,
-    credential?: StorageSharedKeyCredential | AnonymousCredential | TokenCredential,
+    options?: {
+      credential?: StorageSharedKeyCredential | AnonymousCredential | TokenCredential;
+      containerName?: string;
+    },
   ) {
-    this.#container = getCoverageContainer(storageAccountName, credential);
+    this.#container = getCoverageContainer(
+      storageAccountName,
+      options?.credential,
+      options?.containerName,
+    );
     this.manifest = new SpecManifestOperations(this.#container);
     this.coverage = new SpecCoverageOperations(this.#container);
   }
@@ -43,7 +50,7 @@ export class SpecManifestOperations {
     this.#blob = this.#container.getBlockBlobClient("manifest.json");
   }
 
-  public async upload(manifest: ScenarioManifest): Promise<void> {
+  public async upload(manifest: ScenarioManifest | ScenarioManifest[]): Promise<void> {
     const content = JSON.stringify(manifest, null, 2);
     await this.#blob.upload(content, content.length, {
       blobHTTPHeaders: {
@@ -52,8 +59,8 @@ export class SpecManifestOperations {
     });
   }
 
-  public async get(): Promise<ScenarioManifest> {
-    return readJsonBlob<ScenarioManifest>(this.#blob);
+  public async get(): Promise<ScenarioManifest[]> {
+    return readJsonBlob<ScenarioManifest[]>(this.#blob);
   }
 }
 
@@ -118,6 +125,7 @@ export class SpecCoverageOperations {
         const body = await blob.blobBody;
         const content = await body?.text();
         const report = content ? JSON.parse(content) : undefined;
+
         return {
           generatorMetadata: {
             version: blob.metadata?.generatorversion,
@@ -147,18 +155,20 @@ export class SpecCoverageOperations {
 function getCoverageContainer(
   storageAccountName: string,
   credential?: StorageSharedKeyCredential | AnonymousCredential | TokenCredential,
+  containerName?: string,
 ): ContainerClient {
   const blobSvc = new BlobServiceClient(
     `https://${storageAccountName}.blob.core.windows.net`,
     credential,
   );
-  const containerClient = blobSvc.getContainerClient(`coverages`);
+  containerName = containerName || "coverages";
+  const containerClient = blobSvc.getContainerClient(containerName);
   return containerClient;
 }
 
 async function readJsonBlob<T>(blobClient: BlockBlobClient): Promise<T> {
   const blob = await blobClient.download();
   const body = await blob.blobBody;
-  const content = await body?.text();
-  return content ? JSON.parse(content) : undefined;
+  const content = await body!.text();
+  return JSON.parse(content);
 }

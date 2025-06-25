@@ -1,6 +1,6 @@
 import "@typespec/openapi";
 
-using TypeSpec.Http;
+using Http;
 
 //
 // types.tsp

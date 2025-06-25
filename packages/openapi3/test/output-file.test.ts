@@ -1,13 +1,13 @@
 import { resolvePath } from "@typespec/compiler";
 import {
-  BasicTestRunner,
   expectDiagnosticEmpty,
   resolveVirtualPath,
+  TesterInstance,
 } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { OpenAPI3EmitterOptions } from "../src/lib.js";
-import { createOpenAPITestRunner } from "./test-host.js";
+import { ApiTester } from "./test-host.js";
 
 describe("openapi3: output file", () => {
   const expectedJsonEmptySpec = [
@@ -36,15 +36,16 @@ describe("openapi3: output file", () => {
   ];
 
   const outputDir = resolveVirtualPath("test-output");
-  let runner: BasicTestRunner;
+  let runner: TesterInstance;
   beforeEach(async () => {
-    runner = await createOpenAPITestRunner();
+    runner = await ApiTester.importLibraries().createInstance();
   });
   async function compileOpenAPI(options: OpenAPI3EmitterOptions, code: string = ""): Promise<void> {
     const diagnostics = await runner.diagnose(code, {
-      noEmit: false,
-      emit: ["@typespec/openapi3"],
-      options: { "@typespec/openapi3": { ...options, "emitter-output-dir": outputDir } },
+      compilerOptions: {
+        emit: ["@typespec/openapi3"],
+        options: { "@typespec/openapi3": { ...options, "emitter-output-dir": outputDir } },
+      },
     });
 
     expectDiagnosticEmpty(diagnostics);
@@ -56,14 +57,14 @@ describe("openapi3: output file", () => {
     newLine: "\n" | "\r\n" = "\n",
   ) {
     const outPath = resolvePath(outputDir, filename);
-    const content = runner.fs.get(outPath);
+    const content = runner.fs.fs.get(outPath);
     ok(content, `Expected ${outPath} to exist.`);
     strictEqual(content, lines.join(newLine));
   }
 
   function expectHasOutput(filename: string) {
     const outPath = resolvePath(outputDir, filename);
-    const content = runner.fs.get(outPath);
+    const content = runner.fs.fs.get(outPath);
     ok(content, `Expected ${outPath} to exist.`);
   }
 
@@ -132,6 +133,62 @@ describe("openapi3: output file", () => {
           expectHasOutput(`openapi.v2.${fileType}`);
         });
       });
+    });
+  });
+
+  describe("Predefined variable name behavior", () => {
+    interface ServiceNameCase {
+      description: string;
+      code: string;
+      outputFilePattern: string;
+      expectedOutputFiles: string[];
+    }
+    it.each([
+      // {service-name} cases
+      {
+        description: "{service-name} for one service",
+        code: "@service namespace AAA { model M {a: string} }",
+        outputFilePattern: "{service-name}.yaml",
+        expectedOutputFiles: ["AAA.yaml"],
+      },
+      {
+        description: "{service-name} for multiple services",
+        code:
+          "@service namespace AAA { model M {a: string} }" +
+          "@service namespace BBB { model N {b: string} }",
+        outputFilePattern: "{service-name}.yaml",
+        expectedOutputFiles: ["AAA.yaml", "BBB.yaml"],
+      },
+      // {service-name-if-multiple} cases
+      {
+        description: "{service-name-if-multiple} for one service",
+        code: "@service namespace AAA { model M {a: string} }",
+        outputFilePattern: "{service-name-if-multiple}.yaml",
+        expectedOutputFiles: ["yaml"],
+      },
+      {
+        description: "{service-name-if-multiple} for multiple services",
+        code:
+          "@service namespace AAA { model M {a: string} }" +
+          "@service namespace BBB { model N {b: string} }",
+        outputFilePattern: "{service-name-if-multiple}.yaml",
+        expectedOutputFiles: ["AAA.yaml", "BBB.yaml"],
+      },
+      // fixed name cases
+      {
+        description: "fixed name for one service",
+        code: "@service namespace AAA { model M {a: string} }",
+        outputFilePattern: "fixed-name.yaml",
+        expectedOutputFiles: ["fixed-name.yaml"],
+      },
+    ])("$description", async (c: ServiceNameCase) => {
+      await compileOpenAPI(
+        {
+          "output-file": c.outputFilePattern,
+        },
+        c.code,
+      );
+      for (const outputFile of c.expectedOutputFiles) expectHasOutput(outputFile);
     });
   });
 });

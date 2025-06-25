@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from .code_model import CodeModel
 
 
-class RawString(object):
+class RawString:
     def __init__(self, string: str) -> None:
         self.string = string
 
@@ -49,8 +49,7 @@ class PrimitiveType(BaseType):
 
 
 class BooleanType(PrimitiveType):
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return "bool"
 
     def docstring_type(self, **kwargs: Any) -> str:
@@ -66,8 +65,7 @@ class BinaryType(PrimitiveType):
         super().__init__(yaml_data=yaml_data, code_model=code_model)
         self.type = "IO"
 
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return self.type
 
     def docstring_type(self, **kwargs: Any) -> str:
@@ -84,17 +82,9 @@ class BinaryType(PrimitiveType):
         return self.get_declaration(b"bytes")
 
     def imports(self, **kwargs: Any) -> FileImport:
-        from .combined_type import CombinedType
-        from .operation import OperationBase
-
         file_import = FileImport(self.code_model)
         file_import.add_submodule_import("typing", "IO", ImportType.STDLIB)
-        operation = kwargs.get("operation")
-        if (
-            isinstance(operation, OperationBase)
-            and operation.parameters.has_body
-            and isinstance(operation.parameters.body_parameter.type, CombinedType)
-        ):
+        if kwargs.get("need_import_iobase", False):
             file_import.add_submodule_import("io", "IOBase", ImportType.STDLIB)
         return file_import
 
@@ -107,8 +97,7 @@ class BinaryIteratorType(PrimitiveType):
     def _iterator_name(self, **kwargs: Any) -> str:
         return "AsyncIterator" if kwargs.pop("async_mode") else "Iterator"
 
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return "IO"
 
     def docstring_type(self, **kwargs: Any) -> str:
@@ -135,8 +124,7 @@ class BinaryIteratorType(PrimitiveType):
 
 
 class AnyType(PrimitiveType):
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return "object"
 
     def docstring_type(self, **kwargs: Any) -> str:
@@ -160,8 +148,7 @@ class AnyType(PrimitiveType):
 
 
 class AnyObjectType(PrimitiveType):
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return "object"
 
     def docstring_type(self, **kwargs: Any) -> str:
@@ -239,8 +226,7 @@ class IntegerType(NumberType):
         if yaml_data.get("encode") == "string":
             self.encode = "str"
 
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return "int"
 
     def docstring_type(self, **kwargs: Any) -> str:
@@ -259,8 +245,7 @@ class IntegerType(NumberType):
 
 
 class FloatType(NumberType):
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return "float"
 
     def docstring_type(self, **kwargs: Any) -> str:
@@ -279,8 +264,7 @@ class FloatType(NumberType):
 
 
 class DecimalType(NumberType):
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return "decimal"
 
     def docstring_type(self, **kwargs: Any) -> str:
@@ -340,10 +324,9 @@ class StringType(PrimitiveType):
         return validation or None
 
     def get_declaration(self, value) -> str:
-        return f'"{value}"'
+        return f"'{value}'" if value == '"' else f'"{value}"'
 
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return "str"
 
     def docstring_type(self, **kwargs: Any) -> str:
@@ -363,8 +346,7 @@ class DatetimeType(PrimitiveType):
             else "rfc7231"
         )
 
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         formats_to_attribute_type = {
             "rfc3339": "iso-8601",
             "rfc7231": "rfc-1123",
@@ -410,8 +392,7 @@ class DatetimeType(PrimitiveType):
 
 
 class TimeType(PrimitiveType):
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return "time"
 
     def docstring_type(self, **kwargs: Any) -> str:
@@ -457,8 +438,7 @@ class UnixTimeType(PrimitiveType):
     def encode(self) -> str:
         return "unix-timestamp"
 
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return "unix-time"
 
     def docstring_type(self, **kwargs: Any) -> str:
@@ -500,8 +480,7 @@ class UnixTimeType(PrimitiveType):
 
 
 class DateType(PrimitiveType):
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return "date"
 
     def docstring_type(self, **kwargs: Any) -> str:
@@ -543,8 +522,7 @@ class DateType(PrimitiveType):
 
 
 class DurationType(PrimitiveType):
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return "duration"
 
     def docstring_type(self, **kwargs: Any) -> str:
@@ -590,8 +568,7 @@ class ByteArraySchema(PrimitiveType):
         super().__init__(yaml_data=yaml_data, code_model=code_model)
         self.encode = yaml_data.get("encode", "base64")
 
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         if self.encode == "base64url":
             return "base64"
         return "bytearray"
@@ -628,8 +605,7 @@ class SdkCoreType(PrimitiveType):
     def instance_check_template(self) -> str:
         return f"isinstance({{}}, {self.name})"
 
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return self.name
 
 
@@ -642,12 +618,16 @@ class MultiPartFileType(PrimitiveType):
         return self.name
 
     def docstring_type(self, **kwargs: Any) -> str:
-        return f"~{self.code_model.namespace}._vendor.{self.name}"
+        return f"~{self.code_model.namespace}._utils.utils.{self.name}"
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = super().imports(**kwargs)
-        relative_path = "..." if kwargs.get("async_mode") else ".."
-        file_import.add_submodule_import(f"{relative_path}_vendor", self.name, ImportType.LOCAL)
+        serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+        file_import.add_submodule_import(
+            self.code_model.get_relative_import_path(serialize_namespace, module_name="_utils.utils"),
+            self.name,
+            ImportType.LOCAL,
+        )
         return file_import
 
     @property

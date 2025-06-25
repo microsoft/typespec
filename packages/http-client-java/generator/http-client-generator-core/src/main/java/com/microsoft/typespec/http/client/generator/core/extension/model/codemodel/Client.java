@@ -3,11 +3,8 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -20,7 +17,10 @@ public class Client extends Metadata {
     private Security security;
     private List<ApiVersion> apiVersions = new ArrayList<>();
     private ServiceVersion serviceVersion;
-    private String crossLanguageDefinitionId;
+    private Client parent;
+    private List<Client> subClients = Collections.emptyList();
+    private boolean buildMethodPublic = true;
+    private boolean parentAccessorPublic = false;
 
     /**
      * Creates a new instance of the Client class.
@@ -137,80 +137,35 @@ public class Client extends Metadata {
         this.serviceVersion = serviceVersion;
     }
 
-    /**
-     * Gets the cross-language definition id of the client.
-     *
-     * @return The cross-language definition id of the client.
-     */
-    public String getCrossLanguageDefinitionId() {
-        return crossLanguageDefinitionId;
+    public Client getParent() {
+        return parent;
     }
 
-    /**
-     * Sets the cross-language definition id of the client.
-     *
-     * @param crossLanguageDefinitionId The cross-language definition id of the client.
-     */
-    public void setCrossLanguageDefinitionId(String crossLanguageDefinitionId) {
-        this.crossLanguageDefinitionId = crossLanguageDefinitionId;
+    public void setParent(Client parent) {
+        this.parent = parent;
     }
 
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return writeParentProperties(jsonWriter.writeStartObject()).writeEndObject();
+    public List<Client> getSubClients() {
+        return subClients;
     }
 
-    JsonWriter writeParentProperties(JsonWriter jsonWriter) throws IOException {
-        return super.writeParentProperties(jsonWriter).writeStringField("summary", summary)
-            .writeArrayField("operationGroups", operationGroups, JsonWriter::writeJson)
-            .writeArrayField("globalParameters", globalParameters, JsonWriter::writeJson)
-            .writeJsonField("security", security)
-            .writeArrayField("apiVersions", apiVersions, JsonWriter::writeJson)
-            .writeJsonField("serviceVersion", serviceVersion)
-            .writeStringField("crossLanguageDefinitionId", crossLanguageDefinitionId);
+    public void setSubClients(List<Client> subClients) {
+        this.subClients = subClients;
     }
 
-    /**
-     * Deserializes a Client instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return A Client instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static Client fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, Client::new, (client, fieldName, reader) -> {
-            if (!client.tryConsumeParentProperties(client, fieldName, reader)) {
-                reader.skipChildren();
-            }
-        });
+    public boolean isBuildMethodPublic() {
+        return buildMethodPublic;
     }
 
-    boolean tryConsumeParentProperties(Client client, String fieldName, JsonReader reader) throws IOException {
-        if (super.tryConsumeParentProperties(client, fieldName, reader)) {
-            return true;
-        } else if ("summary".equals(fieldName)) {
-            client.summary = reader.getString();
-            return true;
-        } else if ("operationGroups".equals(fieldName)) {
-            client.operationGroups = reader.readArray(OperationGroup::fromJson);
-            return true;
-        } else if ("globalParameters".equals(fieldName)) {
-            client.globalParameters = reader.readArray(Parameter::fromJson);
-            return true;
-        } else if ("security".equals(fieldName)) {
-            client.security = Security.fromJson(reader);
-            return true;
-        } else if ("apiVersions".equals(fieldName)) {
-            client.apiVersions = reader.readArray(ApiVersion::fromJson);
-            return true;
-        } else if ("serviceVersion".equals(fieldName)) {
-            client.serviceVersion = ServiceVersion.fromJson(reader);
-            return true;
-        } else if ("crossLanguageDefinitionId".equals(fieldName)) {
-            client.crossLanguageDefinitionId = reader.getString();
-            return true;
-        }
+    public void setBuildMethodPublic(boolean buildMethodPublic) {
+        this.buildMethodPublic = buildMethodPublic;
+    }
 
-        return false;
+    public boolean isParentAccessorPublic() {
+        return parentAccessorPublic;
+    }
+
+    public void setParentAccessorPublic(boolean parentAccessorPublic) {
+        this.parentAccessorPublic = parentAccessorPublic;
     }
 }

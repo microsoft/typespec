@@ -7,7 +7,7 @@
 import json
 import pytest
 from typetest.property.nullable import NullableClient, models
-from typetest.property.nullable._model_base import (  # pylint: disable=protected-access
+from typetest.property.nullable._utils.model_base import (  # pylint: disable=protected-access
     SdkJSONEncoder,
 )
 

@@ -9,7 +9,7 @@ import { transformServiceInfo } from "./transform-service-info.js";
 export function transform(context: Context): TypeSpecProgram {
   const openapi = context.openApi3Doc;
   const models = collectDataTypes(context);
-  const operations = transformPaths(models, openapi.paths);
+  const operations = transformPaths(openapi.paths, context);
 
   return {
     serviceInfo: transformServiceInfo(openapi.info),

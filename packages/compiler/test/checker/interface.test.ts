@@ -250,26 +250,6 @@ describe("compiler: interfaces", () => {
     });
   });
 
-  it("doesn't invoke decorators on uninstantiated templates", async () => {
-    const blues = new WeakSet();
-    let calls = 0;
-    testHost.addJsFile("dec.js", {
-      $blue(p: any, t: Type) {
-        calls++;
-        blues.add(t);
-      },
-    });
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-      import "./dec.js";
-      @blue interface A<T> { @blue foo(): int32}
-      `,
-    );
-    await testHost.compile("./");
-    strictEqual(calls, 0);
-  });
-
   describe("templated operations", () => {
     it("can instantiate template operation inside non-templated interface", async () => {
       const { Foo, bar } = (await runner.compile(`

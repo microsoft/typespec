@@ -1,8 +1,9 @@
+import OpenAPIParser from "@apidevtools/swagger-parser";
 import { formatTypeSpec } from "@typespec/compiler";
 import { strictEqual } from "node:assert";
-import { describe, it } from "vitest";
-import { createContext } from "../../src/cli/actions/convert/utils/context.js";
-import { OpenAPI3Schema, Refable } from "../../src/types.js";
+import { beforeAll, describe, it } from "vitest";
+import { Context, createContext } from "../../src/cli/actions/convert/utils/context.js";
+import { OpenAPI3Document, OpenAPI3Schema, Refable } from "../../src/types.js";
 
 interface TestScenario {
   schema: Refable<OpenAPI3Schema>;
@@ -140,15 +141,111 @@ const testScenarios: TestScenario[] = [
     },
     expected: `Model | boolean | "foo" | "bar"`,
   },
+  // allOf
+  {
+    schema: {
+      allOf: [{ $ref: "#/Path/To/BaseModel" }, { $ref: "#/Path/To/MixinModel" }],
+    },
+    expected: "BaseModel & MixinModel",
+  },
+  {
+    schema: {
+      allOf: [
+        { $ref: "#/Path/To/BaseModel" },
+        { $ref: "#/Path/To/MixinModel" },
+        {
+          type: "object",
+          properties: {
+            foo: { type: "string" },
+            bar: { type: "boolean" },
+          },
+        },
+      ],
+    },
+    expected: "BaseModel & MixinModel & {foo?: string; bar?: boolean}",
+  },
+  {
+    schema: {
+      allOf: [
+        { $ref: "#/Path/To/BaseModel" },
+        {
+          type: "object",
+          required: ["foo"],
+          properties: {
+            foo: { type: "string" },
+            bar: { type: "boolean" },
+          },
+        },
+      ],
+    },
+    expected: "BaseModel & {foo: string; bar?: boolean}",
+  },
+  {
+    schema: {
+      allOf: [
+        {
+          type: "object",
+          required: ["prop1"],
+          properties: {
+            prop1: { type: "string" },
+          },
+        },
+        {
+          type: "object",
+          properties: {
+            prop2: {
+              allOf: [
+                { $ref: "#/Path/To/BaseModel" },
+                { $ref: "#/Path/To/MixinModel" },
+                {
+                  type: "object",
+                  required: ["foo"],
+                  properties: {
+                    foo: { type: "string" },
+                    bar: { type: "boolean" },
+                  },
+                },
+              ],
+            },
+          },
+        },
+      ],
+    },
+    expected: "{prop1: string; prop2?: BaseModel & MixinModel & {foo: string; bar?: boolean}}",
+  },
+  {
+    schema: {
+      type: "object",
+      properties: {
+        emptyProp: { type: "object" },
+      },
+    },
+    expected: "{emptyProp?: {}}",
+  },
   // fallthrough
   { schema: {}, expected: "unknown" },
+  {
+    schema: {
+      type: "object",
+      required: ["missingTypeProp"],
+      properties: {
+        missingTypeProp: { properties: { foo: { type: "string" } } },
+      },
+    },
+    expected: "{missingTypeProp: unknown}",
+  },
 ];
 
 describe("tsp-openapi: generate-type", () => {
-  const context = createContext({
-    openapi: "3.0.0",
-    info: { title: "Test", version: "1.0.0" },
-    paths: {},
+  let context: Context;
+  beforeAll(async () => {
+    const parser = new OpenAPIParser();
+    const doc = await parser.bundle({
+      openapi: "3.0.0",
+      info: { title: "Test", version: "1.0.0" },
+      paths: {},
+    });
+    context = createContext(parser, doc as OpenAPI3Document);
   });
   testScenarios.forEach((t) =>
     it(`${generateScenarioName(t)}`, async () => {

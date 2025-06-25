@@ -76,9 +76,8 @@ class Property(BaseModel):  # pylint: disable=too-many-instance-attributes
     def is_input(self):
         return not (self.constant or self.readonly or self.is_discriminator)
 
-    @property
-    def serialization_type(self) -> str:
-        return self.type.serialization_type
+    def serialization_type(self, **kwargs: Any) -> str:
+        return self.type.serialization_type(**kwargs)
 
     @property
     def msrest_deserialization_key(self) -> str:
@@ -89,21 +88,27 @@ class Property(BaseModel):  # pylint: disable=too-many-instance-attributes
         return self.is_discriminator and self.type.type == "enum"
 
     @property
+    def is_combined_discriminator(self) -> bool:
+        return self.is_discriminator and self.type.type == "combined"
+
+    @property
     def is_base_discriminator(self) -> bool:
         """If this discriminator is on the base model for polymorphic inheritance"""
         if self.is_enum_discriminator:
             return self.is_polymorphic and self.client_default_value is None
+        if self.is_combined_discriminator:
+            return True
         return self.is_discriminator and self.is_polymorphic and cast(ConstantType, self.type).value is None
 
     @property
     def xml_metadata(self) -> Optional[Dict[str, Union[str, bool]]]:
         return self.yaml_data.get("xmlMetadata")
 
-    def type_annotation(self, *, is_operation_file: bool = False) -> str:
+    def type_annotation(self, *, is_operation_file: bool = False, **kwargs: Any) -> str:
         if self.is_base_discriminator:
             return "str"
-        types_type_annotation = self.type.type_annotation(is_operation_file=is_operation_file)
-        if self.optional and self.client_default_value is None:
+        types_type_annotation = self.type.type_annotation(is_operation_file=is_operation_file, **kwargs)
+        if (self.optional and self.client_default_value is None) or self.readonly:
             return f"Optional[{types_type_annotation}]"
         return types_type_annotation
 
@@ -144,12 +149,13 @@ class Property(BaseModel):  # pylint: disable=too-many-instance-attributes
         file_import = FileImport(self.code_model)
         if self.is_discriminator and isinstance(self.type, EnumType):
             return file_import
-        file_import.merge(self.type.imports(**kwargs, relative_path="..", model_typing=True))
-        if self.optional and self.client_default_value is None:
+        file_import.merge(self.type.imports(**kwargs))
+        if (self.optional and self.client_default_value is None) or self.readonly:
             file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
         if self.code_model.options["models_mode"] == "dpg":
+            serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             file_import.add_submodule_import(
-                ".._model_base",
+                self.code_model.get_relative_import_path(serialize_namespace, module_name="_utils.model_base"),
                 "rest_discriminator" if self.is_discriminator else "rest_field",
                 ImportType.LOCAL,
             )

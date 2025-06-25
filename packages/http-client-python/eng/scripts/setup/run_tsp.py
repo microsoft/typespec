@@ -7,7 +7,7 @@ import sys
 import venv
 import logging
 from pathlib import Path
-from pygen import m2r, preprocess, codegen, black
+from pygen import preprocess, codegen
 from pygen.utils import parse_args
 
 _ROOT_DIR = Path(__file__).parent.parent.parent.parent
@@ -26,7 +26,7 @@ if __name__ == "__main__":
     if "--debug" in sys.argv or "--debug=true" in sys.argv:
         try:
             import debugpy  # pylint: disable=import-outside-toplevel
-        except ImportError:
+        except (ImportError, ModuleNotFoundError):
             raise SystemExit("Please pip install ptvsd in order to use VSCode debugging")
 
         # 5678 is the default attach port in the VS Code debug configurations
@@ -34,9 +34,7 @@ if __name__ == "__main__":
         debugpy.wait_for_client()
         breakpoint()  # pylint: disable=undefined-variable
 
-    # run m2r
+    # pre-process
     args, unknown_args = parse_args()
-    m2r.M2R(output_folder=args.output_folder, cadl_file=args.cadl_file, **unknown_args).process()
-    preprocess.PreProcessPlugin(output_folder=args.output_folder, cadl_file=args.cadl_file, **unknown_args).process()
-    codegen.CodeGenerator(output_folder=args.output_folder, cadl_file=args.cadl_file, **unknown_args).process()
-    black.BlackScriptPlugin(output_folder=args.output_folder, **unknown_args).process()
+    preprocess.PreProcessPlugin(output_folder=args.output_folder, tsp_file=args.tsp_file, **unknown_args).process()
+    codegen.CodeGenerator(output_folder=args.output_folder, tsp_file=args.tsp_file, **unknown_args).process()

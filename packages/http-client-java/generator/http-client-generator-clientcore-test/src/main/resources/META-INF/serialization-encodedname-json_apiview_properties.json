@@ -1,0 +1,8 @@
+{
+  "flavor": "generic", 
+  "CrossLanguageDefinitionId": {
+    "serialization.encodedname.json.JsonClient": "Serialization.EncodedName.Json.Property",
+    "serialization.encodedname.json.JsonClientBuilder": "Serialization.EncodedName.Json",
+    "serialization.encodedname.json.property.JsonEncodedNameModel": "Serialization.EncodedName.Json.Property.JsonEncodedNameModel"
+  }
+}

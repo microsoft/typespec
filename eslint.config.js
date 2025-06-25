@@ -1,8 +1,8 @@
 // @ts-check
 import eslint from "@eslint/js";
+import vitest from "@vitest/eslint-plugin";
 import reactHooks from "eslint-plugin-react-hooks";
 import unicorn from "eslint-plugin-unicorn";
-import vitest from "eslint-plugin-vitest";
 import tsEslint from "typescript-eslint";
 
 /** Config that will apply to all files */
@@ -72,12 +72,12 @@ const allFilesConfig = tsEslint.config({
  */
 export function getTypeScriptProjectRules(root) {
   return tsEslint.config({
-    files: ["**/packages/*/src/**/*.ts", "**/packages/*/src/**/*.tsx"],
-    ignores: [
-      "**/packages/http-client-csharp/**/*",
-      "**/packages/http-client-java/**/*",
-      "**/packages/http-client-python/**/*",
-    ], // Ignore isolated modules
+    files: [
+      "**/packages/*/src/**/*.ts",
+      "**/packages/*/src/**/*.tsx",
+      "**/packages/*/emitter/src/**/*.ts",
+    ],
+    ignores: ["**/packages/http-client-csharp/**/*", "**/packages/http-client-python/**/*"], // Ignore isolated modules
     plugins: {},
     languageOptions: {
       parserOptions: {
@@ -120,6 +120,7 @@ const testFilesConfig = tsEslint.config({
 const jsxFilesConfig = tsEslint.config({
   files: ["**/*.tsx"],
   plugins: { "react-hooks": reactHooks },
+  ignores: ["**/packages/http-client-js/**/*"],
   rules: {
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
@@ -138,14 +139,23 @@ export default tsEslint.config(
   {
     ignores: [
       "**/dist/**/*",
+      "**/dist-test/**/*",
       "**/.temp/**/*",
       "**/temp/**/*",
       "**/generated-defs/*",
+      "**/__snapshots__/*",
+      "**/.astro/*",
       "**/website/build/**/*",
+      "**/.astro/**/*",
       "**/.docusaurus/**/*",
+      "website/src/assets/**/*",
       "packages/compiler/templates/**/*", // Ignore the templates which might have invalid code and not follow exactly our rules.
+      "packages/http-client-js/test/e2e/generated", // Ignore the generated http client
+      "packages/http-client-js/sample/output/**/*", // Ignore the generated http client
+      "packages/http-server-js/test/e2e/generated", // Ignore the generated http server
       "**/venv/**/*", // Ignore python virtual env
       "**/.vscode-test-web/**/*", // Ignore VSCode test web project
+      "packages/typespec-vscode/swagger-ui/swagger-ui*", // Ignore swagger-ui-dist files
       // TODO: enable
       "**/.scripts/**/*",
       "eng/tsp-core/scripts/**/*",

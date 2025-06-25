@@ -11,8 +11,8 @@ Tags:
 ```bash
 docker run \
   -v "${pwd}:/wd" --workdir="/wd" \
-  -t azsdkengsys.azurecr.io/typespec \
-  # ... TypeSpec args ...
+  -t azsdkengsys.azurecr.io/typespec
+# ... TypeSpec args ...
 ```
 
 **For usage in PowerShell replace `\` with `` ` ``**
@@ -20,17 +20,17 @@ docker run \
 ### Install dependencies
 
 ```bash
-docker run -v "${pwd}:/wd" --workdir="/wd"  -t azsdkengsys.azurecr.io/typespec install
+docker run -v "${pwd}:/wd" --workdir="/wd" -t azsdkengsys.azurecr.io/typespec install
 ```
 
 ### Compile
 
 ```bash
-docker run -v "${pwd}:/wd" --workdir="/wd"  -t azsdkengsys.azurecr.io/typespec compile .
+docker run -v "${pwd}:/wd" --workdir="/wd" -t azsdkengsys.azurecr.io/typespec compile .
 ```
 
 ### Init a new project
 
 ```bash
-docker run -v "${pwd}:/wd" --workdir="/wd"  -t azsdkengsys.azurecr.io/typespec init
+docker run -v "${pwd}:/wd" --workdir="/wd" -t azsdkengsys.azurecr.io/typespec init
 ```

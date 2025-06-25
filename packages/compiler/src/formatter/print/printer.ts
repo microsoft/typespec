@@ -1,8 +1,10 @@
 import type { AstPath, Doc, Printer } from "prettier";
 import { builders } from "prettier/doc";
-import { CharCode } from "../../core/charcode.js";
 import { compilerAssert } from "../../core/diagnostics.js";
-import { printIdentifier as printIdentifierString } from "../../core/helpers/syntax-utils.js";
+import {
+  printIdentifier as printIdentifierString,
+  splitLines,
+} from "../../core/helpers/syntax-utils.js";
 import {
   AliasStatementNode,
   ArrayExpressionNode,
@@ -40,27 +42,6 @@ import {
   OperationSignatureDeclarationNode,
   OperationSignatureReferenceNode,
   OperationStatementNode,
-  ProjectionArithmeticExpressionNode,
-  ProjectionBlockExpressionNode,
-  ProjectionCallExpressionNode,
-  ProjectionDecoratorReferenceExpressionNode,
-  ProjectionEqualityExpressionNode,
-  ProjectionExpressionStatementNode,
-  ProjectionIfExpressionNode,
-  ProjectionLambdaExpressionNode,
-  ProjectionLambdaParameterDeclarationNode,
-  ProjectionLogicalExpressionNode,
-  ProjectionMemberExpressionNode,
-  ProjectionModelExpressionNode,
-  ProjectionModelPropertyNode,
-  ProjectionModelSpreadPropertyNode,
-  ProjectionNode,
-  ProjectionParameterDeclarationNode,
-  ProjectionRelationalExpressionNode,
-  ProjectionStatementNode,
-  ProjectionTupleExpressionNode,
-  ProjectionUnaryExpressionNode,
-  ReturnExpressionNode,
   ScalarConstructorNode,
   ScalarStatementNode,
   Statement,
@@ -199,7 +180,7 @@ export function printNode(
       return printInterfaceStatement(path as AstPath<InterfaceStatementNode>, options, print);
     // Others.
     case SyntaxKind.Identifier:
-      return printIdentifier(node, options);
+      return printIdentifier(node);
     case SyntaxKind.StringLiteral:
       return printStringLiteral(path as AstPath<StringLiteralNode>, options);
     case SyntaxKind.NumericLiteral:
@@ -274,103 +255,6 @@ export function printNode(
       return "never";
     case SyntaxKind.UnknownKeyword:
       return "unknown";
-    case SyntaxKind.ProjectionStatement:
-      return printProjectionStatement(path as AstPath<ProjectionStatementNode>, options, print);
-    case SyntaxKind.ProjectionModelSelector:
-      return "model";
-    case SyntaxKind.ProjectionModelPropertySelector:
-      return "modelproperty";
-    case SyntaxKind.ProjectionScalarSelector:
-      return "scalar";
-    case SyntaxKind.ProjectionOperationSelector:
-      return "op";
-    case SyntaxKind.ProjectionUnionSelector:
-      return "union";
-    case SyntaxKind.ProjectionUnionVariantSelector:
-      return "unionvariant";
-    case SyntaxKind.ProjectionInterfaceSelector:
-      return "interface";
-    case SyntaxKind.ProjectionEnumSelector:
-      return "enum";
-    case SyntaxKind.ProjectionEnumMemberSelector:
-      return "enummember";
-    case SyntaxKind.Projection:
-      return printProjection(path as AstPath<ProjectionNode>, options, print);
-    case SyntaxKind.ProjectionParameterDeclaration:
-      return printProjectionParameterDeclaration(
-        path as AstPath<ProjectionParameterDeclarationNode>,
-        options,
-        print,
-      );
-    case SyntaxKind.ProjectionExpressionStatement:
-      return printProjectionExpressionStatement(
-        path as AstPath<ProjectionExpressionStatementNode>,
-        options,
-        print,
-      );
-    case SyntaxKind.ProjectionIfExpression:
-      return printProjectionIfExpressionNode(
-        path as AstPath<ProjectionIfExpressionNode>,
-        options,
-        print,
-      );
-    case SyntaxKind.ProjectionBlockExpression:
-      return printProjectionBlockExpressionNode(
-        path as AstPath<ProjectionBlockExpressionNode>,
-        options,
-        print,
-      );
-    case SyntaxKind.ProjectionMemberExpression:
-      return printProjectionMemberExpression(
-        path as AstPath<ProjectionMemberExpressionNode>,
-        options,
-        print,
-      );
-    case SyntaxKind.ProjectionLogicalExpression:
-    case SyntaxKind.ProjectionEqualityExpression:
-    case SyntaxKind.ProjectionRelationalExpression:
-    case SyntaxKind.ProjectionArithmeticExpression:
-      return printProjectionLeftRightExpression(
-        path as AstPath<ProjectionLogicalExpressionNode>,
-        options,
-        print,
-      );
-    case SyntaxKind.ProjectionUnaryExpression:
-      return printProjectionUnaryExpression(
-        path as AstPath<ProjectionUnaryExpressionNode>,
-        options,
-        print,
-      );
-    case SyntaxKind.ProjectionCallExpression:
-      return printProjectionCallExpression(
-        path as AstPath<ProjectionCallExpressionNode>,
-        options,
-        print,
-      );
-    case SyntaxKind.ProjectionLambdaExpression:
-      return printProjectionLambdaExpression(
-        path as AstPath<ProjectionLambdaExpressionNode>,
-        options,
-        print,
-      );
-    case SyntaxKind.ProjectionLambdaParameterDeclaration:
-      return printProjectionLambdaParameterDeclaration(
-        path as AstPath<ProjectionLambdaParameterDeclarationNode>,
-        options,
-        print,
-      );
-    case SyntaxKind.ProjectionModelExpression:
-      return printModelExpression(path as AstPath<ProjectionModelExpressionNode>, options, print);
-    case SyntaxKind.ProjectionModelProperty:
-      return printModelProperty(path as AstPath<ProjectionModelPropertyNode>, options, print);
-    case SyntaxKind.ProjectionModelSpreadProperty:
-      return printModelSpread(path as AstPath<ProjectionModelSpreadPropertyNode>, options, print);
-    case SyntaxKind.ProjectionTupleExpression:
-      return printTuple(path as AstPath<ProjectionTupleExpressionNode>, options, print);
-    case SyntaxKind.ProjectionDecoratorReferenceExpression:
-      return (path as AstPath<ProjectionDecoratorReferenceExpressionNode>).call(print, "target");
-    case SyntaxKind.Return:
-      return printReturnExpression(path as AstPath<ReturnExpressionNode>, options, print);
     case SyntaxKind.Doc:
       return printDoc(path as AstPath<DocNode>, options, print);
     case SyntaxKind.DocText:
@@ -623,7 +507,12 @@ export function printDecorator(
   print: PrettierChildPrint,
 ) {
   const args = printDecoratorArgs(path, options, print);
-  return ["@", path.call(print, "target"), args];
+  const node = path.node;
+  const name =
+    node.target.kind === SyntaxKind.Identifier
+      ? printIdentifier(node.target, "allow-reserved")
+      : path.call(print, "target");
+  return ["@", name, args];
 }
 
 export function printAugmentDecorator(
@@ -631,8 +520,13 @@ export function printAugmentDecorator(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,
 ) {
+  const node = path.node;
+  const target =
+    node.target.kind === SyntaxKind.Identifier
+      ? printIdentifier(node.target, "allow-reserved")
+      : path.call(print, "target");
   const args = printAugmentDecoratorArgs(path, options, print);
-  return ["@@", path.call(print, "target"), args, ";"];
+  return ["@@", target, args, ";"];
 }
 
 function printAugmentDecoratorArgs(
@@ -790,7 +684,7 @@ export function printEnumMember(
   print: PrettierChildPrint,
 ) {
   const node = path.node;
-  const id = path.call(print, "id");
+  const id = printIdentifier(node.id, "allow-reserved");
   const value = node.value ? [": ", path.call(print, "value")] : "";
   const { decorators } = printDecorators(path, options, print, {
     tryInline: DecoratorsTryInline.enumMember,
@@ -836,7 +730,8 @@ export function printUnionVariant(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,
 ) {
-  const id = path.node.id === undefined ? "" : [path.call(print, "id"), ": "];
+  const id =
+    path.node.id === undefined ? "" : [printIdentifier(path.node.id, "allow-reserved"), ": "];
   const { decorators } = printDecorators(path, options, print, {
     tryInline: DecoratorsTryInline.unionVariant,
   });
@@ -994,7 +889,7 @@ export function printArray(
 }
 
 export function printTuple(
-  path: AstPath<TupleExpressionNode | ProjectionTupleExpressionNode>,
+  path: AstPath<TupleExpressionNode>,
   options: object,
   print: PrettierChildPrint,
 ): Doc {
@@ -1018,11 +913,12 @@ export function printMemberExpression(
 ): Doc {
   const node = path.node;
 
-  return [node.base ? [path.call(print, "base"), node.selector] : "", path.call(print, "id")];
+  const id = printIdentifier(node.id, "allow-reserved");
+  return [node.base ? [path.call(print, "base"), node.selector] : "", id];
 }
 
 export function printModelExpression(
-  path: AstPath<ModelExpressionNode | ProjectionModelExpressionNode>,
+  path: AstPath<ModelExpressionNode>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,
 ) {
@@ -1068,7 +964,7 @@ export function printObjectLiteralProperty(
   print: PrettierChildPrint,
 ) {
   const node = path.node;
-  const id = printIdentifier(node.id, options);
+  const id = printIdentifier(node.id, "allow-reserved");
   return [printDirectives(path, options, print), id, ": ", path.call(print, "value")];
 }
 
@@ -1126,12 +1022,7 @@ export function printModelStatement(
 function printModelPropertiesBlock(
   path: AstPath<
     Node & {
-      properties?: readonly (
-        | ModelPropertyNode
-        | ModelSpreadPropertyNode
-        | ProjectionModelPropertyNode
-        | ProjectionModelSpreadPropertyNode
-      )[];
+      properties?: readonly (ModelPropertyNode | ModelSpreadPropertyNode)[];
     }
   >,
   options: TypeSpecPrettierOptions,
@@ -1212,8 +1103,6 @@ function shouldWrapMemberInNewLines(
     | EnumSpreadMemberNode
     | ScalarConstructorNode
     | UnionVariantNode
-    | ProjectionModelPropertyNode
-    | ProjectionModelSpreadPropertyNode
     | ObjectLiteralPropertyNode
     | ObjectLiteralSpreadPropertyNode
   >,
@@ -1222,7 +1111,6 @@ function shouldWrapMemberInNewLines(
   const node = path.node;
   return (
     (node.kind !== SyntaxKind.ModelSpreadProperty &&
-      node.kind !== SyntaxKind.ProjectionModelSpreadProperty &&
       node.kind !== SyntaxKind.EnumSpreadMember &&
       node.kind !== SyntaxKind.ScalarConstructor &&
       node.kind !== SyntaxKind.ObjectLiteralProperty &&
@@ -1256,7 +1144,7 @@ function isModelAValue(path: AstPath<Node>): boolean {
 }
 
 export function printModelProperty(
-  path: AstPath<ModelPropertyNode | ProjectionModelPropertyNode>,
+  path: AstPath<ModelPropertyNode>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,
 ) {
@@ -1264,7 +1152,7 @@ export function printModelProperty(
   const { decorators } = printDecorators(path as AstPath<DecorableNode>, options, print, {
     tryInline: DecoratorsTryInline.modelProperty,
   });
-  const id = printIdentifier(node.id, options);
+  const id = printIdentifier(node.id, "allow-reserved");
   return [
     printDirectives(path, options, print),
     decorators,
@@ -1275,13 +1163,14 @@ export function printModelProperty(
   ];
 }
 
-function printIdentifier(id: IdentifierNode, options: TypeSpecPrettierOptions) {
-  return printIdentifierString(id.sv);
+function printIdentifier(
+  id: IdentifierNode,
+  context: "allow-reserved" | "disallow-reserved" = "disallow-reserved",
+) {
+  return printIdentifierString(id.sv, context);
 }
 
-function isModelExpressionInBlock(
-  path: AstPath<ModelExpressionNode | ProjectionModelExpressionNode>,
-) {
+function isModelExpressionInBlock(path: AstPath<ModelExpressionNode>) {
   const parent: Node | null = path.getParentNode() as any;
 
   switch (parent?.kind) {
@@ -1545,7 +1434,7 @@ function printTemplateParameterDeclaration(
 }
 
 function printModelSpread(
-  path: AstPath<ModelSpreadPropertyNode | ProjectionModelSpreadPropertyNode>,
+  path: AstPath<ModelSpreadPropertyNode>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,
 ): Doc {
@@ -1600,7 +1489,7 @@ function printFunctionParameterDeclaration(
   print: PrettierChildPrint,
 ): Doc {
   const node = path.node;
-  const id = path.call(print, "id");
+  const id = printIdentifier(node.id, "allow-reserved");
 
   const type = node.type ? [": ", path.call(print, "type")] : "";
 
@@ -1671,215 +1560,6 @@ function printBooleanLiteral(
   return node.value ? "true" : "false";
 }
 
-function printProjectionStatement(
-  path: AstPath<ProjectionStatementNode>,
-  options: TypeSpecPrettierOptions,
-  print: PrettierChildPrint,
-) {
-  const selector = path.call(print, "selector");
-  const id = path.call(print, "id");
-  const projections = path.map(print, "projections").flatMap((x) => [hardline, x]);
-  return [
-    "projection ",
-    selector,
-    "#",
-    id,
-    " {",
-    indent(projections),
-    projections.length > 0 ? hardline : "",
-    "}",
-  ];
-}
-
-function printProjection(
-  path: AstPath<ProjectionNode>,
-  options: TypeSpecPrettierOptions,
-  print: PrettierChildPrint,
-) {
-  const node = path.node;
-  const params = printProjectionParameters(path, options, print);
-  const body = printProjectionExpressionStatements(path, options, print, "body");
-  return [
-    ...node.modifierIds.flatMap((i) => [i.sv, " "]),
-    node.directionId.sv,
-    params,
-    " {",
-    indent(body),
-    hardline,
-    "}",
-  ];
-}
-
-function printProjectionParameters(
-  path: AstPath<ProjectionNode>,
-  options: TypeSpecPrettierOptions,
-  print: PrettierChildPrint,
-) {
-  const node = path.node;
-  const params = node.parameters;
-  if ((params as any).length === 0) {
-    return "";
-  }
-
-  const shouldHug = (params as any).length === 1;
-  if (shouldHug) {
-    return ["(", printItemList(path, options, print, "parameters"), ")"];
-  } else {
-    const body = indent([softline, join([", ", softline], path.map(print, "parameters"))]);
-    return group(["(", body, softline, ")"]);
-  }
-}
-
-function printProjectionExpressionStatements<T extends Node>(
-  path: AstPath<T>,
-  options: TypeSpecPrettierOptions,
-  print: PrettierChildPrint,
-  key: keyof T,
-) {
-  const parts: Doc[] = [hardline];
-  const lastIndex = (path.node[key] as any).length - 1;
-  path.each((statementPath, index) => {
-    const node = path.node;
-
-    if (node.kind === SyntaxKind.EmptyStatement) {
-      return;
-    }
-
-    const printed = print(statementPath);
-    parts.push(printed);
-    parts.push(";");
-    if (index < lastIndex) {
-      parts.push(hardline);
-
-      if (isNextLineEmpty(options.originalText, node, options.locEnd)) {
-        parts.push(hardline);
-      }
-    }
-  }, key as any);
-  return parts;
-}
-
-function printProjectionParameterDeclaration(
-  path: AstPath<ProjectionParameterDeclarationNode>,
-  options: TypeSpecPrettierOptions,
-  print: PrettierChildPrint,
-) {
-  return path.call(print, "id");
-}
-
-function printProjectionExpressionStatement(
-  path: AstPath<ProjectionExpressionStatementNode>,
-  options: TypeSpecPrettierOptions,
-  print: PrettierChildPrint,
-) {
-  return path.call(print, "expr");
-}
-function printProjectionIfExpressionNode(
-  path: AstPath<ProjectionIfExpressionNode>,
-  options: TypeSpecPrettierOptions,
-  print: PrettierChildPrint,
-) {
-  const node = path.node;
-  const test = path.call(print, "test");
-  const consequent = path.call(print, "consequent");
-  const alternate = node.alternate ? [" else ", path.call(print, "alternate")] : "";
-  return ["if ", test, " ", consequent, alternate];
-}
-
-export function printProjectionBlockExpressionNode(
-  path: AstPath<ProjectionBlockExpressionNode>,
-  options: TypeSpecPrettierOptions,
-  print: PrettierChildPrint,
-) {
-  const node = path.node;
-  if (node.statements.length === 0) {
-    return "{}";
-  }
-  return [
-    "{",
-    indent(printProjectionExpressionStatements(path, options, print, "statements")),
-    hardline,
-    "}",
-  ];
-}
-
-export function printProjectionMemberExpression(
-  path: AstPath<ProjectionMemberExpressionNode>,
-  options: TypeSpecPrettierOptions,
-  print: PrettierChildPrint,
-) {
-  const node = path.node;
-  return [path.call(print, "base"), node.selector, path.call(print, "id")];
-}
-
-export function printProjectionLeftRightExpression(
-  path: AstPath<
-    | ProjectionLogicalExpressionNode
-    | ProjectionRelationalExpressionNode
-    | ProjectionEqualityExpressionNode
-    | ProjectionArithmeticExpressionNode
-  >,
-  options: TypeSpecPrettierOptions,
-  print: PrettierChildPrint,
-) {
-  const node = path.node;
-  return [path.call(print, "left"), " ", node.op, " ", path.call(print, "right")];
-}
-
-export function printProjectionUnaryExpression(
-  path: AstPath<ProjectionUnaryExpressionNode>,
-  options: TypeSpecPrettierOptions,
-  print: PrettierChildPrint,
-) {
-  return ["!", path.call(print, "target")];
-}
-
-export function printProjectionCallExpression(
-  path: AstPath<ProjectionCallExpressionNode>,
-  options: TypeSpecPrettierOptions,
-  print: PrettierChildPrint,
-) {
-  const node = path.node;
-  const target = path.call(print, "target");
-  const params = printItemList(path, options, print, "arguments");
-
-  if (node.callKind === "method") {
-    return [target, "(", params, ")"];
-  } else {
-    return [target, "<", params, ">"];
-  }
-}
-
-export function printProjectionLambdaExpression(
-  path: AstPath<ProjectionLambdaExpressionNode>,
-  options: TypeSpecPrettierOptions,
-  print: PrettierChildPrint,
-) {
-  return [
-    "(",
-    printItemList(path, options, print, "parameters"),
-    ")",
-    " => ",
-    path.call(print, "body"),
-  ];
-}
-
-export function printProjectionLambdaParameterDeclaration(
-  path: AstPath<ProjectionLambdaParameterDeclarationNode>,
-  options: TypeSpecPrettierOptions,
-  print: PrettierChildPrint,
-) {
-  return path.call(print, "id");
-}
-
-export function printReturnExpression(
-  path: AstPath<ReturnExpressionNode>,
-  options: TypeSpecPrettierOptions,
-  print: PrettierChildPrint,
-) {
-  return ["return ", path.call(print, "value")];
-}
-
 export function printStringTemplateExpression(
   path: AstPath<StringTemplateExpressionNode>,
   options: TypeSpecPrettierOptions,
@@ -1920,36 +1600,6 @@ export function printStringTemplateExpression(
   }
 }
 
-function splitLines(text: string): string[] {
-  const lines = [];
-  let start = 0;
-  let pos = 0;
-
-  while (pos < text.length) {
-    const ch = text.charCodeAt(pos);
-    switch (ch) {
-      case CharCode.CarriageReturn:
-        if (text.charCodeAt(pos + 1) === CharCode.LineFeed) {
-          lines.push(text.slice(start, pos));
-          start = pos;
-          pos++;
-        } else {
-          lines.push(text.slice(start, pos));
-          start = pos;
-        }
-        break;
-      case CharCode.LineFeed:
-        lines.push(text.slice(start, pos));
-        start = pos;
-        break;
-    }
-    pos++;
-  }
-
-  lines.push(text.slice(start));
-  return lines;
-}
-
 function trimMultilineString(lines: string[], whitespaceIndent: number): Doc[] {
   const newLines = [];
   for (let i = 0; i < lines.length; i++) {
@@ -1959,15 +1609,6 @@ function trimMultilineString(lines: string[], whitespaceIndent: number): Doc[] {
     }
   }
   return newLines;
-}
-
-function printItemList<T extends Node>(
-  path: AstPath<T>,
-  options: TypeSpecPrettierOptions,
-  print: PrettierChildPrint,
-  key: keyof T,
-) {
-  return join(", ", path.map(print, key as any));
 }
 
 /**

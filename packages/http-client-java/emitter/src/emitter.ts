@@ -1,243 +1,210 @@
 import {
-  createTypeSpecLibrary,
   EmitContext,
   getNormalizedAbsolutePath,
-  JSONSchemaType,
   NoTarget,
+  Program,
   resolvePath,
 } from "@typespec/compiler";
-import { spawn } from "child_process";
 import { promises } from "fs";
 import { dump } from "js-yaml";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
-import { CodeModelBuilder } from "./code-model-builder.js";
-
-export interface EmitterOptions {
-  namespace?: string;
-  "output-dir"?: string;
-  "package-dir"?: string;
-
-  flavor?: string;
-
-  "service-name"?: string;
-  "service-versions"?: string[];
-
-  "skip-special-headers"?: string[];
-
-  "generate-samples"?: boolean;
-  "generate-tests"?: boolean;
-
-  "enable-sync-stack"?: boolean;
-  "stream-style-serialization"?: boolean;
-
-  "partial-update"?: boolean;
-  "models-subpackage"?: string;
-  "custom-types"?: string;
-  "custom-types-subpackage"?: string;
-  "customization-class"?: string;
-  polling?: any;
-
-  "group-etag-headers"?: boolean;
-
-  "advanced-versioning"?: boolean;
-  "api-version"?: string;
-  "service-version-exclude-preview"?: boolean;
-
-  "dev-options"?: DevOptions;
-}
-
-export interface DevOptions {
-  "generate-code-model"?: boolean;
-  debug?: boolean;
-  loglevel?: "off" | "debug" | "info" | "warn" | "error";
-  "java-temp-dir"?: string; // working directory for java codegen, e.g. transformed code-model file
-}
-
-const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
-  type: "object",
-  additionalProperties: true,
-  properties: {
-    namespace: { type: "string", nullable: true },
-    "output-dir": { type: "string", nullable: true },
-    "package-dir": { type: "string", nullable: true },
-
-    flavor: { type: "string", nullable: true, default: "Azure" },
-
-    // service
-    "service-name": { type: "string", nullable: true },
-    "service-versions": { type: "array", items: { type: "string" }, nullable: true },
-
-    // header
-    "skip-special-headers": { type: "array", items: { type: "string" }, nullable: true },
-
-    // sample and test
-    "generate-samples": { type: "boolean", nullable: true, default: true },
-    "generate-tests": { type: "boolean", nullable: true, default: true },
-
-    "enable-sync-stack": { type: "boolean", nullable: true, default: true },
-    "stream-style-serialization": { type: "boolean", nullable: true, default: true },
-
-    // customization
-    "partial-update": { type: "boolean", nullable: true, default: false },
-    "models-subpackage": { type: "string", nullable: true },
-    "custom-types": { type: "string", nullable: true },
-    "custom-types-subpackage": { type: "string", nullable: true },
-    "customization-class": { type: "string", nullable: true },
-    polling: { type: "object", additionalProperties: true, nullable: true },
-
-    "group-etag-headers": { type: "boolean", nullable: true },
-
-    "advanced-versioning": { type: "boolean", nullable: true, default: false },
-    "api-version": { type: "string", nullable: true },
-    "service-version-exclude-preview": { type: "boolean", nullable: true, default: false },
-
-    "dev-options": { type: "object", additionalProperties: true, nullable: true },
-  },
-  required: [],
-};
-
-export const $lib = createTypeSpecLibrary({
-  name: "@typespec/http-client-java",
-  diagnostics: {},
-  emitter: {
-    options: EmitterOptionsSchema,
-  },
-});
+import { CodeModelBuilder, EmitterOptionsDev } from "./code-model-builder.js";
+import { CodeModel } from "./common/code-model.js";
+import { LibName, reportDiagnostic } from "./lib.js";
+import { EmitterOptions } from "./options.js";
+import { DiagnosticError, spawnAsync, SpawnError, trace } from "./utils.js";
+import { validateDependencies } from "./validate.js";
 
 export async function $onEmit(context: EmitContext<EmitterOptions>) {
   const program = context.program;
-  const options = context.options;
-  if (!options["flavor"]) {
-    if (options["package-dir"]?.toLocaleLowerCase().startsWith("azure")) {
-      // Azure package
-      options["flavor"] = "Azure";
-    } else {
-      // default
-      options["flavor"] = "Azure";
-    }
+  if (!program.compilerOptions.noEmit) {
+    await validateDependencies(program, true);
   }
-  const builder = new CodeModelBuilder(program, context);
-  const codeModel = await builder.build();
 
-  if (!program.compilerOptions.noEmit && !program.hasError()) {
-    const __dirname = dirname(fileURLToPath(import.meta.url));
-    const moduleRoot = resolvePath(__dirname, "..", "..");
-
-    const outputPath = options["output-dir"] ?? context.emitterOutputDir;
-    options["output-dir"] = getNormalizedAbsolutePath(outputPath, undefined);
-
-    (options as any)["arm"] = codeModel.arm;
-
-    const codeModelFileName = resolvePath(outputPath, "./code-model.yaml");
-
-    await promises.mkdir(outputPath, { recursive: true }).catch((err) => {
-      if (err.code !== "EISDIR" && err.code !== "EEXIST") {
-        throw err;
+  if (!program.hasError()) {
+    const options = context.options as EmitterOptionsDev;
+    if (!options["flavor"]) {
+      if (LibName === "@azure-tools/typespec-java") {
+        options["flavor"] = "azure";
       }
-    });
-
-    await program.host.writeFile(codeModelFileName, dump(codeModel));
-
-    program.trace("http-client-java", `Code model file written to ${codeModelFileName}`);
-
-    const emitterOptions = JSON.stringify(options);
-    program.trace("http-client-java", `Emitter options ${emitterOptions}`);
-
-    const jarFileName = resolvePath(
-      moduleRoot,
-      "generator/http-client-generator/target",
-      "emitter.jar",
-    );
-    program.trace("http-client-java", `Exec JAR ${jarFileName}`);
-
-    const javaArgs: string[] = [];
-    javaArgs.push(`-DemitterOptions=${emitterOptions}`);
-    if (options["dev-options"]?.debug) {
-      javaArgs.push("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005");
     }
-    if (options["dev-options"]?.loglevel) {
-      javaArgs.push("-Dorg.slf4j.simpleLogger.defaultLogLevel=" + options["dev-options"]?.loglevel);
-    }
-    if (options["dev-options"]?.["java-temp-dir"]) {
-      javaArgs.push("-Dcodegen.java.temp.directory=" + options["dev-options"]?.["java-temp-dir"]);
-    }
-    javaArgs.push("-jar");
-    javaArgs.push(jarFileName);
-    javaArgs.push(codeModelFileName);
+
+    let codeModel: CodeModel | undefined;
     try {
-      type SpawnReturns = {
-        stdout: string;
-        stderr: string;
-      };
-      await new Promise<SpawnReturns>((resolve, reject) => {
-        const childProcess = spawn("java", javaArgs, { stdio: "inherit" });
-
-        let error: Error | undefined = undefined;
-
-        // std
-        const stdout: string[] = [];
-        const stderr: string[] = [];
-        if (childProcess.stdout) {
-          childProcess.stdout.on("data", (data) => {
-            stdout.push(data.toString());
-          });
-        }
-        if (childProcess.stderr) {
-          childProcess.stderr.on("data", (data) => {
-            stderr.push(data.toString());
-          });
-        }
-
-        // failed to spawn the process
-        childProcess.on("error", (e) => {
-          error = e;
-        });
-
-        // process exits with error
-        childProcess.on("exit", (code, signal) => {
-          if (code !== 0) {
-            if (code) {
-              error = new Error(`JAR ended with code '${code}'.`);
-            } else {
-              error = new Error(`JAR terminated by signal '${signal}'.`);
-            }
-          }
-        });
-
-        // close and complete Promise
-        childProcess.on("close", () => {
-          if (error) {
-            reject(error);
-          } else {
-            resolve({
-              stdout: stdout.join(""),
-              stderr: stderr.join(""),
-            });
-          }
-        });
-      });
-
-      // as stdio: "inherit", std is not captured by spawn
-      // program.trace("http-client-java", output.stdout ? output.stdout : output.stderr);
+      const builder = new CodeModelBuilder(program, context);
+      codeModel = await builder.build();
     } catch (error: any) {
-      if (error && "code" in error && error["code"] === "ENOENT") {
-        const msg = "'java' is not on PATH. Please install JDK 11 or above.";
-        program.trace("http-client-java", msg);
-        program.reportDiagnostic({
-          code: "http-client-java",
-          severity: "error",
-          message: msg,
+      if (error instanceof DiagnosticError) {
+        // diagnostic thrown as error
+        program.reportDiagnostic(error.diagnostic);
+      } else {
+        // unknown error
+        reportDiagnostic(program, {
+          code: "unknown-error",
+          format: {
+            errorMessage: `Error occurred when building the code model. The emitter was unable to generate client code from this TypeSpec, please open an issue on https://github.com/microsoft/typespec, include TypeSpec source and all the diagnostic information in your submission.\nStack: ${error.stack}\nError: ${error.toString()}`,
+          },
           target: NoTarget,
         });
-        throw new Error(msg);
-      } else {
-        throw error;
+        trace(program, error.stack);
       }
     }
 
-    if (!options["dev-options"]?.["generate-code-model"]) {
-      await program.host.rm(codeModelFileName);
+    if (codeModel && !program.hasError() && !program.compilerOptions.noEmit) {
+      const __dirname = dirname(fileURLToPath(import.meta.url));
+      const moduleRoot = resolvePath(__dirname, "..", "..");
+
+      const outputPath = context.emitterOutputDir;
+      options["output-dir"] = getNormalizedAbsolutePath(outputPath, undefined);
+
+      options.arm = codeModel.arm;
+      if (codeModel.info?.license?.extensions?.header) {
+        options["license-header"] = codeModel.info.license.extensions.header;
+      }
+
+      const codeModelFileName = resolvePath(outputPath, "./code-model.yaml");
+
+      await promises.mkdir(outputPath, { recursive: true }).catch((err) => {
+        if (err.code !== "EISDIR" && err.code !== "EEXIST") {
+          reportDiagnostic(program, {
+            code: "unknown-error",
+            format: { errorMessage: `Failed to create output directory: ${outputPath}.` },
+            target: NoTarget,
+          });
+          return;
+        }
+      });
+
+      await program.host.writeFile(codeModelFileName, dump(codeModel));
+
+      trace(program, `Code model file written to ${codeModelFileName}`);
+
+      const emitterOptions = JSON.stringify(options);
+      trace(program, `Emitter options ${emitterOptions}`);
+
+      const jarFileName = resolvePath(
+        moduleRoot,
+        "generator/http-client-generator/target",
+        "emitter.jar",
+      );
+      trace(program, `Exec JAR ${jarFileName}`);
+
+      const javaArgs: string[] = [];
+      javaArgs.push(`-DemitterOptions=${emitterOptions}`);
+      if (options["dev-options"]?.debug) {
+        javaArgs.push("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005");
+      }
+      if (options["dev-options"]?.loglevel) {
+        javaArgs.push(
+          "-Dorg.slf4j.simpleLogger.defaultLogLevel=" + options["dev-options"]?.loglevel,
+        );
+      }
+      if (options["dev-options"]?.["java-temp-dir"]) {
+        javaArgs.push("-Dcodegen.java.temp.directory=" + options["dev-options"]?.["java-temp-dir"]);
+      }
+      if (options["dev-options"]?.profile) {
+        const perfProfile = resolvePath(
+          moduleRoot,
+          "generator/http-client-generator/target/classes",
+          "PerfAutomation.jfc",
+        );
+        javaArgs.push("-XX:+FlightRecorder");
+        javaArgs.push(
+          `-XX:StartFlightRecording=settings="${perfProfile}",filename="${options["output-dir"]}/typespecPerf.jfr",maxsize=1gb`,
+        );
+      }
+      // These module modifications are needed by google-java-format
+      javaArgs.push("--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED");
+      javaArgs.push("--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED");
+      javaArgs.push("--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED");
+      javaArgs.push("--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED");
+      javaArgs.push("--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED");
+      javaArgs.push("--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED");
+      javaArgs.push("-jar");
+      javaArgs.push(jarFileName);
+      javaArgs.push(codeModelFileName);
+      try {
+        const result = await spawnAsync("java", javaArgs, { stdio: "pipe" });
+        reportJarOutput(program, result.stdout);
+        // trace(program, `Code generation log: ${result.stdout}`);
+      } catch (error: any) {
+        if (error && "code" in error && error["code"] === "ENOENT") {
+          reportDiagnostic(program, {
+            code: "invalid-java-sdk-dependency",
+            target: NoTarget,
+          });
+        } else {
+          if (error instanceof SpawnError) {
+            reportJarOutput(program, error.stdout);
+            // trace(program, `Code generation log: ${error.stdout}`);
+          }
+
+          // error in Java codegen, report as unknown error
+          reportDiagnostic(program, {
+            code: "unknown-error",
+            format: {
+              errorMessage: `Error occurred while running Java generator. The emitter was unable to generate client code from this TypeSpec, please open an issue on https://github.com/microsoft/typespec, include TypeSpec source and all the diagnostic information in your submission. ${error.stack}\nError: ${error.toString()}`,
+            },
+            target: NoTarget,
+          });
+        }
+      }
+
+      if (!options["dev-options"]?.["generate-code-model"]) {
+        await program.host.rm(codeModelFileName);
+      }
+    }
+  }
+}
+
+function reportJarOutput(program: Program, jarOutput: string) {
+  const lines = jarOutput.split("\n");
+  const logs: Array<string> = [];
+
+  // parse stdout to array of logs
+  let currentLog = undefined;
+  for (const line of lines) {
+    if (
+      line.startsWith("TRACE ") ||
+      line.startsWith("DEBUG ") ||
+      line.startsWith("INFO ") ||
+      line.startsWith("WARN ") ||
+      line.startsWith("ERROR ")
+    ) {
+      if (currentLog) {
+        logs.push(currentLog);
+      }
+      currentLog = line;
+    } else if (currentLog) {
+      currentLog = currentLog + "\n" + line;
+    }
+  }
+  if (currentLog) {
+    logs.push(currentLog);
+  }
+
+  // trace or report the logs, according to log level
+  for (const log of logs) {
+    if (log.startsWith("ERROR ")) {
+      reportDiagnostic(program, {
+        code: "generator-error",
+        format: {
+          errorMessage: log.substring(6),
+        },
+        target: NoTarget,
+      });
+    } else if (log.startsWith("WARN ")) {
+      reportDiagnostic(program, {
+        code: "generator-warning",
+        format: {
+          warningMessage: log.substring(5),
+        },
+        target: NoTarget,
+      });
+    } else {
+      const index = log.indexOf(" ");
+      trace(program, log.substring(index + 1));
     }
   }
 }

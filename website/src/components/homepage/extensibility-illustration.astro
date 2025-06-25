@@ -1,0 +1,16 @@
+---
+import { Code } from "@astrojs/starlight/components";
+import extensibilityTs from "@site/src/assets/tsp-samples/extensibility/custom-lib.ts?raw";
+import extensibilityTsp from "@site/src/assets/tsp-samples/extensibility/custom-lib.tsp?raw";
+---
+
+<style>
+  .codeblock-seperator {
+    height: 10px;
+  }
+</style>
+<div>
+  <Code lang="tsp" title="lib.tsp" code={extensibilityTsp} />
+  <div class="codeblock-seperator"></div>
+  <Code lang="ts" title="lib.ts" code={extensibilityTs} />
+</div>

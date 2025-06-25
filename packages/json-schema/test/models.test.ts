@@ -59,6 +59,37 @@ describe("emitting models", () => {
     assert(schemas["TemplateFoo.json"]);
   });
 
+  it("inlines templates instantiated with union literals", async () => {
+    const schemas = await emitSchema(`
+      model Foo {
+        prop: Template<Bar | string | { y?: string }>
+      }
+
+      model Bar {
+        prop: string
+      }
+
+      model Template<T> {
+        x: T
+      }
+    `);
+
+    const expectedBarRef = { $ref: "Bar.json" };
+    const expectedStringSchema = { type: "string" };
+    const expectedExpressionSchema = { type: "object", properties: { y: { type: "string" } } };
+
+    assert.deepStrictEqual(schemas["Foo.json"].properties.prop, {
+      type: "object",
+      required: ["x"],
+      properties: {
+        x: {
+          anyOf: [expectedBarRef, expectedStringSchema, expectedExpressionSchema],
+        },
+      },
+    });
+    assert(schemas["Bar.json"]);
+  });
+
   it("works with minProperties and maxProperties", async () => {
     const { "Foo.json": Foo } = await emitSchema(`
       @minProperties(1)
@@ -117,8 +148,8 @@ describe("emitting models", () => {
     );
 
     assert.deepStrictEqual(schemas["ExtendsRecord.json"].allOf[0], { $ref: "RecordString.json" });
-    assert.deepStrictEqual(schemas["RecordString.json"].additionalProperties, { type: "string" });
-    assert.deepStrictEqual(schemas["IsRecord.json"].additionalProperties, {
+    assert.deepStrictEqual(schemas["RecordString.json"].unevaluatedProperties, { type: "string" });
+    assert.deepStrictEqual(schemas["IsRecord.json"].unevaluatedProperties, {
       type: "object",
       properties: {
         x: {
@@ -150,10 +181,10 @@ describe("emitting models", () => {
       { emitAllRefs: true },
     );
 
-    assert.deepStrictEqual(schemas["RecordNever.json"].additionalProperties, { not: {} });
-    assert.deepStrictEqual(schemas["RecordUnknown.json"].additionalProperties, {});
-    assert.deepStrictEqual(schemas["RecordVoid.json"].additionalProperties, { not: {} });
-    assert.deepStrictEqual(schemas["RecordNull.json"].additionalProperties, { type: "null" });
+    assert.deepStrictEqual(schemas["RecordNever.json"].unevaluatedProperties, { not: {} });
+    assert.deepStrictEqual(schemas["RecordUnknown.json"].unevaluatedProperties, {});
+    assert.deepStrictEqual(schemas["RecordVoid.json"].unevaluatedProperties, { not: {} });
+    assert.deepStrictEqual(schemas["RecordNull.json"].unevaluatedProperties, { type: "null" });
   });
 
   it("handles instantiations of literal types", async () => {
@@ -167,15 +198,15 @@ describe("emitting models", () => {
       `,
       { emitAllRefs: true },
     );
-    assert.deepStrictEqual(schemas["Test.json"].properties.string.additionalProperties, {
+    assert.deepStrictEqual(schemas["Test.json"].properties.string.unevaluatedProperties, {
       type: "string",
       const: "hi",
     });
-    assert.deepStrictEqual(schemas["Test.json"].properties.number.additionalProperties, {
+    assert.deepStrictEqual(schemas["Test.json"].properties.number.unevaluatedProperties, {
       type: "number",
       const: 1.2,
     });
-    assert.deepStrictEqual(schemas["Test.json"].properties.boolean.additionalProperties, {
+    assert.deepStrictEqual(schemas["Test.json"].properties.boolean.unevaluatedProperties, {
       type: "boolean",
       const: true,
     });
@@ -196,7 +227,7 @@ describe("emitting models", () => {
       { emitAllRefs: true },
     );
 
-    assert.deepStrictEqual(schemas["Test.json"].properties.union.additionalProperties, {
+    assert.deepStrictEqual(schemas["Test.json"].properties.union.unevaluatedProperties, {
       anyOf: [
         {
           type: "integer",
@@ -211,7 +242,7 @@ describe("emitting models", () => {
       ],
     });
 
-    assert.deepStrictEqual(schemas["Test.json"].properties.intersection.additionalProperties, {
+    assert.deepStrictEqual(schemas["Test.json"].properties.intersection.unevaluatedProperties, {
       type: "object",
       properties: {
         x: {
@@ -229,11 +260,11 @@ describe("emitting models", () => {
     });
 
     assert.deepStrictEqual(
-      schemas["Test.json"].properties.unspeakableInstantiation.additionalProperties,
+      schemas["Test.json"].properties.unspeakableInstantiation.unevaluatedProperties,
       {
         type: "object",
         properties: {},
-        additionalProperties: {
+        unevaluatedProperties: {
           type: "object",
           properties: {
             x: {
@@ -251,7 +282,7 @@ describe("emitting models", () => {
         },
       },
     );
-    assert.deepStrictEqual(schemas["RecordRecordInt32.json"].additionalProperties, {
+    assert.deepStrictEqual(schemas["RecordRecordInt32.json"].unevaluatedProperties, {
       $ref: "RecordInt32.json",
     });
   });
@@ -342,6 +373,57 @@ describe("emitting models", () => {
         $ref: "MyUnion.json",
         default: "a-value",
       });
+    });
+  });
+
+  describe("seal-object-schemas", () => {
+    it("sets unevaluatedProperties of models to { not: {} }", async () => {
+      const schemas = await emitSchema(
+        `
+          model Test {
+            nested: { foo: string; };
+          }
+        `,
+        { emitAllRefs: true, "seal-object-schemas": true },
+      );
+      assert.deepStrictEqual(schemas["Test.json"].unevaluatedProperties, { not: {} });
+      assert.deepStrictEqual(schemas["Test.json"].properties.nested.unevaluatedProperties, {
+        not: {},
+      });
+    });
+
+    it("does not affect schemas that already define unevaluatedProperties", async () => {
+      const schemas = await emitSchema(
+        `
+          model Test {
+            nested: { foo: string; ...Record<string>; };
+            ...Record<string>;
+          }
+          
+          @extension("unevaluatedProperties", #{ type: "string" })
+          model Test2 {}
+        `,
+        { emitAllRefs: true, "seal-object-schemas": true },
+      );
+      assert.deepStrictEqual(schemas["Test.json"].unevaluatedProperties, { type: "string" });
+      assert.deepStrictEqual(schemas["Test.json"].properties.nested.unevaluatedProperties, {
+        type: "string",
+      });
+      assert.deepStrictEqual(schemas["Test2.json"].unevaluatedProperties, { type: "string" });
+    });
+
+    it("does not affect schemas that have derived schemas", async () => {
+      const schemas = await emitSchema(
+        `
+          model Entity { id: string; };
+          model Widget extends Entity { kind: string; name: string; };
+          model Spinner extends Widget { kind: "spinner"; cycles: int8; }
+        `,
+        { emitAllRefs: true, "seal-object-schemas": true },
+      );
+      assert.deepStrictEqual(schemas["Entity.json"].unevaluatedProperties, undefined);
+      assert.deepStrictEqual(schemas["Widget.json"].unevaluatedProperties, undefined);
+      assert.deepStrictEqual(schemas["Spinner.json"].unevaluatedProperties, { not: {} });
     });
   });
 });

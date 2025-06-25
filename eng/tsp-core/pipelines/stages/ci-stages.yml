@@ -15,14 +15,12 @@ stages:
 
         strategy:
           matrix:
-            "Node 18.x":
-              nodeVersion: 18.x
-
             "Node 20.x":
               nodeVersion: 20.x
-
             "Node 22.x":
               nodeVersion: 22.x
+            "Node 24.x":
+              nodeVersion: "24.x"
 
         pool:
           name: $(WINDOWSPOOL)
@@ -44,11 +42,12 @@ stages:
 
         strategy:
           matrix:
-            "Node 18.x":
-              nodeVersion: 18.x
-
             "Node 20.x":
               nodeVersion: 20.x
+            "Node 22.x":
+              nodeVersion: 22.x
+            "Node 24.x":
+              nodeVersion: 24.x
 
         pool:
           name: $(LINUXPOOL)
@@ -61,7 +60,16 @@ stages:
               nodeVersion: $(nodeVersion)
               os: linux
 
-      - template: /eng/tsp-core/pipelines/jobs/publish-artifacts.yml
+      - job: website
+        displayName: Website
+        pool:
+          name: $(LINUXPOOL)
+          image: $(LINUXVMIMAGE)
+          os: linux
+
+        steps:
+          - template: /eng/tsp-core/pipelines/jobs/website.yml
+
       - template: /eng/tsp-core/pipelines/jobs/e2e.yml
 
       - job: docker_build

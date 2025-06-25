@@ -1,3 +1,5 @@
+import { NoTarget } from "@typespec/compiler";
+
 import {
   SdkBasicServiceMethod,
   SdkBodyParameter,
@@ -9,6 +11,7 @@ import {
   SdkHttpResponse,
   SdkLroPagingServiceMethod,
   SdkLroServiceMethod,
+  SdkModelPropertyType,
   SdkPagingServiceMethod,
   SdkPathParameter,
   SdkQueryParameter,
@@ -17,7 +20,7 @@ import {
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import { HttpStatusCodeRange } from "@typespec/http";
-import { PythonSdkContext } from "./lib.js";
+import { PythonSdkContext, reportDiagnostic } from "./lib.js";
 import { KnownTypes, getType } from "./types.js";
 import {
   camelToSnakeCase,
@@ -27,6 +30,7 @@ import {
   getImplementation,
   isAbstract,
   isAzureCoreErrorResponse,
+  isContinuationToken,
 } from "./utils.js";
 
 function isContentTypeParameter(parameter: SdkHeaderParameter) {
@@ -44,7 +48,7 @@ function arrayToRecord(examples: SdkHttpOperationExample[] | undefined): Record<
 }
 
 export function emitBasicHttpMethod(
-  context: PythonSdkContext<SdkHttpOperation>,
+  context: PythonSdkContext,
   rootClient: SdkClientType<SdkHttpOperation>,
   method: SdkBasicServiceMethod<SdkHttpOperation>,
   operationGroupName: string,
@@ -53,7 +57,6 @@ export function emitBasicHttpMethod(
     {
       ...emitHttpOperation(context, rootClient, operationGroupName, method.operation, method),
       abstract: isAbstract(method),
-      internal: method.access === "internal",
       name: camelToSnakeCase(method.name),
       description: method.doc ?? "",
       summary: method.summary,
@@ -62,7 +65,7 @@ export function emitBasicHttpMethod(
 }
 
 function emitInitialLroHttpMethod(
-  context: PythonSdkContext<SdkHttpOperation>,
+  context: PythonSdkContext,
   rootClient: SdkClientType<SdkHttpOperation>,
   method: SdkLroServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
   operationGroupName: string,
@@ -79,7 +82,7 @@ function emitInitialLroHttpMethod(
 }
 
 function addLroInformation(
-  context: PythonSdkContext<SdkHttpOperation>,
+  context: PythonSdkContext,
   rootClient: SdkClientType<SdkHttpOperation>,
   method: SdkLroServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
   operationGroupName: string,
@@ -95,8 +98,90 @@ function addLroInformation(
   };
 }
 
+function getWireNameFromPropertySegments(segments: SdkModelPropertyType[]): string | undefined {
+  if (segments[0].kind === "property") {
+    return segments
+      .filter((s) => s.kind === "property")
+      .map((s) => s.serializationOptions.json?.name ?? "")
+      .join(".");
+  }
+
+  return undefined;
+}
+
+function getWireNameWithDiagnostics(
+  context: PythonSdkContext,
+  segments: SdkModelPropertyType[] | undefined,
+  code: "invalid-paging-items" | "invalid-next-link" | "invalid-lro-result",
+  method?: SdkServiceMethod<SdkHttpOperation>,
+): string | undefined {
+  if (segments && segments.length > 0) {
+    const result = getWireNameFromPropertySegments(segments);
+    if (result) {
+      return result;
+    }
+    const operationId = method ? method.name : "";
+    reportDiagnostic(context.program, {
+      code: code,
+      target: NoTarget,
+      format: { operationId: operationId },
+    });
+  }
+
+  return undefined;
+}
+
+function buildContinuationToken(
+  context: PythonSdkContext,
+  method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
+  segments: SdkModelPropertyType[],
+  input: boolean = true,
+): Record<string, any> {
+  if (segments[0].kind === "property") {
+    const wireName = getWireNameFromPropertySegments(segments);
+    if (wireName) {
+      return { wireName, location: "body" };
+    }
+  } else if (input) {
+    for (const parameter of method.operation.parameters) {
+      if (isContinuationToken(parameter, method)) {
+        return { wireName: parameter.serializedName, location: parameter.kind };
+      }
+    }
+  } else {
+    for (const response of method.operation.responses) {
+      for (const header of response.headers) {
+        if (isContinuationToken(header, method, false)) {
+          return { wireName: header.serializedName, location: "header" };
+        }
+      }
+    }
+  }
+  reportDiagnostic(context.program, {
+    code: "invalid-continuation-token",
+    target: NoTarget,
+    format: { operationId: method.name, direction: input ? "request" : "response" },
+  });
+  return {};
+}
+
+function buildAllContinuationToken(
+  context: PythonSdkContext,
+  method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
+): Record<string, any> {
+  const parameterSegments = method.pagingMetadata.continuationTokenParameterSegments ?? [];
+  const responseSegments = method.pagingMetadata.continuationTokenResponseSegments ?? [];
+  if (parameterSegments.length > 0 && responseSegments.length > 0) {
+    return {
+      input: buildContinuationToken(context, method, parameterSegments),
+      output: buildContinuationToken(context, method, responseSegments, false),
+    };
+  }
+  return {};
+}
+
 function addPagingInformation(
-  context: PythonSdkContext<SdkHttpOperation>,
+  context: PythonSdkContext,
   rootClient: SdkClientType<SdkHttpOperation>,
   method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
   operationGroupName: string,
@@ -108,24 +193,50 @@ function addPagingInformation(
   }
   const itemType = getType(context, method.response.type!);
   const base = emitHttpOperation(context, rootClient, operationGroupName, method.operation, method);
+  const itemName = getWireNameWithDiagnostics(
+    context,
+    method.response.resultSegments,
+    "invalid-paging-items",
+    method,
+  );
+  const nextLinkName = getWireNameWithDiagnostics(
+    context,
+    method.pagingMetadata.nextLinkSegments,
+    "invalid-next-link",
+    method,
+  );
   base.responses.forEach((resp: Record<string, any>) => {
     resp.type = itemType;
   });
+  const nextLinkReInjectedParameters: Record<string, any>[] = [];
+  for (const segList of method.pagingMetadata.nextLinkReInjectedParametersSegments ?? []) {
+    for (const param of segList) {
+      if (param.kind === "method") {
+        for (const parameter of method.operation.parameters) {
+          if (parameter.kind === "query" && parameter.correspondingMethodParams.includes(param)) {
+            nextLinkReInjectedParameters.push(emitHttpQueryParameter(context, parameter, method));
+          }
+        }
+      }
+    }
+  }
   return {
     ...base,
     name: camelToSnakeCase(method.name),
     discriminator: "paging",
     exposeStreamKeyword: false,
-    itemName: method.response.resultPath,
-    continuationTokenName: method.nextLinkPath,
+    itemName,
+    nextLinkName,
+    nextLinkReInjectedParameters,
     itemType,
     description: method.doc ?? "",
     summary: method.summary,
+    continuationToken: buildAllContinuationToken(context, method),
   };
 }
 
 export function emitLroHttpMethod(
-  context: PythonSdkContext<SdkHttpOperation>,
+  context: PythonSdkContext,
   rootClient: SdkClientType<SdkHttpOperation>,
   method: SdkLroServiceMethod<SdkHttpOperation>,
   operationGroupName: string,
@@ -135,7 +246,7 @@ export function emitLroHttpMethod(
 }
 
 export function emitPagingHttpMethod(
-  context: PythonSdkContext<SdkHttpOperation>,
+  context: PythonSdkContext,
   rootClient: SdkClientType<SdkHttpOperation>,
   method: SdkPagingServiceMethod<SdkHttpOperation>,
   operationGroupName: string,
@@ -145,7 +256,7 @@ export function emitPagingHttpMethod(
 }
 
 export function emitLroPagingHttpMethod(
-  context: PythonSdkContext<SdkHttpOperation>,
+  context: PythonSdkContext,
   rootClient: SdkClientType<SdkHttpOperation>,
   method: SdkLroPagingServiceMethod<SdkHttpOperation>,
   operationGroupName: string,
@@ -156,7 +267,7 @@ export function emitLroPagingHttpMethod(
 }
 
 function emitHttpOperation(
-  context: PythonSdkContext<SdkHttpOperation>,
+  context: PythonSdkContext,
   rootClient: SdkClientType<SdkHttpOperation>,
   operationGroupName: string,
   operation: SdkHttpOperation,
@@ -173,7 +284,7 @@ function emitHttpOperation(
   const result = {
     url: operation.path,
     method: operation.verb.toUpperCase(),
-    parameters: emitHttpParameters(context, rootClient, operation),
+    parameters: emitHttpParameters(context, rootClient, operation, method),
     bodyParameter: emitHttpBodyParameter(context, operation.bodyParam),
     responses,
     exceptions,
@@ -182,11 +293,12 @@ function emitHttpOperation(
     discriminator: "basic",
     isOverload: false,
     overloads: [],
-    apiVersions: [],
+    apiVersions: method.apiVersions,
     wantTracing: true,
     exposeStreamKeyword: true,
-    crossLanguageDefinitionId: method?.crossLanguageDefintionId,
+    crossLanguageDefinitionId: method?.crossLanguageDefinitionId,
     samples: arrayToRecord(method?.operation.examples),
+    internal: method.access === "internal",
   };
   if (result.bodyParameter && isSpreadBody(operation.bodyParam)) {
     result.bodyParameter["propertyToParameterName"] = {};
@@ -241,10 +353,17 @@ function emitFlattenedParameter(
 }
 
 function emitHttpPathParameter(
-  context: PythonSdkContext<SdkHttpOperation>,
+  context: PythonSdkContext,
   parameter: SdkPathParameter,
-) {
+  operation: SdkHttpOperation,
+): Record<string, any> {
   const base = emitParamBase(context, parameter);
+  if (parameter.optional && operation.path.includes(`/{${parameter.serializedName}}`)) {
+    operation.path = operation.path.replace(
+      `/{${parameter.serializedName}}`,
+      `{${parameter.serializedName}}`,
+    );
+  }
   return {
     ...base,
     wireName: parameter.serializedName,
@@ -255,10 +374,11 @@ function emitHttpPathParameter(
   };
 }
 function emitHttpHeaderParameter(
-  context: PythonSdkContext<SdkHttpOperation>,
+  context: PythonSdkContext,
   parameter: SdkHeaderParameter,
+  method: SdkServiceMethod<SdkHttpOperation>,
 ): Record<string, any> {
-  const base = emitParamBase(context, parameter);
+  const base = emitParamBase(context, parameter, method);
   const [delimiter, explode] = getDelimiterAndExplode(parameter);
   let clientDefaultValue = parameter.clientDefaultValue;
   if (isContentTypeParameter(parameter)) {
@@ -280,10 +400,11 @@ function emitHttpHeaderParameter(
 }
 
 function emitHttpQueryParameter(
-  context: PythonSdkContext<SdkHttpOperation>,
+  context: PythonSdkContext,
   parameter: SdkQueryParameter,
+  method: SdkServiceMethod<SdkHttpOperation>,
 ): Record<string, any> {
-  const base = emitParamBase(context, parameter);
+  const base = emitParamBase(context, parameter, method);
   const [delimiter, explode] = getDelimiterAndExplode(parameter);
   return {
     ...base,
@@ -297,21 +418,22 @@ function emitHttpQueryParameter(
 }
 
 function emitHttpParameters(
-  context: PythonSdkContext<SdkHttpOperation>,
+  context: PythonSdkContext,
   rootClient: SdkClientType<SdkHttpOperation>,
   operation: SdkHttpOperation,
+  method: SdkServiceMethod<SdkHttpOperation>,
 ): Record<string, any>[] {
   const parameters: Record<string, any>[] = [...context.__endpointPathParameters];
   for (const parameter of operation.parameters) {
     switch (parameter.kind) {
       case "header":
-        parameters.push(emitHttpHeaderParameter(context, parameter));
+        parameters.push(emitHttpHeaderParameter(context, parameter, method));
         break;
       case "query":
-        parameters.push(emitHttpQueryParameter(context, parameter));
+        parameters.push(emitHttpQueryParameter(context, parameter, method));
         break;
       case "path":
-        parameters.push(emitHttpPathParameter(context, parameter));
+        parameters.push(emitHttpPathParameter(context, parameter, operation));
         break;
     }
   }
@@ -319,7 +441,7 @@ function emitHttpParameters(
 }
 
 function emitHttpBodyParameter(
-  context: PythonSdkContext<SdkHttpOperation>,
+  context: PythonSdkContext,
   bodyParam?: SdkBodyParameter,
 ): Record<string, any> | undefined {
   if (bodyParam === undefined) return undefined;
@@ -336,7 +458,7 @@ function emitHttpBodyParameter(
 }
 
 function emitHttpResponse(
-  context: PythonSdkContext<SdkHttpOperation>,
+  context: PythonSdkContext,
   statusCodes: HttpStatusCodeRange | number | "*",
   response: SdkHttpResponse | SdkHttpErrorResponse,
   method?: SdkServiceMethod<SdkHttpOperation>,
@@ -359,7 +481,7 @@ function emitHttpResponse(
     headers: response.headers.map((x) => emitHttpResponseHeader(context, x)),
     statusCodes:
       typeof statusCodes === "object"
-        ? [(statusCodes as HttpStatusCodeRange).start]
+        ? [[(statusCodes as HttpStatusCodeRange).start, (statusCodes as HttpStatusCodeRange).end]]
         : statusCodes === "*"
           ? ["default"]
           : [statusCodes],
@@ -367,12 +489,17 @@ function emitHttpResponse(
     type,
     contentTypes: response.contentTypes,
     defaultContentType: response.defaultContentType ?? "application/json",
-    resultProperty: method?.response.resultPath,
+    resultProperty: getWireNameWithDiagnostics(
+      context,
+      method?.response.resultSegments,
+      "invalid-lro-result",
+      method,
+    ),
   };
 }
 
 function emitHttpResponseHeader(
-  context: PythonSdkContext<SdkHttpOperation>,
+  context: PythonSdkContext,
   header: SdkServiceResponseHeader,
 ): Record<string, any> {
   return {

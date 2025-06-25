@@ -1,0 +1,7 @@
+{
+  "flavor": "generic", 
+  "CrossLanguageDefinitionId": {
+    "streaming.jsonl.JsonlClient": "Streaming.Jsonl.Basic",
+    "streaming.jsonl.JsonlClientBuilder": "Streaming.Jsonl"
+  }
+}

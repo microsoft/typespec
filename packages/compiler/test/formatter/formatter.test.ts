@@ -1384,6 +1384,25 @@ model Bar {
       });
     });
 
+    it("keeps comment between decorators and model property", async () => {
+      await assertFormat({
+        code: `
+model Bar {
+      @foo
+        // comment
+  foo: string;
+}
+`,
+        expected: `
+model Bar {
+  @foo
+  // comment
+  foo: string;
+}
+`,
+      });
+    });
+
     it("keeps comment in between decorators on enum member", async () => {
       await assertFormat({
         code: `
@@ -1399,6 +1418,65 @@ enum Bar {
   @foo
   // comment
   @bar
+  foo: "foo",
+}
+`,
+      });
+    });
+
+    it("keeps comment between decorators and enum member", async () => {
+      await assertFormat({
+        code: `
+      enum Bar {
+      @foo
+        // comment
+  foo: "foo",
+}
+`,
+        expected: `
+enum Bar {
+  @foo
+  // comment
+  foo: "foo",
+}
+`,
+      });
+    });
+
+    it("keeps comment in between decorators on union variant", async () => {
+      await assertFormat({
+        code: `
+      union Bar {
+      @foo
+        // comment
+    @bar
+  foo: "foo",
+}
+`,
+        expected: `
+union Bar {
+  @foo
+  // comment
+  @bar
+  foo: "foo",
+}
+`,
+      });
+    });
+
+    it("keeps comment between decorators and union variant", async () => {
+      await assertFormat({
+        code: `
+      union Bar {
+      @foo
+        // comment
+  foo: "foo",
+}
+`,
+        expected: `
+union Bar {
+  @foo
+  // comment
   foo: "foo",
 }
 `,
@@ -2652,247 +2730,6 @@ model Foo<T extends      (valueof        string) | Model   >{}
         expected: `
 model Foo<T extends (valueof string) | Model> {}
 `,
-      });
-    });
-  });
-
-  describe("projections", () => {
-    it("format projections", async () => {
-      await assertFormat({
-        code: `
-projection         model#proj 
-  {pre to{} to{} pre from {} from {}}
-`,
-        expected: `
-projection model#proj {
-  pre to {
-
-  }
-  to {
-
-  }
-  pre from {
-
-  }
-  from {
-
-  }
-}
-`,
-      });
-    });
-
-    it("format empty projection on single line", async () => {
-      await assertFormat({
-        code: `
-projection    model#proj    {
-
-}`,
-        expected: `
-projection model#proj {}`,
-      });
-    });
-
-    it("format projections with args", async () => {
-      await assertFormat({
-        code: `
-projection         model#proj 
-  {pre to ( val ) {} to(   val) {} pre from(  
-    
-    val) {} from (val  ){}
-`,
-        expected: `
-projection model#proj {
-  pre to(val) {
-
-  }
-  to(val) {
-
-  }
-  pre from(val) {
-
-  }
-  from(val) {
-
-  }
-}
-`,
-      });
-    });
-
-    it("format function call", async () => {
-      await assertFormat({
-        code: `
-projection model#proj {
-to {
-   bar(     one, 
-    
-    two)
-}
-`,
-        expected: `
-projection model#proj {
-  to {
-    bar(one, two);
-  }
-}
-`,
-      });
-    });
-
-    describe("format operation expression(s)", () => {
-      ["+", "-", "*", "/", "==", "!=", ">", "<", ">=", "<=", "||", "&&"].forEach((op) => {
-        it(`with ${op}`, async () => {
-          await assertFormat({
-            code: `
-projection model#proj {
-to {
-    bar( one 
-    
-      ${op} 
-      two)
-}
-}
-    `,
-            expected: `
-projection model#proj {
-  to {
-    bar(one ${op} two);
-  }
-}
-    `,
-          });
-        });
-      });
-
-      [
-        ["1 + 2 * 3", "1 + (2 * 3)"],
-        ["( 1 + 2) * 3", "(1 + 2) * 3"],
-        ["one || two && three", "one || (two && three)"],
-      ].forEach(([input, expected]) => {
-        it(`case ${expected}`, async () => {
-          await assertFormat({
-            code: `
-projection model#proj {
-to {
-    bar(${input})
-}
-}
-    `,
-            expected: `
-projection model#proj {
-  to {
-    bar(${expected});
-  }
-}
-    `,
-          });
-        });
-      });
-    });
-
-    it("format lambda", async () => {
-      await assertFormat({
-        code: `
-projection model#proj {
-to {
-  (  a ,  
-    b) => { bar();}
-}
-}
-`,
-        expected: `
-projection model#proj {
-  to {
-    (a, b) => {
-      bar();
-    };
-  }
-}
-`,
-      });
-    });
-
-    describe("if", () => {
-      it("format simple if", async () => {
-        await assertFormat({
-          code: `
-projection model#proj {
-  to {
-    if foo 
-    
-      {
-              bar();
-    }
-  }
-}
-`,
-          expected: `
-projection model#proj {
-  to {
-    if foo {
-      bar();
-    };
-  }
-}
-`,
-        });
-      });
-
-      it("format with else if", async () => {
-        await assertFormat({
-          code: `
-projection model#proj {
-  to {
-    if one 
-    
-      {
-              bar();
-    } else 
-    if two { bar()}
-  }
-}
-`,
-          expected: `
-projection model#proj {
-  to {
-    if one {
-      bar();
-    } else if two {
-      bar();
-    };
-  }
-}
-`,
-        });
-      });
-
-      it("format with else", async () => {
-        await assertFormat({
-          code: `
-projection model#proj {
-  to {
-    if one 
-    
-      {
-              bar();
-    } else 
-     { bar()}
-  }
-}
-`,
-          expected: `
-projection model#proj {
-  to {
-    if one {
-      bar();
-    } else {
-      bar();
-    };
-  }
-}
-`,
-        });
       });
     });
   });

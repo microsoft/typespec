@@ -1,5 +1,171 @@
 # Change Log - @typespec/openapi3
 
+## 1.1.0
+
+### Features
+
+- [#7219](https://github.com/microsoft/typespec/pull/7219) [OpenAPI -> tsp] Add support for converting inline schemas using allOf
+- [#7403](https://github.com/microsoft/typespec/pull/7403) Adds support for parameter examples via `@opExample` via the `experimental-parameter-examples` option.
+
+
+## 1.0.0
+
+### Features
+
+- [#7199](https://github.com/microsoft/typespec/pull/7199) Add "capitalize" string helper to compiler
+
+
+## 1.0.0-rc.1
+
+### Bug Fixes
+
+- [#6279](https://github.com/microsoft/typespec/pull/6279) Fix various issues when using xml payloads and custom scalars
+- [#6887](https://github.com/microsoft/typespec/pull/6887) Fix using union templates
+
+
+## 1.0.0-rc.0
+
+### Breaking Changes
+
+- [#6557](https://github.com/microsoft/typespec/pull/6557) Remove support for removed feature implicit multipart.
+- [#6563](https://github.com/microsoft/typespec/pull/6563) Separate file bodies into their own `bodyKind`.
+  
+  The HTTP library will now return a body with `bodyKind: "file"` in all cases where emitters should treat the body as a file upload or download. Emitters that previously attempted to recognize File bodies by checking the `type` of an HTTP `"single"` body may now simply check if the `bodyKind` is `"file"`. This applies to all HTTP payloads where an `HttpOperationBody` can appear, including requests, responses, and multipart parts.
+
+### Bump dependencies
+
+- [#6595](https://github.com/microsoft/typespec/pull/6595) Upgrade dependencies
+
+### Bug Fixes
+
+- [#6559](https://github.com/microsoft/typespec/pull/6559) Fix missing application of description on multipart properties
+- [#6729](https://github.com/microsoft/typespec/pull/6729) Fix duplicate name error when using named union inside multipart part.
+- [#6506](https://github.com/microsoft/typespec/pull/6506) Fix union of custom scalar with `null` creating an `object` with `allOf` reference
+
+
+## 0.67.0
+
+### Breaking Changes
+
+- [#5977](https://github.com/microsoft/typespec/pull/5977) Minimum node version is now 20
+
+### Deprecations
+
+- [#6305](https://github.com/microsoft/typespec/pull/6305) Related changes based on `http` library deprecation removal.
+
+### Features
+
+- [#6268](https://github.com/microsoft/typespec/pull/6268) `@typespec/versioning` is now an optional dependency.
+- [#6286](https://github.com/microsoft/typespec/pull/6286) Remove support for `@discriminator` on union
+- [#6327](https://github.com/microsoft/typespec/pull/6327) Remove reference to delete projection feature
+
+### Bump dependencies
+
+- [#6266](https://github.com/microsoft/typespec/pull/6266) Update dependencies
+
+### Bug Fixes
+
+- [#6289](https://github.com/microsoft/typespec/pull/6289) Fix `utcDateTime` and `offsetDateTime` not using format `http-date` in header by default as the default http encoding defines
+- [#6411](https://github.com/microsoft/typespec/pull/6411) Add support for new `dryRun` emitter option
+- [#6473](https://github.com/microsoft/typespec/pull/6473) Adds support for `@encode` to specify array encodings for `@query` parameters
+
+
+## 0.66.0
+
+### Breaking Changes
+
+- [#6182](https://github.com/microsoft/typespec/pull/6182) Using `{service-name}` in `tspconfig.yaml` will always interpolate the current service name. `{service-name-if-multiple}` can be used to get the previous behavior
+
+### Features
+
+- [#6059](https://github.com/microsoft/typespec/pull/6059) Add support for new `@discriminated` unions
+- [#5994](https://github.com/microsoft/typespec/pull/5994) Adds `seal-object-schemas` emitter option to automatically set additionalProperties/unevaluatedProperties to `{ not: {} }` wherever possible
+- [#5961](https://github.com/microsoft/typespec/pull/5961) Updates JsonSchema and Open API 3.1 emitters to use unevaluatedProperties instead of additionalProperties, and updates Open API 3 emitters to match JsonSchema behavior of treating `Record<never>` as setting `additionalProperties: { not: {} }`
+- [#6130](https://github.com/microsoft/typespec/pull/6130) updates openapi3 to respect `@headers` `explode` option and use value syntax
+- [#6157](https://github.com/microsoft/typespec/pull/6157) Shared operations operationId can now be set if they all share the same value provided by `@operationId`
+- [#6006](https://github.com/microsoft/typespec/pull/6006) Expose core library types in API surface.
+
+### Bug Fixes
+
+- [#5901](https://github.com/microsoft/typespec/pull/5901) Fix: `@typespec/openapi3/invalid-component-fixed-field-key` show on incorrect target
+
+
+## 0.65.0
+
+### Bug Fixes
+
+- [#5893](https://github.com/microsoft/typespec/pull/5893) Updates tsp-openapi3 to support $ref in requestBodies
+
+### Bump dependencies
+
+- [#5690](https://github.com/microsoft/typespec/pull/5690) Upgrade dependencies
+
+### Features
+
+- [#5831](https://github.com/microsoft/typespec/pull/5831) Updates tsp-openapi3 operation response generation to inline expressions and pare down fields with default values. Also adds support for Open API headers and responses $refs.
+- [#4931](https://github.com/microsoft/typespec/pull/4931) Migrate versioning implementation to use mutator approach.
+
+
+## 0.64.0
+
+### Bug Fixes
+
+- [234eaeb](https://github.com/microsoft/typespec/commit/234eaeb223b85689f73ac3971e09f26c985f6c87) Allow void to be the response body type when other fields are present in the model. Previously, using `void` as a response body type would fail compilation if the model contained other fields (like `statusCode`).
+- [#5456](https://github.com/microsoft/typespec/pull/5456) Fix: OpenAPI YAML converts strings to boolean
+
+### Features
+
+- [#5372](https://github.com/microsoft/typespec/pull/5372) Adds support for @typespec/json-schema decorators with Open API 3.0 and 3.1 emitters.
+- [#5372](https://github.com/microsoft/typespec/pull/5372) Adds support for emitting Open API 3.1 models using the `openapi-versions` emitter configuration option.
+Open API 3.0 is emitted by default.
+
+
+## 0.63.0
+
+### Bug Fixes
+
+- [#5006](https://github.com/microsoft/typespec/pull/5006) Illegal characters in component keys
+- [#5274](https://github.com/microsoft/typespec/pull/5274) Added missing peer dependency "openapi-types"
+
+### Features
+
+- [#5029](https://github.com/microsoft/typespec/pull/5029) Add support for `#deprecated` for OpenAPI3Parameter
+
+
+## 0.62.0
+
+### Bug Fixes
+
+- [#4663](https://github.com/microsoft/typespec/pull/4663) Discriminator properties are marked as required regardless if they are in TypeSpec to match OpenAPI3 spec.
+- [#4934](https://github.com/microsoft/typespec/pull/4934) tsp-openapi3 - fixes typespec generation for empty schema
+- [#4727](https://github.com/microsoft/typespec/pull/4727) Nullable enum use `allOf` instead of `oneOf`
+- [#4708](https://github.com/microsoft/typespec/pull/4708) Updates tsp-openapi3 to include path-level parameters in generated typespec operations.
+- [#4873](https://github.com/microsoft/typespec/pull/4873) Updates tsp-openapi3 query decorator generation to use the value arguments.
+- [#4672](https://github.com/microsoft/typespec/pull/4672) OpenAPI3 type property should always be set when nullable property is present.
+
+### Bump dependencies
+
+- [#4679](https://github.com/microsoft/typespec/pull/4679) Upgrade dependencies - October 2024
+
+### Features
+
+- [#4761](https://github.com/microsoft/typespec/pull/4761) Add `@cookie` decorator to specify cookie parameters
+- [#4214](https://github.com/microsoft/typespec/pull/4214) Add XML support using `@typespec/xml` library
+- [#4834](https://github.com/microsoft/typespec/pull/4834) Add support for `@tagMetadata` decorator
+- [#4906](https://github.com/microsoft/typespec/pull/4906) Updates tsp-openapi3 to support generating `@summary` decorators for models and operations from schema title and path item summary fields.
+
+
+## 0.61.0
+
+### Bump dependencies
+
+- [#4424](https://github.com/microsoft/typespec/pull/4424) Bump dependencies
+
+### Features
+
+- [#4423](https://github.com/microsoft/typespec/pull/4423) Added support to use Scalar and Object as default types
+
+
 ## 0.60.0
 
 ### Bug Fixes

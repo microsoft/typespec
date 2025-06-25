@@ -7,18 +7,24 @@
 # --------------------------------------------------------------------------
 import sys
 
-if not sys.version_info >= (3, 8, 0):
-    raise Exception("Autorest for Python extension requires Python 3.8 at least")
+if not sys.version_info >= (3, 9, 0):
+    raise Warning(
+        "Autorest for Python extension requires Python 3.9 at least. We will run your code with Pyodide since your Python version isn't adequate."
+    )
 
 try:
     import pip
-except ImportError:
-    raise Exception("Your Python installation doesn't have pip available")
+except (ImportError, ModuleNotFoundError):
+    raise Warning(
+        "Your Python installation doesn't have pip available. We will run your code with Pyodide since your Python version isn't adequate."
+    )
 
 try:
     import venv
-except ImportError:
-    raise Exception("Your Python installation doesn't have venv available")
+except (ImportError, ModuleNotFoundError):
+    raise Warning(
+        "Your Python installation doesn't have venv available. We will run your code with Pyodide since your Python version isn't adequate."
+    )
 
 
 # Now we have pip and Py >= 3.8, go to work
@@ -41,11 +47,7 @@ def main():
         venv_context = env_builder.context
 
         python_run(venv_context, "pip", ["install", "-U", "pip"])
-        python_run(
-            venv_context,
-            "pip",
-            ["install", "-r", f"{_ROOT_DIR}/generator/requirements.txt"],
-        )
+        python_run(venv_context, "pip", ["install", "-U", "black"])
         python_run(venv_context, "pip", ["install", "-e", f"{_ROOT_DIR}/generator"])
 
 

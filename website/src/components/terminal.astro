@@ -1,0 +1,25 @@
+---
+import Window from "./window.astro";
+
+const { class: cls, ...rest } = Astro.props;
+---
+
+<style>
+  .terminal-code {
+    background-color: var(--window-color);
+    margin: 0;
+    height: 100%;
+    padding: 1rem;
+  }
+
+  :global([data-theme="light"]) .terminal {
+    --window-color: var(--colorNeutralBackground2);
+  }
+  :global([data-theme="dark"]) .terminal {
+    --window-color: var(--colorNeutralBackground4);
+  }
+</style>
+
+<Window class:list={["terminal", cls]} {...rest}>
+  <pre class="terminal-code"><slot /></pre>
+</Window>

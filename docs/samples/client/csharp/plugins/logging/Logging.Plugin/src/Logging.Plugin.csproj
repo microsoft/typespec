@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <!--Ensure all dependencies are copied to the output directory so that they can be packaged up for npm.-->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.TypeSpec.Generator.ClientModel" Version="1.0.0-alpha.20250523.2" />
+  </ItemGroup>
+
+  <!-- Copy output to package dist path  -->
+  <Target Name="CopyForNpmPackage" AfterTargets="Build">
+    <Message Text="Copying output to dist path" Importance="high" />
+    <ItemGroup>
+      <SourceDir Include="$(OutputPath)**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(SourceDir)" DestinationFolder="$(MSBuildThisFileDirectory)..\..\dist\%(RecursiveDir)" />
+  </Target>
+</Project>

@@ -9,19 +9,17 @@ using Azure.Core;
 using Azure.ClientGenerator.Core;
 using TypeSpec.Versioning;
 
-@service({
-  title: "Patch",
-})
+@service(#{ title: "Patch" })
 @useDependency(Azure.Core.Versions.v1_0_Preview_2)
-namespace Cadl.Patch;
+namespace TspTest.Patch;
 
 @resource("resources")
 model Resource {
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   id: string;
 
   @key
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   name: string;
 
   description?: string;
@@ -46,11 +44,11 @@ model InnerModel {
 @discriminator("kind")
 @resource("resources")
 model Fish {
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   id: string;
 
   @key
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   name: string;
 
   age: int32;

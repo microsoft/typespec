@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 // @ts-check
 import { existsSync, readdirSync, rmSync, writeFileSync } from "fs";
+import { readdir } from "fs/promises";
 import { join } from "path";
 import { repoRoot } from "../eng/common/scripts/helpers.js";
 import { runOrExit } from "../packages/internal-build-utils/dist/src/index.js";
@@ -14,7 +15,7 @@ async function main() {
   const packages = await packPackages();
 
   console.log("Check packages exists");
-  await runOrExit("ls", [`${repoRoot}/temp/artifacts`]);
+  await listDirectory(join(repoRoot, "temp", "artifacts"));
 
   console.log("Check cli is working");
   await runTypeSpec(packages["@typespec/compiler"], ["--help"], { cwd: e2eTestDir });
@@ -24,6 +25,18 @@ async function main() {
   await testBasicCurrentTgz(packages);
 }
 await main();
+
+/**
+ * @param {string} dir
+ */
+async function listDirectory(dir) {
+  try {
+    (await readdir(dir)).map((name) => console.log(name));
+  } catch (e) {
+    console.error(e);
+    process.exit(1);
+  }
+}
 
 function printInfo() {
   console.log("-".repeat(100));
@@ -57,6 +70,7 @@ async function packPackages() {
     "@typespec/http": resolvePackage("typespec-http-"),
     "@typespec/rest": resolvePackage("typespec-rest-"),
     "@typespec/versioning": resolvePackage("typespec-versioning-"),
+    "@typespec/asset-emitter": resolvePackage("typespec-asset-emitter-"),
   };
 }
 
@@ -72,7 +86,9 @@ async function testBasicLatest(packages) {
   console.log("Cleared basic-latest output");
 
   console.log("Installing basic-latest dependencies");
-  await runTypeSpec(packages["@typespec/compiler"], ["install"], { cwd: basicLatestDir });
+  await runTypeSpec(packages["@typespec/compiler"], ["install"], {
+    cwd: basicLatestDir,
+  });
   console.log("Installed basic-latest dependencies");
 
   console.log("Running tsp compile .");
@@ -105,6 +121,7 @@ async function testBasicCurrentTgz(packages) {
       "@typespec/openapi": packages["@typespec/openapi"],
       "@typespec/openapi3": packages["@typespec/openapi3"],
       "@typespec/versioning": packages["@typespec/versioning"],
+      "@typespec/asset-emitter": packages["@typespec/asset-emitter"],
     },
     private: true,
   };

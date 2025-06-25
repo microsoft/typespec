@@ -1,7 +1,7 @@
 import { deepStrictEqual, fail, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { getSourceLocation } from "../../src/core/diagnostics.js";
-import { Diagnostic, Model, StringLiteral, Type } from "../../src/core/types.js";
+import { Diagnostic, Model, Operation, StringLiteral, Type } from "../../src/core/types.js";
 import { isUnknownType } from "../../src/index.js";
 import {
   BasicTestRunner,
@@ -10,6 +10,7 @@ import {
   createTestRunner,
   expectDiagnosticEmpty,
   expectDiagnostics,
+  expectTypeEquals,
   extractCursor,
   extractSquiggles,
 } from "../../src/testing/index.js";
@@ -127,6 +128,22 @@ describe("compiler: templates", () => {
 
     const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("cache indeterminate types", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+        model Template<T> {t: T}
+        @test model Test {
+          a: Template<"a">;
+          b: Template<"a">;
+        }
+      `,
+    );
+
+    const { Test } = (await testHost.compile("main.tsp")) as { Test: Model };
+    expectTypeEquals(Test.properties.get("a")!.type, Test.properties.get("b")!.type);
   });
 
   it("allows default template parameters that are models", async () => {
@@ -296,7 +313,7 @@ describe("compiler: templates", () => {
       const [{ prop }, diagnostics] = await testHost.compileAndDiagnose("main.tsp");
       // Only one error
       expectDiagnostics(diagnostics, {
-        code: "unknown-identifier",
+        code: "invalid-ref",
         message: "Unknown identifier notExists",
       });
 
@@ -381,6 +398,62 @@ describe("compiler: templates", () => {
     const t = b.type.properties.get("t")!.type;
     strictEqual(t.kind, "String" as const);
     strictEqual(t.value, "bye");
+  });
+
+  it("can reference parent parameters in default", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+        @test interface A<T> {
+          op foo<R = T, P = R>(params: P): R;
+        }
+        alias B = A<string>;
+        @test op MyOp is B.foo;
+      `,
+    );
+    const { MyOp } = (await testHost.compile("main.tsp")) as { MyOp: Operation };
+    const params = MyOp.parameters.properties.get("params");
+    ok(params, "Expected params to be defined");
+    strictEqual(params.type.kind, "Scalar");
+    strictEqual(params.type.name, "string");
+    strictEqual(MyOp.returnType.kind, "Scalar");
+    strictEqual(MyOp.returnType.name, "string");
+  });
+
+  it("can use parent parameters default in default", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+        @test interface MyInterface<A, B = string> {
+          op foo<R = B, P = R>(params: P): R;
+        }
+        alias AliasedInterface = MyInterface<string>;
+        @test op MyOp is AliasedInterface.foo;
+      `,
+    );
+    const { MyOp } = (await testHost.compile("main.tsp")) as { MyOp: Operation };
+    const params = MyOp.parameters.properties.get("params");
+    ok(params, "Expected params to be defined");
+    strictEqual(params.type.kind, "Scalar");
+    strictEqual(params.type.name, "string");
+    strictEqual(MyOp.returnType.kind, "Scalar");
+    strictEqual(MyOp.returnType.name, "string");
+  });
+
+  it("can override default provided by parent parameters", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+        @test interface A<T> {
+          op foo<U = T>(): U;
+        }
+        alias B = A<string>;
+        @test op MyOp is B.foo<bytes>;
+      `,
+    );
+    const { MyOp } = (await testHost.compile("main.tsp")) as { MyOp: Operation };
+    strictEqual(MyOp.returnType.kind, "Scalar");
+    strictEqual(MyOp.returnType.name, "bytes");
   });
 
   it("emit diagnostics if referencing itself", async () => {
@@ -551,7 +624,7 @@ describe("compiler: templates", () => {
     });
   });
 
-  describe("doesn't run decorators on model properties when projecting template declarations", () => {
+  describe("doesn't run decorators when checking template declarations", () => {
     async function expectMarkDecoratorNotCalled(code: string) {
       testHost.addJsFile("mark.js", {
         $mark: () => fail("Should not have called decorator"),
@@ -570,33 +643,61 @@ describe("compiler: templates", () => {
 
     it("on model", async () => {
       await expectMarkDecoratorNotCalled(`
+        @mark(T)
+        model Foo<T> {}
+      `);
+    });
+
+    it("on interface", async () => {
+      await expectMarkDecoratorNotCalled(`
+        @mark(T)
+        interface Foo<T> {}
+      `);
+    });
+
+    it("on operation", async () => {
+      await expectMarkDecoratorNotCalled(`
+        @mark(T)
+        op foo<T>(): void;
+      `);
+    });
+
+    it("on union", async () => {
+      await expectMarkDecoratorNotCalled(`
+        @mark(T)
+        union Foo<T> {}
+      `);
+    });
+
+    describe("on model properties", () => {
+      it("under model", async () => {
+        await expectMarkDecoratorNotCalled(`
           model Foo<T> {
             @mark(T)
             prop: string;
           }
         `);
-    });
+      });
 
-    it("on model properties", async () => {
-      await expectMarkDecoratorNotCalled(`
-          model Foo<T> {
-            @mark(T)
-            prop: string;
-          }
-        `);
-    });
-
-    it("on model properties (on operation)", async () => {
-      await expectMarkDecoratorNotCalled(`
+      it("under operation returnType", async () => {
+        await expectMarkDecoratorNotCalled(`
           op foo<T>(): {
             @mark(T)
             prop: string;
           };
         `);
-    });
+      });
 
-    it("on model properties (nested)", async () => {
-      await expectMarkDecoratorNotCalled(`
+      it("in operation in interface", async () => {
+        await expectMarkDecoratorNotCalled(`
+          interface Test<T> {
+            foo(@mark(T) prop: string;): void;
+          }
+        `);
+      });
+
+      it("nested", async () => {
+        await expectMarkDecoratorNotCalled(`
           model Foo<T> {
             nested: {
               @mark(T)
@@ -604,6 +705,18 @@ describe("compiler: templates", () => {
             }
           }
         `);
+      });
+
+      it("nested in union", async () => {
+        await expectMarkDecoratorNotCalled(`
+          model Foo<T> {
+            nested: string | {
+              @mark(T)
+              prop: string;
+            }
+          }
+        `);
+      });
     });
   });
 
@@ -963,6 +1076,63 @@ describe("compiler: templates", () => {
       strictEqual(members[1][0], b.type);
       strictEqual(members[1][1].kind, "Scalar");
       strictEqual(members[1][1].name, "string");
+    });
+  });
+
+  describe("template declaration passing values", () => {
+    it("allows passing to a decorator expecting that value", async () => {
+      testHost.addJsFile("effect.js", {
+        $call: () => null,
+      });
+
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        import "./effect.js";
+        extern dec call(target, arg: valueof string);
+        @call(T) model Dec<T extends valueof string> {}
+        `,
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("allows passing to a decorator expecting a composed value", async () => {
+      testHost.addJsFile("effect.js", {
+        $call: () => null,
+      });
+
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        import "./effect.js";
+        extern dec call(target, arg: valueof unknown);
+        @call(#{foo: T}) model Dec<T extends valueof string> {}
+        `,
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("validate incompatible composed values", async () => {
+      testHost.addJsFile("effect.js", {
+        $call: () => null,
+      });
+
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        import "./effect.js";
+        extern dec call(target, arg: valueof {foo: int32});
+        @call(#{foo: T}) model Dec<T extends valueof string> {}
+        `,
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "invalid-argument",
+        message:
+          "Argument of type '{ foo: string }' is not assignable to parameter of type '{ foo: int32 }'",
+      });
     });
   });
 });

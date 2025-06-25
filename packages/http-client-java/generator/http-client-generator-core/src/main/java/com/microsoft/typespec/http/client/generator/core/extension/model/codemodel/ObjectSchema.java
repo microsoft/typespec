@@ -3,10 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +21,6 @@ public class ObjectSchema extends ComplexSchema {
     private boolean flattenedSchema;
     // internal use, not from modelerfour
     private boolean stronglyTypedHeader;
-    private String crossLanguageDefinitionId;
 
     /**
      * Creates a new instance of the ObjectSchema class.
@@ -193,74 +188,5 @@ public class ObjectSchema extends ComplexSchema {
      */
     public void setStronglyTypedHeader(boolean stronglyTypedHeader) {
         this.stronglyTypedHeader = stronglyTypedHeader;
-    }
-
-    /**
-     * Gets the cross-language definition ID for this object.
-     *
-     * @return The cross-language definition ID for this object.
-     */
-    public String getCrossLanguageDefinitionId() {
-        return crossLanguageDefinitionId;
-    }
-
-    /**
-     * Sets the cross-language definition ID for this object.
-     *
-     * @param crossLanguageDefinitionId The cross-language definition ID for this object.
-     */
-    public void setCrossLanguageDefinitionId(String crossLanguageDefinitionId) {
-        this.crossLanguageDefinitionId = crossLanguageDefinitionId;
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return super.writeParentProperties(jsonWriter.writeStartObject()).writeJsonField("discriminator", discriminator)
-            .writeArrayField("properties", properties, JsonWriter::writeJson)
-            .writeDoubleField("maxProperties", maxProperties)
-            .writeDoubleField("minProperties", minProperties)
-            .writeJsonField("parents", parents)
-            .writeJsonField("children", children)
-            .writeStringField("discriminatorValue", discriminatorValue)
-            .writeEndObject();
-    }
-
-    /**
-     * Deserializes an ObjectSchema instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return An ObjectSchema instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static ObjectSchema fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, ObjectSchema::new, (schema, fieldName, reader) -> {
-            if (schema.tryConsumeParentProperties(schema, fieldName, reader)) {
-                return;
-            }
-
-            if ("discriminator".equals(fieldName)) {
-                schema.discriminator = Discriminator.fromJson(reader);
-            } else if ("properties".equals(fieldName)) {
-                schema.properties = reader.readArray(Property::fromJson);
-            } else if ("maxProperties".equals(fieldName)) {
-                schema.maxProperties = reader.getDouble();
-            } else if ("minProperties".equals(fieldName)) {
-                schema.minProperties = reader.getDouble();
-            } else if ("parents".equals(fieldName)) {
-                schema.parents = Relations.fromJson(reader);
-            } else if ("children".equals(fieldName)) {
-                schema.children = Relations.fromJson(reader);
-            } else if ("discriminatorValue".equals(fieldName)) {
-                schema.discriminatorValue = reader.getString();
-            } else if ("flattenedSchema".equals(fieldName)) {
-                schema.flattenedSchema = reader.getBoolean();
-            } else if ("stronglyTypedHeader".equals(fieldName)) {
-                schema.stronglyTypedHeader = reader.getBoolean();
-            } else if ("crossLanguageDefinitionId".equals(fieldName)) {
-                schema.crossLanguageDefinitionId = reader.getString();
-            } else {
-                reader.skipChildren();
-            }
-        });
     }
 }

@@ -3,11 +3,13 @@
 
 package com.microsoft.typespec.http.client.generator.core.preprocessor.tranformer;
 
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.AndSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.BinarySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ChoiceSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConvenienceApi;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.DictionarySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Language;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Languages;
@@ -39,7 +41,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -53,7 +54,6 @@ public class Transformer {
             == JavaSettings.ClientFlattenAnnotationTarget.NONE) {
             markFlattenedSchemas(codeModel);
         }
-        transformOperationGroups(codeModel.getOperationGroups(), codeModel);
         if (codeModel.getGlobalParameters() != null) {
             for (Parameter parameter : codeModel.getGlobalParameters()) {
                 if (parameter.getLanguage().getJava() == null) {
@@ -62,8 +62,10 @@ public class Transformer {
             }
         }
         // multi-clients for TypeSpec
-        if (codeModel.getClients() != null) {
+        if (!CoreUtils.isNullOrEmpty(codeModel.getClients())) {
             transformClients(codeModel.getClients());
+        } else {
+            transformOperationGroups(codeModel.getOperationGroups(), codeModel);
         }
         return codeModel;
     }
@@ -78,9 +80,13 @@ public class Transformer {
                 group.getUsage().add(SchemaContext.OPTIONS_GROUP);
             });
         }
-        schemas.getObjects().addAll(schemas.getGroups());
-        schemas.setGroups(new ArrayList<>());
 
+        for (ObjectSchema groupSchema : schemas.getGroups()) {
+            renameType(groupSchema);
+            for (Property property : groupSchema.getProperties()) {
+                renameVariable(property);
+            }
+        }
         for (ObjectSchema objectSchema : schemas.getObjects()) {
             renameType(objectSchema);
             for (Property property : objectSchema.getProperties()) {
@@ -113,6 +119,9 @@ public class Transformer {
                 }
             }
         }
+
+        schemas.getObjects().addAll(schemas.getGroups());
+        schemas.setGroups(new ArrayList<>());
     }
 
     private void transformClients(List<Client> clients) {
@@ -124,26 +133,7 @@ public class Transformer {
             }
 
             if (client.getOperationGroups() != null) {
-                for (OperationGroup operationGroup : client.getOperationGroups()) {
-                    List<Operation> pagingOperations = new ArrayList<>();
-
-                    operationGroup.setCodeModel(client);
-                    renameMethodGroup(operationGroup);
-                    for (Operation operation : operationGroup.getOperations()) {
-                        operation.setOperationGroup(operationGroup);
-
-                        if (operation.getExtensions() != null && operation.getExtensions().getXmsPageable() != null) {
-                            pagingOperations.add(operation);
-                        }
-                    }
-
-                    // paging
-                    for (Operation operation : pagingOperations) {
-                        if (nonNullNextLink(operation)) {
-                            addPagingNextOperation(client, operation.getOperationGroup(), operation);
-                        }
-                    }
-                }
+                transformOperationGroups(client.getOperationGroups(), client);
             }
 
             if (client.getGlobalParameters() != null) {
@@ -156,7 +146,7 @@ public class Transformer {
         }
     }
 
-    private void transformOperationGroups(List<OperationGroup> operationGroups, CodeModel codeModel) {
+    private void transformOperationGroups(List<OperationGroup> operationGroups, Client codeModel) {
         List<Operation> pagingOperations = new ArrayList<>();
         for (OperationGroup operationGroup : operationGroups) {
             operationGroup.setCodeModel(codeModel);
@@ -206,22 +196,16 @@ public class Transformer {
                                 }
                             }
                         }
-                        // convert contentType to header param
-                        Optional<Parameter> contentType = request.getParameters()
-                            .stream()
-                            .filter(p -> (p.getProtocol() == null || p.getProtocol().getHttp() == null)
-                                && "contentType".equals(p.getLanguage().getDefault().getName()))
-                            .findFirst();
-                        if (contentType.isPresent()) {
-                            Protocols protocols = new Protocols();
-                            protocols.setHttp(new Protocol());
-                            protocols.getHttp().setIn(RequestParameterLocation.HEADER);
-                            contentType.get().setProtocol(protocols);
-                            contentType.get().getLanguage().getDefault().setSerializedName("Content-Type");
-                        }
                     }
                     renameOdataParameterNames(request);
                     deduplicateParameterNames(request);
+                }
+
+                if (operation.getConvenienceApi() != null
+                    && !CoreUtils.isNullOrEmpty(operation.getConvenienceApi().getRequests())) {
+                    for (Request request : operation.getConvenienceApi().getRequests()) {
+                        renameOdataParameterNames(request);
+                    }
                 }
 
                 if (operation.getExtensions() != null && operation.getExtensions().getXmsPageable() != null) {
@@ -430,6 +414,44 @@ public class Transformer {
                 nextOperation.setSummary(operation.getSummary());
                 nextOperation.setUid(operation.getUid());
 
+                if (operation.getConvenienceApi() != null && operation.getConvenienceApi().getRequests() != null) {
+
+                    Request convenienceRequest = new Request();
+                    convenienceRequest.setProtocol(new Protocols());
+                    convenienceRequest.getProtocol().setHttp(new Protocol());
+                    convenienceRequest.getProtocol().getHttp().setPath("{nextLink}");
+                    convenienceRequest.getProtocol()
+                        .getHttp()
+                        .setUri(operation.getConvenienceApi().getRequests().get(0).getProtocol().getHttp().getUri());
+                    convenienceRequest.getProtocol().getHttp().setMethod("get");
+                    convenienceRequest
+                        .setExtensions(operation.getConvenienceApi().getRequests().get(0).getExtensions());
+                    convenienceRequest.setLanguage(operation.getConvenienceApi().getLanguage());
+
+                    ConvenienceApi convenienceApi = new ConvenienceApi();
+                    convenienceApi.setRequests(List.of(convenienceRequest));
+                    nextOperation.setConvenienceApi(convenienceApi);
+
+                    nextOperation.getConvenienceApi().setLanguage(new Languages());
+                    nextOperation.getConvenienceApi().getLanguage().setJava(new Language());
+                    nextOperation.getConvenienceApi().getLanguage().getJava().setName(operationName);
+                    nextOperation.getConvenienceApi()
+                        .getLanguage()
+                        .getJava()
+                        .setDescription("Get the next page of items");
+
+                    List<Parameter> convenienceRequestParams = new ArrayList<>();
+                    convenienceRequestParams.add(nextLink);
+                    nextOperation.getConvenienceApi().getRequests().get(0).setParameters(convenienceRequestParams);
+
+                    List<Parameter> convenienceSignatureParams = new ArrayList<>();
+                    convenienceSignatureParams.add(nextLink);
+                    nextOperation.getConvenienceApi()
+                        .getRequests()
+                        .get(0)
+                        .setSignatureParameters(convenienceSignatureParams);
+                }
+
                 Operation nextOperationLocal = nextOperation;
 
                 if (operation.getExtensions().getXmsPageable().getOperationName() == null) {
@@ -462,9 +484,55 @@ public class Transformer {
                         .forEach(param -> {
                             nextOperationLocal.getRequests().get(0).getSignatureParameters().add(param);
                         });
+
+                    if (operation.getConvenienceApi() != null && operation.getConvenienceApi().getRequests() != null) {
+                        operation.getConvenienceApi()
+                            .getRequests()
+                            .stream()
+                            .flatMap(r -> r.getParameters().stream())
+                            .filter(parameter -> {
+                                return parameter.getProtocol() == null
+                                    || parameter.getProtocol().getHttp() == null
+                                    || (parameter.getProtocol().getHttp().getIn() != null
+                                        && (parameter.getProtocol()
+                                            .getHttp()
+                                            .getIn()
+                                            .equals(RequestParameterLocation.HEADER)
+                                            || parameter.getProtocol()
+                                                .getHttp()
+                                                .getIn()
+                                                .equals(RequestParameterLocation.URI)));
+                            })
+                            .forEach(param -> {
+                                nextOperationLocal.getConvenienceApi().getRequests().get(0).getParameters().add(param);
+                            });
+
+                        operation.getConvenienceApi()
+                            .getRequests()
+                            .stream()
+                            .flatMap(r -> r.getSignatureParameters().stream())
+                            .filter(parameter -> {
+                                return parameter.getProtocol() == null
+                                    || parameter.getProtocol().getHttp() == null
+                                    || (parameter.getProtocol().getHttp().getIn() != null
+                                        && (parameter.getProtocol()
+                                            .getHttp()
+                                            .getIn()
+                                            .equals(RequestParameterLocation.HEADER)
+                                            || parameter.getProtocol()
+                                                .getHttp()
+                                                .getIn()
+                                                .equals(RequestParameterLocation.URI)));
+                            })
+                            .forEach(param -> {
+                                nextOperationLocal.getConvenienceApi()
+                                    .getRequests()
+                                    .get(0)
+                                    .getSignatureParameters()
+                                    .add(param);
+                            });
+                    }
                 }
-                operation.getExtensions().getXmsPageable().setNextOperation(nextOperation);
-                nextOperation.getExtensions().getXmsPageable().setNextOperation(nextOperation);
                 operationNextPageOperationMap.put(operationSignature, nextOperation);
             } else {
                 // In case the same operation instance is processed more than once(both in "transformOperationGroups"
@@ -472,6 +540,9 @@ public class Transformer {
                 // we share the same next-page operation for the same operation instance.
                 nextOperation = operationNextPageOperationMap.get(operationSignature);
             }
+            operation.getExtensions().getXmsPageable().setNextOperation(nextOperation);
+            nextOperation.getExtensions().getXmsPageable().setNextOperation(nextOperation);
+
             operationGroup.getOperations().add(nextOperation);
         } else {
             Operation nextOperation = operationGroup.getOperations()
@@ -619,9 +690,7 @@ public class Transformer {
 
     private static void renameOdataParameterNames(Request request) {
         List<Parameter> parameters = request.getParameters();
-        ListIterator<Parameter> iter = parameters.listIterator();
-        while (iter.hasNext()) {
-            Parameter parameter = iter.next();
+        for (Parameter parameter : parameters) {
             if (parameter.getProtocol() != null
                 && parameter.getProtocol().getHttp() != null
                 && (parameter.getProtocol().getHttp().getIn() == RequestParameterLocation.QUERY

@@ -27,16 +27,18 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
         return INSTANCE;
     }
 
-    public final void write(Pom pom, XmlFile xmlFile) {
+    public void write(Pom pom, XmlFile xmlFile) {
         JavaSettings settings = JavaSettings.getInstance();
-        boolean branded = settings.isBranded();
+        boolean branded = settings.isAzureV1();
 
         // copyright
-        xmlFile.blockComment(xmlLineComment -> {
-            xmlLineComment.line(Arrays.stream(settings.getFileHeaderText().split(System.lineSeparator()))
-                .map(line -> " ~ " + line)
-                .collect(Collectors.joining(System.lineSeparator())));
-        });
+        if (!CoreUtils.isNullOrEmpty(settings.getFileHeaderText())) {
+            xmlFile.blockComment(xmlLineComment -> {
+                xmlLineComment.line(Arrays.stream(settings.getFileHeaderText().split(System.lineSeparator()))
+                    .map(line -> " ~ " + line)
+                    .collect(Collectors.joining(System.lineSeparator())));
+            });
+        }
 
         Map<String, String> projectAnnotations = new HashMap<>();
         projectAnnotations.put("xmlns", "http://maven.apache.org/POM/4.0.0");
@@ -78,17 +80,17 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
 
             projectBlock.line();
 
-            projectBlock.block("licenses", licensesBlock -> {
-                licensesBlock.block("license", licenseBlock -> {
-                    licenseBlock.tag("name", "The MIT License (MIT)");
-                    licenseBlock.tag("url", "http://opensource.org/licenses/MIT");
-                    licenseBlock.tag("distribution", "repo");
-                });
-            });
-
-            projectBlock.line();
-
             if (branded) {
+                projectBlock.block("licenses", licensesBlock -> {
+                    licensesBlock.block("license", licenseBlock -> {
+                        licenseBlock.tag("name", "The MIT License (MIT)");
+                        licenseBlock.tag("url", "http://opensource.org/licenses/MIT");
+                        licenseBlock.tag("distribution", "repo");
+                    });
+                });
+
+                projectBlock.line();
+
                 projectBlock.block("scm", scmBlock -> {
                     scmBlock.tag("url", "https://github.com/Azure/azure-sdk-for-java");
                     scmBlock.tag("connection", "scm:git:git@github.com:Azure/azure-sdk-for-java.git");
@@ -102,6 +104,18 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
                         developerBlock.tag("name", "Microsoft");
                     });
                 });
+            } else {
+                if (pom.getLicenseName() != null) {
+                    projectBlock.block("licenses", licensesBlock -> {
+                        licensesBlock.block("license", licenseBlock -> {
+                            licenseBlock.tag("name", pom.getLicenseName());
+                            if (pom.getLicenseUrl() != null) {
+                                licenseBlock.tag("url", pom.getLicenseUrl());
+                            }
+                            licenseBlock.tag("distribution", "repo");
+                        });
+                    });
+                }
             }
 
             if (!branded && pom.getRepositories() != null && !pom.getRepositories().isEmpty()) {
@@ -119,7 +133,6 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
                 propertiesBlock.tag("project.build.sourceEncoding", "UTF-8");
                 writeJacoco(propertiesBlock);
                 writeRevapi(propertiesBlock, pom);
-                writeSpotless(propertiesBlock);
             });
 
             if (!CoreUtils.isNullOrEmpty(pom.getDependencyIdentifiers())) {
@@ -181,16 +194,6 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
     }
 
     /**
-     * Extension for writing Spotless configuration.
-     *
-     * @param propertiesBlock The {@code <properties></properties>} XML block within the {@code pom.xml}.
-     */
-    protected void writeSpotless(XmlBlock propertiesBlock) {
-        // For now all generation will enable Spotless running.
-        propertiesBlock.tag("spotless.skip", "false");
-    }
-
-    /**
      * Extension for writing a "build" block, with array of "plugin" within.
      *
      * @param projectBlock the "project" xml block.
@@ -216,9 +219,9 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
         pluginsBlock.block("plugin", pluginBlock -> {
             pluginBlock.tag("groupId", "org.apache.maven.plugins");
             pluginBlock.tag("artifactId", "maven-compiler-plugin");
-            pluginBlock.tag("version", "3.10.1");
+            pluginBlock.tag("version", "3.13.0");
             pluginBlock.block("configuration", configurationBlock -> {
-                configurationBlock.tag("release", "11");
+                configurationBlock.tag("release", JavaSettings.getInstance().isAzureV1() ? "11" : "17");
             });
         });
 
@@ -226,7 +229,7 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
         pluginsBlock.block("plugin", pluginBlock -> {
             pluginBlock.tag("groupId", "org.apache.maven.plugins");
             pluginBlock.tag("artifactId", "maven-source-plugin");
-            pluginBlock.tag("version", "3.3.0");
+            pluginBlock.tag("version", "3.3.1");
             pluginBlock.block("executions", executionsBlock -> {
                 executionsBlock.block("execution", executionBlock -> {
                     executionBlock.tag("id", "attach-sources");

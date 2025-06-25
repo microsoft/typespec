@@ -5,12 +5,8 @@ import "@typespec/openapi3";
 using Http;
 using OpenAPI;
 
-@service({
-  title: "Sample API",
-})
-@info({
-  version: "1.0.0",
-})
+@service(#{ title: "Sample API" })
+@info(#{ version: "1.0.0" })
 namespace SampleAPI;
 
 scalar `Foo-Bar` extends string;
@@ -20,22 +16,28 @@ model `Escaped-Model` {
   `escaped-property`?: string;
 }
 
-/**
- * Success
- */
-@defaultResponse
-model `get-thingDefaultResponse` {}
-
 @route("/{escaped-property}") @get op `get-thing`(
-  @query `weird@param`?: `Foo-Bar`,
+  @query(#{ explode: true }) `weird@param`?: `Foo-Bar`,
   ...Parameters.`Escaped-Model`.`escaped-property`,
-  @bodyRoot body: `Escaped-Model`,
-): `get-thingDefaultResponse`;
+  @body body: `Escaped-Model`,
+): GeneratedHelpers.DefaultResponse<Description = "Success">;
 
 namespace Parameters {
   namespace `Escaped-Model` {
     model `escaped-property` {
       @path `escaped-property`: string;
     }
+  }
+}
+namespace GeneratedHelpers {
+  @doc(Description)
+  @error
+  model DefaultResponse<
+    Description extends valueof string = "",
+    Body = void,
+    Headers extends {} = {}
+  > {
+    @body body: Body;
+    ...Headers;
   }
 }

@@ -3,6 +3,8 @@
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
     "streetsidesoftware.code-spell-checker",
-    "vitest.explorer"
+    "astro-build.astro-vscode",
+    "vitest.explorer",
+    "typespec.typespec-vscode"
   ]
 }

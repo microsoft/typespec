@@ -3,6 +3,9 @@
  */
 public static final class Configurable {
     private static final ClientLogger LOGGER = new ClientLogger(Configurable.class);
+    private static final String SDK_VERSION = "version";
+    private static final Map<String, String> PROPERTIES
+        = CoreUtils.getProperties("{{artifact-id}}.properties");
 
     private HttpClient httpClient;
     private HttpLogOptions httpLogOptions;
@@ -108,12 +111,14 @@ public static final class Configurable {
         Objects.requireNonNull(credential, "'credential' cannot be null.");
         Objects.requireNonNull(profile, "'profile' cannot be null.");
 
+        String clientVersion = PROPERTIES.getOrDefault(SDK_VERSION, "UnknownVersion");
+
         StringBuilder userAgentBuilder = new StringBuilder();
         userAgentBuilder.append("azsdk-java")
             .append("-")
             .append("{{package-name}}")
             .append("/")
-            .append("{{artifact-version}}");
+            .append(clientVersion);
         if (!Configuration.getGlobalConfiguration().get("AZURE_TELEMETRY_DISABLED", false)) {
             userAgentBuilder.append(" (")
                 .append(Configuration.getGlobalConfiguration().get("java.version"))
@@ -147,7 +152,7 @@ public static final class Configurable {
         HttpPolicyProviders.addBeforeRetryPolicies(policies);
         policies.add(retryPolicy);
         policies.add(new AddDatePolicy());
-        policies.add(new ArmChallengeAuthenticationPolicy(credential, scopes.toArray(new String[0])));
+        policies.add(new BearerTokenAuthenticationPolicy(credential, scopes.toArray(new String[0])));
         policies.addAll(
             this.policies.stream()
                 .filter(p -> p.getPipelinePosition() == HttpPipelinePosition.PER_RETRY)

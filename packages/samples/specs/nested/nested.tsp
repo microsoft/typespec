@@ -1,10 +1,8 @@
 import "@typespec/rest";
 
-using TypeSpec.Http;
+using Http;
 
-@service({
-  title: "Nested sample",
-})
+@service(#{ title: "Nested sample" })
 namespace Root {
   @route("/sub/a")
   namespace SubA {
