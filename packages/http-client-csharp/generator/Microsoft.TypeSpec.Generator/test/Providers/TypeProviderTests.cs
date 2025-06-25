@@ -115,5 +115,21 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("OriginalName", typeProvider.Name);
             Assert.AreEqual(1, typeProvider.Methods.Count);
         }
+
+        [Test]
+        public void CanUpdateWithReset()
+        {
+            var typeProvider = new TestTypeProvider(name: "OriginalName",
+                methods: [new MethodProvider(
+                    new MethodSignature("TestMethod", $"", MethodSignatureModifiers.Public, null, $"", []),
+                    Snippet.Throw(Snippet.Null), new TestTypeProvider())]);
+            typeProvider.Update(methods: []);
+            Assert.AreEqual(0, typeProvider.Methods.Count);
+
+            typeProvider.Update(name: "UpdatedName", reset: true);
+            Assert.AreEqual("UpdatedName", typeProvider.Name);
+            // The BuildX methods should be called again, which will return the original state.
+            Assert.AreEqual(1, typeProvider.Methods.Count);
+        }
     }
 }
