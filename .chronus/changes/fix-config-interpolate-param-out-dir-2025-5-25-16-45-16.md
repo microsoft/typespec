@@ -5,4 +5,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Config interpolation is more flexible in interpolating variables in any order as long as no circular reference occur 
+Config interpolation is more flexible in interpolating variables in any order as long as no circular reference occur. For example using `{output-dir}` in parameters.
