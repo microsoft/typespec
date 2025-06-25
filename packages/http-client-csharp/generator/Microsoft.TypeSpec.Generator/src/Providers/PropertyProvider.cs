@@ -14,6 +14,9 @@ using Microsoft.TypeSpec.Generator.Utilities;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
+    /// <summary>
+    /// Provides a model for describing and generating C# properties from TypeSpec input models.
+    /// </summary>
     [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
     public class PropertyProvider
     {
@@ -23,17 +26,64 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private readonly SerializationFormat _serializationFormat;
         private FormattableString? _customDescription;
 
+        /// <summary>
+        /// Gets the description for this property.
+        /// </summary>
         public FormattableString? Description { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the method signature modifiers for this property.
+        /// </summary>
         public MethodSignatureModifiers Modifiers { get; internal set; }
+
+        /// <summary>
+        /// Gets or sets the CSharpType of this property.
+        /// </summary>
         public CSharpType Type { get; internal set; }
+
+        /// <summary>
+        /// Gets or sets the name of this property.
+        /// </summary>
         public string Name { get; internal set; }
+
+        /// <summary>
+        /// Gets or sets the property body for this property.
+        /// </summary>
         public PropertyBody Body { get; internal set; }
+
+        /// <summary>
+        /// Gets the explicit interface type for this property, if any.
+        /// </summary>
         public CSharpType? ExplicitInterface { get; private set; }
+
+        /// <summary>
+        /// Gets the XML documentation provider for this property, if any.
+        /// </summary>
         public XmlDocProvider? XmlDocs { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the wire information for this property.
+        /// </summary>
         public PropertyWireInformation? WireInfo { get; internal set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this property is a discriminator.
+        /// </summary>
         public bool IsDiscriminator { get; internal set; }
+
+        /// <summary>
+        /// Gets a value indicating whether this property represents additional properties.
+        /// </summary>
         public bool IsAdditionalProperties { get; init; }
+
+        /// <summary>
+        /// Gets or sets the backing field for this property, if any.
+        /// </summary>
         public FieldProvider? BackingField { get; set; }
+
+        /// <summary>
+        /// Gets or sets the base property for this property, if any.
+        /// </summary>
         public PropertyProvider? BaseProperty { get; set; }
 
         /// <summary>
@@ -41,10 +91,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// </summary>
         public ParameterProvider AsParameter => _parameter.Value;
 
+        /// <summary>
+        /// Gets the enclosing type provider for this property.
+        /// </summary>
         public TypeProvider EnclosingType { get; private set; }
 
+        /// <summary>
+        /// Gets the original name of this property, if different from <see cref="Name"/>.
+        /// </summary>
         public string? OriginalName { get; internal init; }
 
+        /// <summary>
+        /// Gets the custom provider for this property, if any.
+        /// </summary>
         internal Lazy<NamedTypeSymbolProvider?>? CustomProvider { get; init; }
 
         // for mocking
@@ -54,6 +113,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
         }
 
+        /// <summary>
+        /// Attempts to create a <see cref="PropertyProvider"/> from the given input property and enclosing type.
+        /// </summary>
+        /// <param name="inputProperty">The input property.</param>
+        /// <param name="enclosingType">The enclosing type provider.</param>
+        /// <param name="property">The resulting property provider, or null if creation failed.</param>
+        /// <returns>True if creation succeeded; otherwise, false.</returns>
         internal static bool TryCreate(InputProperty inputProperty, TypeProvider enclosingType, [NotNullWhen(true)] out PropertyProvider? property)
         {
             var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputProperty.Type);
@@ -66,6 +132,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return true;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PropertyProvider"/> class from an input property and enclosing type.
+        /// </summary>
+        /// <param name="inputProperty">The input property.</param>
+        /// <param name="enclosingType">The enclosing type provider.</param>
         public PropertyProvider(InputProperty inputProperty, TypeProvider enclosingType)
         : this(
             inputProperty,
@@ -74,6 +145,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PropertyProvider"/> class from an input property, property type, and enclosing type.
+        /// </summary>
+        /// <param name="inputProperty">The input property.</param>
+        /// <param name="propertyType">The CSharpType of the property.</param>
+        /// <param name="enclosingType">The enclosing type provider.</param>
         private PropertyProvider(InputProperty inputProperty, CSharpType propertyType, TypeProvider enclosingType)
         {
             _inputProperty = inputProperty;
@@ -101,6 +178,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
             BuildDocs();
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PropertyProvider"/> class with explicit values.
+        /// </summary>
+        /// <param name="description">The property description.</param>
+        /// <param name="modifiers">The method signature modifiers.</param>
+        /// <param name="type">The CSharpType of the property.</param>
+        /// <param name="name">The property name.</param>
+        /// <param name="body">The property body.</param>
+        /// <param name="enclosingType">The enclosing type provider.</param>
+        /// <param name="explicitInterface">The explicit interface type, if any.</param>
+        /// <param name="wireInfo">The wire information, if any.</param>
         public PropertyProvider(
             FormattableString? description,
             MethodSignatureModifiers modifiers,
@@ -163,16 +251,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _parameter = new(() => new ParameterProvider(Name.ToVariableName(), description, Type, property: this));
         }
 
-        public VariableExpression AsVariableExpression => _variable ??= new(Type, Name.ToVariableName());
-
-        private static bool IsDiscriminatorProperty(InputProperty inputProperty)
-        {
-            return inputProperty is InputModelProperty mp && mp.IsDiscriminator;
-        }
-
         /// <summary>
         /// Returns true if the property has a setter.
         /// </summary>
+        /// <param name="type">The CSharpType of the property.</param>
+        /// <param name="inputProperty">The input property.</param>
+        /// <returns>True if the property has a setter; otherwise, false.</returns>
         protected virtual bool PropertyHasSetter(CSharpType type, InputProperty inputProperty)
         {
             if (IsDiscriminatorProperty(inputProperty))
@@ -245,9 +329,25 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private MemberExpression? _asMember;
 
+        /// <summary>
+        /// Implicitly converts a <see cref="PropertyProvider"/> to a <see cref="MemberExpression"/>.
+        /// </summary>
+        /// <param name="property">The property provider.</param>
         public static implicit operator MemberExpression(PropertyProvider property)
             => property._asMember ??= new MemberExpression(null, property.Name);
 
+        /// <summary>
+        /// Updates the property provider with new values for its properties.
+        /// </summary>
+        /// <param name="description">The new description.</param>
+        /// <param name="modifiers">The new method signature modifiers.</param>
+        /// <param name="type">The new CSharpType.</param>
+        /// <param name="name">The new property name.</param>
+        /// <param name="body">The new property body.</param>
+        /// <param name="enclosingType">The new enclosing type provider.</param>
+        /// <param name="explicitInterface">The new explicit interface type.</param>
+        /// <param name="wireInfo">The new wire information.</param>
+        /// <param name="xmlDocs">The new XML documentation provider.</param>
         public void Update(
             FormattableString? description = null,
             MethodSignatureModifiers? modifiers = null,
@@ -300,6 +400,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // rebuild the docs if they are not provided
                 BuildDocs();
             }
+        }
+
+        /// <summary>
+        /// Returns the variable expression for this property.
+        /// </summary>
+        public VariableExpression AsVariableExpression => _variable ??= new(Type, Name.ToVariableName());
+
+        /// <summary>
+        /// Returns the value expression for this property.
+        /// </summary>
+        public ValueExpression AsValueExpression => this;
+
+        /// <summary>
+        /// Returns true if the property is a discriminator property.
+        /// </summary>
+        /// <param name="inputProperty">The input property.</param>
+        /// <returns>True if the property is a discriminator; otherwise, false.</returns>
+        private static bool IsDiscriminatorProperty(InputProperty inputProperty)
+        {
+            return inputProperty is InputModelProperty mp && mp.IsDiscriminator;
         }
     }
 }
