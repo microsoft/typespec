@@ -402,6 +402,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
             string? @namespace = null,
             string? relativeFilePath = null)
         {
+            if (name != null)
+            {
+                // Reset the custom code view to reflect the new name
+                _customCodeView = new(BuildCustomCodeView(name));
+
+                // Reset the methods, constructors, properties, and fields in case they would be affected by the custom code view
+                _methods = null;
+                _constructors = null;
+                _properties = null;
+                _fields = null;
+                _serializationProviders = null;
+
+                // Give precedence to the custom code view name if it exists
+                Type.Update(_customCodeView.Value?.Name ?? name);
+            }
             if (methods != null)
             {
                 _methods = (methods as IReadOnlyList<MethodProvider>) ?? methods.ToList();
@@ -437,14 +452,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (relativeFilePath != null)
             {
                 _relativeFilePath = relativeFilePath;
-            }
-
-            if (name != null)
-            {
-                // Reset the custom code view to reflect the new name
-                _customCodeView = new(BuildCustomCodeView(name));
-                // Give precedence to the custom code view name if it exists
-                Type.Update(_customCodeView.Value?.Name ?? name);
             }
 
             if (@namespace != null)

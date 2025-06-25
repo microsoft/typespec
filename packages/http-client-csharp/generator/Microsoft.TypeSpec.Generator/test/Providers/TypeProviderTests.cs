@@ -115,5 +115,94 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("OriginalName", typeProvider.Name);
             Assert.AreEqual(1, typeProvider.Methods.Count);
         }
+
+        [Test]
+        public void UpdatingNameResetsFields()
+        {
+            var typeProvider = GetNameUpdateTestProvider();
+            typeProvider.Update(methods: [], fields: [], properties: [], constructors: [], nestedTypes: []);
+
+            Assert.AreEqual(0, typeProvider.Methods.Count);
+            Assert.AreEqual(0, typeProvider.Fields.Count);
+            Assert.AreEqual(0, typeProvider.Properties.Count);
+            Assert.AreEqual(0, typeProvider.Constructors.Count);
+            Assert.AreEqual(0, typeProvider.NestedTypes.Count);
+
+            typeProvider.Update(name: "UpdatedName");
+            Assert.AreEqual("UpdatedName", typeProvider.Name);
+
+            // the methods should be reset to the original state
+            Assert.AreEqual(1, typeProvider.Methods.Count);
+            Assert.AreEqual(1, typeProvider.Fields.Count);
+            Assert.AreEqual(1, typeProvider.Properties.Count);
+            Assert.AreEqual(1, typeProvider.Constructors.Count);
+        }
+
+        [Test]
+        public void CanUpdateNameAndNamespaceSimultaneously()
+        {
+            TestTypeProvider typeProvider = GetNameUpdateTestProvider();
+            typeProvider.Update(methods: [], fields: [], properties: [], constructors: [], nestedTypes: []);
+
+            Assert.AreEqual(0, typeProvider.Methods.Count);
+            Assert.AreEqual(0, typeProvider.Fields.Count);
+            Assert.AreEqual(0, typeProvider.Properties.Count);
+            Assert.AreEqual(0, typeProvider.Constructors.Count);
+            Assert.AreEqual(0, typeProvider.NestedTypes.Count);
+
+            typeProvider.Update(name: "UpdatedName", @namespace: "UpdatedNamespace");
+            Assert.AreEqual("UpdatedName", typeProvider.Name);
+
+            // The namespace change should still have been applied
+            Assert.AreEqual("UpdatedNamespace", typeProvider.Type.Namespace);
+
+            // the methods should be reset to the original state
+            Assert.AreEqual(1, typeProvider.Methods.Count);
+            Assert.AreEqual(1, typeProvider.Fields.Count);
+            Assert.AreEqual(1, typeProvider.Properties.Count);
+            Assert.AreEqual(1, typeProvider.Constructors.Count);
+        }
+
+        [Test]
+        public void CanUpdateNamespaceBeforeName()
+        {
+            TestTypeProvider typeProvider = GetNameUpdateTestProvider();
+            typeProvider.Update(methods: [], fields: [], properties: [], constructors: [], nestedTypes: []);
+
+            Assert.AreEqual(0, typeProvider.Methods.Count);
+            Assert.AreEqual(0, typeProvider.Fields.Count);
+            Assert.AreEqual(0, typeProvider.Properties.Count);
+            Assert.AreEqual(0, typeProvider.Constructors.Count);
+            Assert.AreEqual(0, typeProvider.NestedTypes.Count);
+
+            typeProvider.Update(@namespace: "UpdatedNamespace");
+
+            typeProvider.Update(name: "UpdatedName");
+            Assert.AreEqual("UpdatedName", typeProvider.Name);
+
+            // The namespace change should not have been reset by the name update
+            Assert.AreEqual("UpdatedNamespace", typeProvider.Type.Namespace);
+
+            // the methods should be reset to the original state
+            Assert.AreEqual(1, typeProvider.Methods.Count);
+            Assert.AreEqual(1, typeProvider.Fields.Count);
+            Assert.AreEqual(1, typeProvider.Properties.Count);
+            Assert.AreEqual(1, typeProvider.Constructors.Count);
+        }
+
+        private static TestTypeProvider GetNameUpdateTestProvider()
+        {
+            var typeProvider = new TestTypeProvider(name: "OriginalName",
+                methods: [new MethodProvider(
+                    new MethodSignature("TestMethod", $"", MethodSignatureModifiers.Public, null, $"", []),
+                    Snippet.Throw(Snippet.Null), new TestTypeProvider())],
+                fields: [new FieldProvider(FieldModifiers.Private, typeof(string), "field", new TestTypeProvider())],
+                properties: [new PropertyProvider($"Test Property", MethodSignatureModifiers.Public, typeof(string), "Property", new AutoPropertyBody(HasSetter: true), new TestTypeProvider())],
+                constructors: [new ConstructorProvider(
+                    new ConstructorSignature(typeof(TestTypeProvider), $"TestConstructor", MethodSignatureModifiers.Public, [], Initializer: null),
+                    Snippet.Throw(Snippet.Null), new TestTypeProvider(), new XmlDocProvider())]);
+            typeProvider.Update(methods: [], fields: [], properties: [], constructors: [], nestedTypes: []);
+            return typeProvider;
+        }
     }
 }
