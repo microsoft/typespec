@@ -99,10 +99,39 @@ describe("compiler: config interpolation", () => {
         two: "{three}/two",
       });
 
-      expectDiagnostics(diagnostics, {
-        code: "config-circular-variable",
-        message: `There is a circular reference to variable "three" in the cli configuration or arguments.`,
+      expectDiagnostics(diagnostics, [
+        {
+          code: "config-circular-variable",
+          message: `There is a circular reference to variable "three" in the cli configuration or arguments.`,
+        },
+        {
+          code: "config-circular-variable",
+          message: `There is a circular reference to variable "one" in the cli configuration or arguments.`,
+        },
+        {
+          code: "config-circular-variable",
+          message: `There is a circular reference to variable "two" in the cli configuration or arguments.`,
+        },
+      ]);
+    });
+    it("emit diagnostic if variable has circular references (nested)", () => {
+      const [_, diagnostics] = resolveValues({
+        one: "{nested.two}/three",
+        nested: {
+          two: "{one}/two",
+        },
       });
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "config-circular-variable",
+          message: `There is a circular reference to variable "one" in the cli configuration or arguments.`,
+        },
+        {
+          code: "config-circular-variable",
+          message: `There is a circular reference to variable "nested.two" in the cli configuration or arguments.`,
+        },
+      ]);
     });
   });
 
