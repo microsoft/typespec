@@ -20,6 +20,10 @@ namespace Microsoft.TypeSpec.Generator.Input
         public bool IsDiscriminator { get; internal set; }
         public InputSerializationOptions? SerializationOptions { get; internal set; }
 
+        /// <summary>
+        /// Updates the properties of the input model property.
+        /// </summary>
+        /// <param name="name">The new name for the property.</param>
         public void Update(string? name = null)
         {
             if (name != null)
