@@ -320,6 +320,35 @@ describe("compiler: config interpolation", () => {
         },
       });
     });
+
+    it("expand nested emitter options", () => {
+      const config = {
+        ...defaultConfig,
+        projectRoot: "/dev/ws",
+        options: {
+          emitter1: {
+            header: "By {by.owners.primary}",
+            by: {
+              owners: {
+                primary: "none",
+              },
+            },
+          },
+        },
+      };
+      const resolved = expectExpandConfigVariables(config, { cwd: "/dev/ws" });
+      deepStrictEqual(resolved, {
+        ...config,
+        outputDir: "/dev/ws/tsp-output",
+        options: {
+          ...config.options,
+          emitter1: {
+            ...config.options.emitter1,
+            header: "By none",
+          },
+        },
+      });
+    });
   });
 
   describe("validateConfigPathsAbsolute", () => {
