@@ -139,46 +139,31 @@ describe("compiler: config interpolation", () => {
       });
     });
 
-    it("expand nested variables", () => {
+    it("use parameter with {output-dir} in emitter-output-dir", () => {
       const config = {
         ...defaultConfig,
         projectRoot: "/dev/ws",
-        outputDir: "{test-var.one.x}/my-output",
+        outputDir: "{project-root}/my-output",
         parameters: {
           "test-var": {
-            one: {
-              x: "nested/test",
-            },
-            default: "",
+            default: "{output-dir}/test-var",
+          },
+        },
+        options: {
+          emitter1: {
+            "emitter-output-dir": "{test-var}/emitter1",
           },
         },
       };
-      const resolved = expectExpandConfigVariables(config, { cwd: "/dev/wd" });
+      const resolved = expectExpandConfigVariables(config, { outputDir: "/dev/ws/my-output" });
       deepStrictEqual(resolved, {
         ...config,
-        outputDir: "nested/test/my-output",
-      });
-    });
-
-    it("expand nested variables with default value", () => {
-      const config = {
-        ...defaultConfig,
-        projectRoot: "/dev/ws",
-        outputDir: "{test.var.one}/my-output",
-        parameters: {
-          "test.var": {
-            one: {
-              x: "nested/test",
-              default: "nested/default",
-            },
-            default: "",
+        outputDir: "/dev/ws/my-output",
+        options: {
+          emitter1: {
+            "emitter-output-dir": "/dev/ws/my-output/test-var/emitter1",
           },
         },
-      };
-      const resolved = expectExpandConfigVariables(config, { cwd: "/dev/wd" });
-      deepStrictEqual(resolved, {
-        ...config,
-        outputDir: "nested/default/my-output",
       });
     });
 

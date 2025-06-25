@@ -1,4 +1,4 @@
-import { createDiagnosticCollector, ignoreDiagnostics } from "../core/diagnostics.js";
+import { createDiagnosticCollector } from "../core/diagnostics.js";
 import { createDiagnostic } from "../core/messages.js";
 import { Diagnostic, NoTarget } from "../core/types.js";
 import {
@@ -26,25 +26,23 @@ export function expandConfigVariables(
   };
 
   const resolvedArgsParameters = diagnostics.pipe(
-    resolveArgs(config.parameters, expandOptions.args, builtInVars),
+    resolveArgs(config.parameters, expandOptions.args),
   );
   const commonVars = {
     ...builtInVars,
     ...resolvedArgsParameters,
-    ...diagnostics.pipe(resolveArgs(config.options, {}, resolvedArgsParameters)),
-    env: diagnostics.pipe(
-      resolveArgs(config.environmentVariables, expandOptions.env, builtInVars, true),
-    ),
+    ...diagnostics.pipe(resolveArgs(config.options, {})),
+    env: diagnostics.pipe(resolveArgs(config.environmentVariables, expandOptions.env, true)),
+    "output-dir": expandOptions.outputDir ?? config.outputDir ?? "{cwd}/tsp-output",
   };
-  const outputDir = diagnostics.pipe(
-    resolveValue(expandOptions.outputDir ?? config.outputDir, commonVars),
-  );
-
+  const resolvedCommonVars = diagnostics.pipe(resolveValues(commonVars));
+  console.log("Resolved common variables:", resolvedCommonVars);
+  const outputDir = resolvedCommonVars["output-dir"];
   const result = { ...config, outputDir };
   if (config.options) {
     const options: Record<string, EmitterOptions> = {};
     for (const [name, emitterOptions] of Object.entries(config.options)) {
-      const emitterVars = { ...commonVars, "output-dir": outputDir, "emitter-name": name };
+      const emitterVars = { ...resolvedCommonVars, "output-dir": outputDir, "emitter-name": name };
       options[name] = diagnostics.pipe(resolveValues(emitterOptions, emitterVars));
     }
     result.options = options;
@@ -58,7 +56,6 @@ function resolveArgs(
     | Record<string, ConfigParameter | ConfigEnvironmentVariable | EmitterOptions>
     | undefined,
   args: Record<string, string | undefined> | undefined,
-  predefinedVariables: Record<string, string | Record<string, string>>,
   allowUnspecified = false,
 ): [Record<string, string>, readonly Diagnostic[]] {
   function tryGetValue(value: any): string | undefined {
@@ -77,12 +74,8 @@ function resolveArgs(
         resolveNestedArgs(name, Object.entries(definition ?? {}));
       }
       unmatchedArgs.delete(name);
-      result[name] = ignoreDiagnostics(
-        resolveValue(
-          args?.[name] ?? tryGetValue(definition.default) ?? tryGetValue(definition) ?? "",
-          predefinedVariables,
-        ),
-      );
+      result[name] =
+        args?.[name] ?? tryGetValue(definition.default) ?? tryGetValue(definition) ?? "";
     }
   }
 
