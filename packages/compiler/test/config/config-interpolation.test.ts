@@ -184,7 +184,7 @@ describe("compiler: config interpolation", () => {
           },
         },
       };
-      const resolved = expectExpandConfigVariables(config, { outputDir: "/dev/ws/my-output" });
+      const resolved = expectExpandConfigVariables(config, { cwd: "/dev/wd" });
       deepStrictEqual(resolved, {
         ...config,
         outputDir: "/dev/ws/my-output",
