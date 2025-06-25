@@ -54,9 +54,10 @@ _PACKAGE_FILES = [
     "MANIFEST.in.jinja2",
     "README.md.jinja2",
     "setup.py.jinja2",
+    "pyproject.py.jinja2",
 ]
 
-_REGENERATE_FILES = {"setup.py", "MANIFEST.in"}
+_REGENERATE_FILES = {"setup.py", "MANIFEST.in", "pyproject.toml"}
 AsyncInfo = namedtuple("AsyncInfo", ["async_mode", "async_path"])
 
 

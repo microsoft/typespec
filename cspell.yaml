@@ -198,6 +198,7 @@ words:
   - pyright
   - pyrightconfig
   - pytest
+  - pytyped
   - pyyaml
   - rcfile
   - reactivex

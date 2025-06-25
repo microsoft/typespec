@@ -1,0 +1,88 @@
+{% set min_version = MIN_PYTHON_VERSION.split('.')[1] | int %}
+{% set max_version = MAX_PYTHON_VERSION.split('.')[1] | int %}
+{% if code_model.license_header %}
+{{ code_model.license_header }}
+{% endif %}
+
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]  # Requires 61.0.0 for dynamic version
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "{{ package_name|lower }}"
+{% if package_mode %}
+authors = [
+  { name = "{{ code_model.company_name }}"{% if code_model.is_azure_flavor %}, email = "azpysdkhelp@microsoft.com"{% endif %} },
+]
+description = "{{ code_model.company_name }} {{ package_pprint_name }} Client Library for Python"
+license = {text = "MIT License"}
+classifiers = [
+    "Development Status :: {{ dev_status }}",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3",
+    {% for version in range(min_version, max_version + 1)  %}
+    "Programming Language :: Python :: 3.{{ version }}",
+    {% endfor %}
+    "License :: OSI Approved :: MIT License",
+]
+requires-python = ">={{ MIN_PYTHON_VERSION }}"
+{% else %}
+description = "{{ package_name }}"
+{% endif %}
+{% if code_model.is_azure_flavor %}
+keywords = ["azure", "azure sdk"]
+{% endif %}
+## TODO: grab existing one and read in as JSON and parse and keep non-default dependencies.
+## Set dependency to max version.
+## Always override or never override keys.
+dependencies = [
+    {% if code_model.is_legacy %}
+    "msrest>={{ VERSION_MAP['msrest'] }}",
+    {% else %}
+    "isodate>={{ VERSION_MAP['isodate'] }}",
+    {% endif %}
+    {% if azure_arm %}
+    "azure-mgmt-core>={{ VERSION_MAP['azure-mgmt-core'] }}",
+    {% elif code_model.is_azure_flavor %}
+    "azure-core>={{ VERSION_MAP['azure-core'] }}",
+    {% else %}
+    "corehttp[requests]>={{ VERSION_MAP['corehttp'] }}",
+    {% endif %}
+    "typing-extensions>={{ VERSION_MAP['typing-extensions'] }}",
+]
+dynamic = [
+    {% if package_mode %}"version", {% endif %}"readme"
+]
+{% if code_model.is_azure_flavor %}
+[project.urls]
+repository = "https://github.com/Azure/azure-sdk-for-python/tree/main/sdk"
+{% endif %}
+
+[tool.setuptools.dynamic]
+{% if package_mode %}
+    {% if code_model.is_tsp %}
+version = {attr = "{{ code_model.namespace|lower|replace('.', '/') }}/_version.VERSION"}
+    {% else %}
+version = {attr = "{{ package_name|lower|replace('-', '/') }}/_version.VERSION"}
+    {% endif %}
+{% else %}
+version = "{{ package_version }}"
+{% endif %}readme = {file = ["README.md"], content-type = "text/markdown"}
+
+{% if package_mode %}
+[tool.setuptools.packages.find]
+exclude = [
+    "tests*",
+    {% for pkgutil_name in pkgutil_names %}
+    "{{ pkgutil_name }}",
+    {% endfor %}
+]
+
+[tool.setuptools.package-data]
+pytyped = ["py.typed"]
+{% endif %}
+
+## TODO: grab existing one and read in as JSON and parse and keep stuff.
+[tool.azure-sdk-build]
+pyright = false
