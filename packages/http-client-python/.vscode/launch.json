@@ -10,7 +10,7 @@
       "cwd": "${workspaceFolder}",
       "args": [
         "compile",
-        "/Users/isabellacai/Desktop/github/openai-sdk-for-net-pr/openai-in-typespec/entrypoints/sdk.dotnet.azure",
+        "${workspaceFolder}/node_modules/@azure-tools/azure-http-specs/specs/azure/core/page",
         "--emit=${workspaceFolder}",
         "--option=@typespec/http-client-python.debug=true"
       ],
