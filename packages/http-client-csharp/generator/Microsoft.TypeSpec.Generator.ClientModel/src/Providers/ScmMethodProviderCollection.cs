@@ -25,8 +25,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     {
         private readonly MethodProvider _createRequestMethod;
         private static readonly ClientPipelineExtensionsDefinition _clientPipelineExtensionsDefinition = new();
-        private IReadOnlyList<ParameterProvider> ProtocolMethodParameters => _protocolMethodParameters ??= RestClientProvider.GetMethodParameters(ServiceMethod, RestClientProvider.MethodType.Protocol);
-        private IReadOnlyList<ParameterProvider>? _protocolMethodParameters;
+        private IList<ParameterProvider> ProtocolMethodParameters => _protocolMethodParameters ??= RestClientProvider.GetMethodParameters(ServiceMethod, RestClientProvider.MethodType.Protocol);
+        private IList<ParameterProvider>? _protocolMethodParameters;
 
         private IReadOnlyList<ParameterProvider> ConvenienceMethodParameters => _convenienceMethodParameters ??= RestClientProvider.GetMethodParameters(ServiceMethod, RestClientProvider.MethodType.Convenience);
         private IReadOnlyList<ParameterProvider>? _convenienceMethodParameters;
@@ -520,29 +520,40 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     optionalParameters.Add(parameter);
                 }
             }
-            bool addOptionalRequestOptionsParameter = ShouldAddOptionalRequestOptionsParameter();
-            ParameterProvider requestOptionsParameter = addOptionalRequestOptionsParameter ? ScmKnownParameters.OptionalRequestOptions : ScmKnownParameters.RequestOptions;
+            ParameterProvider requestOptionsParameter = ScmKnownParameters.OptionalRequestOptions;
+            bool shouldMakeParametersRequired = ShouldMakeProtocolMethodParametersRequired();
 
-            if (!addOptionalRequestOptionsParameter && optionalParameters.Count > 0)
+            if (shouldMakeParametersRequired)
             {
-                // If there are optional parameters, but the request options parameter is not optional, make the optional parameters nullable required.
-                // This is to ensure that the request options parameter is always the last parameter.
-                var newlyRequiredParameters = new List<ParameterProvider>(optionalParameters.Count);
-                foreach (var parameter in optionalParameters)
+                if (optionalParameters.Count > 0)
                 {
-                    // don't mutate the static request content parameter
-                    if (parameter.Equals(ScmKnownParameters.OptionalRequestContent))
-                    {
-                        newlyRequiredParameters.Add(ScmKnownParameters.NullableRequiredRequestContent);
-                        continue;
-                    }
-                    parameter.DefaultValue = null;
-                    parameter.Type = parameter.Type.WithNullable(true);
-                    newlyRequiredParameters.Add(parameter);
-                }
+                    // If we need to make parameters required, make only the first optional parameter nullable required.
+                    // This is to prevent ambiguous callsites with the RequestOptions parameter while avoiding overly aggressive required parameter conversion.
+                    var firstOptionalParameter = optionalParameters[0];
 
-                requiredParameters.AddRange(newlyRequiredParameters);
-                optionalParameters.Clear();
+                    // don't mutate the static request content parameter
+                    if (firstOptionalParameter.Equals(ScmKnownParameters.OptionalRequestContent))
+                    {
+                        requiredParameters.Add(ScmKnownParameters.NullableRequiredRequestContent);
+                        // Update the body param in the underlying collection
+                        var bodyParamIndex = ProtocolMethodParameters.IndexOf(firstOptionalParameter);
+                        ProtocolMethodParameters[bodyParamIndex] = ScmKnownParameters.NullableRequiredRequestContent;
+                    }
+                    else
+                    {
+                        firstOptionalParameter.DefaultValue = null;
+                        firstOptionalParameter.Type = firstOptionalParameter.Type.WithNullable(true);
+                        requiredParameters.Add(firstOptionalParameter);
+                    }
+
+                    // Remove only the first optional parameter from the optional list
+                    optionalParameters.RemoveAt(0);
+                    requestOptionsParameter = ScmKnownParameters.OptionalRequestOptions;
+                }
+                else
+                {
+                    requestOptionsParameter = ScmKnownParameters.RequestOptions;
+                }
             }
 
             ParameterProvider[] parameters = [.. requiredParameters, .. optionalParameters, requestOptionsParameter];
@@ -687,33 +698,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputType);
         }
 
-        private bool ShouldAddOptionalRequestOptionsParameter()
+        private bool ShouldMakeProtocolMethodParametersRequired()
         {
             var convenienceMethodParameterCount = ConvenienceMethodParameters.Count;
             if (!_generateConvenienceMethod)
             {
-                return true;
+                return false;
             }
             if (convenienceMethodParameterCount == 0)
             {
-                return false;
+                return true;
             }
 
             for (int i = 0; i < convenienceMethodParameterCount; i++)
             {
-                // Once we hit an optional parameter, then we need to make the request options required
-                // to prevent ambiguous callsites.
-                if (ConvenienceMethodParameters[i].DefaultValue != null)
+                // If protocol parameter is required, and convenience is optional, we don't need any changes.
+                if (ProtocolMethodParameters[i].DefaultValue == null && ConvenienceMethodParameters[i].DefaultValue != null)
                 {
                     return false;
                 }
-                if (!ProtocolMethodParameters[i].Type.Equals(ConvenienceMethodParameters[i].Type))
+                // If convenience is optional, and protocol is optional, we do need to make the protocol required.
+                if (ConvenienceMethodParameters[i].DefaultValue != null)
                 {
                     return true;
                 }
+                if (!ProtocolMethodParameters[i].Type.Equals(ConvenienceMethodParameters[i].Type))
+                {
+                    return false;
+                }
             }
 
-            return false;
+            return true;
         }
     }
 }

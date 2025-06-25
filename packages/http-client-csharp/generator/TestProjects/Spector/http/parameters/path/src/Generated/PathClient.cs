@@ -26,9 +26,9 @@ namespace Parameters.Path
 
         public virtual Task<ClientResult> NormalAsync(string name, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Optional(string name, RequestOptions options) => throw null;
+        public virtual ClientResult Optional(string name, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> OptionalAsync(string name, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> OptionalAsync(string name, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Optional(string name = default, CancellationToken cancellationToken = default) => throw null;
 

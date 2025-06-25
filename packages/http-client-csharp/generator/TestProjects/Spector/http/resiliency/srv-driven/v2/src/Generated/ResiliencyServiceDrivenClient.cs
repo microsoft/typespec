@@ -28,25 +28,25 @@ namespace Resiliency.ServiceDriven
 
         public virtual Task<ClientResult> AddOperationAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult FromNone(string newParameter, RequestOptions options) => throw null;
+        public virtual ClientResult FromNone(string newParameter, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> FromNoneAsync(string newParameter, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> FromNoneAsync(string newParameter, RequestOptions options = null) => throw null;
 
         public virtual ClientResult FromNone(string newParameter = default, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> FromNoneAsync(string newParameter = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult FromOneRequired(string parameter, string newParameter, RequestOptions options) => throw null;
+        public virtual ClientResult FromOneRequired(string parameter, string newParameter, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> FromOneRequiredAsync(string parameter, string newParameter, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> FromOneRequiredAsync(string parameter, string newParameter, RequestOptions options = null) => throw null;
 
         public virtual ClientResult FromOneRequired(string parameter, string newParameter = default, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> FromOneRequiredAsync(string parameter, string newParameter = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult FromOneOptional(string parameter, string newParameter, RequestOptions options) => throw null;
+        public virtual ClientResult FromOneOptional(string parameter, string newParameter = default, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> FromOneOptionalAsync(string parameter, string newParameter, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> FromOneOptionalAsync(string parameter, string newParameter = default, RequestOptions options = null) => throw null;
 
         public virtual ClientResult FromOneOptional(string parameter = default, string newParameter = default, CancellationToken cancellationToken = default) => throw null;
 

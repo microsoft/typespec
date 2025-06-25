@@ -75,7 +75,7 @@ namespace SampleTypeSpec
         /// <exception cref="ArgumentException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult SayHi(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
+        public virtual ClientResult SayHi(string headParameter, string queryParameter, string optionalQuery, RequestOptions options = null)
         {
             Argument.AssertNotNullOrEmpty(headParameter, nameof(headParameter));
             Argument.AssertNotNullOrEmpty(queryParameter, nameof(queryParameter));
@@ -100,7 +100,7 @@ namespace SampleTypeSpec
         /// <exception cref="ArgumentException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> SayHiAsync(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
+        public virtual async Task<ClientResult> SayHiAsync(string headParameter, string queryParameter, string optionalQuery, RequestOptions options = null)
         {
             Argument.AssertNotNullOrEmpty(headParameter, nameof(headParameter));
             Argument.AssertNotNullOrEmpty(queryParameter, nameof(queryParameter));
@@ -1361,7 +1361,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual CollectionResult GetWithContinuationToken(string token, RequestOptions options)
+        public virtual CollectionResult GetWithContinuationToken(string token, RequestOptions options = null)
         {
             return new SampleTypeSpecClientGetWithContinuationTokenCollectionResult(this, token, options);
         }
@@ -1378,7 +1378,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual AsyncCollectionResult GetWithContinuationTokenAsync(string token, RequestOptions options)
+        public virtual AsyncCollectionResult GetWithContinuationTokenAsync(string token, RequestOptions options = null)
         {
             return new SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResult(this, token, options);
         }
@@ -1413,7 +1413,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual CollectionResult GetWithContinuationTokenHeaderResponse(string token, RequestOptions options)
+        public virtual CollectionResult GetWithContinuationTokenHeaderResponse(string token, RequestOptions options = null)
         {
             return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseCollectionResult(this, token, options);
         }
@@ -1430,7 +1430,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual AsyncCollectionResult GetWithContinuationTokenHeaderResponseAsync(string token, RequestOptions options)
+        public virtual AsyncCollectionResult GetWithContinuationTokenHeaderResponseAsync(string token, RequestOptions options = null)
         {
             return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResult(this, token, options);
         }
