@@ -9,6 +9,7 @@ from specs.azure.clientgenerator.core.clientinitialization import (
     MixedParamsClient,
     PathParamClient,
     ParamAliasClient,
+    ParentClient,
 )
 from specs.azure.clientgenerator.core.clientinitialization.models import Input
 
@@ -42,3 +43,10 @@ def test_param_alias_client():
     with ParamAliasClient("sample-blob") as client:
         client.with_aliased_name()
         client.with_original_name()
+
+
+# def test_parent_child_client():
+#     with ParentClient() as client:
+#         client.child_client.with_query()
+#         client.child_client.get_standalone()
+#         client.child_client.delete_standalone()
