@@ -1,5 +1,15 @@
 # Generator Architecture
 
+## Table of Contents
+
+- [Architecture Overview](#architecture-overview)
+- [Core Components](#core-components)
+- [Generator Pipeline](#generator-pipeline)
+- [Extensibility Framework](#extensibility-framework)
+- [Testing Strategy](#testing-strategy)
+
+## Architecture Overview
+
 The TypeSpec Generator follows a layered architecture designed for extensibility and maintainability:
 
 ```
@@ -29,6 +39,11 @@ The TypeSpec Generator follows a layered architecture designed for extensibility
                   │
 ┌─────────────────▼───────────────────┐
 │        C# Client Library            │  ← Final generated client code
+└─────────────────────────────────────┘
+                  │
+┌─────────────────▼───────────────────┐
+│        Emitter Communication        │  ← JSON-RPC logging & diagnostics
+│           (Emitter)                 │    back to TypeSpec compiler
 └─────────────────────────────────────┘
 ```
 
@@ -76,6 +91,14 @@ The TypeSpec Generator follows a layered architecture designed for extensibility
 - **`GeneratorContext`**: Runtime context and dependency injection container
 - **`SourceInputModel`**: Integration with existing custom code via Roslyn analysis
 
+### 7. **Emitter Communication Layer**
+
+- **`Emitter`**: JSON-RPC based communication channel for logging and diagnostics
+  - Provides structured logging (info, debug, verbose) back to TypeSpec compiler
+  - Reports diagnostics and errors with proper severity levels
+  - Enables real-time feedback during code generation process
+  - Facilitates integration with TypeSpec tooling and IDE extensions
+
 ## Generator Pipeline
 
 The generation process follows a well-defined pipeline:
@@ -98,21 +121,24 @@ The generation process follows a well-defined pipeline:
    - Apply generator-specific customizations
    - Build method signatures and type hierarchies
 
-4. **Visitor Pipeline**
 
-   - Execute registered visitors in dependency order
-   - Apply transformations, validations, and enhancements
-   - Support for both built-in and plugin-provided visitors
-
-5. **Source Integration**
+4. **Source Integration**
 
    - Analyze existing custom code using Roslyn
    - Merge custom implementations with generated code
    - Respect customization attributes and partial classes
 
+5. **Visitor Pipeline**
+
+   - Execute registered visitors in dependency order
+   - Apply transformations, validations, and enhancements
+   - Support for both built-in and plugin-provided visitors
+
+
 6. **Code Generation**
 
-   - Convert providers to C# syntax trees
+   - Write providers to CodeFiles containing C# source code
+   - Parse CodeFile content into syntax trees for Roslyn processing
    - Apply formatting and style conventions
    - Generate supporting files (model factories, serialization)
 

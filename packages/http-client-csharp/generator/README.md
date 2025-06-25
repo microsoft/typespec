@@ -5,10 +5,6 @@ The **Microsoft TypeSpec Generator** is a code generation library that is bundle
 ## Table of Contents
 
 - [Architecture Overview](#architecture-overview)
-- [Core Components](#core-components)
-- [Generator Pipeline](#generator-pipeline)
-- [Extensibility Framework](#extensibility-framework)
-- [Testing Strategy](#testing-strategy)
 - [Prerequisites](#prerequisites)
 - [Build](#build)
 - [Test](#test)
