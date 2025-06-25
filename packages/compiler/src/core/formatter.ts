@@ -6,7 +6,7 @@ import { getAnyExtensionFromPath } from "./path-utils.js";
 import type { Node } from "./types.js";
 
 export function printTypeSpecNode(node: Node): Promise<string> {
-  return format(".", {
+  return prettierFormat(".", {
     parser: "typespec",
     plugins: [
       {
