@@ -2,8 +2,8 @@ import type { Options } from "prettier";
 import YamlPlugin from "prettier/plugins/yaml.js";
 import { check, format as prettierFormat } from "prettier/standalone";
 import * as typespecPrettierPlugin from "../formatter/index.js";
-import type { Node } from "./types.js";
 import { getAnyExtensionFromPath } from "./path-utils.js";
+import type { Node } from "./types.js";
 
 export function printTypeSpecNode(node: Node): Promise<string> {
   return format(".", {

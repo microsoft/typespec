@@ -30,7 +30,7 @@ export interface ImportResult {
  */
 export async function combineProjectIntoFile(
   host: CompilerHost,
-  rawEntrypoint: string
+  rawEntrypoint: string,
 ): Promise<ImportResult> {
   const entrypoint =
     rawEntrypoint.startsWith("http://") || rawEntrypoint.startsWith("https://")

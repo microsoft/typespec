@@ -1,4 +1,4 @@
-export { ResolveCompilerOptionsOptions, resolveCompilerOptions } from "./config/index.js";
+export { resolveCompilerOptions, ResolveCompilerOptionsOptions } from "./config/index.js";
 export * from "./core/index.js";
 export * from "./lib/decorators.js";
 export * from "./server/index.js";
