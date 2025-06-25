@@ -109,8 +109,10 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
           "generator/http-client-generator/target/classes",
           "PerfAutomation.jfc",
         );
-        javaArgs.push('-XX:+FlightRecorder');
-        javaArgs.push(`-XX:StartFlightRecording=settings="${perfProfile}",filename="${options["output-dir"]}/typespecPerf.jfr",maxsize=1gb`);
+        javaArgs.push("-XX:+FlightRecorder");
+        javaArgs.push(
+          `-XX:StartFlightRecording=settings="${perfProfile}",filename="${options["output-dir"]}/typespecPerf.jfr",maxsize=1gb`,
+        );
       }
       // These module modifications are needed by google-java-format
       javaArgs.push("--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED");
