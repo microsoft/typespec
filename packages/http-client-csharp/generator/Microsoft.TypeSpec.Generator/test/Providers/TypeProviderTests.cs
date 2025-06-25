@@ -81,6 +81,24 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public async Task CanCustomizeNestedTypesWithRenamedDeclaringType()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            TypeProvider nestedType;
+            var inputEnum = InputFactory.Int32Enum("TestEnum", [("Value1", 0), ("Value2", 1), ("Value3", 2)], clientNamespace: "Test");
+            nestedType = EnumProvider.Create(inputEnum, new TestTypeProvider(name: "TestCustomizeNestedTypes"));
+
+            var typeProvider = new TestTypeProvider(name: "TestCustomizeNestedTypes");
+            typeProvider.NestedTypesInternal = [nestedType];
+            Assert.IsNotNull(typeProvider.CustomCodeView);
+            Assert.AreEqual("RenamedType", typeProvider.Name);
+
+            var nestedTypes = typeProvider.NestedTypes;
+            Assert.AreEqual(0, nestedTypes.Count);
+        }
+
+        [Test]
         public void CanResetTypeProvider()
         {
             var typeProvider = new TestTypeProvider(name: "OriginalName",

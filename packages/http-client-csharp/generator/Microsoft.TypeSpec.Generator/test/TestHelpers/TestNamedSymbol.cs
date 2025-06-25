@@ -129,5 +129,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
         {
             return [new TestTypeProvider("Foo")];
         }
+
+        protected override TypeSignatureModifiers BuildDeclarationModifiers() => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial |TypeSignatureModifiers.Class;
     }
 }
