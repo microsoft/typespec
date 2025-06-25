@@ -17,15 +17,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
     public abstract class TypeProvider
     {
         private Lazy<TypeProvider?> _customCodeView;
-        private readonly Lazy<TypeProvider?> _lastContractView;
+        private Lazy<TypeProvider?> _lastContractView;
         private Lazy<CanonicalTypeProvider> _canonicalView;
         private readonly InputType? _inputType;
 
         protected TypeProvider(InputType? inputType = default)
         {
-            _customCodeView = new(() => GetCustomCodeView());
+            _customCodeView = new(() => BuildCustomCodeView());
             _canonicalView = new(BuildCanonicalView);
-            _lastContractView = new(GetLastContractView);
+            _lastContractView = new(BuildLastContractView);
             _inputType = inputType;
         }
 
@@ -36,10 +36,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
         }
 
-        private protected virtual TypeProvider? GetCustomCodeView(string? generatedTypeName = default)
-            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(BuildNamespace(), generatedTypeName ?? BuildName(), DeclaringTypeProvider?.BuildName());
+        private protected virtual TypeProvider? BuildCustomCodeView(string? generatedTypeName = null)
+            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
+                BuildNamespace(),
+                generatedTypeName ?? BuildName(),
+                // Use the Type.Name so that any customizations to the declaring type are applied for the lookup.
+                DeclaringTypeProvider?.Type.Name);
 
-        private protected virtual TypeProvider? GetLastContractView()
+        private protected virtual TypeProvider? BuildLastContractView()
             => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(BuildNamespace(), BuildName(), DeclaringTypeProvider?.BuildName());
 
         public TypeProvider? CustomCodeView => _customCodeView.Value;
@@ -149,6 +153,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var customModifiers = CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
             if (customModifiers != TypeSignatureModifiers.None)
             {
+                // if the custom modifiers contain accessibility modifiers, we override the default ones
+                if (customModifiers.HasFlag(TypeSignatureModifiers.Internal) ||
+                    customModifiers.HasFlag(TypeSignatureModifiers.Public) ||
+                    customModifiers.HasFlag(TypeSignatureModifiers.Private))
+                {
+                    modifiers &= ~(TypeSignatureModifiers.Internal | TypeSignatureModifiers.Public | TypeSignatureModifiers.Private);
+                }
                 modifiers |= customModifiers;
             }
             // we default to public when no accessibility modifier is provided
@@ -351,6 +362,33 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected abstract string BuildRelativeFilePath();
         protected abstract string BuildName();
 
+        /// <summary>
+        /// Resets the type provider to its initial state, clearing all cached properties and fields.
+        /// This allows for the type provider to rebuild its state on subsequent calls to its properties.
+        /// </summary>
+        public void Reset()
+        {
+            _methods = null;
+            _properties = null;
+            _fields = null;
+            _constructors = null;
+            _serializationProviders = null;
+            _nestedTypes = null;
+            _xmlDocs = null;
+            _declarationModifiers = null;
+            _relativeFilePath = null;
+            _customCodeView = new(() => BuildCustomCodeView());
+            _canonicalView = new(BuildCanonicalView);
+            _lastContractView = new(BuildLastContractView);
+            _enumValues = null;
+            _enumUnderlyingType = null;
+            _attributes = null;
+            _deprecated = null;
+            _description = null;
+            _type = null;
+            _arguments = null;
+        }
+
         public void Update(
             IEnumerable<MethodProvider>? methods = null,
             IEnumerable<ConstructorProvider>? constructors = null,
@@ -404,7 +442,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (name != null)
             {
                 // Reset the custom code view to reflect the new name
-                _customCodeView = new(GetCustomCodeView(name));
+                _customCodeView = new(BuildCustomCodeView(name));
                 // Give precedence to the custom code view name if it exists
                 Type.Update(_customCodeView.Value?.Name ?? name);
             }

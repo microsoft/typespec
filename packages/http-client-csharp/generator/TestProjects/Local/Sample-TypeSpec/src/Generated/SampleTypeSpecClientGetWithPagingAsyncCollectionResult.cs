@@ -29,7 +29,7 @@ namespace SampleTypeSpec
         /// <returns> The raw pages of the collection. </returns>
         public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
         {
-            PipelineMessage message = _client.CreateListWithPagingRequest(_options);
+            PipelineMessage message = _client.CreateGetWithPagingRequest(_options);
             yield return ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
         }
 

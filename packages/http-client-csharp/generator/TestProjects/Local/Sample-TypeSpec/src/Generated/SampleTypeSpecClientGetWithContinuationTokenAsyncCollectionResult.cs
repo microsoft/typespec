@@ -33,7 +33,7 @@ namespace SampleTypeSpec
         /// <returns> The raw pages of the collection. </returns>
         public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
         {
-            PipelineMessage message = _client.CreateListWithContinuationTokenRequest(_token, _options);
+            PipelineMessage message = _client.CreateGetWithContinuationTokenRequest(_token, _options);
             string nextToken = null;
             while (true)
             {
@@ -45,7 +45,7 @@ namespace SampleTypeSpec
                 {
                     yield break;
                 }
-                message = _client.CreateListWithContinuationTokenRequest(nextToken, _options);
+                message = _client.CreateGetWithContinuationTokenRequest(nextToken, _options);
             }
         }
 

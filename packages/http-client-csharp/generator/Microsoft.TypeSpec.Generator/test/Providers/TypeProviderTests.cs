@@ -79,5 +79,41 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var expectedCount = isNestedTypeAnEnum ? 0 : 1;
             Assert.AreEqual(expectedCount, nestedTypes.Count);
         }
+
+        [Test]
+        public async Task CanCustomizeNestedTypesWithRenamedDeclaringType()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            TypeProvider nestedType;
+            var inputEnum = InputFactory.Int32Enum("TestEnum", [("Value1", 0), ("Value2", 1), ("Value3", 2)], clientNamespace: "Test");
+            nestedType = EnumProvider.Create(inputEnum, new TestTypeProvider(name: "TestCustomizeNestedTypes"));
+
+            var typeProvider = new TestTypeProvider(name: "TestCustomizeNestedTypes");
+            typeProvider.NestedTypesInternal = [nestedType];
+            Assert.IsNotNull(typeProvider.CustomCodeView);
+            Assert.AreEqual("RenamedType", typeProvider.Name);
+
+            var nestedTypes = typeProvider.NestedTypes;
+            Assert.AreEqual(0, nestedTypes.Count);
+        }
+
+        [Test]
+        public void CanResetTypeProvider()
+        {
+            var typeProvider = new TestTypeProvider(name: "OriginalName",
+                methods: [new MethodProvider(
+                new MethodSignature("TestMethod", $"", MethodSignatureModifiers.Public, null, $"", []),
+                Snippet.Throw(Snippet.Null), new TestTypeProvider())]);
+            typeProvider.Update(name: "UpdatedName", methods: []);
+            Assert.AreEqual("UpdatedName", typeProvider.Name);
+            Assert.AreEqual(0, typeProvider.Methods.Count);
+
+            typeProvider.Reset();
+
+            // The BuildX methods should be called again, which will return the original state.
+            Assert.AreEqual("OriginalName", typeProvider.Name);
+            Assert.AreEqual(1, typeProvider.Methods.Count);
+        }
     }
 }

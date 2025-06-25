@@ -1,5 +1,20 @@
 # Change Log - @typespec/http-client-python
 
+## 0.12.3
+
+### Bug Fixes
+
+- [#7705](https://github.com/microsoft/typespec/pull/7705) Validate api versions by looking at ordering of api versions from spec
+- [#7696](https://github.com/microsoft/typespec/pull/7696) Add support for `validate-versioning` flag, so users can toggle whether they get api versioning validation
+
+
+## 0.12.2
+
+### Bump dependencies
+
+- [#7667](https://github.com/microsoft/typespec/pull/7667) bump typespec
+
+
 ## 0.12.1
 
 ### Bump dependencies

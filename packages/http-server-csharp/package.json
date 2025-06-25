@@ -58,33 +58,33 @@
   "peerDependencies": {
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
+    "@typespec/json-schema": "workspace:^",
     "@typespec/rest": "workspace:^",
-    "@typespec/versioning": "workspace:^",
-    "@typespec/json-schema": "workspace:^"
+    "@typespec/versioning": "workspace:^"
   },
   "dependencies": {
     "@typespec/asset-emitter": "workspace:^",
     "change-case": "~5.4.4",
     "cross-spawn": "^7.0.6",
     "picocolors": "~1.1.1",
-    "yaml": "~2.7.0",
-    "yargs": "~17.7.2"
+    "yaml": "~2.8.0",
+    "yargs": "~18.0.0"
   },
   "devDependencies": {
     "@types/cross-spawn": "~6.0.6",
-    "@types/node": "~22.13.11",
+    "@types/node": "~24.0.3",
     "@types/yargs": "~17.0.33",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
     "@typespec/http-specs": "workspace:^",
     "@typespec/internal-build-utils": "workspace:^",
+    "@typespec/json-schema": "workspace:^",
     "@typespec/library-linter": "workspace:^",
     "@typespec/openapi": "workspace:^",
     "@typespec/rest": "workspace:^",
     "@typespec/spector": "workspace:^",
     "@typespec/tspd": "workspace:^",
     "@typespec/versioning": "workspace:^",
-    "@typespec/json-schema": "workspace:^",
     "@vitest/coverage-v8": "^3.1.2",
     "@vitest/ui": "^3.1.2",
     "fs-extra": "^11.2.0",

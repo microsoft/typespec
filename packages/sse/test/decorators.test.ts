@@ -1,19 +1,13 @@
 import type { UnionVariant } from "@typespec/compiler";
-import { expectDiagnostics, type BasicTestRunner } from "@typespec/compiler/testing";
-import { beforeEach, describe, expect, it } from "vitest";
+import { expectDiagnostics, t } from "@typespec/compiler/testing";
+import { describe, expect, it } from "vitest";
 import { isTerminalEvent } from "../src/decorators.js";
-import { createSSETestRunner } from "./test-host.js";
-
-let runner: BasicTestRunner;
-
-beforeEach(async () => {
-  runner = await createSSETestRunner();
-});
+import { Tester } from "./test-host.js";
 
 describe("@terminalEvent", () => {
   it("marks the model as a terminal event", async () => {
-    const { TerminalEvent } = await runner.compile(
-      `
+    const { TerminalEvent, program } = await Tester.compile(
+      t.code`
 @events
 union TestEvents {
   { done: false, @data message: string},
@@ -25,11 +19,11 @@ union TestEvents {
       `,
     );
 
-    expect(isTerminalEvent(runner.program, TerminalEvent as UnionVariant)).toBe(true);
+    expect(isTerminalEvent(program, TerminalEvent as UnionVariant)).toBe(true);
   });
 
   it("can only be applied to union variants within a union decorated with @events", async () => {
-    const diagnostics = await runner.diagnose(
+    const diagnostics = await Tester.diagnose(
       `
 union TestEvents {
   { done: false, @data message: string},

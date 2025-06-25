@@ -4,14 +4,13 @@
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Providers;
-using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 using System.Threading.Tasks;
 using Moq;
 using Moq.Protected;
 
-namespace Microsoft.TypeSpec.Generator.Tests.Providers
+namespace Microsoft.TypeSpec.Generator.Tests.Providers.EnumProviders
 {
     public class ApiVersionEnumProviderTests
     {
