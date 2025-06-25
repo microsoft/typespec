@@ -33,13 +33,15 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputOperation? operation = null;
             IReadOnlyList<string>? responseSegments = null;
             InputResponseLocation? responseLocation = null;
+            IReadOnlyList<InputParameter>? reInjectedParameters = null;
 
             // read all possible properties and throw away the unknown properties
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadComplexType("operation", options, ref operation)
                     || reader.TryReadComplexType("responseSegments", options, ref responseSegments)
-                    || reader.TryReadComplexType("responseLocation", options, ref responseLocation);
+                    || reader.TryReadComplexType("responseLocation", options, ref responseLocation)
+                    || reader.TryReadComplexType("reInjectedParameters", options, ref reInjectedParameters);
 
                 if (!isKnownProperty)
                 {
@@ -50,7 +52,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             var nextLink = new InputNextLink(
                 operation,
                 responseSegments ?? throw new JsonException("NextLink response segments must be defined."),
-                responseLocation ?? throw new JsonException("NextLink response location must be defined."));
+                responseLocation ?? throw new JsonException("NextLink response location must be defined."),
+                reInjectedParameters);
             resolver.AddReference(id, nextLink);
 
             return nextLink;
