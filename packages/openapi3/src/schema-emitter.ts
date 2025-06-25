@@ -301,8 +301,7 @@ export class OpenAPI3SchemaEmitterBase<
       items: this.emitter.emitTypeReference(elementType),
     });
 
-    const name =
-      getOpenAPITypeName(this.emitter.getProgram(), array, this.#typeNameOptions());
+    const name = getOpenAPITypeName(this.emitter.getProgram(), array, this.#typeNameOptions());
     return this.#createDeclaration(array, name, this.applyConstraints(array, schema as any));
   }
 
