@@ -333,6 +333,71 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public void ProtocolMethodWithMultipleOptionalParameters()
+        {
+            MockHelpers.LoadMockGenerator();
+            List<InputParameter> parameters =
+            [
+                InputFactory.Parameter(
+                    "required1",
+                    InputPrimitiveType.String,
+                    isRequired: true,
+                    location: InputRequestLocation.Query),
+                InputFactory.Parameter(
+                    "optional1",
+                    InputPrimitiveType.String,
+                    isRequired: false,
+                    location: InputRequestLocation.Query),
+                InputFactory.Parameter(
+                    "optional2",
+                    InputPrimitiveType.Int32,
+                    isRequired: false,
+                    location: InputRequestLocation.Query),
+                InputFactory.Parameter(
+                    "optional3",
+                    InputPrimitiveType.Boolean,
+                    isRequired: false,
+                    location: InputRequestLocation.Query)
+            ];
+            var inputOperation = InputFactory.Operation(
+                "TestOperation",
+                parameters: parameters);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("Test", inputOperation, parameters: parameters);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            var protocolMethod = methodCollection.FirstOrDefault(
+                m => m.Signature.Parameters.Any(p => p.Name == "options") && m.Signature.Name == "TestOperation");
+            Assert.IsNotNull(protocolMethod);
+            Assert.AreEqual(inputServiceMethod, protocolMethod!.ServiceMethod);
+
+            var parameters = protocolMethod!.Signature.Parameters;
+            
+            // RequestOptions should be required (no default value)
+            var optionsParameter = parameters.Single(p => p.Name == "options");
+            Assert.IsNull(optionsParameter.DefaultValue, "RequestOptions should be required");
+
+            // First required parameter should remain required
+            var required1Param = parameters.Single(p => p.Name == "required1");
+            Assert.IsNull(required1Param.DefaultValue, "Required parameter should remain required");
+            Assert.IsFalse(required1Param.Type.IsNullable, "Required parameter should not be nullable");
+
+            // First optional parameter should become required nullable
+            var optional1Param = parameters.Single(p => p.Name == "optional1");
+            Assert.IsNull(optional1Param.DefaultValue, "First optional parameter should become required");
+            Assert.IsTrue(optional1Param.Type.IsNullable, "First optional parameter should be nullable");
+
+            // Subsequent optional parameters should remain optional
+            var optional2Param = parameters.Single(p => p.Name == "optional2");
+            Assert.IsNotNull(optional2Param.DefaultValue, "Second optional parameter should remain optional");
+            Assert.IsFalse(optional2Param.Type.IsNullable, "Second optional parameter should not be nullable");
+
+            var optional3Param = parameters.Single(p => p.Name == "optional3");
+            Assert.IsNotNull(optional3Param.DefaultValue, "Third optional parameter should remain optional");
+            Assert.IsFalse(optional3Param.Type.IsNullable, "Third optional parameter should not be nullable");
+        }
+
+        [Test]
         public void OperationWithOptionalEnum()
         {
             MockHelpers.LoadMockGenerator();
