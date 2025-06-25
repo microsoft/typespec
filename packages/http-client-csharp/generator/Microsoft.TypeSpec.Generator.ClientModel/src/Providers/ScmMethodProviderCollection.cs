@@ -526,10 +526,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (shouldMakeParametersRequired)
             {
-                if (optionalParameters.Count > 0)
-                {
-                    ProcessOptionalParameters(optionalParameters, requiredParameters, ref requestOptionsParameter);
-                }
+                ProcessOptionalParameters(optionalParameters, requiredParameters, ref requestOptionsParameter);
             }
             else
             {
