@@ -45,30 +45,6 @@ import {
   InputUnionType,
 } from "../type/input-type.js";
 
-export function fromSdkModels(
-  sdkContext: CSharpEmitterContext,
-  models: SdkModelType[],
-): InputModelType[] {
-  const inputModels: InputModelType[] = [];
-  for (const model of models) {
-    const inputModel = fromSdkType(sdkContext, model);
-    inputModels.push(inputModel);
-  }
-  return inputModels;
-}
-
-export function fromSdkEnums(
-  sdkContext: CSharpEmitterContext,
-  enums: SdkEnumType[],
-): InputEnumType[] {
-  const inputEnums: InputEnumType[] = [];
-  for (const enumType of enums) {
-    const inputEnum = fromSdkType(sdkContext, enumType);
-    inputEnums.push(inputEnum);
-  }
-  return inputEnums;
-}
-
 // we have this complicated type here to let the caller of fromSdkType could infer the real return type of this function.
 type InputReturnType<T extends SdkType> = T extends { kind: "nullable" }
   ? InputNullableType

@@ -536,27 +536,11 @@
     {
       "$id": "45",
       "kind": "constant",
-      "name": "sayHiContentType",
-      "namespace": "",
-      "usage": "None",
-      "valueType": {
-        "$id": "46",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-      },
-      "value": "application/json",
-      "decorators": []
-    },
-    {
-      "$id": "47",
-      "kind": "constant",
       "name": "ThingRequiredLiteralString",
       "namespace": "SampleTypeSpec",
       "usage": "Input,Output,Spread,Json",
       "valueType": {
-        "$id": "48",
+        "$id": "46",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -566,13 +550,13 @@
       "decorators": []
     },
     {
-      "$id": "49",
+      "$id": "47",
       "kind": "constant",
       "name": "ThingRequiredLiteralInt",
       "namespace": "SampleTypeSpec",
       "usage": "Input,Output,Spread,Json",
       "valueType": {
-        "$id": "50",
+        "$id": "48",
         "kind": "int32",
         "name": "int32",
         "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -582,13 +566,13 @@
       "decorators": []
     },
     {
-      "$id": "51",
+      "$id": "49",
       "kind": "constant",
       "name": "ThingRequiredLiteralFloat",
       "namespace": "SampleTypeSpec",
       "usage": "Input,Output,Spread,Json",
       "valueType": {
-        "$id": "52",
+        "$id": "50",
         "kind": "float32",
         "name": "float32",
         "crossLanguageDefinitionId": "TypeSpec.float32",
@@ -598,13 +582,13 @@
       "decorators": []
     },
     {
-      "$id": "53",
+      "$id": "51",
       "kind": "constant",
       "name": "ThingRequiredLiteralBool",
       "namespace": "SampleTypeSpec",
       "usage": "Input,Output,Spread,Json",
       "valueType": {
-        "$id": "54",
+        "$id": "52",
         "kind": "boolean",
         "name": "boolean",
         "crossLanguageDefinitionId": "TypeSpec.boolean",
@@ -614,13 +598,13 @@
       "decorators": []
     },
     {
-      "$id": "55",
+      "$id": "53",
       "kind": "constant",
       "name": "ThingOptionalLiteralString",
       "namespace": "SampleTypeSpec",
       "usage": "Input,Output,Spread,Json",
       "valueType": {
-        "$id": "56",
+        "$id": "54",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -630,13 +614,13 @@
       "decorators": []
     },
     {
-      "$id": "57",
+      "$id": "55",
       "kind": "constant",
       "name": "ThingOptionalLiteralInt",
       "namespace": "SampleTypeSpec",
       "usage": "Input,Output,Spread,Json",
       "valueType": {
-        "$id": "58",
+        "$id": "56",
         "kind": "int32",
         "name": "int32",
         "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -646,13 +630,13 @@
       "decorators": []
     },
     {
-      "$id": "59",
+      "$id": "57",
       "kind": "constant",
       "name": "ThingOptionalLiteralFloat",
       "namespace": "SampleTypeSpec",
       "usage": "Input,Output,Spread,Json",
       "valueType": {
-        "$id": "60",
+        "$id": "58",
         "kind": "float32",
         "name": "float32",
         "crossLanguageDefinitionId": "TypeSpec.float32",
@@ -662,19 +646,35 @@
       "decorators": []
     },
     {
-      "$id": "61",
+      "$id": "59",
       "kind": "constant",
       "name": "ThingOptionalLiteralBool",
       "namespace": "SampleTypeSpec",
       "usage": "Input,Output,Spread,Json",
       "valueType": {
-        "$id": "62",
+        "$id": "60",
         "kind": "boolean",
         "name": "boolean",
         "crossLanguageDefinitionId": "TypeSpec.boolean",
         "decorators": []
       },
       "value": true,
+      "decorators": []
+    },
+    {
+      "$id": "61",
+      "kind": "constant",
+      "name": "sayHiContentType",
+      "namespace": "",
+      "usage": "None",
+      "valueType": {
+        "$id": "62",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+      },
+      "value": "application/json",
       "decorators": []
     },
     {
@@ -1448,7 +1448,7 @@
           "serializedName": "requiredLiteralString",
           "doc": "required literal string",
           "type": {
-            "$ref": "47"
+            "$ref": "45"
           },
           "optional": false,
           "readOnly": false,
@@ -1529,7 +1529,7 @@
           "serializedName": "requiredLiteralInt",
           "doc": "required literal int",
           "type": {
-            "$ref": "49"
+            "$ref": "47"
           },
           "optional": false,
           "readOnly": false,
@@ -1550,7 +1550,7 @@
           "serializedName": "requiredLiteralFloat",
           "doc": "required literal float",
           "type": {
-            "$ref": "51"
+            "$ref": "49"
           },
           "optional": false,
           "readOnly": false,
@@ -1571,7 +1571,7 @@
           "serializedName": "requiredLiteralBool",
           "doc": "required literal bool",
           "type": {
-            "$ref": "53"
+            "$ref": "51"
           },
           "optional": false,
           "readOnly": false,
@@ -1592,7 +1592,7 @@
           "serializedName": "optionalLiteralString",
           "doc": "optional literal string",
           "type": {
-            "$ref": "55"
+            "$ref": "53"
           },
           "optional": true,
           "readOnly": false,
@@ -1613,7 +1613,7 @@
           "serializedName": "optionalLiteralInt",
           "doc": "optional literal int",
           "type": {
-            "$ref": "57"
+            "$ref": "55"
           },
           "optional": true,
           "readOnly": false,
@@ -1634,7 +1634,7 @@
           "serializedName": "optionalLiteralFloat",
           "doc": "optional literal float",
           "type": {
-            "$ref": "59"
+            "$ref": "57"
           },
           "optional": true,
           "readOnly": false,
@@ -1655,7 +1655,7 @@
           "serializedName": "optionalLiteralBool",
           "doc": "optional literal bool",
           "type": {
-            "$ref": "61"
+            "$ref": "59"
           },
           "optional": true,
           "readOnly": false,
@@ -2923,7 +2923,7 @@
                 "name": "accept",
                 "nameInRequest": "Accept",
                 "type": {
-                  "$ref": "45"
+                  "$ref": "61"
                 },
                 "location": "Header",
                 "isApiVersion": false,
@@ -3029,7 +3029,7 @@
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
-                "$ref": "45"
+                "$ref": "61"
               },
               "location": "Header",
               "isApiVersion": false,
@@ -4518,7 +4518,7 @@
               "nameInRequest": "requiredLiteralString",
               "doc": "required literal string",
               "type": {
-                "$ref": "47"
+                "$ref": "45"
               },
               "location": "Body",
               "isApiVersion": false,
@@ -4572,7 +4572,7 @@
               "nameInRequest": "requiredLiteralInt",
               "doc": "required literal int",
               "type": {
-                "$ref": "49"
+                "$ref": "47"
               },
               "location": "Body",
               "isApiVersion": false,
@@ -4590,7 +4590,7 @@
               "nameInRequest": "requiredLiteralFloat",
               "doc": "required literal float",
               "type": {
-                "$ref": "51"
+                "$ref": "49"
               },
               "location": "Body",
               "isApiVersion": false,
@@ -4608,7 +4608,7 @@
               "nameInRequest": "requiredLiteralBool",
               "doc": "required literal bool",
               "type": {
-                "$ref": "53"
+                "$ref": "51"
               },
               "location": "Body",
               "isApiVersion": false,
@@ -4626,7 +4626,7 @@
               "nameInRequest": "optionalLiteralString",
               "doc": "optional literal string",
               "type": {
-                "$ref": "55"
+                "$ref": "53"
               },
               "location": "Body",
               "isApiVersion": false,
@@ -4644,7 +4644,7 @@
               "nameInRequest": "optionalLiteralInt",
               "doc": "optional literal int",
               "type": {
-                "$ref": "57"
+                "$ref": "55"
               },
               "location": "Body",
               "isApiVersion": false,
@@ -4662,7 +4662,7 @@
               "nameInRequest": "optionalLiteralFloat",
               "doc": "optional literal float",
               "type": {
-                "$ref": "59"
+                "$ref": "57"
               },
               "location": "Body",
               "isApiVersion": false,
@@ -4680,7 +4680,7 @@
               "nameInRequest": "optionalLiteralBool",
               "doc": "optional literal bool",
               "type": {
-                "$ref": "61"
+                "$ref": "59"
               },
               "location": "Body",
               "isApiVersion": false,

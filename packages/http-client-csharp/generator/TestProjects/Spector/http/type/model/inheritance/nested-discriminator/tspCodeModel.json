@@ -6,27 +6,11 @@
     {
       "$id": "1",
       "kind": "constant",
-      "name": "getModelContentType",
-      "namespace": "",
-      "usage": "None",
-      "valueType": {
-        "$id": "2",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-      },
-      "value": "application/json",
-      "decorators": []
-    },
-    {
-      "$id": "3",
-      "kind": "constant",
       "name": "SharkKind",
       "namespace": "Type.Model.Inheritance.NestedDiscriminator",
       "usage": "Input,Output,Json",
       "valueType": {
-        "$id": "4",
+        "$id": "2",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -36,13 +20,13 @@
       "decorators": []
     },
     {
-      "$id": "5",
+      "$id": "3",
       "kind": "constant",
       "name": "SawSharkSharktype",
       "namespace": "Type.Model.Inheritance.NestedDiscriminator",
       "usage": "Input,Output,Json",
       "valueType": {
-        "$id": "6",
+        "$id": "4",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -52,13 +36,13 @@
       "decorators": []
     },
     {
-      "$id": "7",
+      "$id": "5",
       "kind": "constant",
       "name": "GoblinSharkSharktype",
       "namespace": "Type.Model.Inheritance.NestedDiscriminator",
       "usage": "Input,Output,Json",
       "valueType": {
-        "$id": "8",
+        "$id": "6",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -68,11 +52,27 @@
       "decorators": []
     },
     {
-      "$id": "9",
+      "$id": "7",
       "kind": "constant",
       "name": "SalmonKind",
       "namespace": "Type.Model.Inheritance.NestedDiscriminator",
       "usage": "Input,Output,Json",
+      "valueType": {
+        "$id": "8",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+      },
+      "value": "salmon",
+      "decorators": []
+    },
+    {
+      "$id": "9",
+      "kind": "constant",
+      "name": "getModelContentType",
+      "namespace": "",
+      "usage": "None",
       "valueType": {
         "$id": "10",
         "kind": "string",
@@ -80,7 +80,7 @@
         "crossLanguageDefinitionId": "TypeSpec.string",
         "decorators": []
       },
-      "value": "salmon",
+      "value": "application/json",
       "decorators": []
     },
     {
@@ -273,7 +273,7 @@
               "name": "kind",
               "serializedName": "kind",
               "type": {
-                "$ref": "3"
+                "$ref": "1"
               },
               "optional": false,
               "readOnly": false,
@@ -312,7 +312,7 @@
                   "name": "sharktype",
                   "serializedName": "sharktype",
                   "type": {
-                    "$ref": "5"
+                    "$ref": "3"
                   },
                   "optional": false,
                   "readOnly": false,
@@ -348,7 +348,7 @@
                   "name": "sharktype",
                   "serializedName": "sharktype",
                   "type": {
-                    "$ref": "7"
+                    "$ref": "5"
                   },
                   "optional": false,
                   "readOnly": false,
@@ -386,7 +386,7 @@
               "name": "kind",
               "serializedName": "kind",
               "type": {
-                "$ref": "9"
+                "$ref": "7"
               },
               "optional": false,
               "readOnly": false,
@@ -521,7 +521,7 @@
                 "name": "accept",
                 "nameInRequest": "Accept",
                 "type": {
-                  "$ref": "1"
+                  "$ref": "9"
                 },
                 "location": "Header",
                 "isApiVersion": false,
@@ -564,7 +564,7 @@
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
-                "$ref": "1"
+                "$ref": "9"
               },
               "location": "Header",
               "isApiVersion": false,

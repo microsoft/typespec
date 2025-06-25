@@ -8,8 +8,8 @@
     {
       "$id": "1",
       "kind": "enum",
-      "name": "Versions",
-      "crossLanguageDefinitionId": "Versioning.RenamedFrom.Versions",
+      "name": "NewEnum",
+      "crossLanguageDefinitionId": "Versioning.RenamedFrom.NewEnum",
       "valueType": {
         "$id": "2",
         "kind": "string",
@@ -21,27 +21,60 @@
         {
           "$id": "3",
           "kind": "enumvalue",
-          "name": "v1",
-          "value": "v1",
+          "name": "newEnumMember",
+          "value": "newEnumMember",
           "valueType": {
             "$ref": "2"
           },
           "enumType": {
             "$ref": "1"
+          },
+          "decorators": []
+        }
+      ],
+      "namespace": "Versioning.RenamedFrom",
+      "isFixed": true,
+      "isFlags": false,
+      "usage": "Input,Output,Json",
+      "decorators": []
+    },
+    {
+      "$id": "4",
+      "kind": "enum",
+      "name": "Versions",
+      "crossLanguageDefinitionId": "Versioning.RenamedFrom.Versions",
+      "valueType": {
+        "$id": "5",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+      },
+      "values": [
+        {
+          "$id": "6",
+          "kind": "enumvalue",
+          "name": "v1",
+          "value": "v1",
+          "valueType": {
+            "$ref": "5"
+          },
+          "enumType": {
+            "$ref": "4"
           },
           "doc": "The version v1.",
           "decorators": []
         },
         {
-          "$id": "4",
+          "$id": "7",
           "kind": "enumvalue",
           "name": "v2",
           "value": "v2",
           "valueType": {
-            "$ref": "2"
+            "$ref": "5"
           },
           "enumType": {
-            "$ref": "1"
+            "$ref": "4"
           },
           "doc": "The version v2.",
           "decorators": []
@@ -52,39 +85,6 @@
       "isFixed": true,
       "isFlags": false,
       "usage": "Input,ApiVersionEnum",
-      "decorators": []
-    },
-    {
-      "$id": "5",
-      "kind": "enum",
-      "name": "NewEnum",
-      "crossLanguageDefinitionId": "Versioning.RenamedFrom.NewEnum",
-      "valueType": {
-        "$id": "6",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-      },
-      "values": [
-        {
-          "$id": "7",
-          "kind": "enumvalue",
-          "name": "newEnumMember",
-          "value": "newEnumMember",
-          "valueType": {
-            "$ref": "6"
-          },
-          "enumType": {
-            "$ref": "5"
-          },
-          "decorators": []
-        }
-      ],
-      "namespace": "Versioning.RenamedFrom",
-      "isFixed": true,
-      "isFlags": false,
-      "usage": "Input,Output,Json",
       "decorators": []
     }
   ],
@@ -194,7 +194,7 @@
           "name": "enumProp",
           "serializedName": "enumProp",
           "type": {
-            "$ref": "5"
+            "$ref": "1"
           },
           "optional": false,
           "readOnly": false,
@@ -496,7 +496,7 @@
           "nameInRequest": "version",
           "doc": "Need to be set as 'v1' or 'v2' in client.",
           "type": {
-            "$ref": "1"
+            "$ref": "4"
           },
           "location": "Uri",
           "isApiVersion": true,
@@ -719,7 +719,7 @@
               "nameInRequest": "version",
               "doc": "Need to be set as 'v1' or 'v2' in client.",
               "type": {
-                "$ref": "1"
+                "$ref": "4"
               },
               "location": "Uri",
               "isApiVersion": true,

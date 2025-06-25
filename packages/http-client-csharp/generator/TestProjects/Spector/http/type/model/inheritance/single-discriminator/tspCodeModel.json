@@ -6,27 +6,11 @@
     {
       "$id": "1",
       "kind": "constant",
-      "name": "getModelContentType",
-      "namespace": "",
-      "usage": "None",
-      "valueType": {
-        "$id": "2",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-      },
-      "value": "application/json",
-      "decorators": []
-    },
-    {
-      "$id": "3",
-      "kind": "constant",
       "name": "SeaGullKind",
       "namespace": "Type.Model.Inheritance.SingleDiscriminator",
       "usage": "Input,Output,Json",
       "valueType": {
-        "$id": "4",
+        "$id": "2",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -36,13 +20,13 @@
       "decorators": []
     },
     {
-      "$id": "5",
+      "$id": "3",
       "kind": "constant",
       "name": "SparrowKind",
       "namespace": "Type.Model.Inheritance.SingleDiscriminator",
       "usage": "Input,Output,Json",
       "valueType": {
-        "$id": "6",
+        "$id": "4",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -52,13 +36,13 @@
       "decorators": []
     },
     {
-      "$id": "7",
+      "$id": "5",
       "kind": "constant",
       "name": "GooseKind",
       "namespace": "Type.Model.Inheritance.SingleDiscriminator",
       "usage": "Input,Output,Json",
       "valueType": {
-        "$id": "8",
+        "$id": "6",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -68,13 +52,13 @@
       "decorators": []
     },
     {
-      "$id": "9",
+      "$id": "7",
       "kind": "constant",
       "name": "EagleKind",
       "namespace": "Type.Model.Inheritance.SingleDiscriminator",
       "usage": "Input,Output,Json",
       "valueType": {
-        "$id": "10",
+        "$id": "8",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -84,9 +68,25 @@
       "decorators": []
     },
     {
+      "$id": "9",
+      "kind": "constant",
+      "name": "TRexKind",
+      "namespace": "Type.Model.Inheritance.SingleDiscriminator",
+      "usage": "Output,Json",
+      "valueType": {
+        "$id": "10",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+      },
+      "value": "t-rex",
+      "decorators": []
+    },
+    {
       "$id": "11",
       "kind": "constant",
-      "name": "putModelContentType",
+      "name": "getModelContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -102,7 +102,7 @@
     {
       "$id": "13",
       "kind": "constant",
-      "name": "getRecursiveModelContentType",
+      "name": "putModelContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -118,7 +118,7 @@
     {
       "$id": "15",
       "kind": "constant",
-      "name": "putRecursiveModelContentType",
+      "name": "getRecursiveModelContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -134,7 +134,7 @@
     {
       "$id": "17",
       "kind": "constant",
-      "name": "getMissingDiscriminatorContentType",
+      "name": "putRecursiveModelContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -150,7 +150,7 @@
     {
       "$id": "19",
       "kind": "constant",
-      "name": "getWrongDiscriminatorContentType",
+      "name": "getMissingDiscriminatorContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -166,7 +166,7 @@
     {
       "$id": "21",
       "kind": "constant",
-      "name": "getLegacyModelContentType",
+      "name": "getWrongDiscriminatorContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -182,9 +182,9 @@
     {
       "$id": "23",
       "kind": "constant",
-      "name": "TRexKind",
-      "namespace": "Type.Model.Inheritance.SingleDiscriminator",
-      "usage": "Output,Json",
+      "name": "getLegacyModelContentType",
+      "namespace": "",
+      "usage": "None",
       "valueType": {
         "$id": "24",
         "kind": "string",
@@ -192,7 +192,7 @@
         "crossLanguageDefinitionId": "TypeSpec.string",
         "decorators": []
       },
-      "value": "t-rex",
+      "value": "application/json",
       "decorators": []
     }
   ],
@@ -280,7 +280,7 @@
               "name": "kind",
               "serializedName": "kind",
               "type": {
-                "$ref": "3"
+                "$ref": "1"
               },
               "optional": false,
               "readOnly": false,
@@ -316,7 +316,7 @@
               "name": "kind",
               "serializedName": "kind",
               "type": {
-                "$ref": "5"
+                "$ref": "3"
               },
               "optional": false,
               "readOnly": false,
@@ -352,7 +352,7 @@
               "name": "kind",
               "serializedName": "kind",
               "type": {
-                "$ref": "7"
+                "$ref": "5"
               },
               "optional": false,
               "readOnly": false,
@@ -388,7 +388,7 @@
               "name": "kind",
               "serializedName": "kind",
               "type": {
-                "$ref": "9"
+                "$ref": "7"
               },
               "optional": false,
               "readOnly": false,
@@ -581,7 +581,7 @@
               "name": "kind",
               "serializedName": "kind",
               "type": {
-                "$ref": "23"
+                "$ref": "9"
               },
               "optional": false,
               "readOnly": false,
@@ -628,7 +628,7 @@
                 "name": "accept",
                 "nameInRequest": "Accept",
                 "type": {
-                  "$ref": "1"
+                  "$ref": "11"
                 },
                 "location": "Header",
                 "isApiVersion": false,
@@ -671,7 +671,7 @@
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
-                "$ref": "1"
+                "$ref": "11"
               },
               "location": "Header",
               "isApiVersion": false,
@@ -712,7 +712,7 @@
                 "nameInRequest": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
                 "type": {
-                  "$ref": "11"
+                  "$ref": "13"
                 },
                 "location": "Header",
                 "isApiVersion": false,
@@ -787,7 +787,7 @@
               "nameInRequest": "contentType",
               "doc": "Body parameter's content type. Known values are application/json",
               "type": {
-                "$ref": "11"
+                "$ref": "13"
               },
               "location": "Header",
               "isApiVersion": false,
@@ -823,7 +823,7 @@
                 "name": "accept",
                 "nameInRequest": "Accept",
                 "type": {
-                  "$ref": "13"
+                  "$ref": "15"
                 },
                 "location": "Header",
                 "isApiVersion": false,
@@ -866,7 +866,7 @@
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
-                "$ref": "13"
+                "$ref": "15"
               },
               "location": "Header",
               "isApiVersion": false,
@@ -907,7 +907,7 @@
                 "nameInRequest": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
                 "type": {
-                  "$ref": "15"
+                  "$ref": "17"
                 },
                 "location": "Header",
                 "isApiVersion": false,
@@ -982,7 +982,7 @@
               "nameInRequest": "contentType",
               "doc": "Body parameter's content type. Known values are application/json",
               "type": {
-                "$ref": "15"
+                "$ref": "17"
               },
               "location": "Header",
               "isApiVersion": false,
@@ -1018,7 +1018,7 @@
                 "name": "accept",
                 "nameInRequest": "Accept",
                 "type": {
-                  "$ref": "17"
+                  "$ref": "19"
                 },
                 "location": "Header",
                 "isApiVersion": false,
@@ -1061,7 +1061,7 @@
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
-                "$ref": "17"
+                "$ref": "19"
               },
               "location": "Header",
               "isApiVersion": false,
@@ -1101,7 +1101,7 @@
                 "name": "accept",
                 "nameInRequest": "Accept",
                 "type": {
-                  "$ref": "19"
+                  "$ref": "21"
                 },
                 "location": "Header",
                 "isApiVersion": false,
@@ -1144,7 +1144,7 @@
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
-                "$ref": "19"
+                "$ref": "21"
               },
               "location": "Header",
               "isApiVersion": false,
@@ -1184,7 +1184,7 @@
                 "name": "accept",
                 "nameInRequest": "Accept",
                 "type": {
-                  "$ref": "21"
+                  "$ref": "23"
                 },
                 "location": "Header",
                 "isApiVersion": false,
@@ -1227,7 +1227,7 @@
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
-                "$ref": "21"
+                "$ref": "23"
               },
               "location": "Header",
               "isApiVersion": false,

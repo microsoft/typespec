@@ -6,9 +6,9 @@
     {
       "$id": "1",
       "kind": "constant",
-      "name": "PngImageContentType",
-      "namespace": "",
-      "usage": "None",
+      "name": "PngImageAsJsonContentType",
+      "namespace": "Payload.ContentNegotiation.DifferentBody",
+      "usage": "Output,Json",
       "valueType": {
         "$id": "2",
         "kind": "string",
@@ -16,13 +16,13 @@
         "crossLanguageDefinitionId": "TypeSpec.string",
         "decorators": []
       },
-      "value": "image/png",
+      "value": "application/json",
       "decorators": []
     },
     {
       "$id": "3",
       "kind": "constant",
-      "name": "PngImageContentType1",
+      "name": "PngImageContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -38,7 +38,7 @@
     {
       "$id": "5",
       "kind": "constant",
-      "name": "PngImageContentType2",
+      "name": "PngImageContentType1",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -54,7 +54,7 @@
     {
       "$id": "7",
       "kind": "constant",
-      "name": "JpegImageContentType",
+      "name": "PngImageContentType2",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -64,13 +64,13 @@
         "crossLanguageDefinitionId": "TypeSpec.string",
         "decorators": []
       },
-      "value": "image/jpeg",
+      "value": "image/png",
       "decorators": []
     },
     {
       "$id": "9",
       "kind": "constant",
-      "name": "JpegImageContentType1",
+      "name": "JpegImageContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -86,7 +86,7 @@
     {
       "$id": "11",
       "kind": "constant",
-      "name": "JpegImageContentType2",
+      "name": "JpegImageContentType1",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -102,7 +102,7 @@
     {
       "$id": "13",
       "kind": "constant",
-      "name": "PngImageContentType3",
+      "name": "JpegImageContentType2",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -112,13 +112,13 @@
         "crossLanguageDefinitionId": "TypeSpec.string",
         "decorators": []
       },
-      "value": "image/png",
+      "value": "image/jpeg",
       "decorators": []
     },
     {
       "$id": "15",
       "kind": "constant",
-      "name": "PngImageContentType4",
+      "name": "PngImageContentType3",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -134,7 +134,7 @@
     {
       "$id": "17",
       "kind": "constant",
-      "name": "PngImageContentType5",
+      "name": "PngImageContentType4",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -150,7 +150,7 @@
     {
       "$id": "19",
       "kind": "constant",
-      "name": "PngImageAsJsonContentType",
+      "name": "PngImageContentType5",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -160,15 +160,15 @@
         "crossLanguageDefinitionId": "TypeSpec.string",
         "decorators": []
       },
-      "value": "application/json",
+      "value": "image/png",
       "decorators": []
     },
     {
       "$id": "21",
       "kind": "constant",
       "name": "PngImageAsJsonContentType1",
-      "namespace": "Payload.ContentNegotiation.DifferentBody",
-      "usage": "Output,Json",
+      "namespace": "",
+      "usage": "None",
       "valueType": {
         "$id": "22",
         "kind": "string",
@@ -228,7 +228,7 @@
           "name": "contentType",
           "serializedName": "content-type",
           "type": {
-            "$ref": "21"
+            "$ref": "1"
           },
           "optional": false,
           "readOnly": false,
@@ -331,7 +331,7 @@
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
-                      "$ref": "1"
+                      "$ref": "3"
                     },
                     "location": "Header",
                     "isApiVersion": false,
@@ -361,7 +361,7 @@
                         "name": "contentType",
                         "nameInResponse": "content-type",
                         "type": {
-                          "$ref": "3"
+                          "$ref": "5"
                         }
                       }
                     ],
@@ -386,7 +386,7 @@
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
-                    "$ref": "5"
+                    "$ref": "7"
                   },
                   "location": "Header",
                   "isApiVersion": false,
@@ -426,7 +426,7 @@
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
-                      "$ref": "7"
+                      "$ref": "9"
                     },
                     "location": "Header",
                     "isApiVersion": false,
@@ -456,7 +456,7 @@
                         "name": "contentType",
                         "nameInResponse": "content-type",
                         "type": {
-                          "$ref": "9"
+                          "$ref": "11"
                         }
                       }
                     ],
@@ -481,7 +481,7 @@
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
-                    "$ref": "11"
+                    "$ref": "13"
                   },
                   "location": "Header",
                   "isApiVersion": false,
@@ -567,7 +567,7 @@
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
-                      "$ref": "13"
+                      "$ref": "15"
                     },
                     "location": "Header",
                     "isApiVersion": false,
@@ -597,7 +597,7 @@
                         "name": "contentType",
                         "nameInResponse": "content-type",
                         "type": {
-                          "$ref": "15"
+                          "$ref": "17"
                         }
                       }
                     ],
@@ -622,7 +622,7 @@
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
-                    "$ref": "17"
+                    "$ref": "19"
                   },
                   "location": "Header",
                   "isApiVersion": false,
@@ -662,7 +662,7 @@
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
-                      "$ref": "19"
+                      "$ref": "21"
                     },
                     "location": "Header",
                     "isApiVersion": false,

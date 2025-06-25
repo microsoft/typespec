@@ -7,8 +7,8 @@
     {
       "$id": "1",
       "kind": "enum",
-      "name": "Versions",
-      "crossLanguageDefinitionId": "Versioning.RenamedFrom.Versions",
+      "name": "OldEnum",
+      "crossLanguageDefinitionId": "Versioning.RenamedFrom.OldEnum",
       "valueType": {
         "$id": "2",
         "kind": "string",
@@ -20,30 +20,28 @@
         {
           "$id": "3",
           "kind": "enumvalue",
-          "name": "v1",
-          "value": "v1",
+          "name": "oldEnumMember",
+          "value": "oldEnumMember",
           "valueType": {
             "$ref": "2"
           },
           "enumType": {
             "$ref": "1"
           },
-          "doc": "The version v1.",
           "decorators": []
         }
       ],
       "namespace": "Versioning.RenamedFrom",
-      "doc": "The version of the API.",
       "isFixed": true,
       "isFlags": false,
-      "usage": "Input,ApiVersionEnum",
+      "usage": "Input,Output,Json",
       "decorators": []
     },
     {
       "$id": "4",
       "kind": "enum",
-      "name": "OldEnum",
-      "crossLanguageDefinitionId": "Versioning.RenamedFrom.OldEnum",
+      "name": "Versions",
+      "crossLanguageDefinitionId": "Versioning.RenamedFrom.Versions",
       "valueType": {
         "$id": "5",
         "kind": "string",
@@ -55,21 +53,23 @@
         {
           "$id": "6",
           "kind": "enumvalue",
-          "name": "oldEnumMember",
-          "value": "oldEnumMember",
+          "name": "v1",
+          "value": "v1",
           "valueType": {
             "$ref": "5"
           },
           "enumType": {
             "$ref": "4"
           },
+          "doc": "The version v1.",
           "decorators": []
         }
       ],
       "namespace": "Versioning.RenamedFrom",
+      "doc": "The version of the API.",
       "isFixed": true,
       "isFlags": false,
-      "usage": "Input,Output,Json",
+      "usage": "Input,ApiVersionEnum",
       "decorators": []
     }
   ],
@@ -179,7 +179,7 @@
           "name": "enumProp",
           "serializedName": "enumProp",
           "type": {
-            "$ref": "4"
+            "$ref": "1"
           },
           "optional": false,
           "readOnly": false,
@@ -480,7 +480,7 @@
           "nameInRequest": "version",
           "doc": "Need to be set as 'v1' or 'v2' in client.",
           "type": {
-            "$ref": "1"
+            "$ref": "4"
           },
           "location": "Uri",
           "isApiVersion": true,
@@ -701,7 +701,7 @@
               "nameInRequest": "version",
               "doc": "Need to be set as 'v1' or 'v2' in client.",
               "type": {
-                "$ref": "1"
+                "$ref": "4"
               },
               "location": "Uri",
               "isApiVersion": true,
