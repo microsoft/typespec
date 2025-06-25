@@ -19,6 +19,15 @@ Write-Host "Parallelization: $Parallelization"
 $generateScript = {
   $tspFile = $_
 
+  if (($tspFile -match "payload[\\/]pageable[\\/]main\.tsp") -and (-not ($tspFile -match "azure[\\/]payload[\\/]pageable[\\/]main\.tsp"))) {
+    Write-Host "
+    SKIPPED
+    $tspFile
+    "
+    # nested pageItems/nextLink/continuationToken is not supported
+    return
+  }
+
   $tspClientFile = $tspFile -replace 'main.tsp', 'client.tsp'
   if (($tspClientFile -match 'client.tsp$') -and (Test-Path $tspClientFile)) {
     $tspFile = $tspClientFile
@@ -99,8 +108,8 @@ $generateScript = {
 
   # Test customization using only JavaParser for one of the TypeSpec definitions - naming-javaparser.tsp
   if ($tspFile -match "tsp[\\/]naming-javaparser.tsp$") {
-      # Add the customization-class option for Java emitter
-      $tspOptions += " --option ""@typespec/http-client-java.customization-class=../../customization/src/main/java/JavaParserCustomizationTest.java"""
+    # Add the customization-class option for Java emitter
+    $tspOptions += " --option ""@typespec/http-client-java.customization-class=../../customization/src/main/java/JavaParserCustomizationTest.java"""
   }
 
   $tspTrace = "--trace import-resolution --trace projection --trace http-client-java"

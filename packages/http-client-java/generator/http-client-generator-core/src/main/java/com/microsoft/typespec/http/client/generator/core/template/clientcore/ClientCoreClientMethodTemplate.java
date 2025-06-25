@@ -700,20 +700,9 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
                 function.line("res.getRequest(),");
                 function.line("res.getStatusCode(),");
                 function.line("res.getHeaders(),");
-                if (settings.isDataPlaneClient()) {
-                    function.line("getValues(res.getValue(), \"%s\"),",
-                        clientMethod.getMethodPageDetails().getSerializedItemName());
-                } else {
-                    function.line("res.getValue().%s(),", CodeNamer.getModelNamer()
-                        .modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
-                }
+                function.line(pageItemsLine(clientMethod));
                 if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
-                    if (settings.isDataPlaneClient()) {
-                        function.line("getNextLink(res.getValue(), \"%s\"),",
-                            clientMethod.getMethodPageDetails().getSerializedNextLinkName());
-                    } else {
-                        function.line(nextLinkLine(clientMethod));
-                    }
+                    function.line(nextLinkLine(clientMethod));
                 } else {
                     function.line("null,");
                 }
@@ -728,8 +717,7 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
                 function.line("res.getRequest(),");
                 function.line("res.getStatusCode(),");
                 function.line("res.getHeaders(),");
-                function.line("res.getValue().%s(),", CodeNamer.getModelNamer()
-                    .modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
+                function.line(pageItemsLine(clientMethod));
                 // continuation token
                 if (clientMethod.getMethodPageDetails().getContinuationToken() != null) {
                     MethodPageDetails.ContinuationToken continuationToken
@@ -738,14 +726,10 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
                         function.line("res.getHeaders().getValue(HttpHeaderName.fromString(" + ClassType.STRING
                             .defaultValueExpression(continuationToken.getResponseHeaderSerializedName()) + ")),");
                     } else if (continuationToken.getResponsePropertyReference() != null) {
-                        StringBuilder continuationTokenExpression = new StringBuilder("res.getValue()");
-                        for (ModelPropertySegment propertySegment : continuationToken.getResponsePropertyReference()) {
-                            continuationTokenExpression.append(".")
-                                .append(
-                                    CodeNamer.getModelNamer().modelPropertyGetterName(propertySegment.getProperty()))
-                                .append("()");
-                        }
-                        function.line(continuationTokenExpression.append(",").toString());
+                        String continuationTokenExpression
+                            = nestedReferenceLineWithNullCheck(continuationToken.getResponsePropertyReference(),
+                                "res.getValue()") + ",";
+                        function.line(continuationTokenExpression);
                     } else {
                         // this should not happen
                         function.line("null,");
@@ -1046,16 +1030,52 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
         return paramJavadoc;
     }
 
+    private static String pageItemsLine(ClientMethod clientMethod) {
+        StringBuilder stringBuilder = new StringBuilder("res.getValue()");
+        for (ModelPropertySegment segment : clientMethod.getMethodPageDetails().getPageItemsPropertyReference()) {
+            stringBuilder.append(".")
+                .append(CodeNamer.getModelNamer().modelPropertyGetterName(segment.getProperty().getName()))
+                .append("()");
+        }
+        return stringBuilder + ",";
+    }
+
     protected static String nextLinkLine(ClientMethod clientMethod) {
         return nextLinkLine(clientMethod, "getValue()");
     }
 
     protected static String nextLinkLine(ClientMethod clientMethod, String valueExpression) {
-        return String.format("res.%3$s.%1$s()%2$s,",
-            CodeNamer.getModelNamer().modelPropertyGetterName(clientMethod.getMethodPageDetails().getNextLinkName()),
-            // nextLink could be type URL
-            (clientMethod.getMethodPageDetails().getNextLinkType() == ClassType.URL ? ".toString()" : ""),
-            valueExpression);
+        return nestedReferenceLineWithNullCheck(clientMethod.getMethodPageDetails().getNextLinkPropertyReference(),
+            "res." + valueExpression) + ",";
+    }
+
+    protected static String nestedReferenceLineWithNullCheck(List<ModelPropertySegment> segments,
+        String valueReferenceExpression) {
+        /*
+         * res.getValue().getNestedNext() != null && res.getValue().getNestedNext().getNext() != null
+         * ? res.getValue().getNestedNext().getNext()
+         * : null
+         */
+        StringBuilder nullCheckStringBuilder = new StringBuilder();
+        StringBuilder propertyRefStringBuilder = new StringBuilder(valueReferenceExpression);
+        for (ModelPropertySegment segment : segments) {
+            propertyRefStringBuilder.append(".")
+                .append(CodeNamer.getModelNamer().modelPropertyGetterName(segment.getProperty().getName()))
+                .append("()");
+
+            if (nullCheckStringBuilder.length() > 0) {
+                nullCheckStringBuilder.append(" && ");
+            }
+            nullCheckStringBuilder.append(propertyRefStringBuilder).append(" != null");
+
+            // this would be the last segment
+            if (segment.getProperty().getClientType() == ClassType.URL) {
+                propertyRefStringBuilder.append(".toString()");
+            }
+        }
+        nullCheckStringBuilder.append(" ? ").append(propertyRefStringBuilder).append(" : null");
+
+        return nullCheckStringBuilder.toString();
     }
 
     private static boolean responseTypeHasDeserializedHeaders(IType type) {
