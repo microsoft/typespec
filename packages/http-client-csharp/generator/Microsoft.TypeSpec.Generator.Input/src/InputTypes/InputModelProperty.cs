@@ -20,66 +20,11 @@ namespace Microsoft.TypeSpec.Generator.Input
         public bool IsDiscriminator { get; internal set; }
         public InputSerializationOptions? SerializationOptions { get; internal set; }
 
-        public void Update(
-            string? name = null,
-            string? summary = null,
-            string? doc = null,
-            InputType? type = null,
-            bool? isRequired = null,
-            bool? isReadOnly = null,
-            string? access = null,
-            bool? isDiscriminator = null,
-            string? serializedName = null,
-            InputSerializationOptions? serializationOptions = null)
+        public void Update(string? name = null)
         {
             if (name != null)
             {
                 Name = name;
-            }
-
-            if (summary != null)
-            {
-                Summary = summary;
-            }
-
-            if (doc != null)
-            {
-                Doc = doc;
-            }
-
-            if (type != null)
-            {
-                Type = type;
-            }
-
-            if (isRequired.HasValue)
-            {
-                IsRequired = isRequired.Value;
-            }
-
-            if (isReadOnly.HasValue)
-            {
-                IsReadOnly = isReadOnly.Value;
-            }
-
-            if (access != null)
-            {
-                Access = access;
-            }
-
-            if (isDiscriminator.HasValue)
-            {
-                IsDiscriminator = isDiscriminator.Value;
-            }
-
-            if (serializedName != null)
-            {
-                SerializedName = serializedName;
-            }
-
-            if (serializationOptions != null)
-            {
-                SerializationOptions = serializationOptions;
             }
         }
     }
