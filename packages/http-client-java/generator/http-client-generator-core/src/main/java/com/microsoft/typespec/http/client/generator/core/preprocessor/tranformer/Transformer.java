@@ -533,8 +533,6 @@ public class Transformer {
                             });
                     }
                 }
-                operation.getExtensions().getXmsPageable().setNextOperation(nextOperation);
-                nextOperation.getExtensions().getXmsPageable().setNextOperation(nextOperation);
                 operationNextPageOperationMap.put(operationSignature, nextOperation);
             } else {
                 // In case the same operation instance is processed more than once(both in "transformOperationGroups"
@@ -542,6 +540,9 @@ public class Transformer {
                 // we share the same next-page operation for the same operation instance.
                 nextOperation = operationNextPageOperationMap.get(operationSignature);
             }
+            operation.getExtensions().getXmsPageable().setNextOperation(nextOperation);
+            nextOperation.getExtensions().getXmsPageable().setNextOperation(nextOperation);
+
             operationGroup.getOperations().add(nextOperation);
         } else {
             Operation nextOperation = operationGroup.getOperations()

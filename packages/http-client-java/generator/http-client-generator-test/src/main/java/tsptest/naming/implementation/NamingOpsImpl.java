@@ -137,6 +137,7 @@ public final class NamingOpsImpl {
      *     }
      *     type: String(Blob/File) (Required)
      *     status: String(Running/Completed/Failed) (Required)
+     *     domainUsername: String (Required)
      *     anonymous (Required): {
      *         last_error (Required): {
      *             code: String(server_error/rate_limit_exceeded/invalid_prompt) (Required)
@@ -204,6 +205,7 @@ public final class NamingOpsImpl {
      *     }
      *     type: String(Blob/File) (Required)
      *     status: String(Running/Completed/Failed) (Required)
+     *     domainUsername: String (Required)
      *     anonymous (Required): {
      *         last_error (Required): {
      *             code: String(server_error/rate_limit_exceeded/invalid_prompt) (Required)

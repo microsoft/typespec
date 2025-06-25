@@ -120,7 +120,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         Response<RequestQueryResponseBodyResponse> res = service.requestQueryResponseBody(this.client.getEndpoint(),
             token, foo, bar, accept, RequestContext.none());
         return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
-            res.getValue().getNextToken(), null, null, null, null);
+            res.getValue().getNextToken() != null ? res.getValue().getNextToken() : null, null, null, null, null);
     }
 
     /**
@@ -142,7 +142,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         Response<RequestQueryResponseBodyResponse> res
             = service.requestQueryResponseBody(this.client.getEndpoint(), token, foo, bar, accept, requestContext);
         return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
-            res.getValue().getNextToken(), null, null, null, null);
+            res.getValue().getNextToken() != null ? res.getValue().getNextToken() : null, null, null, null, null);
     }
 
     /**
@@ -237,7 +237,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         Response<RequestHeaderResponseBodyResponse> res = service.requestHeaderResponseBody(this.client.getEndpoint(),
             token, foo, bar, accept, RequestContext.none());
         return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
-            res.getValue().getNextToken(), null, null, null, null);
+            res.getValue().getNextToken() != null ? res.getValue().getNextToken() : null, null, null, null, null);
     }
 
     /**
@@ -259,7 +259,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         Response<RequestHeaderResponseBodyResponse> res
             = service.requestHeaderResponseBody(this.client.getEndpoint(), token, foo, bar, accept, requestContext);
         return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
-            res.getValue().getNextToken(), null, null, null, null);
+            res.getValue().getNextToken() != null ? res.getValue().getNextToken() : null, null, null, null, null);
     }
 
     /**

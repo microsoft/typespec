@@ -75,18 +75,13 @@ extends:
               - checkout: self
               - pwsh: |
                   # Determine the TypeSpec PR URL 
-                  $sourceBranch = '$(Build.SourceBranch)'
-                  $repoUrl = '$(Build.Repository.Uri)'
+                  $repoUrl = '$(Build.Repository.Uri)'.TrimEnd('/')
+                  $commitSha = '$(Build.SourceVersion)'
+                  $typeSpecCommitUrl = "$repoUrl/commit/$commitSha"
 
-                  if ($sourceBranch -match "^refs/pull/(\d+)/(head|merge)$") {
-                    $typeSpecPRUrl = "$repoUrl/pull/$($Matches[1])"
-                  } elseif ($sourceBranch -match "^refs/heads/(.+)$") {
-                    $typeSpecPRUrl = "$repoUrl/tree/$($Matches[1])"
-                  } else {
-                    $typeSpecPRUrl = "$repoUrl/tree/$sourceBranch"
-                  }
-                  Write-Host "TypeSpec PR URL: $typeSpecPRUrl"
-                  Write-Host "##vso[task.setvariable variable=TypeSpecPRUrl]$typeSpecPRUrl"
+                  Write-Host "Commit SHA: $commitSha"
+                  Write-Host "TypeSpec Commit URL: $typeSpecCommitUrl"
+                  Write-Host "##vso[task.setvariable variable=TypeSpecCommitUrl]$typeSpecCommitUrl"
                 displayName: Set variables for PR creation
 
               - task: UseDotNet@2
@@ -101,5 +96,5 @@ extends:
                   filePath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Submit-AzureSdkForNetPr.ps1
                   arguments: >
                     -PackageVersion '$(PackageVersion)'
-                    -TypeSpecPRUrl '$(TypeSpecPRUrl)'
+                    -TypeSpecCommitUrl '$(TypeSpecCommitUrl)'
                     -AuthToken '$(azuresdk-github-pat)'

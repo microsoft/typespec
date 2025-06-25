@@ -5,6 +5,7 @@ azure-mgmt-core==1.5.0
 # only for azure
 -e ./generated/azure-client-generator-core-access
 -e ./generated/azure-client-generator-core-client-initialization
+-e ./generated/azure-client-generator-core-deserialize-empty-string-as-null
 -e ./generated/azure-client-generator-core-flatten-property
 -e ./generated/azure-client-generator-core-usage
 -e ./generated/azure-core-basic
@@ -14,9 +15,12 @@ azure-mgmt-core==1.5.0
 -e ./generated/azure-core-model
 -e ./generated/azure-core-traits
 -e ./generated/azure-core-page
+-e ./generated/azure-encode-duration
 -e ./generated/azure-special-headers-client-request-id/
 -e ./generated/azure-example-basic
 -e ./generated/azure-resource-manager-common-properties
+-e ./generated/azure-resource-manager-large-header
+-e ./generated/azure-resource-manager-non-resource
 -e ./generated/azure-resource-manager-operation-templates
 -e ./generated/azure-resource-manager-resources
 # -e ./generated/client-namespace
