@@ -4244,6 +4244,72 @@ Expected request body:
 { "kind": "cobra", "length": 10 }
 ```
 
+### Type_Model_Inheritance_InlineUnionDiscriminator_getMissingDiscriminator
+
+- Endpoint: `get /type/model/inheritance/inline-union-discriminator/missingdiscriminator`
+
+Get a model omitting the discriminator.
+Expected response body:
+
+```json
+{ "name": "Fluffy", "meow": true }
+```
+
+### Type_Model_Inheritance_InlineUnionDiscriminator_getModel
+
+- Endpoint: `get /type/model/inheritance/inline-union-discriminator/model`
+
+Generate and receive polymorphic model with inline union discriminator.
+Expected response body:
+
+```json
+{ "type": "text" }
+```
+
+### Type_Model_Inheritance_InlineUnionDiscriminator_getSimpleModel
+
+- Endpoint: `get /type/model/inheritance/inline-union-discriminator/simplemodel`
+
+Generate and receive polymorphic model with simple inline union discriminator.
+Expected response body:
+
+```json
+{ "kind": "cat", "name": "Fluffy", "meow": true }
+```
+
+### Type_Model_Inheritance_InlineUnionDiscriminator_getWrongDiscriminator
+
+- Endpoint: `get /type/model/inheritance/inline-union-discriminator/wrongdiscriminator`
+
+Get a model containing discriminator value never defined.
+Expected response body:
+
+```json
+{ "kind": "bird", "name": "Tweety" }
+```
+
+### Type_Model_Inheritance_InlineUnionDiscriminator_putModel
+
+- Endpoint: `put /type/model/inheritance/inline-union-discriminator/model`
+
+Generate and send polymorphic model with inline union discriminator.
+Expected input body:
+
+```json
+{ "type": "text" }
+```
+
+### Type_Model_Inheritance_InlineUnionDiscriminator_putSimpleModel
+
+- Endpoint: `put /type/model/inheritance/inline-union-discriminator/simplemodel`
+
+Generate and send polymorphic model with simple inline union discriminator.
+Expected input body:
+
+```json
+{ "kind": "cat", "name": "Fluffy", "meow": true }
+```
+
 ### Type_Model_Inheritance_NestedDiscriminator_getMissingDiscriminator
 
 - Endpoint: `get /type/model/inheritance/nested-discriminator/missingdiscriminator`
