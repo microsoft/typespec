@@ -18,31 +18,41 @@ The TypeSpec Generator follows a layered architecture designed for extensibility
 └─────────────────┬───────────────────┘
                   │
 ┌─────────────────▼───────────────────┐
-│         Input Processing            │  ← Parse & deserialize TypeSpec JSON
+│    1. Input Processing Layer        │  ← Parse & deserialize TypeSpec JSON
 │      (InputLibrary, InputTypes)     │
 └─────────────────┬───────────────────┘
                   │
 ┌─────────────────▼───────────────────┐
-│      Code Model Generation          │  ← Transform input to output model
+│  2. Code Model Generation Layer     │  ← Transform input to output model
 │    (CodeModelGenerator, Factories)  │
 └─────────────────┬───────────────────┘
                   │
 ┌─────────────────▼───────────────────┐
-│       Visitor Pipeline              │  ← Apply transformations & plugins
+│    3. Output Model Layer            │  ← Type providers & representations
+│    (OutputLibrary, TypeProvider)    │
+└─────────────────┬───────────────────┘
+                  │
+┌─────────────────▼───────────────────┐
+│  4. Transformation Pipeline         │  ← Apply transformations & plugins
 │   (LibraryVisitor, LibraryRewriter) │
 └─────────────────┬───────────────────┘
                   │
 ┌─────────────────▼───────────────────┐
-│      Code Generation                │  ← Generate C# source files
+│   5. Code Generation Layer          │  ← Generate C# source files
 │    (Writers, Providers, Snippets)   │
 └─────────────────┬───────────────────┘
                   │
 ┌─────────────────▼───────────────────┐
-│        C# Client Library            │  ← Final generated client code
-└─────────────────────────────────────┘
+│   6. Configuration & Context        │  ← Runtime context & settings
+│  (Configuration, GeneratorContext)  │
+└─────────────────┬───────────────────┘
                   │
 ┌─────────────────▼───────────────────┐
-│        Emitter Communication        │  ← JSON-RPC logging & diagnostics
+│        C# Client Library            │  ← Final generated client code
+└─────────────────┬───────────────────┘
+                  │
+┌─────────────────▼───────────────────┐
+│ 7. Emitter Communication Layer      │  ← JSON-RPC logging & diagnostics
 │           (Emitter)                 │    back to TypeSpec compiler
 └─────────────────────────────────────┘
 ```
