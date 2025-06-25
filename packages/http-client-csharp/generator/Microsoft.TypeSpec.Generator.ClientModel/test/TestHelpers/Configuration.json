@@ -1,9 +1,0 @@
-{
-  "output-folder": "./outputFolder",
-  "project-folder": "./projectFolder",
-  "namespace": "Sample",
-  "unknown-bool-property": false,
-  "package-name": "SampleLibrary",
-  "unknown-string-property": "unknownPropertyValue",
-  "disable-xml-docs": true
-}

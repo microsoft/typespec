@@ -1,6 +1,0 @@
-{
-  "output-folder": ".",
-  "namespace": "SampleTypeSpec",
-  "library-name": "SampleTypeSpec",
-  "use-model-reader-writer": true
-}
