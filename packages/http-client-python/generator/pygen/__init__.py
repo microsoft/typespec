@@ -169,7 +169,7 @@ class OptionsDict(MutableMapping):
                 )
         return value
 
-    def setdefault(self, key: str, default: Any, /) -> Any:  # type: ignore
+    def setdefault(self, key: str, default: Any, /) -> Any:  # type: ignore # pylint: disable=arguments-differ
         """Set a default value for a key if it does not exist."""
         if key not in self._data:
             self[key] = default
