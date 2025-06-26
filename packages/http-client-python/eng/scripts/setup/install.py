@@ -41,21 +41,36 @@ _ROOT_DIR = Path(__file__).parent.parent.parent.parent
 def main():
     venv_path = _ROOT_DIR / "venv"
     if venv_path.exists():
+        print("creating venv in existing directory")
         env_builder = venv.EnvBuilder(with_pip=True)
+        print("done")
         venv_context = env_builder.ensure_directories(venv_path)
     else:
-        env_builder = ExtendedEnvBuilder(with_pip=True, upgrade_deps=True)
-        env_builder.create(venv_path)
-        venv_context = env_builder.context
-
-        # Use detected package manager for installations
+        print("creating venv in new directory")
+        
         if package_manager == "uv":
-            # For uv, we can use uv pip install directly
+            # Use uv to create and manage the virtual environment
             import subprocess
-            subprocess.check_call(["uv", "pip", "install", "-U", "pip"])
-            subprocess.check_call(["uv", "pip", "install", "-U", "black"])
-            subprocess.check_call(["uv", "pip", "install", "-e", f"{_ROOT_DIR}/generator"])
+            print("Creating venv with uv...")
+            subprocess.check_call(["uv", "venv", str(venv_path)])
+            
+            # Create a mock venv_context for compatibility
+            class MockVenvContext:
+                def __init__(self, venv_path):
+                    self.env_exe = str(venv_path / "bin" / "python") if sys.platform != "win32" else str(venv_path / "Scripts" / "python.exe")
+            
+            venv_context = MockVenvContext(venv_path)
+            
+            print("Installing packages with uv...")
+            subprocess.check_call(["uv", "pip", "install", "-U", "pip", "--python", venv_context.env_exe])
+            subprocess.check_call(["uv", "pip", "install", "-U", "black", "--python", venv_context.env_exe])
+            subprocess.check_call(["uv", "pip", "install", "-e", f"{_ROOT_DIR}/generator", "--python", venv_context.env_exe])
         else:
+            # Use standard venv for pip
+            env_builder = ExtendedEnvBuilder(with_pip=True, upgrade_deps=True)
+            env_builder.create(venv_path)
+            venv_context = env_builder.context
+            
             # For pip, use the existing python_run approach
             python_run(venv_context, "pip", ["install", "-U", "pip"])
             python_run(venv_context, "pip", ["install", "-U", "black"])
