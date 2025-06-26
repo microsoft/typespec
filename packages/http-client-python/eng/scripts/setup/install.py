@@ -57,7 +57,6 @@ def main():
             
             venv_context = MockVenvContext(venv_path)
             
-            print("Installing packages with uv...")
             subprocess.check_call(["uv", "pip", "install", "-U", "pip", "--python", venv_context.env_exe])
             subprocess.check_call(["uv", "pip", "install", "-U", "black", "--python", venv_context.env_exe])
             subprocess.check_call(["uv", "pip", "install", "-e", f"{_ROOT_DIR}/generator", "--python", venv_context.env_exe])
