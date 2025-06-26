@@ -14,6 +14,9 @@ using Microsoft.TypeSpec.Generator.Statements;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
+    /// <summary>
+    /// Provides a base class for describing and generating C# types from TypeSpec input models.
+    /// </summary>
     public abstract class TypeProvider
     {
         private Lazy<TypeProvider?> _customCodeView;
@@ -21,6 +24,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private Lazy<CanonicalTypeProvider> _canonicalView;
         private readonly InputType? _inputType;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TypeProvider"/> class with the specified input type.
+        /// </summary>
+        /// <param name="inputType">The input type to use for this provider.</param>
         protected TypeProvider(InputType? inputType = default)
         {
             _customCodeView = new(() => BuildCustomCodeView());
@@ -31,11 +38,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TypeProvider"/> class for mocking.
+        /// </summary>
         protected TypeProvider() : this(null)
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
         }
 
+        /// <summary>
+        /// Builds the custom code view for this type provider, optionally using a generated type name.
+        /// </summary>
+        /// <param name="generatedTypeName">The generated type name to use, or null to use the default.</param>
+        /// <returns>The custom code view type provider, or null if not found.</returns>
         private protected virtual TypeProvider? BuildCustomCodeView(string? generatedTypeName = null)
             => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
                 BuildNamespace(),
@@ -43,84 +58,70 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // Use the Type.Name so that any customizations to the declaring type are applied for the lookup.
                 DeclaringTypeProvider?.Type.Name);
 
+        /// <summary>
+        /// Builds the last contract view for this type provider.
+        /// </summary>
+        /// <returns>The last contract view type provider, or null if not found.</returns>
         private protected virtual TypeProvider? BuildLastContractView()
             => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(BuildNamespace(), BuildName(), DeclaringTypeProvider?.BuildName());
 
-        public TypeProvider? CustomCodeView => _customCodeView.Value;
-        public TypeProvider? LastContractView => _lastContractView.Value;
-
-        private IReadOnlyList<PropertyProvider> BuildAllCustomProperties()
-        {
-            var allCustomProperties = CustomCodeView?.Properties != null
-                ? new List<PropertyProvider>(CustomCodeView.Properties)
-                : [];
-            var baseTypeCustomCodeView = BaseTypeProvider?.CustomCodeView;
-
-            // add all custom properties from base types
-            while (baseTypeCustomCodeView != null)
-            {
-                allCustomProperties.AddRange(baseTypeCustomCodeView.Properties);
-                baseTypeCustomCodeView = baseTypeCustomCodeView.BaseTypeProvider?.CustomCodeView;
-            }
-
-            return allCustomProperties;
-        }
-
-        private IReadOnlyList<FieldProvider> BuildAllCustomFields()
-        {
-            var allCustomFields = CustomCodeView?.Fields != null
-                ? new List<FieldProvider>(CustomCodeView.Fields)
-                : [];
-            var baseTypeCustomCodeView = BaseTypeProvider?.CustomCodeView;
-
-            // add all custom fields from base types
-            while (baseTypeCustomCodeView != null)
-            {
-                allCustomFields.AddRange(baseTypeCustomCodeView.Fields);
-                baseTypeCustomCodeView = baseTypeCustomCodeView.BaseTypeProvider?.CustomCodeView;
-            }
-
-            return allCustomFields;
-        }
-
+        /// <summary>
+        /// Builds the canonical view for this type provider.
+        /// </summary>
+        /// <returns>The canonical type provider.</returns>
         private protected virtual CanonicalTypeProvider BuildCanonicalView() => new CanonicalTypeProvider(this, _inputType);
-        public TypeProvider CanonicalView => _canonicalView.Value;
-
-        protected string? _deprecated;
 
         /// <summary>
-        /// Gets the relative file path where the generated file will be stored.
-        /// This path is relative to the project's root directory.
+        /// Gets the base type provider for this type, if any.
         /// </summary>
-        // Intentionally do not cache this value as the name might be changed in a visitor so we want to always
-        // recalculate it.
-        public string RelativeFilePath => _relativeFilePath ?? BuildRelativeFilePath();
+        internal virtual TypeProvider? BaseTypeProvider => null;
 
-        private string? _relativeFilePath;
+        /// <summary>
+        /// Gets the declaring type provider for this type, if any.
+        /// </summary>
+        public virtual TypeProvider? DeclaringTypeProvider { get; protected init; }
 
+        /// <summary>
+        /// Gets the <see cref="WhereExpression"/> clause for this type, if any.
+        /// </summary>
+        public virtual WhereExpression? WhereClause { get; protected init; }
+
+        /// <summary>
+        /// Gets the list of attributes for this type.
+        /// </summary>
+        public IReadOnlyList<AttributeStatement> Attributes => _attributes ??= BuildAttributes();
+
+        /// <summary>
+        /// Gets the name of the type.
+        /// </summary>
         public string Name => Type.Name;
 
+        /// <summary>
+        /// Gets the description of the type.
+        /// </summary>
         public FormattableString Description => _description ??= BuildDescription();
-        private FormattableString? _description;
 
-        protected virtual FormattableString BuildDescription() => FormattableStringHelpers.Empty;
-
-        private XmlDocProvider? _xmlDocs;
-
+        /// <summary>
+        /// Gets the XML documentation provider for this type.
+        /// </summary>
         public XmlDocProvider XmlDocs
         {
             get => _xmlDocs ??= BuildXmlDocs();
             private set => _xmlDocs = value;
         }
 
+        /// <summary>
+        /// Gets the deprecation message for this type, if any.
+        /// </summary>
         public string? Deprecated
         {
             get => _deprecated;
             private set => _deprecated = value;
         }
 
-        private CSharpType? _type;
-        private CSharpType[]? _arguments;
+        /// <summary>
+        /// Gets the CSharpType for this type provider.
+        /// </summary>
         public CSharpType Type => _type ??=
             new(
                 CustomCodeView?.Name ?? BuildName(),
@@ -136,98 +137,96 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 GetBaseType(),
                 IsEnum ? EnumUnderlyingType.FrameworkType : null);
 
-        protected virtual bool GetIsEnum() => false;
+        /// <summary>
+        /// Gets a value indicating whether this type is an enum.
+        /// </summary>
         public bool IsEnum => GetIsEnum();
 
-        protected virtual string BuildNamespace() => CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace;
+        /// <summary>
+        /// Gets the declaration modifiers for this type.
+        /// </summary>
+        public TypeSignatureModifiers DeclarationModifiers => _declarationModifiers ??= BuildDeclarationModifiersInternal();
+
+        /// <summary>
+        /// Gets the list of interfaces implemented by this type.
+        /// </summary>
+        public IReadOnlyList<CSharpType> Implements => _implements ??= BuildImplements();
+
+        /// <summary>
+        /// Gets the list of properties for this type.
+        /// </summary>
+        public IReadOnlyList<PropertyProvider> Properties => _properties ??= FilterCustomizedProperties(BuildProperties());
+
+        /// <summary>
+        /// Gets the list of methods for this type.
+        /// </summary>
+        public IReadOnlyList<MethodProvider> Methods => _methods ??= BuildMethodsInternal();
+
+        /// <summary>
+        /// Gets the list of constructors for this type.
+        /// </summary>
+        public IReadOnlyList<ConstructorProvider> Constructors => _constructors ??= BuildConstructorsInternal();
+
+        /// <summary>
+        /// Gets the list of fields for this type.
+        /// </summary>
+        public IReadOnlyList<FieldProvider> Fields => _fields ??= FilterCustomizedFields(BuildFields());
+
+        /// <summary>
+        /// Gets the list of nested types for this type.
+        /// </summary>
+        public IReadOnlyList<TypeProvider> NestedTypes => _nestedTypes ??= BuildNestedTypesInternal();
+
+        /// <summary>
+        /// Gets the list of serialization providers for this type.
+        /// </summary>
+        public IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProviders();
+
+        /// <summary>
+        /// Gets the enum underlying type for this type, if it is an enum.
+        /// </summary>
+        public CSharpType EnumUnderlyingType => _enumUnderlyingType ??= BuildEnumUnderlyingType();
+
+        /// <summary>
+        /// Gets the list of enum values for this type, if it is an enum.
+        /// </summary>
+        public IReadOnlyList<EnumTypeMember> EnumValues => _enumValues ??= BuildEnumValues();
+
+        /// <summary>
+        /// Gets the relative file path where the generated file will be stored.
+        /// This path is relative to the project's root directory.
+        /// </summary>
+        // Intentionally do not cache this value as the name might be changed in a visitor so we want to always
+        // recalculate it.
+        public string RelativeFilePath => _relativeFilePath ?? BuildRelativeFilePath();
+
+        private string? _relativeFilePath;
+
+        private protected virtual CanonicalTypeProvider BuildCanonicalView() => new CanonicalTypeProvider(this, _inputType);
+
+        protected string? _deprecated;
+
+        private CSharpType? _type;
+        private CSharpType[]? _arguments;
+        protected virtual bool GetIsEnum() => false;
 
         private TypeSignatureModifiers? _declarationModifiers;
 
-        public TypeSignatureModifiers DeclarationModifiers => _declarationModifiers ??= BuildDeclarationModifiersInternal();
-
-        protected virtual TypeSignatureModifiers BuildDeclarationModifiers() => TypeSignatureModifiers.None;
-
-        private TypeSignatureModifiers BuildDeclarationModifiersInternal()
-        {
-            var modifiers = BuildDeclarationModifiers();
-            var customModifiers = CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
-            if (customModifiers != TypeSignatureModifiers.None)
-            {
-                // if the custom modifiers contain accessibility modifiers, we override the default ones
-                if (customModifiers.HasFlag(TypeSignatureModifiers.Internal) ||
-                    customModifiers.HasFlag(TypeSignatureModifiers.Public) ||
-                    customModifiers.HasFlag(TypeSignatureModifiers.Private))
-                {
-                    modifiers &= ~(TypeSignatureModifiers.Internal | TypeSignatureModifiers.Public | TypeSignatureModifiers.Private);
-                }
-                modifiers |= customModifiers;
-            }
-            // we default to public when no accessibility modifier is provided
-            if (!modifiers.HasFlag(TypeSignatureModifiers.Internal) && !modifiers.HasFlag(TypeSignatureModifiers.Public) && !modifiers.HasFlag(TypeSignatureModifiers.Private))
-            {
-                modifiers |= TypeSignatureModifiers.Public;
-            }
-
-            // we should have exactly have one class, struct, enum or interface
-            var mask = modifiers & (TypeSignatureModifiers.Class | TypeSignatureModifiers.Struct | TypeSignatureModifiers.Enum | TypeSignatureModifiers.Interface);
-            // check if we have none
-            if (mask == 0)
-            {
-                modifiers |= TypeSignatureModifiers.Class;
-            }
-            // check if we have multiple
-            // mask & (mask - 1) gives us 0 if mask is a power of 2, it means we have exactly one flag of above when the mask is a power of 2
-            if ((mask & (mask - 1)) != 0)
-            {
-                throw new InvalidOperationException($"Invalid modifier {modifiers} on TypeProvider {Name}");
-            }
-
-            // we always add partial when possible
-            if (!modifiers.HasFlag(TypeSignatureModifiers.Enum) && DeclaringTypeProvider is null)
-            {
-                modifiers |= TypeSignatureModifiers.Partial;
-            }
-
-            return modifiers;
-        }
-
-        internal virtual TypeProvider? BaseTypeProvider => null;
-
-        protected virtual CSharpType? GetBaseType() => null;
-
-        public virtual WhereExpression? WhereClause { get; protected init; }
-
-        public virtual TypeProvider? DeclaringTypeProvider { get; protected init; }
-
         private IReadOnlyList<CSharpType>? _implements;
-
-        public IReadOnlyList<CSharpType> Implements => _implements ??= BuildImplements();
 
         private IReadOnlyList<PropertyProvider>? _properties;
 
-        public IReadOnlyList<PropertyProvider> Properties => _properties ??= FilterCustomizedProperties(BuildProperties());
-
         private IReadOnlyList<MethodProvider>? _methods;
-        public IReadOnlyList<MethodProvider> Methods => _methods ??= BuildMethodsInternal();
-
         private IReadOnlyList<ConstructorProvider>? _constructors;
 
-        public IReadOnlyList<ConstructorProvider> Constructors => _constructors ??= BuildConstructorsInternal();
-
         private IReadOnlyList<FieldProvider>? _fields;
-        public IReadOnlyList<FieldProvider> Fields => _fields ??= FilterCustomizedFields(BuildFields());
-
         private IReadOnlyList<TypeProvider>? _nestedTypes;
-        public IReadOnlyList<TypeProvider> NestedTypes => _nestedTypes ??= BuildNestedTypesInternal();
-
         private IReadOnlyList<TypeProvider>? _serializationProviders;
-
-        public IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProviders();
 
         private IReadOnlyList<AttributeStatement>? _attributes;
         public IReadOnlyList<AttributeStatement> Attributes => _attributes ??= BuildAttributes();
 
-        protected virtual CSharpType[] GetTypeArguments() => [];
+        private IReadOnlyList<EnumTypeMember>? _enumValues;
 
         private protected virtual PropertyProvider[] FilterCustomizedProperties(PropertyProvider[] specProperties)
         {
@@ -330,37 +329,122 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [.. nestedTypes];
         }
 
-        protected virtual PropertyProvider[] BuildProperties() => [];
+        /// <summary>
+        /// Gets the canonical view for this type provider.
+        /// </summary>
+        public TypeProvider CanonicalView => _canonicalView.Value;
 
-        protected virtual FieldProvider[] BuildFields() => [];
+        /// <summary>
+        /// Builds the description for this type provider.
+        /// </summary>
+        /// <returns>The description as a <see cref="FormattableString"/>.</returns>
+        protected virtual FormattableString BuildDescription() => FormattableStringHelpers.Empty;
 
-        protected virtual CSharpType[] BuildImplements() => [];
-
-        protected virtual MethodProvider[] BuildMethods() => [];
-
-        protected virtual ConstructorProvider[] BuildConstructors() => [];
-
-        protected virtual TypeProvider[] BuildNestedTypes() => [];
-
-        protected virtual TypeProvider[] BuildSerializationProviders() => [];
-
-        protected virtual CSharpType BuildEnumUnderlyingType() => throw new InvalidOperationException("Not an EnumProvider type");
-
-        protected virtual IReadOnlyList<AttributeStatement> BuildAttributes() => [];
-
-        private CSharpType? _enumUnderlyingType;
-
-        public CSharpType EnumUnderlyingType => _enumUnderlyingType ??= BuildEnumUnderlyingType(); // Each member in the EnumProvider has to have this type
-
+        /// <summary>
+        /// Builds the XML documentation provider for this type.
+        /// </summary>
+        /// <returns>The XML documentation provider.</returns>
         protected virtual XmlDocProvider BuildXmlDocs()
         {
             var docs = new XmlDocProvider(new XmlDocSummaryStatement([Description]));
-
             return docs;
         }
 
+        /// <summary>
+        /// Builds the relative file path for this type provider.
+        /// </summary>
+        /// <returns>The relative file path.</returns>
         protected abstract string BuildRelativeFilePath();
+
+        /// <summary>
+        /// Builds the name for this type provider.
+        /// </summary>
+        /// <returns>The name.</returns>
         protected abstract string BuildName();
+
+        /// <summary>
+        /// Builds the namespace for this type provider.
+        /// </summary>
+        /// <returns>The namespace.</returns>
+        protected virtual string BuildNamespace() => CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace;
+
+        /// <summary>
+        /// Builds the declaration modifiers for this type provider.
+        /// </summary>
+        /// <returns>The declaration modifiers.</returns>
+        protected virtual TypeSignatureModifiers BuildDeclarationModifiers() => TypeSignatureModifiers.None;
+
+        /// <summary>
+        /// Gets the list of properties for this type.
+        /// </summary>
+        /// <returns>An array of <see cref="PropertyProvider"/>.</returns>
+        protected virtual PropertyProvider[] BuildProperties() => [];
+
+        /// <summary>
+        /// Gets the list of fields for this type.
+        /// </summary>
+        /// <returns>An array of <see cref="FieldProvider"/>.</returns>
+        protected virtual FieldProvider[] BuildFields() => [];
+
+        /// <summary>
+        /// Gets the list of interfaces implemented by this type.
+        /// </summary>
+        /// <returns>An array of <see cref="CSharpType"/>.</returns>
+        protected virtual CSharpType[] BuildImplements() => [];
+
+        /// <summary>
+        /// Gets the list of methods for this type.
+        /// </summary>
+        /// <returns>An array of <see cref="MethodProvider"/>.</returns>
+        protected virtual MethodProvider[] BuildMethods() => [];
+
+        /// <summary>
+        /// Gets the list of constructors for this type.
+        /// </summary>
+        /// <returns>An array of <see cref="ConstructorProvider"/>.</returns>
+        protected virtual ConstructorProvider[] BuildConstructors() => [];
+
+        /// <summary>
+        /// Gets the list of nested types for this type.
+        /// </summary>
+        /// <returns>An array of <see cref="TypeProvider"/>.</returns>
+        protected virtual TypeProvider[] BuildNestedTypes() => [];
+
+        /// <summary>
+        /// Gets the list of serialization providers for this type.
+        /// </summary>
+        /// <returns>An array of <see cref="TypeProvider"/>.</returns>
+        protected virtual TypeProvider[] BuildSerializationProviders() => [];
+
+        /// <summary>
+        /// Gets the enum underlying type for this type, if it is an enum.
+        /// </summary>
+        /// <returns>The underlying <see cref="CSharpType"/>.</returns>
+        protected virtual CSharpType BuildEnumUnderlyingType() => throw new InvalidOperationException("Not an EnumProvider type");
+
+        /// <summary>
+        /// Builds the attributes for this type provider.
+        /// </summary>
+        /// <returns>A read-only list of <see cref="AttributeStatement"/>.</returns>
+        protected virtual IReadOnlyList<AttributeStatement> BuildAttributes() => [];
+
+        /// <summary>
+        /// Builds the enum values for this type provider.
+        /// </summary>
+        /// <returns>A read-only list of <see cref="EnumTypeMember"/>.</returns>
+        protected virtual IReadOnlyList<EnumTypeMember> BuildEnumValues() => throw new InvalidOperationException("Not an EnumProvider type");
+
+        /// <summary>
+        /// Gets the custom code view for this type provider, if any.
+        /// </summary>
+        public TypeProvider? CustomCodeView => _customCodeView.Value;
+
+        /// <summary>
+        /// Gets the last contract view for this type provider, if any.
+        /// </summary>
+        public TypeProvider? LastContractView => _lastContractView.Value;
+
+        private string? _relativeFilePath;
 
         /// <summary>
         /// Resets the type provider to its initial state, clearing all cached properties and fields.
@@ -476,9 +560,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // Rebuild the canonical view
             _canonicalView = new(BuildCanonicalView);
         }
-        public IReadOnlyList<EnumTypeMember> EnumValues => _enumValues ??= BuildEnumValues();
-
-        protected virtual IReadOnlyList<EnumTypeMember> BuildEnumValues() => throw new InvalidOperationException("Not an EnumProvider type");
 
         internal void EnsureBuilt()
         {

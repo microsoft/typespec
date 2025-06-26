@@ -24,6 +24,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private CodeWriterDeclaration? _declaration;
 
+        /// <summary>
+        /// Gets the code writer declaration for this field.
+        /// </summary>
         public CodeWriterDeclaration Declaration => _declaration ??= new CodeWriterDeclaration(Name);
 
         /// <summary>
@@ -31,10 +34,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// </summary>
         public ParameterProvider AsParameter => _parameter.Value;
 
+        /// <summary>
+        /// Gets the variable expression for this field.
+        /// </summary>
         public VariableExpression AsVariableExpression => _variable ??= new(Type, Name.ToVariableName());
 
+        /// <summary>
+        /// Gets the value expression for this field.
+        /// </summary>
         public ValueExpression AsValueExpression => this;
 
+        /// <summary>
+        /// Gets the enclosing type provider for this field.
+        /// </summary>
         public TypeProvider EnclosingType { get; }
 
         internal string? OriginalName { get; init; }
@@ -75,6 +87,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private MemberExpression? _asMember;
+        /// <summary>
+        /// Implicitly converts a <see cref="FieldProvider"/> to a <see cref="MemberExpression"/>.
+        /// </summary>
+        /// <param name="field">The field provider.</param>
         public static implicit operator MemberExpression(FieldProvider field) => field._asMember ??= new MemberExpression(null, field.Name);
     }
 }

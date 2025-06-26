@@ -17,11 +17,29 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
+    /// <summary>
+    /// Provides a model for describing and generating extensible enums as readonly structs from TypeSpec input models.
+    /// </summary>
     internal sealed class ExtensibleEnumProvider : EnumProvider
     {
+        /// <summary>
+        /// The allowed values for the extensible enum.
+        /// </summary>
         private readonly IReadOnlyList<InputEnumTypeValue> _allowedValues;
+        /// <summary>
+        /// The declaration modifiers for the extensible enum.
+        /// </summary>
         private readonly TypeSignatureModifiers _modifiers;
+        /// <summary>
+        /// The input type for the extensible enum.
+        /// </summary>
         private readonly InputEnumType _inputType;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExtensibleEnumProvider"/> class.
+        /// </summary>
+        /// <param name="input">The input enum type.</param>
+        /// <param name="declaringType">The declaring type provider, if any.</param>
         internal ExtensibleEnumProvider(InputEnumType input, TypeProvider? declaringType) : base(input)
         {
             _inputType = input;
@@ -38,10 +56,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
             DeclaringTypeProvider = declaringType;
         }
 
+        /// <summary>
+        /// The backing value field for the extensible enum.
+        /// </summary>
         private readonly FieldProvider _valueField;
 
+        /// <inheritdoc/>
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => _modifiers;
 
+        /// <inheritdoc/>
         protected override IReadOnlyList<EnumTypeMember> BuildEnumValues()
         {
             var values = new EnumTypeMember[_allowedValues.Count];
@@ -70,12 +93,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return values;
         }
 
+        /// <inheritdoc/>
         protected override CSharpType[] BuildImplements()
-            => [new CSharpType(typeof(IEquatable<>), Type)]; // extensible enums implement IEquatable<Self>
+            => [new CSharpType(typeof(IEquatable<>), Type)];
 
+        /// <inheritdoc/>
         protected override FieldProvider[] BuildFields()
             => [_valueField, .. EnumValues.Select(v => v.Field)];
 
+        /// <inheritdoc/>
         protected override PropertyProvider[] BuildProperties()
         {
             var properties = new PropertyProvider[EnumValues.Count];
@@ -97,6 +123,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return properties;
         }
 
+        /// <inheritdoc/>
         protected override ConstructorProvider[] BuildConstructors()
         {
             var valueParameter = new ParameterProvider("value", $"The value.", EnumUnderlyingType)
@@ -118,6 +145,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [new ConstructorProvider(signature, body, this)];
         }
 
+        /// <inheritdoc/>
         protected override MethodProvider[] BuildMethods()
         {
             var methods = new List<MethodProvider>();
@@ -240,10 +268,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             return methods.ToArray();
         }
+        /// <inheritdoc/>
         protected override TypeProvider[] BuildSerializationProviders()
         {
             return CodeModelGenerator.Instance.TypeFactory.CreateSerializations(_inputType, this).ToArray();
         }
+
+        /// <inheritdoc/>
         protected override bool GetIsEnum() => true;
     }
 }
