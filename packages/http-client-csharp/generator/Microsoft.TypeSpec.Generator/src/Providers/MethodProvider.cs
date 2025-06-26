@@ -42,14 +42,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             MethodBodyStatement bodyStatements,
             TypeProvider enclosingType,
             XmlDocProvider? xmlDocProvider = default,
-            IReadOnlyList<AttributeStatement>? attributes = default)
+            IEnumerable<AttributeStatement>? attributes = default)
         {
             Signature = signature;
             var paramHash = MethodProviderHelpers.GetParamHash(signature);
             BodyStatements = MethodProviderHelpers.GetBodyStatementWithValidation(signature.Parameters, bodyStatements, paramHash);
             XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature);
             EnclosingType = enclosingType;
-            Attributes = attributes ?? [];
+            Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [];
         }
 
         /// <summary>
@@ -65,13 +65,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             ValueExpression bodyExpression,
             TypeProvider enclosingType,
             XmlDocProvider? xmlDocProvider = default,
-            IReadOnlyList<AttributeStatement>? attributes = default)
+            IEnumerable<AttributeStatement>? attributes = default)
         {
             Signature = signature;
             BodyExpression = bodyExpression;
             XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature);
             EnclosingType = enclosingType;
-            Attributes = attributes ?? [];
+            Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [];
         }
 
         public void Update(
@@ -79,7 +79,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             MethodBodyStatement? bodyStatements = null,
             ValueExpression? bodyExpression = null,
             XmlDocProvider? xmlDocProvider = null,
-            IReadOnlyList<AttributeStatement>? attributes = default)
+            IEnumerable<AttributeStatement>? attributes = default)
         {
             if (signature != null)
             {
@@ -103,7 +103,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             if (attributes != null)
             {
-                Attributes = attributes;
+                Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [];
             }
         }
 

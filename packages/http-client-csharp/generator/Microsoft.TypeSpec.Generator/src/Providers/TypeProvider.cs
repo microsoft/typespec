@@ -412,6 +412,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             IEnumerable<FieldProvider>? fields = null,
             IEnumerable<TypeProvider>? serializations = null,
             IEnumerable<TypeProvider>? nestedTypes = null,
+            IEnumerable<AttributeStatement>? attributes = default,
             XmlDocProvider? xmlDocs = null,
             TypeSignatureModifiers? modifiers = null,
             string? name = null,
@@ -458,6 +459,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (relativeFilePath != null)
             {
                 _relativeFilePath = relativeFilePath;
+            }
+            if (attributes != null)
+            {
+                _attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [.. attributes];
             }
 
             if (name != null)

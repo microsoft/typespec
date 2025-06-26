@@ -114,7 +114,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             TypeProvider enclosingType,
             CSharpType? explicitInterface = null,
             PropertyWireInformation? wireInfo = null,
-            IReadOnlyList<AttributeStatement>? attributes = null)
+            IEnumerable<AttributeStatement>? attributes = null)
         {
             Modifiers = modifiers;
             Type = type;
@@ -124,7 +124,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             WireInfo = wireInfo;
             EnclosingType = enclosingType;
-            Attributes = attributes ?? [];
+            Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [];
 
             InitializeParameter(description ?? FormattableStringHelpers.Empty);
             _customDescription = description;
@@ -264,7 +264,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             CSharpType? explicitInterface = null,
             PropertyWireInformation? wireInfo = null,
             XmlDocProvider? xmlDocs = null,
-            IReadOnlyList<AttributeStatement>? attributes = null)
+            IEnumerable<AttributeStatement>? attributes = null)
         {
             if (description != null)
             {
@@ -300,7 +300,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             if (attributes != null)
             {
-                Attributes = attributes;
+                Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [];
             }
             if (xmlDocs != null)
             {
