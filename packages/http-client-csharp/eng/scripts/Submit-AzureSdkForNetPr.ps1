@@ -154,11 +154,19 @@ try {
         # Run npm run build
         Write-Host "Running npm run build in eng/packages/http-client-csharp..."
         $shouldRunGenerate = $true
-        Invoke "npm run build" $httpClientDir
-        if ($LASTEXITCODE -ne 0) {
-            # log a warning as we still want to create the PR but not run Generate.ps1
-            Write-Warning "npm run build failed, skipping Generate.ps1"
+        $previousErrorAction = $ErrorActionPreference
+        $ErrorActionPreference = "Continue"
+        try {
+            Invoke "npm run build" $httpClientDir
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warning "npm run build failed with exit code $LASTEXITCODE, skipping Generate.ps1"
+                $shouldRunGenerate = $false
+            }
+        } catch {
+            Write-Warning "npm run build failed: $($_.Exception.Message), skipping Generate.ps1"
             $shouldRunGenerate = $false
+        } finally {
+            $ErrorActionPreference = $previousErrorAction
         }
         
         # Run Generate.ps1 from the package root
