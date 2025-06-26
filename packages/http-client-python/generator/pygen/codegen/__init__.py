@@ -15,7 +15,7 @@ from .serializers import JinjaSerializer
 
 
 _LOGGER = logging.getLogger(__name__)
-      
+
 
 class CodeGenerator(Plugin):
 
@@ -78,7 +78,7 @@ class CodeGenerator(Plugin):
             self.remove_cloud_errors(yaml_data)
 
         code_model = CodeModel(yaml_data=yaml_data, options=self.options)
-        if not self.options["flavor"] == "azure" and any(client.lro_operations for client in code_model.clients):
+        if self.options["flavor"] != "azure" and any(client.lro_operations for client in code_model.clients):
             raise ValueError("Only support LROs for Azure SDKs")
         serializer = self.get_serializer(code_model)
         serializer.serialize()

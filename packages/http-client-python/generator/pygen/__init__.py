@@ -19,29 +19,31 @@ from ._version import VERSION
 __version__ = VERSION
 _LOGGER = logging.getLogger(__name__)
 
+
 class OptionsDict(MutableMapping):
     DEFAULTS = {
-      "azure-arm": False,
-      "basic-setup-py": False,
-      "client-side-validation": False,
-      "emit-cross-language-definition-file": False,
-      "flavor": "azure",  # need to default to azure in shared code so we don't break swagger generation
-      "from-typespec": False,
-      "generate-sample": False,
-      "generate-test": False,
-      "head-as-boolean": True,
-      "keep-version-file": False,
-      "low-level-client": False,
-      "multiapi": False,
-      "no-async": False,
-      "no-namespace-folders": False,
-      "polymorphic-examples": 5,
-      "validate-versioning": True,
-      "version-tolerant": True,
+        "azure-arm": False,
+        "basic-setup-py": False,
+        "client-side-validation": False,
+        "emit-cross-language-definition-file": False,
+        "flavor": "azure",  # need to default to azure in shared code so we don't break swagger generation
+        "from-typespec": False,
+        "generate-sample": False,
+        "generate-test": False,
+        "head-as-boolean": True,
+        "keep-version-file": False,
+        "low-level-client": False,
+        "multiapi": False,
+        "no-async": False,
+        "no-namespace-folders": False,
+        "polymorphic-examples": 5,
+        "validate-versioning": True,
+        "version-tolerant": True,
     }
-    
+
     def __init__(self, options: Optional[Dict[str, Any]] = None) -> None:
         self._data = options.copy() if options else {}
+        self._validate_combinations()
 
     def __getitem__(self, key: str) -> Any:
         if key == "head-as-boolean" and self.get("azure-arm"):
@@ -51,15 +53,15 @@ class OptionsDict(MutableMapping):
             retval = self._data[key]
             if key == "package-files-config":
                 try:
-                  return {k.strip(): v.strip() for k, v in [i.split(":") for i in retval.split("|")]}
+                    return {k.strip(): v.strip() for k, v in [i.split(":") for i in retval.split("|")]}
                 except AttributeError:
-                  return retval
+                    return retval
             return retval
         if key == "package-mode" and self._data.get("packaging-files-dir"):
             # if packaging-files-dir is set, use it as package-mode
             return self._data["packaging-files-dir"]
         return self._get_default(key)
-    
+
     def __setitem__(self, key: str, value: Any) -> None:
         validated_value = self._validate_and_transform(key, value)
         self._data[key] = validated_value
@@ -69,57 +71,47 @@ class OptionsDict(MutableMapping):
             del self._data[key]
         else:
             raise KeyError(f"Option '{key}' not found")
-        
+
     def __iter__(self) -> Iterator[str]:
         # Return both explicitly set keys and all possible default keys
         return iter(set(self.keys()))
-    
+
     def __len__(self) -> int:
         return len(set(self._data.keys()).union(self.DEFAULTS.keys()))
 
-    def __contains__(self, key: str) -> bool: # type: ignore
-        return key in self._data or key in self.DEFAULTS.keys()
-    
+    def __contains__(self, key: str) -> bool:  # type: ignore
+        return key in self._data or key in self.DEFAULTS
+
     def __repr__(self) -> str:
         """String representation."""
         return f"OptionsDict({dict(self.items())})"
-    
-    def _get_default(self, key: str) -> Any:
-      if key == "show-operations":
-          return not self.get("low-level-client")
-      if key == "tracing":
-          return self.get("show-operations") and self.get("flavor") == "azure"
-      if key in ["show-send-request", "only-path-and-body-params-positional", "default-optional-constants-to-none"]:
-          return self.get("low-level-client") or self.get("version-tolerant")
-      if key == "combine-operation-files":
-          return self.get("version-tolerant")
-      if key == "package-pprint-name":
-          return " ".join([i.capitalize() for i in str(self.get("package-name", "")).split("-")])
-      if key == "builders-visibility":
-          # Default to public if low-level client is not set, otherwise embedded
-          return "public" if not self.get("low-level-client") else "embedded"
-      if key == "models-mode":
-          models_mode_default = "none" if self.get("low-level-client") or self.get("version-tolerant") else "msrest"
-          if self.get("tsp_file") is not None:
-              models_mode_default = "dpg"
-          # switch to falsy value for easier code writing
-          return False if models_mode_default == "none" else models_mode_default
-      try:
-          return self.DEFAULTS[key]
-      except KeyError:
-          return None
 
-    def _validate_and_transform(self, key: str, value: Any) -> Any:
-        if self.get("builders-visibility") not in ["public", "hidden", "embedded"]:
-            raise ValueError("The value of --builders-visibility must be either 'public', 'hidden', or 'embedded'")
+    def _get_default(self, key: str) -> Any:  # pylint: disable=too-many-return-statements
+        if key == "show-operations":
+            return not self.get("low-level-client")
+        if key == "tracing":
+            return self.get("show-operations") and self.get("flavor") == "azure"
+        if key in ["show-send-request", "only-path-and-body-params-positional", "default-optional-constants-to-none"]:
+            return self.get("low-level-client") or self.get("version-tolerant")
+        if key == "combine-operation-files":
+            return self.get("version-tolerant")
+        if key == "package-pprint-name":
+            return " ".join([i.capitalize() for i in str(self.get("package-name", "")).split("-")])
+        if key == "builders-visibility":
+            # Default to public if low-level client is not set, otherwise embedded
+            return "public" if not self.get("low-level-client") else "embedded"
+        if key == "models-mode":
+            models_mode_default = "none" if self.get("low-level-client") or self.get("version-tolerant") else "msrest"
+            if self.get("tsp_file") is not None:
+                models_mode_default = "dpg"
+            # switch to falsy value for easier code writing
+            return False if models_mode_default == "none" else models_mode_default
+        try:
+            return self.DEFAULTS[key]
+        except KeyError:
+            return None
 
-        if self.get("models-mode") not in ["msrest", "dpg", "none", False]:
-            raise ValueError(
-                "--models-mode can only be 'msrest', 'dpg' or 'none'. "
-                "Pass in 'msrest' if you want msrest models, or "
-                "'none' if you don't want any."
-            )
-
+    def _validate_combinations(self) -> None:
         if not self.get("show-operations") and self.get("builders-visibility") == "embedded":
             raise ValueError(
                 "Can not embed builders without operations. "
@@ -138,21 +130,6 @@ class OptionsDict(MutableMapping):
                 "Can not combine operation files if you are not showing operations. "
                 "If you want operation files, pass in flag --show-operations"
             )
-        package_mode = self.get("package-mode")
-        if package_mode:
-            if (
-                (
-                    self.get("package-mode") not in TYPESPEC_PACKAGE_MODE
-                    and self.get("from-typespec")
-                )
-                or (
-                    self.get("package-mode") not in VALID_PACKAGE_MODE
-                    and not self.get("from-typespec")
-                )
-            ) and not Path(package_mode).exists():
-                raise ValueError(
-                    f"--package-mode can only be {' or '.join(TYPESPEC_PACKAGE_MODE)} or directory which contains template files"  # pylint: disable=line-too-long
-                )
 
         if self.get("multiapi") and self.get("version-tolerant"):
             raise ValueError(
@@ -171,13 +148,33 @@ class OptionsDict(MutableMapping):
 
         if self.get("flavor") != "azure" and self.get("tracing"):
             raise ValueError("Can only have tracing turned on for Azure SDKs.")
-        
-    def setdefault(self, key: str, default: Any, /) -> Any:
+
+    def _validate_and_transform(self, key: str, value: Any) -> Any:
+        if key == "builders-visibility" and value not in ["public", "hidden", "embedded"]:
+            raise ValueError("The value of --builders-visibility must be either 'public', 'hidden', or 'embedded'")
+
+        if key == "models-mode" and value not in ["msrest", "dpg", "none", False]:
+            raise ValueError(
+                "--models-mode can only be 'msrest', 'dpg' or 'none'. "
+                "Pass in 'msrest' if you want msrest models, or "
+                "'none' if you don't want any."
+            )
+        if key == "package-mode":
+            if (
+                (value not in TYPESPEC_PACKAGE_MODE and self.get("from-typespec"))
+                or (value not in VALID_PACKAGE_MODE and not self.get("from-typespec"))
+            ) and not Path(value).exists():
+                raise ValueError(
+                    f"--package-mode can only be {' or '.join(TYPESPEC_PACKAGE_MODE)} or directory which contains template files"  # pylint: disable=line-too-long
+                )
+        return value
+
+    def setdefault(self, key: str, default: Any, /) -> Any:  # type: ignore
         """Set a default value for a key if it does not exist."""
         if key not in self._data:
             self[key] = default
         return self[key]
-    
+
     def keys(self) -> KeysView[str]:
         """Return all keys, including defaults."""
         all_keys = set(self._data.keys())
@@ -186,12 +183,12 @@ class OptionsDict(MutableMapping):
                 all_keys.add(key)
         all_keys.update(self.DEFAULTS.keys())
         return KeysView({key: None for key in all_keys})
-    
+
     def values(self) -> ValuesView[Any]:
-        return ValuesView(dict((key, self[key]) for key in self.keys()))
+        return {key: self[key] for key in self.keys()}.values()  # pylint: disable=consider-using-dict-items
 
     def items(self) -> ItemsView[str, Any]:
-        return ItemsView(dict((key, self[key]) for key in self.keys()))
+        return {key: self[key] for key in self.keys()}.items()  # pylint: disable=consider-using-dict-items
 
 
 class ReaderAndWriter:
