@@ -4,8 +4,8 @@
 
 /**
  * <!-- start generated doc -->
- * Package containing the classes for Pageable.
- * Test for pageable payload.
+ * Package containing the classes for ClientLocation.
+ * Test for &#064;clientLocation decorator - moving operations between clients.
  * <!-- end generated doc -->
  */
-package payload.pageable;
+package azure.clientgenerator.core.clientlocation;

@@ -11,6 +11,7 @@ export interface DevOptions {
   debug?: boolean;
   loglevel?: "off" | "debug" | "info" | "warn" | "error";
   "java-temp-dir"?: string; // working directory for java codegen, e.g. transformed code-model file
+  profile?: boolean; // enable performance profiling
 }
 
 export interface License {
@@ -53,6 +54,11 @@ export const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
         "java-temp-dir": {
           type: "string",
           description: "Temporary working directory for Java code generator.",
+          nullable: true,
+        },
+        profile: {
+          type: "boolean",
+          description: "Enable performance profiling.",
           nullable: true,
         },
       },

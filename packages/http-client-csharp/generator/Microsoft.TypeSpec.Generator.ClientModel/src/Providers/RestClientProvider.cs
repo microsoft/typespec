@@ -153,29 +153,57 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             InputPagingServiceMethod? pagingServiceMethod = serviceMethod as InputPagingServiceMethod;
             var operation = serviceMethod.Operation;
             var declareUri = Declare("uri", New.Instance(request.UriBuilderType), out ScopedApi uri);
+            // For next request methods, handle URI differently
+            var nextLink = isNextLinkRequest
+                ? pagingServiceMethod?.PagingMetadata.NextLink
+                : null;
 
-            MethodBodyStatement[] statements =
+            if (isNextLinkRequest && nextLink != null)
+            {
+                List<MethodBodyStatement> nextLinkBodyStatements =
+                [
+                    declareUri,
+                    uri.Reset(ScmKnownParameters.NextPage.AsExpression()).Terminate()
+                ];
+
+                // handle reinjected parameters
+                if (nextLink.ReInjectedParameters?.Count > 0)
+                {
+                    // map of the reinjected parameter name to its' corresponding parameter in the method signature
+                    var reinjectedParamsMap = new Dictionary<string, ParameterProvider>(nextLink.ReInjectedParameters.Count);
+                    foreach (var param in nextLink.ReInjectedParameters)
+                    {
+                        var reinjectedParameter = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(param);
+                        if (reinjectedParameter != null && paramMap.TryGetValue(reinjectedParameter.Name, out var paramInSignature))
+                        {
+                            reinjectedParamsMap[param.Name] = paramInSignature;
+                        }
+                    }
+
+                    if (reinjectedParamsMap.Count > 0)
+                    {
+                        nextLinkBodyStatements.AddRange(AppendQueryParameters(uri, operation, reinjectedParamsMap));
+                        nextLinkBodyStatements.Add(request.SetUri(uri));
+                        nextLinkBodyStatements.AddRange(AppendHeaderParameters(request, operation, reinjectedParamsMap));
+                        return nextLinkBodyStatements;
+                    }
+                }
+
+                nextLinkBodyStatements.Add(request.SetUri(uri));
+                nextLinkBodyStatements.AddRange(AppendHeaderParameters(request, operation, paramMap, isNextLink: true));
+                return nextLinkBodyStatements;
+            }
+
+            return new MethodBodyStatements(
             [
+                declareUri,
                 uri.Reset(ClientProvider.EndpointField).Terminate(),
                 .. AppendPathParameters(uri, operation, paramMap),
                 .. AppendQueryParameters(uri, operation, paramMap),
                 request.SetUri(uri),
                 .. AppendHeaderParameters(request, operation, paramMap),
                 .. GetSetContent(request, signature.Parameters)
-            ];
-
-            // For next request methods, handle URI differently
-            if (isNextLinkRequest && pagingServiceMethod?.PagingMetadata.NextLink != null)
-            {
-                return new MethodBodyStatements([
-                    declareUri,
-                    uri.Reset(ScmKnownParameters.NextPage.AsExpression()).Terminate(),
-                    request.SetUri(uri),
-                    new MethodBodyStatements(AppendHeaderParameters(request, operation, paramMap, isNextLink: true).ToList())
-                ]);
-            }
-
-            return new MethodBodyStatements([declareUri, .. statements]);
+            ]);
         }
 
         private IReadOnlyList<MethodBodyStatement> GetSetContent(HttpRequestApi request, IReadOnlyList<ParameterProvider> parameters)

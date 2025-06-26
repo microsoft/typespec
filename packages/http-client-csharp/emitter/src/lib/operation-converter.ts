@@ -520,6 +520,24 @@ function loadPagingServiceMetadata(
         rootApiVersions,
       );
     }
+
+    if (
+      method.pagingMetadata.nextLinkReInjectedParametersSegments &&
+      method.pagingMetadata.nextLinkReInjectedParametersSegments.length > 0
+    ) {
+      const nextLinkReInjectedParameters = [];
+      for (const parameterSegments of method.pagingMetadata.nextLinkReInjectedParametersSegments) {
+        const lastParameterSegment = parameterSegments[
+          parameterSegments.length - 1
+        ] as SdkModelPropertyType;
+        const operationParameter = getHttpOperationParameter(method, lastParameterSegment);
+        if (operationParameter) {
+          const parameter = fromParameter(context, operationParameter, rootApiVersions);
+          nextLinkReInjectedParameters.push(parameter);
+        }
+      }
+      nextLink.reInjectedParameters = nextLinkReInjectedParameters;
+    }
   }
 
   let continuationToken: InputContinuationToken | undefined;
