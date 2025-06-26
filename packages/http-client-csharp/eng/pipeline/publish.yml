@@ -85,9 +85,9 @@ extends:
                 displayName: Set variables for PR creation
 
               - task: UseNode@1
-                displayName: 'Install Node.js'
+                displayName: "Install Node.js"
                 inputs:
-                  version: '22.x'
+                  version: "22.x"
 
               - download: current
                 displayName: Download pipeline artifacts

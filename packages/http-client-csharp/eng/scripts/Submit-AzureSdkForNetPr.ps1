@@ -161,6 +161,32 @@ try {
         }
     }
     
+    # Copy emitter-package.json artifacts if they exist in the typespec repo
+    $typespecRepoPath = $env:BUILD_SOURCESDIRECTORY
+    if ($typespecRepoPath) {
+        $emitterPackageJsonSource = Join-Path $typespecRepoPath "eng/http-client-csharp-emitter-package.json"
+        $emitterPackageLockSource = Join-Path $typespecRepoPath "eng/http-client-csharp-emitter-package-lock.json"
+        
+        $emitterPackageJsonDest = Join-Path $tempDir "eng/http-client-csharp-emitter-package.json"
+        $emitterPackageLockDest = Join-Path $tempDir "eng/http-client-csharp-emitter-package-lock.json"
+        
+        if (Test-Path $emitterPackageJsonSource) {
+            Write-Host "Copying emitter-package.json from typespec repo..."
+            Copy-Item $emitterPackageJsonSource $emitterPackageJsonDest -Force
+        } else {
+            Write-Warning "emitter-package.json not found at $emitterPackageJsonSource"
+        }
+        
+        if (Test-Path $emitterPackageLockSource) {
+            Write-Host "Copying emitter-package-lock.json from typespec repo..."
+            Copy-Item $emitterPackageLockSource $emitterPackageLockDest -Force
+        } else {
+            Write-Warning "emitter-package-lock.json not found at $emitterPackageLockSource"
+        }
+    } else {
+        Write-Warning "BUILD_SOURCESDIRECTORY environment variable not set. Cannot copy emitter-package files."
+    }
+    
     # Check if there are changes to commit
     $gitStatus = git status --porcelain
     if (-not $gitStatus) {
