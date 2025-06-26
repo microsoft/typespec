@@ -13,10 +13,11 @@ if not sys.version_info >= (3, 9, 0):
     )
 
 try:
-    import pip
-except (ImportError, ModuleNotFoundError):
+    from package_manager import detect_package_manager, PackageManagerNotFoundError
+    package_manager = detect_package_manager()
+except (ImportError, ModuleNotFoundError, PackageManagerNotFoundError):
     raise Warning(
-        "Your Python installation doesn't have pip available. We will run your code with Pyodide since your Python version isn't adequate."
+        "Your Python installation doesn't have a suitable package manager (pip or uv) available. We will run your code with Pyodide since your Python environment isn't adequate."
     )
 
 try:
@@ -27,11 +28,12 @@ except (ImportError, ModuleNotFoundError):
     )
 
 
-# Now we have pip and Py >= 3.8, go to work
+# Now we have a package manager (uv or pip) and Py >= 3.8, go to work
 
 from pathlib import Path
 
 from venvtools import ExtendedEnvBuilder, python_run
+from package_manager import get_install_command
 
 _ROOT_DIR = Path(__file__).parent.parent.parent.parent
 
@@ -46,9 +48,18 @@ def main():
         env_builder.create(venv_path)
         venv_context = env_builder.context
 
-        python_run(venv_context, "pip", ["install", "-U", "pip"])
-        python_run(venv_context, "pip", ["install", "-U", "black"])
-        python_run(venv_context, "pip", ["install", "-e", f"{_ROOT_DIR}/generator"])
+        # Use detected package manager for installations
+        if package_manager == "uv":
+            # For uv, we can use uv pip install directly
+            import subprocess
+            subprocess.check_call(["uv", "pip", "install", "-U", "pip"])
+            subprocess.check_call(["uv", "pip", "install", "-U", "black"])
+            subprocess.check_call(["uv", "pip", "install", "-e", f"{_ROOT_DIR}/generator"])
+        else:
+            # For pip, use the existing python_run approach
+            python_run(venv_context, "pip", ["install", "-U", "pip"])
+            python_run(venv_context, "pip", ["install", "-U", "black"])
+            python_run(venv_context, "pip", ["install", "-e", f"{_ROOT_DIR}/generator"])
 
 
 if __name__ == "__main__":

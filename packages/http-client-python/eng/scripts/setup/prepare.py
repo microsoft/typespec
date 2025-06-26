@@ -18,6 +18,7 @@ from pathlib import Path
 import venv
 
 from venvtools import python_run
+from package_manager import detect_package_manager, PackageManagerNotFoundError
 
 _ROOT_DIR = Path(__file__).parent.parent.parent.parent
 
@@ -30,12 +31,22 @@ def main():
 
     env_builder = venv.EnvBuilder(with_pip=True)
     venv_context = env_builder.ensure_directories(venv_path)
+    
     try:
-        python_run(
-            venv_context,
-            "pip",
-            ["install", "-r", f"{_ROOT_DIR}/generator/dev_requirements.txt"],
-        )
+        package_manager = detect_package_manager()
+    except PackageManagerNotFoundError:
+        raise ValueError("No suitable package manager (pip or uv) found")
+    
+    try:
+        if package_manager == "uv":
+            import subprocess
+            subprocess.check_call(["uv", "pip", "install", "-r", f"{_ROOT_DIR}/generator/dev_requirements.txt"])
+        else:
+            python_run(
+                venv_context,
+                "pip",
+                ["install", "-r", f"{_ROOT_DIR}/generator/dev_requirements.txt"],
+            )
     except FileNotFoundError as e:
         raise ValueError(e.filename)
 
