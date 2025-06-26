@@ -11,6 +11,8 @@ The URL of the pull request in the TypeSpec repository that triggered this updat
 A GitHub personal access token for authentication.
 .PARAMETER BranchName
 The name of the branch to create in the azure-sdk-for-net repository.
+.PARAMETER TypeSpecSourceDirectory
+The source directory of the TypeSpec repository containing the emitter package artifacts.
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -24,7 +26,10 @@ param(
   [string]$AuthToken,
 
   [Parameter(Mandatory = $false)]
-  [string]$BranchName = "typespec/update-http-client-$PackageVersion"
+  [string]$BranchName = "typespec/update-http-client-$PackageVersion",
+
+  [Parameter(Mandatory = $false)]
+  [string]$TypeSpecSourceDirectory
 )
 
 # Import the Generation module to use the Invoke helper function
@@ -50,6 +55,7 @@ This PR updates the UnbrandedGeneratorVersion property in eng/Packages.Data.prop
 - Updated eng/packages/http-client-csharp/package.json dependency version
 - Ran npm install to update package-lock.json
 - Ran eng/packages/http-client-csharp/eng/scripts/Generate.ps1 to regenerate test projects
+- Generated emitter-package.json artifacts using tsp-client
 
 This is an automated PR created by the TypeSpec publish pipeline.
 "@
@@ -166,6 +172,31 @@ try {
         }
     }
     
+    # Copy emitter-package.json artifacts if they exist in the typespec repo
+    if ($TypeSpecSourceDirectory) {
+        $emitterPackageJsonSource = Join-Path $TypeSpecSourceDirectory "eng/http-client-csharp-emitter-package.json"
+        $emitterPackageLockSource = Join-Path $TypeSpecSourceDirectory "eng/http-client-csharp-emitter-package-lock.json"
+        
+        $emitterPackageJsonDest = Join-Path $tempDir "eng/http-client-csharp-emitter-package.json"
+        $emitterPackageLockDest = Join-Path $tempDir "eng/http-client-csharp-emitter-package-lock.json"
+        
+        if (Test-Path $emitterPackageJsonSource) {
+            Write-Host "Copying emitter-package.json from typespec repo..."
+            Copy-Item $emitterPackageJsonSource $emitterPackageJsonDest -Force
+        } else {
+            Write-Warning "emitter-package.json not found at $emitterPackageJsonSource"
+        }
+        
+        if (Test-Path $emitterPackageLockSource) {
+            Write-Host "Copying emitter-package-lock.json from typespec repo..."
+            Copy-Item $emitterPackageLockSource $emitterPackageLockDest -Force
+        } else {
+            Write-Warning "emitter-package-lock.json not found at $emitterPackageLockSource"
+        }
+    } else {
+        Write-Warning "TypeSpecSourceDirectory parameter not provided. Cannot copy emitter-package files."
+    }
+    
     # Check if there are changes to commit
     $gitStatus = git status --porcelain
     if (-not $gitStatus) {
@@ -179,6 +210,8 @@ try {
     git add eng/packages/http-client-csharp/package.json
     git add eng/packages/http-client-csharp/package-lock.json
     git add eng/packages/http-client-csharp/generator/TestProjects/
+    git add eng/http-client-csharp-emitter-package.json
+    git add eng/http-client-csharp-emitter-package-lock.json
     
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to add changes"

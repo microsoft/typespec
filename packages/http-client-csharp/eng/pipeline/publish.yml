@@ -84,6 +84,37 @@ extends:
                   Write-Host "##vso[task.setvariable variable=TypeSpecCommitUrl]$typeSpecCommitUrl"
                 displayName: Set variables for PR creation
 
+              - task: UseNode@1
+                displayName: "Install Node.js"
+                inputs:
+                  version: "22.x"
+
+              - download: current
+                displayName: Download pipeline artifacts
+
+              - pwsh: |
+                  npm install -g @azure-tools/typespec-client-generator-cli@latest
+                displayName: Install tsp-client
+
+              - pwsh: |
+                  Write-Host "Build artifacts location: $(Pipeline.Workspace)/build_artifacts_csharp"
+
+                  if (Test-Path -Path '$(Pipeline.Workspace)/build_artifacts_csharp/overrides.json') {
+                    Write-Host "Using overrides.json to generate emitter-package.json"
+                    tsp-client generate-config-files `
+                    --package-json '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json' `
+                    --emitter-package-json-path 'eng/http-client-csharp-emitter-package.json' `
+                    --overrides '$(Pipeline.Workspace)/build_artifacts_csharp/overrides.json'
+                  } else {
+                    Write-Host "No overrides.json found. Running tsp-client without overrides."
+
+                    tsp-client generate-config-files `
+                    --package-json '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json' `
+                    --emitter-package-json-path 'eng/http-client-csharp-emitter-package.json'
+                  }
+                displayName: Generate emitter-package.json and emitter-package-lock files
+                workingDirectory: $(Build.SourcesDirectory)
+
               - task: UseDotNet@2
                 inputs:
                   useGlobalJson: true
@@ -98,3 +129,4 @@ extends:
                     -PackageVersion '$(PackageVersion)'
                     -TypeSpecCommitUrl '$(TypeSpecCommitUrl)'
                     -AuthToken '$(azuresdk-github-pat)'
+                    -TypeSpecSourceDirectory '$(Build.SourcesDirectory)'
