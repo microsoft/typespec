@@ -14,7 +14,7 @@ export default defineConfig({
       }),
     ),
     defineConfig({
-      name: "extension", // 👈 添加 name 字段
+      name: "extension",
       test: {
         include: ["test/extension/**/*.test.ts"],
         testTimeout: process.env.CI ? 240_000 : Number.POSITIVE_INFINITY,
