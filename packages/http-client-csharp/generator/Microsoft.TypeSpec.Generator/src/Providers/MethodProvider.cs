@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Linq;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -88,6 +89,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal virtual MethodProvider? Accept(LibraryVisitor visitor)
         {
+            var originalPartaMeterNames = Signature.Parameters.Select(p => p.Name).ToList();
             var updated = visitor.VisitMethod(this);
             if (updated == null)
             {
@@ -100,6 +102,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             Signature = updated.Signature;
+            var updatedParameterNames = Signature.Parameters.Select(p => p.Name).ToList();
+            if (!originalPartaMeterNames.SequenceEqual(updatedParameterNames) || XmlDocs is null)
+            {
+                XmlDocs = MethodProviderHelpers.BuildXmlDocs(Signature);
+            }
 
             if (BodyExpression != null)
             {
