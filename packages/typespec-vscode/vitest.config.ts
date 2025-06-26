@@ -1,18 +1,20 @@
 import { defineConfig, mergeConfig } from "vitest/config";
-import { defaultTypeSpecVitestConfig } from "../../vitest.workspace.js";
 import path from "node:path";
+import { defaultTypeSpecVitestConfig } from "../../vitest.workspace.js";
 
 export default defineConfig({
   projects: [
     mergeConfig(
       defaultTypeSpecVitestConfig,
       defineConfig({
+        name: "unit",
         test: {
           include: ["test/unit/**/*.test.ts"],
         },
       }),
     ),
     defineConfig({
+      name: "extension", // 👈 添加 name 字段
       test: {
         include: ["test/extension/**/*.test.ts"],
         testTimeout: process.env.CI ? 240_000 : Number.POSITIVE_INFINITY,
