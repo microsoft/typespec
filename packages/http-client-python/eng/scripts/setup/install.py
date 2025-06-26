@@ -14,7 +14,7 @@ if not sys.version_info >= (3, 9, 0):
 
 try:
     from package_manager import detect_package_manager, PackageManagerNotFoundError
-    package_manager = detect_package_manager()
+    detect_package_manager()  # Just check if we have a package manager
 except (ImportError, ModuleNotFoundError, PackageManagerNotFoundError):
     raise Warning(
         "Your Python installation doesn't have a suitable package manager (pip or uv) available. We will run your code with Pyodide since your Python environment isn't adequate."
@@ -32,48 +32,19 @@ except (ImportError, ModuleNotFoundError):
 
 from pathlib import Path
 
-from venvtools import ExtendedEnvBuilder, python_run
-from package_manager import get_install_command
-
 _ROOT_DIR = Path(__file__).parent.parent.parent.parent
 
 
 def main():
     venv_path = _ROOT_DIR / "venv"
     
-    # Create virtual environment based on package manager
-    if package_manager == "uv":
-        # Use uv to create and manage the virtual environment
-        import subprocess
-        if not venv_path.exists():
-            subprocess.check_call(["uv", "venv", str(venv_path)])
-        
-        # Create a mock venv_context for compatibility
-        class MockVenvContext:
-            def __init__(self, venv_path):
-                self.env_exe = str(venv_path / "bin" / "python") if sys.platform != "win32" else str(venv_path / "Scripts" / "python.exe")
-        
-        venv_context = MockVenvContext(venv_path)
-    else:
-        # Use standard venv for pip
-        if venv_path.exists():
-            env_builder = venv.EnvBuilder(with_pip=True)
-            venv_context = env_builder.ensure_directories(venv_path)
-        else:
-            env_builder = ExtendedEnvBuilder(with_pip=True, upgrade_deps=True)
-            env_builder.create(venv_path)
-            venv_context = env_builder.context
+    # Create virtual environment using package manager abstraction
+    from package_manager import create_venv_with_package_manager, install_packages
+    venv_context = create_venv_with_package_manager(venv_path)
     
-    # Install packages using abstracted package manager
-    from package_manager import install_packages
-    
-    # Only upgrade pip if we're using pip (not needed for uv)
-    if package_manager != "uv":
-        install_packages(["-U", "pip"], package_manager, venv_context)
-    
-    # Install required packages
-    install_packages(["-U", "black"], package_manager, venv_context)
-    install_packages(["-e", f"{_ROOT_DIR}/generator"], package_manager, venv_context)
+    # Install required packages - install_packages handles package manager logic
+    install_packages(["-U", "black"], venv_context)
+    install_packages(["-e", f"{_ROOT_DIR}/generator"], venv_context)
 
 
 if __name__ == "__main__":

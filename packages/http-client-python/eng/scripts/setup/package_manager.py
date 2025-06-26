@@ -9,6 +9,7 @@
 
 import subprocess
 import sys
+import venv
 from pathlib import Path
 
 
@@ -85,13 +86,13 @@ def get_install_command(package_manager: str, venv_context=None) -> list:
         raise ValueError(f"Unknown package manager: {package_manager}")
 
 
-def install_packages(packages: list, package_manager: str = None, venv_context=None) -> None:
+def install_packages(packages: list, venv_context=None, package_manager: str = None) -> None:
     """Install packages using the available package manager.
     
     Args:
         packages: List of packages to install
-        package_manager: Package manager to use (auto-detected if None)
         venv_context: Virtual environment context (optional)
+        package_manager: Package manager to use (auto-detected if None)
     """
     if package_manager is None:
         package_manager = detect_package_manager()
@@ -102,3 +103,48 @@ def install_packages(packages: list, package_manager: str = None, venv_context=N
         subprocess.check_call(install_cmd + packages)
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"Failed to install packages with {package_manager}: {e}")
+
+
+def create_venv_with_package_manager(venv_path):
+    """Create virtual environment using the best available package manager.
+    
+    Args:
+        venv_path: Path where to create the virtual environment
+        
+    Returns:
+        venv_context: Virtual environment context object
+    """
+    package_manager = detect_package_manager()
+    
+    if package_manager == "uv":
+        # Use uv to create and manage the virtual environment
+        if not venv_path.exists():
+            subprocess.check_call(["uv", "venv", str(venv_path)])
+        
+        # Create a mock venv_context for compatibility
+        class MockVenvContext:
+            def __init__(self, venv_path):
+                self.env_exe = str(venv_path / "bin" / "python") if sys.platform != "win32" else str(venv_path / "Scripts" / "python.exe")
+        
+        return MockVenvContext(venv_path)
+    else:
+        # Use standard venv for pip - avoid circular import
+        class ExtendedEnvBuilder(venv.EnvBuilder):
+            """An extended env builder which saves the context."""
+            def __init__(self, *args, **kwargs):
+                self.context = None
+                if sys.version_info < (3, 9, 0):
+                    kwargs.pop("upgrade_deps", None)
+                super().__init__(*args, **kwargs)
+
+            def ensure_directories(self, env_dir):
+                self.context = super(ExtendedEnvBuilder, self).ensure_directories(env_dir)
+                return self.context
+        
+        if venv_path.exists():
+            env_builder = venv.EnvBuilder(with_pip=True)
+            return env_builder.ensure_directories(venv_path)
+        else:
+            env_builder = ExtendedEnvBuilder(with_pip=True, upgrade_deps=True)
+            env_builder.create(venv_path)
+            return env_builder.context
