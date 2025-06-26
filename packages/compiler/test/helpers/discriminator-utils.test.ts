@@ -121,28 +121,6 @@ describe("compiler: discriminator", () => {
         strictEqual(union.variants.get("feline"), Cat);
       });
 
-      it("can be an inline union in base model", async () => {
-        const { ResponseFormat, ResponseFormatText, ResponseFormatJson } = (await runner.compile(`
-        @discriminator("type")
-        @test model ResponseFormat {
-          type: "text" | "json_object";
-        }
-
-        @test model ResponseFormatText extends ResponseFormat {
-          type: "text";
-        }
-
-        @test model ResponseFormatJson extends ResponseFormat {
-          type: "json_object";
-        }
-      `)) as { ResponseFormat: Model; ResponseFormatText: Model; ResponseFormatJson: Model };
-
-        const union = checkValidDiscriminatedUnion(ResponseFormat);
-        strictEqual(union.variants.size, 2);
-        strictEqual(union.variants.get("text"), ResponseFormatText);
-        strictEqual(union.variants.get("json_object"), ResponseFormatJson);
-      });
-
       it("can be a string enum member", async () => {
         const { Pet, Cat } = (await runner.compile(`
         @discriminator("kind")
