@@ -40,36 +40,39 @@ _ROOT_DIR = Path(__file__).parent.parent.parent.parent
 
 def main():
     venv_path = _ROOT_DIR / "venv"
-    if venv_path.exists():
-        env_builder = venv.EnvBuilder(with_pip=True)
-        venv_context = env_builder.ensure_directories(venv_path)
-    else:
-        
-        if package_manager == "uv":
-            # Use uv to create and manage the virtual environment
-            import subprocess
+    
+    if package_manager == "uv":
+        # Use uv to create and manage the virtual environment
+        import subprocess
+        if not venv_path.exists():
             subprocess.check_call(["uv", "venv", str(venv_path)])
-            
-            # Create a mock venv_context for compatibility
-            class MockVenvContext:
-                def __init__(self, venv_path):
-                    self.env_exe = str(venv_path / "bin" / "python") if sys.platform != "win32" else str(venv_path / "Scripts" / "python.exe")
-            
-            venv_context = MockVenvContext(venv_path)
-            
-            subprocess.check_call(["uv", "pip", "install", "-U", "pip", "--python", venv_context.env_exe])
-            subprocess.check_call(["uv", "pip", "install", "-U", "black", "--python", venv_context.env_exe])
-            subprocess.check_call(["uv", "pip", "install", "-e", f"{_ROOT_DIR}/generator", "--python", venv_context.env_exe])
+        
+        # Create a mock venv_context for compatibility
+        class MockVenvContext:
+            def __init__(self, venv_path):
+                self.env_exe = str(venv_path / "bin" / "python") if sys.platform != "win32" else str(venv_path / "Scripts" / "python.exe")
+        
+        venv_context = MockVenvContext(venv_path)
+        
+        # Use package manager abstraction for installations
+        from package_manager import install_packages
+        install_packages(["-U", "pip"], package_manager, venv_context)
+        install_packages(["-U", "black"], package_manager, venv_context)
+        install_packages(["-e", f"{_ROOT_DIR}/generator"], package_manager, venv_context)
+    else:
+        # Use standard venv for pip
+        if venv_path.exists():
+            env_builder = venv.EnvBuilder(with_pip=True)
+            venv_context = env_builder.ensure_directories(venv_path)
         else:
-            # Use standard venv for pip
             env_builder = ExtendedEnvBuilder(with_pip=True, upgrade_deps=True)
             env_builder.create(venv_path)
             venv_context = env_builder.context
-            
-            # For pip, use the existing python_run approach
-            python_run(venv_context, "pip", ["install", "-U", "pip"])
-            python_run(venv_context, "pip", ["install", "-U", "black"])
-            python_run(venv_context, "pip", ["install", "-e", f"{_ROOT_DIR}/generator"])
+        
+        # For pip, use the existing python_run approach
+        python_run(venv_context, "pip", ["install", "-U", "pip"])
+        python_run(venv_context, "pip", ["install", "-U", "black"])
+        python_run(venv_context, "pip", ["install", "-e", f"{_ROOT_DIR}/generator"])
 
 
 if __name__ == "__main__":
