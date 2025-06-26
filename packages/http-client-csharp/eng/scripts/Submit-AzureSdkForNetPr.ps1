@@ -147,16 +147,22 @@ try {
         
         # Run npm run build
         Write-Host "Running npm run build in eng/packages/http-client-csharp..."
+        $shouldRunGenerate = $true
         Invoke "npm run build" $httpClientDir
         if ($LASTEXITCODE -ne 0) {
-            throw "npm run build failed"
+            # log a warning as we still want to create the PR but not run Generate.ps1
+            Write-Warning "npm run build failed, skipping Generate.ps1"
+            $shouldRunGenerate = $false
         }
         
         # Run Generate.ps1 from the package root
-        Write-Host "Running eng/packages/http-client-csharp/eng/scripts/Generate.ps1..."
-        & (Join-Path $tempDir "eng/packages/http-client-csharp/eng/scripts/Generate.ps1")
-        if ($LASTEXITCODE -ne 0) {
-            throw "Generate.ps1 failed"
+        if ($shouldRunGenerate -eq $true)
+        {
+            Write-Host "Running eng/packages/http-client-csharp/eng/scripts/Generate.ps1..."
+            & (Join-Path $tempDir "eng/packages/http-client-csharp/eng/scripts/Generate.ps1")
+            if ($LASTEXITCODE -ne 0) {
+                throw "Generate.ps1 failed"
+            }
         }
     }
     
