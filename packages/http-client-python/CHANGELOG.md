@@ -4,7 +4,7 @@
 
 ### Bump dependencies
 
-- [#7735](https://github.com/microsoft/typespec/pull/7735) bump tcgc 0.57.2
+- [#7735](https://github.com/microsoft/typespec/pull/7735) bump TCGC 0.57.2
 
 ### Bug Fixes
 
