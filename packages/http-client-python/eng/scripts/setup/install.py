@@ -44,7 +44,6 @@ def main():
         env_builder = venv.EnvBuilder(with_pip=True)
         venv_context = env_builder.ensure_directories(venv_path)
     else:
-        print("creating venv in new directory")
         
         if package_manager == "uv":
             # Use uv to create and manage the virtual environment
