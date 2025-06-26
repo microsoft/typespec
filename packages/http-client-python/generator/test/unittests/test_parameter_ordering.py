@@ -23,11 +23,11 @@ def get_code_model():
             "namespace": "namespace",
         },
         options={
-            "show_send_request": True,
-            "builders_visibility": "public",
-            "show_operations": True,
+            "show-send-request": True,
+            "builders-visibility": "public",
+            "show-operations": True,
             "models_mode": "dpg",
-            "only_path_and_body_params_positional": True,
+            "only-path-and-body-params-positional": True,
         },
     )
 
