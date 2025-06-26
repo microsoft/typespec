@@ -43,7 +43,6 @@ def main():
     if venv_path.exists():
         print("creating venv in existing directory")
         env_builder = venv.EnvBuilder(with_pip=True)
-        print("done")
         venv_context = env_builder.ensure_directories(venv_path)
     else:
         print("creating venv in new directory")
