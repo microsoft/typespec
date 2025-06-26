@@ -8,32 +8,7 @@ using Spector;
 @scenarioService("/type/model/inheritance/inline-union-discriminator")
 namespace Type.Model.Inheritance.InlineUnionDiscriminator;
 
-@doc("This is base model for polymorphic inheritance with an inline union discriminator.")
-@discriminator("type")
-model ResponseFormat {
-  @doc("The type of response format")
-  type: "text" | "json_object" | "json_schema";
-}
-
-@doc("Text response format model")
-model ResponseFormatText extends ResponseFormat {
-  @doc("discriminator property")
-  type: "text";
-}
-
-@doc("JSON object response format model")
-model ResponseFormatJson extends ResponseFormat {
-  @doc("discriminator property")
-  type: "json_object";
-}
-
-@doc("JSON schema response format model")
-model ResponseFormatJsonSchema extends ResponseFormat {
-  @doc("discriminator property")
-  type: "json_schema";
-}
-
-@doc("A simpler base model with only two discriminator values.")
+@doc("Base model for polymorphic inheritance with inline union discriminator.")
 @discriminator("kind")
 model Pet {
   @doc("The kind of pet")
@@ -67,11 +42,11 @@ model Dog extends Pet {
   Generate and receive polymorphic model with inline union discriminator.
   Expected response body:
   ```json
-  {"type": "text"}
+  {"kind": "cat", "name": "Fluffy", "meow": true}
   ```
   """)
 @get
-op getModel(): ResponseFormat;
+op get(): Pet;
 
 @scenario
 @route("/model")
@@ -79,35 +54,11 @@ op getModel(): ResponseFormat;
   Generate and send polymorphic model with inline union discriminator.
   Expected input body:
   ```json
-  {"type": "text"}
-  ```
-  """)
-@put
-op putModel(@body input: ResponseFormat): NoContentResponse;
-
-@scenario
-@route("/simplemodel")
-@scenarioDoc("""
-  Generate and receive polymorphic model with simple inline union discriminator.
-  Expected response body:
-  ```json
-  {"kind": "cat", "name": "Fluffy", "meow": true}
-  ```
-  """)
-@get
-op getSimpleModel(): Pet;
-
-@scenario
-@route("/simplemodel")
-@scenarioDoc("""
-  Generate and send polymorphic model with simple inline union discriminator.
-  Expected input body:
-  ```json
   {"kind": "cat", "name": "Fluffy", "meow": true}
   ```
   """)
 @put
-op putSimpleModel(@body input: Pet): NoContentResponse;
+op put(@body input: Pet): NoContentResponse;
 
 @scenario
 @route("/missingdiscriminator")

@@ -2,41 +2,14 @@ import { json, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
-const validResponseFormatBody = {
-  type: "text",
-};
-
 const validPetBody = {
   kind: "cat",
   name: "Fluffy",
   meow: true,
 };
 
-Scenarios.Type_Model_Inheritance_InlineUnionDiscriminator_getModel = passOnSuccess({
+Scenarios.Type_Model_Inheritance_InlineUnionDiscriminator_get = passOnSuccess({
   uri: "/type/model/inheritance/inline-union-discriminator/model",
-  method: "get",
-  request: {},
-  response: {
-    status: 200,
-    body: json(validResponseFormatBody),
-  },
-  kind: "MockApiDefinition",
-});
-
-Scenarios.Type_Model_Inheritance_InlineUnionDiscriminator_putModel = passOnSuccess({
-  uri: "/type/model/inheritance/inline-union-discriminator/model",
-  method: "put",
-  request: {
-    body: json(validResponseFormatBody),
-  },
-  response: {
-    status: 204,
-  },
-  kind: "MockApiDefinition",
-});
-
-Scenarios.Type_Model_Inheritance_InlineUnionDiscriminator_getSimpleModel = passOnSuccess({
-  uri: "/type/model/inheritance/inline-union-discriminator/simplemodel",
   method: "get",
   request: {},
   response: {
@@ -46,8 +19,8 @@ Scenarios.Type_Model_Inheritance_InlineUnionDiscriminator_getSimpleModel = passO
   kind: "MockApiDefinition",
 });
 
-Scenarios.Type_Model_Inheritance_InlineUnionDiscriminator_putSimpleModel = passOnSuccess({
-  uri: "/type/model/inheritance/inline-union-discriminator/simplemodel",
+Scenarios.Type_Model_Inheritance_InlineUnionDiscriminator_put = passOnSuccess({
+  uri: "/type/model/inheritance/inline-union-discriminator/model",
   method: "put",
   request: {
     body: json(validPetBody),
