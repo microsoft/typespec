@@ -41,6 +41,7 @@ _ROOT_DIR = Path(__file__).parent.parent.parent.parent
 def main():
     venv_path = _ROOT_DIR / "venv"
     
+    # Create virtual environment based on package manager
     if package_manager == "uv":
         # Use uv to create and manage the virtual environment
         import subprocess
@@ -53,12 +54,6 @@ def main():
                 self.env_exe = str(venv_path / "bin" / "python") if sys.platform != "win32" else str(venv_path / "Scripts" / "python.exe")
         
         venv_context = MockVenvContext(venv_path)
-        
-        # Use package manager abstraction for installations
-        from package_manager import install_packages
-        install_packages(["-U", "pip"], package_manager, venv_context)
-        install_packages(["-U", "black"], package_manager, venv_context)
-        install_packages(["-e", f"{_ROOT_DIR}/generator"], package_manager, venv_context)
     else:
         # Use standard venv for pip
         if venv_path.exists():
@@ -68,11 +63,17 @@ def main():
             env_builder = ExtendedEnvBuilder(with_pip=True, upgrade_deps=True)
             env_builder.create(venv_path)
             venv_context = env_builder.context
-        
-        # For pip, use the existing python_run approach
-        python_run(venv_context, "pip", ["install", "-U", "pip"])
-        python_run(venv_context, "pip", ["install", "-U", "black"])
-        python_run(venv_context, "pip", ["install", "-e", f"{_ROOT_DIR}/generator"])
+    
+    # Install packages using abstracted package manager
+    from package_manager import install_packages
+    
+    # Only upgrade pip if we're using pip (not needed for uv)
+    if package_manager != "uv":
+        install_packages(["-U", "pip"], package_manager, venv_context)
+    
+    # Install required packages
+    install_packages(["-U", "black"], package_manager, venv_context)
+    install_packages(["-e", f"{_ROOT_DIR}/generator"], package_manager, venv_context)
 
 
 if __name__ == "__main__":
