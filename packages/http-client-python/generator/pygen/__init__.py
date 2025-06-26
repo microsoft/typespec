@@ -101,11 +101,11 @@ class OptionsDict(MutableMapping):
             # Default to public if low-level client is not set, otherwise embedded
             return "public" if not self.get("low-level-client") else "embedded"
         if key == "models-mode":
-            models_mode_default = "none" if self.get("low-level-client") or self.get("version-tolerant") else "msrest"
+            models_mode_default = False if self.get("low-level-client") or self.get("version-tolerant") else "msrest"
             if self.get("tsp_file") is not None:
                 models_mode_default = "dpg"
             # switch to falsy value for easier code writing
-            return False if models_mode_default == "none" else models_mode_default
+            return models_mode_default
         try:
             return self.DEFAULTS[key]
         except KeyError:
@@ -152,8 +152,11 @@ class OptionsDict(MutableMapping):
     def _validate_and_transform(self, key: str, value: Any) -> Any:
         if key == "builders-visibility" and value not in ["public", "hidden", "embedded"]:
             raise ValueError("The value of --builders-visibility must be either 'public', 'hidden', or 'embedded'")
+        
+        if key == "models-mode" and value == "none":
+            value = False  # switch to falsy value for easier code writing
 
-        if key == "models-mode" and value not in ["msrest", "dpg", "none", False]:
+        if key == "models-mode" and value not in ["msrest", "dpg", False]:
             raise ValueError(
                 "--models-mode can only be 'msrest', 'dpg' or 'none'. "
                 "Pass in 'msrest' if you want msrest models, or "
