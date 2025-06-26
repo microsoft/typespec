@@ -186,9 +186,9 @@ namespace Microsoft.TypeSpec.Generator
             {
                 if (method.Attributes.Count > 0)
                 {
-                    for (int i = 0; i < method.Attributes.Count; i++)
+                    foreach (var attr in method.Attributes)
                     {
-                        method.Attributes[i].Write(this);
+                        attr.Write(this);
                     }
                 }
 
@@ -219,9 +219,9 @@ namespace Microsoft.TypeSpec.Generator
             {
                 if (ctor.Attributes.Count > 0)
                 {
-                    for (int i = 0; i < ctor.Attributes.Count; i++)
+                    foreach (var attr in ctor.Attributes)
                     {
-                        ctor.Attributes[i].Write(this);
+                        attr.Write(this);
                     }
                 }
 
@@ -294,9 +294,9 @@ namespace Microsoft.TypeSpec.Generator
 
             if (property.Attributes.Count > 0)
             {
-                for (int i = 0; i < property.Attributes.Count; i++)
+                foreach (var attr in property.Attributes)
                 {
-                    property.Attributes[i].Write(this);
+                    attr.Write(this);
                 }
             }
 
@@ -461,9 +461,9 @@ namespace Microsoft.TypeSpec.Generator
 
             if (field.Attributes.Count > 0)
             {
-                for (int i = 0; i < field.Attributes.Count; i++)
+                foreach (var attr in field.Attributes)
                 {
-                    field.Attributes[i].Write(this);
+                    attr.Write(this);
                 }
             }
 
