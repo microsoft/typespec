@@ -116,10 +116,6 @@ export async function resolveModule(
   const { baseDir } = options;
   const absoluteStart = await realpath(resolvePath(baseDir));
 
-  if (!(await isDirectory(host, absoluteStart))) {
-    throw new TypeError(`Provided basedir '${baseDir}'is not a directory.`);
-  }
-
   // Check if the module name is referencing a path(./foo, /foo, file:/foo)
   if (/^(?:\.\.?(?:\/|$)|\/|([A-Za-z]:)?[/\\])/.test(specifier)) {
     const res = resolvePath(absoluteStart, specifier);

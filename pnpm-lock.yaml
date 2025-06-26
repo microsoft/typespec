@@ -1045,6 +1045,43 @@ importers:
         specifier: ~5.8.2
         version: 5.8.3
 
+  packages/importer:
+    dependencies:
+      '@typespec/compiler':
+        specifier: workspace:^
+        version: link:../compiler
+      picocolors:
+        specifier: ~1.1.1
+        version: 1.1.1
+    devDependencies:
+      '@types/node':
+        specifier: ~24.0.3
+        version: 24.0.3
+      '@vitest/coverage-v8':
+        specifier: ^3.1.2
+        version: 3.2.4(vitest@3.2.4)
+      '@vitest/ui':
+        specifier: ^3.1.2
+        version: 3.2.4(vitest@3.2.4)
+      c8:
+        specifier: ^10.1.3
+        version: 10.1.3
+      rimraf:
+        specifier: ~6.0.1
+        version: 6.0.1
+      source-map-support:
+        specifier: ~0.5.21
+        version: 0.5.21
+      typescript:
+        specifier: ~5.8.2
+        version: 5.8.3
+      vite:
+        specifier: ^6.2.7
+        version: 6.3.5(@types/node@24.0.3)(tsx@4.20.3)(yaml@2.8.0)
+      vitest:
+        specifier: ^3.1.2
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.0.3)(@vitest/ui@3.2.4)(happy-dom@17.6.3)(jsdom@25.0.1)(tsx@4.20.3)(yaml@2.8.0)
+
   packages/internal-build-utils:
     dependencies:
       '@pnpm/workspace.find-packages':
@@ -1463,6 +1500,9 @@ importers:
       '@typespec/http':
         specifier: workspace:^
         version: link:../http
+      '@typespec/importer':
+        specifier: workspace:~
+        version: link:../importer
       '@typespec/json-schema':
         specifier: workspace:^
         version: link:../json-schema
@@ -19185,7 +19225,7 @@ snapshots:
 
   '@types/sax@1.2.7':
     dependencies:
-      '@types/node': 17.0.45
+      '@types/node': 24.0.3
 
   '@types/semver@7.7.0': {}
 
