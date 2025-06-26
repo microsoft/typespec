@@ -50,6 +50,7 @@ This PR updates the UnbrandedGeneratorVersion property in eng/Packages.Data.prop
 - Updated eng/packages/http-client-csharp/package.json dependency version
 - Ran npm install to update package-lock.json
 - Ran eng/packages/http-client-csharp/eng/scripts/Generate.ps1 to regenerate test projects
+- Generated emitter-package.json artifacts using tsp-client
 
 This is an automated PR created by the TypeSpec publish pipeline.
 "@
@@ -173,6 +174,8 @@ try {
     git add eng/packages/http-client-csharp/package.json
     git add eng/packages/http-client-csharp/package-lock.json
     git add eng/packages/http-client-csharp/generator/TestProjects/
+    git add eng/emitter-package.json
+    git add eng/emitter-package-lock.json
     
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to add changes"
