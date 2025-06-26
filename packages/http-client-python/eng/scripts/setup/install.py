@@ -41,7 +41,6 @@ _ROOT_DIR = Path(__file__).parent.parent.parent.parent
 def main():
     venv_path = _ROOT_DIR / "venv"
     if venv_path.exists():
-        print("creating venv in existing directory")
         env_builder = venv.EnvBuilder(with_pip=True)
         venv_context = env_builder.ensure_directories(venv_path)
     else:
