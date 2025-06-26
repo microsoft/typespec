@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Expressions;
@@ -183,6 +184,15 @@ namespace Microsoft.TypeSpec.Generator
 
             using (WriteXmlDocs(method.XmlDocs))
             {
+                if (method.Attributes.Count > 0)
+                {
+                    method.Attributes[0].Write(this);
+                    for (int i = 1; i < method.Attributes.Count; i++)
+                    {
+                        method.Attributes[i].Write(this);
+                    }
+                }
+
                 if (method.BodyStatements is { } body)
                 {
                     using (WriteMethodDeclaration(method.Signature))
@@ -208,6 +218,15 @@ namespace Microsoft.TypeSpec.Generator
 
             using (WriteXmlDocs(ctor.XmlDocs))
             {
+                if (ctor.Attributes.Count > 0)
+                {
+                    ctor.Attributes[0].Write(this);
+                    for (int i = 1; i < ctor.Attributes.Count; i++)
+                    {
+                        ctor.Attributes[i].Write(this);
+                    }
+                }
+
                 if (ctor.BodyStatements is { } body)
                 {
                     using (WriteMethodDeclaration(ctor.Signature))
@@ -274,6 +293,15 @@ namespace Microsoft.TypeSpec.Generator
         public void WriteProperty(PropertyProvider property)
         {
             WriteXmlDocsNoScope(property.XmlDocs);
+
+            if (property.Attributes.Count > 0)
+            {
+                property.Attributes[0].Write(this);
+                for (int i = 1; i < property.Attributes.Count; i++)
+                {
+                    property.Attributes[i].Write(this);
+                }
+            }
 
             CodeScope? indexerScope = null;
 
@@ -433,6 +461,15 @@ namespace Microsoft.TypeSpec.Generator
         public CodeWriter WriteField(FieldProvider field)
         {
             WriteXmlDocsNoScope(field.XmlDocs);
+
+            if (field.Attributes.Count > 0)
+            {
+                field.Attributes[0].Write(this);
+                for (int i = 1; i < field.Attributes.Count; i++)
+                {
+                    field.Attributes[i].Write(this);
+                }
+            }
 
             var modifiers = field.Modifiers;
 

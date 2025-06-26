@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -36,6 +37,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public ValueExpression AsValueExpression => this;
 
         public TypeProvider EnclosingType { get; }
+        public IReadOnlyList<AttributeStatement> Attributes { get; }
 
         internal string? OriginalName { get; init; }
 
@@ -53,7 +55,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             TypeProvider enclosingType,
             FormattableString? description = null,
             ValueExpression? initializationValue = null,
-            PropertyWireInformation? wireInfo = null)
+            PropertyWireInformation? wireInfo = null,
+            IReadOnlyList<AttributeStatement>? attributes = default)
         {
             Modifiers = modifiers;
             Type = type;
@@ -63,6 +66,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             XmlDocs = Description is not null ? new XmlDocProvider(new XmlDocSummaryStatement([Description])) : null;
             EnclosingType = enclosingType;
             WireInfo = wireInfo;
+            Attributes = attributes ?? [];
 
             InitializeParameter();
         }
@@ -71,7 +75,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private void InitializeParameter()
         {
             _parameter = new(() => new ParameterProvider(
-                Name.ToVariableName(), Description ?? FormattableStringHelpers.Empty, Type, field: this, wireInfo: WireInfo));
+                Name.ToVariableName(), Description ?? FormattableStringHelpers.Empty, Type, field: this, wireInfo: WireInfo, attributes: Attributes));
         }
 
         private MemberExpression? _asMember;

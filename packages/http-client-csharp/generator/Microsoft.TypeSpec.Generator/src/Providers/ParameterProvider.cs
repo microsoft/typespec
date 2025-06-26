@@ -33,7 +33,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public bool IsOut { get; private set; }
         public bool IsParams { get; private set; }
 
-        internal IReadOnlyList<AttributeStatement> Attributes { get; private set; } = [];
+        public IReadOnlyList<AttributeStatement> Attributes { get; private set; }
         public WireInformation WireInfo { get; private set; }
         public ParameterLocation Location { get; private set; }
 
@@ -69,6 +69,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 : ParameterValidationType.None;
             WireInfo = new WireInformation(CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputParameter.Type), inputParameter.NameInRequest);
             Location = inputParameter.Location.ToParameterLocation();
+            Attributes = [];
         }
 
         public ParameterProvider(
@@ -96,7 +97,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             IsOut = isOut;
             IsParams = isParams;
             DefaultValue = defaultValue;
-            Attributes = attributes ?? Array.Empty<AttributeStatement>();
+            Attributes = attributes ?? [];
             Property = property;
             Field = field;
             Validation = validation ?? GetParameterValidation();
