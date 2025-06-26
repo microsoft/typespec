@@ -152,7 +152,7 @@ class OptionsDict(MutableMapping):
     def _validate_and_transform(self, key: str, value: Any) -> Any:
         if key == "builders-visibility" and value not in ["public", "hidden", "embedded"]:
             raise ValueError("The value of --builders-visibility must be either 'public', 'hidden', or 'embedded'")
-        
+
         if key == "models-mode" and value == "none":
             value = False  # switch to falsy value for easier code writing
 
