@@ -129,3 +129,4 @@ extends:
                     -PackageVersion '$(PackageVersion)'
                     -TypeSpecCommitUrl '$(TypeSpecCommitUrl)'
                     -AuthToken '$(azuresdk-github-pat)'
+                    -TypeSpecSourceDirectory '$(Build.SourcesDirectory)'

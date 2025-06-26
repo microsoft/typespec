@@ -11,6 +11,8 @@ The URL of the pull request in the TypeSpec repository that triggered this updat
 A GitHub personal access token for authentication.
 .PARAMETER BranchName
 The name of the branch to create in the azure-sdk-for-net repository.
+.PARAMETER TypeSpecSourceDirectory
+The source directory of the TypeSpec repository containing the emitter package artifacts.
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -24,7 +26,10 @@ param(
   [string]$AuthToken,
 
   [Parameter(Mandatory = $false)]
-  [string]$BranchName = "typespec/update-http-client-$PackageVersion"
+  [string]$BranchName = "typespec/update-http-client-$PackageVersion",
+
+  [Parameter(Mandatory = $false)]
+  [string]$TypeSpecSourceDirectory
 )
 
 # Import the Generation module to use the Invoke helper function
@@ -162,10 +167,9 @@ try {
     }
     
     # Copy emitter-package.json artifacts if they exist in the typespec repo
-    $typespecRepoPath = $env:BUILD_SOURCESDIRECTORY
-    if ($typespecRepoPath) {
-        $emitterPackageJsonSource = Join-Path $typespecRepoPath "eng/http-client-csharp-emitter-package.json"
-        $emitterPackageLockSource = Join-Path $typespecRepoPath "eng/http-client-csharp-emitter-package-lock.json"
+    if ($TypeSpecSourceDirectory) {
+        $emitterPackageJsonSource = Join-Path $TypeSpecSourceDirectory "eng/http-client-csharp-emitter-package.json"
+        $emitterPackageLockSource = Join-Path $TypeSpecSourceDirectory "eng/http-client-csharp-emitter-package-lock.json"
         
         $emitterPackageJsonDest = Join-Path $tempDir "eng/http-client-csharp-emitter-package.json"
         $emitterPackageLockDest = Join-Path $tempDir "eng/http-client-csharp-emitter-package-lock.json"
@@ -184,7 +188,7 @@ try {
             Write-Warning "emitter-package-lock.json not found at $emitterPackageLockSource"
         }
     } else {
-        Write-Warning "BUILD_SOURCESDIRECTORY environment variable not set. Cannot copy emitter-package files."
+        Write-Warning "TypeSpecSourceDirectory parameter not provided. Cannot copy emitter-package files."
     }
     
     # Check if there are changes to commit
