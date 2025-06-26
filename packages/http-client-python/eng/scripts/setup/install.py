@@ -48,7 +48,6 @@ def main():
         if package_manager == "uv":
             # Use uv to create and manage the virtual environment
             import subprocess
-            print("Creating venv with uv...")
             subprocess.check_call(["uv", "venv", str(venv_path)])
             
             # Create a mock venv_context for compatibility
