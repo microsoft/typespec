@@ -77,7 +77,7 @@ class OptionsDict(MutableMapping):
     def __len__(self) -> int:
         return len(set(self._data.keys()).union(self.DEFAULTS.keys()))
 
-    def __contains__(self, key: str) -> bool:
+    def __contains__(self, key: str) -> bool: # type: ignore
         return key in self._data or key in self.DEFAULTS.keys()
     
     def __repr__(self) -> str:
@@ -138,8 +138,8 @@ class OptionsDict(MutableMapping):
                 "Can not combine operation files if you are not showing operations. "
                 "If you want operation files, pass in flag --show-operations"
             )
-
-        if self.get("package-mode"):
+        package_mode = self.get("package-mode")
+        if package_mode:
             if (
                 (
                     self.get("package-mode") not in TYPESPEC_PACKAGE_MODE
@@ -149,7 +149,7 @@ class OptionsDict(MutableMapping):
                     self.get("package-mode") not in VALID_PACKAGE_MODE
                     and not self.get("from-typespec")
                 )
-            ) and not Path(self.get("package-mode")).exists():
+            ) and not Path(package_mode).exists():
                 raise ValueError(
                     f"--package-mode can only be {' or '.join(TYPESPEC_PACKAGE_MODE)} or directory which contains template files"  # pylint: disable=line-too-long
                 )
