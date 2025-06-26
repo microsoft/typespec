@@ -174,8 +174,8 @@ try {
     git add eng/packages/http-client-csharp/package.json
     git add eng/packages/http-client-csharp/package-lock.json
     git add eng/packages/http-client-csharp/generator/TestProjects/
-    git add eng/emitter-package.json
-    git add eng/emitter-package-lock.json
+    git add eng/http-client-csharp-emitter-package.json
+    git add eng/http-client-csharp-emitter-package-lock.json
     
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to add changes"
