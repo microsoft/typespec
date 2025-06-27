@@ -1,11 +1,11 @@
 import * as ay from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
 import { Interface, Model } from "@typespec/compiler";
-import { useTsp } from "../../core/index.js";
-import { Property } from "./property/property.jsx";
-import { TypeExpression } from "./type-expression.jsx";
-import { getDocComments } from "./utils/doc-comments.jsx";
-import { declarationRefkeys } from "./utils/refkey.js";
+import { useTsp } from "../../../core/index.js";
+import { Property } from "../property/property.jsx";
+import { TypeExpression } from "../type-expression.jsx";
+import { getDocComments } from "../utils/doc-comments.jsx";
+import { declarationRefkeys } from "../utils/refkey.js";
 
 export interface ClassDeclarationProps extends Omit<cs.ClassDeclarationProps, "name"> {
   name?: string;

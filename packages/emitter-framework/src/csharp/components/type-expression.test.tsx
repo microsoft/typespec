@@ -7,7 +7,7 @@ import { beforeEach, describe, it } from "vitest";
 import { createEmitterFrameworkTestRunner } from "../../../test/typescript/test-host.js";
 import { assertFileContents } from "../../../test/utils.js";
 import { Output } from "../../core/index.js";
-import { ClassDeclaration } from "./class-declaration.jsx";
+import { ClassDeclaration } from "./class/declaration.js";
 import { TypeExpression } from "./type-expression.jsx";
 
 let runner: BasicTestRunner;

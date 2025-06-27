@@ -1,18 +1,17 @@
+import { Tester } from "#test/test-host.js";
 import { Children, render } from "@alloy-js/core";
 import { d } from "@alloy-js/core/testing";
 import { createCSharpNamePolicy, Namespace, SourceFile } from "@alloy-js/csharp";
-import { Enum, Interface, Model } from "@typespec/compiler";
-import { BasicTestRunner } from "@typespec/compiler/testing";
+import { t, TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, it } from "vitest";
-import { ClassDeclaration, EnumDeclaration } from "../../../src/csharp/index.js";
-import { assertFileContents } from "../../../test/csharp/utils.js";
-import { createEmitterFrameworkTestRunner } from "../../../test/typescript/test-host.js";
-import { Output } from "../../core/index.js";
+import { assertFileContents } from "../../../../test/csharp/utils.js";
+import { Output } from "../../../core/index.js";
+import { ClassDeclaration, EnumDeclaration } from "../../index.js";
 
-let runner: BasicTestRunner;
+let runner: TesterInstance;
 
 beforeEach(async () => {
-  runner = await createEmitterFrameworkTestRunner();
+  runner = await Tester.createInstance();
 });
 
 function Wrapper(props: { children: Children }) {
@@ -27,9 +26,9 @@ function Wrapper(props: { children: Children }) {
 }
 
 it("renders an empty class declaration", async () => {
-  const { TestModel } = (await runner.compile(`
-    @test model TestModel {}
-  `)) as { TestModel: Model };
+  const { TestModel } = await runner.compile(t.code`
+    model ${t.model("TestModel")} {}
+  `);
 
   const res = render(
     <Wrapper>
@@ -52,12 +51,12 @@ it("renders an empty class declaration", async () => {
 });
 
 it("renders a class declaration with properties", async () => {
-  const { TestModel } = (await runner.compile(`
-    @test model TestModel {
+  const { TestModel } = await runner.compile(t.code`
+    model ${t.model("TestModel")} {
       @test Prop1: string;
       @test Prop2: int32;
     }
-  `)) as { TestModel: Model };
+  `);
 
   const res = render(
     <Wrapper>
@@ -81,9 +80,9 @@ it("renders a class declaration with properties", async () => {
 });
 
 it("can override class name", async () => {
-  const { TestModel } = (await runner.compile(`
-    @test model TestModel {}
-  `)) as { TestModel: Model };
+  const { TestModel } = await runner.compile(t.code`
+    model ${t.model("TestModel")} {}
+  `);
 
   const res = render(
     <Wrapper>
@@ -106,10 +105,10 @@ it("can override class name", async () => {
 });
 
 it("renders a class with access modifiers", async () => {
-  const { TestModel } = (await runner.compile(`
-    @test model TestModel {
+  const { TestModel } = await runner.compile(t.code`
+    model ${t.model("TestModel")} {
     }
-  `)) as { TestModel: Model };
+  `);
 
   const res = render(
     <Wrapper>
@@ -133,10 +132,10 @@ it("renders a class with access modifiers", async () => {
 
 describe("from an interface", () => {
   it("renders an empty class", async () => {
-    const { TestInterface } = (await runner.compile(`
-    @test interface TestInterface {
+    const { TestInterface } = await runner.compile(t.code`
+    interface ${t.interface("TestInterface")} {
     }
-  `)) as { TestInterface: Interface };
+  `);
 
     const res = render(
       <Wrapper>
@@ -159,11 +158,11 @@ describe("from an interface", () => {
   });
 
   it("renders a class with operations", async () => {
-    const { TestInterface } = (await runner.compile(`
-    @test interface TestInterface {
+    const { TestInterface } = await runner.compile(t.code`
+    interface ${t.interface("TestInterface")} {
       op getName(id: string): string;
     }
-  `)) as { TestInterface: Interface };
+  `);
 
     const res = render(
       <Wrapper>
@@ -187,13 +186,12 @@ describe("from an interface", () => {
 });
 
 it("renders a class with model members", async () => {
-  const { TestModel, TestReference } = (await runner.compile(`
-    @test model TestReference {
+  const { TestModel, TestReference } = await runner.compile(t.code`
+    model ${t.model("TestReference")} { }
+    model ${t.model("TestModel")} {
+      prop1: TestReference;
     }
-    @test model TestModel {
-      @test prop1: TestReference;
-    }
-  `)) as { TestModel: Model; TestReference: Model };
+  `);
 
   const res = render(
     <Wrapper>
@@ -222,15 +220,15 @@ it("renders a class with model members", async () => {
 });
 
 it("renders a class with enum members", async () => {
-  const { TestModel, TestEnum } = (await runner.compile(`
-    @test enum TestEnum {
+  const { TestModel, TestEnum } = await runner.compile(t.code`
+    @test enum ${t.enum("TestEnum")} {
       Value1;
       Value2;
     }
-    @test model TestModel {
+    model ${t.model("TestModel")} {
       @test prop1: TestEnum;
     }
-  `)) as { TestModel: Model; TestEnum: Enum };
+  `);
 
   const res = render(
     <Wrapper>
@@ -260,11 +258,11 @@ it("renders a class with enum members", async () => {
 });
 
 it("maps prop: string | null to nullable property", async () => {
-  const { TestModel } = (await runner.compile(`
-    @test model TestModel {
+  const { TestModel } = await runner.compile(t.code`
+    model ${t.model("TestModel")} {
       prop1: string | null;
     }
-  `)) as { TestModel: Model };
+  `);
 
   const res = render(
     <Wrapper>
@@ -287,15 +285,15 @@ it("maps prop: string | null to nullable property", async () => {
 });
 
 it("renders a class with string enums", async () => {
-  const { TestModel, TestEnum } = (await runner.compile(`
-    @test enum TestEnum {
+  const { TestModel, TestEnum } = await runner.compile(t.code`
+    @test enum ${t.enum("TestEnum")} {
       Value1;
       Value2;
     }
-    @test model TestModel {
+    model ${t.model("TestModel")} {
       @test prop1: TestEnum;
     }
-  `)) as { TestModel: Model; TestEnum: Enum };
+  `);
 
   const res = render(
     <Wrapper>
@@ -326,14 +324,14 @@ it("renders a class with string enums", async () => {
 
 describe("with doc comments", () => {
   it("renders a model with docs", async () => {
-    const { TestModel } = (await runner.compile(`
+    const { TestModel } = await runner.compile(t.code`
     @doc("This is a test model")
-    @test model TestModel {
+    model ${t.model("TestModel")} {
       @doc("This is a test property")
         prop1: string;
       }
     
-  `)) as { TestModel: Model };
+  `);
 
     const res = render(
       <Wrapper>
@@ -362,14 +360,14 @@ describe("with doc comments", () => {
   });
 
   it("renders an interface with docs", async () => {
-    const { TestInterface } = (await runner.compile(`
-    @doc("This is a test interface")
-    @test interface TestInterface {
-      @doc("This is a test operation")
-      @returnsDoc("The name of the item")
-      op getName(id: string): string;
-    }
-  `)) as { TestInterface: Interface };
+    const { TestInterface } = await runner.compile(t.code`
+      @doc("This is a test interface")
+      @test interface ${t.interface("TestInterface")} {
+        @doc("This is a test operation")
+        @returnsDoc("The name of the item")
+        op getName(id: string): string;
+      }
+    `);
 
     const res = render(
       <Wrapper>
