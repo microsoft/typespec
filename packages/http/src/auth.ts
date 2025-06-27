@@ -116,7 +116,7 @@ function makeHttpAuthRef(local: HttpAuth, reference: HttpAuth): HttpAuthRef {
     for (const flow of local.flows) {
       scopes.push(...flow.scopes.map((x) => x.value));
     }
-    return { kind: "oauth2", auth: reference, scopes: scopes };
+    return { kind: "oauth2", auth: reference, scopes: Array.from(new Set(scopes)) };
   } else if (reference.type === "noAuth") {
     return { kind: "noAuth", auth: reference };
   } else {
