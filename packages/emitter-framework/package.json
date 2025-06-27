@@ -33,6 +33,9 @@
       "import": "./dist/src/testing/index.js"
     }
   },
+  "imports": {
+    "#test/*": "./test/*"
+  },
   "keywords": [],
   "author": "",
   "license": "MIT",
