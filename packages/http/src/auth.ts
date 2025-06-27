@@ -112,11 +112,13 @@ function gatherAuth(
 
 function makeHttpAuthRef(local: HttpAuth, reference: HttpAuth): HttpAuthRef {
   if (reference.type === "oauth2" && local.type === "oauth2") {
-    const scopes: string[] = [];
+    const scopes = new Set<string>();
     for (const flow of local.flows) {
-      scopes.push(...flow.scopes.map((x) => x.value));
+      for (const scope of flow.scopes) {
+        scopes.add(scope.value);
+      }
     }
-    return { kind: "oauth2", auth: reference, scopes: Array.from(new Set(scopes)) };
+    return { kind: "oauth2", auth: reference, scopes: Array.from(scopes) };
   } else if (reference.type === "noAuth") {
     return { kind: "noAuth", auth: reference };
   } else {
