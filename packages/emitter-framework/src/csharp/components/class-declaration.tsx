@@ -80,6 +80,7 @@ function ClassProperty(props: ClassPropertyProps): ay.Children {
       name={props.type.name}
       type={<TypeExpression type={result.type} />}
       public
+      required={!props.type.optional}
       nullable={result.nullable}
       doc={getDocComments($, props.type)}
       get
