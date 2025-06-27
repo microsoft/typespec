@@ -100,7 +100,7 @@ setup(
         {% else %}
         "isodate>={{ VERSION_MAP["isodate"] }}",
         {% endif %}
-        {% if azure_arm %}
+        {% if code_model.options["azure-arm"] %}
         "azure-mgmt-core>={{ VERSION_MAP["azure-mgmt-core"] }}",
         {% elif code_model.is_azure_flavor %}
         "azure-core>={{ VERSION_MAP["azure-core"] }}",

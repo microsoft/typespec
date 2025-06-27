@@ -99,7 +99,7 @@ class OptionsDict(MutableMapping):
             return " ".join([i.capitalize() for i in str(self.get("package-name", "")).split("-")])
         if key == "builders-visibility":
             # Default to public if low-level client is not set, otherwise embedded
-            return "public" if not self.get("low-level-client") else "embedded"
+            return "embedded" if not self.get("low-level-client") else "public"
         if key == "models-mode":
             models_mode_default = False if self.get("low-level-client") or self.get("version-tolerant") else "msrest"
             if self.get("tsp_file") is not None:
