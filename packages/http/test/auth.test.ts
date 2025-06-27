@@ -1,6 +1,7 @@
 import { ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
-import { getAuthenticationForOperation } from "../src/auth.js";
+import { getAuthenticationForOperation, resolveAuthentication } from "../src/auth.js";
+import { getAllHttpServices } from "../src/index.js";
 import { Tester } from "./test-host.js";
 
 describe("per operation authentication", () => {
@@ -76,5 +77,52 @@ describe("per operation authentication", () => {
       `);
 
     expect(auth).toEqual("x-for-namespace");
+  });
+});
+
+describe("OAuth2 scope deduplication", () => {
+  it("should deduplicate scopes when multiple flows share the same scopes", async () => {
+    const { program } = await Tester.compile(`
+      model oauth<Scopes extends string[]>
+        is OAuth2Auth<
+          [
+            {
+              type: OAuth2FlowType.authorizationCode;
+              authorizationUrl: "https://example.org/oauth2/v2.0/authorize";
+              tokenUrl: "https://example.org/oauth2/v2.0/token";
+              refreshUrl: "https://example.org/oauth2/v2.0/token";
+            },
+            {
+              type: OAuth2FlowType.clientCredentials;
+              tokenUrl: "https://example.org/oauth2/v2.0/token";
+            }
+          ],
+          Scopes
+        >;
+
+      @useAuth(oauth<["api:read"]>)
+      @test op testOp(): void;
+    `);
+
+    const [services] = getAllHttpServices(program);
+    const httpService = services[0];
+    const auth = resolveAuthentication(httpService);
+    
+    // Get the operation auth
+    const testOp = httpService.operations.find((op) => op.operation.name === "testOp");
+    ok(testOp, "Should find test operation");
+    
+    const operationAuth = auth.operationsAuth.get(testOp.operation);
+    ok(operationAuth, "Should have operation auth");
+    
+    // Check that we have OAuth2 auth reference
+    const oauthRef = operationAuth.options[0].all[0];
+    strictEqual(oauthRef.kind, "oauth2");
+    
+    if (oauthRef.kind === "oauth2") {
+      // Verify scopes are deduplicated - should only have "api:read" once
+      expect(oauthRef.scopes).toEqual(["api:read"]);
+      expect(oauthRef.scopes).toHaveLength(1);
+    }
   });
 });
