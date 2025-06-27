@@ -11,11 +11,11 @@ export interface OperationParametersProps {
 }
 
 export function getOperationParameters(
-  operation: HttpOperation,
+  httpOperation: HttpOperation,
   optionsRefkey: ay.Refkey,
 ): ts.ParameterDescriptor[] {
   const transformNamer = useTransformNamePolicy();
-  const requiredParameters = operation.parameters.properties
+  const requiredParameters = httpOperation.parameters.properties
     .filter((p) => !p.property.optional && !hasDefaultValue(p))
     .filter((p) => p.path.length === 1);
 
@@ -35,7 +35,7 @@ export function getOperationParameters(
   parameters.push({
     name: "options",
     refkey: optionsRefkey,
-    type: getOperationOptionsTypeRefkey(operation),
+    type: getOperationOptionsTypeRefkey(httpOperation.operation),
     optional: true,
   });
 

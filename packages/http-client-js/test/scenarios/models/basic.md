@@ -3,6 +3,8 @@
 ## TypeSpec
 
 ```tsp
+@service
+namespace Test;
 model Widget {
   id: string;
   weight: int32;
@@ -26,6 +28,7 @@ export interface Widget {
 # Should generate a model from a namespace
 
 ```tsp
+@service
 namespace Test {
   model TestWidget {
     id: string;
@@ -49,6 +52,7 @@ export interface TestWidget {
 # Should generate a model from a nested namespace
 
 ```tsp
+@service
 namespace Test {
   namespace Foo {
     model TestFooWidget {
@@ -74,6 +78,7 @@ export interface TestFooWidget {
 # Should generate a models with the same name in different namespaces
 
 ```tsp
+@service
 namespace Test {
   namespace Foo {
     model Widget {

@@ -5,6 +5,8 @@
 This TypeSpec block defines a simple model, Foo, containing two properties: name (a string) and age (an integer). The foo operation returns an instance of Foo, ensuring that the generated TypeScript code includes the correct type definitions and transformation functions.
 
 ```tsp
+@service
+namespace Test;
 model Foo {
   name: string;
   age: int32;
@@ -64,6 +66,8 @@ export function jsonFooToApplicationTransform(input_?: any): Foo {
 This TypeSpec block defines two models, Foo and Bar, where Foo includes a nested reference to Bar. The foo operation returns either a Foo or a Bar, testing how the serialization and deserialization logic handles model properties that reference other models.
 
 ```tsp
+@service
+namespace Test;
 model Bar {
   address: string;
 }
