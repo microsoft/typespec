@@ -207,6 +207,7 @@ class ReaderAndWriter:
                 python_json = json.load(fd)
         except Exception:  # pylint: disable=broad-except
             python_json = {}
+        kwargs["output-folder"] = str(self.output_folder)
         self.options = OptionsDict(kwargs)
         if python_json:
             _LOGGER.warning("Loading python.json file. This behavior will be depreacted")
