@@ -217,9 +217,9 @@ describe("compile", () => {
         "--arg",
         "owner=TypeSpec",
         "--option",
-        "description.name=TypeSpec with options",
+        "emitter1.name=TypeSpec with options",
         "--option",
-        "description.by.owners.secondary=Co-owner is defined by this test",
+        "emitter1.by.owners.secondary=Co-owner is defined by this test",
       ],
       {
         cwd: getScenarioDir("with-option"),

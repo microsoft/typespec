@@ -46,6 +46,9 @@ const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<stri
   "azure/client-generator-core/client-initialization": {
     namespace: "specs.azure.clientgenerator.core.clientinitialization",
   },
+  "azure/client-generator-core/client-location": {
+    namespace: "specs.azure.clientgenerator.core.clientlocation",
+  },
   "azure/client-generator-core/deserialize-empty-string-as-null": {
     namespace: "specs.azure.clientgenerator.core.emptystring",
   },

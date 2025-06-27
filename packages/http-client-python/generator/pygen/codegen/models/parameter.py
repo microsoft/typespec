@@ -81,6 +81,7 @@ class _ParameterBase(BaseModel, abc.ABC):  # pylint: disable=too-many-instance-a
         self.grouper: bool = self.yaml_data.get("grouper", False)
         self.check_client_input: bool = self.yaml_data.get("checkClientInput", False)
         self.added_on: Optional[str] = self.yaml_data.get("addedOn")
+        self.api_versions: Optional[List[str]] = self.yaml_data.get("apiVersions", [])
         self.is_api_version: bool = self.yaml_data.get("isApiVersion", False)
         self.in_overload: bool = self.yaml_data.get("inOverload", False)
         self.default_to_unset_sentinel: bool = self.yaml_data.get("defaultToUnsetSentinel", False)

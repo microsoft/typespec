@@ -295,12 +295,13 @@ export class OpenAPI3SchemaEmitterBase<
     return this.unionDeclaration(union, name);
   }
 
-  arrayDeclaration(array: Model, name: string, elementType: Type): EmitterOutput<object> {
+  arrayDeclaration(array: Model, _: string, elementType: Type): EmitterOutput<object> {
     const schema = new ObjectBuilder({
       type: "array",
       items: this.emitter.emitTypeReference(elementType),
     });
 
+    const name = getOpenAPITypeName(this.emitter.getProgram(), array, this.#typeNameOptions());
     return this.#createDeclaration(array, name, this.applyConstraints(array, schema as any));
   }
 
