@@ -521,4 +521,72 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
       },
     ]);
   });
+
+  it("deduplicates OAuth2 scopes across multiple flows", async () => {
+    const res = await openApiFor(
+      `
+      namespace Test;
+
+      model oauth<Scopes extends string[]>
+        is OAuth2Auth<
+          [
+            {
+              type: OAuth2FlowType.authorizationCode;
+              authorizationUrl: "https://example.org/oauth2/v2.0/authorize";
+              tokenUrl: "https://example.org/oauth2/v2.0/token";
+              refreshUrl: "https://example.org/oauth2/v2.0/token";
+            },
+            {
+              type: OAuth2FlowType.clientCredentials;
+              tokenUrl: "https://example.org/oauth2/v2.0/token";
+            }
+          ],
+          Scopes
+        >;
+
+      model Get200Response {
+        @statusCode statusCode: 200;
+        @bodyRoot body: int64;
+      }
+
+      @service
+      namespace MyService {
+        @route("/example")
+        @get
+        @useAuth(oauth<["api:read"]>)
+        op Get(): Get200Response;
+      }
+      `,
+    );
+
+    // The security scheme should include both flows with the same scopes
+    deepStrictEqual(res.components.securitySchemes, {
+      oauth: {
+        type: "oauth2",
+        flows: {
+          authorizationCode: {
+            authorizationUrl: "https://example.org/oauth2/v2.0/authorize",
+            tokenUrl: "https://example.org/oauth2/v2.0/token",
+            refreshUrl: "https://example.org/oauth2/v2.0/token",
+            scopes: {
+              "api:read": "",
+            },
+          },
+          clientCredentials: {
+            tokenUrl: "https://example.org/oauth2/v2.0/token",
+            scopes: {
+              "api:read": "",
+            },
+          },
+        },
+      },
+    });
+
+    // The security section should NOT have duplicate scopes
+    deepStrictEqual(res.paths["/example"]["get"].security, [
+      {
+        oauth: ["api:read"], // Should appear only once, not ["api:read", "api:read"]
+      },
+    ]);
+  });
 });
