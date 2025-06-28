@@ -107,18 +107,18 @@ describe("OAuth2 scope deduplication", () => {
     const [services] = getAllHttpServices(program);
     const httpService = services[0];
     const auth = resolveAuthentication(httpService);
-    
+
     // Get the operation auth
     const testOp = httpService.operations.find((op) => op.operation.name === "testOp");
     ok(testOp, "Should find test operation");
-    
+
     const operationAuth = auth.operationsAuth.get(testOp.operation);
     ok(operationAuth, "Should have operation auth");
-    
+
     // Check that we have OAuth2 auth reference
     const oauthRef = operationAuth.options[0].all[0];
     strictEqual(oauthRef.kind, "oauth2");
-    
+
     if (oauthRef.kind === "oauth2") {
       // Verify scopes are deduplicated - should only have "api:read" once
       expect(oauthRef.scopes).toEqual(["api:read"]);
