@@ -60,7 +60,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 PackageTags = CodeModelGenerator.Instance.Configuration.PackageName,
                 TargetFrameworks = "netstandard2.0;net8.0",
                 LangVersion = "latest",
-                GenerateDocumentationFile = true,
+                GenerateDocumentationFile = !CodeModelGenerator.Instance.Configuration.DisableXmlDocs,
             };
             foreach (var packages in _unbrandedDependencyPackages)
             {
