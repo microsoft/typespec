@@ -1,10 +1,4 @@
 export { resolveCompilerOptions, ResolveCompilerOptionsOptions } from "./config/index.js";
-export * from "./core/index.js";
-export * from "./lib/decorators.js";
-export * from "./server/index.js";
-import * as formatter from "./formatter/index.js";
-export const TypeSpecPrettierPlugin = formatter;
-// DO NOT ADD ANYMORE EXPORTS HERE, this is for backcompat. Utils should be exported from the utils folder.
 export {
   Checker,
   CreateTypeProps,
