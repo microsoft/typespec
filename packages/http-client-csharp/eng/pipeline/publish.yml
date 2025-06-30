@@ -96,37 +96,16 @@ extends:
                   npm install -g @azure-tools/typespec-client-generator-cli@latest
                 displayName: Install tsp-client
 
-              - pwsh: |
-                  npm pkg set version='$(PackageVersion)'
-                  
-                  # Inject required dependencies into package.json before running tsp-client
-                  $packageJsonPath = '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
-                  $packageJson = Get-Content $packageJsonPath -Raw | ConvertFrom-Json
-                  
-                  # Get the version of @azure-tools/typespec-client-generator-core from devDependencies
-                  $clientGeneratorCoreVersion = $packageJson.devDependencies.'@azure-tools/typespec-client-generator-core'
-                  
-                  # Inject the two required dependencies with the same version
-                  $packageJson.devDependencies | Add-Member -Type NoteProperty -Name '@azure-tools/typespec-azure-rulesets' -Value $clientGeneratorCoreVersion -Force
-                  $packageJson.devDependencies | Add-Member -Type NoteProperty -Name '@azure-tools/typespec-azure-resource-manager' -Value $clientGeneratorCoreVersion -Force
-                  
-                  # Create array of all peerDependencies plus the two injected dependencies
-                  $peerDeps = @($packageJson.peerDependencies.PSObject.Properties.Name)
-                  $injectedDeps = @('@azure-tools/typespec-azure-rulesets', '@azure-tools/typespec-azure-resource-manager')
-                  $allDeps = $peerDeps + $injectedDeps
-                  
-                  # Add the azure-sdk/emitter-package-json-pinning property
-                  $packageJson | Add-Member -Type NoteProperty -Name 'azure-sdk/emitter-package-json-pinning' -Value $allDeps -Force
-                  
-                  # Write the updated package.json back
-                  $packageJson | ConvertTo-Json -Depth 10 | Set-Content $packageJsonPath
-                  
-                  tsp-client generate-config-files `
-                  --package-json '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json' `
-                  --emitter-package-json-path '$(Build.SourcesDirectory)/eng/http-client-csharp-emitter-package.json'
-
-                displayName: Inject dependencies and generate emitter-package.json files
-                workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+              - task: PowerShell@2
+                displayName: Update package.json and generate emitter-package.json files
+                inputs:
+                  pwsh: true
+                  filePath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Update-PackageJson-And-Invoke-TspClient.ps1
+                  arguments: >
+                    -PackageVersion '$(PackageVersion)'
+                    -PackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
+                    -EmitterPackageJsonPath '$(Build.SourcesDirectory)/eng/http-client-csharp-emitter-package.json'
+                    -WorkingDirectory '$(Build.SourcesDirectory)/packages/http-client-csharp'
 
               - task: UseDotNet@2
                 inputs:
