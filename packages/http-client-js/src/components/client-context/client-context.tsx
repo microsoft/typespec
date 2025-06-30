@@ -1,4 +1,4 @@
-import { Children } from "@alloy-js/core";
+import { type Children } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import * as cl from "@typespec/http-client";
 import { ClientContextDeclaration } from "./client-context-declaration.jsx";

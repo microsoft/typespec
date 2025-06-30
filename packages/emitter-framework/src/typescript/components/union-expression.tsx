@@ -1,6 +1,12 @@
-import { Children, For, List } from "@alloy-js/core";
+import { type Children, For, List } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { compilerAssert, Enum, EnumMember, Union, UnionVariant } from "@typespec/compiler";
+import {
+  compilerAssert,
+  type Enum,
+  type EnumMember,
+  type Union,
+  type UnionVariant,
+} from "@typespec/compiler";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { efRefkey } from "../utils/refkey.js";
 import { TypeExpression } from "./type-expression.jsx";

@@ -1,6 +1,6 @@
 import { code, Refkey } from "@alloy-js/core";
 import { Children } from "@alloy-js/core/jsx-runtime";
-import { Type } from "@typespec/compiler";
+import type { Type } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
 import { ScalarDataTransform } from "../data-transform.jsx";
 import {

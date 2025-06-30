@@ -1,9 +1,9 @@
-import { Program } from "@typespec/compiler";
+import type { Program } from "@typespec/compiler";
 import {
   createTestHost,
   createTestWrapper,
   expectDiagnosticEmpty,
-  TypeSpecTestLibrary,
+  type TypeSpecTestLibrary,
 } from "@typespec/compiler/testing";
 import { HttpTestLibrary } from "@typespec/http/testing";
 

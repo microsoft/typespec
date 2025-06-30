@@ -1,6 +1,6 @@
 import { List } from "@alloy-js/core";
 import { d } from "@alloy-js/core/testing";
-import { Enum, Model, Union } from "@typespec/compiler";
+import type { Enum, Model, Union } from "@typespec/compiler";
 import { describe, expect, it } from "vitest";
 import { TspContext } from "../../../src/core/index.js";
 import { EnumDeclaration } from "../../../src/typescript/components/enum-declaration.js";

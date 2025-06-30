@@ -2,7 +2,7 @@ import * as ts from "@alloy-js/typescript";
 import * as ef from "@typespec/emitter-framework/typescript";
 
 import { type Children, type Refkey, code, refkey } from "@alloy-js/core";
-import { Model } from "@typespec/compiler";
+import type { Model } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
 import { JsonTransform } from "./json-transform.jsx";
 

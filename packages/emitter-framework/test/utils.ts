@@ -1,7 +1,7 @@
-import { Children, OutputDirectory, render } from "@alloy-js/core";
+import { type Children, type OutputDirectory, render } from "@alloy-js/core";
 import { Output } from "@alloy-js/core/stc";
 import { SourceFile } from "@alloy-js/typescript/stc";
-import { Program } from "@typespec/compiler";
+import type { Program } from "@typespec/compiler";
 import { assert } from "vitest";
 import { getProgram } from "./typescript/test-host.js";
 

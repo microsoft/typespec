@@ -1,5 +1,5 @@
 import { ApiVersions, Parameter } from "@autorest/codemodel";
-import { Operation } from "@typespec/compiler";
+import type { Operation } from "@typespec/compiler";
 import { Version } from "@typespec/versioning";
 
 export class ClientContext {

@@ -1,7 +1,7 @@
 import * as ay from "@alloy-js/core";
 import { Children, code } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Model } from "@typespec/compiler";
+import type { Model } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
 import { getJsonRecordTransformRefkey } from "./json-record-transform.jsx";
 

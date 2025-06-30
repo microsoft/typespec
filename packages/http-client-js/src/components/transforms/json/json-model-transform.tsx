@@ -1,7 +1,7 @@
 import * as ts from "@alloy-js/typescript";
 
 import { type Children, code, For, type Refkey, refkey } from "@alloy-js/core";
-import { Model } from "@typespec/compiler";
+import type { Model } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
 import { JsonAdditionalPropertiesTransform } from "./json-model-additional-properties-transform.jsx";
 import { JsonModelPropertyTransform } from "./json-model-property-transform.jsx";

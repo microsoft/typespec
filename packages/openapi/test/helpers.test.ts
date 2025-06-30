@@ -1,4 +1,4 @@
-import { Operation } from "@typespec/compiler";
+import type { Operation } from "@typespec/compiler";
 import { BasicTestRunner, createTestRunner } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";

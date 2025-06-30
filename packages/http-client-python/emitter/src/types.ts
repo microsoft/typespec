@@ -15,7 +15,7 @@ import {
   SdkUnionType,
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
-import { Type } from "@typespec/compiler";
+import type { Type } from "@typespec/compiler";
 import { HttpAuth, Visibility } from "@typespec/http";
 import { dump } from "js-yaml";
 import { PythonSdkContext } from "./lib.js";

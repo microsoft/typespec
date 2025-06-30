@@ -1,5 +1,5 @@
 import * as ay from "@alloy-js/core";
-import { Program } from "@typespec/compiler";
+import type { Program } from "@typespec/compiler";
 import { TspContext } from "../context/tsp-context.js";
 
 export interface OutputProps extends ay.OutputProps {

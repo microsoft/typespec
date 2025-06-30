@@ -1,7 +1,7 @@
-import { Children, List } from "@alloy-js/core";
+import { type Children, List } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
-import { getReturnsDoc, Type } from "@typespec/compiler";
-import { Typekit } from "@typespec/compiler/typekit";
+import { getReturnsDoc, type Type } from "@typespec/compiler";
+import type { Typekit } from "@typespec/compiler/typekit";
 
 /**
  * Helper to render a doc string for a given TypeSpec type.

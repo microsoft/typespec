@@ -1,6 +1,6 @@
-import { Children, For } from "@alloy-js/core";
+import { type Children, For } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
-import { Interface, Model } from "@typespec/compiler";
+import type { Interface, Model } from "@typespec/compiler";
 import { useTsp } from "../../../core/index.js";
 import { Property } from "../property/property.jsx";
 import { TypeExpression } from "../type-expression.jsx";

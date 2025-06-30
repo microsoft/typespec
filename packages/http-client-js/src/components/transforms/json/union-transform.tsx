@@ -1,6 +1,6 @@
 import { Children, code, refkey, Refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Union } from "@typespec/compiler";
+import type { Union } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
 import {
   getJsonTransformDiscriminatorRefkey,

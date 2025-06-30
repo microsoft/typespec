@@ -1,6 +1,6 @@
-import { Children, For } from "@alloy-js/core";
+import { type Children, For } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
-import { Enum, Union } from "@typespec/compiler";
+import type { Enum, Union } from "@typespec/compiler";
 import { useTsp } from "../../core/index.js";
 import { reportDiagnostic } from "../../lib.js";
 import { getDocComments } from "./utils/doc-comments.jsx";

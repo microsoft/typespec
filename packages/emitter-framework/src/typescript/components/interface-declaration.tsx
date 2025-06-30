@@ -1,14 +1,14 @@
-import { Block, Children, For, mapJoin } from "@alloy-js/core";
+import { Block, type Children, For, mapJoin } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import {
-  Interface,
+  type Interface,
   isNeverType,
-  Model,
-  ModelProperty,
-  Operation,
-  RekeyableMap,
+  type Model,
+  type ModelProperty,
+  type Operation,
+  type RekeyableMap,
 } from "@typespec/compiler";
-import { Typekit } from "@typespec/compiler/typekit";
+import type { Typekit } from "@typespec/compiler/typekit";
 import { createRekeyableMap } from "@typespec/compiler/utils";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";

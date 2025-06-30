@@ -1,6 +1,6 @@
-import { Children, For, Refkey } from "@alloy-js/core";
+import { type Children, For, type Refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Enum, EnumMember as TspEnumMember, Union } from "@typespec/compiler";
+import type { Enum, EnumMember as TspEnumMember, Union } from "@typespec/compiler";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
 import { declarationRefkeys, efRefkey } from "../utils/refkey.js";

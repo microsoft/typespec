@@ -1,5 +1,5 @@
 import { type Children } from "@alloy-js/core";
-import { Model } from "@typespec/compiler";
+import type { Model } from "@typespec/compiler";
 import { JsonTransform } from "./json-transform.jsx";
 
 export interface JsonModelBaseTransformProps {
