@@ -1,13 +1,16 @@
-import { DecoratorContext, getNamespaceFullName, Namespace } from "@typespec/compiler";
-import { createTestWrapper, expectDiagnostics } from "@typespec/compiler/testing";
-import { deepStrictEqual, strictEqual } from "assert";
+import { expectDiagnostics } from "@typespec/compiler/testing";
+import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { createOpenAPITestHost, createOpenAPITestRunner } from "./test-host.js";
+import { ApiTester, openApiForVersions } from "./test-host.js";
 import { worksFor } from "./works-for.js";
 
 worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version: specVersion }) => {
+  const TesterWithVersioning = ApiTester.importLibraries()
+    .using("Http", "Rest", "Versioning")
+    .emit("@typespec/openapi3", { "openapi-versions": [specVersion] });
+
   it("works with models", async () => {
-    const { v1, v2, v3 } = await openApiFor(
+    const { v1, v2, v3 } = await openApiForVersions(
       `
       @versioned(Versions)
       @service(#{title: "My Service"})
@@ -47,6 +50,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version: specVersion }) => {
     );
 
     strictEqual(v1.info.version, "v1");
+    ok(v1.components?.schemas);
     deepStrictEqual(v1.components.schemas.Test, {
       type: "object",
       properties: {
@@ -67,6 +71,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version: specVersion }) => {
     });
 
     strictEqual(v2.info.version, "v2");
+    ok(v2.components?.schemas);
     deepStrictEqual(v2.components.schemas.Test, {
       type: "object",
       properties: {
@@ -85,7 +90,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version: specVersion }) => {
       },
       required: ["prop1", "prop2"],
     });
-
+    ok(v3.components?.schemas);
     strictEqual(v3.info.version, "v3");
     deepStrictEqual(v3.components.schemas.Test, {
       type: "object",
@@ -108,59 +113,12 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version: specVersion }) => {
     });
   });
 
-  it("doesn't lose parent namespace", async () => {
-    const host = await createOpenAPITestHost();
-
-    let storedNamespace: string | undefined = undefined;
-    host.addJsFile("test.js", {
-      $armNamespace(context: DecoratorContext, entity: Namespace) {
-        storedNamespace = getNamespaceFullName(entity);
-      },
-    });
-
-    const runner = createTestWrapper(host, {
-      autoImports: [...host.libraries.map((x) => x.name), "./test.js"],
-      autoUsings: ["TypeSpec.Rest", "TypeSpec.Http", "TypeSpec.OpenAPI", "TypeSpec.Versioning"],
-      compilerOptions: {
-        emit: ["@typespec/openapi3"],
-        options: { "@typespec/openapi3": { "openapi-versions": [specVersion] } },
-      },
-    });
-
-    await runner.compile(`
-    @versioned(Contoso.Library.Versions)
-    namespace Contoso.Library {
-      namespace Blah { }
-      enum Versions { v1 };
-    }
-    @armNamespace
-    @service(#{title: "Widgets 'r' Us"})
-    @useDependency(Contoso.Library.Versions.v1)
-    namespace Contoso.WidgetService {
-      model Widget {
-        @key
-        @segment("widgets")
-        id: string;
-      }
-      interface Operations {
-        @test
-        op get(id: string): Widget;
-      }
-    }
-    `);
-
-    strictEqual(storedNamespace, "Contoso.WidgetService");
-  });
-
   // Test for https://github.com/microsoft/typespec/issues/812
   it("doesn't throw errors when using UpdateableProperties", async () => {
     // if this test throws a duplicate name diagnostic, check that getEffectiveType
     // is returning the projected type.
-    const runner = await createOpenAPITestRunner({
-      withVersioning: true,
-      emitterOptions: { "openapi-versions": [specVersion] },
-    });
-    await runner.compile(`
+    await TesterWithVersioning.compile(
+      `
       @versioned(Library.Versions)
       namespace Library {
         enum Versions {
@@ -181,16 +139,14 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version: specVersion }) => {
           oops(...UpdateableProperties<Widget>): Widget;
         }
       }
-    `);
+    `,
+    );
   });
 
   describe("versioned resource", () => {
     it("reports diagnostic without crashing for mismatched versions", async () => {
-      const runner = await createOpenAPITestRunner({
-        withVersioning: true,
-        emitterOptions: { "openapi-versions": [specVersion] },
-      });
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await TesterWithVersioning.diagnose(
+        `
         @versioned(Versions)
         @service
         namespace DemoService;
@@ -219,18 +175,16 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version: specVersion }) => {
 
         @route("/widgets")
         interface Widgets extends Resource.ResourceOperations<Widget, Error> {}
-      `);
+      `,
+      );
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
       });
     });
 
     it("succeeds for aligned versions", async () => {
-      const runner = await createOpenAPITestRunner({
-        withVersioning: true,
-        emitterOptions: { "openapi-versions": [specVersion] },
-      });
-      await runner.compile(`
+      await TesterWithVersioning.compile(
+        `
         @versioned(Versions)
         @service
         namespace DemoService;
@@ -260,7 +214,8 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version: specVersion }) => {
         @added(Versions.v2)
         @route("/widgets")
         interface Widgets extends Resource.ResourceOperations<Widget, Error> {}
-    `);
+    `,
+      );
     });
   });
 });

@@ -1,13 +1,16 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
+using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -81,6 +84,58 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public async Task CanCustomizeNestedTypesWithRenamedDeclaringType()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            TypeProvider nestedType;
+            var inputEnum = InputFactory.Int32Enum("TestEnum", [("Value1", 0), ("Value2", 1), ("Value3", 2)], clientNamespace: "Test");
+            nestedType = EnumProvider.Create(inputEnum, new TestTypeProvider(name: "TestCustomizeNestedTypes"));
+
+            var typeProvider = new TestTypeProvider(name: "TestCustomizeNestedTypes");
+            typeProvider.NestedTypesInternal = [nestedType];
+            Assert.IsNotNull(typeProvider.CustomCodeView);
+            Assert.AreEqual("RenamedType", typeProvider.Name);
+
+            var nestedTypes = typeProvider.NestedTypes;
+            Assert.AreEqual(0, nestedTypes.Count);
+        }
+
+        [Test]
+        public void CanUpdateTypeProvider()
+        {
+            var typeProvider = new TestTypeProvider(name: "OriginalName",
+                methods: [new MethodProvider(
+                new MethodSignature("TestMethod", $"", MethodSignatureModifiers.Public, null, $"", []),
+                Snippet.Throw(Snippet.Null), new TestTypeProvider())]);
+            var attributes = new List<AttributeStatement>
+            {
+                 new(typeof(ObsoleteAttribute)),
+                 new(typeof(ObsoleteAttribute), Snippet.Literal("This is obsolete")),
+                 new(typeof(ExperimentalAttribute), Snippet.Literal("001"))
+            };
+            typeProvider.Update(name: "UpdatedName", methods: [], attributes: attributes);
+            Assert.AreEqual("UpdatedName", typeProvider.Name);
+            Assert.AreEqual(0, typeProvider.Methods.Count);
+
+            // Check that the attributes are updated correctly
+            Assert.IsNotNull(typeProvider.Attributes);
+            Assert.AreEqual(attributes.Count, typeProvider.Attributes.Count);
+            for (int i = 0; i < attributes.Count; i++)
+            {
+                Assert.AreEqual(attributes[i].Type, typeProvider.Attributes[i].Type);
+                Assert.IsTrue(typeProvider.Attributes[i].Arguments.SequenceEqual(attributes[i].Arguments));
+            }
+
+
+            typeProvider.Reset();
+
+            // The BuildX methods should be called again, which will return the original state.
+            Assert.AreEqual("OriginalName", typeProvider.Name);
+            Assert.AreEqual(1, typeProvider.Methods.Count);
+        }
+
+        [Test]
         public void CanResetTypeProvider()
         {
             var typeProvider = new TestTypeProvider(name: "OriginalName",
@@ -95,6 +150,22 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             // The BuildX methods should be called again, which will return the original state.
             Assert.AreEqual("OriginalName", typeProvider.Name);
+            Assert.AreEqual(1, typeProvider.Methods.Count);
+        }
+
+        [Test]
+        public void CanUpdateWithReset()
+        {
+            var typeProvider = new TestTypeProvider(name: "OriginalName",
+                methods: [new MethodProvider(
+                    new MethodSignature("TestMethod", $"", MethodSignatureModifiers.Public, null, $"", []),
+                    Snippet.Throw(Snippet.Null), new TestTypeProvider())]);
+            typeProvider.Update(methods: []);
+            Assert.AreEqual(0, typeProvider.Methods.Count);
+
+            typeProvider.Update(name: "UpdatedName", reset: true);
+            Assert.AreEqual("UpdatedName", typeProvider.Name);
+            // The BuildX methods should be called again, which will return the original state.
             Assert.AreEqual(1, typeProvider.Methods.Count);
         }
     }

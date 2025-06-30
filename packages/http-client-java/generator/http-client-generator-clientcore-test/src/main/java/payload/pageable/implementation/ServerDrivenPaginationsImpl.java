@@ -89,7 +89,7 @@ public final class ServerDrivenPaginationsImpl {
         final String accept = "application/json";
         Response<LinkResponse> res = service.link(this.client.getEndpoint(), accept, RequestContext.none());
         return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
-            null, res.getValue().getNext(), null, null, null);
+            null, res.getValue().getNext() != null ? res.getValue().getNext() : null, null, null, null);
     }
 
     /**
@@ -106,7 +106,7 @@ public final class ServerDrivenPaginationsImpl {
         final String accept = "application/json";
         Response<LinkResponse> res = service.link(this.client.getEndpoint(), accept, requestContext);
         return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
-            null, res.getValue().getNext(), null, null, null);
+            null, res.getValue().getNext() != null ? res.getValue().getNext() : null, null, null, null);
     }
 
     /**
@@ -165,7 +165,7 @@ public final class ServerDrivenPaginationsImpl {
         Response<LinkResponse> res
             = service.linkNext(nextLink, this.client.getEndpoint(), accept, RequestContext.none());
         return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
-            null, res.getValue().getNext(), null, null, null);
+            null, res.getValue().getNext() != null ? res.getValue().getNext() : null, null, null, null);
     }
 
     /**
@@ -183,7 +183,7 @@ public final class ServerDrivenPaginationsImpl {
         final String accept = "application/json";
         Response<LinkResponse> res = service.linkNext(nextLink, this.client.getEndpoint(), accept, requestContext);
         return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
-            null, res.getValue().getNext(), null, null, null);
+            null, res.getValue().getNext() != null ? res.getValue().getNext() : null, null, null, null);
     }
 
     private static final ClientLogger LOGGER = new ClientLogger(ServerDrivenPaginationsImpl.class);
