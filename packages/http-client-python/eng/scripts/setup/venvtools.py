@@ -29,29 +29,6 @@ class ExtendedEnvBuilder(venv.EnvBuilder):
         return self.context
 
 
-def create(
-    env_dir,
-    system_site_packages=False,
-    clear=False,
-    symlinks=False,
-    with_pip=False,
-    prompt=None,
-    upgrade_deps=False,
-):
-    """Create a virtual environment in a directory."""
-    builder = ExtendedEnvBuilder(
-        system_site_packages=system_site_packages,
-        clear=clear,
-        symlinks=symlinks,
-        with_pip=with_pip,
-        prompt=prompt,
-        upgrade_deps=upgrade_deps,
-    )
-    builder.create(env_dir)
-    return builder.context
-
-
-
 
 
 def python_run(venv_context, module, command=None, *, additional_dir="."):
