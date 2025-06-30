@@ -1,5 +1,12 @@
 # Change Log - @typespec/http-client-python
 
+## 0.12.5
+
+### Bug Fixes
+
+- [#7760](https://github.com/microsoft/typespec/pull/7760) [http-client-python] Add support for uv package manager alongside pip
+
+
 ## 0.12.4
 
 ### Bump dependencies
