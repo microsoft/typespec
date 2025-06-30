@@ -1,11 +1,12 @@
 import * as ay from "@alloy-js/core";
+import { Children, code } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Model } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
 import { getJsonRecordTransformRefkey } from "./json-record-transform.jsx";
 
 export interface JsonAdditionalPropertiesTransformProps {
-  itemRef: ay.Children;
+  itemRef: Children;
   type: Model;
   target: "transport" | "application";
 }
@@ -30,7 +31,7 @@ export function JsonAdditionalPropertiesTransform(props: JsonAdditionalPropertie
     );
 
     // Inline destructuring that extracts the properties and passes the rest to jsonRecordUnknownToApplicationTransform_2
-    const inlineDestructure = ay.code`
+    const inlineDestructure = code`
     ${getJsonRecordTransformRefkey(additionalProperties, props.target)}(
       (({ ${destructuredProperties} ...rest }) => rest)(${props.itemRef})
     ),
@@ -43,7 +44,7 @@ export function JsonAdditionalPropertiesTransform(props: JsonAdditionalPropertie
     );
   }
 
-  const itemRef = ay.code`${props.itemRef}.additionalProperties`;
+  const itemRef = code`${props.itemRef}.additionalProperties`;
 
   return (
     <>

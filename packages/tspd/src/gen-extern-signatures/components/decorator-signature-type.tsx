@@ -1,4 +1,5 @@
 import * as ay from "@alloy-js/core";
+import { List } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import {
   IntrinsicScalarName,
@@ -216,7 +217,7 @@ function ValueTsType({ type }: { type: Type }) {
 function LocalTypeReference({ type }: { type: Model }) {
   const { addLocalType } = useTspd();
   addLocalType(type);
-  return <ts.Reference refkey={ay.refkey(type)} />;
+  return <ts.Reference refkey={refkey(type)} />;
 }
 function ValueOfModelTsType({ model }: { model: Model }) {
   return (
@@ -228,7 +229,7 @@ function ValueOfModelTsType({ model }: { model: Model }) {
 
 export function ValueOfModelTsInterfaceBody({ model }: { model: Model }) {
   return (
-    <ay.List joiner=";" enderPunctuation>
+    <List joiner=";" enderPunctuation>
       {model.indexer?.value && (
         <ts.InterfaceMember
           readonly
@@ -236,7 +237,7 @@ export function ValueOfModelTsInterfaceBody({ model }: { model: Model }) {
           type={<ValueTsType type={model.indexer.value} />}
         />
       )}
-      <ay.For each={model.properties.values()}>
+      <For each={model.properties.values()}>
         {(x) => (
           <ts.InterfaceMember
             readonly
@@ -245,8 +246,8 @@ export function ValueOfModelTsInterfaceBody({ model }: { model: Model }) {
             type={<ValueTsType type={x.type} />}
           />
         )}
-      </ay.For>
-    </ay.List>
+      </For>
+    </List>
   );
 }
 

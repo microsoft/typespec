@@ -1,4 +1,4 @@
-import * as ay from "@alloy-js/core";
+import { Children, For } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
 import { Enum, Union } from "@typespec/compiler";
 import { useTsp } from "../../core/index.js";
@@ -11,7 +11,7 @@ export interface EnumDeclarationProps extends Omit<cs.EnumDeclarationProps, "nam
   type: Union | Enum;
 }
 
-export function EnumDeclaration(props: EnumDeclarationProps): ay.Children {
+export function EnumDeclaration(props: EnumDeclarationProps): Children {
   const { $ } = useTsp();
   let type: Enum;
   if ($.union.is(props.type)) {
@@ -33,7 +33,7 @@ export function EnumDeclaration(props: EnumDeclarationProps): ay.Children {
   return (
     <>
       <cs.EnumDeclaration name={name} refkey={refkeys} {...props}>
-        <ay.For each={members} joiner={",\n"}>
+        <For each={members} joiner={",\n"}>
           {([key, value]) => {
             return (
               <>
@@ -49,7 +49,7 @@ export function EnumDeclaration(props: EnumDeclarationProps): ay.Children {
               </>
             );
           }}
-        </ay.For>
+        </For>
       </cs.EnumDeclaration>
     </>
   );

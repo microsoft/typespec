@@ -1,10 +1,9 @@
-import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 
 export interface DecoratorSignatureTests {
   namespaceName: string;
-  dollarDecoratorRefKey: ay.Refkey;
-  dollarDecoratorsTypeRefKey: ay.Refkey;
+  dollarDecoratorRefKey: Refkey;
+  dollarDecoratorsTypeRefKey: Refkey;
 }
 
 export function DecoratorSignatureTests({

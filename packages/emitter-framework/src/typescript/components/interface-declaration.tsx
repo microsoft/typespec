@@ -1,5 +1,4 @@
-import * as ay from "@alloy-js/core";
-import { Children, mapJoin } from "@alloy-js/core";
+import { Block, Children, For, mapJoin } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import {
   Interface,
@@ -74,9 +73,9 @@ export interface InterfaceExpressionProps extends ts.InterfaceExpressionProps {
 
 export function InterfaceExpression(props: InterfaceExpressionProps) {
   return (
-    <ay.Block>
+    <Block>
       <InterfaceBody {...props} />
-    </ay.Block>
+    </Block>
   );
 }
 
@@ -156,11 +155,11 @@ function InterfaceBody(props: TypedInterfaceDeclarationProps): Children {
 
   return (
     <>
-      <ay.For each={validTypeMembers} semicolon line {...enderProp}>
+      <For each={validTypeMembers} semicolon line {...enderProp}>
         {(typeMember) => {
           return <InterfaceMember type={typeMember} />;
         }}
-      </ay.For>
+      </For>
       {props.children}
     </>
   );

@@ -14,7 +14,7 @@ import { createTspdContext, TspdContext, useTspd } from "./tspd-context.js";
 export interface DecoratorSignaturesProps {
   decorators: DecoratorSignature[];
   namespaceName: string;
-  dollarDecoratorsRefKey: ay.Refkey;
+  dollarDecoratorsRefKey: Refkey;
 }
 
 export function DecoratorSignatures({
@@ -27,11 +27,11 @@ export function DecoratorSignatures({
       <LocalTypes />
       <hbr />
       <hbr />
-      <ay.For each={decorators} doubleHardline>
+      <For each={decorators} doubleHardline>
         {(signature) => {
           return <DecoratorSignatureType signature={signature} />;
         }}
-      </ay.For>
+      </For>
       <hbr />
       <hbr />
       <DollarDecoratorsType
@@ -46,17 +46,17 @@ export function DecoratorSignatures({
 export function LocalTypes() {
   const { localTypes } = useTspd();
   return (
-    <ay.StatementList>
-      <ay.For each={localTypes} doubleHardline>
+    <StatementList>
+      <For each={localTypes} doubleHardline>
         {(type) => {
           return (
-            <ts.InterfaceDeclaration export name={type.name} refkey={ay.refkey(type)}>
+            <ts.InterfaceDeclaration export name={type.name} refkey={refkey(type)}>
               <ValueOfModelTsInterfaceBody model={type} />
             </ts.InterfaceDeclaration>
           );
         }}
-      </ay.For>
-    </ay.StatementList>
+      </For>
+    </StatementList>
   );
 }
 
@@ -68,7 +68,7 @@ export function generateSignatures(
 ): ay.OutputDirectory {
   const context = createTspdContext(program);
   const base = namespaceName === "" ? "__global__" : namespaceName;
-  const $decoratorsRef = ay.refkey();
+  const $decoratorsRef = refkey();
   const userLib = ts.createPackage({
     name: libraryName,
     version: "0.0.0",

@@ -12,9 +12,9 @@ export function TypekitSection(props: TypekitSectionProps) {
   return (
     <md.Section heading={props.typekit.name}>
       <ay.Prose>{props.typekit.doc && <TsDoc node={props.typekit.doc} />}</ay.Prose>
-      <ay.For each={Object.values(props.typekit.entries)}>
+      <For each={Object.values(props.typekit.entries)}>
         {(x) => <TypekitFunction typekit={x as any} />}
-      </ay.For>
+      </For>
     </md.Section>
   );
 }

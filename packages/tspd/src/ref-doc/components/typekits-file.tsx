@@ -10,14 +10,14 @@ export function createTypekitDocs(typekit: TypekitCollection) {
       <md.SourceFile path={`typekits.mdx`}>
         <>
           <md.Frontmatter jsValue={{ title: "[API] Typekits" }} />
-          {ay.code`
+          {code`
         import { Badge } from '@astrojs/starlight/components';
         `}
         </>
         <md.Section>
-          <ay.For each={Object.values(typekit.namespaces)}>
+          <For each={Object.values(typekit.namespaces)}>
             {(x) => <TypekitSection typekit={x} />}
-          </ay.For>
+          </For>
         </md.Section>
       </md.SourceFile>
     </ay.Output>

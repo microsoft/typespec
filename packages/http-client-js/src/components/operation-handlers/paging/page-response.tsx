@@ -1,4 +1,4 @@
-import * as ay from "@alloy-js/core";
+import { For, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { PagingOperation, PagingProperty } from "@typespec/compiler";
 import * as ef from "@typespec/emitter-framework/typescript";
@@ -9,7 +9,7 @@ export interface PageResponseProps {
 }
 
 export function getPageResponseTypeRefkey(operation: HttpOperation) {
-  return ay.refkey(operation, "page-response");
+  return refkey(operation, "page-response");
 }
 export function PageResponseDeclaration(props: PageResponseProps) {
   const namePolicy = ts.useTSNamePolicy();
@@ -41,7 +41,7 @@ export function PageResponseDeclaration(props: PageResponseProps) {
       name={interfaceName}
       refkey={getPageResponseTypeRefkey(props.operation)}
     >
-      <ay.For each={responseProperties} line>
+      <For each={responseProperties} line>
         {(parameter) => (
           <ts.InterfaceMember
             name={parameter.property.name}
@@ -49,7 +49,7 @@ export function PageResponseDeclaration(props: PageResponseProps) {
             type={<ef.TypeExpression type={parameter.property.type} />}
           />
         )}
-      </ay.For>
+      </For>
     </ts.InterfaceDeclaration>
   );
 }
