@@ -11,12 +11,13 @@ if not sys.version_info >= (3, 9, 0):
     raise Exception("Autorest for Python extension requires Python 3.9 at least")
 
 try:
-    import pip
-except (ImportError, ModuleNotFoundError):
-    raise Exception("Your Python installation doesn't have pip available")
+    from package_manager import detect_package_manager, PackageManagerNotFoundError
+    detect_package_manager()  # Just check if we have a package manager
+except (ImportError, ModuleNotFoundError, PackageManagerNotFoundError):
+    raise Exception("Your Python installation doesn't have a suitable package manager (pip or uv) available")
 
 
-# Now we have pip and Py >= 3.9, go to work
+# Now we have a package manager (pip or uv) and Py >= 3.9, go to work
 
 from pathlib import Path
 
