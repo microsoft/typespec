@@ -70,19 +70,19 @@ try {
 
     $packageJson = Get-Content $PackageJsonPath -Raw | ConvertFrom-Json
 
-    # Get the version of @azure-tools/typespec-client-generator-core from devDependencies
-    if (-not $packageJson.devDependencies -or -not $packageJson.devDependencies.'@azure-tools/typespec-client-generator-core') {
-        Write-Error "Could not find @azure-tools/typespec-client-generator-core in devDependencies"
+    # Get the version of @azure-tools/typespec-azure-core from peerDependencies
+    if (-not $packageJson.peerDependencies -or -not $packageJson.peerDependencies.'@azure-tools/typespec-azure-core') {
+        Write-Error "Could not find @azure-tools/typespec-azure-core in peerDependencies"
         exit 1
     }
 
-    $clientGeneratorCoreVersion = $packageJson.devDependencies.'@azure-tools/typespec-client-generator-core'
-    Write-Host "Using version $clientGeneratorCoreVersion for injected dependencies"
+    $azureCoreVersion = $packageJson.peerDependencies.'@azure-tools/typespec-azure-core'
+    Write-Host "Using version $azureCoreVersion for injected dependencies"
 
     # Inject the two required dependencies with the same version
     Write-Host "Injecting required dependencies..."
-    $packageJson.devDependencies | Add-Member -Type NoteProperty -Name '@azure-tools/typespec-azure-rulesets' -Value $clientGeneratorCoreVersion -Force
-    $packageJson.devDependencies | Add-Member -Type NoteProperty -Name '@azure-tools/typespec-azure-resource-manager' -Value $clientGeneratorCoreVersion -Force
+    $packageJson.devDependencies | Add-Member -Type NoteProperty -Name '@azure-tools/typespec-azure-rulesets' -Value $azureCoreVersion -Force
+    $packageJson.devDependencies | Add-Member -Type NoteProperty -Name '@azure-tools/typespec-azure-resource-manager' -Value $azureCoreVersion -Force
 
     # Create array of all peerDependencies plus the two injected dependencies
     $peerDeps = @()
