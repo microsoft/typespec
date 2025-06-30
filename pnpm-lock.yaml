@@ -2278,9 +2278,6 @@ importers:
       '@types/node':
         specifier: ~24.0.3
         version: 24.0.3
-      '@types/screenshot-desktop':
-        specifier: ^1.12.3
-        version: 1.12.3
       '@types/semver':
         specifier: ^7.5.8
         version: 7.7.0
@@ -2344,9 +2341,6 @@ importers:
       rimraf:
         specifier: ~6.0.1
         version: 6.0.1
-      screenshot-desktop:
-        specifier: ^1.15.1
-        version: 1.15.1
       semver:
         specifier: ^7.7.1
         version: 7.7.2
@@ -6732,9 +6726,6 @@ packages:
 
   '@types/sax@1.2.7':
     resolution: {integrity: sha512-rO73L89PJxeYM3s3pPPjiPgVVcymqU490g0YO5n5By0k2Erzj6tay/4lr1CHAAU4JyOWd1rpQ8bCf6cZfHU96A==}
-
-  '@types/screenshot-desktop@1.12.3':
-    resolution: {integrity: sha512-b1BoY60eEUwXgAE4le7gQFf78RWQxveF/ZKW5Ifh1+M4byPiyp3kP4qStVL+2pwrwaaJyN8qzeaczSDfz2WOPw==}
 
   '@types/semver@7.7.0':
     resolution: {integrity: sha512-k107IF4+Xr7UHjwDc7Cfd6PRQfbdkiRabXGRjo07b4WyPahFBZCZ1sE+BNxYIJPPg73UkfOsVOLwqVc/6ETrIA==}
@@ -12353,9 +12344,6 @@ packages:
   scheduler@0.23.2:
     resolution: {integrity: sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==}
 
-  screenshot-desktop@1.15.1:
-    resolution: {integrity: sha512-4j9bDZSFnkRqH53bAw5W+ZhdGKiTUcUDohO6NZjL6QSC/6AXbhUqJ9YXygjHrYcSOUD4IcLty6uQ1ES7PSsomg==}
-
   search-insights@2.17.3:
     resolution: {integrity: sha512-RQPdCYTa8A68uM2jwxoY842xDhvx3E5LFL1LxvxCNMev4o5mLuokczhzjAgGwUZBAmOKZknArSxLKmXtIi2AxQ==}
 
@@ -12868,10 +12856,6 @@ packages:
 
   temp@0.8.4:
     resolution: {integrity: sha512-s0ZZzd0BzYv5tLSptZooSjK8oj6C+c19p7Vqta9+6NPOf7r+fxq0cJe6/oN4LTC79sy5NY8ucOJNgwsKCSbfqg==}
-    engines: {node: '>=6.0.0'}
-
-  temp@0.9.4:
-    resolution: {integrity: sha512-yYrrsWnrXMcdsnu/7YMYAofM1ktpL5By7vZhf15CrXijWWrEYZks5AXBudalfSWJLlnen/QUJUB5aoB0kqZUGA==}
     engines: {node: '>=6.0.0'}
 
   temporal-polyfill@0.3.0:
@@ -19913,10 +19897,6 @@ snapshots:
   '@types/sarif@2.1.7': {}
 
   '@types/sax@1.2.7':
-    dependencies:
-      '@types/node': 24.0.3
-
-  '@types/screenshot-desktop@1.12.3':
     dependencies:
       '@types/node': 24.0.3
 
@@ -27163,10 +27143,6 @@ snapshots:
     dependencies:
       loose-envify: 1.4.0
 
-  screenshot-desktop@1.15.1:
-    dependencies:
-      temp: 0.9.4
-
   search-insights@2.17.3: {}
 
   secretlint@9.3.4:
@@ -27845,11 +27821,6 @@ snapshots:
 
   temp@0.8.4:
     dependencies:
-      rimraf: 2.6.3
-
-  temp@0.9.4:
-    dependencies:
-      mkdirp: 0.5.6
       rimraf: 2.6.3
 
   temporal-polyfill@0.3.0:
