@@ -11,7 +11,7 @@ import subprocess
 import sys
 import venv
 from pathlib import Path
-from .venvtools import ExtendedEnvBuilder
+from venvtools import ExtendedEnvBuilder
 
 
 class PackageManagerNotFoundError(Exception):
