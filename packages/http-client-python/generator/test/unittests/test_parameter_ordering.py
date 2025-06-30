@@ -26,7 +26,7 @@ def get_code_model():
             "show-send-request": True,
             "builders-visibility": "public",
             "show-operations": True,
-            "models_mode": "dpg",
+            "models-mode": "dpg",
             "only-path-and-body-params-positional": True,
         },
     )

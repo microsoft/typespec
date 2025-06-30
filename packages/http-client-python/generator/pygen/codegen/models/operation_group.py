@@ -78,7 +78,7 @@ class OperationGroup(BaseModel):
         for operation in self.operations:
             file_import.merge(operation.imports_for_multiapi(async_mode, **kwargs))
         if (self.code_model.model_types or self.code_model.enums) and self.code_model.options[
-            "models_mode"
+            "models-mode"
         ] == "msrest":
             file_import.add_submodule_import(relative_path, "models", ImportType.LOCAL, alias="_models")
         return file_import
