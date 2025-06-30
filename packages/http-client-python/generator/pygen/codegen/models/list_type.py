@@ -34,9 +34,9 @@ class ListType(BaseType):
 
     def type_annotation(self, **kwargs: Any) -> str:
         if (
-            self.code_model.options["version_tolerant"]
+            self.code_model.options["version-tolerant"]
             and self.element_type.is_xml
-            and not self.code_model.options["models_mode"]
+            and not self.code_model.options["models-mode"]
         ):
             # this means we're version tolerant XML, we just return the XML element
             return self.element_type.type_annotation(**kwargs)
@@ -68,13 +68,13 @@ class ListType(BaseType):
         return ", ".join(attrs_list)
 
     def docstring_type(self, **kwargs: Any) -> str:
-        if self.code_model.options["version_tolerant"] and self.element_type.xml_metadata:
+        if self.code_model.options["version-tolerant"] and self.element_type.xml_metadata:
             # this means we're version tolerant XML, we just return the XML element
             return self.element_type.docstring_type(**kwargs)
         return f"list[{self.element_type.docstring_type(**kwargs)}]"
 
     def docstring_text(self, **kwargs: Any) -> str:
-        if self.code_model.options["version_tolerant"] and self.element_type.xml_metadata:
+        if self.code_model.options["version-tolerant"] and self.element_type.xml_metadata:
             # this means we're version tolerant XML, we just return the XML element
             return self.element_type.docstring_text(**kwargs)
         return f"list of {self.element_type.docstring_text(**kwargs)}"
@@ -129,9 +129,9 @@ class ListType(BaseType):
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
         if not (
-            self.code_model.options["version_tolerant"]
+            self.code_model.options["version-tolerant"]
             and self.element_type.is_xml
-            and not self.code_model.options["models_mode"]
+            and not self.code_model.options["models-mode"]
         ):
             file_import.add_submodule_import("typing", "List", ImportType.STDLIB, TypingSection.CONDITIONAL)
         file_import.merge(self.element_type.imports(**kwargs))

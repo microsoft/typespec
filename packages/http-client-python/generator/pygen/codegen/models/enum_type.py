@@ -170,7 +170,7 @@ class EnumType(BaseType):
         :return: The type annotation for this schema
         :rtype: str
         """
-        if self.code_model.options["models_mode"]:
+        if self.code_model.options["models-mode"]:
 
             module_name = ""
             if kwargs.get("need_model_alias", True):
@@ -190,13 +190,13 @@ class EnumType(BaseType):
         return self.value_type.get_declaration(value)
 
     def docstring_text(self, **kwargs: Any) -> str:
-        if self.code_model.options["models_mode"]:
+        if self.code_model.options["models-mode"]:
             return self.name
         return self.value_type.type_annotation(**kwargs)
 
     def docstring_type(self, **kwargs: Any) -> str:
         """The python type used for RST syntax input and type annotation."""
-        if self.code_model.options["models_mode"]:
+        if self.code_model.options["models-mode"]:
             type_annotation = self.value_type.type_annotation(**kwargs)
             enum_type_annotation = f"{self.client_namespace}.models.{self.name}"
             return f"{type_annotation} or ~{enum_type_annotation}"
@@ -230,7 +230,7 @@ class EnumType(BaseType):
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
         file_import.merge(self.value_type.imports(**kwargs))
-        if self.code_model.options["models_mode"]:
+        if self.code_model.options["models-mode"]:
             file_import.add_submodule_import("typing", "Union", ImportType.STDLIB, TypingSection.CONDITIONAL)
 
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)

@@ -24,7 +24,7 @@ class OperationsInitSerializer:
 
     def operation_group_imports(self) -> List[str]:
         def _get_filename(operation_group: OperationGroup) -> str:
-            return "_operations" if self.code_model.options["combine_operation_files"] else operation_group.filename
+            return "_operations" if self.code_model.options["combine-operation-files"] else operation_group.filename
 
         return [f"from .{_get_filename(og)} import {og.class_name}  # type: ignore" for og in self.operation_groups]
 

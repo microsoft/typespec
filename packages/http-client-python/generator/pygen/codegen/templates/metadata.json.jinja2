@@ -9,9 +9,9 @@
         "description": {{ client.description | tojson }},
         "host_value": {{ (client.parameters.host.client_default_value_declaration if not client.has_parameterized_host else None) | tojson }},
         "parameterized_host_template": {{ (keywords.escape_str(client.url) if client.has_parameterized_host else None) | tojson }},
-        "azure_arm": {{ client.code_model.options["azure_arm"]  | tojson }},
+        "azure_arm": {{ client.code_model.options["azure-arm"]  | tojson }},
         "has_public_lro_operations": {{ client.has_public_lro_operations | tojson }},
-        "client_side_validation": {{ client.code_model.options["client_side_validation"] | tojson }},
+        "client-side-validation": {{ client.code_model.options["client-side-validation"] | tojson }},
         "sync_imports": {{ sync_client_imports | tojson }},
         "async_imports": {{ async_client_imports | tojson }}
     },

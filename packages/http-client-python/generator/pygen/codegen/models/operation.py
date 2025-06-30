@@ -124,7 +124,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
         return successful_response_with_body and successful_response_without_body
 
     def response_type_annotation(self, **kwargs) -> str:
-        if self.code_model.options["head_as_boolean"] and self.request_builder.method.lower() == "head":
+        if self.code_model.options["head-as-boolean"] and self.request_builder.method.lower() == "head":
             return "bool"
         response_type_annotations: OrderedSet[str] = {
             response.type_annotation(**kwargs): None for response in self.responses if response.type
@@ -148,13 +148,13 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
         return retval
 
     def cls_type_annotation(self, *, async_mode: bool, **kwargs: Any) -> str:
-        if self.request_builder.method.lower() == "head" and self.code_model.options["head_as_boolean"]:
+        if self.request_builder.method.lower() == "head" and self.code_model.options["head-as-boolean"]:
             return "ClsType[None]"
         return f"ClsType[{self.response_type_annotation(async_mode=async_mode, **kwargs)}]"
 
     def _response_docstring_helper(self, attr_name: str, **kwargs: Any) -> str:
         responses_with_body = [r for r in self.responses if r.type]
-        if self.request_builder.method.lower() == "head" and self.code_model.options["head_as_boolean"]:
+        if self.request_builder.method.lower() == "head" and self.code_model.options["head-as-boolean"]:
             return "bool"
         if responses_with_body:
             response_docstring_values: OrderedSet[str] = {
@@ -170,9 +170,9 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
 
     def response_docstring_text(self, **kwargs) -> str:
         retval = self._response_docstring_helper("docstring_text", **kwargs)
-        if not self.code_model.options["version_tolerant"]:
+        if not self.code_model.options["version-tolerant"]:
             retval += " or the result of cls(response)"
-        if self.code_model.options["models_mode"] == "dpg" and any(
+        if self.code_model.options["models-mode"] == "dpg" and any(
             isinstance(r.type, ModelType) for r in self.responses
         ):
             r = next(r for r in self.responses if isinstance(r.type, ModelType))
@@ -202,7 +202,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
         exception_schema = default_exceptions[0].type
         if isinstance(exception_schema, ModelType):
             return exception_schema.type_annotation(skip_quote=True)
-        return None if self.code_model.options["models_mode"] == "dpg" else "'object'"
+        return None if self.code_model.options["models-mode"] == "dpg" else "'object'"
 
     @property
     def non_default_errors(self) -> List[Response]:
@@ -248,7 +248,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
                     async_mode=async_mode, need_import_iobase=self.need_import_iobase, **kwargs
                 )
             )
-        if self.code_model.options["models_mode"]:
+        if self.code_model.options["models-mode"]:
             for exception in self.exceptions:
                 file_import.merge(
                     exception.imports_for_multiapi(
@@ -275,7 +275,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
     @property
     def need_validation(self) -> bool:
         """Whether we need parameter / operation validation. For API version."""
-        return self.code_model.options["validate_versioning"] and (
+        return self.code_model.options["validate-versioning"] and (
             bool(self.added_on) or any(p for p in self.parameters if p.added_on)
         )
 
@@ -287,7 +287,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
     ) -> FileImport:
         """Helper method to get a request builder import."""
         file_import = FileImport(self.code_model)
-        if self.code_model.options["builders_visibility"] != "embedded":
+        if self.code_model.options["builders-visibility"] != "embedded":
             group_name = request_builder.group_name
             rest_import_path = "..." if async_mode else ".."
             if group_name:
@@ -304,7 +304,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
                     import_type=ImportType.LOCAL,
                     alias="rest",
                 )
-        if self.code_model.options["builders_visibility"] == "embedded" and async_mode:
+        if self.code_model.options["builders-visibility"] == "embedded" and async_mode:
             file_import.add_submodule_import(
                 self.code_model.get_relative_import_path(
                     serialize_namespace,
@@ -341,7 +341,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
             file_import.merge(
                 response.imports(async_mode=async_mode, need_import_iobase=self.need_import_iobase, **kwargs)
             )
-        if self.code_model.options["models_mode"]:
+        if self.code_model.options["models-mode"]:
             for exception in self.exceptions:
                 file_import.merge(exception.imports(async_mode=async_mode, **kwargs))
 
@@ -369,7 +369,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
             errors.extend(["StreamConsumedError", "StreamClosedError"])
         for error in errors:
             file_import.add_submodule_import("exceptions", error, ImportType.SDKCORE)
-        if self.code_model.options["azure_arm"]:
+        if self.code_model.options["azure-arm"]:
             file_import.add_submodule_import("azure.mgmt.core.exceptions", "ARMErrorFormat", ImportType.SDKCORE)
         file_import.add_mutable_mapping_import()
 
@@ -418,7 +418,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
                 "HttpResponse",
                 ImportType.SDKCORE,
             )
-        if self.code_model.options["builders_visibility"] == "embedded" and not async_mode:
+        if self.code_model.options["builders-visibility"] == "embedded" and not async_mode:
             file_import.merge(self.request_builder.imports(**kwargs))
         file_import.add_submodule_import(
             f"{'' if self.code_model.is_azure_flavor else 'runtime.'}pipeline",
@@ -439,7 +439,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
         file_import.merge(self.get_request_builder_import(self.request_builder, async_mode, serialize_namespace))
         if self.overloads:
             file_import.add_submodule_import("typing", "overload", ImportType.STDLIB)
-        if self.code_model.options["models_mode"] == "dpg":
+        if self.code_model.options["models-mode"] == "dpg":
             relative_path = self.code_model.get_relative_import_path(
                 serialize_namespace, module_name="_utils.model_base"
             )
@@ -491,7 +491,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
             # in a mixin
             basename = self.code_model.clients[0].legacy_filename
 
-        if basename == "operations" or self.code_model.options["combine_operation_files"]:
+        if basename == "operations" or self.code_model.options["combine-operation-files"]:
             return "_operations"
         return f"_{basename}_operations"
 
@@ -543,7 +543,7 @@ class Operation(OperationBase[Response]):
                 "distributed_trace_async",
                 ImportType.SDKCORE,
             )
-        if self.has_response_body and not self.has_optional_return_type and not self.code_model.options["models_mode"]:
+        if self.has_response_body and not self.has_optional_return_type and not self.code_model.options["models-mode"]:
             file_import.add_submodule_import("typing", "cast", ImportType.STDLIB)
 
         return file_import

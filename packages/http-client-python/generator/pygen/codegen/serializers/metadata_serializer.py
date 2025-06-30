@@ -158,7 +158,7 @@ class MetadataSerializer(BaseSerializer):
         chosen_version, total_api_version_list = self._choose_api_version()
 
         # setting to true, because for multiapi we always generate with a version file with version 0.1.0
-        self.code_model.options["package_version"] = "0.1.0"
+        self.code_model.options["package-version"] = "0.1.0"
         template = self.env.get_template("metadata.json.jinja2")
 
         client_serialize_namespace = self.code_model.get_serialize_namespace(self.client_namespace, async_mode=False)

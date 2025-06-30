@@ -6,7 +6,7 @@
 {% endif %}
 {{ imports }}
 {{ unset }}
-{% if code_model.options["builders_visibility"] == "embedded" and not async_mode %}
+{% if code_model.options["builders-visibility"] == "embedded" and not async_mode %}
   {% if need_declare_serializer %}
 {{ op_tools.declare_serializer(code_model) }}
   {% endif %}

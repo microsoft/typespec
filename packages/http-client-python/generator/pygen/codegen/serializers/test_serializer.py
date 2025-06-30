@@ -54,13 +54,13 @@ class TestName:
 
     @property
     def preparer_name(self) -> str:
-        if self.code_model.options["azure_arm"]:
+        if self.code_model.options["azure-arm"]:
             return "RandomNameResourceGroupPreparer"
         return self.prefix + "Preparer"
 
     @property
     def base_test_class_name(self) -> str:
-        if self.code_model.options["azure_arm"]:
+        if self.code_model.options["azure-arm"]:
             return "AzureMgmtRecordedTestCase"
         return f"{self.client_name}TestBase{self.async_suffix_capt}"
 
@@ -196,12 +196,12 @@ class TestSerializer(TestGeneralSerializer):
         test_name = TestName(self.code_model, self.client.name, async_mode=self.async_mode)
         async_suffix = "_async" if self.async_mode else ""
         imports.add_submodule_import(
-            "devtools_testutils" if self.code_model.options["azure_arm"] else "testpreparer" + async_suffix,
+            "devtools_testutils" if self.code_model.options["azure-arm"] else "testpreparer" + async_suffix,
             test_name.base_test_class_name,
             ImportType.LOCAL,
         )
         imports.add_submodule_import(
-            "devtools_testutils" if self.code_model.options["azure_arm"] else "testpreparer",
+            "devtools_testutils" if self.code_model.options["azure-arm"] else "testpreparer",
             test_name.preparer_name,
             ImportType.LOCAL,
         )
@@ -210,7 +210,7 @@ class TestSerializer(TestGeneralSerializer):
             "recorded_by_proxy" + async_suffix,
             ImportType.LOCAL,
         )
-        if self.code_model.options["azure_arm"]:
+        if self.code_model.options["azure-arm"]:
             self.add_import_client(imports)
         return FileImportSerializer(imports, self.async_mode)
 
