@@ -1,6 +1,6 @@
 -e ../../../tools/azure-sdk-tools
 ../../core/azure-core
-{% if options["token-credential"] %}
+{% if token_credential %}
 ../../identity/azure-identity
 {% endif -%}
 {% if options["azure-arm"] %}
