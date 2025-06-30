@@ -160,6 +160,7 @@ try {
             Invoke "npm run build" $httpClientDir
             if ($LASTEXITCODE -ne 0) {
                 Write-Warning "npm run build failed with exit code $LASTEXITCODE, skipping Generate.ps1"
+                Write-Host "##vso[task.complete result=SucceededWithIssues;]"
                 $shouldRunGenerate = $false
             }
         } catch {
