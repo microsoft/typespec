@@ -97,10 +97,10 @@ extends:
                 displayName: Install tsp-client
 
               - pwsh: |
-                  npm pkg set version='$(PackageVersion)' `
+                  npm pkg set version='$(PackageVersion)'
                   tsp-client generate-config-files `
                   --package-json '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json' `
-                  --emitter-package-json-path 'eng/http-client-csharp-emitter-package.json'
+                  --emitter-package-json-path '$(Build.SourcesDirectory)/eng/http-client-csharp-emitter-package.json'
 
                 displayName: Generate emitter-package.json and emitter-package-lock files
                 workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
