@@ -6,8 +6,6 @@
 # license information.
 # --------------------------------------------------------------------------
 import sys
-import os
-import argparse
 
 if not sys.version_info >= (3, 9, 0):
     raise Warning(
@@ -16,8 +14,6 @@ if not sys.version_info >= (3, 9, 0):
 
 from pathlib import Path
 import venv
-
-from venvtools import python_run
 
 _ROOT_DIR = Path(__file__).parent.parent.parent.parent
 

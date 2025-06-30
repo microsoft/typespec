@@ -3,8 +3,6 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from contextlib import contextmanager
-import tempfile
 import subprocess
 import venv
 import sys
