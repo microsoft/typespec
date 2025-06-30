@@ -29,6 +29,8 @@ import {
 } from "./type/input-type.js";
 import { OperationResponse } from "./type/operation-response.js";
 
+export let defaultSdkContext: SdkContext<CSharpEmitterOptions, SdkHttpOperation> = undefined as any;
+
 /**
  * The emitter context for the CSharp emitter.
  * @beta
@@ -48,6 +50,7 @@ export interface CSharpEmitterContext extends SdkContext<CSharpEmitterOptions> {
 export function createCSharpEmitterContext<
   TOptions extends CSharpEmitterOptions = CSharpEmitterOptions,
 >(context: SdkContext<TOptions>, logger: Logger): CSharpEmitterContext {
+  defaultSdkContext = context;
   return {
     ...context,
     logger,
