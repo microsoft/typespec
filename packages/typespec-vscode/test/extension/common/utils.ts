@@ -3,8 +3,6 @@ import fs from "node:fs"
 import os from "node:os"
 import path, { resolve } from "node:path"
 import { test as baseTest, inject } from "vitest"
-import screenshot from "screenshot-desktop"
-import moment from "moment"
 import { closeVscode } from "./commonSteps"
 
 interface Context {
@@ -102,6 +100,7 @@ async function sleep(s: number) {
  * @returns Retry Interval
  */
 async function retry(
+  page: Page,
   count: number,
   fn: () => Promise<boolean>,
   errMessage: string,
@@ -114,99 +113,9 @@ async function retry(
     }
     count--
   }
-  await screenShot.screenShot("error.png")
-  screenShot.save()
+  await page.screenshot({ path: path.resolve(__dirname, "../../images-linux/error.png") })
   await closeVscode()
   throw new Error(errMessage)
 }
 
-/**
- * @description Screenshot class
- * @class Screenshot
- * @property {string} createType - createType: "create" | "emit" | "import"
- * @property {string} currentDir - currentDir: The directory where the screenshots are saved
- * @property {Array} fileList - fileList: Screenshot file list
- * @property {Object} typeMenu - typeMenu: Mapping of folder names corresponding to screenshot types
- * @property {boolean} isLocalSave - isLocalSave: Whether to save screenshots when running locally. Not saved by default, only saved on Ci
- * @method setCreateType - Set the screenshot type. Different types correspond to different folders.
- * @method setDir - Set the directory where the screenshots are saved. Each case has its own directory.
- * @method screenShot - Screenshot method
- */
-class Screenshot {
-  private createType: "create" | "emit" | "import" | "preview" = "create"
-  private currentDir = ""
-  private fileList: {
-    fullPath: string
-    buffer: Buffer
-    date: number
-  }[] = []
-  private typeMenu = {
-    create: "CreateTypeSpecProject",
-    emit: "EmitFromTypeSpec",
-    import: "ImportTypeSpecFromOpenAPI3",
-    preview: "PreviewAPIDocument",
-  }
-
-  setCreateType(createType: "create" | "emit" | "import" | "preview") {
-    this.createType = createType
-  }
-
-  save() {
-    if (this.fileList.length === 0) {
-      return
-    }
-    // Smaller dates are placed first to keep the files in order
-    this.fileList.sort((a, b) => a.date - b.date)
-    for (let i = 0; i < this.fileList.length; i++) {
-      const fullPathItem = this.fileList[i].fullPath.split("\\")
-      const lastslashIdx = fullPathItem[fullPathItem.length - 1].lastIndexOf("/")
-      const fileName = fullPathItem[fullPathItem.length - 1];
-      if (lastslashIdx !== -1) {
-        const prefix = fileName.substring(0, lastslashIdx + 1);
-        const suffix = fileName.substring(lastslashIdx + 1);
-        fullPathItem[fullPathItem.length - 1] = `${prefix}${i}_${suffix}`;
-      } else {
-        fullPathItem[fullPathItem.length - 1] = `${i}_${fileName}`;
-      }
-      fs.mkdirSync(path.dirname(path.join(...fullPathItem)), {
-        recursive: true,
-      })
-      fs.writeFileSync(path.join(...fullPathItem), this.fileList[i].buffer)
-    }
-  }
-
-  async screenShot(fileName: string) {
-    await sleep(3)
-    let img = await screenshot()
-    let buffer = Buffer.from(img)
-    let rootDir =
-      process.env.BUILD_ARTIFACT_STAGING_DIRECTORY ||
-      path.resolve(__dirname, "../..")
-    const platformDir = "/images-linux"
-    const fullPath = path.join(
-      rootDir,
-      platformDir,
-      this.typeMenu[this.createType],
-      this.currentDir,
-      fileName
-    )
-    this.fileList.push({
-      fullPath,
-      buffer,
-      date: +new Date(),
-    })
-  }
-
-  setDir(dir: string) {
-    this.currentDir = dir + moment().format("_HH_mm_ss")
-    this.fileList = []
-  }
-
-  getDir() {
-    return this.typeMenu[this.createType] + "/" + this.currentDir
-  }
-}
-
-const screenShot = new Screenshot()
-
-export { sleep, test, retry, screenShot }
+export { sleep, test, retry }

@@ -10,7 +10,7 @@ import {
   deleteTestFile,
   notEmptyFolderContinue,
 } from "./common/commonSteps"
-import { screenShot, test } from "./common/utils"
+import { test } from "./common/utils"
 import fs from "node:fs"
 import path from "node:path"
 import {
@@ -25,10 +25,6 @@ import {
   CreateCasesConfigList,
   CreateProjectTriggerType,
 } from "./config"
-
-beforeAll(() => {
-  screenShot.setCreateType("create")
-})
 
 beforeEach(() => {
   const dir = path.resolve(__dirname, "./CreateTypespecProject")
@@ -53,7 +49,6 @@ describe.each(CreateCasesConfigList)("CreateTypespecProject", async (item) => {
   } = item
 
   test(caseName, async ({ launch }) => {
-    screenShot.setDir(caseName)
     const workspacePath = path.resolve(__dirname, "./CreateTypespecProject")
     const { page, extensionDir } = await launch({
       workspacePath:
@@ -77,7 +72,7 @@ describe.each(CreateCasesConfigList)("CreateTypespecProject", async (item) => {
       await startWithClick(page)
     }
 
-    await selectFolder(
+    await selectFolder(page, 
       triggerType === CreateProjectTriggerType.Command ? "" : workspacePath
     )
 
@@ -101,6 +96,6 @@ describe.each(CreateCasesConfigList)("CreateTypespecProject", async (item) => {
       [10, 15]
     )
     await closeVscode()
-    await contrastResult(expectedResults, workspacePath)
+    await contrastResult(page, expectedResults, workspacePath)
   })
 })

@@ -1,5 +1,6 @@
 import { Page } from "playwright"
-import { retry, screenShot } from "./utils"
+import { retry } from "./utils"
+import path from "node:path"
 
 /**
  * When creating, select emitters
@@ -18,6 +19,7 @@ async function selectEmitters(page: Page, emitters?: string[]) {
   ];
   let checks: any[] = [];
   await retry(
+    page,
     3,
     async () => {
       checks = await Promise.all(
@@ -49,7 +51,7 @@ async function selectEmitters(page: Page, emitters?: string[]) {
     "Failed to find the selectEmitter box."
   );
   await page.getByRole("checkbox", { name: "Toggle all checkboxes" }).check()
-  await screenShot.screenShot("select_emitter.png")
+  await page.screenshot({ path: path.resolve(__dirname, "../../images-linux/select_emitter.png") })
   await page.keyboard.press("Enter")
 }
 
@@ -63,6 +65,7 @@ async function selectTemplate(page: Page, templateName: string, templateNameDesc
   let templateListName
   let templateListDescription
   await retry(
+    page,
     3,
     async () => {
       templateListName = page.locator("a").filter({ hasText: templateName })
@@ -71,6 +74,7 @@ async function selectTemplate(page: Page, templateName: string, templateNameDesc
     `Failed to find the following template: "${templateName}".`
   )
   await retry(
+    page,
     3,
     async () => {
       let templateListBox = page.getByRole("option", { name: templateName}).locator('label')
@@ -95,6 +99,7 @@ async function selectTemplate(page: Page, templateName: string, templateNameDesc
 async function inputProjectName(page: Page) {
   let titleInfoDescription = "Please input the project name (Press 'Enter' to confirm or 'Escape' to cancel)" 
   await retry(
+    page,
     3,
     async () => {
       let titleBox = page.locator('div').filter({ hasText: '0 Results0 SelectedPlease' }).nth(2)
@@ -110,7 +115,7 @@ async function inputProjectName(page: Page) {
     },
     "Failed to find the project name input box."
   )
-  await screenShot.screenShot("input_project_name.png")
+  await page.screenshot({ path: path.resolve(__dirname, "../../images-linux/input_project_name.png") })
   await page.keyboard.press("Enter")
 }
 
@@ -121,6 +126,7 @@ async function inputProjectName(page: Page) {
 async function inputServiceNameSpace(page: Page) {
   let titleInfoDescription = "Please provide service namespace in Pascal case: (Press 'Enter' to confirm or 'Escape' to cancel)" 
   await retry(
+    page,
     3,
     async () => {
       let titleBox = page.locator('div').filter({ hasText: '0 Results0 SelectedPlease' }).nth(2)
@@ -136,7 +142,7 @@ async function inputServiceNameSpace(page: Page) {
     },
     "Failed to find the service namespace input box."
   )
-  await screenShot.screenShot("input_service_namespace.png")
+  await page.screenshot({ path: path.resolve(__dirname, "../../images-linux/input_service_namespace.png") })
   await page.keyboard.press("Enter")
 }
 
@@ -147,6 +153,7 @@ async function inputServiceNameSpace(page: Page) {
 async function inputARMResourceProviderName(page: Page) {
   let titleInfoDescription = "Please provide ARM Resource Provider Name in Pascal case, excluding the 'Microsoft.' prefix: (Press 'Enter' to confirm or 'Escape' to cancel)" 
   await retry(
+    page,
     3,
     async () => {
       let titleBox = page.locator('div').filter({ hasText: '0 Results0 SelectedPlease' }).nth(2)
@@ -162,7 +169,7 @@ async function inputARMResourceProviderName(page: Page) {
     },
     "Failed to find the ARM Resource Provider name input box."
   )
-  await screenShot.screenShot("input_ARM_Resource_name.png")
+  await page.screenshot({ path: path.resolve(__dirname, "../../images-linux/input_ARM_Resource_name.png") })
   await page.keyboard.press("Enter")
 }
 
@@ -171,8 +178,8 @@ async function inputARMResourceProviderName(page: Page) {
  */
 
 async function startWithClick(page: Page) {
-  await screenShot.screenShot("start_with_click.png")
-  await screenShot.screenShot("open_tabs.png")
+  await page.screenshot({ path: path.resolve(__dirname, "../../images-linux/start_with_click.png") })
+  await page.screenshot({ path: path.resolve(__dirname, "../../images-linux/open_tabs.png") })
   await page.getByRole("button", { name: "Create TypeSpec Project" }).click()
 }
 export { selectEmitters, selectTemplate, inputProjectName, inputServiceNameSpace, inputARMResourceProviderName, startWithClick }
