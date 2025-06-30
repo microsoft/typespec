@@ -7,6 +7,7 @@ import type { ModelPropertyKit } from "./model-property.js";
 
 /**
  * Operations for scalar types like strings, numerics, booleans, dates, etc.
+ * @typekit scalar
  */
 export interface ScalarKit {
   /**

@@ -34,6 +34,7 @@ export interface UnionVariantDescriptor {
  * Union variants are types that represent a single value within a union that can be one of
  * several types.
  *
+ * @typekit unionVariant
  */
 export interface UnionVariantKit {
   /**

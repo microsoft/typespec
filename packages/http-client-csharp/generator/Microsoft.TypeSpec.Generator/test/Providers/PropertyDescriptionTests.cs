@@ -17,7 +17,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [TestCaseSource(nameof(BuildPropertyDescriptionTestCases))]
         public void BuildPropertyDescription(InputModelProperty inputModelProperty, CSharpType type)
         {
-            var propertySummaryStatement = PropertyDescriptionBuilder.BuildPropertyDescription(inputModelProperty, type, SerializationFormat.Default, PropertyDescriptionBuilder.CreateDefaultPropertyDescription(inputModelProperty.Name, false));
+            var propertySummaryStatement = PropertyDescriptionBuilder.BuildPropertyDescription(type, SerializationFormat.Default, PropertyDescriptionBuilder.CreateDefaultPropertyDescription(inputModelProperty.Name, false));
             using CodeWriter codeWriter = new CodeWriter();
             propertySummaryStatement.Write(codeWriter);
             string propertyDescription = codeWriter.ToString(false);

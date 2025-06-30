@@ -61,7 +61,9 @@ op test(@body input: Pet): Pet;
     const discriminatorProperty = petModel?.properties.find(
       (p) => p === petModel?.discriminatorProperty,
     );
-    strictEqual(discriminatorProperty?.name, "kind");
+    ok(discriminatorProperty);
+    strictEqual(discriminatorProperty.kind, "property");
+    strictEqual(discriminatorProperty.name, "kind");
     strictEqual(discriminatorProperty.serializedName, "kind");
     strictEqual(discriminatorProperty.type.kind, "string");
     strictEqual(discriminatorProperty.optional, false);
@@ -140,7 +142,9 @@ op test(@body input: Pet): Pet;
     strictEqual("kind", pet?.discriminatorProperty?.name);
     // assert we have a property corresponding to the discriminator property above on the base model
     const discriminatorProperty = pet?.properties.find((p) => p === pet?.discriminatorProperty);
-    strictEqual(discriminatorProperty?.name, "kind");
+    ok(discriminatorProperty);
+    strictEqual(discriminatorProperty.kind, "property");
+    strictEqual(discriminatorProperty.name, "kind");
     strictEqual(discriminatorProperty.serializedName, "kind");
     strictEqual(discriminatorProperty.doc, "The kind of the pet");
     strictEqual(discriminatorProperty.type.kind, "enum");
@@ -232,7 +236,9 @@ op test(@body input: Pet): Pet;
     strictEqual("kind", pet?.discriminatorProperty?.name);
     // assert we have a property corresponding to the discriminator property above on the base model
     const discriminatorProperty = pet?.properties.find((p) => p === pet?.discriminatorProperty);
-    strictEqual(discriminatorProperty?.name, "kind");
+    ok(discriminatorProperty);
+    strictEqual(discriminatorProperty.kind, "property");
+    strictEqual(discriminatorProperty.name, "kind");
     strictEqual(discriminatorProperty.serializedName, "kind");
     strictEqual(discriminatorProperty.doc, "The kind of the pet");
     strictEqual(discriminatorProperty.type.kind, "enum");
@@ -490,6 +496,38 @@ op op1(): void;
     const models = root.models;
     const isEmptyModel = models.find((m) => m.name === "Empty");
     ok(isEmptyModel);
+  });
+});
+
+describe("Spec with no operations should still compile", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("Model should be returned even though no operations", async () => {
+    const program = await typeSpecCompile(
+      `
+@doc("Foo model")
+@usage(Usage.output)
+model Foo {
+  Bar: string;
+}
+
+`,
+      runner,
+      { IsVersionNeeded: false, IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const models = root.models;
+    const model = models.find((m) => m.name === "Foo");
+    ok(model);
+    strictEqual(model?.properties.length, 1);
+    strictEqual(model?.properties[0].name, "Bar");
+    strictEqual(root.clients.length, 0);
   });
 });
 

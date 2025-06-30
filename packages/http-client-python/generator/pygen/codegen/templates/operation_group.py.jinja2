@@ -29,7 +29,7 @@ class {{ operation_group.class_name }}: {{ operation_group.pylint_disable() }}
     models = _models
 
 {% endif %}
-    def __init__(self, *args, **kwargs){{ return_none_type_annotation }}:
+    def __init__(self, *args, **kwargs) -> None:
         input_args = list(args)
         self._client: {{ 'Async' if async_mode else ''}}PipelineClient = input_args.pop(0) if input_args else kwargs.pop("client")
         self._config: {{ operation_group.client.name }}Configuration = input_args.pop(0) if input_args else kwargs.pop("config")
@@ -48,7 +48,7 @@ class {{ operation_group.class_name }}: {{ operation_group.pylint_disable() }}
 {{ check_abstract_methods() }}
 {% elif operation_group.has_abstract_operations %}
 
-    def __init__(self){{ return_none_type_annotation }}:
+    def __init__(self) -> None:
 {{ check_abstract_methods() }}
 {% endif %}
 {% if operation_group.is_mixin and code_model.options["multiapi"] %}

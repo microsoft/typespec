@@ -275,8 +275,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
      * Create proxy methods for a request in an operation.
      *
      * @param builderSource the proxy method to use as the source to create a builder for the base proxy method (all
-     * other
-     * proxy method variants may derive from the base method).
+     * other proxy method variants may derive from the base method).
      * @param operation the parent operation of the request.
      * @param operationName the operation name.
      * @param request the request to create the proxy methods for.
@@ -414,9 +413,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
     private static List<ProxyMethod> createSyncProxyMethods(List<ProxyMethod> asyncProxyMethods) {
         List<ProxyMethod> syncMethods = new ArrayList<>();
         for (ProxyMethod asyncMethod : asyncProxyMethods) {
-            if (asyncMethod.getParameters()
-                .stream()
-                .anyMatch(param -> param.getClientType() == GenericType.FLUX_BYTE_BUFFER)) {
+            if (asyncMethod.hasParameterOfType(GenericType.FLUX_BYTE_BUFFER)) {
                 continue;
             }
             syncMethods.add(asyncMethod.toSync());
@@ -540,8 +537,11 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
 
         static SwaggerExceptionDefinitions create(ProxyMethodMapper mapper, Operation operation,
             JavaSettings settings) {
-            if (settings.isDataPlaneClient() && settings.isAzureV1()) {
-                // LLC does not use model, hence exception from swagger
+            if (settings.isDataPlaneClient()
+                && settings.isAzureV1()
+                && settings.isUseDefaultHttpStatusCodeToExceptionTypeMapping()) {
+                // for DPG, the default is to use HttpResponseException
+                // when the setting is false, it would still use the Error/Exception defined in source
                 final SwaggerExceptionDefinitions definitions = new SwaggerExceptionDefinitions();
                 definitions.defaultExceptionType = ClassType.HTTP_RESPONSE_EXCEPTION;
                 return definitions;

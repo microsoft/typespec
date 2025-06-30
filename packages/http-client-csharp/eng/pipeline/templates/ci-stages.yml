@@ -38,3 +38,17 @@ stages:
       Condition: ${{ parameters.Condition }}
       DependsOn: ${{ parameters.DependsOn }}
       LanguageShortName: "csharp"
+      AdditionalInitializeSteps:
+        - task: UseDotNet@2
+          inputs:
+            displayName: "Install .NET 8"
+            performMultiLevelLookup: true
+            useGlobalJson: false
+            version: 8.x
+            workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+        - task: UseDotNet@2
+          inputs:
+            displayName: "Install .NET 9"
+            performMultiLevelLookup: true
+            useGlobalJson: true
+            workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp

@@ -56,6 +56,6 @@ public final class HeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void csv(List<String> colors) {
-        this.serviceClient.csv(colors);
+        csvWithResponse(colors, RequestContext.none());
     }
 }

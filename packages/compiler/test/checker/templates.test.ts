@@ -1078,4 +1078,61 @@ describe("compiler: templates", () => {
       strictEqual(members[1][1].name, "string");
     });
   });
+
+  describe("template declaration passing values", () => {
+    it("allows passing to a decorator expecting that value", async () => {
+      testHost.addJsFile("effect.js", {
+        $call: () => null,
+      });
+
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        import "./effect.js";
+        extern dec call(target, arg: valueof string);
+        @call(T) model Dec<T extends valueof string> {}
+        `,
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("allows passing to a decorator expecting a composed value", async () => {
+      testHost.addJsFile("effect.js", {
+        $call: () => null,
+      });
+
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        import "./effect.js";
+        extern dec call(target, arg: valueof unknown);
+        @call(#{foo: T}) model Dec<T extends valueof string> {}
+        `,
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("validate incompatible composed values", async () => {
+      testHost.addJsFile("effect.js", {
+        $call: () => null,
+      });
+
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        import "./effect.js";
+        extern dec call(target, arg: valueof {foo: int32});
+        @call(#{foo: T}) model Dec<T extends valueof string> {}
+        `,
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "invalid-argument",
+        message:
+          "Argument of type '{ foo: string }' is not assignable to parameter of type '{ foo: int32 }'",
+      });
+    });
+  });
 });

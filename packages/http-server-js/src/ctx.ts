@@ -27,6 +27,8 @@ import { parseCase } from "./util/case.js";
 import { UnimplementedError } from "./util/error.js";
 import { createOnceQueue, OnceQueue } from "./util/once-queue.js";
 
+import { unsafe_Mutator } from "@typespec/compiler/experimental";
+import { MetadataInfo } from "@typespec/http";
 import { createModule as initializeHelperModule } from "../generated-defs/helpers/index.js";
 
 export type DeclarationType = Model | Enum | Union | Interface | Scalar;
@@ -135,6 +137,10 @@ export interface JsContext {
   serializations: OnceQueue<SerializableType>;
 
   gensym: (name: string) => string;
+
+  metadataInfo?: MetadataInfo;
+
+  canonicalizationCache: { [vfKey: string]: unsafe_Mutator | undefined };
 }
 
 export async function createInitialContext(
@@ -175,9 +181,19 @@ export async function createInitialContext(
 
   const generatedModule = createModule("generated", srcModule);
 
+  // This dummy module hosts the root of the helper tree. It's not a "real" module
+  // because we want the modules to be emitted lazily, but we need some module to
+  // pass in to the root helper index.
+  const dummyModule: Module = {
+    name: "generated",
+    cursor: generatedModule.cursor,
+    imports: [],
+    declarations: [],
+  };
+
   // This has the side effect of setting the `module` property of all helpers.
   // Don't do anything with the emitter code before this is called.
-  await initializeHelperModule(generatedModule);
+  await initializeHelperModule(dummyModule);
 
   // Module for all models, including synthetic and all.
   const modelsModule: Module = createModule("models", generatedModule);
@@ -211,6 +227,8 @@ export async function createInitialContext(
     gensym: (name) => {
       return gensym(jsCtx, name);
     },
+
+    canonicalizationCache: {},
   };
 
   return jsCtx;
@@ -358,6 +376,20 @@ export interface Import {
    */
   from: Module | string;
 }
+
+/**
+ * A module that does not exist and is not emitted. Use this for functions that require a module but you only
+ * want to analyze the type and not emit any relative paths.
+ *
+ * For example, this is used internally to canonicalize operation types, because it calls some functions that
+ * require a module, but canonicalizing the operation does not itself emit any code.
+ */
+export const NoModule: Module = {
+  name: "",
+  cursor: createPathCursor(),
+  imports: [],
+  declarations: [],
+};
 
 /**
  * An output module within the module tree.

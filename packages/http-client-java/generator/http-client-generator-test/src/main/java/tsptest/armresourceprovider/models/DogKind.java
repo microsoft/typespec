@@ -4,7 +4,6 @@
 
 package tsptest.armresourceprovider.models;
 
-import com.azure.core.annotation.Generated;
 import com.azure.core.util.ExpandableStringEnum;
 import java.util.Collection;
 
@@ -15,7 +14,6 @@ public final class DogKind extends ExpandableStringEnum<DogKind> {
     /**
      * Species golden.
      */
-    @Generated
     public static final DogKind GOLDEN = fromString("golden_dog");
 
     /**
@@ -23,7 +21,6 @@ public final class DogKind extends ExpandableStringEnum<DogKind> {
      * 
      * @deprecated Use the {@link #fromString(String)} factory method.
      */
-    @Generated
     @Deprecated
     public DogKind() {
     }
@@ -34,7 +31,6 @@ public final class DogKind extends ExpandableStringEnum<DogKind> {
      * @param name a name to look for.
      * @return the corresponding DogKind.
      */
-    @Generated
     public static DogKind fromString(String name) {
         return fromString(name, DogKind.class);
     }
@@ -44,7 +40,6 @@ public final class DogKind extends ExpandableStringEnum<DogKind> {
      * 
      * @return known DogKind values.
      */
-    @Generated
     public static Collection<DogKind> values() {
         return values(DogKind.class);
     }

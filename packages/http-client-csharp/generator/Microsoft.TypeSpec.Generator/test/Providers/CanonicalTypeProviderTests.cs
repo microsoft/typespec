@@ -174,7 +174,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 [
                     InputFactory.Property("IntProperty", InputPrimitiveType.Int32, wireName: "intProperty"),
                     InputFactory.Property("StringProperty", InputPrimitiveType.String, wireName: "stringProperty"),
-                    new InputModelProperty("NullWireInfoProperty", InputModelPropertyKind.Property, null, null, InputPrimitiveType.String, false, false, false, "NullWireInfoProperty", new InputSerializationOptions())
+                    new InputModelProperty("NullWireInfoProperty", null, null, InputPrimitiveType.String, false, false, null, false, "NullWireInfoProperty", new InputSerializationOptions())
                 ];
                 return InputFactory.Model("TestName", "Sample.Models", properties: properties);
             }
@@ -183,8 +183,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             protected override string BuildName() => _name;
 
             protected override string BuildNamespace() => _namespace;
-
-            protected override TypeSignatureModifiers BuildDeclarationModifiers() => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial |TypeSignatureModifiers.Class;
 
             protected override PropertyProvider[] BuildProperties()
             {

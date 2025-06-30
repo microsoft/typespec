@@ -1,6 +1,9 @@
 import { Entity, Tuple, Type } from "../../core/types.js";
 import { defineKit } from "../define-kit.js";
 
+/**
+ * @typekit tuple
+ */
 export interface TupleKit {
   /**
    * Check if a type is a tuple.

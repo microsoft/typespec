@@ -3,7 +3,6 @@ package encode.bytes.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
@@ -40,7 +39,7 @@ public final class HeadersImpl {
      * @param client the instance of the service client containing this operation class.
      */
     HeadersImpl(BytesClientImpl client) {
-        this.service = RestProxy.create(HeadersService.class, client.getHttpPipeline());
+        this.service = HeadersService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -111,19 +110,6 @@ public final class HeadersImpl {
     }
 
     /**
-     * The defaultMethod operation.
-     * 
-     * @param value The value parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void defaultMethod(byte[] value) {
-        defaultMethodWithResponse(value, RequestContext.none());
-    }
-
-    /**
      * The base64 operation.
      * 
      * @param value The value parameter.
@@ -140,19 +126,6 @@ public final class HeadersImpl {
     }
 
     /**
-     * The base64 operation.
-     * 
-     * @param value The value parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void base64(byte[] value) {
-        base64WithResponse(value, RequestContext.none());
-    }
-
-    /**
      * The base64url operation.
      * 
      * @param value The value parameter.
@@ -166,19 +139,6 @@ public final class HeadersImpl {
     public Response<Void> base64urlWithResponse(byte[] value, RequestContext requestContext) {
         Base64Uri valueConverted = Base64Uri.encode(value);
         return service.base64url(this.client.getEndpoint(), valueConverted, requestContext);
-    }
-
-    /**
-     * The base64url operation.
-     * 
-     * @param value The value parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void base64url(byte[] value) {
-        base64urlWithResponse(value, RequestContext.none());
     }
 
     /**
@@ -226,18 +186,5 @@ public final class HeadersImpl {
             })
             .collect(Collectors.joining(","));
         return service.base64urlArray(this.client.getEndpoint(), valueConverted, requestContext);
-    }
-
-    /**
-     * The base64urlArray operation.
-     * 
-     * @param value The value parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void base64urlArray(List<byte[]> value) {
-        base64urlArrayWithResponse(value, RequestContext.none());
     }
 }

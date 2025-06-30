@@ -292,7 +292,7 @@ public final class ModelTemplateHeaderHelper {
 
         block.block("rawHeaders.stream().forEach(header -> ", body -> {
             if (JavaSettings.getInstance().isAzureV1()) {
-                body.line("String headerName = header.getName().getValue();");
+                body.line("String headerName = header.getName();");
             } else {
                 body.line("String headerName = header.getName().getValue();");
             }

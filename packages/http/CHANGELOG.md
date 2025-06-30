@@ -1,5 +1,17 @@
 # Change Log - @typespec/http
 
+## 1.1.0
+
+No changes, version bump only.
+
+## 1.0.1
+
+### Bug Fixes
+
+- [#7259](https://github.com/microsoft/typespec/pull/7259) Fix diagnostic for `PatchOptions.implicitOptionality`, which refers a non-existing property and the incorrect value.
+  To keep the old behavior, you will need to use `@patch(#{ implicitOptionality: true })` instead.
+
+
 ## 1.0.0
 
 ### Breaking Changes

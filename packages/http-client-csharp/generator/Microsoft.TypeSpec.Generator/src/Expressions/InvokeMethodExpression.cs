@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
@@ -34,56 +35,56 @@ namespace Microsoft.TypeSpec.Generator.Expressions
         public CSharpType? ExtensionType
         {
             get => _extensionType;
-            init => _extensionType = value;
+            internal set => _extensionType = value;
         }
         private CSharpType? _extensionType;
 
         public bool AddConfigureAwaitFalse
         {
             get => _addConfigureAwaitFalse;
-            init => _addConfigureAwaitFalse = value;
+            internal set => _addConfigureAwaitFalse = value;
         }
         private bool _addConfigureAwaitFalse;
 
         public bool CallAsAsync
         {
             get => _callAsAsync;
-            init => _callAsAsync = value;
+            internal set => _callAsAsync = value;
         }
         private bool _callAsAsync;
 
         public IReadOnlyList<CSharpType>? TypeArguments
         {
             get => _typeArguments;
-            init => _typeArguments = value;
+            internal set => _typeArguments = value;
         }
         private IReadOnlyList<CSharpType>? _typeArguments;
 
         public IReadOnlyList<ValueExpression> Arguments
         {
             get => _arguments;
-            init => _arguments = value;
+            internal set => _arguments = value;
         }
         private IReadOnlyList<ValueExpression> _arguments;
 
         public MethodSignatureBase? MethodSignature
         {
             get => _methodSignature;
-            init => _methodSignature = value;
+            internal set => _methodSignature = value;
         }
         private MethodSignatureBase? _methodSignature;
 
         public string? MethodName
         {
             get => _methodName;
-            init => _methodName = value;
+            internal set => _methodName = value;
         }
         private string? _methodName;
 
         public ValueExpression? InstanceReference
         {
             get => _instanceReference;
-            init => _instanceReference = value;
+            internal set => _instanceReference = value;
         }
         private ValueExpression? _instanceReference;
 
@@ -107,6 +108,37 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             writer.WriteTypeArguments(TypeArguments);
             writer.WriteArguments(Arguments);
             writer.AppendRawIf(".ConfigureAwait(false)", CallAsAsync && AddConfigureAwaitFalse);
+        }
+
+        internal override ValueExpression? Accept(LibraryVisitor visitor, MethodProvider method)
+        {
+            var updated = visitor.VisitInvokeMethodExpression(this, method);
+            if (updated is not InvokeMethodExpression invokeMethod)
+            {
+                return updated?.Accept(visitor, method);
+            }
+            var newInstanceReference = invokeMethod.InstanceReference?.Accept(visitor, method);
+
+            var arguments = new List<ValueExpression>(invokeMethod.Arguments.Count);
+            foreach (var argument in invokeMethod.Arguments)
+            {
+                var updatedArgument = argument.Accept(visitor, method);
+                if (updatedArgument != null)
+                {
+                    arguments.Add(updatedArgument);
+                }
+            }
+
+            invokeMethod.InstanceReference = newInstanceReference;
+            invokeMethod.Arguments = arguments;
+            invokeMethod.MethodName = invokeMethod.MethodName;
+            invokeMethod.MethodSignature = invokeMethod.MethodSignature;
+            invokeMethod.TypeArguments = invokeMethod.TypeArguments;
+            invokeMethod.CallAsAsync = invokeMethod.CallAsAsync;
+            invokeMethod.AddConfigureAwaitFalse = invokeMethod.AddConfigureAwaitFalse;
+            invokeMethod.ExtensionType = invokeMethod.ExtensionType;
+
+            return invokeMethod;
         }
 
         private MethodBodyStatement? _terminated;

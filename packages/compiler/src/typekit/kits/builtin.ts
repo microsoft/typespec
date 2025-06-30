@@ -3,6 +3,7 @@ import { defineKit } from "../define-kit.js";
 
 /**
  * A kit of built-in types.
+ * @typekit builtin
  */
 export interface BuiltinKit {
   /**

@@ -5,16 +5,16 @@
 package tsptest.armstreamstyleserialization.implementation;
 
 import tsptest.armstreamstyleserialization.fluent.models.OutputOnlyModelInner;
-import tsptest.armstreamstyleserialization.models.Dog;
+import tsptest.armstreamstyleserialization.models.Golden;
 import tsptest.armstreamstyleserialization.models.OutputOnlyModel;
 
 public final class OutputOnlyModelImpl implements OutputOnlyModel {
     private OutputOnlyModelInner innerObject;
 
-    private final tsptest.armstreamstyleserialization.ArmStreamStyleSerializationManager serviceManager;
+    private final tsptest.armstreamstyleserialization.ArmResourceProviderManager serviceManager;
 
     OutputOnlyModelImpl(OutputOnlyModelInner innerObject,
-        tsptest.armstreamstyleserialization.ArmStreamStyleSerializationManager serviceManager) {
+        tsptest.armstreamstyleserialization.ArmResourceProviderManager serviceManager) {
         this.innerObject = innerObject;
         this.serviceManager = serviceManager;
     }
@@ -35,7 +35,7 @@ public final class OutputOnlyModelImpl implements OutputOnlyModel {
         return this.innerModel().title();
     }
 
-    public Dog dog() {
+    public Golden dog() {
         return this.innerModel().dog();
     }
 
@@ -43,7 +43,7 @@ public final class OutputOnlyModelImpl implements OutputOnlyModel {
         return this.innerObject;
     }
 
-    private tsptest.armstreamstyleserialization.ArmStreamStyleSerializationManager manager() {
+    private tsptest.armstreamstyleserialization.ArmResourceProviderManager manager() {
         return this.serviceManager;
     }
 }

@@ -48,6 +48,7 @@ import {
   WorkspaceEdit,
   WorkspaceFoldersChangeEvent,
 } from "vscode-languageserver/node.js";
+import { getSymNode } from "../core/binder.js";
 import { CharCode } from "../core/charcode.js";
 import { resolveCodeFix } from "../core/code-fixes.js";
 import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
@@ -57,6 +58,7 @@ import { builtInLinterRule_UnusedTemplateParameter } from "../core/linter-rules/
 import { builtInLinterRule_UnusedUsing } from "../core/linter-rules/unused-using.rule.js";
 import { builtInLinterLibraryName } from "../core/linter.js";
 import { formatLog } from "../core/logger/index.js";
+import { CompilerOptions } from "../core/options.js";
 import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../core/parser.js";
 import {
@@ -97,6 +99,7 @@ import { resolveModule, ResolveModuleHost } from "../module-resolver/module-reso
 import { listAllFilesInDir } from "../utils/fs-utils.js";
 import { getNormalizedRealPath, resolveTspMain } from "../utils/misc.js";
 import { getSemanticTokens } from "./classify.js";
+import { ClientConfigProvider } from "./client-config-provider.js";
 import { createCompileService } from "./compile-service.js";
 import { resolveCompletion } from "./completion.js";
 import { Commands } from "./constants.js";
@@ -117,9 +120,11 @@ import {
   CompileResult,
   InitProjectConfig,
   InitProjectContext,
+  InternalCompileResult,
   SemanticTokenKind,
   Server,
   ServerCustomCapacities,
+  ServerDiagnostic,
   ServerHost,
   ServerInitializeResult,
   ServerLog,
@@ -127,7 +132,10 @@ import {
   ServerWorkspaceFolder,
 } from "./types.js";
 
-export function createServer(host: ServerHost): Server {
+export function createServer(
+  host: ServerHost,
+  clientConfigsProvider?: ClientConfigProvider,
+): Server {
   const fileService = createFileService({ serverHost: host });
 
   // Cache all file I/O. Only open documents are sent over the LSP pipe. When
@@ -155,6 +163,7 @@ export function createServer(host: ServerHost): Server {
     compilerHost,
     serverHost: host,
     log,
+    clientConfigsProvider,
   });
   const currentDiagnosticIndex = new Map<number, Diagnostic>();
   let diagnosticIdCounter = 0;
@@ -199,6 +208,7 @@ export function createServer(host: ServerHost): Server {
     getInitProjectContext,
     validateInitProjectTemplate,
     initProject,
+    internalCompile,
   };
 
   async function initialize(params: InitializeParams): Promise<InitializeResult> {
@@ -301,6 +311,7 @@ export function createServer(host: ServerHost): Server {
       getInitProjectContext: true,
       initProject: true,
       validateInitProjectTemplate: true,
+      internalCompile: true,
     };
     // the file path is expected to be .../@typespec/compiler/dist/src/server/serverlib.js
     const curFile = normalizePath(compilerHost.fileURLToPath(import.meta.url));
@@ -364,6 +375,61 @@ export function createServer(host: ServerHost): Server {
     } catch (e) {
       log({ level: "error", message: "Unexpected error when initializing project", detail: e });
       return false;
+    }
+  }
+
+  async function internalCompile(param: {
+    doc: TextDocumentIdentifier;
+    options: CompilerOptions;
+  }): Promise<InternalCompileResult> {
+    const option: CompilerOptions = {
+      ...param.options,
+    };
+
+    const result = await compileService.compile(param.doc, option, {
+      bypassCache: true,
+      trackAction: true,
+    });
+    if (result === undefined) {
+      return {
+        hasError: true,
+        diagnostics: [
+          {
+            code: "internal-error",
+            message:
+              "Failed to get compiler result, please check the compilation output for details",
+            severity: "error",
+            target: NoTarget,
+            url: undefined,
+          },
+        ],
+        entrypoint: undefined,
+        options: undefined,
+      };
+    } else {
+      return {
+        hasError: result.program.hasError(),
+        diagnostics: result.program.diagnostics.map((diagnostic) => {
+          const target = getSourceLocation(diagnostic.target, { locateId: true });
+          let position = undefined;
+          if (target?.file) {
+            const lineAndCharacter = target.file.getLineAndCharacterOfPosition(target.pos);
+            position = {
+              line: lineAndCharacter.line + 1,
+              column: lineAndCharacter.character + 1,
+            };
+          }
+          return {
+            code: diagnostic.code,
+            message: diagnostic.message,
+            severity: diagnostic.severity,
+            target: { ...target, position: position },
+            url: diagnostic.url,
+          } as ServerDiagnostic;
+        }),
+        entrypoint: result.document?.uri,
+        options: result.program.compilerOptions,
+      };
     }
   }
 
@@ -621,7 +687,10 @@ export function createServer(host: ServerHost): Server {
             diagnostic.severity = DiagnosticSeverity.Hint;
           }
         }
-        diagnostic.data = { id: diagnosticIdCounter++ };
+        diagnostic.data = {
+          id: diagnosticIdCounter++,
+          file: diagDocument.uri,
+        };
         const diagnostics = diagnosticMap.get(diagDocument);
         compilerAssert(
           diagnostics,
@@ -654,13 +723,42 @@ export function createServer(host: ServerHost): Server {
     const sym =
       id?.kind === SyntaxKind.Identifier ? program.checker.resolveRelatedSymbols(id) : undefined;
 
-    const markdown: MarkupContent = {
-      kind: MarkupKind.Markdown,
-      value: sym && sym.length > 0 ? getSymbolDetails(program, sym[0]) : "",
-    };
-    return {
-      contents: markdown,
-    };
+    if (!sym || sym.length === 0) {
+      return { contents: { kind: MarkupKind.Markdown, value: "" } };
+    } else {
+      // Only show full definition if the symbol is a model or interface that has extends or is clauses.
+      // Avoid showing full definition in other cases which can be long and not useful
+      let includeExpandedDefinition = false;
+      const sn = getSymNode(sym[0]);
+      if (sn.kind !== SyntaxKind.AliasStatement) {
+        const type = sym[0].type ?? program.checker.getTypeOrValueForNode(sn);
+        if (type && "kind" in type) {
+          const modelHasExtendOrIs: boolean =
+            type.kind === "Model" &&
+            (type.baseModel !== undefined ||
+              type.sourceModel !== undefined ||
+              type.sourceModels.length > 0);
+          const interfaceHasExtend: boolean =
+            type.kind === "Interface" && type.sourceInterfaces.length > 0;
+          includeExpandedDefinition = modelHasExtendOrIs || interfaceHasExtend;
+        }
+      }
+
+      const markdown: MarkupContent = {
+        kind: MarkupKind.Markdown,
+        value:
+          sym && sym.length > 0
+            ? getSymbolDetails(program, sym[0], {
+                includeSignature: true,
+                includeParameterTags: true,
+                includeExpandedDefinition,
+              })
+            : "",
+      };
+      return {
+        contents: markdown,
+      };
+    }
   }
 
   async function getSignatureHelp(params: SignatureHelpParams): Promise<SignatureHelp | undefined> {

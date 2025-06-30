@@ -26,7 +26,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.IsNotNull(createMethod);
             var statements = createMethod!.BodyStatements as MethodBodyStatements;
             Assert.IsNotNull(statements);
-            Assert.IsTrue(statements!.Statements.Any(s => s.ToDisplayString() == "request.Headers.Set(\"Content-Type\", contentType);\n"));
+            Assert.IsTrue(statements!.Any(s => s.ToDisplayString() == "request.Headers.Set(\"Content-Type\", contentType);\n"));
         }
     }
 }

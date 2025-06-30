@@ -3,7 +3,6 @@
 #nullable disable
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
@@ -30,9 +29,5 @@ namespace _Type.Union
         protected virtual MixedLiteralsCases PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<MixedLiteralsCases>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(MixedLiteralsCases mixedLiteralsCases) => throw null;
-
-        public static explicit operator MixedLiteralsCases(ClientResult result) => throw null;
     }
 }

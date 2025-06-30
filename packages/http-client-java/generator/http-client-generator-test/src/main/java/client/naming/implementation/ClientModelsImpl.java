@@ -56,7 +56,7 @@ public final class ClientModelsImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "NamingClientClientMo")
+    @ServiceInterface(name = "NamingClientClientModels")
     public interface ClientModelsService {
         @Post("/client/naming/model/client")
         @ExpectedResponses({ 204 })

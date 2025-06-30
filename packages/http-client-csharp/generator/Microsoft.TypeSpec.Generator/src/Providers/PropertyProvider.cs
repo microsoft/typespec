@@ -2,10 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -18,13 +20,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
     {
         private VariableExpression? _variable;
         private Lazy<ParameterProvider> _parameter;
+        private readonly InputProperty? _inputProperty;
+        private readonly SerializationFormat _serializationFormat;
+        private FormattableString? _customDescription;
 
-        public FormattableString? Description { get; }
+        public FormattableString? Description { get; private set; }
         public MethodSignatureModifiers Modifiers { get; internal set; }
         public CSharpType Type { get; internal set; }
         public string Name { get; internal set; }
         public PropertyBody Body { get; internal set; }
-        public CSharpType? ExplicitInterface { get; }
+        public CSharpType? ExplicitInterface { get; private set; }
         public XmlDocProvider? XmlDocs { get; private set; }
         public PropertyWireInformation? WireInfo { get; internal set; }
         public bool IsDiscriminator { get; internal set; }
@@ -37,7 +42,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// </summary>
         public ParameterProvider AsParameter => _parameter.Value;
 
-        public TypeProvider EnclosingType { get; }
+        public TypeProvider EnclosingType { get; private set; }
+
+        public IReadOnlyList<AttributeStatement> Attributes { get; private set; }
 
         public string? OriginalName { get; internal init; }
 
@@ -50,7 +57,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
         }
 
-        internal static bool TryCreate(InputModelProperty inputProperty, TypeProvider enclosingType, [NotNullWhen(true)] out PropertyProvider? property)
+        internal static bool TryCreate(InputProperty inputProperty, TypeProvider enclosingType, [NotNullWhen(true)] out PropertyProvider? property)
         {
             var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputProperty.Type);
             if (type == null)
@@ -62,7 +69,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return true;
         }
 
-        public PropertyProvider(InputModelProperty inputProperty, TypeProvider enclosingType)
+        public PropertyProvider(InputProperty inputProperty, TypeProvider enclosingType)
         : this(
             inputProperty,
             CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputProperty.Type) ?? throw new InvalidOperationException($"Could not create CSharpType for property {inputProperty.Name}"),
@@ -70,37 +77,32 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
         }
 
-        private PropertyProvider(InputModelProperty inputProperty, CSharpType propertyType, TypeProvider enclosingType)
+        private PropertyProvider(InputProperty inputProperty, CSharpType propertyType, TypeProvider enclosingType)
         {
+            _inputProperty = inputProperty;
             if (!inputProperty.IsRequired && !propertyType.IsCollection)
             {
                 propertyType = propertyType.WithNullable(true);
             }
 
             EnclosingType = enclosingType;
-            var serializationFormat = CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputProperty.Type);
+            _serializationFormat = CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputProperty.Type);
             var propHasSetter = PropertyHasSetter(propertyType, inputProperty);
             MethodSignatureModifiers setterModifier = propHasSetter ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;
 
             Type = inputProperty.IsReadOnly ? propertyType.OutputType : propertyType;
-            Modifiers = inputProperty.IsDiscriminator ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
+            IsDiscriminator = IsDiscriminatorProperty(inputProperty);
+            Modifiers = IsDiscriminator ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
             Name = inputProperty.Name == enclosingType.Name
-                ? $"{inputProperty.Name.ToCleanName()}Property"
-                : inputProperty.Name.ToCleanName();
+                ? $"{inputProperty.Name.ToIdentifierName()}Property"
+                : inputProperty.Name.ToIdentifierName();
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
-            Description = DocHelpers.GetFormattableDescription(inputProperty.Summary, inputProperty.Doc) ?? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(Name, !Body.HasSetter);
-            XmlDocs = new XmlDocProvider(PropertyDescriptionBuilder.BuildPropertyDescription(
-                inputProperty,
-                propertyType,
-                serializationFormat,
-                Description))
-            {
-                // TODO -- should write parameter xml doc if this is an IndexerDeclaration: https://github.com/microsoft/typespec/issues/3276
-            };
+
             WireInfo = new PropertyWireInformation(inputProperty);
-            IsDiscriminator = inputProperty.IsDiscriminator;
+            Attributes = [];
 
             InitializeParameter(DocHelpers.GetFormattableDescription(inputProperty.Summary, inputProperty.Doc) ?? FormattableStringHelpers.Empty);
+            BuildDocs();
         }
 
         public PropertyProvider(
@@ -111,16 +113,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             PropertyBody body,
             TypeProvider enclosingType,
             CSharpType? explicitInterface = null,
-            PropertyWireInformation? wireInfo = null)
+            PropertyWireInformation? wireInfo = null,
+            IEnumerable<AttributeStatement>? attributes = null)
         {
-            Description = description ?? (IsPropertyPrivate(modifiers, enclosingType.DeclarationModifiers) ? null
-                : PropertyDescriptionBuilder.CreateDefaultPropertyDescription(name, !body.HasSetter));
-
-            if (Description != null)
-            {
-                XmlDocs = new XmlDocProvider(new XmlDocSummaryStatement([Description]));
-            }
-
             Modifiers = modifiers;
             Type = type;
             Name = name;
@@ -129,8 +124,37 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             WireInfo = wireInfo;
             EnclosingType = enclosingType;
+            Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [];
 
             InitializeParameter(description ?? FormattableStringHelpers.Empty);
+            _customDescription = description;
+            BuildDocs();
+        }
+
+        private void BuildDocs()
+        {
+            if (_inputProperty != null)
+            {
+                Description = DocHelpers.GetFormattableDescription(_inputProperty.Summary, _inputProperty.Doc) ??
+                              PropertyDescriptionBuilder.CreateDefaultPropertyDescription(Name, !Body.HasSetter);
+                XmlDocs = new XmlDocProvider(PropertyDescriptionBuilder.BuildPropertyDescription(
+                    Type,
+                    _serializationFormat,
+                    Description))
+                {
+                    // TODO -- should write parameter xml doc if this is an IndexerDeclaration: https://github.com/microsoft/typespec/issues/3276
+                };
+            }
+            else
+            {
+                Description = _customDescription ?? (IsPropertyPrivate(Modifiers, EnclosingType.DeclarationModifiers) ? null
+                    : PropertyDescriptionBuilder.CreateDefaultPropertyDescription(Name, !Body.HasSetter));
+
+                if (Description != null)
+                {
+                    XmlDocs = new XmlDocProvider(new XmlDocSummaryStatement([Description]));
+                }
+            }
         }
 
         private static bool IsPropertyPrivate(MethodSignatureModifiers modifiers, TypeSignatureModifiers enclosingTypeModifiers)
@@ -147,12 +171,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public VariableExpression AsVariableExpression => _variable ??= new(Type, Name.ToVariableName());
 
+        private static bool IsDiscriminatorProperty(InputProperty inputProperty)
+        {
+            return inputProperty is InputModelProperty mp && mp.IsDiscriminator;
+        }
+
         /// <summary>
         /// Returns true if the property has a setter.
         /// </summary>
-        protected virtual bool PropertyHasSetter(CSharpType type, InputModelProperty inputProperty)
+        protected virtual bool PropertyHasSetter(CSharpType type, InputProperty inputProperty)
         {
-            if (inputProperty.IsDiscriminator)
+            if (IsDiscriminatorProperty(inputProperty))
             {
                 return true;
             }
@@ -195,7 +224,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return true;
         }
 
-        private ValueExpression? GetPropertyInitializationValue(CSharpType propertyType, InputModelProperty inputProperty)
+        private ValueExpression? GetPropertyInitializationValue(CSharpType propertyType, InputProperty inputProperty)
         {
             if (!inputProperty.IsRequired)
                 return null;
@@ -221,20 +250,66 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private MemberExpression? _asMember;
+
         public static implicit operator MemberExpression(PropertyProvider property)
             => property._asMember ??= new MemberExpression(null, property.Name);
 
         public void Update(
+            FormattableString? description = null,
+            MethodSignatureModifiers? modifiers = null,
+            CSharpType? type = null,
+            string? name = null,
             PropertyBody? body = null,
-            XmlDocProvider? xmlDocs = null)
+            TypeProvider? enclosingType = null,
+            CSharpType? explicitInterface = null,
+            PropertyWireInformation? wireInfo = null,
+            XmlDocProvider? xmlDocs = null,
+            IEnumerable<AttributeStatement>? attributes = null)
         {
+            if (description != null)
+            {
+                _customDescription = description;
+            }
+            if (modifiers != null)
+            {
+                Modifiers = modifiers.Value;
+            }
+            if (type != null)
+            {
+                Type = type;
+            }
+            if (name != null)
+            {
+                Name = name;
+            }
             if (body != null)
             {
                 Body = body;
             }
+            if (enclosingType != null)
+            {
+                EnclosingType = enclosingType;
+            }
+            if (explicitInterface != null)
+            {
+                ExplicitInterface = explicitInterface;
+            }
+            if (wireInfo != null)
+            {
+                WireInfo = wireInfo;
+            }
+            if (attributes != null)
+            {
+                Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [];
+            }
             if (xmlDocs != null)
             {
                 XmlDocs = xmlDocs;
+            }
+            else
+            {
+                // rebuild the docs if they are not provided
+                BuildDocs();
             }
         }
     }

@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 package com.microsoft.typespec.http.client.generator.core.template.clientcore;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
@@ -24,9 +27,8 @@ public class ClientCoreMethodGroupTemplate extends MethodGroupTemplate {
             constructor.line(String.format("this.service = %1$s.create(%2$s.class, client.getHttpPipeline());",
                 ClassType.REST_PROXY.getName(), methodGroupClient.getProxy().getName()));
         } else {
-            String implName = JavaSettings.getInstance().getPackage() + ".implementation."
-                + methodGroupClient.getProxy().getName() + "Impl";
-            constructor.line("this.service = %s.getNewInstance(this.httpPipeline);", implName);
+            constructor.line("this.service = %s.getNewInstance(client.getHttpPipeline());",
+                methodGroupClient.getProxy().getName());
         }
     }
 }

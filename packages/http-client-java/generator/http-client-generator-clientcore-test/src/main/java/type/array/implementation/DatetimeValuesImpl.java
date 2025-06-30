@@ -3,7 +3,6 @@ package type.array.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -38,7 +37,7 @@ public final class DatetimeValuesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     DatetimeValuesImpl(ArrayClientImpl client) {
-        this.service = RestProxy.create(DatetimeValuesService.class, client.getHttpPipeline());
+        this.service = DatetimeValuesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -46,7 +45,7 @@ public final class DatetimeValuesImpl {
      * The interface defining all the services for ArrayClientDatetimeValues to be used by the proxy service to perform
      * REST calls.
      */
-    @ServiceInterface(name = "ArrayClientDatetimeV", host = "{endpoint}")
+    @ServiceInterface(name = "ArrayClientDatetimeValues", host = "{endpoint}")
     public interface DatetimeValuesService {
         static DatetimeValuesService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -91,18 +90,6 @@ public final class DatetimeValuesImpl {
     }
 
     /**
-     * The get operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public List<OffsetDateTime> get() {
-        return getWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * The put operation.
      * 
      * @param body The body parameter.
@@ -116,18 +103,5 @@ public final class DatetimeValuesImpl {
     public Response<Void> putWithResponse(List<OffsetDateTime> body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.put(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The put operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void put(List<OffsetDateTime> body) {
-        putWithResponse(body, RequestContext.none());
     }
 }

@@ -31,6 +31,9 @@ export interface EnumMemberDescriptor {
 
 /**
  * A kit for working with enum members.
+ *
+ * @experimental
+ * @typekit enumMember
  */
 export interface EnumMemberKit {
   /**

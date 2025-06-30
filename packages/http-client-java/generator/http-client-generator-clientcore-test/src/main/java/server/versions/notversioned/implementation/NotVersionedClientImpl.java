@@ -3,7 +3,6 @@ package server.versions.notversioned.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.PathParam;
@@ -62,7 +61,7 @@ public final class NotVersionedClientImpl {
     public NotVersionedClientImpl(HttpPipeline httpPipeline, String endpoint) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.service = RestProxy.create(NotVersionedClientService.class, this.httpPipeline);
+        this.service = NotVersionedClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -123,17 +122,6 @@ public final class NotVersionedClientImpl {
     }
 
     /**
-     * The withoutApiVersion operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withoutApiVersion() {
-        withoutApiVersionWithResponse(RequestContext.none());
-    }
-
-    /**
      * The withQueryApiVersion operation.
      * 
      * @param apiVersion The apiVersion parameter.
@@ -149,19 +137,6 @@ public final class NotVersionedClientImpl {
     }
 
     /**
-     * The withQueryApiVersion operation.
-     * 
-     * @param apiVersion The apiVersion parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withQueryApiVersion(String apiVersion) {
-        withQueryApiVersionWithResponse(apiVersion, RequestContext.none());
-    }
-
-    /**
      * The withPathApiVersion operation.
      * 
      * @param apiVersion The apiVersion parameter.
@@ -174,18 +149,5 @@ public final class NotVersionedClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withPathApiVersionWithResponse(String apiVersion, RequestContext requestContext) {
         return service.withPathApiVersion(this.getEndpoint(), apiVersion, requestContext);
-    }
-
-    /**
-     * The withPathApiVersion operation.
-     * 
-     * @param apiVersion The apiVersion parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withPathApiVersion(String apiVersion) {
-        withPathApiVersionWithResponse(apiVersion, RequestContext.none());
     }
 }

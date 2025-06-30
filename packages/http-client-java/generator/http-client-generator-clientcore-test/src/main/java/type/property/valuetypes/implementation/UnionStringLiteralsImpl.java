@@ -3,7 +3,6 @@ package type.property.valuetypes.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -37,7 +36,7 @@ public final class UnionStringLiteralsImpl {
      * @param client the instance of the service client containing this operation class.
      */
     UnionStringLiteralsImpl(ValueTypesClientImpl client) {
-        this.service = RestProxy.create(UnionStringLiteralsService.class, client.getHttpPipeline());
+        this.service = UnionStringLiteralsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -45,7 +44,7 @@ public final class UnionStringLiteralsImpl {
      * The interface defining all the services for ValueTypesClientUnionStringLiterals to be used by the proxy service
      * to perform REST calls.
      */
-    @ServiceInterface(name = "ValueTypesClientUnio", host = "{endpoint}")
+    @ServiceInterface(name = "ValueTypesClientUnionStringLiterals", host = "{endpoint}")
     public interface UnionStringLiteralsService {
         static UnionStringLiteralsService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -93,18 +92,6 @@ public final class UnionStringLiteralsImpl {
     }
 
     /**
-     * Get call.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return call.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public UnionStringLiteralProperty get() {
-        return getWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * Put operation.
      * 
      * @param body body.
@@ -118,18 +105,5 @@ public final class UnionStringLiteralsImpl {
     public Response<Void> putWithResponse(UnionStringLiteralProperty body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.put(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * Put operation.
-     * 
-     * @param body body.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void put(UnionStringLiteralProperty body) {
-        putWithResponse(body, RequestContext.none());
     }
 }

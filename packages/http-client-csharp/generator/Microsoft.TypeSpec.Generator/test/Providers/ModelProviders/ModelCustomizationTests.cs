@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Input;
@@ -37,7 +38,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
 
-            var inputEnum = InputFactory.Enum("mockInputModel", underlyingType: InputPrimitiveType.String);
+            var inputEnum = InputFactory.StringEnum("mockInputModel", [("value", "value")]);
             var enumProvider = new FixedEnumProvider(inputEnum, null);
 
             AssertCommon(enumProvider, "NewNamespace.Models", "CustomizedEnum");
@@ -166,11 +167,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         {
             var props = new[]
             {
-                InputFactory.Property("Prop1", InputFactory.Array(InputFactory.Enum(
+                InputFactory.Property("Prop1", InputFactory.Array(InputFactory.StringEnum(
                     "MyEnum",
-                    InputPrimitiveType.String,
-                    usage: InputModelTypeUsage.Input,
-                    values: [InputFactory.EnumMember.String("foo", "bar")])))
+                    [("foo", "bar")],
+                    usage: InputModelTypeUsage.Input)))
             };
 
             var inputModel = InputFactory.Model("mockInputModel", properties: props);
@@ -204,11 +204,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         {
             var props = new[]
             {
-                InputFactory.Property("Prop1", InputFactory.Array(InputFactory.Enum(
+                InputFactory.Property("Prop1", InputFactory.Array(InputFactory.StringEnum(
                     "MyEnum",
-                    InputPrimitiveType.String,
-                    usage: InputModelTypeUsage.Input,
-                    values: [InputFactory.EnumMember.String("foo", "bar")])))
+                    [("foo", "bar")],
+                    usage: InputModelTypeUsage.Input)))
             };
 
             var inputModel = InputFactory.Model("mockInputModel", properties: props);
@@ -242,11 +241,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         {
             var props = new[]
             {
-                InputFactory.Property("Prop1", InputFactory.Dictionary(InputFactory.Enum(
+                InputFactory.Property("Prop1", InputFactory.Dictionary(InputFactory.StringEnum(
                     "MyEnum",
-                    InputPrimitiveType.String,
-                    usage: InputModelTypeUsage.Input,
-                    values: [InputFactory.EnumMember.String("foo", "bar")])))
+                    [("foo", "bar")],
+                    usage: InputModelTypeUsage.Input)))
             };
 
             var inputModel = InputFactory.Model("mockInputModel", properties: props);
@@ -369,13 +367,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         {
             await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
-            var props = new[] {
-                InputFactory.EnumMember.Int32("val1", 1),
-                InputFactory.EnumMember.Int32("val2", 2),
-                InputFactory.EnumMember.Int32("val3", 3)
-            };
-
-            var inputEnum = InputFactory.Enum("mockInputModel", underlyingType: InputPrimitiveType.Int32, values: props, isExtensible: false);
+            // Updated to use Int32Enum with collection expression for values
+            var inputEnum = InputFactory.Int32Enum(
+                "mockInputModel",
+                [("val1", 1), ("val2", 2), ("val3", 3)],
+                isExtensible: false
+            );
             var enumProvider = EnumProvider.Create(inputEnum);
 
             Assert.IsTrue(enumProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Struct | TypeSignatureModifiers.ReadOnly));
@@ -386,13 +383,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         {
             await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
-            var props = new[] {
-                InputFactory.EnumMember.Int32("val1", 1),
-                InputFactory.EnumMember.Int32("val2", 2),
-                InputFactory.EnumMember.Int32("val3", 3)
-            };
-
-            var inputEnum = InputFactory.Enum("mockInputModel", underlyingType: InputPrimitiveType.Int32, values: props, isExtensible: true);
+            // Updated to use Int32Enum with collection expression for values
+            var inputEnum = InputFactory.Int32Enum(
+                "mockInputModel",
+                [("val1", 1), ("val2", 2), ("val3", 3)],
+                isExtensible: true
+            );
             var enumProvider = EnumProvider.Create(inputEnum);
 
             Assert.IsTrue(enumProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public | TypeSignatureModifiers.Enum));
@@ -471,13 +467,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public async Task CanChangeEnumMemberName()
         {
-            var enumValues = new[]
-           {
-                InputFactory.EnumMember.Int32("Red", 1),
-                InputFactory.EnumMember.Int32("Green", 2),
-                InputFactory.EnumMember.Int32("Blue", 3)
-            };
-            var inputEnum = InputFactory.Enum("mockInputModel", underlyingType: InputPrimitiveType.String, values: enumValues);
+            var inputEnum = InputFactory.Int32Enum("mockInputModel", [("Red", 1), ("Green", 2), ("Blue", 3)]);
             await MockHelpers.LoadMockGeneratorAsync(
                 inputEnumTypes: [inputEnum],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
@@ -672,10 +662,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public async Task DoesNotIncludeReqCustomLiteralInDefaultCtor()
         {
-            var enumType = InputFactory.Enum(
-                "originalEnum",
-                InputPrimitiveType.String,
-                values: [InputFactory.EnumMember.String("bar", "bar")]);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [
                     InputFactory.Model(
@@ -683,7 +669,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                         usage: InputModelTypeUsage.Input,
                         properties:
                         [
-                            InputFactory.Property("Prop1", InputFactory.Literal.Enum(enumType, "bar"), isRequired: true),
+                            InputFactory.Property("Prop1", InputFactory.Literal.String("bar", name: "originalEnum"), isRequired: true),
                             InputFactory.Property("Prop2", InputPrimitiveType.String, isRequired: true),
                         ])
                     ],
@@ -786,11 +772,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var modelProp = InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.Int32));
-            var discriminatorValues = InputFactory.Enum("discriminatorValue", InputPrimitiveType.String, usage: InputModelTypeUsage.Input, isExtensible: true, values:
-            [
-                InputFactory.EnumMember.String("Foo", "foo"),
-                InputFactory.EnumMember.String("Bar", "bar")
-            ]);
+            var discriminatorValues = InputFactory.StringEnum(
+                "discriminatorValue",
+                [("Foo", "foo"), ("Bar", "bar")],
+                usage: InputModelTypeUsage.Input,
+                isExtensible: true);
             var discriminatorProp = InputFactory.Property("discriminator", discriminatorValues, isDiscriminator: true, isRequired: true);
             var fooModel = InputFactory.Model("fooModel", properties: [modelProp, discriminatorProp], usage: InputModelTypeUsage.Json, discriminatedKind: "foo");
             var barModel = InputFactory.Model("barModel", properties: [modelProp, discriminatorProp], usage: InputModelTypeUsage.Json, discriminatedKind: "bar");
@@ -809,6 +795,143 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var writer = new TypeProviderWriter(modelProvider);
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task CanChangeFrameworkTypeToCustomEnum()
+        {
+            // simulates a constant literal value that comes in from the emitter as an enum value
+            var inputEnum = InputFactory.EnumMember.String("mockInputEnum", "val1", InputFactory.StringEnum("foo", []));
+            var modelProp = InputFactory.Property("prop1", inputEnum);
+            var inputModel = InputFactory.Model("mockInputModel", properties: [modelProp], usage: InputModelTypeUsage.Json);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            Assert.AreEqual(0, modelProvider.Properties.Count);
+            Assert.AreEqual(1, modelProvider.CustomCodeView!.Properties.Count);
+            Assert.AreEqual("Prop1", modelProvider.CustomCodeView.Properties[0].Name);
+            Assert.AreEqual("CustomEnum", modelProvider.CustomCodeView.Properties[0].Type.Name);
+
+            Assert.AreEqual(1, modelProvider.CanonicalView!.Properties.Count);
+        }
+
+        [Test]
+        public async Task CanCustomizeTypeRenamedInVisitor()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var inputModel = InputFactory.Model("mockInputModel");
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            // Simulate a visitor that renames the type
+            modelTypeProvider.Update(name: "RenamedModel");
+            // Type should be renamed to the visitor value
+            Assert.AreEqual("CustomizedTypeName", modelTypeProvider.Type.Name);
+
+            Assert.IsNotNull(modelTypeProvider.CustomCodeView);
+            Assert.AreEqual("CustomizedTypeName", modelTypeProvider.CustomCodeView!.Name);
+            Assert.AreEqual("CustomizedTypeName", modelTypeProvider.Type.Name);
+            Assert.AreEqual("CustomizedTypeName", modelTypeProvider.CanonicalView.Type.Name);
+        }
+
+        [Test]
+        public async Task CanCustomizeTypeWithChangedNamespaceInVisitor()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var inputModel = InputFactory.Model("mockInputModel", properties: []);
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            // Simulate a visitor that changes the namespace of the type
+            modelTypeProvider.Update(@namespace: "NewNamespace");
+            Assert.AreEqual("CustomizedTypeName", modelTypeProvider.Type.Name);
+            Assert.AreEqual("NewNamespace", modelTypeProvider.Type.Namespace);
+
+            Assert.IsNotNull(modelTypeProvider.CustomCodeView);
+            Assert.AreEqual("CustomizedTypeName", modelTypeProvider.CustomCodeView!.Name);
+            Assert.AreEqual("CustomizedTypeName", modelTypeProvider.Type.Name);
+            Assert.AreEqual("CustomizedTypeName", modelTypeProvider.CanonicalView.Type.Name);
+            Assert.AreEqual("NewNamespace", modelTypeProvider.Type.Namespace);
+            Assert.AreEqual("NewNamespace", modelTypeProvider.CanonicalView.Type.Namespace);
+        }
+
+        [Test]
+        public async Task CanChangeTypeNameAfterTypeNamespace()
+        {
+            await MockHelpers.LoadMockGeneratorAsync();
+            var inputModel = InputFactory.Model("mockInputModel", properties: []);
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            // Simulate a visitor that changes the namespace of the type
+            modelTypeProvider.Update(@namespace: "NewNamespace");
+            Assert.AreEqual("MockInputModel", modelTypeProvider.Type.Name);
+            Assert.AreEqual("NewNamespace", modelTypeProvider.Type.Namespace);
+
+            // Simulate a visitor that changes the name of the type
+            modelTypeProvider.Update(name: "CustomizedTypeName");
+            Assert.AreEqual("CustomizedTypeName", modelTypeProvider.Type.Name);
+            Assert.AreEqual("NewNamespace", modelTypeProvider.Type.Namespace);
+
+            Assert.IsNull(modelTypeProvider.CustomCodeView);
+        }
+
+        [Test]
+        public async Task CanChangeTypeNamespaceAfterTypeName()
+        {
+            await MockHelpers.LoadMockGeneratorAsync();
+            var inputModel = InputFactory.Model("mockInputModel", properties: []);
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            // Simulate a visitor that changes the name of the type
+            modelTypeProvider.Update(name: "CustomizedTypeName");
+            Assert.AreEqual("CustomizedTypeName", modelTypeProvider.Type.Name);
+            Assert.AreEqual("Sample.Models", modelTypeProvider.Type.Namespace);
+
+            // Simulate a visitor that changes the namespace of the type
+            modelTypeProvider.Update(@namespace: "NewNamespace");
+            Assert.AreEqual("CustomizedTypeName", modelTypeProvider.Type.Name);
+            Assert.AreEqual("NewNamespace", modelTypeProvider.Type.Namespace);
+
+            Assert.IsNull(modelTypeProvider.CustomCodeView);
+        }
+
+        [Test]
+        public void CanCustomizeWithVisitor()
+        {
+            MockHelpers.LoadMockGenerator();
+            var inputModel = InputFactory.Model("mockInputModel");
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            // Ensure the relative file path is not cached with the old name
+            _ = modelTypeProvider.RelativeFilePath;
+
+            // Simulate a visitor that renames the type
+            modelTypeProvider.Update(name: "RenamedModel");
+            // Type should be renamed to the visitor value
+            Assert.AreEqual("RenamedModel", modelTypeProvider.Type.Name);
+
+            Assert.IsNull(modelTypeProvider.CustomCodeView);
+            Assert.AreEqual("RenamedModel", modelTypeProvider.Type.Name);
+            Assert.AreEqual("RenamedModel", modelTypeProvider.CanonicalView.Type.Name);
+
+            // relative file path should use the new name
+            var expected = Path.Join("src", "Generated", "Models", "RenamedModel.cs");
+            Assert.AreEqual(expected, modelTypeProvider.RelativeFilePath);
+        }
+
+        [Test]
+        public void CanCustomizeRelativeFilePath()
+        {
+            MockHelpers.LoadMockGenerator();
+            var inputModel = InputFactory.Model("mockInputModel");
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            // Simulate a visitor that modifies relative file path
+            var updatedRelativeFilePath = Path.Join("src", "Generated", "Models", "MockInputModel.cs");
+            modelTypeProvider.Update(relativeFilePath: updatedRelativeFilePath);
+
+            Assert.AreEqual(updatedRelativeFilePath, modelTypeProvider.RelativeFilePath);
         }
     }
 }

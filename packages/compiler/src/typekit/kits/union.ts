@@ -34,6 +34,7 @@ export interface UnionDescriptor {
 
 /**
  * Utilities for working with unions.
+ * @typekit union
  */
 export interface UnionKit {
   /**

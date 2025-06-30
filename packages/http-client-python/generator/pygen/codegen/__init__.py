@@ -110,6 +110,10 @@ class OptionsRetriever:
         return self.options.get("package-pprint-name") or _default_pprint(str(self.package_name))
 
     @property
+    def validate_versioning(self) -> bool:
+        return self.options.get("validate-versioning", True)
+
+    @property
     def default_optional_constants_to_none(self) -> bool:
         return self.options.get(
             "default-optional-constants-to-none",
@@ -301,6 +305,7 @@ class CodeGenerator(Plugin):
             "from_typespec",
             "flavor",
             "emit_cross_language_definition_file",
+            "validate_versioning",
         ]
         return {f: getattr(self.options_retriever, f) for f in flags}
 

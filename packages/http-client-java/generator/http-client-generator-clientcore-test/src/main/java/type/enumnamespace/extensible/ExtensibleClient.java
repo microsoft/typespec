@@ -53,7 +53,7 @@ public final class ExtensibleClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public DaysOfWeekExtensibleEnum getKnownValue() {
-        return this.serviceClient.getKnownValue();
+        return getKnownValueWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -81,7 +81,7 @@ public final class ExtensibleClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public DaysOfWeekExtensibleEnum getUnknownValue() {
-        return this.serviceClient.getUnknownValue();
+        return getUnknownValueWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -111,7 +111,7 @@ public final class ExtensibleClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putKnownValue(DaysOfWeekExtensibleEnum body) {
-        this.serviceClient.putKnownValue(body);
+        putKnownValueWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -141,6 +141,6 @@ public final class ExtensibleClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putUnknownValue(DaysOfWeekExtensibleEnum body) {
-        this.serviceClient.putUnknownValue(body);
+        putUnknownValueWithResponse(body, RequestContext.none());
     }
 }

@@ -11,7 +11,7 @@ import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
 import java.io.IOException;
-import tsptest.armresourceprovider.models.CustomTemplateResourcePropertiesAnonymousEmptyModel;
+import tsptest.armresourceprovider.models.AnonymousEmptyModel;
 import tsptest.armresourceprovider.models.Dog;
 import tsptest.armresourceprovider.models.EmptyModel;
 import tsptest.armresourceprovider.models.PriorityModel;
@@ -40,7 +40,7 @@ public final class CustomTemplateResourceProperties implements JsonSerializable<
     /*
      * The anonymousEmptyModel property.
      */
-    private CustomTemplateResourcePropertiesAnonymousEmptyModel anonymousEmptyModel;
+    private AnonymousEmptyModel anonymousEmptyModel;
 
     /*
      * The priority property.
@@ -107,7 +107,7 @@ public final class CustomTemplateResourceProperties implements JsonSerializable<
      * 
      * @return the anonymousEmptyModel value.
      */
-    public CustomTemplateResourcePropertiesAnonymousEmptyModel anonymousEmptyModel() {
+    public AnonymousEmptyModel anonymousEmptyModel() {
         return this.anonymousEmptyModel;
     }
 
@@ -117,8 +117,7 @@ public final class CustomTemplateResourceProperties implements JsonSerializable<
      * @param anonymousEmptyModel the anonymousEmptyModel value to set.
      * @return the CustomTemplateResourceProperties object itself.
      */
-    public CustomTemplateResourceProperties
-        withAnonymousEmptyModel(CustomTemplateResourcePropertiesAnonymousEmptyModel anonymousEmptyModel) {
+    public CustomTemplateResourceProperties withAnonymousEmptyModel(AnonymousEmptyModel anonymousEmptyModel) {
         this.anonymousEmptyModel = anonymousEmptyModel;
         return this;
     }
@@ -215,7 +214,7 @@ public final class CustomTemplateResourceProperties implements JsonSerializable<
                     deserializedCustomTemplateResourceProperties.namedEmptyModel = EmptyModel.fromJson(reader);
                 } else if ("anonymousEmptyModel".equals(fieldName)) {
                     deserializedCustomTemplateResourceProperties.anonymousEmptyModel
-                        = CustomTemplateResourcePropertiesAnonymousEmptyModel.fromJson(reader);
+                        = AnonymousEmptyModel.fromJson(reader);
                 } else if ("priority".equals(fieldName)) {
                     deserializedCustomTemplateResourceProperties.priority = PriorityModel.fromValue(reader.getInt());
                 } else if ("provisioningState".equals(fieldName)) {

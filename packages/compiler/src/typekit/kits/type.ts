@@ -27,6 +27,9 @@ import { defineKit } from "../define-kit.js";
 import { copyMap } from "../utils.js";
 import { getPlausibleName } from "../utils/get-plausible-name.js";
 
+/**
+ * @typekit type
+ */
 export interface TypeTypekit {
   /**
    * Checks if `entity` is a Type.
@@ -243,6 +246,12 @@ defineKit<TypekitExtension>({
             decorators: [...type.decorators],
             derivedScalars: [...type.derivedScalars],
             constructors: copyMap(type.constructors as any),
+          });
+          break;
+        case "Tuple":
+          clone = this.program.checker.createType({
+            ...type,
+            values: [...type.values],
           });
           break;
         default:

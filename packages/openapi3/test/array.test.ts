@@ -68,6 +68,37 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, openApiFor }) => {
     });
   });
 
+  it("define named arrays with envelope names", async () => {
+    const res = await openApiFor(
+      `
+      @service
+      namespace Sample;
+      namespace One {
+        model PetNames is string[];
+      }
+      namespace Two {
+        model PetNames is string[];
+      }
+      model Pets {
+        one: One.PetNames;
+        two: Two.PetNames;
+      }
+      `,
+    );
+    deepStrictEqual(res.components.schemas["One.PetNames"], {
+      type: "array",
+      items: { type: "string" },
+    });
+    deepStrictEqual(res.components.schemas["Two.PetNames"], {
+      type: "array",
+      items: { type: "string" },
+    });
+    deepStrictEqual(res.components.schemas.Pets.properties, {
+      one: { $ref: "#/components/schemas/One.PetNames" },
+      two: { $ref: "#/components/schemas/Two.PetNames" },
+    });
+  });
+
   it("named array applies doc", async () => {
     const res = await oapiForModel(
       "Pet",

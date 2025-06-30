@@ -11,7 +11,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -152,10 +152,10 @@ public class ModelTestCaseUtil {
             } else if (elementType == ClassType.STRING) {
                 return value;
             }
-        } else if (type instanceof ListType) {
+        } else if (type instanceof IterableType) {
             List<Object> list = new ArrayList<>();
             if (depth <= CONFIGURATION.maxDepth) {
-                IType elementType = ((ListType) type).getElementType();
+                IType elementType = ((IterableType) type).getElementType();
                 int count = RANDOM.nextInt(CONFIGURATION.maxList - 1) + 1;
                 for (int i = 0; i < count; ++i) {
                     Object element = jsonFromType(depth + 1, elementType);

@@ -3,7 +3,6 @@ package type.scalar.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -37,7 +36,7 @@ public final class UnknownsImpl {
      * @param client the instance of the service client containing this operation class.
      */
     UnknownsImpl(ScalarClientImpl client) {
-        this.service = RestProxy.create(UnknownsService.class, client.getHttpPipeline());
+        this.service = UnknownsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -85,18 +84,6 @@ public final class UnknownsImpl {
     }
 
     /**
-     * get unknown value.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return unknown value.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData get() {
-        return getWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * put unknown value.
      * 
      * @param body _.
@@ -110,18 +97,5 @@ public final class UnknownsImpl {
     public Response<Void> putWithResponse(BinaryData body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.put(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * put unknown value.
-     * 
-     * @param body _.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void put(BinaryData body) {
-        putWithResponse(body, RequestContext.none());
     }
 }

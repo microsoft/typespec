@@ -31,7 +31,6 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     /**
      * The requestQueryResponseBody operation.
      * 
-     * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -41,8 +40,8 @@ public final class ServerDrivenPaginationContinuationTokenClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestQueryResponseBody(String token, String foo, String bar) {
-        return this.serviceClient.requestQueryResponseBody(token, foo, bar);
+    public PagedIterable<Pet> requestQueryResponseBody(String foo, String bar) {
+        return requestQueryResponseBody(foo, bar, RequestContext.none());
     }
 
     /**
@@ -55,13 +54,14 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestQueryResponseBody() {
-        return this.serviceClient.requestQueryResponseBody();
+        final String foo = null;
+        final String bar = null;
+        return requestQueryResponseBody(foo, bar, RequestContext.none());
     }
 
     /**
      * The requestQueryResponseBody operation.
      * 
-     * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -72,15 +72,13 @@ public final class ServerDrivenPaginationContinuationTokenClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestQueryResponseBody(String token, String foo, String bar,
-        RequestContext requestContext) {
-        return this.serviceClient.requestQueryResponseBody(token, foo, bar, requestContext);
+    public PagedIterable<Pet> requestQueryResponseBody(String foo, String bar, RequestContext requestContext) {
+        return this.serviceClient.requestQueryResponseBody(foo, bar, requestContext);
     }
 
     /**
      * The requestHeaderResponseBody operation.
      * 
-     * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -90,8 +88,8 @@ public final class ServerDrivenPaginationContinuationTokenClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestHeaderResponseBody(String token, String foo, String bar) {
-        return this.serviceClient.requestHeaderResponseBody(token, foo, bar);
+    public PagedIterable<Pet> requestHeaderResponseBody(String foo, String bar) {
+        return requestHeaderResponseBody(foo, bar, RequestContext.none());
     }
 
     /**
@@ -104,13 +102,14 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestHeaderResponseBody() {
-        return this.serviceClient.requestHeaderResponseBody();
+        final String foo = null;
+        final String bar = null;
+        return requestHeaderResponseBody(foo, bar, RequestContext.none());
     }
 
     /**
      * The requestHeaderResponseBody operation.
      * 
-     * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -121,15 +120,13 @@ public final class ServerDrivenPaginationContinuationTokenClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestHeaderResponseBody(String token, String foo, String bar,
-        RequestContext requestContext) {
-        return this.serviceClient.requestHeaderResponseBody(token, foo, bar, requestContext);
+    public PagedIterable<Pet> requestHeaderResponseBody(String foo, String bar, RequestContext requestContext) {
+        return this.serviceClient.requestHeaderResponseBody(foo, bar, requestContext);
     }
 
     /**
      * The requestQueryResponseHeader operation.
      * 
-     * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -139,8 +136,8 @@ public final class ServerDrivenPaginationContinuationTokenClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestQueryResponseHeader(String token, String foo, String bar) {
-        return this.serviceClient.requestQueryResponseHeader(token, foo, bar);
+    public PagedIterable<Pet> requestQueryResponseHeader(String foo, String bar) {
+        return requestQueryResponseHeader(foo, bar, RequestContext.none());
     }
 
     /**
@@ -153,13 +150,14 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestQueryResponseHeader() {
-        return this.serviceClient.requestQueryResponseHeader();
+        final String foo = null;
+        final String bar = null;
+        return requestQueryResponseHeader(foo, bar, RequestContext.none());
     }
 
     /**
      * The requestQueryResponseHeader operation.
      * 
-     * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -170,15 +168,13 @@ public final class ServerDrivenPaginationContinuationTokenClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestQueryResponseHeader(String token, String foo, String bar,
-        RequestContext requestContext) {
-        return this.serviceClient.requestQueryResponseHeader(token, foo, bar, requestContext);
+    public PagedIterable<Pet> requestQueryResponseHeader(String foo, String bar, RequestContext requestContext) {
+        return this.serviceClient.requestQueryResponseHeader(foo, bar, requestContext);
     }
 
     /**
      * The requestHeaderResponseHeader operation.
      * 
-     * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -188,8 +184,8 @@ public final class ServerDrivenPaginationContinuationTokenClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestHeaderResponseHeader(String token, String foo, String bar) {
-        return this.serviceClient.requestHeaderResponseHeader(token, foo, bar);
+    public PagedIterable<Pet> requestHeaderResponseHeader(String foo, String bar) {
+        return requestHeaderResponseHeader(foo, bar, RequestContext.none());
     }
 
     /**
@@ -202,13 +198,14 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestHeaderResponseHeader() {
-        return this.serviceClient.requestHeaderResponseHeader();
+        final String foo = null;
+        final String bar = null;
+        return requestHeaderResponseHeader(foo, bar, RequestContext.none());
     }
 
     /**
      * The requestHeaderResponseHeader operation.
      * 
-     * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -219,8 +216,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestHeaderResponseHeader(String token, String foo, String bar,
-        RequestContext requestContext) {
-        return this.serviceClient.requestHeaderResponseHeader(token, foo, bar, requestContext);
+    public PagedIterable<Pet> requestHeaderResponseHeader(String foo, String bar, RequestContext requestContext) {
+        return this.serviceClient.requestHeaderResponseHeader(foo, bar, requestContext);
     }
 }

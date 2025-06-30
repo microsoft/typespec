@@ -30,11 +30,12 @@ export function TypeAliasDeclaration(props: TypeAliasDeclarationProps) {
     reportDiagnostic($.program, { code: "type-declaration-missing-name", target: props.type });
   }
 
-  const refkeys = declarationRefkeys(props.refkey, props.name);
+  const doc = props.doc ?? $.type.getDoc(props.type);
+  const refkeys = declarationRefkeys(props.refkey, props.type);
 
   const name = ts.useTSNamePolicy().getName(originalName, "type");
   return (
-    <ts.TypeDeclaration {...props} name={name} refkey={refkeys}>
+    <ts.TypeDeclaration doc={doc} {...props} name={name} refkey={refkeys}>
       <TypeExpression type={props.type} noReference />
       {props.children}
     </ts.TypeDeclaration>

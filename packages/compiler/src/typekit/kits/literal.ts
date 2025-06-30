@@ -1,7 +1,11 @@
-import { Numeric } from "../../core/numeric.js";
 import type { BooleanLiteral, Entity, NumericLiteral, StringLiteral } from "../../core/types.js";
 import { defineKit } from "../define-kit.js";
 
+/**
+ * A Typekit for working with literal types(string, numeric, boolean).
+ *
+ * @typekit literal
+ */
 export interface LiteralKit {
   /**
    * Create a literal type from a JavaScript value.
@@ -77,37 +81,18 @@ declare module "../define-kit.js" {
 defineKit<TypekitExtension>({
   literal: {
     create(value) {
-      if (typeof value === "string") {
-        return this.literal.createString(value);
-      } else if (typeof value === "number") {
-        return this.literal.createNumeric(value);
-      } else {
-        return this.literal.createBoolean(value);
-      }
+      return this.program.checker.createLiteralType(value);
     },
     createString(value) {
-      return this.program.checker.createType({
-        kind: "String",
-        value,
-      });
+      return this.program.checker.createLiteralType(value);
     },
 
     createNumeric(value) {
-      const valueAsString = String(value);
-
-      return this.program.checker.createType({
-        kind: "Number",
-        value,
-        valueAsString,
-        numericValue: Numeric(valueAsString),
-      });
+      return this.program.checker.createLiteralType(value);
     },
 
     createBoolean(value) {
-      return this.program.checker.createType({
-        kind: "Boolean",
-        value,
-      });
+      return this.program.checker.createLiteralType(value);
     },
 
     isBoolean(type) {

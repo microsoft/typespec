@@ -179,7 +179,7 @@ async function loadOpenApi3PreviewPanel(
         error: "Failed to get generated OpenAPI3 file",
       });
       tel.lastStep = "Get OpenAPI3 output";
-      return ResultCode.Fail;
+      return ResultCode.Cancelled;
     }
 
     const panel = vscode.window.createWebviewPanel(

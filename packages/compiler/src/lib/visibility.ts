@@ -404,85 +404,6 @@ interface VisibilityFilterMutatorCacheByNameTemplate {
   lifecycleUpdate?: Mutator;
 }
 
-const ENUM_INTERN_TABLE = Symbol.for("TypeSpec.Core.enumInternTable");
-
-interface EnumInternTable {
-  [ENUM_INTERN_TABLE]?: {
-    idx: number;
-    map: WeakMap<Enum, number>;
-  };
-}
-
-function internEnum(program: Program, enumType: Enum): number {
-  const enumInternTable = ((program as EnumInternTable)[ENUM_INTERN_TABLE] ??= {
-    idx: 0,
-    map: new WeakMap(),
-  });
-
-  let idx = enumInternTable.map.get(enumType);
-  if (idx === undefined) {
-    idx = enumInternTable.idx++;
-    enumInternTable.map.set(enumType, idx);
-  }
-
-  return idx;
-}
-
-const VISIBILITY_FILTER_TO_STRING_CACHE = Symbol.for("TypeSpec.Core.visibilityFilterToStringCache");
-
-interface VisibilityFilterToStringCache {
-  [VISIBILITY_FILTER_TO_STRING_CACHE]?: WeakMap<VisibilityFilter, string>;
-}
-
-/**
- * Converts a visibility filter into a stable string representation.
- *
- * @param program - the program in which the filter is defined
- * @param filter - the visibility filter to convert
- * @returns a string representation of the visibility filter to use as a cache key
- */
-function visibilityFilterToCacheKey(program: Program, filter: VisibilityFilter): string {
-  const visibilityFilterToStringCache = ((program as VisibilityFilterToStringCache)[
-    VISIBILITY_FILTER_TO_STRING_CACHE
-  ] ??= new WeakMap());
-
-  let str = visibilityFilterToStringCache.get(filter);
-
-  if (str) {
-    return str;
-  }
-
-  str = "{";
-
-  for (const [key, modifierSet] of Object.entries(filter).sort(([keyA], [keyB]) =>
-    keyA.localeCompare(keyB),
-  ) as [keyof VisibilityFilter, VisibilityFilter[keyof VisibilityFilter]][]) {
-    if (!modifierSet) continue;
-    str += `${key}:[`;
-    const values: Array<{ _enum: number; modifier: string }> = [];
-    for (const modifier of modifierSet) {
-      const enumType = internEnum(program, modifier.enum);
-      values.push({ _enum: enumType, modifier: modifier.name });
-    }
-
-    str +=
-      values
-        .sort(function sortByEnumThenModifier(a, b) {
-          if (a._enum !== b._enum) {
-            return a._enum - b._enum;
-          }
-          return a.modifier.localeCompare(b.modifier);
-        })
-        .join(",") + "]";
-  }
-
-  str += "}";
-
-  visibilityFilterToStringCache.set(filter, str);
-
-  return str;
-}
-
 export const $withVisibilityFilter: WithVisibilityFilterDecorator = (
   context: DecoratorContext,
   target: Model,
@@ -507,7 +428,7 @@ export const $withVisibilityFilter: WithVisibilityFilterDecorator = (
     Mutator
   >());
 
-  const vfKey = visibilityFilterToCacheKey(context.program, filter);
+  const vfKey = VisibilityFilter.toCacheKey(context.program, filter);
 
   let mutator = mutatorCacheByVisibilityFilter.get(vfKey);
 
@@ -644,7 +565,7 @@ function createVisibilityFilterMutator(
     name: "VisibilityFilterProperty",
     ModelProperty: {
       filter: () => MutatorFlow.DoNotRecur,
-      mutate: (prop, clone, program) => {
+      replace: (prop, clone, program) => {
         let modified = false;
 
         // We need to create a copy of the decorators array to avoid modifying the original.
@@ -692,22 +613,19 @@ function createVisibilityFilterMutator(
           modified ||= clone.type !== prop.type;
         }
 
-        if (modified) {
-          return clone;
-        } else {
-          return prop;
-        }
+        return modified ? clone : prop;
       },
     },
   };
+
   const self: Mutator = {
     name: "VisibilityFilter",
     Union: {
       filter: () => MutatorFlow.DoNotRecur,
-      mutate: (union, clone, program) => {
+      replace: (union, clone, program) => {
         let modified = false;
         for (const [key, member] of union.variants) {
-          if (member.type.kind === "Model" || member.type.kind === "Union") {
+          if (isVisibilitySubject(member.type)) {
             const variant: UnionVariant = {
               ...member,
               type: cachedMutateSubgraph(program, self, member.type).type,
@@ -718,17 +636,14 @@ function createVisibilityFilterMutator(
           }
         }
 
-        if (modified) {
-          rename(clone, options.nameTemplate);
-          return clone;
-        } else {
-          return union;
-        }
+        rename(clone, options.nameTemplate);
+
+        return modified ? clone : union;
       },
     },
     Model: {
       filter: () => MutatorFlow.DoNotRecur,
-      mutate: (model, clone, program, realm) => {
+      replace: (model, clone, program, realm) => {
         let modified = false;
 
         if (model.indexer && isVisibilitySubject(model.indexer.value)) {
@@ -763,38 +678,44 @@ function createVisibilityFilterMutator(
           modified ||= clone.decorators.length !== model.decorators.length;
         }
 
-        if (modified) {
-          rename(clone, options.nameTemplate);
-          return clone;
-        } else {
-          return model;
-        }
+        rename(clone, options.nameTemplate);
+
+        return modified ? clone : model;
       },
     },
     ModelProperty: {
       filter: () => MutatorFlow.DoNotRecur,
-      mutate: (prop, clone, program) => {
+      replace: (prop, clone, program) => {
         if (isVisibilitySubject(prop.type)) {
           clone.type = cachedMutateSubgraph(program, self, prop.type).type;
         }
+
+        return clone.type !== prop.type ? clone : prop;
       },
     },
     UnionVariant: {
       filter: () => MutatorFlow.DoNotRecur,
-      mutate: (variant, clone, program) => {
+      replace: (variant, clone, program) => {
         if (isVisibilitySubject(variant.type)) {
           clone.type = cachedMutateSubgraph(program, self, variant.type).type;
         }
+
+        return clone.type !== variant.type ? clone : variant;
       },
     },
     Tuple: {
       filter: () => MutatorFlow.DoNotRecur,
-      mutate: (tuple, clone, program) => {
+      replace: (tuple, clone, program) => {
+        let modified = false;
         for (const [index, element] of tuple.values.entries()) {
           if (isVisibilitySubject(element)) {
             clone.values[index] = cachedMutateSubgraph(program, self, element).type;
+
+            modified ||= clone.values[index] !== element;
           }
         }
+
+        return modified ? clone : tuple;
       },
     },
   };

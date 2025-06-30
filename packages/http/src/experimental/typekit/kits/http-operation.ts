@@ -14,6 +14,7 @@ import {
 
 /**
  * Utilities for working with HTTP operations.
+ * @typekit httpOperation
  * @experimental
  */
 export interface HttpOperationKit {

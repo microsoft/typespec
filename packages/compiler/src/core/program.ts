@@ -42,6 +42,7 @@ import {
   moduleResolutionErrorToDiagnostic,
 } from "./source-loader.js";
 import { createStateAccessors } from "./state-accessors.js";
+import { ComplexityStats, RuntimeStats, Stats, startTimer, time, timeAsync } from "./stats.js";
 import {
   CompilerHost,
   Diagnostic,
@@ -105,6 +106,8 @@ export interface Program {
   /** @internal */
   stateSets: Map<symbol, Set<Type>>;
   stateMap(key: symbol): Map<Type, any>;
+  /**@internal */
+  stats: Stats;
   /** @internal */
   stateMaps: Map<symbol, Map<Type, unknown>>;
   hasError(): boolean;
@@ -174,18 +177,25 @@ export async function compile(
     return program;
   }
 
+  const emitStats: RuntimeStats["emit"] = {
+    total: 0,
+    emitters: {},
+  };
+  const timer = startTimer();
   // Emitter stage
   for (const emitter of program.emitters) {
     // If in dry mode run and an emitter doesn't support it we have to skip it.
     if (program.compilerOptions.dryRun && !emitter.library.definition?.capabilities?.dryRun) {
       continue;
     }
-    await emit(emitter, program);
-
+    const { duration } = await emit(emitter, program);
+    emitStats.emitters[emitter.metadata.name ?? "<unnamed>"] = duration;
     if (options.listFiles) {
       logEmittedFilesPath(host.logSink);
     }
   }
+  emitStats.total = timer.end();
+  program.stats.runtime.emit = emitStats;
   return program;
 }
 
@@ -195,6 +205,7 @@ async function createProgram(
   options: CompilerOptions = {},
   oldProgram?: Program,
 ): Promise<{ program: Program; shouldAbort: boolean }> {
+  const runtimeStats: Partial<RuntimeStats> = {};
   const validateCbs: Validator[] = [];
   const stateMaps = new Map<symbol, Map<Type, unknown>>();
   const stateSets = new Map<symbol, Set<Type>>();
@@ -202,6 +213,7 @@ async function createProgram(
   const duplicateSymbols = new Set<Sym>();
   const emitters: EmitterRef[] = [];
   const requireImports = new Map<string, string>();
+  const complexityStats: ComplexityStats = {} as any;
   let sourceResolution: SourceResolution;
   let error = false;
   let continueToNextStage = true;
@@ -222,6 +234,11 @@ async function createProgram(
     getOption,
     stateMaps,
     stateSets,
+    stats: {
+      complexity: complexityStats,
+      runtime: runtimeStats as any,
+    },
+
     tracer,
     trace,
     ...createStateAccessors(stateMaps, stateSets),
@@ -255,7 +272,7 @@ async function createProgram(
   const basedir = getDirectoryPath(resolvedMain) || "/";
   await checkForCompilerVersionMismatch(basedir);
 
-  await loadSources(resolvedMain);
+  runtimeStats.loader = await timeAsync(() => loadSources(resolvedMain));
 
   const emit = options.noEmit ? [] : (options.emit ?? []);
   const emitterOptions = options.options;
@@ -274,7 +291,7 @@ async function createProgram(
   oldProgram = undefined;
 
   const resolver = createResolver(program);
-  resolver.resolveProgram();
+  runtimeStats.resolver = time(() => resolver.resolveProgram());
 
   const linter = createLinter(program, (name) => loadLibrary(basedir, name));
   linter.registerLinterLibrary(builtInLinterLibraryName, createBuiltInLinterLibrary(resolver));
@@ -283,7 +300,10 @@ async function createProgram(
   }
 
   program.checker = createChecker(program, resolver);
-  program.checker.checkProgram();
+  runtimeStats.checker = time(() => program.checker.checkProgram());
+
+  complexityStats.createdTypes = program.checker.stats.createdTypes;
+  complexityStats.finishedTypes = program.checker.stats.finishedTypes;
 
   if (!continueToNextStage) {
     return { program, shouldAbort: true };
@@ -301,7 +321,9 @@ async function createProgram(
   }
 
   // Linter stage
-  program.reportDiagnostics(linter.lint());
+  const lintResult = linter.lint();
+  runtimeStats.linter = lintResult.stats.runtime;
+  program.reportDiagnostics(lintResult.diagnostics);
 
   return { program, shouldAbort: false };
 
@@ -606,10 +628,16 @@ async function createProgram(
   }
 
   async function runValidators() {
+    const start = startTimer();
+    runtimeStats.validation = { total: 0, validators: {} };
     runCompilerValidators();
+    runtimeStats.validation.validators.compiler = start.end();
     for (const validator of validateCbs) {
+      const start = startTimer();
       await runValidator(validator);
+      runtimeStats.validation.validators[validator.metadata.name ?? "<unnamed>"] = start.end();
     }
+    runtimeStats.validation.total = start.end();
   }
 
   async function runValidator(validator: Validator) {
@@ -935,7 +963,7 @@ function resolveOptions(options: CompilerOptions): CompilerOptions {
   return { ...options };
 }
 
-async function emit(emitter: EmitterRef, program: Program) {
+async function emit(emitter: EmitterRef, program: Program): Promise<{ duration: number }> {
   const emitterName = emitter.metadata.name ?? "";
   const relativePathForEmittedFiles =
     transformPathForSink(program.host.logSink, emitter.emitterOutputDir) + "/";
@@ -943,21 +971,22 @@ async function emit(emitter: EmitterRef, program: Program) {
   const errorCount = program.diagnostics.filter((x) => x.severity === "error").length;
   const warnCount = program.diagnostics.filter((x) => x.severity === "warning").length;
   const logger = createLogger({ sink: program.host.logSink });
-  await logger.trackAction(
-    `Running ${emitterName}...`,
-    `${emitterName}    ${pc.dim(relativePathForEmittedFiles)}`,
-    async (task) => {
-      await runEmitter(emitter, program);
-
-      const newErrorCount = program.diagnostics.filter((x) => x.severity === "error").length;
-      const newWarnCount = program.diagnostics.filter((x) => x.severity === "warning").length;
-      if (newErrorCount > errorCount) {
-        task.fail();
-      } else if (newWarnCount > warnCount) {
-        task.warn();
-      }
-    },
-  );
+  return await logger.trackAction(`Running ${emitterName}...`, "", async (task) => {
+    const start = startTimer();
+    await runEmitter(emitter, program);
+    const duration = start.end();
+    const message = `${emitterName} ${pc.green(`${Math.round(duration)}ms`)} ${pc.dim(relativePathForEmittedFiles)}`;
+    const newErrorCount = program.diagnostics.filter((x) => x.severity === "error").length;
+    const newWarnCount = program.diagnostics.filter((x) => x.severity === "warning").length;
+    if (newErrorCount > errorCount) {
+      task.fail(message);
+    } else if (newWarnCount > warnCount) {
+      task.warn(message);
+    } else {
+      task.succeed(message);
+    }
+    return { duration };
+  });
 }
 
 /**

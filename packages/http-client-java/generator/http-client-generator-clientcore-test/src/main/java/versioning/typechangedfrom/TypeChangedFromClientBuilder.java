@@ -173,24 +173,6 @@ public final class TypeChangedFromClientBuilder
     }
 
     /*
-     * Need to be set as 'v1' or 'v2' in client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private Versions version;
-
-    /**
-     * Sets Need to be set as 'v1' or 'v2' in client.
-     * 
-     * @param version the version value.
-     * @return the TypeChangedFromClientBuilder.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public TypeChangedFromClientBuilder version(Versions version) {
-        this.version = version;
-        return this;
-    }
-
-    /*
      * Service version
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -219,7 +201,7 @@ public final class TypeChangedFromClientBuilder
         TypeChangedFromServiceVersion localServiceVersion
             = (serviceVersion != null) ? serviceVersion : TypeChangedFromServiceVersion.getLatest();
         TypeChangedFromClientImpl client
-            = new TypeChangedFromClientImpl(createHttpPipeline(), this.endpoint, this.version, localServiceVersion);
+            = new TypeChangedFromClientImpl(createHttpPipeline(), this.endpoint, localServiceVersion);
         return client;
     }
 
@@ -228,7 +210,6 @@ public final class TypeChangedFromClientBuilder
         // This method is invoked from 'buildInnerClient'/'buildClient' method.
         // Developer can customize this method, to validate that the necessary conditions are met for the new client.
         Objects.requireNonNull(endpoint, "'endpoint' cannot be null.");
-        Objects.requireNonNull(version, "'version' cannot be null.");
     }
 
     @Metadata(properties = { MetadataProperties.GENERATED })

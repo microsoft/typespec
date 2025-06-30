@@ -4,7 +4,6 @@
 
 package tsptest.armresourceprovider.models;
 
-import com.azure.core.annotation.Generated;
 import com.azure.core.util.ExpandableEnum;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
@@ -29,13 +28,11 @@ public final class PriorityModel implements ExpandableEnum<Integer>, JsonSeriali
     /**
      * Static value 0 for PriorityModel.
      */
-    @Generated
     public static final PriorityModel HIGH = fromValue(0);
 
     /**
      * Static value 1 for PriorityModel.
      */
-    @Generated
     public static final PriorityModel LOW = fromValue(1);
 
     private final Integer value;
@@ -51,7 +48,6 @@ public final class PriorityModel implements ExpandableEnum<Integer>, JsonSeriali
      * @return the corresponding PriorityModel.
      * @throws IllegalArgumentException if value is null.
      */
-    @Generated
     public static PriorityModel fromValue(Integer value) {
         if (value == null) {
             throw new IllegalArgumentException("'value' cannot be null.");
@@ -64,7 +60,6 @@ public final class PriorityModel implements ExpandableEnum<Integer>, JsonSeriali
      * 
      * @return Known PriorityModel values.
      */
-    @Generated
     public static Collection<PriorityModel> values() {
         return new ArrayList<>(VALUES.values());
     }
@@ -74,7 +69,6 @@ public final class PriorityModel implements ExpandableEnum<Integer>, JsonSeriali
      * 
      * @return the value of the PriorityModel instance.
      */
-    @Generated
     @Override
     public Integer getValue() {
         return this.value;
@@ -83,7 +77,6 @@ public final class PriorityModel implements ExpandableEnum<Integer>, JsonSeriali
     /**
      * {@inheritDoc}
      */
-    @Generated
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         return jsonWriter.writeInt(getValue());
@@ -98,7 +91,6 @@ public final class PriorityModel implements ExpandableEnum<Integer>, JsonSeriali
      * @throws IOException If an error occurs while reading the PriorityModel.
      * @throws IllegalStateException If unexpected JSON token is found.
      */
-    @Generated
     public static PriorityModel fromJson(JsonReader jsonReader) throws IOException {
         JsonToken nextToken = jsonReader.nextToken();
         if (nextToken == JsonToken.NULL) {
@@ -111,19 +103,16 @@ public final class PriorityModel implements ExpandableEnum<Integer>, JsonSeriali
         return PriorityModel.fromValue(jsonReader.getInt());
     }
 
-    @Generated
     @Override
     public String toString() {
         return Objects.toString(this.value);
     }
 
-    @Generated
     @Override
     public boolean equals(Object obj) {
         return this == obj;
     }
 
-    @Generated
     @Override
     public int hashCode() {
         return Objects.hashCode(this.value);

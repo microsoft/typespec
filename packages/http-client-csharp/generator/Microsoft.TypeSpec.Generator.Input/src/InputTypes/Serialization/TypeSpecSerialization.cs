@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using AutoRest.CSharp.Common.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
@@ -22,44 +23,49 @@ namespace Microsoft.TypeSpec.Generator.Input
                 AllowTrailingCommas = true,
                 Converters =
                 {
-                    new TypeSpecInputNamespaceConverter(referenceHandler),
+                    new InputNamespaceConverter(referenceHandler),
                     new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
-                    new TypeSpecInputTypeConverter(referenceHandler),
-                    new TypeSpecInputArrayTypeConverter(referenceHandler),
-                    new TypeSpecInputDictionaryTypeConverter(referenceHandler),
-                    new TypeSpecInputEnumTypeConverter(referenceHandler),
-                    new TypeSpecInputEnumTypeValueConverter(referenceHandler),
-                    new TypeSpecInputModelTypeConverter(referenceHandler),
-                    new TypeSpecInputModelPropertyConverter(referenceHandler),
-                    new TypeSpecInputConstantConverter(referenceHandler),
-                    new TypeSpecInputLiteralTypeConverter(referenceHandler),
-                    new TypeSpecInputUnionTypeConverter(referenceHandler),
-                    new TypeSpecInputClientConverter(referenceHandler),
-                    new TypeSpecInputOperationConverter(referenceHandler),
-                    new TypeSpecInputNextLinkConverter(referenceHandler),
-                    new TypeSpecInputContinuationTokenConverter(referenceHandler),
-                    new TypeSpecInputParameterConverter(referenceHandler),
-                    new TypeSpecInputPrimitiveTypeConverter(referenceHandler),
-                    new TypeSpecInputOperationResponseConverter(referenceHandler),
-                    new TypeSpecInputOperationResponseHeaderConverter(referenceHandler),
-                    new TypeSpecInputDateTimeTypeConverter(referenceHandler),
-                    new TypeSpecInputDurationTypeConverter(referenceHandler),
-                    new TypeSpecInputAuthConverter(referenceHandler),
-                    new TypeSpecInputApiKeyAuthConverter(referenceHandler),
-                    new TypeSpecInputOAuth2AuthConverter(referenceHandler),
-                    new TypeSpecInputDecoratorInfoConverter(referenceHandler),
-                    new TypeSpecInputSerializationOptionsConverter(referenceHandler),
-                    new TypeSpecInputJsonSerializationOptionsConverter(referenceHandler),
-                    new TypeSpecInputXmlSerializationOptionsConverter(referenceHandler),
-                    new TypeSpecInputXmlNamespaceOptionsConverter(referenceHandler),
-                    new TypeSpecInputServiceMethodConverter(referenceHandler),
-                    new TypeSpecInputBasicServiceMethodConverter(referenceHandler),
-                    new TypeSpecInputPagingServiceMethodConverter(referenceHandler),
-                    new TypeSpecInputPagingServiceMetadataConverter(referenceHandler),
-                    new TypeSpecInputLongRunningServiceMethodConverter(referenceHandler),
-                    new TypeSpecInputLongRunningServiceMetadataConverter(referenceHandler),
-                    new TypeSpecInputLongRunningPagingServiceMethodConverter(referenceHandler),
-                    new TypeSpecInputServiceMethodResponseConverter(referenceHandler),
+                    new InputTypeConverter(referenceHandler),
+                    new InputArrayTypeConverter(referenceHandler),
+                    new InputDictionaryTypeConverter(referenceHandler),
+                    new InputEnumTypeConverter(referenceHandler),
+                    new InputEnumTypeValueConverter(referenceHandler),
+                    new InputModelTypeConverter(referenceHandler),
+                    new InputModelPropertyConverter(referenceHandler),
+                    new InputConstantConverter(),
+                    new InputLiteralTypeConverter(referenceHandler),
+                    new InputUnionTypeConverter(referenceHandler),
+                    new InputClientConverter(referenceHandler),
+                    new InputOperationConverter(referenceHandler),
+                    new InputNextLinkConverter(),
+                    new InputContinuationTokenConverter(),
+                    new InputParameterConverter(referenceHandler),
+                    new InputPrimitiveTypeConverter(referenceHandler),
+                    new InputOperationResponseConverter(),
+                    new InputOperationResponseHeaderConverter(),
+                    new InputDateTimeTypeConverter(referenceHandler),
+                    new InputDurationTypeConverter(referenceHandler),
+                    new InputAuthConverter(referenceHandler),
+                    new InputApiKeyAuthConverter(),
+                    new InputOAuth2AuthConverter(),
+                    new InputDecoratorInfoConverter(),
+                    new InputSerializationOptionsConverter(),
+                    new InputJsonSerializationOptionsConverter(),
+                    new InputXmlSerializationOptionsConverter(),
+                    new InputXmlNamespaceOptionsConverter(),
+                    new InputServiceMethodConverter(referenceHandler),
+                    new InputBasicServiceMethodConverter(referenceHandler),
+                    new InputPagingServiceMethodConverter(referenceHandler),
+                    new InputPagingServiceMetadataConverter(),
+                    new InputLongRunningServiceMethodConverter(referenceHandler),
+                    new InputLongRunningServiceMetadataConverter(),
+                    new InputLongRunningPagingServiceMethodConverter(referenceHandler),
+                    new InputServiceMethodResponseConverter(),
+                    new InputPropertyConverter(referenceHandler),
+                    new InputHeaderParameterConverter(referenceHandler),
+                    new InputQueryParameterConverter(referenceHandler),
+                    new InputPathParameterConverter(referenceHandler),
+                    new InputBodyParameterConverter(referenceHandler),
                 }
             };
 
@@ -67,7 +73,7 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             if (inputNamespace != null)
             {
-                UpdateClientsName(inputNamespace, inputNamespace.Clients, new List<string>());
+                UpdateClientsName(inputNamespace, inputNamespace.RootClients, new List<string>());
             }
 
             return inputNamespace;
@@ -77,7 +83,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         {
             foreach (var client in clients)
             {
-                var cleanName = client.Name.ToCleanName();
+                var cleanName = client.Name.ToIdentifierName();
                 client.Name = BuildClientName(cleanName, parentNames);
 
                 var lastSegment = GetLastSegment(client.Namespace);

@@ -375,7 +375,7 @@ export class MarkdownRenderer {
     }
 
     return [
-      section("Usage", [
+      section("Emitter usage", [
         "1. Via the command line",
         codeblock(`tsp compile . --emit=${refDoc.name}`, "bash"),
         "2. Via the config",

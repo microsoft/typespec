@@ -21,7 +21,7 @@ final class ResponseTypeFactory {
     }
 
     /**
-     * Create a response type client model representing return value of 'WithResponseAsync' async methods.
+     * Create a response type client model representing return value of '[Operation]WithResponseAsync' async methods.
      *
      * @param operation the operation.
      * @param bodyType the type of the response body.
@@ -91,7 +91,7 @@ final class ResponseTypeFactory {
     }
 
     /**
-     * Create a response type client model representing 'WithResponse' sync method return value.
+     * Create a response type client model representing '[Operation]WithResponse' sync method return value.
      *
      * @param operation the operation.
      * @param syncReturnType the return type.

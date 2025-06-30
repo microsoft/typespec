@@ -74,7 +74,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method SayHi.");
+                System.Console.WriteLine("Entering method SayHi.");
                 Argument.AssertNotNull(headParameter, nameof(headParameter));
                 Argument.AssertNotNull(queryParameter, nameof(queryParameter));
 
@@ -83,12 +83,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method SayHi: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method SayHi: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method SayHi.");
+                System.Console.WriteLine("Exiting method SayHi.");
             }
         }
 
@@ -111,7 +111,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method SayHiAsync.");
+                System.Console.WriteLine("Entering method SayHiAsync.");
                 Argument.AssertNotNull(headParameter, nameof(headParameter));
                 Argument.AssertNotNull(queryParameter, nameof(queryParameter));
 
@@ -120,12 +120,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method SayHiAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method SayHiAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method SayHiAsync.");
+                System.Console.WriteLine("Exiting method SayHiAsync.");
             }
         }
 
@@ -140,7 +140,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method SayHi.");
+                System.Console.WriteLine("Entering method SayHi.");
                 Argument.AssertNotNull(headParameter, nameof(headParameter));
                 Argument.AssertNotNull(queryParameter, nameof(queryParameter));
 
@@ -149,12 +149,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method SayHi: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method SayHi: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method SayHi.");
+                System.Console.WriteLine("Exiting method SayHi.");
             }
         }
 
@@ -169,7 +169,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method SayHiAsync.");
+                System.Console.WriteLine("Entering method SayHiAsync.");
                 Argument.AssertNotNull(headParameter, nameof(headParameter));
                 Argument.AssertNotNull(queryParameter, nameof(queryParameter));
 
@@ -178,12 +178,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method SayHiAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method SayHiAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method SayHiAsync.");
+                System.Console.WriteLine("Exiting method SayHiAsync.");
             }
         }
 
@@ -206,7 +206,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method HelloAgain.");
+                System.Console.WriteLine("Entering method HelloAgain.");
                 Argument.AssertNotNull(p2, nameof(p2));
                 Argument.AssertNotNull(p1, nameof(p1));
                 Argument.AssertNotNull(content, nameof(content));
@@ -216,12 +216,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method HelloAgain: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method HelloAgain: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method HelloAgain.");
+                System.Console.WriteLine("Exiting method HelloAgain.");
             }
         }
 
@@ -244,7 +244,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method HelloAgainAsync.");
+                System.Console.WriteLine("Entering method HelloAgainAsync.");
                 Argument.AssertNotNull(p2, nameof(p2));
                 Argument.AssertNotNull(p1, nameof(p1));
                 Argument.AssertNotNull(content, nameof(content));
@@ -254,12 +254,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method HelloAgainAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method HelloAgainAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method HelloAgainAsync.");
+                System.Console.WriteLine("Exiting method HelloAgainAsync.");
             }
         }
 
@@ -274,7 +274,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method HelloAgain.");
+                System.Console.WriteLine("Entering method HelloAgain.");
                 Argument.AssertNotNull(p2, nameof(p2));
                 Argument.AssertNotNull(p1, nameof(p1));
                 Argument.AssertNotNull(action, nameof(action));
@@ -284,12 +284,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method HelloAgain: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method HelloAgain: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method HelloAgain.");
+                System.Console.WriteLine("Exiting method HelloAgain.");
             }
         }
 
@@ -304,7 +304,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method HelloAgainAsync.");
+                System.Console.WriteLine("Entering method HelloAgainAsync.");
                 Argument.AssertNotNull(p2, nameof(p2));
                 Argument.AssertNotNull(p1, nameof(p1));
                 Argument.AssertNotNull(action, nameof(action));
@@ -314,12 +314,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method HelloAgainAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method HelloAgainAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method HelloAgainAsync.");
+                System.Console.WriteLine("Exiting method HelloAgainAsync.");
             }
         }
 
@@ -342,7 +342,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method NoContentType.");
+                System.Console.WriteLine("Entering method NoContentType.");
                 Argument.AssertNotNull(p2, nameof(p2));
                 Argument.AssertNotNull(p1, nameof(p1));
                 Argument.AssertNotNull(content, nameof(content));
@@ -352,12 +352,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method NoContentType: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method NoContentType: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method NoContentType.");
+                System.Console.WriteLine("Exiting method NoContentType.");
             }
         }
 
@@ -380,7 +380,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method NoContentTypeAsync.");
+                System.Console.WriteLine("Entering method NoContentTypeAsync.");
                 Argument.AssertNotNull(p2, nameof(p2));
                 Argument.AssertNotNull(p1, nameof(p1));
                 Argument.AssertNotNull(content, nameof(content));
@@ -390,12 +390,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method NoContentTypeAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method NoContentTypeAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method NoContentTypeAsync.");
+                System.Console.WriteLine("Exiting method NoContentTypeAsync.");
             }
         }
 
@@ -414,18 +414,18 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method HelloDemo2.");
+                System.Console.WriteLine("Entering method HelloDemo2.");
                 using PipelineMessage message = CreateHelloDemo2Request(options);
                 return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method HelloDemo2: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method HelloDemo2: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method HelloDemo2.");
+                System.Console.WriteLine("Exiting method HelloDemo2.");
             }
         }
 
@@ -444,18 +444,18 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method HelloDemo2Async.");
+                System.Console.WriteLine("Entering method HelloDemo2Async.");
                 using PipelineMessage message = CreateHelloDemo2Request(options);
                 return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method HelloDemo2Async: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method HelloDemo2Async: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method HelloDemo2Async.");
+                System.Console.WriteLine("Exiting method HelloDemo2Async.");
             }
         }
 
@@ -466,18 +466,18 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method HelloDemo2.");
+                System.Console.WriteLine("Entering method HelloDemo2.");
                 ClientResult result = HelloDemo2(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
                 return ClientResult.FromValue((Thing)result, result.GetRawResponse());
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method HelloDemo2: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method HelloDemo2: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method HelloDemo2.");
+                System.Console.WriteLine("Exiting method HelloDemo2.");
             }
         }
 
@@ -488,18 +488,18 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method HelloDemo2Async.");
+                System.Console.WriteLine("Entering method HelloDemo2Async.");
                 ClientResult result = await HelloDemo2Async(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
                 return ClientResult.FromValue((Thing)result, result.GetRawResponse());
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method HelloDemo2Async: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method HelloDemo2Async: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method HelloDemo2Async.");
+                System.Console.WriteLine("Exiting method HelloDemo2Async.");
             }
         }
 
@@ -520,7 +520,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method CreateLiteral.");
+                System.Console.WriteLine("Entering method CreateLiteral.");
                 Argument.AssertNotNull(content, nameof(content));
 
                 using PipelineMessage message = CreateCreateLiteralRequest(content, options);
@@ -528,12 +528,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method CreateLiteral: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method CreateLiteral: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method CreateLiteral.");
+                System.Console.WriteLine("Exiting method CreateLiteral.");
             }
         }
 
@@ -554,7 +554,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method CreateLiteralAsync.");
+                System.Console.WriteLine("Entering method CreateLiteralAsync.");
                 Argument.AssertNotNull(content, nameof(content));
 
                 using PipelineMessage message = CreateCreateLiteralRequest(content, options);
@@ -562,12 +562,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method CreateLiteralAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method CreateLiteralAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method CreateLiteralAsync.");
+                System.Console.WriteLine("Exiting method CreateLiteralAsync.");
             }
         }
 
@@ -580,7 +580,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method CreateLiteral.");
+                System.Console.WriteLine("Entering method CreateLiteral.");
                 Argument.AssertNotNull(body, nameof(body));
 
                 ClientResult result = CreateLiteral(body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
@@ -588,12 +588,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method CreateLiteral: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method CreateLiteral: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method CreateLiteral.");
+                System.Console.WriteLine("Exiting method CreateLiteral.");
             }
         }
 
@@ -606,7 +606,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method CreateLiteralAsync.");
+                System.Console.WriteLine("Entering method CreateLiteralAsync.");
                 Argument.AssertNotNull(body, nameof(body));
 
                 ClientResult result = await CreateLiteralAsync(body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
@@ -614,12 +614,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method CreateLiteralAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method CreateLiteralAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method CreateLiteralAsync.");
+                System.Console.WriteLine("Exiting method CreateLiteralAsync.");
             }
         }
 
@@ -638,18 +638,18 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method HelloLiteral.");
+                System.Console.WriteLine("Entering method HelloLiteral.");
                 using PipelineMessage message = CreateHelloLiteralRequest(options);
                 return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method HelloLiteral: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method HelloLiteral: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method HelloLiteral.");
+                System.Console.WriteLine("Exiting method HelloLiteral.");
             }
         }
 
@@ -668,18 +668,18 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method HelloLiteralAsync.");
+                System.Console.WriteLine("Entering method HelloLiteralAsync.");
                 using PipelineMessage message = CreateHelloLiteralRequest(options);
                 return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method HelloLiteralAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method HelloLiteralAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method HelloLiteralAsync.");
+                System.Console.WriteLine("Exiting method HelloLiteralAsync.");
             }
         }
 
@@ -690,18 +690,18 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method HelloLiteral.");
+                System.Console.WriteLine("Entering method HelloLiteral.");
                 ClientResult result = HelloLiteral(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
                 return ClientResult.FromValue((Thing)result, result.GetRawResponse());
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method HelloLiteral: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method HelloLiteral: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method HelloLiteral.");
+                System.Console.WriteLine("Exiting method HelloLiteral.");
             }
         }
 
@@ -712,18 +712,18 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method HelloLiteralAsync.");
+                System.Console.WriteLine("Entering method HelloLiteralAsync.");
                 ClientResult result = await HelloLiteralAsync(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
                 return ClientResult.FromValue((Thing)result, result.GetRawResponse());
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method HelloLiteralAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method HelloLiteralAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method HelloLiteralAsync.");
+                System.Console.WriteLine("Exiting method HelloLiteralAsync.");
             }
         }
 
@@ -743,18 +743,18 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method TopAction.");
+                System.Console.WriteLine("Entering method TopAction.");
                 using PipelineMessage message = CreateTopActionRequest(action, options);
                 return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method TopAction: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method TopAction: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method TopAction.");
+                System.Console.WriteLine("Exiting method TopAction.");
             }
         }
 
@@ -774,18 +774,18 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method TopActionAsync.");
+                System.Console.WriteLine("Entering method TopActionAsync.");
                 using PipelineMessage message = CreateTopActionRequest(action, options);
                 return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method TopActionAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method TopActionAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method TopActionAsync.");
+                System.Console.WriteLine("Exiting method TopActionAsync.");
             }
         }
 
@@ -797,18 +797,18 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method TopAction.");
+                System.Console.WriteLine("Entering method TopAction.");
                 ClientResult result = TopAction(action, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
                 return ClientResult.FromValue((Thing)result, result.GetRawResponse());
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method TopAction: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method TopAction: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method TopAction.");
+                System.Console.WriteLine("Exiting method TopAction.");
             }
         }
 
@@ -820,18 +820,18 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method TopActionAsync.");
+                System.Console.WriteLine("Entering method TopActionAsync.");
                 ClientResult result = await TopActionAsync(action, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
                 return ClientResult.FromValue((Thing)result, result.GetRawResponse());
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method TopActionAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method TopActionAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method TopActionAsync.");
+                System.Console.WriteLine("Exiting method TopActionAsync.");
             }
         }
 
@@ -850,18 +850,18 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method TopAction2.");
+                System.Console.WriteLine("Entering method TopAction2.");
                 using PipelineMessage message = CreateTopAction2Request(options);
                 return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method TopAction2: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method TopAction2: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method TopAction2.");
+                System.Console.WriteLine("Exiting method TopAction2.");
             }
         }
 
@@ -880,18 +880,18 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method TopAction2Async.");
+                System.Console.WriteLine("Entering method TopAction2Async.");
                 using PipelineMessage message = CreateTopAction2Request(options);
                 return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method TopAction2Async: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method TopAction2Async: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method TopAction2Async.");
+                System.Console.WriteLine("Exiting method TopAction2Async.");
             }
         }
 
@@ -912,7 +912,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method PatchAction.");
+                System.Console.WriteLine("Entering method PatchAction.");
                 Argument.AssertNotNull(content, nameof(content));
 
                 using PipelineMessage message = CreatePatchActionRequest(content, options);
@@ -920,12 +920,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method PatchAction: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method PatchAction: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method PatchAction.");
+                System.Console.WriteLine("Exiting method PatchAction.");
             }
         }
 
@@ -946,7 +946,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method PatchActionAsync.");
+                System.Console.WriteLine("Entering method PatchActionAsync.");
                 Argument.AssertNotNull(content, nameof(content));
 
                 using PipelineMessage message = CreatePatchActionRequest(content, options);
@@ -954,12 +954,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method PatchActionAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method PatchActionAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method PatchActionAsync.");
+                System.Console.WriteLine("Exiting method PatchActionAsync.");
             }
         }
 
@@ -980,7 +980,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method AnonymousBody.");
+                System.Console.WriteLine("Entering method AnonymousBody.");
                 Argument.AssertNotNull(content, nameof(content));
 
                 using PipelineMessage message = CreateAnonymousBodyRequest(content, options);
@@ -988,12 +988,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method AnonymousBody: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method AnonymousBody: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method AnonymousBody.");
+                System.Console.WriteLine("Exiting method AnonymousBody.");
             }
         }
 
@@ -1014,7 +1014,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method AnonymousBodyAsync.");
+                System.Console.WriteLine("Entering method AnonymousBodyAsync.");
                 Argument.AssertNotNull(content, nameof(content));
 
                 using PipelineMessage message = CreateAnonymousBodyRequest(content, options);
@@ -1022,12 +1022,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method AnonymousBodyAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method AnonymousBodyAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method AnonymousBodyAsync.");
+                System.Console.WriteLine("Exiting method AnonymousBodyAsync.");
             }
         }
 
@@ -1048,15 +1048,16 @@ namespace SampleTypeSpec
         /// <param name="optionalLiteralBool"> optional literal bool. </param>
         /// <param name="optionalNullableList"> optional nullable collection. </param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/> or <paramref name="requiredBadDescription"/> is null. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/>, <paramref name="requiredLiteralString"/> or <paramref name="requiredBadDescription"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<Thing> AnonymousBody(string name, BinaryData requiredUnion, ThingRequiredLiteralString requiredLiteralString, string requiredNullableString, ThingRequiredLiteralInt requiredLiteralInt, ThingRequiredLiteralFloat requiredLiteralFloat, bool requiredLiteralBool, string requiredBadDescription, IEnumerable<int> requiredNullableList, string optionalNullableString = default, ThingOptionalLiteralString? optionalLiteralString = default, ThingOptionalLiteralInt? optionalLiteralInt = default, ThingOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, IEnumerable<int> optionalNullableList = default, CancellationToken cancellationToken = default)
+        public virtual ClientResult<Thing> AnonymousBody(string name, BinaryData requiredUnion, string requiredLiteralString, string requiredNullableString, int requiredLiteralInt, float requiredLiteralFloat, bool requiredLiteralBool, string requiredBadDescription, IEnumerable<int> requiredNullableList, string optionalNullableString = default, string optionalLiteralString = default, int? optionalLiteralInt = default, float? optionalLiteralFloat = default, bool? optionalLiteralBool = default, IEnumerable<int> optionalNullableList = default, CancellationToken cancellationToken = default)
         {
             try
             {
-                Console.WriteLine("Entering method AnonymousBody.");
+                System.Console.WriteLine("Entering method AnonymousBody.");
                 Argument.AssertNotNull(name, nameof(name));
                 Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
+                Argument.AssertNotNull(requiredLiteralString, nameof(requiredLiteralString));
                 Argument.AssertNotNull(requiredBadDescription, nameof(requiredBadDescription));
 
                 Thing spreadModel = new Thing(
@@ -1081,12 +1082,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method AnonymousBody: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method AnonymousBody: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method AnonymousBody.");
+                System.Console.WriteLine("Exiting method AnonymousBody.");
             }
         }
 
@@ -1107,15 +1108,16 @@ namespace SampleTypeSpec
         /// <param name="optionalLiteralBool"> optional literal bool. </param>
         /// <param name="optionalNullableList"> optional nullable collection. </param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/> or <paramref name="requiredBadDescription"/> is null. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/>, <paramref name="requiredLiteralString"/> or <paramref name="requiredBadDescription"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<Thing>> AnonymousBodyAsync(string name, BinaryData requiredUnion, ThingRequiredLiteralString requiredLiteralString, string requiredNullableString, ThingRequiredLiteralInt requiredLiteralInt, ThingRequiredLiteralFloat requiredLiteralFloat, bool requiredLiteralBool, string requiredBadDescription, IEnumerable<int> requiredNullableList, string optionalNullableString = default, ThingOptionalLiteralString? optionalLiteralString = default, ThingOptionalLiteralInt? optionalLiteralInt = default, ThingOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, IEnumerable<int> optionalNullableList = default, CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<Thing>> AnonymousBodyAsync(string name, BinaryData requiredUnion, string requiredLiteralString, string requiredNullableString, int requiredLiteralInt, float requiredLiteralFloat, bool requiredLiteralBool, string requiredBadDescription, IEnumerable<int> requiredNullableList, string optionalNullableString = default, string optionalLiteralString = default, int? optionalLiteralInt = default, float? optionalLiteralFloat = default, bool? optionalLiteralBool = default, IEnumerable<int> optionalNullableList = default, CancellationToken cancellationToken = default)
         {
             try
             {
-                Console.WriteLine("Entering method AnonymousBodyAsync.");
+                System.Console.WriteLine("Entering method AnonymousBodyAsync.");
                 Argument.AssertNotNull(name, nameof(name));
                 Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
+                Argument.AssertNotNull(requiredLiteralString, nameof(requiredLiteralString));
                 Argument.AssertNotNull(requiredBadDescription, nameof(requiredBadDescription));
 
                 Thing spreadModel = new Thing(
@@ -1140,12 +1142,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method AnonymousBodyAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method AnonymousBodyAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method AnonymousBodyAsync.");
+                System.Console.WriteLine("Exiting method AnonymousBodyAsync.");
             }
         }
 
@@ -1166,7 +1168,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method FriendlyModel.");
+                System.Console.WriteLine("Entering method FriendlyModel.");
                 Argument.AssertNotNull(content, nameof(content));
 
                 using PipelineMessage message = CreateFriendlyModelRequest(content, options);
@@ -1174,12 +1176,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method FriendlyModel: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method FriendlyModel: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method FriendlyModel.");
+                System.Console.WriteLine("Exiting method FriendlyModel.");
             }
         }
 
@@ -1200,7 +1202,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method FriendlyModelAsync.");
+                System.Console.WriteLine("Entering method FriendlyModelAsync.");
                 Argument.AssertNotNull(content, nameof(content));
 
                 using PipelineMessage message = CreateFriendlyModelRequest(content, options);
@@ -1208,12 +1210,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method FriendlyModelAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method FriendlyModelAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method FriendlyModelAsync.");
+                System.Console.WriteLine("Exiting method FriendlyModelAsync.");
             }
         }
 
@@ -1226,7 +1228,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method FriendlyModel.");
+                System.Console.WriteLine("Entering method FriendlyModel.");
                 Argument.AssertNotNull(name, nameof(name));
 
                 Friend spreadModel = new Friend(name, null);
@@ -1235,12 +1237,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method FriendlyModel: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method FriendlyModel: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method FriendlyModel.");
+                System.Console.WriteLine("Exiting method FriendlyModel.");
             }
         }
 
@@ -1253,7 +1255,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method FriendlyModelAsync.");
+                System.Console.WriteLine("Entering method FriendlyModelAsync.");
                 Argument.AssertNotNull(name, nameof(name));
 
                 Friend spreadModel = new Friend(name, null);
@@ -1262,12 +1264,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method FriendlyModelAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method FriendlyModelAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method FriendlyModelAsync.");
+                System.Console.WriteLine("Exiting method FriendlyModelAsync.");
             }
         }
 
@@ -1286,18 +1288,18 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method AddTimeHeader.");
+                System.Console.WriteLine("Entering method AddTimeHeader.");
                 using PipelineMessage message = CreateAddTimeHeaderRequest(options);
                 return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method AddTimeHeader: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method AddTimeHeader: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method AddTimeHeader.");
+                System.Console.WriteLine("Exiting method AddTimeHeader.");
             }
         }
 
@@ -1316,18 +1318,18 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method AddTimeHeaderAsync.");
+                System.Console.WriteLine("Entering method AddTimeHeaderAsync.");
                 using PipelineMessage message = CreateAddTimeHeaderRequest(options);
                 return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method AddTimeHeaderAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method AddTimeHeaderAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method AddTimeHeaderAsync.");
+                System.Console.WriteLine("Exiting method AddTimeHeaderAsync.");
             }
         }
 
@@ -1338,17 +1340,17 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method AddTimeHeader.");
+                System.Console.WriteLine("Entering method AddTimeHeader.");
                 return AddTimeHeader(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method AddTimeHeader: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method AddTimeHeader: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method AddTimeHeader.");
+                System.Console.WriteLine("Exiting method AddTimeHeader.");
             }
         }
 
@@ -1359,17 +1361,17 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method AddTimeHeaderAsync.");
+                System.Console.WriteLine("Entering method AddTimeHeaderAsync.");
                 return await AddTimeHeaderAsync(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method AddTimeHeaderAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method AddTimeHeaderAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method AddTimeHeaderAsync.");
+                System.Console.WriteLine("Exiting method AddTimeHeaderAsync.");
             }
         }
 
@@ -1390,7 +1392,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method ProjectedNameModel.");
+                System.Console.WriteLine("Entering method ProjectedNameModel.");
                 Argument.AssertNotNull(content, nameof(content));
 
                 using PipelineMessage message = CreateProjectedNameModelRequest(content, options);
@@ -1398,12 +1400,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method ProjectedNameModel: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method ProjectedNameModel: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method ProjectedNameModel.");
+                System.Console.WriteLine("Exiting method ProjectedNameModel.");
             }
         }
 
@@ -1424,7 +1426,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method ProjectedNameModelAsync.");
+                System.Console.WriteLine("Entering method ProjectedNameModelAsync.");
                 Argument.AssertNotNull(content, nameof(content));
 
                 using PipelineMessage message = CreateProjectedNameModelRequest(content, options);
@@ -1432,12 +1434,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method ProjectedNameModelAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method ProjectedNameModelAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method ProjectedNameModelAsync.");
+                System.Console.WriteLine("Exiting method ProjectedNameModelAsync.");
             }
         }
 
@@ -1450,7 +1452,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method ProjectedNameModel.");
+                System.Console.WriteLine("Entering method ProjectedNameModel.");
                 Argument.AssertNotNull(name, nameof(name));
 
                 RenamedModel spreadModel = new RenamedModel(name, null);
@@ -1459,12 +1461,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method ProjectedNameModel: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method ProjectedNameModel: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method ProjectedNameModel.");
+                System.Console.WriteLine("Exiting method ProjectedNameModel.");
             }
         }
 
@@ -1477,7 +1479,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method ProjectedNameModelAsync.");
+                System.Console.WriteLine("Entering method ProjectedNameModelAsync.");
                 Argument.AssertNotNull(name, nameof(name));
 
                 RenamedModel spreadModel = new RenamedModel(name, null);
@@ -1486,12 +1488,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method ProjectedNameModelAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method ProjectedNameModelAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method ProjectedNameModelAsync.");
+                System.Console.WriteLine("Exiting method ProjectedNameModelAsync.");
             }
         }
 
@@ -1510,18 +1512,18 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method ReturnsAnonymousModel.");
+                System.Console.WriteLine("Entering method ReturnsAnonymousModel.");
                 using PipelineMessage message = CreateReturnsAnonymousModelRequest(options);
                 return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method ReturnsAnonymousModel: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method ReturnsAnonymousModel: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method ReturnsAnonymousModel.");
+                System.Console.WriteLine("Exiting method ReturnsAnonymousModel.");
             }
         }
 
@@ -1540,18 +1542,18 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method ReturnsAnonymousModelAsync.");
+                System.Console.WriteLine("Entering method ReturnsAnonymousModelAsync.");
                 using PipelineMessage message = CreateReturnsAnonymousModelRequest(options);
                 return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method ReturnsAnonymousModelAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method ReturnsAnonymousModelAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method ReturnsAnonymousModelAsync.");
+                System.Console.WriteLine("Exiting method ReturnsAnonymousModelAsync.");
             }
         }
 
@@ -1562,18 +1564,18 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method ReturnsAnonymousModel.");
+                System.Console.WriteLine("Entering method ReturnsAnonymousModel.");
                 ClientResult result = ReturnsAnonymousModel(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
                 return ClientResult.FromValue((ReturnsAnonymousModelResponse)result, result.GetRawResponse());
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method ReturnsAnonymousModel: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method ReturnsAnonymousModel: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method ReturnsAnonymousModel.");
+                System.Console.WriteLine("Exiting method ReturnsAnonymousModel.");
             }
         }
 
@@ -1584,18 +1586,18 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method ReturnsAnonymousModelAsync.");
+                System.Console.WriteLine("Entering method ReturnsAnonymousModelAsync.");
                 ClientResult result = await ReturnsAnonymousModelAsync(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
                 return ClientResult.FromValue((ReturnsAnonymousModelResponse)result, result.GetRawResponse());
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method ReturnsAnonymousModelAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method ReturnsAnonymousModelAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method ReturnsAnonymousModelAsync.");
+                System.Console.WriteLine("Exiting method ReturnsAnonymousModelAsync.");
             }
         }
 
@@ -1616,7 +1618,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method GetUnknownValue.");
+                System.Console.WriteLine("Entering method GetUnknownValue.");
                 Argument.AssertNotNull(accept, nameof(accept));
 
                 using PipelineMessage message = CreateGetUnknownValueRequest(accept, options);
@@ -1624,12 +1626,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method GetUnknownValue: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method GetUnknownValue: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method GetUnknownValue.");
+                System.Console.WriteLine("Exiting method GetUnknownValue.");
             }
         }
 
@@ -1650,7 +1652,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method GetUnknownValueAsync.");
+                System.Console.WriteLine("Entering method GetUnknownValueAsync.");
                 Argument.AssertNotNull(accept, nameof(accept));
 
                 using PipelineMessage message = CreateGetUnknownValueRequest(accept, options);
@@ -1658,12 +1660,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method GetUnknownValueAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method GetUnknownValueAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method GetUnknownValueAsync.");
+                System.Console.WriteLine("Exiting method GetUnknownValueAsync.");
             }
         }
 
@@ -1676,7 +1678,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method GetUnknownValue.");
+                System.Console.WriteLine("Entering method GetUnknownValue.");
                 Argument.AssertNotNull(accept, nameof(accept));
 
                 ClientResult result = GetUnknownValue(accept, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
@@ -1684,12 +1686,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method GetUnknownValue: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method GetUnknownValue: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method GetUnknownValue.");
+                System.Console.WriteLine("Exiting method GetUnknownValue.");
             }
         }
 
@@ -1702,7 +1704,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method GetUnknownValueAsync.");
+                System.Console.WriteLine("Entering method GetUnknownValueAsync.");
                 Argument.AssertNotNull(accept, nameof(accept));
 
                 ClientResult result = await GetUnknownValueAsync(accept, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
@@ -1710,12 +1712,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method GetUnknownValueAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method GetUnknownValueAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method GetUnknownValueAsync.");
+                System.Console.WriteLine("Exiting method GetUnknownValueAsync.");
             }
         }
 
@@ -1736,7 +1738,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method InternalProtocol.");
+                System.Console.WriteLine("Entering method InternalProtocol.");
                 Argument.AssertNotNull(content, nameof(content));
 
                 using PipelineMessage message = CreateInternalProtocolRequest(content, options);
@@ -1744,12 +1746,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method InternalProtocol: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method InternalProtocol: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method InternalProtocol.");
+                System.Console.WriteLine("Exiting method InternalProtocol.");
             }
         }
 
@@ -1770,7 +1772,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method InternalProtocolAsync.");
+                System.Console.WriteLine("Entering method InternalProtocolAsync.");
                 Argument.AssertNotNull(content, nameof(content));
 
                 using PipelineMessage message = CreateInternalProtocolRequest(content, options);
@@ -1778,12 +1780,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method InternalProtocolAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method InternalProtocolAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method InternalProtocolAsync.");
+                System.Console.WriteLine("Exiting method InternalProtocolAsync.");
             }
         }
 
@@ -1796,7 +1798,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method InternalProtocol.");
+                System.Console.WriteLine("Entering method InternalProtocol.");
                 Argument.AssertNotNull(body, nameof(body));
 
                 ClientResult result = InternalProtocol(body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
@@ -1804,12 +1806,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method InternalProtocol: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method InternalProtocol: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method InternalProtocol.");
+                System.Console.WriteLine("Exiting method InternalProtocol.");
             }
         }
 
@@ -1822,7 +1824,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method InternalProtocolAsync.");
+                System.Console.WriteLine("Entering method InternalProtocolAsync.");
                 Argument.AssertNotNull(body, nameof(body));
 
                 ClientResult result = await InternalProtocolAsync(body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
@@ -1830,12 +1832,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method InternalProtocolAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method InternalProtocolAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method InternalProtocolAsync.");
+                System.Console.WriteLine("Exiting method InternalProtocolAsync.");
             }
         }
 
@@ -1854,18 +1856,18 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method StillConvenient.");
+                System.Console.WriteLine("Entering method StillConvenient.");
                 using PipelineMessage message = CreateStillConvenientRequest(options);
                 return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method StillConvenient: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method StillConvenient: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method StillConvenient.");
+                System.Console.WriteLine("Exiting method StillConvenient.");
             }
         }
 
@@ -1884,18 +1886,18 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method StillConvenientAsync.");
+                System.Console.WriteLine("Entering method StillConvenientAsync.");
                 using PipelineMessage message = CreateStillConvenientRequest(options);
                 return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method StillConvenientAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method StillConvenientAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method StillConvenientAsync.");
+                System.Console.WriteLine("Exiting method StillConvenientAsync.");
             }
         }
 
@@ -1906,17 +1908,17 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method StillConvenient.");
+                System.Console.WriteLine("Entering method StillConvenient.");
                 return StillConvenient(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method StillConvenient: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method StillConvenient: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method StillConvenient.");
+                System.Console.WriteLine("Exiting method StillConvenient.");
             }
         }
 
@@ -1927,17 +1929,17 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method StillConvenientAsync.");
+                System.Console.WriteLine("Entering method StillConvenientAsync.");
                 return await StillConvenientAsync(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method StillConvenientAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method StillConvenientAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method StillConvenientAsync.");
+                System.Console.WriteLine("Exiting method StillConvenientAsync.");
             }
         }
 
@@ -1958,7 +1960,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method HeadAsBoolean.");
+                System.Console.WriteLine("Entering method HeadAsBoolean.");
                 Argument.AssertNotNull(id, nameof(id));
 
                 using PipelineMessage message = CreateHeadAsBooleanRequest(id, options);
@@ -1966,12 +1968,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method HeadAsBoolean: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method HeadAsBoolean: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method HeadAsBoolean.");
+                System.Console.WriteLine("Exiting method HeadAsBoolean.");
             }
         }
 
@@ -1992,7 +1994,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method HeadAsBooleanAsync.");
+                System.Console.WriteLine("Entering method HeadAsBooleanAsync.");
                 Argument.AssertNotNull(id, nameof(id));
 
                 using PipelineMessage message = CreateHeadAsBooleanRequest(id, options);
@@ -2000,12 +2002,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method HeadAsBooleanAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method HeadAsBooleanAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method HeadAsBooleanAsync.");
+                System.Console.WriteLine("Exiting method HeadAsBooleanAsync.");
             }
         }
 
@@ -2018,19 +2020,19 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method HeadAsBoolean.");
+                System.Console.WriteLine("Entering method HeadAsBoolean.");
                 Argument.AssertNotNull(id, nameof(id));
 
                 return HeadAsBoolean(id, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method HeadAsBoolean: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method HeadAsBoolean: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method HeadAsBoolean.");
+                System.Console.WriteLine("Exiting method HeadAsBoolean.");
             }
         }
 
@@ -2043,19 +2045,19 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method HeadAsBooleanAsync.");
+                System.Console.WriteLine("Entering method HeadAsBooleanAsync.");
                 Argument.AssertNotNull(id, nameof(id));
 
                 return await HeadAsBooleanAsync(id, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method HeadAsBooleanAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method HeadAsBooleanAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method HeadAsBooleanAsync.");
+                System.Console.WriteLine("Exiting method HeadAsBooleanAsync.");
             }
         }
 
@@ -2076,7 +2078,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method WithApiVersion.");
+                System.Console.WriteLine("Entering method WithApiVersion.");
                 Argument.AssertNotNull(p1, nameof(p1));
 
                 using PipelineMessage message = CreateWithApiVersionRequest(p1, options);
@@ -2084,12 +2086,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method WithApiVersion: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method WithApiVersion: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method WithApiVersion.");
+                System.Console.WriteLine("Exiting method WithApiVersion.");
             }
         }
 
@@ -2110,7 +2112,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method WithApiVersionAsync.");
+                System.Console.WriteLine("Entering method WithApiVersionAsync.");
                 Argument.AssertNotNull(p1, nameof(p1));
 
                 using PipelineMessage message = CreateWithApiVersionRequest(p1, options);
@@ -2118,12 +2120,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method WithApiVersionAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method WithApiVersionAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method WithApiVersionAsync.");
+                System.Console.WriteLine("Exiting method WithApiVersionAsync.");
             }
         }
 
@@ -2136,19 +2138,19 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method WithApiVersion.");
+                System.Console.WriteLine("Entering method WithApiVersion.");
                 Argument.AssertNotNull(p1, nameof(p1));
 
                 return WithApiVersion(p1, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method WithApiVersion: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method WithApiVersion: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method WithApiVersion.");
+                System.Console.WriteLine("Exiting method WithApiVersion.");
             }
         }
 
@@ -2161,19 +2163,19 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method WithApiVersionAsync.");
+                System.Console.WriteLine("Entering method WithApiVersionAsync.");
                 Argument.AssertNotNull(p1, nameof(p1));
 
                 return await WithApiVersionAsync(p1, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method WithApiVersionAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method WithApiVersionAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method WithApiVersionAsync.");
+                System.Console.WriteLine("Exiting method WithApiVersionAsync.");
             }
         }
 
@@ -2192,17 +2194,17 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method ListWithNextLink.");
+                System.Console.WriteLine("Entering method ListWithNextLink.");
                 return new SampleTypeSpecClientListWithNextLinkCollectionResult(this, null, options);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method ListWithNextLink: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method ListWithNextLink: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method ListWithNextLink.");
+                System.Console.WriteLine("Exiting method ListWithNextLink.");
             }
         }
 
@@ -2221,17 +2223,17 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method ListWithNextLinkAsync.");
+                System.Console.WriteLine("Entering method ListWithNextLinkAsync.");
                 return new SampleTypeSpecClientListWithNextLinkAsyncCollectionResult(this, null, options);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method ListWithNextLinkAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method ListWithNextLinkAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method ListWithNextLinkAsync.");
+                System.Console.WriteLine("Exiting method ListWithNextLinkAsync.");
             }
         }
 
@@ -2242,17 +2244,17 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method ListWithNextLink.");
+                System.Console.WriteLine("Entering method ListWithNextLink.");
                 return new SampleTypeSpecClientListWithNextLinkCollectionResultOfT(this, null, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method ListWithNextLink: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method ListWithNextLink: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method ListWithNextLink.");
+                System.Console.WriteLine("Exiting method ListWithNextLink.");
             }
         }
 
@@ -2263,17 +2265,17 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method ListWithNextLinkAsync.");
+                System.Console.WriteLine("Entering method ListWithNextLinkAsync.");
                 return new SampleTypeSpecClientListWithNextLinkAsyncCollectionResultOfT(this, null, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method ListWithNextLinkAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method ListWithNextLinkAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method ListWithNextLinkAsync.");
+                System.Console.WriteLine("Exiting method ListWithNextLinkAsync.");
             }
         }
 
@@ -2293,17 +2295,17 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method ListWithContinuationToken.");
+                System.Console.WriteLine("Entering method ListWithContinuationToken.");
                 return new SampleTypeSpecClientListWithContinuationTokenCollectionResult(this, token, options);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method ListWithContinuationToken: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method ListWithContinuationToken: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method ListWithContinuationToken.");
+                System.Console.WriteLine("Exiting method ListWithContinuationToken.");
             }
         }
 
@@ -2323,17 +2325,17 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method ListWithContinuationTokenAsync.");
+                System.Console.WriteLine("Entering method ListWithContinuationTokenAsync.");
                 return new SampleTypeSpecClientListWithContinuationTokenAsyncCollectionResult(this, token, options);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method ListWithContinuationTokenAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method ListWithContinuationTokenAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method ListWithContinuationTokenAsync.");
+                System.Console.WriteLine("Exiting method ListWithContinuationTokenAsync.");
             }
         }
 
@@ -2345,17 +2347,17 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method ListWithContinuationToken.");
+                System.Console.WriteLine("Entering method ListWithContinuationToken.");
                 return new SampleTypeSpecClientListWithContinuationTokenCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method ListWithContinuationToken: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method ListWithContinuationToken: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method ListWithContinuationToken.");
+                System.Console.WriteLine("Exiting method ListWithContinuationToken.");
             }
         }
 
@@ -2367,17 +2369,17 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method ListWithContinuationTokenAsync.");
+                System.Console.WriteLine("Entering method ListWithContinuationTokenAsync.");
                 return new SampleTypeSpecClientListWithContinuationTokenAsyncCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method ListWithContinuationTokenAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method ListWithContinuationTokenAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method ListWithContinuationTokenAsync.");
+                System.Console.WriteLine("Exiting method ListWithContinuationTokenAsync.");
             }
         }
 
@@ -2397,17 +2399,17 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method ListWithContinuationTokenHeaderResponse.");
+                System.Console.WriteLine("Entering method ListWithContinuationTokenHeaderResponse.");
                 return new SampleTypeSpecClientListWithContinuationTokenHeaderResponseCollectionResult(this, token, options);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method ListWithContinuationTokenHeaderResponse: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method ListWithContinuationTokenHeaderResponse: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method ListWithContinuationTokenHeaderResponse.");
+                System.Console.WriteLine("Exiting method ListWithContinuationTokenHeaderResponse.");
             }
         }
 
@@ -2427,17 +2429,17 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method ListWithContinuationTokenHeaderResponseAsync.");
+                System.Console.WriteLine("Entering method ListWithContinuationTokenHeaderResponseAsync.");
                 return new SampleTypeSpecClientListWithContinuationTokenHeaderResponseAsyncCollectionResult(this, token, options);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method ListWithContinuationTokenHeaderResponseAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method ListWithContinuationTokenHeaderResponseAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method ListWithContinuationTokenHeaderResponseAsync.");
+                System.Console.WriteLine("Exiting method ListWithContinuationTokenHeaderResponseAsync.");
             }
         }
 
@@ -2449,17 +2451,17 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method ListWithContinuationTokenHeaderResponse.");
+                System.Console.WriteLine("Entering method ListWithContinuationTokenHeaderResponse.");
                 return new SampleTypeSpecClientListWithContinuationTokenHeaderResponseCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method ListWithContinuationTokenHeaderResponse: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method ListWithContinuationTokenHeaderResponse: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method ListWithContinuationTokenHeaderResponse.");
+                System.Console.WriteLine("Exiting method ListWithContinuationTokenHeaderResponse.");
             }
         }
 
@@ -2471,17 +2473,17 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method ListWithContinuationTokenHeaderResponseAsync.");
+                System.Console.WriteLine("Entering method ListWithContinuationTokenHeaderResponseAsync.");
                 return new SampleTypeSpecClientListWithContinuationTokenHeaderResponseAsyncCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method ListWithContinuationTokenHeaderResponseAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method ListWithContinuationTokenHeaderResponseAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method ListWithContinuationTokenHeaderResponseAsync.");
+                System.Console.WriteLine("Exiting method ListWithContinuationTokenHeaderResponseAsync.");
             }
         }
 
@@ -2500,17 +2502,17 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method ListWithPaging.");
+                System.Console.WriteLine("Entering method ListWithPaging.");
                 return new SampleTypeSpecClientListWithPagingCollectionResult(this, options);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method ListWithPaging: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method ListWithPaging: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method ListWithPaging.");
+                System.Console.WriteLine("Exiting method ListWithPaging.");
             }
         }
 
@@ -2529,17 +2531,17 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method ListWithPagingAsync.");
+                System.Console.WriteLine("Entering method ListWithPagingAsync.");
                 return new SampleTypeSpecClientListWithPagingAsyncCollectionResult(this, options);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method ListWithPagingAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method ListWithPagingAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method ListWithPagingAsync.");
+                System.Console.WriteLine("Exiting method ListWithPagingAsync.");
             }
         }
 
@@ -2550,17 +2552,17 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method ListWithPaging.");
+                System.Console.WriteLine("Entering method ListWithPaging.");
                 return new SampleTypeSpecClientListWithPagingCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method ListWithPaging: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method ListWithPaging: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method ListWithPaging.");
+                System.Console.WriteLine("Exiting method ListWithPaging.");
             }
         }
 
@@ -2571,17 +2573,17 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method ListWithPagingAsync.");
+                System.Console.WriteLine("Entering method ListWithPagingAsync.");
                 return new SampleTypeSpecClientListWithPagingAsyncCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method ListWithPagingAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method ListWithPagingAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method ListWithPagingAsync.");
+                System.Console.WriteLine("Exiting method ListWithPagingAsync.");
             }
         }
 
@@ -2606,7 +2608,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method EmbeddedParameters.");
+                System.Console.WriteLine("Entering method EmbeddedParameters.");
                 Argument.AssertNotNull(requiredHeader, nameof(requiredHeader));
                 Argument.AssertNotNull(requiredQuery, nameof(requiredQuery));
                 Argument.AssertNotNull(content, nameof(content));
@@ -2616,12 +2618,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method EmbeddedParameters: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method EmbeddedParameters: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method EmbeddedParameters.");
+                System.Console.WriteLine("Exiting method EmbeddedParameters.");
             }
         }
 
@@ -2646,7 +2648,7 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method EmbeddedParametersAsync.");
+                System.Console.WriteLine("Entering method EmbeddedParametersAsync.");
                 Argument.AssertNotNull(requiredHeader, nameof(requiredHeader));
                 Argument.AssertNotNull(requiredQuery, nameof(requiredQuery));
                 Argument.AssertNotNull(content, nameof(content));
@@ -2656,12 +2658,12 @@ namespace SampleTypeSpec
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method EmbeddedParametersAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method EmbeddedParametersAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method EmbeddedParametersAsync.");
+                System.Console.WriteLine("Exiting method EmbeddedParametersAsync.");
             }
         }
 
@@ -2674,19 +2676,19 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method EmbeddedParameters.");
+                System.Console.WriteLine("Entering method EmbeddedParameters.");
                 Argument.AssertNotNull(body, nameof(body));
 
                 return EmbeddedParameters(body.RequiredHeader, body.RequiredQuery, body, body.OptionalHeader, body.OptionalQuery, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method EmbeddedParameters: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method EmbeddedParameters: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method EmbeddedParameters.");
+                System.Console.WriteLine("Exiting method EmbeddedParameters.");
             }
         }
 
@@ -2699,19 +2701,19 @@ namespace SampleTypeSpec
         {
             try
             {
-                Console.WriteLine("Entering method EmbeddedParametersAsync.");
+                System.Console.WriteLine("Entering method EmbeddedParametersAsync.");
                 Argument.AssertNotNull(body, nameof(body));
 
                 return await EmbeddedParametersAsync(body.RequiredHeader, body.RequiredQuery, body, body.OptionalHeader, body.OptionalQuery, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An exception was thrown in method EmbeddedParametersAsync: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method EmbeddedParametersAsync: {ex}");
                 throw;
             }
             finally
             {
-                Console.WriteLine("Exiting method EmbeddedParametersAsync.");
+                System.Console.WriteLine("Exiting method EmbeddedParametersAsync.");
             }
         }
     }

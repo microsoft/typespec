@@ -317,6 +317,9 @@ export type Value =
   | EnumValue
   | NullValue;
 
+/** @internal */
+export type ValueWithTemplate = Value | TemplateValue;
+
 interface BaseValue {
   readonly entityKind: "Value";
   readonly valueKind: string;
@@ -378,6 +381,15 @@ export interface EnumValue extends BaseValue {
 export interface NullValue extends BaseValue {
   valueKind: "NullValue";
   value: null;
+}
+
+/**
+ * This is an internal type that represent a value while in a template declaration.
+ * This type should currently never be exposed on the type graph(unlike TemplateParameter).
+ * @internal
+ */
+export interface TemplateValue extends BaseValue {
+  valueKind: "TemplateValue";
 }
 
 //#endregion Values

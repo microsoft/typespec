@@ -13,7 +13,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterSynthesizedOrigin;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
@@ -105,15 +105,16 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
                         .map(ClientModelProperty::getClientType)
                         .map(valueListType -> {
                             // value type is List<T>, we need to get the typeArguments
-                            if (!(valueListType instanceof ListType)) {
-                                throw new IllegalStateException("value type must be list for paging method. "
-                                    + "rawResponseType = " + rawResponseType);
+                            if (!(valueListType instanceof IterableType)) {
+                                throw new IllegalStateException(
+                                    "Type of 'value' property must be List or Iterable, for paging method. ResponseType = "
+                                        + rawResponseType);
                             }
-                            IType[] listTypeArgs = ((ListType) valueListType).getTypeArguments();
+                            IType[] listTypeArgs = ((IterableType) valueListType).getTypeArguments();
                             if (listTypeArgs.length == 0) {
-                                throw new IllegalStateException(String.format(
-                                    "list type arguments' length should not be 0 for paging method. rawResponseType = %s",
-                                    rawResponseType));
+                                throw new IllegalStateException(
+                                    "List or Iterable type does not have template argument. ResponseType = "
+                                        + rawResponseType);
                             }
                             return listTypeArgs[0];
                         })
@@ -261,7 +262,7 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
             } else {
                 commentBlock.line(indent + "(recursive schema, see above)");
             }
-        } else if (type instanceof ListType) {
+        } else if (type instanceof IterableType) {
             if (name != null) {
                 commentBlock.line(indent + name
                     + appendOptionalOrRequiredAttribute(isRequired, isRequiredForCreate, isRootSchema) + ": [");
@@ -269,7 +270,7 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
                 commentBlock.line(
                     indent + appendOptionalOrRequiredAttribute(isRequired, isRequiredForCreate, isRootSchema) + "[");
             }
-            bodySchemaJavadoc(((ListType) type).getElementType(), commentBlock, nextIndent, null, typesInJavadoc,
+            bodySchemaJavadoc(((IterableType) type).getElementType(), commentBlock, nextIndent, null, typesInJavadoc,
                 isRequired, isRequiredForCreate, false);
             commentBlock.line(indent + "]");
         } else if (type instanceof EnumType) {

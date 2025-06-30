@@ -59,7 +59,7 @@ public final class VisibilityClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public VisibilityModel getModel(int queryProp, VisibilityModel input) {
-        return this.serviceClient.getModel(queryProp, input);
+        return getModelWithResponse(queryProp, input, RequestContext.none()).getValue();
     }
 
     /**
@@ -91,7 +91,7 @@ public final class VisibilityClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void headModel(int queryProp, VisibilityModel input) {
-        this.serviceClient.headModel(queryProp, input);
+        headModelWithResponse(queryProp, input, RequestContext.none());
     }
 
     /**
@@ -121,7 +121,7 @@ public final class VisibilityClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putModel(VisibilityModel input) {
-        this.serviceClient.putModel(input);
+        putModelWithResponse(input, RequestContext.none());
     }
 
     /**
@@ -151,7 +151,7 @@ public final class VisibilityClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void patchModel(VisibilityModel input) {
-        this.serviceClient.patchModel(input);
+        patchModelWithResponse(input, RequestContext.none());
     }
 
     /**
@@ -181,7 +181,7 @@ public final class VisibilityClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void postModel(VisibilityModel input) {
-        this.serviceClient.postModel(input);
+        postModelWithResponse(input, RequestContext.none());
     }
 
     /**
@@ -211,7 +211,7 @@ public final class VisibilityClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void deleteModel(VisibilityModel input) {
-        this.serviceClient.deleteModel(input);
+        deleteModelWithResponse(input, RequestContext.none());
     }
 
     /**
@@ -242,6 +242,6 @@ public final class VisibilityClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ReadOnlyModel putReadOnlyModel(ReadOnlyModel input) {
-        return this.serviceClient.putReadOnlyModel(input);
+        return putReadOnlyModelWithResponse(input, RequestContext.none()).getValue();
     }
 }

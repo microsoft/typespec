@@ -1109,6 +1109,34 @@ describe("compiler: visibility core", () => {
     ok(C.properties.has("c"));
   });
 
+  it("correctly caches and deduplicates instances that are not transformed", async () => {
+    const { example, B } = (await runner.compile(`
+      @test op example(): Read<A>;
+
+      model A {
+        b: B;
+      }
+      
+      @test
+      model B {
+        c: string;
+      }
+    `)) as { example: Operation; B: Model };
+
+    ok(example);
+    strictEqual(example.kind, "Operation");
+
+    const ReadA = example.returnType as Model;
+
+    strictEqual(ReadA.kind, "Model");
+
+    const aB = ReadA.properties.get("b")!.type as Model;
+
+    strictEqual(aB.kind, "Model");
+
+    ok(aB === B);
+  });
+
   it("correctly transforms arrays and records", async () => {
     const { Result } = (await runner.compile(`
       model A {

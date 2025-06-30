@@ -55,7 +55,7 @@ public final class QueryParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void templateOnly(String param) {
-        this.serviceClient.templateOnly(param);
+        templateOnlyWithResponse(param, RequestContext.none());
     }
 
     /**
@@ -85,7 +85,7 @@ public final class QueryParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void explicit(String param) {
-        this.serviceClient.explicit(param);
+        explicitWithResponse(param, RequestContext.none());
     }
 
     /**
@@ -115,6 +115,6 @@ public final class QueryParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void annotationOnly(String param) {
-        this.serviceClient.annotationOnly(param);
+        annotationOnlyWithResponse(param, RequestContext.none());
     }
 }

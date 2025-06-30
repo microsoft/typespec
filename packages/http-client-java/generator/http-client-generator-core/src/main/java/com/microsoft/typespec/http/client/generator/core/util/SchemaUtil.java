@@ -212,21 +212,22 @@ public class SchemaUtil {
     }
 
     public static IType removeModelFromParameter(RequestParameterLocation parameterRequestLocation, IType type) {
-        IType returnType = type;
         if (parameterRequestLocation == RequestParameterLocation.BODY) {
-            returnType = ClassType.BINARY_DATA;
-        } else if (!(returnType instanceof PrimitiveType)) {
-            if (type instanceof EnumType) {
-                returnType = ClassType.STRING;
-            }
-            if (type instanceof IterableType && ((IterableType) type).getElementType() instanceof EnumType) {
-                returnType = new IterableType(ClassType.STRING);
-            }
-            if (type instanceof ListType && ((ListType) type).getElementType() instanceof EnumType) {
-                returnType = new ListType(ClassType.STRING);
-            }
+            return ClassType.BINARY_DATA;
         }
-        return returnType;
+        if (type instanceof PrimitiveType) {
+            return type;
+        }
+        if (type instanceof EnumType) {
+            return ClassType.STRING;
+        }
+        if (type instanceof ListType && ((ListType) type).getElementType() instanceof EnumType) {
+            return new ListType(ClassType.STRING);
+        }
+        if (type instanceof IterableType && ((IterableType) type).getElementType() instanceof EnumType) {
+            return new IterableType(ClassType.STRING);
+        }
+        return type;
     }
 
     public static IType tryMapToBinaryData(IType type, Operation operation) {

@@ -158,7 +158,16 @@ async function downloadLicenseForKnownPackages(packageName: string): Promise<str
 }
 
 async function getLicense(packageName: string, packageRoot: string) {
-  for (const licenseName of ["LICENSE", "LICENSE.txt", "LICENSE.md", "LICENSE-MIT"]) {
+  for (const licenseName of [
+    "license",
+    "license.txt",
+    "license.md",
+    "license-mit",
+    "LICENSE",
+    "LICENSE.txt",
+    "LICENSE.md",
+    "LICENSE-MIT",
+  ]) {
     const licensePath = join(packageRoot, licenseName);
     try {
       const text = await readFile(licensePath, "utf-8");

@@ -34,6 +34,78 @@ describe("Typescript Enum Declaration", () => {
     `);
   });
 
+  it("adds JSDoc from TypeSpec", async () => {
+    const code = `
+      /**
+       * This is a test enum
+       */
+      enum Foo {
+        @doc("This is one")
+        one: 1,
+        two: 2,
+        three: 3
+      }
+    `;
+    const output = await getEmitOutput(code, (program) => {
+      const Foo = program.resolveTypeReference("Foo")[0]! as Enum;
+      return (
+        <TspContext.Provider value={{ program }}>
+          <EnumDeclaration type={Foo} />
+        </TspContext.Provider>
+      );
+    });
+
+    expect(output).toBe(d`
+      /**
+       * This is a test enum
+       */
+      enum Foo {
+        /**
+         * This is one
+         */
+        one = 1,
+        two = 2,
+        three = 3
+      }
+    `);
+  });
+
+  it("explicit doc take precedence", async () => {
+    const code = `
+      /**
+       * This is a test enum
+       */
+      enum Foo {
+        @doc("This is one")
+        one: 1,
+        two: 2,
+        three: 3
+      }
+    `;
+    const output = await getEmitOutput(code, (program) => {
+      const Foo = program.resolveTypeReference("Foo")[0]! as Enum;
+      return (
+        <TspContext.Provider value={{ program }}>
+          <EnumDeclaration type={Foo} doc={["This is an explicit doc"]} />
+        </TspContext.Provider>
+      );
+    });
+
+    expect(output).toBe(d`
+      /**
+       * This is an explicit doc
+       */
+      enum Foo {
+        /**
+         * This is one
+         */
+        one = 1,
+        two = 2,
+        three = 3
+      }
+    `);
+  });
+
   it("takes a union type parameter", async () => {
     const code = `
       union Foo {

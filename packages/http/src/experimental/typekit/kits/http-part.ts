@@ -4,6 +4,7 @@ import { getHttpPart, HttpPart } from "../../../private.decorators.js";
 
 /**
  * Utilities for working with HTTP Parts.
+ * @typekit httpPart
  * @experimental
  */
 export interface HttpPartKit {
@@ -24,7 +25,7 @@ export interface HttpPartKit {
   unpack(type: Type): Type;
 }
 
-export interface TypekitExtension {
+interface TypekitExtension {
   httpPart: HttpPartKit;
 }
 

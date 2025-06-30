@@ -29,6 +29,7 @@ interface EnumDescriptor {
 
 /**
  * A kit for working with enum types.
+ * @typekit enum
  */
 export interface EnumKit {
   /**

@@ -10,10 +10,9 @@ import tsptest.armstreamstyleserialization.models.Fish;
 public final class FishImpl implements Fish {
     private FishInner innerObject;
 
-    private final tsptest.armstreamstyleserialization.ArmStreamStyleSerializationManager serviceManager;
+    private final tsptest.armstreamstyleserialization.ArmResourceProviderManager serviceManager;
 
-    FishImpl(FishInner innerObject,
-        tsptest.armstreamstyleserialization.ArmStreamStyleSerializationManager serviceManager) {
+    FishImpl(FishInner innerObject, tsptest.armstreamstyleserialization.ArmResourceProviderManager serviceManager) {
         this.innerObject = innerObject;
         this.serviceManager = serviceManager;
     }
@@ -58,7 +57,7 @@ public final class FishImpl implements Fish {
         return this.innerObject;
     }
 
-    private tsptest.armstreamstyleserialization.ArmStreamStyleSerializationManager manager() {
+    private tsptest.armstreamstyleserialization.ArmResourceProviderManager manager() {
         return this.serviceManager;
     }
 }

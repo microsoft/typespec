@@ -10,7 +10,7 @@ import { HttpClientJavascriptEmitterTestLibrary } from "../src/testing/index.js"
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const tsExtractorConfig = createTypeScriptExtractorConfig();
+const tsExtractorConfig = await createTypeScriptExtractorConfig();
 const snipperExtractor = createSnipperExtractor(tsExtractorConfig);
 
 // Construct the test path relative to this file.

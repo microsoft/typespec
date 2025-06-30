@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import versioning.returntypechangedfrom.implementation.ReturnTypeChangedFromClientImpl;
-import versioning.returntypechangedfrom.models.Versions;
 
 /**
  * A builder for creating a new instance of the ReturnTypeChangedFromClient type.
@@ -192,24 +191,6 @@ public final class ReturnTypeChangedFromClientBuilder implements HttpTrait<Retur
     }
 
     /*
-     * Need to be set as 'v1' or 'v2' in client.
-     */
-    @Generated
-    private Versions version;
-
-    /**
-     * Sets Need to be set as 'v1' or 'v2' in client.
-     * 
-     * @param version the version value.
-     * @return the ReturnTypeChangedFromClientBuilder.
-     */
-    @Generated
-    public ReturnTypeChangedFromClientBuilder version(Versions version) {
-        this.version = version;
-        return this;
-    }
-
-    /*
      * Service version
      */
     @Generated
@@ -257,7 +238,7 @@ public final class ReturnTypeChangedFromClientBuilder implements HttpTrait<Retur
         ReturnTypeChangedFromServiceVersion localServiceVersion
             = (serviceVersion != null) ? serviceVersion : ReturnTypeChangedFromServiceVersion.getLatest();
         ReturnTypeChangedFromClientImpl client = new ReturnTypeChangedFromClientImpl(localPipeline,
-            JacksonAdapter.createDefaultSerializerAdapter(), this.endpoint, this.version, localServiceVersion);
+            JacksonAdapter.createDefaultSerializerAdapter(), this.endpoint, localServiceVersion);
         return client;
     }
 
@@ -266,7 +247,6 @@ public final class ReturnTypeChangedFromClientBuilder implements HttpTrait<Retur
         // This method is invoked from 'buildInnerClient'/'buildClient' method.
         // Developer can customize this method, to validate that the necessary conditions are met for the new client.
         Objects.requireNonNull(endpoint, "'endpoint' cannot be null.");
-        Objects.requireNonNull(version, "'version' cannot be null.");
     }
 
     @Generated

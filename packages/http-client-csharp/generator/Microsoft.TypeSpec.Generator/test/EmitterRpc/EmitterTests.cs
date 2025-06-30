@@ -58,14 +58,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.EmitterRpc
         public void TestReportDiagnosticWithTarget()
         {
             _emitter?.ReportDiagnostic("test-code", "Test message", "Test target");
-            Assert.AreEqual(@"{""method"":""diagnostic"",""params"":{""code"":""test-code"",""message"":""Test message"",""crossLanguageDefinitionId"":""Test target""}}", GetResult());
+            Assert.AreEqual(@"{""method"":""diagnostic"",""params"":{""code"":""test-code"",""message"":""Test message"",""crossLanguageDefinitionId"":""Test target"",""severity"":""warning""}}", GetResult());
         }
 
         [TestCase]
         public void TestReportDiagnosticWithoutTarget()
         {
             _emitter?.ReportDiagnostic("test-code", "Test message");
-            Assert.AreEqual(@"{""method"":""diagnostic"",""params"":{""code"":""test-code"",""message"":""Test message""}}", GetResult());
+            Assert.AreEqual(@"{""method"":""diagnostic"",""params"":{""code"":""test-code"",""message"":""Test message"",""severity"":""warning""}}", GetResult());
         }
 
         private string GetResult()

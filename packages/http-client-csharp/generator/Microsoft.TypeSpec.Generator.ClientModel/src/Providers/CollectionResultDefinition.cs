@@ -9,8 +9,11 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
+using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
@@ -36,8 +39,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private readonly string _itemsPropertyName;
         private readonly InputPagingServiceMetadata _paging;
-        private readonly FieldProvider[] _requestFields;
+        private readonly IReadOnlyList<FieldProvider> _requestFields;
         private readonly IReadOnlyList<ParameterProvider> _createRequestParameters;
+        private readonly string _createRequestMethodName;
         private readonly int? _nextTokenParameterIndex;
 
         public CollectionResultDefinition(ClientProvider client, InputPagingServiceMethod serviceMethod, CSharpType? itemModelType, bool isAsync)
@@ -51,7 +55,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _operation = serviceMethod.Operation;
             _paging = serviceMethod.PagingMetadata;
 
-            _createRequestParameters = _client.RestClient.GetCreateRequestMethod(_operation).Signature.Parameters;
+            var createRequestMethodSignature = _client.RestClient.GetCreateRequestMethod(_operation).Signature;
+            _createRequestParameters = createRequestMethodSignature.Parameters;
+            _createRequestMethodName = createRequestMethodSignature.Name;
 
             var fields = new List<FieldProvider>();
             for (int paramIndex = 0; paramIndex < _createRequestParameters.Count; paramIndex++)
@@ -64,7 +70,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var field = new FieldProvider(
                     FieldModifiers.Private | FieldModifiers.ReadOnly,
                     parameter.Type,
-                    $"_{parameter.Name}",
+                    $"_{parameter.Name.ToVariableName()}",
                     this);
                 fields.Add(field);
                 if (field.Name == "_options")
@@ -73,7 +79,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
 
-            _requestFields = fields.ToArray();
+            _requestFields = fields;
 
             _itemModelType = itemModelType;
             _isAsync = isAsync;
@@ -94,9 +100,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (itemsModelPropertyName == null)
             {
                 ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
-                    "missing-items-property",
+                    DiagnosticCodes.MissingItemsProperty,
                     $"Missing items property: {itemsPropertyName}",
-                    _operation.CrossLanguageDefinitionId);
+                    _operation.CrossLanguageDefinitionId,
+                    EmitterDiagnosticSeverity.Error);
             }
             _itemsPropertyName = itemsModelPropertyName ?? itemsPropertyName;
 
@@ -121,7 +128,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override string BuildNamespace() => _client.Type.Namespace;
 
         protected override string BuildName()
-            => $"{_client.Type.Name}{_operation.Name.ToCleanName()}{(_isAsync ? "Async" : "")}CollectionResult{(_itemModelType == null ? "" : "OfT")}";
+            => $"{_client.Type.Name}{_operation.Name.ToIdentifierName()}{(_isAsync ? "Async" : "")}CollectionResult{(_itemModelType == null ? "" : "OfT")}";
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
             => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
@@ -238,7 +245,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return
             _isAsync ?
                 [
-                    new ForeachStatement(_itemModelType!, "item", PageParameter.AsExpression().CastTo(_responseType)
+                    new ForEachStatement(_itemModelType!, "item", PageParameter.AsExpression().CastTo(_responseType)
                         .Property(_itemsPropertyName), false, out var item)
                     {
                         YieldReturn(item),
@@ -307,7 +314,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // Declare the initial request message
                 Declare(
                     "message",
-                    InvokeCreateRequestForNextLink(_requestFields[0].As<Uri>()),
+                    InvokeCreateInitialRequest(),
                     out ScopedApi<PipelineMessage> message),
 
                 // Declare nextPageUri variable
@@ -381,7 +388,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var pipelineMessageDeclaration = Declare(
                     "message",
-                    InvokeCreateRequestForSingle(),
+                    InvokeCreateInitialRequest(),
                     out ScopedApi<PipelineMessage> m);
             var pipelineResponse = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(
                         _clientField.Property("Pipeline").ToApi<ClientPipelineApi>().ProcessMessage(
@@ -428,11 +435,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private ScopedApi<PipelineMessage> InvokeCreateRequestForNextLink(ValueExpression nextPageUri) => _clientField.Invoke(
-            $"Create{_operation.Name.ToCleanName()}Request",
-            // we replace the first argument (the initialUri) with the nextPageUri
-            [nextPageUri, .. _requestFields[1..]])
-            .As<PipelineMessage>();
+        private ScopedApi<PipelineMessage> InvokeCreateRequestForNextLink(ValueExpression nextPageUri)
+        {
+            var createNextLinkRequestMethodName =
+                _client.RestClient.GetCreateNextLinkRequestMethod(_operation).Signature.Name;
+            return _clientField.Invoke(
+                    createNextLinkRequestMethodName,
+                    [nextPageUri, .._requestFields])
+                .As<PipelineMessage>();
+        }
 
         private ScopedApi<PipelineMessage> InvokeCreateRequestForContinuationToken(ValueExpression nextToken)
         {
@@ -441,20 +452,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Replace the nextToken field with the nextToken variable
             arguments[_nextTokenParameterIndex!.Value] = nextToken;
 
-            return _clientField.Invoke(
-                    $"Create{_operation.Name.ToCleanName()}Request",
-                    arguments)
-                .As<PipelineMessage>();
+            return _clientField.Invoke(_createRequestMethodName, arguments).As<PipelineMessage>();
         }
 
-        private ScopedApi<PipelineMessage> InvokeCreateRequestForSingle()
+        private ScopedApi<PipelineMessage> InvokeCreateInitialRequest()
         {
             ValueExpression[] arguments = [.. _requestFields.Select(f => f.AsValueExpression)];
 
-            return _clientField.Invoke(
-                    $"Create{_operation.Name.ToCleanName()}Request",
-                    arguments)
-                .As<PipelineMessage>();
+            return _clientField.Invoke(_createRequestMethodName, arguments).As<PipelineMessage>();
         }
     }
 }

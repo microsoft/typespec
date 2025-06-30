@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 package com.microsoft.typespec.http.client.generator.core.template.clientcore;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
@@ -46,9 +49,8 @@ public class ClientCoreServiceClientTemplate extends ServiceClientTemplate {
                 constructorBlock.line(String.format("this.service = %1$s.create(%2$s.class, this.httpPipeline);",
                     ClassType.REST_PROXY.getName(), serviceClient.getProxy().getName()));
             } else {
-                String implName = JavaSettings.getInstance().getPackage() + ".implementation."
-                    + serviceClient.getProxy().getName() + "Impl";
-                constructorBlock.line("this.service = %s.getNewInstance(this.httpPipeline);", implName);
+                constructorBlock.line("this.service = %s.getNewInstance(this.httpPipeline);",
+                    serviceClient.getProxy().getName());
             }
         }
     }

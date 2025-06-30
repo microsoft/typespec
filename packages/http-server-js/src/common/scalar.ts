@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import { DiagnosticTarget, NoTarget, Program, Scalar } from "@typespec/compiler";
+import { DiagnosticTarget, EncodeData, NoTarget, Program, Scalar } from "@typespec/compiler";
 import { JsContext, Module } from "../ctx.js";
 import { reportDiagnostic } from "../lib.js";
 import { parseCase } from "../util/case.js";
@@ -715,11 +715,11 @@ const __JS_SCALARS_MAP = new WeakMap<Program, ScalarStore>();
 /**
  * Gets the scalar store for a given program.
  */
-function getScalarStore(ctx: JsContext, module: Module): ScalarStore {
+function getScalarStore(ctx: JsContext): ScalarStore {
   let scalars = __JS_SCALARS_MAP.get(ctx.program);
 
   if (scalars === undefined) {
-    scalars = createScalarStore(ctx, module);
+    scalars = createScalarStore(ctx);
     __JS_SCALARS_MAP.set(ctx.program, scalars);
   }
 
@@ -729,7 +729,7 @@ function getScalarStore(ctx: JsContext, module: Module): ScalarStore {
 /**
  * Initializes a scalar store for a given program.
  */
-function createScalarStore(ctx: JsContext, module: Module): ScalarStore {
+function createScalarStore(ctx: JsContext): ScalarStore {
   const m = new Map<Scalar, Contextualized<JsScalar>>();
 
   for (const [scalarName, scalarInfo] of SCALARS) {
@@ -773,7 +773,17 @@ function createJsScalar(
 
       scalar,
 
-      getEncoding(encoding: string, target: Scalar): Encoder | undefined {
+      getEncoding(encodeDataOrString: EncodeData | string, target?: Scalar): Encoder | undefined {
+        let encoding: string = "default";
+
+        if (typeof encodeDataOrString === "string") {
+          encoding = encodeDataOrString;
+          target = target!;
+        } else {
+          encoding = encodeDataOrString.encoding ?? "default";
+          target = encodeDataOrString.type;
+        }
+
         const encodingTable = scalarInfo.encodings?.[getFullyQualifiedTypeName(target)];
         let encodingSpec = encodingTable?.[encoding] ?? encodingTable?.[encoding.toLowerCase()];
 
@@ -1034,6 +1044,7 @@ export interface JsScalar {
    * if the encoding is not supported.
    */
   getEncoding(encoding: string, target: Scalar): Encoder | undefined;
+  getEncoding(encoding: EncodeData): Encoder | undefined;
 
   /**
    * Get the default encoder for a given media type.
@@ -1128,7 +1139,7 @@ export function getJsScalar(
   scalar: Scalar,
   diagnosticTarget: DiagnosticTarget | typeof NoTarget,
 ): JsScalar {
-  const scalars = getScalarStore(ctx, module);
+  const scalars = getScalarStore(ctx);
 
   let _scalar: Scalar | undefined = scalar;
 

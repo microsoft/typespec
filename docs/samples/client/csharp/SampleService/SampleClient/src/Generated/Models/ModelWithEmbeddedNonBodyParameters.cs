@@ -29,6 +29,13 @@ namespace SampleTypeSpec
             RequiredQuery = requiredQuery;
         }
 
+        /// <summary> Initializes a new instance of <see cref="ModelWithEmbeddedNonBodyParameters"/>. </summary>
+        /// <param name="name"> name of the ModelWithEmbeddedNonBodyParameters. </param>
+        /// <param name="requiredHeader"> required header parameter. </param>
+        /// <param name="optionalHeader"> optional header parameter. </param>
+        /// <param name="requiredQuery"> required query parameter. </param>
+        /// <param name="optionalQuery"> optional query parameter. </param>
+        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
         internal ModelWithEmbeddedNonBodyParameters(string name, string requiredHeader, string optionalHeader, string requiredQuery, string optionalQuery, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             Name = name;

@@ -3,7 +3,6 @@ package type.scalar.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -38,7 +37,7 @@ public final class DecimalVerifiesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     DecimalVerifiesImpl(ScalarClientImpl client) {
-        this.service = RestProxy.create(DecimalVerifiesService.class, client.getHttpPipeline());
+        this.service = DecimalVerifiesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -46,7 +45,7 @@ public final class DecimalVerifiesImpl {
      * The interface defining all the services for ScalarClientDecimalVerifies to be used by the proxy service to
      * perform REST calls.
      */
-    @ServiceInterface(name = "ScalarClientDecimalV", host = "{endpoint}")
+    @ServiceInterface(name = "ScalarClientDecimalVerifies", host = "{endpoint}")
     public interface DecimalVerifiesService {
         static DecimalVerifiesService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -93,18 +92,6 @@ public final class DecimalVerifiesImpl {
     }
 
     /**
-     * The prepareVerify operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public List<BigDecimal> prepareVerify() {
-        return prepareVerifyWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * The verify operation.
      * 
      * @param body The body parameter.
@@ -118,18 +105,5 @@ public final class DecimalVerifiesImpl {
     public Response<Void> verifyWithResponse(BigDecimal body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.verify(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The verify operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void verify(BigDecimal body) {
-        verifyWithResponse(body, RequestContext.none());
     }
 }

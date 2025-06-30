@@ -11,7 +11,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
     {
         protected internal virtual ScmMethodProviderCollection? Visit(
             InputServiceMethod serviceMethod,
-            TypeProvider enclosingType,
+            ClientProvider enclosingType,
             ScmMethodProviderCollection? methodProviderCollection)
         {
             return methodProviderCollection;

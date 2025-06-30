@@ -3,7 +3,6 @@
 #nullable disable
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -143,21 +142,5 @@ namespace Sample.Models
         }
 
         string global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.MockInputModel>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
-
-        public static implicit operator global::System.ClientModel.BinaryContent(global::Sample.Models.MockInputModel mockInputModel)
-        {
-            if ((mockInputModel == null))
-            {
-                return null;
-            }
-            return global::System.ClientModel.BinaryContent.Create(mockInputModel, global::Sample.ModelSerializationExtensions.WireOptions);
-        }
-
-        public static explicit operator MockInputModel(global::System.ClientModel.ClientResult result)
-        {
-            using global::System.ClientModel.Primitives.PipelineResponse response = result.GetRawResponse();
-            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(response.Content);
-            return global::Sample.Models.MockInputModel.DeserializeMockInputModel(document.RootElement, global::Sample.ModelSerializationExtensions.WireOptions);
-        }
     }
 }

@@ -37,16 +37,16 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@azure/identity": "~4.8.0",
+    "@azure/identity": "~4.10.1",
     "@azure/storage-blob": "~12.27.0",
-    "@pnpm/workspace.find-packages": "^1000.0.17",
+    "@pnpm/workspace.find-packages": "^1000.0.24",
     "@typespec/bundler": "workspace:^",
     "json5": "^2.2.3",
     "picocolors": "~1.1.1",
     "semver": "^7.7.1"
   },
   "devDependencies": {
-    "@types/node": "~22.13.11",
+    "@types/node": "~24.0.3",
     "@types/semver": "^7.5.8",
     "@vitest/coverage-v8": "^3.1.2",
     "@vitest/ui": "^3.1.2",

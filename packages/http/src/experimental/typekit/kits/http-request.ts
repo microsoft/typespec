@@ -6,6 +6,7 @@ export type HttpRequestParameterKind = "query" | "header" | "path" | "contentTyp
 
 /**
  * Utilities for working with HTTP Requests operations.
+ * @typekit httpRequest
  * @experimental
  */
 interface HttpRequestKit {

@@ -723,6 +723,13 @@ public class ClassType implements IType {
             imports.add(DateTimeFormatter.class.getName());
         }
 
+        if (this == ClassType.DATE_TIME_RFC_1123) {
+            // May need OffsetDateTime when consuming DateTimeRfc1123 APIs as DateTimeRfc1123 APIs consume and return
+            // OffsetDateTime.
+            // If OffsetDateTime isn't needed, when running Spotless the unused import will be removed.
+            imports.add(OffsetDateTime.class.getName());
+        }
+
         if (this == ClassType.URL) {
             imports.add(java.net.URL.class.getName());
             imports.add(java.net.MalformedURLException.class.getName());

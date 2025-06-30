@@ -21,11 +21,13 @@ namespace Microsoft.TypeSpec.Generator.Tests
         [Test]
         public void ExtensibleStringEnumType()
         {
-            var input = InputFactory.Enum("sampleType", InputPrimitiveType.String, isExtensible: true, usage: InputModelTypeUsage.Input, values:
-            [
-                InputFactory.EnumMember.String("value1", "value1"),
-                InputFactory.EnumMember.String("value2", "value2")
-            ]);
+            // Updated to use StringEnum with collection expression for values
+            var input = InputFactory.StringEnum(
+                "sampleType",
+                [("value1", "value1"), ("value2", "value2")],
+                isExtensible: true,
+                usage: InputModelTypeUsage.Input
+            );
             var expected = new CSharpType("SampleType", "Sample.Models", true, false, null, [], true, true, underlyingEnumType: typeof(string));
 
             var actual = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(input);
@@ -37,11 +39,11 @@ namespace Microsoft.TypeSpec.Generator.Tests
         [Test]
         public void ExtensibleStringNullableEnumType()
         {
-            var input = InputFactory.Enum("sampleType", InputPrimitiveType.String, usage: InputModelTypeUsage.Input, isExtensible: true, values:
-            [
-                InputFactory.EnumMember.String("value1", "value1"),
-                InputFactory.EnumMember.String("value2", "value2")
-            ]);
+            var input = InputFactory.StringEnum(
+                "sampleType",
+                [("value1", "value1"), ("value2", "value2")],
+                usage: InputModelTypeUsage.Input,
+                isExtensible: true);
             var nullableInput = new InputNullableType(input);
             var expected = new CSharpType("SampleType", "Sample.Models", true, true, null, [], true, true, underlyingEnumType: typeof(string));
 
@@ -54,11 +56,11 @@ namespace Microsoft.TypeSpec.Generator.Tests
         [Test]
         public void ExtensibleStringEnumTypeProvider()
         {
-            var input = InputFactory.Enum("sampleType", InputPrimitiveType.String, usage: InputModelTypeUsage.Input, isExtensible: true, values:
-            [
-                InputFactory.EnumMember.String("value1", "value1"),
-                InputFactory.EnumMember.String("value2", "value2")
-            ]);
+            var input = InputFactory.StringEnum(
+                "sampleType",
+                [("value1", "value1"), ("value2", "value2")],
+                usage: InputModelTypeUsage.Input,
+                isExtensible: true);
             var expected = new CSharpType("SampleType", "Sample.Models", true, false, null, [], true, true, underlyingEnumType: typeof(string));
 
             var enumProvider = CodeModelGenerator.Instance.TypeFactory.CreateEnum(input);
@@ -70,11 +72,12 @@ namespace Microsoft.TypeSpec.Generator.Tests
         [Test]
         public void FixedStringEnumType()
         {
-            var input = InputFactory.Enum("sampleType", InputPrimitiveType.String, usage: InputModelTypeUsage.Input, values:
-            [
-                InputFactory.EnumMember.String("value1", "value1"),
-                InputFactory.EnumMember.String("value2", "value2")
-            ]);
+            // Updated to use StringEnum with collection expression for values
+            var input = InputFactory.StringEnum(
+                "sampleType",
+                [("value1", "value1"), ("value2", "value2")],
+                usage: InputModelTypeUsage.Input
+            );
             var expected = new CSharpType("SampleType", "Sample.Models", true, false, null, [], true, false, underlyingEnumType: typeof(string));
 
             var actual = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(input);
@@ -86,11 +89,10 @@ namespace Microsoft.TypeSpec.Generator.Tests
         [Test]
         public void CreateSameEnum()
         {
-            var input = InputFactory.Enum("sampleType", InputPrimitiveType.String, usage: InputModelTypeUsage.Input, values:
-            [
-                InputFactory.EnumMember.String("value1", "value1"),
-                InputFactory.EnumMember.String("value2", "value2")
-            ]);
+            var input = InputFactory.StringEnum(
+                "sampleType",
+                [("value1", "value1"), ("value2", "value2")],
+                usage: InputModelTypeUsage.Input);
             var expected = CodeModelGenerator.Instance.TypeFactory.CreateEnum(input);
 
             var actual = CodeModelGenerator.Instance.TypeFactory.CreateEnum(input);
@@ -101,18 +103,18 @@ namespace Microsoft.TypeSpec.Generator.Tests
         [Test]
         public void CreateEnum_WithDeclaringType()
         {
-            var input = InputFactory.Enum("sampleType", InputPrimitiveType.String, usage: InputModelTypeUsage.Input, values:
-            [
-                InputFactory.EnumMember.String("value1", "value1"),
-                InputFactory.EnumMember.String("value2", "value2")
-            ]);
-            var declaringType = new Mock<TypeProvider>().Object;
+            var input = InputFactory.StringEnum(
+                "sampleType",
+                [("value1", "value1"), ("value2", "value2")],
+                usage: InputModelTypeUsage.Input);
+            var declaringType = new TestTypeProvider();
+
             var expected = CodeModelGenerator.Instance.TypeFactory.CreateEnum(input, declaringType);
             var actual = CodeModelGenerator.Instance.TypeFactory.CreateEnum(input, declaringType);
             Assert.IsTrue(ReferenceEquals(expected, actual));
 
             // Validate that a new type is created when the declaring type is different
-            var declaringType2 = new Mock<TypeProvider>().Object;
+            var declaringType2 = new TestTypeProvider();
             var expected2 = CodeModelGenerator.Instance.TypeFactory.CreateEnum(input, declaringType2);
             var actual2 = CodeModelGenerator.Instance.TypeFactory.CreateEnum(input, declaringType2);
             Assert.IsTrue(ReferenceEquals(expected2, actual2));

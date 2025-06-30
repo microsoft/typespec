@@ -1,5 +1,16 @@
 # Change Log - @typespec/playground
 
+## 0.8.2
+
+### Bump dependencies
+
+- [#7323](https://github.com/microsoft/typespec/pull/7323) Upgrade dependencies
+
+### Bug Fixes
+
+- [#7319](https://github.com/microsoft/typespec/pull/7319) Reduce visual noise in diagnostics by targeting the specific node id rather than the entire node.
+
+
 ## 0.8.1
 
 ### Bump dependencies

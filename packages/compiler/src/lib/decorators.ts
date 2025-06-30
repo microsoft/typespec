@@ -137,12 +137,12 @@ export const $summary: SummaryDecorator = (
 export { getSummary };
 
 /**
- * @doc attaches a documentation string. Works great with multi-line string literals.
+ * `@doc` attaches a documentation string. Works great with multi-line string literals.
  *
- * The first argument to @doc is a string, which may contain template parameters, enclosed in braces,
+ * The first argument to `@doc` is a string, which may contain template parameters, enclosed in braces,
  * which are replaced with an attribute for the type (commonly "name") passed as the second (optional) argument.
  *
- * @doc can be specified on any language element -- a model, an operation, a namespace, etc.
+ * `@doc` can be specified on any language element -- a model, an operation, a namespace, etc.
  */
 export const $doc: DocDecorator = (
   context: DecoratorContext,
@@ -294,13 +294,17 @@ function validateTargetingAString(
   target: Scalar | ModelProperty,
   decoratorName: string,
 ) {
-  const valid = isTypeIn(getPropertyType(target), (x) => isStringType(context.program, x));
+  const propertyType = getPropertyType(target);
+  const valid = isTypeIn(propertyType, (x) => isStringType(context.program, x));
   if (!valid) {
     reportDiagnostic(context.program, {
       code: "decorator-wrong-target",
       format: {
         decorator: decoratorName,
-        to: `type it is not a string`,
+        to:
+          propertyType.kind === "Union"
+            ? `a union type that is not string compatible. The union must explicitly include a string type, and all union values should be strings. For example: union Test { string, "A", "B" }`
+            : `type it is not a string`,
       },
       target: context.decoratorTarget,
     });
