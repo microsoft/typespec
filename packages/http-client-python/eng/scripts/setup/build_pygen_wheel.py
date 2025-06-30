@@ -21,17 +21,15 @@ except (ImportError, ModuleNotFoundError, PackageManagerNotFoundError):
 
 from pathlib import Path
 
-from venvtools import ExtendedEnvBuilder, python_run
-from package_manager import install_packages
+from venvtools import python_run
+from package_manager import install_packages, create_venv_with_package_manager
 
 _ROOT_DIR = Path(__file__).parent.parent.parent.parent
 
 
 def main():
     venv_path = _ROOT_DIR / "venv_build_wheel"
-    env_builder = ExtendedEnvBuilder(with_pip=True, upgrade_deps=True)
-    env_builder.create(venv_path)
-    venv_context = env_builder.context
+    venv_context = create_venv_with_package_manager(venv_path)
 
     install_packages(["build"], venv_context)
     python_run(venv_context, "build", ["--wheel"], additional_dir="generator")
