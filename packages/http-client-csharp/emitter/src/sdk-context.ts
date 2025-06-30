@@ -29,6 +29,10 @@ import {
 } from "./type/input-type.js";
 import { OperationResponse } from "./type/operation-response.js";
 
+/**
+ * Provides the default SDK context used throughout the application.
+ * @beta
+ */
 export let defaultSdkContext: SdkContext<CSharpEmitterOptions, SdkHttpOperation> = undefined as any;
 
 /**
