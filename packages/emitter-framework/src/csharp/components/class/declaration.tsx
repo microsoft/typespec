@@ -8,12 +8,18 @@ import { getDocComments } from "../utils/doc-comments.jsx";
 import { declarationRefkeys } from "../utils/refkey.js";
 
 export interface ClassDeclarationProps extends Omit<cs.ClassDeclarationProps, "name"> {
+  /** Set an alternative name for the class. Otherwise default to the type name. */
   name?: string;
+  /** Type to use to create this class. */
   type: Model | Interface;
+  /** If set the property will add the json serialization attributes(using System.Text.Json). */
+  jsonAttributes?: boolean;
 }
 
 interface ClassPropertiesProps {
   type: Model;
+  /** If set the property will add the json serialization attributes(using System.Text.Json). */
+  jsonAttributes?: boolean;
 }
 
 interface ClassMethodsProps {
@@ -36,7 +42,9 @@ export function ClassDeclaration(props: ClassDeclarationProps): ay.Children {
         refkey={refkeys}
         doc={getDocComments($, props.type)}
       >
-        {$.model.is(props.type) && <ClassProperties type={props.type} />}
+        {props.type.kind === "Model" && (
+          <ClassProperties type={props.type} jsonAttributes={props.jsonAttributes} />
+        )}
         {props.type.kind === "Interface" && <ClassMethods type={props.type} />}
       </cs.ClassDeclaration>
     </>
@@ -46,7 +54,7 @@ export function ClassDeclaration(props: ClassDeclarationProps): ay.Children {
 function ClassProperties(props: ClassPropertiesProps): ay.Children {
   return (
     <ay.For each={props.type.properties.entries()} hardline>
-      {([name, property]) => <Property type={property} />}
+      {([name, property]) => <Property type={property} jsonAttributes={props.jsonAttributes} />}
     </ay.For>
   );
 }
