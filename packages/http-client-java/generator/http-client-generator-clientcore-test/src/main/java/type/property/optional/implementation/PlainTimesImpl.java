@@ -1,17 +1,19 @@
 package type.property.optional.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
-import io.clientcore.core.http.RestProxy;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.http.pipeline.HttpPipeline;
+import java.lang.reflect.InvocationTargetException;
 import type.property.optional.PlainTimeProperty;
 
 /**
@@ -34,7 +36,7 @@ public final class PlainTimesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     PlainTimesImpl(OptionalClientImpl client) {
-        this.service = RestProxy.create(PlainTimesService.class, client.getHttpPipeline());
+        this.service = PlainTimesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -42,126 +44,112 @@ public final class PlainTimesImpl {
      * The interface defining all the services for OptionalClientPlainTimes to be used by the proxy service to perform
      * REST calls.
      */
-    @ServiceInterface(name = "OptionalClientPlainT", host = "{endpoint}")
+    @ServiceInterface(name = "OptionalClientPlainTimes", host = "{endpoint}")
     public interface PlainTimesService {
+        static PlainTimesService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("type.property.optional.implementation.PlainTimesServiceImpl");
+                return (PlainTimesService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/type/property/optional/plainTime/all",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<PlainTimeProperty> getAllSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestOptions requestOptions);
+        Response<PlainTimeProperty> getAll(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/type/property/optional/plainTime/default",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<PlainTimeProperty> getDefaultSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestOptions requestOptions);
+        Response<PlainTimeProperty> getDefault(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.PUT,
             path = "/type/property/optional/plainTime/all",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> putAllSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData body,
-            RequestOptions requestOptions);
+        Response<Void> putAll(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") PlainTimeProperty body, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.PUT,
             path = "/type/property/optional/plainTime/default",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> putDefaultSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData body,
-            RequestOptions requestOptions);
+        Response<Void> putDefault(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") PlainTimeProperty body,
+            RequestContext requestContext);
     }
 
     /**
      * Get models that will return all properties in the model.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     property: String (Optional)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return models that will return all properties in the model.
      */
-    public Response<PlainTimeProperty> getAllWithResponse(RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<PlainTimeProperty> getAllWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
-        return service.getAllSync(this.client.getEndpoint(), accept, requestOptions);
+        return service.getAll(this.client.getEndpoint(), accept, requestContext);
     }
 
     /**
      * Get models that will return the default object.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     property: String (Optional)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return models that will return the default object.
      */
-    public Response<PlainTimeProperty> getDefaultWithResponse(RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<PlainTimeProperty> getDefaultWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
-        return service.getDefaultSync(this.client.getEndpoint(), accept, requestOptions);
+        return service.getDefault(this.client.getEndpoint(), accept, requestContext);
     }
 
     /**
      * Put a body with all properties present.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     property: String (Optional)
-     * }
-     * }
-     * </pre>
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> putAllWithResponse(BinaryData body, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> putAllWithResponse(PlainTimeProperty body, RequestContext requestContext) {
         final String contentType = "application/json";
-        return service.putAllSync(this.client.getEndpoint(), contentType, body, requestOptions);
+        return service.putAll(this.client.getEndpoint(), contentType, body, requestContext);
     }
 
     /**
      * Put a body with default properties.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     property: String (Optional)
-     * }
-     * }
-     * </pre>
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> putDefaultWithResponse(BinaryData body, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> putDefaultWithResponse(PlainTimeProperty body, RequestContext requestContext) {
         final String contentType = "application/json";
-        return service.putDefaultSync(this.client.getEndpoint(), contentType, body, requestOptions);
+        return service.putDefault(this.client.getEndpoint(), contentType, body, requestContext);
     }
 }

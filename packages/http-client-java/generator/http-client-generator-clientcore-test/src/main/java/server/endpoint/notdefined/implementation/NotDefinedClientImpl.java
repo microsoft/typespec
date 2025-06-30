@@ -1,15 +1,17 @@
 package server.endpoint.notdefined.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
-import io.clientcore.core.http.RestProxy;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Initializes a new instance of the NotDefinedClient type.
@@ -57,7 +59,7 @@ public final class NotDefinedClientImpl {
     public NotDefinedClientImpl(HttpPipeline httpPipeline, String endpoint) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.service = RestProxy.create(NotDefinedClientService.class, this.httpPipeline);
+        this.service = NotDefinedClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -66,22 +68,37 @@ public final class NotDefinedClientImpl {
      */
     @ServiceInterface(name = "NotDefinedClient", host = "{endpoint}")
     public interface NotDefinedClientService {
+        static NotDefinedClientService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("server.endpoint.notdefined.implementation.NotDefinedClientServiceImpl");
+                return (NotDefinedClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(
             method = HttpMethod.HEAD,
             path = "/server/endpoint/not-defined/valid",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> validSync(@HostParam("endpoint") String endpoint, RequestOptions requestOptions);
+        Response<Void> valid(@HostParam("endpoint") String endpoint, RequestContext requestContext);
     }
 
     /**
      * The valid operation.
      * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> validWithResponse(RequestOptions requestOptions) {
-        return service.validSync(this.getEndpoint(), requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> validWithResponse(RequestContext requestContext) {
+        return service.valid(this.getEndpoint(), requestContext);
     }
 }

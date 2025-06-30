@@ -24,7 +24,7 @@ export function JsonModelTransform(props: JsonModelTransformProps) {
     $.model.getProperties(props.type, { includeExtended: true }).values(),
   ).filter((p) => !$.type.isNever(p.type));
 
-  const discriminator = $.type.getDiscriminator(props.type);
+  const discriminator = $.model.getDiscriminatedUnion(props.type);
 
   const discriminate = getJsonTransformDiscriminatorRefkey(props.type, props.target);
 
@@ -86,14 +86,14 @@ export function JsonModelTransformDeclaration(
     { name: "input_", type: inputType, refkey: inputRef, optional: true },
   ];
 
-  const spread = $.model.getSpreadType(props.type);
-  const hasAdditionalProperties = spread && $.model.is(spread) && $.record.is(spread);
+  const indexType = $.model.getIndexType(props.type);
+  const hasAdditionalProperties = indexType && $.record.is(indexType);
 
   const declarationRefkey = getJsonModelTransformRefkey(props.type, props.target);
   return (
     <>
       {hasAdditionalProperties ? (
-        <JsonRecordTransformDeclaration target={props.target} type={spread} />
+        <JsonRecordTransformDeclaration target={props.target} type={indexType} />
       ) : null}
       <JsonTransformDiscriminatorDeclaration type={props.type} target={props.target} />
       <ts.FunctionDeclaration

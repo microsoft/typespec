@@ -3,15 +3,7 @@
   "CrossLanguageDefinitionId": {
     "payload.contentnegotiation.ContentNegotiationClientBuilder": "Payload.ContentNegotiation",
     "payload.contentnegotiation.DifferentBodyClient": "Payload.ContentNegotiation.DifferentBody",
-    "payload.contentnegotiation.DifferentBodyClient.getAvatarAsJson": "Payload.ContentNegotiation.DifferentBody.getAvatarAsJson",
-    "payload.contentnegotiation.DifferentBodyClient.getAvatarAsJsonWithResponse": "Payload.ContentNegotiation.DifferentBody.getAvatarAsJson",
-    "payload.contentnegotiation.DifferentBodyClient.getAvatarAsPng": "Payload.ContentNegotiation.DifferentBody.getAvatarAsPng",
-    "payload.contentnegotiation.DifferentBodyClient.getAvatarAsPngWithResponse": "Payload.ContentNegotiation.DifferentBody.getAvatarAsPng",
     "payload.contentnegotiation.SameBodyClient": "Payload.ContentNegotiation.SameBody",
-    "payload.contentnegotiation.SameBodyClient.getAvatarAsJpeg": "Payload.ContentNegotiation.SameBody.getAvatarAsJpeg",
-    "payload.contentnegotiation.SameBodyClient.getAvatarAsJpegWithResponse": "Payload.ContentNegotiation.SameBody.getAvatarAsJpeg",
-    "payload.contentnegotiation.SameBodyClient.getAvatarAsPng": "Payload.ContentNegotiation.SameBody.getAvatarAsPng",
-    "payload.contentnegotiation.SameBodyClient.getAvatarAsPngWithResponse": "Payload.ContentNegotiation.SameBody.getAvatarAsPng",
     "payload.contentnegotiation.differentbody.PngImageAsJson": "Payload.ContentNegotiation.DifferentBody.PngImageAsJson"
   }
 }

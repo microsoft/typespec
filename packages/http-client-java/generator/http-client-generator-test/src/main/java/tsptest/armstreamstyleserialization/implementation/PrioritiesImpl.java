@@ -16,10 +16,10 @@ public final class PrioritiesImpl implements Priorities {
 
     private final PrioritiesClient innerClient;
 
-    private final tsptest.armstreamstyleserialization.ArmStreamStyleSerializationManager serviceManager;
+    private final tsptest.armstreamstyleserialization.ArmResourceProviderManager serviceManager;
 
     public PrioritiesImpl(PrioritiesClient innerClient,
-        tsptest.armstreamstyleserialization.ArmStreamStyleSerializationManager serviceManager) {
+        tsptest.armstreamstyleserialization.ArmResourceProviderManager serviceManager) {
         this.innerClient = innerClient;
         this.serviceManager = serviceManager;
     }
@@ -36,7 +36,7 @@ public final class PrioritiesImpl implements Priorities {
         return this.innerClient;
     }
 
-    private tsptest.armstreamstyleserialization.ArmStreamStyleSerializationManager manager() {
+    private tsptest.armstreamstyleserialization.ArmResourceProviderManager manager() {
         return this.serviceManager;
     }
 }

@@ -1,3 +1,4 @@
+import { OutputFile, traverseOutput } from "@alloy-js/core";
 import {
   CompilerHost,
   Decorator,
@@ -19,7 +20,7 @@ import {
 } from "@typespec/compiler";
 import prettier from "prettier";
 import { createDiagnostic } from "../ref-doc/lib.js";
-import { generateSignatureTests, generateSignatures } from "./decorators-signatures.js";
+import { generateSignatures } from "./components/decorators-signatures.js";
 import { DecoratorSignature } from "./types.js";
 
 function createSourceLocation(path: string): SourceLocation {
@@ -150,13 +151,15 @@ export async function generateExternDecorators(
 
   const files: Record<string, string> = {};
   for (const [ns, nsDecorators] of decorators.entries()) {
-    const base = ns === "" ? "__global__" : ns;
-    const file = `${base}.ts`;
-    files[file] = await format(generateSignatures(program, nsDecorators, ns));
-    if (!ns.includes(".Private")) {
-      files[`${base}.ts-test.ts`] = await format(
-        generateSignatureTests(ns, packageName, `./${base}.js`, nsDecorators),
-      );
+    const output = generateSignatures(program, nsDecorators, packageName, ns);
+    const rawFiles: OutputFile[] = [];
+    traverseOutput(output, {
+      visitDirectory: () => {},
+      visitFile: (file) => rawFiles.push(file),
+    });
+
+    for (const file of rawFiles) {
+      files[file.path] = await format(file.contents);
     }
   }
   return files;

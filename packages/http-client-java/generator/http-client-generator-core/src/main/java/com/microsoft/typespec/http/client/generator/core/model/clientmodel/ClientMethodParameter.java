@@ -51,6 +51,17 @@ public class ClientMethodParameter extends MethodParameter {
         .annotations(Collections.emptyList())
         .build();
 
+    public static final ClientMethodParameter REQUEST_CONTEXT_PARAMETER = new ClientMethodParameter.Builder()
+        .description("The context to configure the HTTP request before HTTP client sends it.")
+        .wireType(ClassType.REQUEST_CONTEXT)
+        .name("requestContext")
+        .requestParameterLocation(RequestParameterLocation.NONE)
+        .constant(false)
+        .required(false)
+        .fromClient(false)
+        .annotations(Collections.emptyList())
+        .build();
+
     /**
      * Whether this parameter is final.
      */

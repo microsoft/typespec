@@ -40,6 +40,7 @@
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\parameters\body-optionality\src\Parameters.BodyOptionality.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\parameters\collection-format\src\Parameters.CollectionFormat.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\parameters\spread\src\Parameters.Spread.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\parameters\path\src\Parameters.Path.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\payload\content-negotiation\src\Payload.ContentNegotiation.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\payload\json-merge-patch\src\Payload.JsonMergePatch.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\payload\media-type\src\Payload.MediaType.csproj" />

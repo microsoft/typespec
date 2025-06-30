@@ -2,10 +2,6 @@
   "flavor": "generic", 
   "CrossLanguageDefinitionId": {
     "server.path.multiple.MultipleClient": "Server.Path.Multiple",
-    "server.path.multiple.MultipleClient.noOperationParams": "Server.Path.Multiple.noOperationParams",
-    "server.path.multiple.MultipleClient.noOperationParamsWithResponse": "Server.Path.Multiple.noOperationParams",
-    "server.path.multiple.MultipleClient.withOperationPathParam": "Server.Path.Multiple.withOperationPathParam",
-    "server.path.multiple.MultipleClient.withOperationPathParamWithResponse": "Server.Path.Multiple.withOperationPathParam",
     "server.path.multiple.MultipleClientBuilder": "Server.Path.Multiple"
   }
 }

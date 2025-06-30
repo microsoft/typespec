@@ -1,5 +1,38 @@
 # Changelog - @typespec/emitter-framework
 
+## 0.8.0
+
+### Features
+
+- [#7409](https://github.com/microsoft/typespec/pull/7409) Emit TypeSpec comments as JSDoc in TypeScript components
+
+### Bump dependencies
+
+- [#7605](https://github.com/microsoft/typespec/pull/7605) Updates alloy to 0.17
+
+### Bug Fixes
+
+- [#7369](https://github.com/microsoft/typespec/pull/7369) Render discriminated unions correctly
+
+
+## 0.7.1
+
+### Bump dependencies
+
+- [#7363](https://github.com/microsoft/typespec/pull/7363) Upgrade alloy 16
+
+### Bug Fixes
+
+- [#7321](https://github.com/microsoft/typespec/pull/7321) Use wasm version of tree sitter for snippet extractor
+
+
+## 0.7.0
+
+### Bump dependencies
+
+- [#7186](https://github.com/microsoft/typespec/pull/7186) Upgrade to alloy 15
+
+
 ## 0.6.0
 
 ### Features

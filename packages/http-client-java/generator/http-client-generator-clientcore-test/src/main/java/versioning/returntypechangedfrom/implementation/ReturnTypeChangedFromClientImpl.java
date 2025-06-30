@@ -1,20 +1,20 @@
 package versioning.returntypechangedfrom.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
-import io.clientcore.core.http.RestProxy;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
-import io.clientcore.core.models.binarydata.BinaryData;
+import java.lang.reflect.InvocationTargetException;
 import versioning.returntypechangedfrom.ReturnTypeChangedFromServiceVersion;
-import versioning.returntypechangedfrom.Versions;
 
 /**
  * Initializes a new instance of the ReturnTypeChangedFromClient type.
@@ -37,20 +37,6 @@ public final class ReturnTypeChangedFromClientImpl {
      */
     public String getEndpoint() {
         return this.endpoint;
-    }
-
-    /**
-     * Need to be set as 'v1' or 'v2' in client.
-     */
-    private final Versions version;
-
-    /**
-     * Gets Need to be set as 'v1' or 'v2' in client.
-     * 
-     * @return the version value.
-     */
-    public Versions getVersion() {
-        return this.version;
     }
 
     /**
@@ -86,16 +72,14 @@ public final class ReturnTypeChangedFromClientImpl {
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
-     * @param version Need to be set as 'v1' or 'v2' in client.
      * @param serviceVersion Service version.
      */
-    public ReturnTypeChangedFromClientImpl(HttpPipeline httpPipeline, String endpoint, Versions version,
+    public ReturnTypeChangedFromClientImpl(HttpPipeline httpPipeline, String endpoint,
         ReturnTypeChangedFromServiceVersion serviceVersion) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.version = version;
         this.serviceVersion = serviceVersion;
-        this.service = RestProxy.create(ReturnTypeChangedFromClientService.class, this.httpPipeline);
+        this.service = ReturnTypeChangedFromClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -103,42 +87,44 @@ public final class ReturnTypeChangedFromClientImpl {
      * perform REST calls.
      */
     @ServiceInterface(
-        name = "ReturnTypeChangedFro",
+        name = "ReturnTypeChangedFromClient",
         host = "{endpoint}/versioning/return-type-changed-from/api-version:{version}")
     public interface ReturnTypeChangedFromClientService {
+        static ReturnTypeChangedFromClientService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class
+                    .forName("versioning.returntypechangedfrom.implementation.ReturnTypeChangedFromClientServiceImpl");
+                return (ReturnTypeChangedFromClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(method = HttpMethod.POST, path = "/test", expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<String> testSync(@HostParam("endpoint") String endpoint, @HostParam("version") Versions version,
+        Response<String> test(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
             @HeaderParam("content-type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") BinaryData body, RequestOptions requestOptions);
+            @BodyParam("application/json") String body, RequestContext requestContext);
     }
 
     /**
      * The test operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * String
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * String
-     * }
-     * </pre>
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a sequence of textual characters.
      */
-    public Response<String> testWithResponse(BinaryData body, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<String> testWithResponse(String body, RequestContext requestContext) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.testSync(this.getEndpoint(), this.getVersion(), contentType, accept, body, requestOptions);
+        return service.test(this.getEndpoint(), this.getServiceVersion().getVersion(), contentType, accept, body,
+            requestContext);
     }
 }

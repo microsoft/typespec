@@ -6,18 +6,20 @@ import encode.duration.property.FloatSecondsDurationArrayProperty;
 import encode.duration.property.FloatSecondsDurationProperty;
 import encode.duration.property.ISO8601DurationProperty;
 import encode.duration.property.Int32SecondsDurationProperty;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
-import io.clientcore.core.http.RestProxy;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.http.pipeline.HttpPipeline;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * An instance of this class provides access to all the operations defined in Properties.
@@ -39,7 +41,7 @@ public final class PropertiesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     PropertiesImpl(DurationClientImpl client) {
-        this.service = RestProxy.create(PropertiesService.class, client.getHttpPipeline());
+        this.service = PropertiesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -47,266 +49,179 @@ public final class PropertiesImpl {
      * The interface defining all the services for DurationClientProperties to be used by the proxy service to perform
      * REST calls.
      */
-    @ServiceInterface(name = "DurationClientProper", host = "{endpoint}")
+    @ServiceInterface(name = "DurationClientProperties", host = "{endpoint}")
     public interface PropertiesService {
+        static PropertiesService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("encode.duration.implementation.PropertiesServiceImpl");
+                return (PropertiesService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(
             method = HttpMethod.POST,
             path = "/encode/duration/property/default",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<DefaultDurationProperty> defaultMethodSync(@HostParam("endpoint") String endpoint,
+        Response<DefaultDurationProperty> defaultMethod(@HostParam("endpoint") String endpoint,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") BinaryData body, RequestOptions requestOptions);
+            @BodyParam("application/json") DefaultDurationProperty body, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.POST,
             path = "/encode/duration/property/iso8601",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<ISO8601DurationProperty> iso8601Sync(@HostParam("endpoint") String endpoint,
+        Response<ISO8601DurationProperty> iso8601(@HostParam("endpoint") String endpoint,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") BinaryData body, RequestOptions requestOptions);
+            @BodyParam("application/json") ISO8601DurationProperty body, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.POST,
             path = "/encode/duration/property/int32-seconds",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<Int32SecondsDurationProperty> int32SecondsSync(@HostParam("endpoint") String endpoint,
+        Response<Int32SecondsDurationProperty> int32Seconds(@HostParam("endpoint") String endpoint,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") BinaryData body, RequestOptions requestOptions);
+            @BodyParam("application/json") Int32SecondsDurationProperty body, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.POST,
             path = "/encode/duration/property/float-seconds",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<FloatSecondsDurationProperty> floatSecondsSync(@HostParam("endpoint") String endpoint,
+        Response<FloatSecondsDurationProperty> floatSeconds(@HostParam("endpoint") String endpoint,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") BinaryData body, RequestOptions requestOptions);
+            @BodyParam("application/json") FloatSecondsDurationProperty body, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.POST,
             path = "/encode/duration/property/float64-seconds",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<Float64SecondsDurationProperty> float64SecondsSync(@HostParam("endpoint") String endpoint,
+        Response<Float64SecondsDurationProperty> float64Seconds(@HostParam("endpoint") String endpoint,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") BinaryData body, RequestOptions requestOptions);
+            @BodyParam("application/json") Float64SecondsDurationProperty body, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.POST,
             path = "/encode/duration/property/float-seconds-array",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<FloatSecondsDurationArrayProperty> floatSecondsArraySync(@HostParam("endpoint") String endpoint,
+        Response<FloatSecondsDurationArrayProperty> floatSecondsArray(@HostParam("endpoint") String endpoint,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") BinaryData body, RequestOptions requestOptions);
+            @BodyParam("application/json") FloatSecondsDurationArrayProperty body, RequestContext requestContext);
     }
 
     /**
      * The defaultMethod operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     value: Duration (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     value: Duration (Required)
-     * }
-     * }
-     * </pre>
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<DefaultDurationProperty> defaultMethodWithResponse(BinaryData body, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<DefaultDurationProperty> defaultMethodWithResponse(DefaultDurationProperty body,
+        RequestContext requestContext) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.defaultMethodSync(this.client.getEndpoint(), contentType, accept, body, requestOptions);
+        return service.defaultMethod(this.client.getEndpoint(), contentType, accept, body, requestContext);
     }
 
     /**
      * The iso8601 operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     value: Duration (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     value: Duration (Required)
-     * }
-     * }
-     * </pre>
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<ISO8601DurationProperty> iso8601WithResponse(BinaryData body, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<ISO8601DurationProperty> iso8601WithResponse(ISO8601DurationProperty body,
+        RequestContext requestContext) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.iso8601Sync(this.client.getEndpoint(), contentType, accept, body, requestOptions);
+        return service.iso8601(this.client.getEndpoint(), contentType, accept, body, requestContext);
     }
 
     /**
      * The int32Seconds operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     value: long (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     value: long (Required)
-     * }
-     * }
-     * </pre>
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Int32SecondsDurationProperty> int32SecondsWithResponse(BinaryData body,
-        RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Int32SecondsDurationProperty> int32SecondsWithResponse(Int32SecondsDurationProperty body,
+        RequestContext requestContext) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.int32SecondsSync(this.client.getEndpoint(), contentType, accept, body, requestOptions);
+        return service.int32Seconds(this.client.getEndpoint(), contentType, accept, body, requestContext);
     }
 
     /**
      * The floatSeconds operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     value: double (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     value: double (Required)
-     * }
-     * }
-     * </pre>
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<FloatSecondsDurationProperty> floatSecondsWithResponse(BinaryData body,
-        RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<FloatSecondsDurationProperty> floatSecondsWithResponse(FloatSecondsDurationProperty body,
+        RequestContext requestContext) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.floatSecondsSync(this.client.getEndpoint(), contentType, accept, body, requestOptions);
+        return service.floatSeconds(this.client.getEndpoint(), contentType, accept, body, requestContext);
     }
 
     /**
      * The float64Seconds operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     value: double (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     value: double (Required)
-     * }
-     * }
-     * </pre>
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Float64SecondsDurationProperty> float64SecondsWithResponse(BinaryData body,
-        RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Float64SecondsDurationProperty> float64SecondsWithResponse(Float64SecondsDurationProperty body,
+        RequestContext requestContext) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.float64SecondsSync(this.client.getEndpoint(), contentType, accept, body, requestOptions);
+        return service.float64Seconds(this.client.getEndpoint(), contentType, accept, body, requestContext);
     }
 
     /**
      * The floatSecondsArray operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     value (Required): [
-     *         double (Required)
-     *     ]
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     value (Required): [
-     *         double (Required)
-     *     ]
-     * }
-     * }
-     * </pre>
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<FloatSecondsDurationArrayProperty> floatSecondsArrayWithResponse(BinaryData body,
-        RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<FloatSecondsDurationArrayProperty>
+        floatSecondsArrayWithResponse(FloatSecondsDurationArrayProperty body, RequestContext requestContext) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.floatSecondsArraySync(this.client.getEndpoint(), contentType, accept, body, requestOptions);
+        return service.floatSecondsArray(this.client.getEndpoint(), contentType, accept, body, requestContext);
     }
 }

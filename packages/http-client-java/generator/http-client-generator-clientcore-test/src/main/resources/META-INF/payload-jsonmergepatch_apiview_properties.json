@@ -3,12 +3,6 @@
   "CrossLanguageDefinitionId": {
     "payload.jsonmergepatch.InnerModel": "Payload.JsonMergePatch.InnerModel",
     "payload.jsonmergepatch.JsonMergePatchClient": "Payload.JsonMergePatch",
-    "payload.jsonmergepatch.JsonMergePatchClient.createResource": "Payload.JsonMergePatch.createResource",
-    "payload.jsonmergepatch.JsonMergePatchClient.createResourceWithResponse": "Payload.JsonMergePatch.createResource",
-    "payload.jsonmergepatch.JsonMergePatchClient.updateOptionalResource": "Payload.JsonMergePatch.updateOptionalResource",
-    "payload.jsonmergepatch.JsonMergePatchClient.updateOptionalResourceWithResponse": "Payload.JsonMergePatch.updateOptionalResource",
-    "payload.jsonmergepatch.JsonMergePatchClient.updateResource": "Payload.JsonMergePatch.updateResource",
-    "payload.jsonmergepatch.JsonMergePatchClient.updateResourceWithResponse": "Payload.JsonMergePatch.updateResource",
     "payload.jsonmergepatch.JsonMergePatchClientBuilder": "Payload.JsonMergePatch",
     "payload.jsonmergepatch.Resource": "Payload.JsonMergePatch.Resource",
     "payload.jsonmergepatch.ResourcePatch": "Payload.JsonMergePatch.ResourcePatch"

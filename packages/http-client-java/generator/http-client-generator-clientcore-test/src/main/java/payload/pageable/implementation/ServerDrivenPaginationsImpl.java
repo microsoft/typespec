@@ -1,20 +1,22 @@
 package payload.pageable.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
-import io.clientcore.core.http.RestProxy;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.PathParam;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.PagedIterable;
-import io.clientcore.core.http.models.PagedResponse;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.http.paging.PagedIterable;
+import io.clientcore.core.http.paging.PagedResponse;
+import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.logging.ClientLogger;
-import io.clientcore.core.utils.Context;
+import java.lang.reflect.InvocationTargetException;
 import payload.pageable.Pet;
 import payload.pageable.serverdrivenpagination.implementation.LinkResponse;
 
@@ -38,7 +40,7 @@ public final class ServerDrivenPaginationsImpl {
      * @param client the instance of the service client containing this operation class.
      */
     ServerDrivenPaginationsImpl(PageableClientImpl client) {
-        this.service = RestProxy.create(ServerDrivenPaginationsService.class, client.getHttpPipeline());
+        this.service = ServerDrivenPaginationsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -46,146 +48,142 @@ public final class ServerDrivenPaginationsImpl {
      * The interface defining all the services for PageableClientServerDrivenPaginations to be used by the proxy service
      * to perform REST calls.
      */
-    @ServiceInterface(name = "PageableClientServer", host = "{endpoint}")
+    @ServiceInterface(name = "PageableClientServerDrivenPaginations", host = "{endpoint}")
     public interface ServerDrivenPaginationsService {
+        static ServerDrivenPaginationsService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("payload.pageable.implementation.ServerDrivenPaginationsServiceImpl");
+                return (ServerDrivenPaginationsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/payload/pageable/server-driven-pagination/link",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<LinkResponse> linkSync(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestOptions requestOptions);
+        Response<LinkResponse> link(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
 
         @HttpRequestInformation(method = HttpMethod.GET, path = "{nextLink}", expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<LinkResponse> linkNextSync(@PathParam(value = "nextLink", encoded = true) String nextLink,
+        Response<LinkResponse> linkNext(@PathParam(value = "nextLink", encoded = true) String nextLink,
             @HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestOptions requestOptions);
+            RequestContext requestContext);
     }
 
     /**
      * The link operation.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     pets (Required): [
-     *          (Required){
-     *             id: String (Required)
-     *             name: String (Required)
-     *         }
-     *     ]
-     *     next: String (Optional)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    private PagedResponse<Pet> linkSinglePage(RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<Pet> linkSinglePage() {
         final String accept = "application/json";
-        Response<LinkResponse> res = service.linkSync(this.client.getEndpoint(), accept, requestOptions);
-        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getBody(),
-            res.getValue().getPets(), null, res.getValue().getNext(), null, null, null);
+        Response<LinkResponse> res = service.link(this.client.getEndpoint(), accept, RequestContext.none());
+        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
+            null, res.getValue().getNext() != null ? res.getValue().getNext() : null, null, null, null);
     }
 
     /**
      * The link operation.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     pets (Required): [
-     *          (Required){
-     *             id: String (Required)
-     *             name: String (Required)
-     *         }
-     *     ]
-     *     next: String (Optional)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public PagedIterable<Pet> link(RequestOptions requestOptions) {
-        RequestOptions requestOptionsForNextPage = new RequestOptions();
-        requestOptionsForNextPage.setContext(requestOptions != null && requestOptions.getContext() != null
-            ? requestOptions.getContext()
-            : Context.none());
-        return new PagedIterable<>(pagingOptions -> {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<Pet> linkSinglePage(RequestContext requestContext) {
+        final String accept = "application/json";
+        Response<LinkResponse> res = service.link(this.client.getEndpoint(), accept, requestContext);
+        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
+            null, res.getValue().getNext() != null ? res.getValue().getNext() : null, null, null, null);
+    }
+
+    /**
+     * The link operation.
+     * 
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> link(RequestContext requestContext) {
+        RequestContext requestContextForNextPage = requestContext != null ? requestContext : RequestContext.none();
+        return new PagedIterable<>((pagingOptions) -> {
             if (pagingOptions.getOffset() != null) {
-                throw LOGGER.logThrowableAsError(
-                    new IllegalArgumentException("'offset' in PagingOptions is not supported in API 'link'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "offset")
+                    .addKeyValue("methodName", "link")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.logThrowableAsError(
-                    new IllegalArgumentException("'pageSize' in PagingOptions is not supported in API 'link'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageSize")
+                    .addKeyValue("methodName", "link")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.logThrowableAsError(
-                    new IllegalArgumentException("'pageIndex' in PagingOptions is not supported in API 'link'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageIndex")
+                    .addKeyValue("methodName", "link")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getContinuationToken() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'continuationToken' in PagingOptions is not supported in API 'link'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "continuationToken")
+                    .addKeyValue("methodName", "link")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
-            return linkSinglePage(requestOptions);
-        }, (pagingOptions, nextLink) -> {
-            if (pagingOptions.getOffset() != null) {
-                throw LOGGER.logThrowableAsError(
-                    new IllegalArgumentException("'offset' in PagingOptions is not supported in API 'link'."));
-            }
-            if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.logThrowableAsError(
-                    new IllegalArgumentException("'pageSize' in PagingOptions is not supported in API 'link'."));
-            }
-            if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.logThrowableAsError(
-                    new IllegalArgumentException("'pageIndex' in PagingOptions is not supported in API 'link'."));
-            }
-            if (pagingOptions.getContinuationToken() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'continuationToken' in PagingOptions is not supported in API 'link'."));
-            }
-            return linkNextSinglePage(nextLink, requestOptionsForNextPage);
-        });
+            return linkSinglePage(requestContext);
+        }, (pagingOptions, nextLink) -> linkNextSinglePage(nextLink, requestContextForNextPage));
     }
 
     /**
      * Get the next page of items.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     pets (Required): [
-     *          (Required){
-     *             id: String (Required)
-     *             name: String (Required)
-     *         }
-     *     ]
-     *     next: String (Optional)
-     * }
-     * }
-     * </pre>
      * 
      * @param nextLink The URL to get the next list of items.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    private PagedResponse<Pet> linkNextSinglePage(String nextLink, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<Pet> linkNextSinglePage(String nextLink) {
         final String accept = "application/json";
-        Response<LinkResponse> res = service.linkNextSync(nextLink, this.client.getEndpoint(), accept, requestOptions);
-        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getBody(),
-            res.getValue().getPets(), null, res.getValue().getNext(), null, null, null);
+        Response<LinkResponse> res
+            = service.linkNext(nextLink, this.client.getEndpoint(), accept, RequestContext.none());
+        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
+            null, res.getValue().getNext() != null ? res.getValue().getNext() : null, null, null, null);
+    }
+
+    /**
+     * Get the next page of items.
+     * 
+     * @param nextLink The URL to get the next list of items.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<Pet> linkNextSinglePage(String nextLink, RequestContext requestContext) {
+        final String accept = "application/json";
+        Response<LinkResponse> res = service.linkNext(nextLink, this.client.getEndpoint(), accept, requestContext);
+        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
+            null, res.getValue().getNext() != null ? res.getValue().getNext() : null, null, null, null);
     }
 
     private static final ClientLogger LOGGER = new ClientLogger(ServerDrivenPaginationsImpl.class);

@@ -6,6 +6,7 @@ using System.ClientModel;
 using System.ComponentModel.Composition;
 using System.Text.Json;
 using Microsoft.CodeAnalysis;
+using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel
 {
@@ -32,10 +33,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         protected override void Configure()
         {
             base.Configure();
-            AddVisitor(new DefaultScmLibraryVisitor());
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(ClientResult).Assembly.Location));
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(BinaryData).Assembly.Location));
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(JsonSerializer).Assembly.Location));
+            AddTypeToKeepPublic(ModelReaderWriterContextDefinition.s_name);
         }
     }
 }

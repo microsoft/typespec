@@ -1,5 +1,16 @@
 # Change Log - @typespec/json-schema
 
+## 1.1.0
+
+### Bug Fixes
+
+- [#7501](https://github.com/microsoft/typespec/pull/7501) Json schema emitter conflict with other emitters
+
+
+## 1.0.0
+
+No changes, version bump only.
+
 ## 1.0.0-rc.1
 
 ### Bug Fixes

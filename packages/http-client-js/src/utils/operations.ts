@@ -1,12 +1,11 @@
 import { Model, ModelProperty, Operation, Union } from "@typespec/compiler";
 import {
-  unsafe_$ as $,
   unsafe_mutateSubgraph as mutateSubgraph,
   unsafe_Mutator as Mutator,
   unsafe_MutatorFlow as MutatorFlow,
   unsafe_MutatorRecord,
 } from "@typespec/compiler/experimental";
-import type { Typekit } from "@typespec/compiler/experimental/typekit";
+import { $, type Typekit } from "@typespec/compiler/typekit";
 
 /**
  * Prepares operation for client representation. This includes adding an options bag for optional parameters.

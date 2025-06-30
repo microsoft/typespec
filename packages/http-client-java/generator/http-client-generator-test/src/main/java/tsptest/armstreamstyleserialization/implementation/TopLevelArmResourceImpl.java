@@ -14,10 +14,10 @@ import tsptest.armstreamstyleserialization.models.TopLevelArmResourceProperties;
 public final class TopLevelArmResourceImpl implements TopLevelArmResource {
     private TopLevelArmResourceInner innerObject;
 
-    private final tsptest.armstreamstyleserialization.ArmStreamStyleSerializationManager serviceManager;
+    private final tsptest.armstreamstyleserialization.ArmResourceProviderManager serviceManager;
 
     TopLevelArmResourceImpl(TopLevelArmResourceInner innerObject,
-        tsptest.armstreamstyleserialization.ArmStreamStyleSerializationManager serviceManager) {
+        tsptest.armstreamstyleserialization.ArmResourceProviderManager serviceManager) {
         this.innerObject = innerObject;
         this.serviceManager = serviceManager;
     }
@@ -59,7 +59,7 @@ public final class TopLevelArmResourceImpl implements TopLevelArmResource {
         return this.innerObject;
     }
 
-    private tsptest.armstreamstyleserialization.ArmStreamStyleSerializationManager manager() {
+    private tsptest.armstreamstyleserialization.ArmResourceProviderManager manager() {
         return this.serviceManager;
     }
 }

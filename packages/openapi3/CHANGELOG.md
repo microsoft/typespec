@@ -1,5 +1,20 @@
 # Change Log - @typespec/openapi3
 
+## 1.1.0
+
+### Features
+
+- [#7219](https://github.com/microsoft/typespec/pull/7219) [OpenAPI -> tsp] Add support for converting inline schemas using allOf
+- [#7403](https://github.com/microsoft/typespec/pull/7403) Adds support for parameter examples via `@opExample` via the `experimental-parameter-examples` option.
+
+
+## 1.0.0
+
+### Features
+
+- [#7199](https://github.com/microsoft/typespec/pull/7199) Add "capitalize" string helper to compiler
+
+
 ## 1.0.0-rc.1
 
 ### Bug Fixes

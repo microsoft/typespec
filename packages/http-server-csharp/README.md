@@ -8,7 +8,7 @@ TypeSpec service code generator for c-sharp
 npm install @typespec/http-server-csharp
 ```
 
-## Usage
+## Emitter usage
 
 1. Via the command line
 
@@ -95,3 +95,9 @@ The service http port when hosting the project locally.
 **Type:** `number`
 
 The service https port when hosting the project locally.
+
+### `collection-type`
+
+**Type:** `"array" | "enumerable"`
+
+Specifies the collection type to use: 'array' or 'enumerable'. The default is 'array'.

@@ -1,5 +1,20 @@
 # Changelog - @typespec/http-client
 
+## 0.7.0
+
+### Bump dependencies
+
+- [#7605](https://github.com/microsoft/typespec/pull/7605) Updates alloy to 0.17
+- [#7363](https://github.com/microsoft/typespec/pull/7363) Upgrade alloy 16
+
+
+## 0.6.0
+
+### Bump dependencies
+
+- [#7186](https://github.com/microsoft/typespec/pull/7186) Upgrade to alloy 15
+
+
 ## 0.5.0
 
 ### Features

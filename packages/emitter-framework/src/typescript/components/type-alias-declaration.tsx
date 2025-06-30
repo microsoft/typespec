@@ -1,8 +1,8 @@
-import { refkey as getRefkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Type } from "@typespec/compiler";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
+import { declarationRefkeys } from "../utils/refkey.js";
 import { TypeExpression } from "./type-expression.jsx";
 
 export interface TypedAliasDeclarationProps extends Omit<ts.TypeDeclarationProps, "name"> {
@@ -30,9 +30,12 @@ export function TypeAliasDeclaration(props: TypeAliasDeclarationProps) {
     reportDiagnostic($.program, { code: "type-declaration-missing-name", target: props.type });
   }
 
+  const doc = props.doc ?? $.type.getDoc(props.type);
+  const refkeys = declarationRefkeys(props.refkey, props.type);
+
   const name = ts.useTSNamePolicy().getName(originalName, "type");
   return (
-    <ts.TypeDeclaration {...props} name={name} refkey={props.refkey ?? getRefkey(props.type)}>
+    <ts.TypeDeclaration doc={doc} {...props} name={name} refkey={refkeys}>
       <TypeExpression type={props.type} noReference />
       {props.children}
     </ts.TypeDeclaration>

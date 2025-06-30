@@ -5,9 +5,13 @@ package com.microsoft.typespec.http.client.generator.core.extension.plugin;
 
 import com.azure.json.JsonProviders;
 import com.azure.json.JsonReader;
-import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
-import com.azure.json.JsonWriter;
+import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
+import com.microsoft.typespec.http.client.generator.core.mapper.azurevnext.AzureVNextMapperFactory;
+import com.microsoft.typespec.http.client.generator.core.mapper.clientcore.ClientCoreMapperFactory;
+import com.microsoft.typespec.http.client.generator.core.template.Templates;
+import com.microsoft.typespec.http.client.generator.core.template.azurevnext.AzureVNextTemplateFactory;
+import com.microsoft.typespec.http.client.generator.core.template.clientcore.ClientCoreTemplateFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +39,7 @@ public class JavaSettings {
     private final String flavor;
     private final boolean noCustomHeaders;
     private final boolean disableTypedHeadersMethods;
+    private final boolean useRestProxy;
 
     static void setHeader(String value) {
         if ("MICROSOFT_MIT".equals(value)) {
@@ -139,9 +144,6 @@ public class JavaSettings {
         this.modelerSettings = new ModelerSettings(
             host.getValueWithJsonReader("modelerfour", jsonReader -> jsonReader.readMap(JsonReader::readUntyped)));
 
-        // Whether to generate the Azure.
-        this.azure = getBooleanValue(host, "azure-arm", false);
-
         // Whether to generate the SDK integration.
         this.sdkIntegration = getBooleanValue(host, "sdk-integration", false);
 
@@ -180,7 +182,9 @@ public class JavaSettings {
         // The brand name we use to generate SDK.
         this.flavor = getStringValue(host, "flavor", "azure");
 
-        this.modelsSubpackage = getStringValue(host, "models-subpackage", isBranded(this.flavor) ? "models" : "");
+        updateFlavorFactories();
+
+        this.modelsSubpackage = getStringValue(host, "models-subpackage", isAzureV1() || isAzureV2() ? "models" : "");
 
         // The custom types that will be generated.
         String customTypes = getStringValue(host, "custom-types", "");
@@ -212,7 +216,7 @@ public class JavaSettings {
         this.syncMethods = SyncMethodsGeneration.fromValue(getStringValue(host, "sync-methods", "essential"));
 
         // Whether to add a logger to the generated clients.
-        this.clientLogger = getBooleanValue(host, "client-logger", false);
+        this.clientLogger = getBooleanValue(host, "client-logger", true);
 
         // Whether required fields will be included in the constructor arguments for generated models.
         this.requiredFieldsAsConstructorArgs = getBooleanValue(host, "required-fields-as-ctor-args", false);
@@ -259,8 +263,8 @@ public class JavaSettings {
         this.useIterable = getBooleanValue(host, "use-iterable", false);
 
         // The versions of the service.
-        this.serviceVersions = host.getValueWithJsonReader("service-versions",
-            jsonReader -> jsonReader.readArray(JsonReader::getString));
+        this.serviceVersions
+            = host.getValueWithJsonReader("service-versions", reader -> reader.readArray(JsonReader::getString));
 
         // The target for the <code>@JsonFlatten</code> annotation for x-ms-client-flatten.
         String clientFlattenAnnotationTarget = getStringValue(host, "client-flattened-annotation-target", "");
@@ -276,20 +280,20 @@ public class JavaSettings {
         this.clientBuilderDisabled = getBooleanValue(host, "disable-client-builder", false);
 
         // The polling configuration.
-        Map<String, PollingDetails> pollingConfig
-            = host.getValueWithJsonReader("polling", jsonReader -> jsonReader.readMap(PollingDetails::fromJson));
-        if (pollingConfig != null) {
-            if (!pollingConfig.containsKey("default")) {
-                pollingConfig.put("default", new PollingDetails());
-            }
+        final Map<String, PollingSettings> operationPollingMapping
+            = host.getValueWithJsonReader("polling", reader -> reader.readMap(PollingSettings::fromJson));
+        if (operationPollingMapping != null && !operationPollingMapping.containsKey("default")) {
+            operationPollingMapping.put("default", new PollingSettings());
         }
-        this.pollingConfig = pollingConfig;
+        this.operationPollingMapping = operationPollingMapping;
 
         // Whether to generate samples.
         this.generateSamples = getBooleanValue(host, "generate-samples", false);
 
         // Whether to generate tests.
         this.generateTests = getBooleanValue(host, "generate-tests", false);
+
+        this.useRestProxy = getBooleanValue(host, "use-rest-proxy", false);
 
         // Whether to generate the send request method.
         this.generateSendRequestMethod = false;
@@ -384,17 +388,40 @@ public class JavaSettings {
         this.useObjectForUnknown = getBooleanValue(host, "use-object-for-unknown", false);
     }
 
-    /**
-     * Whether to generate with Azure branding.
-     *
-     * @return Whether to generate with Azure branding.
-     */
-    public boolean isBranded() {
-        return isBranded(this.flavor);
+    private void updateFlavorFactories() {
+        if (isAzureV2()) {
+            Mappers.setFactory(new AzureVNextMapperFactory());
+            Templates.setFactory(new AzureVNextTemplateFactory());
+        } else if (!isAzureV1()) {
+            Mappers.setFactory(new ClientCoreMapperFactory());
+            Templates.setFactory(new ClientCoreTemplateFactory());
+        }
     }
 
-    private static boolean isBranded(String flavor) {
+    /**
+     * Whether to generate with Azure V1.
+     *
+     * @return Whether to generate with Azure V1.
+     */
+    public boolean isAzureV1() {
         return "azure".equalsIgnoreCase(flavor);
+    }
+
+    /**
+     * Whether to generate with Azure V2.
+     *
+     * @return Whether to generate with Azure V2.
+     */
+    public boolean isAzureV2() {
+        return "azurev2".equalsIgnoreCase(this.flavor);
+    }
+
+    public boolean isUnbranded() {
+        return !isAzureV1() && !isAzureV2();
+    }
+
+    public boolean useRestProxy() {
+        return this.useRestProxy;
     }
 
     private final String keyCredentialHeaderName;
@@ -428,17 +455,6 @@ public class JavaSettings {
      */
     public Set<String> getCredentialScopes() {
         return credentialScopes;
-    }
-
-    private final boolean azure;
-
-    /**
-     * Whether to generate the Azure.
-     *
-     * @return Whether to generate the Azure.
-     */
-    public final boolean isAzure() {
-        return azure;
     }
 
     private final String artifactId;
@@ -562,15 +578,6 @@ public class JavaSettings {
      */
     public final boolean isFluentPremium() {
         return fluent == Fluent.PREMIUM;
-    }
-
-    /**
-     * Whether to generate the Azure or Fluent.
-     *
-     * @return Whether to generate the Azure or Fluent.
-     */
-    public final boolean isAzureOrFluent() {
-        return isAzure() || isFluent();
     }
 
     // configure for model flatten in client
@@ -1160,7 +1167,7 @@ public class JavaSettings {
      * @return Whether the client is a vanilla client.
      */
     public boolean isVanilla() {
-        return isBranded() && !isDataPlaneClient() && !isFluent();
+        return isAzureV1() && !isDataPlaneClient() && !isFluent();
     }
 
     private final boolean useIterable;
@@ -1281,141 +1288,7 @@ public class JavaSettings {
         return generateGraalVmConfig;
     }
 
-    /**
-     * Represents the details of polling for a long-running operation.
-     */
-    public static class PollingDetails implements JsonSerializable<PollingDetails> {
-        private String strategy;
-        private String syncStrategy;
-        private String intermediateType;
-        private String finalType;
-        private String pollInterval;
-
-        /**
-         * Creates a new PollingDetails object.
-         */
-        public PollingDetails() {
-        }
-
-        /**
-         * The default polling strategy format.
-         */
-        public static final String DEFAULT_POLLING_STRATEGY_FORMAT
-            = String.join("\n", "new %s<>(new PollingStrategyOptions({httpPipeline})", "    .setEndpoint({endpoint})",
-                "    .setContext({context})", "    .setServiceVersion({serviceVersion}))");
-
-        private static final String DEFAULT_POLLING_CODE
-            = String.format(DEFAULT_POLLING_STRATEGY_FORMAT, "DefaultPollingStrategy");
-
-        private static final String DEFAULT_SYNC_POLLING_CODE
-            = String.format(DEFAULT_POLLING_STRATEGY_FORMAT, "SyncDefaultPollingStrategy");
-
-        /**
-         * Gets the strategy for polling.
-         * <p>
-         * See the 'com.azure.core.util.polling.PollingStrategy' contract for more details.
-         * </p>
-         *
-         * @return The strategy for polling.
-         */
-        public String getStrategy() {
-            if (strategy == null || "default".equalsIgnoreCase(strategy)) {
-                return DEFAULT_POLLING_CODE;
-            } else {
-                return strategy;
-            }
-        }
-
-        /**
-         * Gets the sync strategy for polling.
-         * <p>
-         * See the 'com.azure.core.util.polling.PollingStrategy' contract for more details.
-         * </p>
-         *
-         * @return The sync strategy for polling.
-         */
-        public String getSyncStrategy() {
-            if (syncStrategy == null || "default".equalsIgnoreCase(syncStrategy)) {
-                return DEFAULT_SYNC_POLLING_CODE;
-            } else {
-                return syncStrategy;
-            }
-        }
-
-        /**
-         * Gets the type of the poll response when the long-running operation is in progress.
-         *
-         * @return The intermediate type for polling.
-         */
-        public String getIntermediateType() {
-            return intermediateType;
-        }
-
-        /**
-         * Gets the type of the poll response once the long-running operation is completed.
-         *
-         * @return The final type for polling.
-         */
-        public String getFinalType() {
-            return finalType;
-        }
-
-        /**
-         * Gets the polling interval in seconds.
-         *
-         * @return The polling interval in seconds.
-         */
-        public int getPollIntervalInSeconds() {
-            return pollInterval != null ? Integer.parseInt(pollInterval) : 1;
-        }
-
-        @Override
-        public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-            return jsonWriter.writeStartObject()
-                .writeStringField("strategy", strategy)
-                .writeStringField("sync-strategy", syncStrategy)
-                .writeStringField("intermediate-type", intermediateType)
-                .writeStringField("final-type", finalType)
-                .writeStringField("poll-interval", pollInterval)
-                .writeEndObject();
-        }
-
-        /**
-         * Deserializes a PollingDetails instance from the JSON data.
-         *
-         * @param jsonReader The JSON reader to deserialize from.
-         * @return A PollingDetails instance deserialized from the JSON data.
-         * @throws IOException If an error occurs during deserialization.
-         */
-        public static PollingDetails fromJson(JsonReader jsonReader) throws IOException {
-            return jsonReader.readObject(reader -> {
-                PollingDetails pollingDetails = new PollingDetails();
-
-                while (reader.nextToken() != JsonToken.END_OBJECT) {
-                    String fieldName = reader.getFieldName();
-                    reader.nextToken();
-
-                    if ("strategy".equals(fieldName)) {
-                        pollingDetails.strategy = reader.getString();
-                    } else if ("sync-strategy".equals(fieldName)) {
-                        pollingDetails.syncStrategy = reader.getString();
-                    } else if ("intermediate-type".equals(fieldName)) {
-                        pollingDetails.intermediateType = reader.getString();
-                    } else if ("final-type".equals(fieldName)) {
-                        pollingDetails.finalType = reader.getString();
-                    } else if ("poll-interval".equals(fieldName)) {
-                        pollingDetails.pollInterval = reader.getString();
-                    } else {
-                        reader.skipChildren();
-                    }
-                }
-
-                return pollingDetails;
-            });
-        }
-    }
-
-    private final Map<String, PollingDetails> pollingConfig;
+    private final Map<String, PollingSettings> operationPollingMapping;
 
     /**
      * Gets the polling configuration for the specified operation.
@@ -1424,16 +1297,16 @@ public class JavaSettings {
      * @return The polling configuration for the specified operation, or the default polling configuration if no
      * configuration is specified for the operation.
      */
-    public PollingDetails getPollingConfig(String operationId) {
-        if (pollingConfig == null) {
+    public PollingSettings getPollingSettings(String operationId) {
+        if (operationPollingMapping == null) {
             return null;
         }
-        for (String key : pollingConfig.keySet()) {
+        for (String key : operationPollingMapping.keySet()) {
             if (key.equalsIgnoreCase(operationId)) {
-                return pollingConfig.get(key);
+                return operationPollingMapping.get(key);
             }
         }
-        return pollingConfig.get("default");
+        return operationPollingMapping.get("default");
     }
 
     private final boolean annotateGettersAndSettersForSerialization;

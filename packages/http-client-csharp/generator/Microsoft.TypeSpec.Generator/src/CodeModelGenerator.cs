@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -43,6 +44,8 @@ namespace Microsoft.TypeSpec.Generator
 
         public IReadOnlyList<LibraryVisitor> Visitors => _visitors;
 
+        public IReadOnlyList<LibraryRewriter> Rewriters => _rewriters;
+
         [ImportingConstructor]
         public CodeModelGenerator(GeneratorContext context)
         {
@@ -68,6 +71,8 @@ namespace Microsoft.TypeSpec.Generator
         public virtual TypeFactory TypeFactory { get; }
 
         private SourceInputModel? _sourceInputModel;
+        private List<LibraryRewriter> _rewriters = [];
+
         public virtual SourceInputModel SourceInputModel
         {
             get => _sourceInputModel ?? throw new InvalidOperationException($"SourceInputModel has not been initialized yet");
@@ -106,6 +111,11 @@ namespace Microsoft.TypeSpec.Generator
             _visitors.Add(visitor);
         }
 
+        public void AddRewriter(LibraryRewriter rewriter)
+        {
+            _rewriters.Add(rewriter);
+        }
+
         public void AddMetadataReference(MetadataReference reference)
         {
             _additionalMetadataReferences.Add(reference);
@@ -116,7 +126,9 @@ namespace Microsoft.TypeSpec.Generator
             _sharedSourceDirectories.Add(sharedSourceDirectory);
         }
 
-        internal HashSet<string> TypesToKeep { get; } = new();
+        internal HashSet<string> TypesToKeep { get; } = [];
+
+        internal HashSet<string> TypesToKeepPublic { get; } = [];
 
         /// <summary>
         /// Adds a type to the list of types to keep.
@@ -132,5 +144,11 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         /// <param name="type">The type provider representing the type.</param>
         public void AddTypeToKeep(TypeProvider type) => AddTypeToKeep(type.Type.FullyQualifiedName);
+
+        /// <summary>
+        /// Adds a type to the list of types to keep as public.
+        /// </summary>
+        /// <param name="typeName">The type provider representing the type.</param>
+        public void AddTypeToKeepPublic(string typeName) => TypesToKeepPublic.Add(typeName);
     }
 }

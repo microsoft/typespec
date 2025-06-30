@@ -19,7 +19,8 @@ public enum ClientMethodType {
      */
     PagingAsync(1, true, false, false),
     /**
-     * represents a method that returns Mono&lt;PagedResponse&lt;T&gt;&gt; or Mono&lt;PagedResponseBase&lt;H,T&gt;&gt;.
+     * represents a '[Operation]SinglePageAsync' method that returns Mono&lt;PagedResponse&lt;T&gt;&gt; or
+     * Mono&lt;PagedResponseBase&lt;H,T&gt;&gt;.
      */
     PagingAsyncSinglePage(2, true, false, false),
     SimulatedPagingSync(3, false, false, true), // unused
@@ -73,7 +74,7 @@ public enum ClientMethodType {
      */
     SendRequestAsync(15, false, false, false),
     /**
-     * represents a method that returns PagedResponse&lt;T&gt; or PagedResponseBase&lt;H,T&gt;.
+     * represents a '[Operation]SinglePage' method that returns PagedResponse&lt;T&gt; or PagedResponseBase&lt;H,T&gt;.
      */
     PagingSyncSinglePage(16, true, false, true),;
 

@@ -25,20 +25,98 @@ extends:
             - name: typespec-http-client-csharp
               file: typespec-http-client-csharp-*.tgz
               type: npm
-            - name: Microsoft.Generator.CSharp
-              file: Microsoft.Generator.CSharp.*.nupkg
+            - name: Microsoft.TypeSpec.Generator
+              file: Microsoft.TypeSpec.Generator.*.nupkg
               type: nuget
-            - name: Microsoft.Generator.CSharp.ClientModel
-              file: Microsoft.Generator.CSharp.ClientModel.*.nupkg
+            - name: Microsoft.TypeSpec.Generator.ClientModel
+              file: Microsoft.TypeSpec.Generator.ClientModel.*.nupkg
               type: nuget
-            - name: Microsoft.Generator.CSharp.Input
-              file: Microsoft.Generator.CSharp.Input.*.nupkg
+            - name: Microsoft.TypeSpec.Generator.Input
+              file: Microsoft.TypeSpec.Generator.Input.*.nupkg
               type: nuget
-            - name: Microsoft.Generator.CSharp.Customization
-              file: Microsoft.Generator.CSharp.Customization.*.nupkg
+            - name: Microsoft.TypeSpec.Generator.Customization
+              file: Microsoft.TypeSpec.Generator.Customization.*.nupkg
               type: nuget
           UnitTestArgs: -UnitTests
           StagePrefix: "CSharp"
           LanguageShortName: "csharp"
           HasNugetPackages: true
           CadlRanchName: "@typespec/http-client-csharp"
+          AdditionalInitializeSteps:
+            - task: UseDotNet@2
+              inputs:
+                displayName: "Install .NET 8"
+                performMultiLevelLookup: true
+                useGlobalJson: false
+                version: 8.x
+                workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+            - task: UseDotNet@2
+              inputs:
+                displayName: "Install .NET 9"
+                performMultiLevelLookup: true
+                useGlobalJson: true
+                workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+
+      - stage: CreateAzureSdkForNetPR
+        displayName: Create PR for azure-sdk-for-net
+        dependsOn:
+          - CSharp_Publish
+          - CSharp_Build
+        condition: and(succeeded(), and(ne(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranchName'], 'main')))
+        variables:
+          PackageVersion: $[ stageDependencies.CSharp_Build.Build_linux_20.outputs['ci_build.emitterVersion'] ]
+        pool:
+          name: $(LINUXPOOL)
+          image: $(LINUXVMIMAGE)
+          os: linux
+        jobs:
+          - job: CreatePR
+            steps:
+              - checkout: self
+              - pwsh: |
+                  # Determine the TypeSpec PR URL 
+                  $repoUrl = '$(Build.Repository.Uri)'.TrimEnd('/')
+                  $commitSha = '$(Build.SourceVersion)'
+                  $typeSpecCommitUrl = "$repoUrl/commit/$commitSha"
+
+                  Write-Host "Commit SHA: $commitSha"
+                  Write-Host "TypeSpec Commit URL: $typeSpecCommitUrl"
+                  Write-Host "##vso[task.setvariable variable=TypeSpecCommitUrl]$typeSpecCommitUrl"
+                displayName: Set variables for PR creation
+
+              - task: UseNode@1
+                displayName: "Install Node.js"
+                inputs:
+                  version: "22.x"
+
+              - download: current
+                displayName: Download pipeline artifacts
+
+              - pwsh: |
+                  npm install -g @azure-tools/typespec-client-generator-cli@latest
+                displayName: Install tsp-client
+
+              - pwsh: |
+                  npm pkg set version='$(PackageVersion)'
+                  tsp-client generate-config-files `
+                  --package-json '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json' `
+                  --emitter-package-json-path '$(Build.SourcesDirectory)/eng/http-client-csharp-emitter-package.json'
+
+                displayName: Generate emitter-package.json and emitter-package-lock files
+                workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+
+              - task: UseDotNet@2
+                inputs:
+                  useGlobalJson: true
+                  workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+
+              - task: PowerShell@2
+                displayName: Create PR in azure-sdk-for-net
+                inputs:
+                  pwsh: true
+                  filePath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Submit-AzureSdkForNetPr.ps1
+                  arguments: >
+                    -PackageVersion '$(PackageVersion)'
+                    -TypeSpecCommitUrl '$(TypeSpecCommitUrl)'
+                    -AuthToken '$(azuresdk-github-pat)'
+                    -TypeSpecSourceDirectory '$(Build.SourcesDirectory)'

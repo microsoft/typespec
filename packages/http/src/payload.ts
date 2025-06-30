@@ -21,6 +21,7 @@ import { SyntaxKind } from "@typespec/compiler/ast";
 import { DuplicateTracker } from "@typespec/compiler/utils";
 import { getContentTypes } from "./content-types.js";
 import { isCookieParam, isHeader, isPathParam, isQueryParam, isStatusCode } from "./decorators.js";
+import { isMergePatchBody } from "./experimental/merge-patch/internal.js";
 import {
   GetHttpPropertyOptions,
   HeaderProperty,
@@ -660,12 +661,32 @@ function resolveContentTypesForBody(
   return diagnostics.wrap(resolve());
 
   function resolve(): ResolvedContentType {
+    let mpContentType: string | undefined;
+    if (isMergePatchBody(program, type)) {
+      mpContentType = "application/merge-patch+json";
+    }
     if (contentTypeProperty) {
+      const explicitContentTypes = diagnostics.pipe(getContentTypes(contentTypeProperty.property));
+
+      if (mpContentType) {
+        const badContentTypes = explicitContentTypes.filter((c) => !c.startsWith(mpContentType));
+        if (badContentTypes.length > 0) {
+          diagnostics.add(
+            createDiagnostic({
+              code: "merge-patch-content-type",
+              target: contentTypeProperty.property ?? type,
+              format: { contentType: badContentTypes[0] },
+            }),
+          );
+        }
+      }
       return {
-        contentTypes: diagnostics.pipe(getContentTypes(contentTypeProperty.property)),
+        contentTypes: explicitContentTypes,
         contentTypeProperty: contentTypeProperty.property,
       };
     }
+
+    if (mpContentType) return { contentTypes: [mpContentType] };
 
     if (isLiteralType(type)) {
       switch (type.kind) {

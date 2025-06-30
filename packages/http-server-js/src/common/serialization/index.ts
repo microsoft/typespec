@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import { Enum, Model, NoTarget, Type, Union } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { $ } from "@typespec/compiler/typekit";
 import { JsContext, Module, completePendingDeclarations } from "../../ctx.js";
 import { indent } from "../../util/iter.js";
 import { createOrGetModuleForNamespace } from "../namespace.js";

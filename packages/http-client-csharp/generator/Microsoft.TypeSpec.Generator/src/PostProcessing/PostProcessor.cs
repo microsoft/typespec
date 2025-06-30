@@ -37,8 +37,8 @@ namespace Microsoft.TypeSpec.Generator
             IReadOnlyDictionary<Document, HashSet<INamedTypeSymbol>> DocumentsCache);
 
         /// <summary>
-        /// This method reads the project, returns the types defined in it and build symbol caches to acceralate the calculation
-        /// By default, the types defined in shared documents are not included. Please override <see cref="ShouldIncludeDocument(Document)"/> to tweak this behavior
+        /// This method reads the project, returns the types defined in it and build symbol caches to accelerate the calculation
+        /// By default, the types defined in shared documents are not included. Please override <see cref="ShouldIncludeDocument(Document)"/> to tweak this behavior.
         /// </summary>
         /// <param name="compilation">The <see cref="Compilation"/> of the <paramref name="project"/> </param>
         /// <param name="project">The project to extract type symbols from</param>
@@ -74,6 +74,9 @@ namespace Microsoft.TypeSpec.Generator
                         var symbol = semanticModel.GetDeclaredSymbol(typeDeclaration);
                         if (symbol == null)
                             continue;
+                        if (CodeModelGenerator.Instance.TypesToKeepPublic.Contains(symbol.Name))
+                            continue; //skip types that are explicitly marked to keep public
+
                         if (publicOnly && symbol.DeclaredAccessibility != Accessibility.Public &&
                             !document.Name.StartsWith("Internal/", StringComparison.Ordinal))
                             continue;
@@ -353,6 +356,9 @@ namespace Microsoft.TypeSpec.Generator
                 project = await RemoveModelsFromDocumentAsync(project, models);
             }
 
+            // remove what are now invalid usings due to the models being removed
+            project = await RemoveInvalidUsings(project);
+
             return project;
         }
 
@@ -381,8 +387,55 @@ namespace Microsoft.TypeSpec.Generator
                 return project;
             var root = await tree.GetRootAsync();
             root = root.RemoveNodes(models, SyntaxRemoveOptions.KeepNoTrivia);
+
+            var emptyNamespaces = root!
+                .DescendantNodes()
+                .OfType<NamespaceDeclarationSyntax>()
+                .Where(ns => !ns.Members.OfType<MemberDeclarationSyntax>().Any())
+                .ToList();
+
+            if (emptyNamespaces.Any())
+            {
+                root = root.RemoveNodes(emptyNamespaces, SyntaxRemoveOptions.KeepNoTrivia);
+            }
+
             document = document.WithSyntaxRoot(root!);
             return document.Project;
+        }
+
+        private async Task<Project> RemoveInvalidUsings(Project project)
+        {
+            var solution = project.Solution;
+            foreach (var documentId in project.DocumentIds)
+            {
+                var document = solution.GetDocument(documentId)!;
+                var root = await document.GetSyntaxRootAsync();
+                var model = await document.GetSemanticModelAsync();
+
+                if (root is not CompilationUnitSyntax cu || model == null)
+                {
+                    continue;
+                }
+
+                var invalidUsings = cu.Usings
+                    .Where(u =>
+                    {
+                        var info = model.GetSymbolInfo(u.Name!);
+                        var sym  = info.Symbol;
+                        return sym is null || sym.Kind != SymbolKind.Namespace;
+                    })
+                    .ToList();
+
+                if (invalidUsings.Count == 0)
+                {
+                    continue;
+                }
+
+                var cleaned = cu.RemoveNodes(invalidUsings, SyntaxRemoveOptions.KeepNoTrivia);
+                solution = solution.WithDocumentSyntaxRoot(documentId, cleaned!);
+            }
+
+            return solution.GetProject(project.Id)!;
         }
 
         private async Task<HashSet<INamedTypeSymbol>> GetRootSymbolsAsync(Project project, TypeSymbols modelSymbols)
@@ -407,7 +460,7 @@ namespace Microsoft.TypeSpec.Generator
             return result;
         }
 
-        private async Task<bool> IsRootDocument(Document document)
+        protected virtual async Task<bool> IsRootDocument(Document document)
         {
             var root = await document.GetSyntaxRootAsync();
             // a document is a root document, when

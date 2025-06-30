@@ -1,5 +1,5 @@
 import * as ay from "@alloy-js/core";
-import { Children, refkey as getRefkey, mapJoin } from "@alloy-js/core";
+import { Children, mapJoin } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import {
   Interface,
@@ -9,10 +9,11 @@ import {
   Operation,
   RekeyableMap,
 } from "@typespec/compiler";
-import { Typekit } from "@typespec/compiler/experimental/typekit";
+import { Typekit } from "@typespec/compiler/typekit";
 import { createRekeyableMap } from "@typespec/compiler/utils";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
+import { declarationRefkeys, efRefkey } from "../utils/refkey.js";
 import { InterfaceMember } from "./interface-member.js";
 import { TypeExpression } from "./type-expression.jsx";
 export interface TypedInterfaceDeclarationProps extends Omit<ts.InterfaceDeclarationProps, "name"> {
@@ -41,17 +42,19 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
 
   name = namePolicy.getName(name, "interface");
 
-  const refkey = props.refkey ?? getRefkey(props.type);
+  const refkeys = declarationRefkeys(props.refkey, props.type);
 
   const extendsType = props.extends ?? getExtendsType($, props.type);
+  const doc = props.doc ?? $.type.getDoc(props.type);
 
   return (
     <ts.InterfaceDeclaration
+      doc={doc}
       default={props.default}
       export={props.export}
       kind={props.kind}
       name={name}
-      refkey={refkey}
+      refkey={refkeys}
       extends={extendsType}
     >
       <InterfaceBody {...props} />
@@ -92,19 +95,19 @@ function getExtendsType($: Typekit, type: Model | Interface): Children | undefin
       // Instead of extending we need to create an envelope property
       // do nothing here.
     } else {
-      extending.push(getRefkey(type.baseModel));
+      extending.push(efRefkey(type.baseModel));
     }
   }
 
-  const spreadType = $.model.getSpreadType(type);
-  if (spreadType) {
+  const indexType = $.model.getIndexType(type);
+  if (indexType) {
     // When extending a record we need to override the element type to be unknown to avoid type errors
-    if ($.record.is(spreadType)) {
+    if ($.record.is(indexType)) {
       // Here we are in the additional properties land.
       // Instead of extending we need to create an envelope property
       // do nothing here.
     } else {
-      extending.push(<TypeExpression type={spreadType} />);
+      extending.push(<TypeExpression type={indexType} />);
     }
   }
 
@@ -153,7 +156,7 @@ function InterfaceBody(props: TypedInterfaceDeclarationProps): Children {
 
   return (
     <>
-      <ay.For each={validTypeMembers} line {...enderProp}>
+      <ay.For each={validTypeMembers} semicolon line {...enderProp}>
         {(typeMember) => {
           return <InterfaceMember type={typeMember} />;
         }}

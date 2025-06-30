@@ -16,13 +16,28 @@ import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 public final class ModelUtil {
 
     public static boolean isGeneratingModel(ClientModel model) {
+
+        if (JavaSettings.getInstance().isAzureV2()) {
+            return model.getImplementationDetails() != null
+                && (model.getImplementationDetails().isPublic()
+                    || model.getImplementationDetails().isInternal()
+                    || model.getImplementationDetails().isInput())
+                && !(isExternalModel(model.getImplementationDetails()))
+                && !(JavaSettings.getInstance().isAzureV1() && isPagedModel(model.getImplementationDetails()));
+        }
         return model.getImplementationDetails() != null
             && (model.getImplementationDetails().isPublic() || model.getImplementationDetails().isInternal())
             && !(isExternalModel(model.getImplementationDetails()))
-            && !(JavaSettings.getInstance().isBranded() && isPagedModel(model.getImplementationDetails()));
+            && !(JavaSettings.getInstance().isAzureV1() && isPagedModel(model.getImplementationDetails()));
     }
 
     public static boolean isGeneratingModel(EnumType model) {
+        if (JavaSettings.getInstance().isAzureV2()) {
+            return model.getImplementationDetails() != null
+                && (model.getImplementationDetails().isPublic()
+                    || model.getImplementationDetails().isInternal()
+                    || model.getImplementationDetails().isInput());
+        }
         return model.getImplementationDetails() != null
             && (model.getImplementationDetails().isPublic() || model.getImplementationDetails().isInternal());
     }

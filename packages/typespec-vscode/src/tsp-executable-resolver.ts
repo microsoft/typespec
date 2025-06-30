@@ -5,7 +5,13 @@ import logger from "./log/logger.js";
 import { getDirectoryPath } from "./path-utils.js";
 import telemetryClient from "./telemetry/telemetry-client.js";
 import { SettingName } from "./types.js";
-import { checkInstalledNode, isFile, loadModule, useShellInExec } from "./utils.js";
+import {
+  checkInstalledExecutable,
+  checkInstalledNode,
+  isFile,
+  loadModule,
+  useShellInExec,
+} from "./utils.js";
 import { VSCodeVariableResolver } from "./vscode-variable-resolver.js";
 
 /**
@@ -47,7 +53,7 @@ export async function resolveTypeSpecCli(
 export async function resolveTypeSpecServer(
   activityId: string,
   context: ExtensionContext,
-): Promise<Executable> {
+): Promise<Executable | undefined> {
   const checkNodePromise = checkInstalledNode();
   const nodeOptions = process.env.TYPESPEC_SERVER_NODE_OPTIONS;
   const args = ["--stdio"];
@@ -92,13 +98,19 @@ export async function resolveTypeSpecServer(
 
   if (!serverPath) {
     const executable = process.platform === "win32" ? "tsp-server.cmd" : "tsp-server";
-    logger.warning(
-      `Can't resolve server path from either TypeSpec extension configuration or workspace, try to use default value ${executable}.`,
-    );
-    telemetryClient.logOperationDetailTelemetry(activityId, {
-      compilerLocation: "global-compiler",
-    });
-    return useShellInExec({ command: executable, args, options });
+    const executableExists = await checkInstalledExecutable(executable);
+    if (executableExists) {
+      logger.warning(
+        `Can't resolve server path from either TypeSpec extension configuration or workspace, try to use default value ${executable}.`,
+      );
+      telemetryClient.logOperationDetailTelemetry(activityId, {
+        compilerLocation: "global-compiler",
+      });
+      return useShellInExec({ command: executable, args, options });
+    } else {
+      logger.warning(`Can't resolve tsp server locally or globally.`);
+      return undefined;
+    }
   }
   compilerLocation ??= "local-compiler";
   telemetryClient.logOperationDetailTelemetry(activityId, { compilerLocation });

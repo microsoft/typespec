@@ -65,6 +65,9 @@ public class ClientModelUtil {
     public static final String OPERATION_LOCATION_POLLING_STRATEGY = "OperationLocationPollingStrategy";
     public static final String SYNC_OPERATION_LOCATION_POLLING_STRATEGY = "SyncOperationLocationPollingStrategy";
     public static final String POLLING_UTILS = "PollingUtils";
+    public static final String CLIENT_CORE_POLLING_UTILS = "ClientCorePollingUtils";
+    public static final String CLIENT_CORE_OPERATION_LOCATION_POLLING_STRATEGY
+        = "ClientCoreOperationLocationPollingStrategy";
 
     private ClientModelUtil() {
     }
@@ -97,7 +100,9 @@ public class ClientModelUtil {
                 .findAny()
                 .map(og -> getConvenienceMethods(serviceClient::getClientMethods, og))
                 .orElse(Collections.emptyList());
-            builder.convenienceMethods(convenienceMethods);
+            if (JavaSettings.getInstance().isAzureV1()) {
+                builder.convenienceMethods(convenienceMethods);
+            }
 
             if (generateAsyncMethods) {
                 String asyncClassName = clientNameToAsyncClientName(serviceClient.getClientBaseName());
@@ -130,7 +135,9 @@ public class ClientModelUtil {
                 .findAny()
                 .map(og -> getConvenienceMethods(methodGroupClient::getClientMethods, og))
                 .orElse(Collections.emptyList());
-            builder.convenienceMethods(convenienceMethods);
+            if (JavaSettings.getInstance().isAzureV1()) {
+                builder.convenienceMethods(convenienceMethods);
+            }
 
             if (count == 1) {
                 // if it is the only method group, use service client name as base.
@@ -380,9 +387,17 @@ public class ClientModelUtil {
     public static String getArtifactId() {
         JavaSettings settings = JavaSettings.getInstance();
         String artifactId = settings.getArtifactId();
-        if (settings.isDataPlaneClient() && CoreUtils.isNullOrEmpty(artifactId)) {
+        if ((settings.isDataPlaneClient() || !settings.isAzureV1()) && CoreUtils.isNullOrEmpty(artifactId)) {
             // convert package/namespace to artifact
             artifactId = settings.getPackage().toLowerCase(Locale.ROOT).replace("com.", "").replace(".", "-");
+        }
+
+        if (settings.isAzureV2()) {
+            artifactId = settings.getPackage()
+                .toLowerCase(Locale.ROOT)
+                .replace("com.", "")
+                .replace(".v2.", ".")
+                .replace(".", "-");
         }
         return artifactId;
     }

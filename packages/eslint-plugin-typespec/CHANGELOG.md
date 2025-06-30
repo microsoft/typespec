@@ -1,5 +1,13 @@
 # Change Log - @typespec/eslint-plugin
 
+## 0.71.0
+
+No changes, version bump only.
+
+## 0.70.0
+
+No changes, version bump only.
+
 ## 0.69.0
 
 No changes, version bump only.

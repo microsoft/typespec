@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Providers;
 
 namespace Microsoft.TypeSpec.Generator
@@ -25,7 +26,7 @@ namespace Microsoft.TypeSpec.Generator
             var enums = new List<TypeProvider>(input.Enums.Count);
             foreach (var inputEnum in input.Enums)
             {
-                if (inputEnum.Usage.HasFlag(Input.InputModelTypeUsage.ApiVersionEnum))
+                if (inputEnum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))
                     continue;
                 var outputEnum = CodeModelGenerator.Instance.TypeFactory.CreateEnum(inputEnum);
 

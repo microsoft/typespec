@@ -1,6 +1,6 @@
 import { Namespace } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
 import { BasicTestRunner } from "@typespec/compiler/testing";
+import { $ } from "@typespec/compiler/typekit";
 import { beforeEach, describe, expect, it } from "vitest";
 import "../../src/typekit/index.js";
 import { createTypespecHttpClientLibraryTestRunner } from "../test-host.js";

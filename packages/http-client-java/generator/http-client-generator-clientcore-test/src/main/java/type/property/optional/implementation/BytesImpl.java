@@ -1,17 +1,19 @@
 package type.property.optional.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
-import io.clientcore.core.http.RestProxy;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.http.pipeline.HttpPipeline;
+import java.lang.reflect.InvocationTargetException;
 import type.property.optional.BytesProperty;
 
 /**
@@ -34,7 +36,7 @@ public final class BytesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     BytesImpl(OptionalClientImpl client) {
-        this.service = RestProxy.create(BytesService.class, client.getHttpPipeline());
+        this.service = BytesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -44,124 +46,110 @@ public final class BytesImpl {
      */
     @ServiceInterface(name = "OptionalClientBytes", host = "{endpoint}")
     public interface BytesService {
+        static BytesService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("type.property.optional.implementation.BytesServiceImpl");
+                return (BytesService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/type/property/optional/bytes/all",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<BytesProperty> getAllSync(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestOptions requestOptions);
+        Response<BytesProperty> getAll(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/type/property/optional/bytes/default",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<BytesProperty> getDefaultSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestOptions requestOptions);
+        Response<BytesProperty> getDefault(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.PUT,
             path = "/type/property/optional/bytes/all",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> putAllSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData body,
-            RequestOptions requestOptions);
+        Response<Void> putAll(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") BytesProperty body, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.PUT,
             path = "/type/property/optional/bytes/default",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> putDefaultSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData body,
-            RequestOptions requestOptions);
+        Response<Void> putDefault(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BytesProperty body,
+            RequestContext requestContext);
     }
 
     /**
      * Get models that will return all properties in the model.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     property: byte[] (Optional)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return models that will return all properties in the model.
      */
-    public Response<BytesProperty> getAllWithResponse(RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BytesProperty> getAllWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
-        return service.getAllSync(this.client.getEndpoint(), accept, requestOptions);
+        return service.getAll(this.client.getEndpoint(), accept, requestContext);
     }
 
     /**
      * Get models that will return the default object.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     property: byte[] (Optional)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return models that will return the default object.
      */
-    public Response<BytesProperty> getDefaultWithResponse(RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BytesProperty> getDefaultWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
-        return service.getDefaultSync(this.client.getEndpoint(), accept, requestOptions);
+        return service.getDefault(this.client.getEndpoint(), accept, requestContext);
     }
 
     /**
      * Put a body with all properties present.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     property: byte[] (Optional)
-     * }
-     * }
-     * </pre>
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> putAllWithResponse(BinaryData body, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> putAllWithResponse(BytesProperty body, RequestContext requestContext) {
         final String contentType = "application/json";
-        return service.putAllSync(this.client.getEndpoint(), contentType, body, requestOptions);
+        return service.putAll(this.client.getEndpoint(), contentType, body, requestContext);
     }
 
     /**
      * Put a body with default properties.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     property: byte[] (Optional)
-     * }
-     * }
-     * </pre>
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> putDefaultWithResponse(BinaryData body, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> putDefaultWithResponse(BytesProperty body, RequestContext requestContext) {
         final String contentType = "application/json";
-        return service.putDefaultSync(this.client.getEndpoint(), contentType, body, requestOptions);
+        return service.putDefault(this.client.getEndpoint(), contentType, body, requestContext);
     }
 }

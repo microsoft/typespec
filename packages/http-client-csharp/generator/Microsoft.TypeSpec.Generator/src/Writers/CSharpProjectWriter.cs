@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using System.Xml;
+using Microsoft.TypeSpec.Generator.Primitives;
 
 namespace Microsoft.TypeSpec.Generator;
 
@@ -17,7 +18,7 @@ public class CSharpProjectWriter
         ProjectReferences = new List<CSProjDependencyPackage>();
         PackageReferences = new List<CSProjDependencyPackage>();
         PrivatePackageReferences = new List<CSProjDependencyPackage>();
-        CompileIncludes = new List<CSProjCompileInclude>();
+        CompileIncludes = new List<CSharpProjectCompileInclude>();
     }
 
     public CSProjProperty? Description { get; init; }
@@ -58,7 +59,7 @@ public class CSharpProjectWriter
 
     public IList<CSProjDependencyPackage> PrivatePackageReferences { get; }
 
-    public IList<CSProjCompileInclude> CompileIncludes { get; }
+    public IList<CSharpProjectCompileInclude> CompileIncludes { get; }
 
     public string Write()
     {
@@ -173,7 +174,7 @@ public class CSharpProjectWriter
         writer.WriteElementString(name, property.Value);
     }
 
-    private void WriteCompileInclude(XmlWriter writer, CSProjCompileInclude compileInclude)
+    private void WriteCompileInclude(XmlWriter writer, CSharpProjectCompileInclude compileInclude)
     {
         writer.WriteStartElement("Compile");
         writer.WriteAttributeString("Include", compileInclude.Include);
@@ -218,10 +219,5 @@ public class CSharpProjectWriter
     public record CSProjDependencyPackage(string PackageName, string? Version)
     {
         public CSProjDependencyPackage(string packageName) : this(packageName, null) { }
-    }
-
-    public record CSProjCompileInclude(string Include, string? LinkBase)
-    {
-        public CSProjCompileInclude(string include) : this(include, null) { }
     }
 }

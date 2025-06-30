@@ -1,20 +1,21 @@
 package versioning.renamedfrom.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
-import io.clientcore.core.http.RestProxy;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.http.pipeline.HttpPipeline;
+import java.lang.reflect.InvocationTargetException;
 import versioning.renamedfrom.NewModel;
 import versioning.renamedfrom.RenamedFromServiceVersion;
-import versioning.renamedfrom.Versions;
 
 /**
  * An instance of this class provides access to all the operations defined in NewInterfaces.
@@ -36,7 +37,7 @@ public final class NewInterfacesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     NewInterfacesImpl(RenamedFromClientImpl client) {
-        this.service = RestProxy.create(NewInterfacesService.class, client.getHttpPipeline());
+        this.service = NewInterfacesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -53,51 +54,45 @@ public final class NewInterfacesImpl {
      * The interface defining all the services for RenamedFromClientNewInterfaces to be used by the proxy service to
      * perform REST calls.
      */
-    @ServiceInterface(name = "RenamedFromClientNew", host = "{endpoint}/versioning/renamed-from/api-version:{version}")
+    @ServiceInterface(
+        name = "RenamedFromClientNewInterfaces",
+        host = "{endpoint}/versioning/renamed-from/api-version:{version}")
     public interface NewInterfacesService {
+        static NewInterfacesService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("versioning.renamedfrom.implementation.NewInterfacesServiceImpl");
+                return (NewInterfacesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(method = HttpMethod.POST, path = "/interface/test", expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<NewModel> newOpInNewInterfaceSync(@HostParam("endpoint") String endpoint,
-            @HostParam("version") Versions version, @HeaderParam("Content-Type") String contentType,
-            @HeaderParam("Accept") String accept, @BodyParam("application/json") BinaryData body,
-            RequestOptions requestOptions);
+        Response<NewModel> newOpInNewInterface(@HostParam("endpoint") String endpoint,
+            @HostParam("version") String version, @HeaderParam("Content-Type") String contentType,
+            @HeaderParam("Accept") String accept, @BodyParam("application/json") NewModel body,
+            RequestContext requestContext);
     }
 
     /**
      * The newOpInNewInterface operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     newProp: String (Required)
-     *     enumProp: String(newEnumMember) (Required)
-     *     unionProp: BinaryData (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     newProp: String (Required)
-     *     enumProp: String(newEnumMember) (Required)
-     *     unionProp: BinaryData (Required)
-     * }
-     * }
-     * </pre>
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<NewModel> newOpInNewInterfaceWithResponse(BinaryData body, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<NewModel> newOpInNewInterfaceWithResponse(NewModel body, RequestContext requestContext) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.newOpInNewInterfaceSync(this.client.getEndpoint(), this.client.getVersion(), contentType, accept,
-            body, requestOptions);
+        return service.newOpInNewInterface(this.client.getEndpoint(), this.client.getServiceVersion().getVersion(),
+            contentType, accept, body, requestContext);
     }
 }

@@ -56,7 +56,7 @@ public final class ModelPropertiesImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "SpecialWordsClientMo")
+    @ServiceInterface(name = "SpecialWordsClientModelProperties")
     public interface ModelPropertiesService {
         @Post("/special-words/model-properties/same-as-model")
         @ExpectedResponses({ 204 })

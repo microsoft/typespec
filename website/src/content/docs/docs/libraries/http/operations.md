@@ -580,6 +580,150 @@ model Thing {
 }
 ```
 
+## JSON Merge-Patch
+
+[RFC 7396](https://www.rfc-editor.org/rfc/rfc7396) describes a standard for interpreting
+a Patch request body using content-type `application/merge-patch+json`to update an existing
+resource. The TypeSpec Http library provides Model templates `MergePatchUpdate` and
+`MergePatchCreateOrUpdate` for specifying a JSON merge-patch request body. The templates
+recursively apply the merge-patch transformation rules to a TypeSpec resource Model, taking
+into account the structure and characteristics of the resource Model.
+
+For example, given a resource model like this:
+
+```tsp
+model Resource {
+  id: string;
+  name?: string;
+  quantity?: safeint;
+  color: "blue" | "green" | "red" = "blue";
+  flavor?: "vanilla" | "chocolate" | "strawberry" = "vanilla";
+  related?: Record<Resource>;
+  tags?: string[];
+}
+```
+
+A JSON Merge-Patch request updating this resource would have the following behavior:
+
+- `id` may or may not occur in the request, if it does occur, the resource value can be updated to a new string, but cannot be erased by sending null.
+- `name` may or may not occur in the request, if it does occur, the resource value can be updated to a new string or erased by sending null.
+- `quantity` may or ay not occur in the request, if it does occur, the resource value can be updated to a new integer value or erased by sending null.
+- `color` may or may not occur in the request, if it does occur, the resource value can be updated to one of the appropriate values. If set to `null` it is returned to its default value (`blue`)
+- `flavor` may or may not occur in the request, if it does occur, the resource value can be updated to one of the appropriate values. If set to `null` it is returned to its default value (`vanilla`)
+- `related` may or may not occur in the request, if it does occur, the resource value can be updated or erased (set to `{}`) by sending null.
+  - Since `related` is a keyed type (Object), each key/value pair in the request will be treated as follows:
+  - If the key exists in the 'related' field of the resource, the value is merged with the existing value.
+  - If the key does not exist in the 'related' field of the resource, the key/value pair is added.
+- `tags` may or may not occur in the request, if it does occur, the resource can be replaced by a new array, or erased by sending null.
+
+### The MergePatch Transform
+
+Generalizing these rules creates a type transform of the resource Model into a Model defining the corresponding Patch request body. The properties of a resource define the allowed properties and their types in a Patch request body for that resource as follows:
+
+- The `type` of a property indicates the allowed type of the corresponding property in a Patch request.
+- `Required` properties without a default value are _optional_ in a Patch request, but if present, the value cannot be null.
+- `Optional` properties are _optional_ in a Patch request, and, if present, can contain any valid value or null.
+- Properties with a default value are _optional_ in a Patch request, but have no default value in the request body. If present, they can contain any valid value or null. A _null_ value will not erase the property, but set it back to its default value.
+- `Model` and `Record` typed properties, when present in a Patch request are merged with the existing resource value in accordance with the merge-patch algorithm: this transformation is recursively applied to these values.
+- `Array` typed properties, when present in a Patch request replace the existing resource value in accordance with the merge-patch algorithm. This transformation is _not_ recursively applied to these values.
+- Properties required to deserialize a request (for example, discriminators) are _required_ in a Patch request body.
+
+### Constraints
+
+Because JSON merge-patch only describes the request body of an http request, the merge-patch
+transform in TypeSpec does not allow http envelope property metadata like `@query`, `@path`,
+`@header`, `@cookie`, and `@statusCode` in http requests.
+
+The merge-patch templates will **emit an error diagnostic** if a model containing Http metadata
+properties is passed in. For example:
+
+```tsp
+model ResourceWithMetadata {
+  @path id: string;
+  @header eTag: string;
+  description: string;
+}
+
+// THIS WILL RESULT IN AN ERROR
+@patch op update(...MergePatchUpdate<ResourceWithMetadata>): ResourceWithMetadata;
+```
+
+### Patch Behavior of Nested Models
+
+Model types may be nested beneath the top level of a resource. The characteristics of the ModelProperty that references a nested Model type determines the valid values for that nested model in the Patch request. Here is how the valid values are determined for each of the model property types that might reference a nested model (also depicted in the following tables):
+
+- The property type is a (simple) Model or an intersection of models
+  - if the property is optional, the MergePatch transform applies, and the visibility is `CreateOrUpdate`. This is because, in an update, the property _may or may not_ exist if the resource exists, so might need to be created or updated.
+  - if the property is required, the MergePatch transform applies and the visibility matches the input visibility. This is because, in an update, the property _must_ exist if the resource exists, so it can only be updated. In a CreateOrUpdate, it could also be created with the resource.
+- The property type is an array (sequence) of model type items
+  - For required or optional arrays: The MergePatch transform _does not apply_ and the visibility is `Create`
+- The property type is a Record (keyed collection) of model type values
+  - For required or optional keyed collections, the MergePatch transform applies, and the visibility is create or update.
+- The property type is a union of model type values
+  - The MergePatch transform applies to each of the union variants, and because switching between variants is possible, CreateOrUpdate visibility is applied regardless of the optionality of the property. If the union is discriminated, the discriminator remains 'required' so the service can understand which variant the request was intended to apply to.
+
+### Treatment of Nested Keyed Types in Patch Request with `Update` Visibility Filter
+
+| Property Type | Optionality | Example                      | Apply MergePatch transform? | Visibility Filter |
+| ------------- | ----------- | ---------------------------- | --------------------------- | ----------------- |
+| Simple        | Required    | `fooProp: Foo`               | Yes                         | `Update`          |
+| Simple        | Optional    | `fooProp?: Foo`              | Yes                         | `CreateOrUpdate`  |
+| ReplaceOnly   | Required    | `@replaceOnly fooProp: Foo`  | No                          | `Create`          |
+| ReplaceOnly   | Optional    | `@replaceOnly fooProp?: Foo` | No                          | `Create`          |
+| Array         | \*          | `fooProp?: Foo[]`            | No                          | `Create`          |
+| Record        | \*          | `fooProp?: Record<Foo>`      | Yes                         | `CreateOrUpdate`  |
+| Union         | \*          | `fooProp?: Foo \| Bar`       | Yes                         | `CreateOrUpdate`  |
+
+### Treatment of Nested Keyed Types in Patch Request with `CreateOrUpdate` Visibility Filter
+
+| Property Type | Optionality | Example                      | Apply MergePatch transform? | Visibility Filter |
+| ------------- | ----------- | ---------------------------- | --------------------------- | ----------------- |
+| Simple        | Required    | `fooProp: Foo`               | Yes                         | `CreateOrUpdate`  |
+| Simple        | Optional    | `fooProp?: Foo`              | Yes                         | `CreateOrUpdate`  |
+| ReplaceOnly   | Required    | `@replaceOnly fooProp: Foo`  | No                          | `Create`          |
+| ReplaceOnly   | Optional    | `@replaceOnly fooProp?: Foo` | No                          | `Create`          |
+| Array         | \*          | `fooProp?: Foo[]`            | No                          | `Create`          |
+| Record        | \*          | `fooProp?: Record<Foo>`      | Yes                         | `CreateOrUpdate`  |
+| Union         | \*          | `fooProp?: Foo \| Bar`       | Yes                         | `CreateOrUpdate`  |
+
+### Examples
+
+#### Update
+
+A JSON Merge Patch update operation for a Widget resource using `@body`.
+
+```tsp
+// A Json merge-patch operation to update a 'Widget' resource
+// and return the updated Widget.
+@patch op update(@body request: MergePatchUpdate<Widget>): Widget;
+```
+
+A JSON Merge Patch update operation for a Widget resource using the spread operator.
+
+```tsp
+// A Json merge-patch operation to update a 'Widget' resource
+// and return the updated Widget.
+@patch op update(...MergePatchUpdate<Widget>): Widget;
+```
+
+#### Create or Update
+
+A JSON Merge Patch create or update operation for a Widget resource using `@body`.
+
+```tsp
+// A Json merge-patch operation to update a 'Widget' resource
+// or create it if it does not exist and return the updated Widget.
+@patch op update(@body request: MergePatchCreateOrUpdate<Widget>): Widget;
+```
+
+A JSON Merge Patch create or update operation for a Widget resource using the spread operator.
+
+```tsp
+// A Json merge-patch operation to update a 'Widget' resource
+// or create it if it does not exist and return the updated Widget.
+@patch op update(...MergePatchCreateOrUpdate<Widget>): Widget;
+```
+
 ## Emitter resources
 
 See [Handling metadata and visibility in emitters for REST API](../../extending-typespec/emitter-metadata-handling.md) for information on how to handle metadata applicability and automatic visibility in a custom emitter.

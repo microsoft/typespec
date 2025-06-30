@@ -9,10 +9,10 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.Json;
-using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
@@ -79,6 +79,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _isNotEqualToWireConditionSnippet = _mrwOptionsParameterSnippet.Format().NotEqual(ModelReaderWriterOptionsSnippets.WireFormat);
         }
 
+        protected override FormattableString BuildDescription() => _model.Description;
+
         protected override string BuildNamespace() => _model.Type.Namespace;
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => _model.DeclarationModifiers;
@@ -87,7 +89,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.cs");
 
-        protected override string BuildName() => _inputModel.Name.ToCleanName();
+        protected override string BuildName() => _inputModel.Name.ToIdentifierName();
 
         protected override IReadOnlyList<AttributeStatement> BuildAttributes()
         {
@@ -154,8 +156,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (!_inputModel.IsUnknownDiscriminatorModel)
             {
                 //cast operators
-                methods.Add(BuildImplicitToBinaryContent());
-                methods.Add(BuildExplicitFromClientResult());
+                if (ScmCodeModelGenerator.Instance.TypeFactory.RootInputModels.Contains(_inputModel))
+                {
+                    methods.Add(BuildImplicitToBinaryContent());
+                }
+
+                if (ScmCodeModelGenerator.Instance.TypeFactory.RootOutputModels.Contains(_inputModel))
+                {
+                    methods.Add(BuildExplicitFromClientResult());
+                }
             }
 
             if (_isStruct)
@@ -603,7 +612,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private MethodBodyStatement[] BuildDeserializationMethodBody()
         {
             // Build the deserialization statements for each property
-            ForeachStatement deserializePropertiesForEachStatement = new("prop", _jsonElementParameterSnippet.EnumerateObject(), out var prop)
+            ForEachStatement deserializePropertiesForEachStatement = new("prop", _jsonElementParameterSnippet.EnumerateObject(), out var prop)
             {
                 BuildDeserializePropertiesStatements(prop.As<JsonProperty>())
             };
@@ -668,7 +677,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var switchCase = new SwitchCaseStatement(
                 ModelReaderWriterOptionsSnippets.JsonFormat,
-                Return(Static(typeof(ModelReaderWriter)).Invoke(nameof(ModelReaderWriter.Write), [This, _mrwOptionsParameterSnippet])));
+                Return(Static(typeof(ModelReaderWriter)).Invoke(nameof(ModelReaderWriter.Write), [This, _mrwOptionsParameterSnippet, ModelReaderWriterContextSnippets.Default])));
             var typeOfT = _persistableModelTInterface.Arguments[0];
             var defaultCase = SwitchCaseStatement.Default(
                 ThrowValidationFailException(_mrwOptionsParameterSnippet.Format(), typeOfT, WriteAction));
@@ -1214,7 +1223,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     {
                         Declare(index, Int(0)),
                         Declare(arrayVar, New.Array(valueType.ElementType, jsonElement.GetArrayLength())),
-                        ForeachStatement.Create("item", jsonElement.EnumerateArray(), out ScopedApi<JsonElement> item).Add(new MethodBodyStatement[]
+                        ForEachStatement.Create("item", jsonElement.EnumerateArray(), out ScopedApi<JsonElement> item).Add(new MethodBodyStatement[]
                         {
                              NullCheckCollectionItemIfRequired(valueType.ElementType, item, item.Assign(Null).Terminate(),
                                 new MethodBodyStatement[]
@@ -1232,7 +1241,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var deserializeArrayStatement = new MethodBodyStatement[]
                 {
                     Declare("array", New.List(valueType.ElementType), out var listVariable),
-                    ForeachStatement.Create("item", jsonElement.EnumerateArray(), out ScopedApi<JsonElement> arrayItem).Add(new MethodBodyStatement[]
+                    ForEachStatement.Create("item", jsonElement.EnumerateArray(), out ScopedApi<JsonElement> arrayItem).Add(new MethodBodyStatement[]
                     {
                        NullCheckCollectionItemIfRequired(valueType.ElementType, arrayItem, listVariable.Add(Null), new MethodBodyStatement[]
                         {
@@ -1249,7 +1258,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var deserializeDictionaryStatement = new MethodBodyStatement[]
                 {
                     Declare("dictionary", New.Dictionary(valueType.Arguments[0], valueType.Arguments[1]), out var dictionary),
-                    ForeachStatement.Create("prop", jsonElement.EnumerateObject(), out ScopedApi<JsonProperty> prop).Add(new MethodBodyStatement[]
+                    ForEachStatement.Create("prop", jsonElement.EnumerateObject(), out ScopedApi<JsonProperty> prop).Add(new MethodBodyStatement[]
                     {
                         CreateDeserializeDictionaryValueStatement(valueType.ElementType, dictionary, prop, serializationFormat)
                     })
@@ -1519,7 +1528,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return new[]
             {
                 _utf8JsonWriterSnippet.WriteStartObject(),
-                new ForeachStatement("item", dictionary, out KeyValuePairExpression keyValuePair)
+                new ForEachStatement("item", dictionary, out KeyValuePairExpression keyValuePair)
                 {
                     _utf8JsonWriterSnippet.WritePropertyName(keyValuePair.Key),
                     TypeRequiresNullCheckInSerialization(keyValuePair.ValueType) ?
@@ -1544,7 +1553,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return new[]
             {
                 _utf8JsonWriterSnippet.WriteStartArray(),
-                new ForeachStatement(itemType, "item", collection, false, out VariableExpression item)
+                new ForEachStatement(itemType, "item", collection, false, out VariableExpression item)
                 {
                     TypeRequiresNullCheckInSerialization(item.Type) ?
                     new IfStatement(item.Equal(Null)) { _utf8JsonWriterSnippet.WriteNullValue(), Continue } : MethodBodyStatement.Empty,
@@ -1789,7 +1798,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var rawDataMemberExp = new MemberExpression(null, _rawDataField.Name);
             var rawDataDictionaryExp = rawDataMemberExp.AsDictionary(_rawDataField.Type);
-            var forEachStatement = new ForeachStatement("item", rawDataDictionaryExp, out KeyValuePairExpression item)
+            var forEachStatement = new ForEachStatement("item", rawDataDictionaryExp, out KeyValuePairExpression item)
             {
                 _utf8JsonWriterSnippet.WritePropertyName(item.Key),
                 CreateSerializationStatement(_rawDataField.Type.Arguments[1], item.Value, SerializationFormat.Default),
@@ -1815,7 +1824,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var tKey = additionalPropertiesProperty.Type.Arguments[0];
                 var tValue = additionalPropertiesProperty.Type.Arguments[1];
                 // generate serialization statements for each key-value pair in the additional properties dictionary
-                var forEachStatement = new ForeachStatement("item", additionalPropertiesProperty.AsDictionary(tKey, tValue), out KeyValuePairExpression item)
+                var forEachStatement = new ForEachStatement("item", additionalPropertiesProperty.AsDictionary(tKey, tValue), out KeyValuePairExpression item)
                 {
                     _utf8JsonWriterSnippet.WritePropertyName(item.Key),
                     CreateSerializationStatement(additionalPropertiesProperty.Type.Arguments[1], item.Value, SerializationFormat.Default),

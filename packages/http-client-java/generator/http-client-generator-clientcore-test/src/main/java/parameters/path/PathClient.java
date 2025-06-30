@@ -1,9 +1,12 @@
 package parameters.path;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import parameters.path.implementation.PathClientImpl;
 
@@ -12,7 +15,7 @@ import parameters.path.implementation.PathClientImpl;
  */
 @ServiceClient(builder = PathClientBuilder.class)
 public final class PathClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final PathClientImpl serviceClient;
 
     /**
@@ -20,7 +23,7 @@ public final class PathClient {
      * 
      * @param serviceClient the service client implementation.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     PathClient(PathClientImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
@@ -29,25 +32,16 @@ public final class PathClient {
      * The normal operation.
      * 
      * @param name The name parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
-    public Response<Void> normalWithResponse(String name, RequestOptions requestOptions) {
-        return this.serviceClient.normalWithResponse(name, requestOptions);
-    }
-
-    /**
-     * The optional operation.
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> optionalWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.optionalWithResponse(requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> normalWithResponse(String name, RequestContext requestContext) {
+        return this.serviceClient.normalWithResponse(name, requestContext);
     }
 
     /**
@@ -58,11 +52,26 @@ public final class PathClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void normal(String name) {
-        // Generated convenience method for normalWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        normalWithResponse(name, requestOptions).getValue();
+        normalWithResponse(name, RequestContext.none());
+    }
+
+    /**
+     * The optional operation.
+     * 
+     * @param name The name parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> optionalWithResponse(String name, RequestContext requestContext) {
+        return this.serviceClient.optionalWithResponse(name, requestContext);
     }
 
     /**
@@ -73,11 +82,10 @@ public final class PathClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void optional(String name) {
-        // Generated convenience method for optionalWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        optionalWithResponse(requestOptions).getValue();
+        optionalWithResponse(name, RequestContext.none());
     }
 
     /**
@@ -86,10 +94,10 @@ public final class PathClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void optional() {
-        // Generated convenience method for optionalWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        optionalWithResponse(requestOptions).getValue();
+        final String name = null;
+        optionalWithResponse(name, RequestContext.none());
     }
 }

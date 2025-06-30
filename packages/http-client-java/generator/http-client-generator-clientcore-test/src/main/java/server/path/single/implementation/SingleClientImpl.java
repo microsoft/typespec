@@ -1,15 +1,17 @@
 package server.path.single.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
-import io.clientcore.core.http.RestProxy;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Initializes a new instance of the SingleClient type.
@@ -57,7 +59,7 @@ public final class SingleClientImpl {
     public SingleClientImpl(HttpPipeline httpPipeline, String endpoint) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.service = RestProxy.create(SingleClientService.class, this.httpPipeline);
+        this.service = SingleClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -65,22 +67,37 @@ public final class SingleClientImpl {
      */
     @ServiceInterface(name = "SingleClient", host = "{endpoint}")
     public interface SingleClientService {
+        static SingleClientService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("server.path.single.implementation.SingleClientServiceImpl");
+                return (SingleClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(
             method = HttpMethod.HEAD,
             path = "/server/path/single/myOp",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> myOpSync(@HostParam("endpoint") String endpoint, RequestOptions requestOptions);
+        Response<Void> myOp(@HostParam("endpoint") String endpoint, RequestContext requestContext);
     }
 
     /**
      * The myOp operation.
      * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> myOpWithResponse(RequestOptions requestOptions) {
-        return service.myOpSync(this.getEndpoint(), requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> myOpWithResponse(RequestContext requestContext) {
+        return service.myOp(this.getEndpoint(), requestContext);
     }
 }

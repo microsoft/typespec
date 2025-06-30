@@ -3,6 +3,7 @@ import * as ts from "@alloy-js/typescript";
 import { Enum, EnumMember as TspEnumMember, Union } from "@typespec/compiler";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
+import { declarationRefkeys, efRefkey } from "../utils/refkey.js";
 
 export interface EnumDeclarationProps extends Omit<ts.TypeDeclarationProps, "name"> {
   name?: string;
@@ -24,24 +25,28 @@ export function EnumDeclaration(props: EnumDeclarationProps) {
   if (!props.type.name || props.type.name === "") {
     reportDiagnostic($.program, { code: "type-declaration-missing-name", target: props.type });
   }
-
+  const refkeys = declarationRefkeys(props.refkey, props.type);
   const name = props.name ?? ts.useTSNamePolicy().getName(props.type.name!, "enum");
   const members = Array.from(type.members.entries());
+  const doc = props.doc ?? $.type.getDoc(type);
 
   return (
     <ts.EnumDeclaration
+      doc={doc}
       name={name}
-      refkey={ay.refkey(props.type)}
+      refkey={refkeys}
       default={props.default}
       export={props.export}
     >
       <ay.For each={members} joiner={",\n"}>
         {([key, value]) => {
+          const memberDoc = $.type.getDoc(value);
           return (
             <EnumMember
+              doc={memberDoc}
               type={value}
               refkey={
-                $.union.is(props.type) ? ay.refkey(props.type.variants.get(key)) : ay.refkey(value)
+                $.union.is(props.type) ? efRefkey(props.type.variants.get(key)) : efRefkey(value)
               }
             />
           );
@@ -53,15 +58,17 @@ export function EnumDeclaration(props: EnumDeclarationProps) {
 
 export interface EnumMemberProps {
   type: TspEnumMember;
+  doc?: ay.Children;
   refkey?: ay.Refkey;
 }
 
 export function EnumMember(props: EnumMemberProps) {
   return (
     <ts.EnumMember
+      doc={props.doc}
       name={props.type.name}
       jsValue={props.type.value ?? props.type.name}
-      refkey={ay.refkey(props.refkey ?? props.type)}
+      refkey={props.refkey}
     />
   );
 }

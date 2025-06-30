@@ -1,14 +1,15 @@
 ---
 import Card from "@site/src/components/card.astro";
 import { resolveBlogImagePath } from "@site/src/pages/blog/resolve-image";
-import { format } from "date-fns";
 import { Image } from "astro:assets";
 import Link from "@typespec/astro-utils/components/link.astro";
 
 export type Props = {
   post: {
-    slug: string;
+    slug?: string;
     data: {
+      slug?: string;
+      redirect_slug?: string;
       title: string;
       description: string;
       publishDate: Date;
@@ -20,7 +21,11 @@ export type Props = {
 
 const { post, imageLoading } = Astro.props;
 
-const image = post.data.image && (await resolveBlogImagePath(post.slug, post.data.image));
+// Get the actual slug to use - prioritize data.slug, then post.slug, then fallback to data.redirect_slug
+const postSlug = post.data.slug || post.slug || post.data.redirect_slug || "";
+
+// Use the determined slug for image resolution
+const image = post.data.image && (await resolveBlogImagePath(postSlug, post.data.image));
 ---
 
 <style>
@@ -35,13 +40,6 @@ const image = post.data.image && (await resolveBlogImagePath(post.slug, post.dat
   }
   .link:hover {
     outline: solid var(--colorBrandForeground1);
-  }
-  .date {
-    display: block;
-    padding: 1rem;
-    text-align: left;
-    font-size: var(--fontSizeBase500);
-    border-bottom: 1px solid var(--colorNeutralStroke3);
   }
 
   .image {
@@ -96,20 +94,15 @@ const image = post.data.image && (await resolveBlogImagePath(post.slug, post.dat
     background: var(--colorNeutralBackground2);
   }
 </style>
-<article aria-labelledby={post.slug}>
-  <Link class="link" href={`/blog/${post.slug}/`} data-astro-prefetch>
+<article aria-labelledby={postSlug}>
+  <Link class="link" href={`/blog/${postSlug}/`} data-astro-prefetch>
     <Card noPadding>
-      <header>
-        <time class="date" datetime={post.data.publishDate.toISOString()}>
-          {format(post.data.publishDate, "MMMM d, yyyy")}
-        </time>
-      </header>
       <div class="image-container">
         {image && <Image class="image" src={image} alt="" loading={imageLoading} />}
       </div>
 
       <div class="content">
-        <h3 class="heading-4 md:heading-3" id={post.slug}>
+        <h3 class="heading-4 md:heading-3" id={postSlug}>
           {post.data.title}
         </h3>
         <p class="text-astro-gray-200">{post.data.description}</p>

@@ -1,16 +1,18 @@
 package response.statuscoderange.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
-import io.clientcore.core.http.RestProxy;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import java.lang.reflect.InvocationTargetException;
 import response.statuscoderange.DefaultError;
 import response.statuscoderange.ErrorInRange;
 import response.statuscoderange.NotFoundError;
@@ -62,15 +64,28 @@ public final class StatusCodeRangeClientImpl {
     public StatusCodeRangeClientImpl(HttpPipeline httpPipeline, String endpoint) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.service = RestProxy.create(StatusCodeRangeClientService.class, this.httpPipeline);
+        this.service = StatusCodeRangeClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
      * The interface defining all the services for StatusCodeRangeClient to be used by the proxy service to perform REST
      * calls.
      */
-    @ServiceInterface(name = "StatusCodeRangeClien", host = "{endpoint}")
+    @ServiceInterface(name = "StatusCodeRangeClient", host = "{endpoint}")
     public interface StatusCodeRangeClientService {
+        static StatusCodeRangeClientService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz
+                    = Class.forName("response.statuscoderange.implementation.StatusCodeRangeClientServiceImpl");
+                return (StatusCodeRangeClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/response/status-code-range/error-response-status-code-in-range",
@@ -79,8 +94,8 @@ public final class StatusCodeRangeClientImpl {
             statusCode = { 494, 495, 496, 497, 498, 499 },
             exceptionBodyClass = ErrorInRange.class)
         @UnexpectedResponseExceptionDetail(exceptionBodyClass = DefaultError.class)
-        Response<Void> errorResponseStatusCodeInRangeSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestOptions requestOptions);
+        Response<Void> errorResponseStatusCodeInRange(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
@@ -190,31 +205,37 @@ public final class StatusCodeRangeClientImpl {
             exceptionBodyClass = Standard4XXError.class)
         @UnexpectedResponseExceptionDetail(statusCode = { 404 }, exceptionBodyClass = NotFoundError.class)
         @UnexpectedResponseExceptionDetail
-        Response<Void> errorResponseStatusCode404Sync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestOptions requestOptions);
+        Response<Void> errorResponseStatusCode404(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
     }
 
     /**
      * The errorResponseStatusCodeInRange operation.
      * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> errorResponseStatusCodeInRangeWithResponse(RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> errorResponseStatusCodeInRangeWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
-        return service.errorResponseStatusCodeInRangeSync(this.getEndpoint(), accept, requestOptions);
+        return service.errorResponseStatusCodeInRange(this.getEndpoint(), accept, requestContext);
     }
 
     /**
      * The errorResponseStatusCode404 operation.
      * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> errorResponseStatusCode404WithResponse(RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> errorResponseStatusCode404WithResponse(RequestContext requestContext) {
         final String accept = "application/json";
-        return service.errorResponseStatusCode404Sync(this.getEndpoint(), accept, requestOptions);
+        return service.errorResponseStatusCode404(this.getEndpoint(), accept, requestContext);
     }
 }

@@ -8,7 +8,6 @@ using System.ClientModel.Primitives;
 
 namespace Sample
 {
-    /// <summary></summary>
     public partial class TestClient
     {
         internal global::System.ClientModel.Primitives.PipelineMessage CreateCreateMessageRequest(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options)

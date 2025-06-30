@@ -1,11 +1,13 @@
 package type.array;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
 import java.util.List;
 import type.array.implementation.NullableInt32ValuesImpl;
 
@@ -14,7 +16,7 @@ import type.array.implementation.NullableInt32ValuesImpl;
  */
 @ServiceClient(builder = ArrayClientBuilder.class)
 public final class NullableInt32ValueClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final NullableInt32ValuesImpl serviceClient;
 
     /**
@@ -22,52 +24,24 @@ public final class NullableInt32ValueClient {
      * 
      * @param serviceClient the service client implementation.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     NullableInt32ValueClient(NullableInt32ValuesImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
 
     /**
      * The get operation.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * [
-     *     int (Required)
-     * ]
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
-    public Response<List<Integer>> getWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.getWithResponse(requestOptions);
-    }
-
-    /**
-     * The put operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * [
-     *     int (Required)
-     * ]
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> putWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.putWithResponse(body, requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<List<Integer>> getWithResponse(RequestContext requestContext) {
+        return this.serviceClient.getWithResponse(requestContext);
     }
 
     /**
@@ -77,11 +51,26 @@ public final class NullableInt32ValueClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public List<Integer> get() {
-        // Generated convenience method for getWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return getWithResponse(requestOptions).getValue();
+        return getWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The put operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> putWithResponse(List<Integer> body, RequestContext requestContext) {
+        return this.serviceClient.putWithResponse(body, requestContext);
     }
 
     /**
@@ -92,10 +81,9 @@ public final class NullableInt32ValueClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void put(List<Integer> body) {
-        // Generated convenience method for putWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        putWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        putWithResponse(body, RequestContext.none());
     }
 }

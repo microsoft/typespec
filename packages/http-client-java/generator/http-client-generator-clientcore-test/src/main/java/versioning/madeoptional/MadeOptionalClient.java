@@ -1,11 +1,13 @@
 package versioning.madeoptional;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
 import versioning.madeoptional.implementation.MadeOptionalClientImpl;
 
 /**
@@ -13,7 +15,7 @@ import versioning.madeoptional.implementation.MadeOptionalClientImpl;
  */
 @ServiceClient(builder = MadeOptionalClientBuilder.class)
 public final class MadeOptionalClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final MadeOptionalClientImpl serviceClient;
 
     /**
@@ -21,50 +23,26 @@ public final class MadeOptionalClient {
      * 
      * @param serviceClient the service client implementation.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     MadeOptionalClient(MadeOptionalClientImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
 
     /**
      * The test operation.
-     * <p><strong>Query Parameters</strong></p>
-     * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>param</td><td>String</td><td>No</td><td>The param parameter</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addQueryParam}
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     prop: String (Required)
-     *     changedProp: String (Optional)
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     prop: String (Required)
-     *     changedProp: String (Optional)
-     * }
-     * }
-     * </pre>
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param param The param parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
-    public Response<TestModel> testWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.testWithResponse(body, requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<TestModel> testWithResponse(TestModel body, String param, RequestContext requestContext) {
+        return this.serviceClient.testWithResponse(body, param, requestContext);
     }
 
     /**
@@ -77,14 +55,10 @@ public final class MadeOptionalClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public TestModel test(TestModel body, String param) {
-        // Generated convenience method for testWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        if (param != null) {
-            requestOptions.addQueryParam("param", param);
-        }
-        return testWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        return testWithResponse(body, param, RequestContext.none()).getValue();
     }
 
     /**
@@ -96,10 +70,10 @@ public final class MadeOptionalClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public TestModel test(TestModel body) {
-        // Generated convenience method for testWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return testWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        final String param = null;
+        return testWithResponse(body, param, RequestContext.none()).getValue();
     }
 }

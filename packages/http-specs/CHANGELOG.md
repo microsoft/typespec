@@ -1,5 +1,27 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.23
+
+### Features
+
+- [#7529](https://github.com/microsoft/typespec/pull/7529) Add smoke tests
+
+
+## 0.1.0-alpha.22
+
+### Bug Fixes
+
+- [#7230](https://github.com/microsoft/typespec/pull/7230) Handle new behavior of `@patch` keeping old behavior
+
+
+## 0.1.0-alpha.21
+
+### Bug Fixes
+
+- [#7066](https://github.com/microsoft/typespec/pull/7066) Update paging scenario to use new dynamic builder for full url
+- [#7163](https://github.com/microsoft/typespec/pull/7163) Fixed the `@encode` value for `/encode/bytes/body/response/base64url` to explicitly specify `base64url`.
+
+
 ## 0.1.0-alpha.20
 
 No changes, version bump only.

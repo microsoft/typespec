@@ -1,5 +1,5 @@
 import { StringValue, Type } from "@typespec/compiler";
-import type { Typekit } from "@typespec/compiler/experimental/typekit";
+import { type Typekit } from "@typespec/compiler/typekit";
 
 /**
  * Create a StringValue from a string value. Used for `.defaultValue` in ModelProperty

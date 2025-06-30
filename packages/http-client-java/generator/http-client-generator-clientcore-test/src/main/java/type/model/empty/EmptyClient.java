@@ -1,11 +1,13 @@
 package type.model.empty;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
 import type.model.empty.implementation.EmptyClientImpl;
 
 /**
@@ -13,7 +15,7 @@ import type.model.empty.implementation.EmptyClientImpl;
  */
 @ServiceClient(builder = EmptyClientBuilder.class)
 public final class EmptyClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final EmptyClientImpl serviceClient;
 
     /**
@@ -21,80 +23,25 @@ public final class EmptyClient {
      * 
      * @param serviceClient the service client implementation.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     EmptyClient(EmptyClientImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
 
     /**
      * The putEmpty operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     * }
-     * }
-     * </pre>
      * 
      * @param input The input parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
-    public Response<Void> putEmptyWithResponse(BinaryData input, RequestOptions requestOptions) {
-        return this.serviceClient.putEmptyWithResponse(input, requestOptions);
-    }
-
-    /**
-     * The getEmpty operation.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return empty model used in operation return type.
-     */
-    @Metadata(generated = true)
-    public Response<EmptyOutput> getEmptyWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.getEmptyWithResponse(requestOptions);
-    }
-
-    /**
-     * The postRoundTripEmpty operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return empty model used in both parameter and return type.
-     */
-    @Metadata(generated = true)
-    public Response<EmptyInputOutput> postRoundTripEmptyWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.postRoundTripEmptyWithResponse(body, requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> putEmptyWithResponse(EmptyInput input, RequestContext requestContext) {
+        return this.serviceClient.putEmptyWithResponse(input, requestContext);
     }
 
     /**
@@ -105,11 +52,25 @@ public final class EmptyClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void putEmpty(EmptyInput input) {
-        // Generated convenience method for putEmptyWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        putEmptyWithResponse(BinaryData.fromObject(input), requestOptions).getValue();
+        putEmptyWithResponse(input, RequestContext.none());
+    }
+
+    /**
+     * The getEmpty operation.
+     * 
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return empty model used in operation return type.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<EmptyOutput> getEmptyWithResponse(RequestContext requestContext) {
+        return this.serviceClient.getEmptyWithResponse(requestContext);
     }
 
     /**
@@ -119,11 +80,27 @@ public final class EmptyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return empty model used in operation return type.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public EmptyOutput getEmpty() {
-        // Generated convenience method for getEmptyWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return getEmptyWithResponse(requestOptions).getValue();
+        return getEmptyWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The postRoundTripEmpty operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return empty model used in both parameter and return type.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<EmptyInputOutput> postRoundTripEmptyWithResponse(EmptyInputOutput body,
+        RequestContext requestContext) {
+        return this.serviceClient.postRoundTripEmptyWithResponse(body, requestContext);
     }
 
     /**
@@ -135,10 +112,9 @@ public final class EmptyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return empty model used in both parameter and return type.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public EmptyInputOutput postRoundTripEmpty(EmptyInputOutput body) {
-        // Generated convenience method for postRoundTripEmptyWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return postRoundTripEmptyWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        return postRoundTripEmptyWithResponse(body, RequestContext.none()).getValue();
     }
 }

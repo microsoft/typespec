@@ -1,3 +1,4 @@
+import { Children } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { isNeverType, ModelProperty, Operation } from "@typespec/compiler";
 import { getHttpPart } from "@typespec/http";
@@ -7,6 +8,7 @@ import { TypeExpression } from "./type-expression.js";
 
 export interface InterfaceMemberProps {
   type: ModelProperty | Operation;
+  doc?: Children;
   optional?: boolean;
 }
 
@@ -14,6 +16,7 @@ export function InterfaceMember(props: InterfaceMemberProps) {
   const { $ } = useTsp();
   const namer = ts.useTSNamePolicy();
   const name = namer.getName(props.type.name, "object-member-getter");
+  const doc = props.doc ?? $.type.getDoc(props.type);
 
   if ($.modelProperty.is(props.type)) {
     if (isNeverType(props.type.type)) {
@@ -28,6 +31,7 @@ export function InterfaceMember(props: InterfaceMemberProps) {
 
     return (
       <ts.InterfaceMember
+        doc={doc}
         name={name}
         optional={props.optional ?? props.type.optional}
         type={<TypeExpression type={unpackedType} />}

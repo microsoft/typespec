@@ -1,5 +1,5 @@
 import { ModelProperty } from "@typespec/compiler";
-import { defineKit } from "@typespec/compiler/experimental/typekit";
+import { defineKit } from "@typespec/compiler/typekit";
 import {
   getHeaderFieldOptions,
   getPathParamOptions,
@@ -13,6 +13,7 @@ import { HeaderFieldOptions, PathParameterOptions, QueryParameterOptions } from 
 
 /**
  * Utilities for working with model properties in the context of Http.
+ * @typekit modelProperty
  * @experimental
  */
 export interface HttpModelProperty {
@@ -64,7 +65,7 @@ interface TypekitExtension {
   modelProperty: HttpModelProperty;
 }
 
-declare module "@typespec/compiler/experimental/typekit" {
+declare module "@typespec/compiler/typekit" {
   interface ModelPropertyKit extends HttpModelProperty {}
 }
 

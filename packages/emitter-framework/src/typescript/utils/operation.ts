@@ -1,8 +1,9 @@
-import { refkey as getRefkey } from "@alloy-js/core";
+import { refkey, Refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Model, ModelProperty, Operation, Type } from "@typespec/compiler";
 import { useTsp } from "../../core/index.js";
 import { TypeExpression } from "../components/type-expression.jsx";
+import { efRefkey } from "./refkey.js";
 
 export function getReturnType(
   type: Operation,
@@ -21,6 +22,7 @@ export function getReturnType(
 export interface BuildParameterDescriptorsOptions {
   params?: ts.ParameterDescriptor[] | string[] | undefined;
   mode?: "prepend" | "append" | "replace";
+  suffixRefkey?: Refkey;
 }
 
 export function buildParameterDescriptors(
@@ -28,6 +30,7 @@ export function buildParameterDescriptors(
   options: BuildParameterDescriptorsOptions = {},
 ): ts.ParameterDescriptor[] | undefined {
   const { $ } = useTsp();
+  const suffixRefkey = options.suffixRefkey ?? refkey();
   const optionsParams = normalizeParameters(options.params);
 
   if (options.mode === "replace") {
@@ -35,7 +38,9 @@ export function buildParameterDescriptors(
   }
 
   const modelProperties = $.model.getProperties(type);
-  const operationParams = [...modelProperties.values()].map(buildParameterDescriptor);
+  const operationParams = [...modelProperties.values()].map((m) =>
+    buildParameterDescriptor(m, suffixRefkey),
+  );
 
   // Merge parameters based on location
   const allParams =
@@ -46,13 +51,19 @@ export function buildParameterDescriptors(
   return allParams;
 }
 
-export function buildParameterDescriptor(modelProperty: ModelProperty): ts.ParameterDescriptor {
+export function buildParameterDescriptor(
+  modelProperty: ModelProperty,
+  suffixRefkey: Refkey,
+): ts.ParameterDescriptor {
+  const { $ } = useTsp();
   const namePolicy = ts.useTSNamePolicy();
   const paramName = namePolicy.getName(modelProperty.name, "parameter");
   const isOptional = modelProperty.optional || modelProperty.defaultValue !== undefined;
+  const doc = $.type.getDoc(modelProperty);
   return {
+    doc,
     name: paramName,
-    refkey: getRefkey(modelProperty),
+    refkey: efRefkey(modelProperty, suffixRefkey),
     optional: isOptional,
     type: TypeExpression({ type: modelProperty.type }),
   };

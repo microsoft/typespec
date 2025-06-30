@@ -46,13 +46,6 @@ const diags: { [code: string]: DiagnosticDefinition<DiagnosticMessages> } = {
       invalidVersion: paramMessage`The .NET SDK found is version ${"installedVersion"}. Please install the .NET SDK ${"dotnetMajorVersion"} or above and ensure there is no global.json in the file system requesting a lower version. Guidance for installing the .NET SDK can be found at ${"downloadUrl"}.`,
     },
   },
-  "no-root-client": {
-    severity: "error",
-    messages: {
-      default:
-        "Cannot generate CSharp SDK since no public root client is defined in typespec file.",
-    },
-  },
   "unsupported-auth": {
     severity: "warning",
     messages: {

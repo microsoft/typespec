@@ -11,6 +11,8 @@ namespace SpecialWords._Models
 {
     public partial class Break : IJsonModel<Break>
     {
+        internal Break() => throw null;
+
         void IJsonModel<Break>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -30,7 +32,5 @@ namespace SpecialWords._Models
         string IPersistableModel<Break>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(Break @break) => throw null;
-
-        public static explicit operator Break(ClientResult result) => throw null;
     }
 }

@@ -1,18 +1,21 @@
 package type.union.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
-import io.clientcore.core.http.RestProxy;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.http.pipeline.HttpPipeline;
+import java.lang.reflect.InvocationTargetException;
 import type.union.GetResponse9;
+import type.union.MixedTypesCases;
 
 /**
  * An instance of this class provides access to all the operations defined in MixedTypes.
@@ -34,7 +37,7 @@ public final class MixedTypesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     MixedTypesImpl(UnionClientImpl client) {
-        this.service = RestProxy.create(MixedTypesService.class, client.getHttpPipeline());
+        this.service = MixedTypesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -42,81 +45,65 @@ public final class MixedTypesImpl {
      * The interface defining all the services for UnionClientMixedTypes to be used by the proxy service to perform REST
      * calls.
      */
-    @ServiceInterface(name = "UnionClientMixedType", host = "{endpoint}")
+    @ServiceInterface(name = "UnionClientMixedTypes", host = "{endpoint}")
     public interface MixedTypesService {
+        static MixedTypesService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("type.union.implementation.MixedTypesServiceImpl");
+                return (MixedTypesService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/type/union/mixed-types",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<GetResponse9> getSync(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestOptions requestOptions);
+        Response<GetResponse9> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.POST,
             path = "/type/union/mixed-types",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> sendSync(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") BinaryData sendRequest9, RequestOptions requestOptions);
+        Response<Void> send(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") SendRequest9 sendRequest9, RequestContext requestContext);
     }
 
     /**
      * The get operation.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     prop (Required): {
-     *         model: BinaryData (Required)
-     *         literal: BinaryData (Required)
-     *         int: BinaryData (Required)
-     *         boolean: BinaryData (Required)
-     *         array (Required): [
-     *             BinaryData (Required)
-     *         ]
-     *     }
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<GetResponse9> getWithResponse(RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<GetResponse9> getWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
-        return service.getSync(this.client.getEndpoint(), accept, requestOptions);
+        return service.get(this.client.getEndpoint(), accept, requestContext);
     }
 
     /**
      * The send operation.
-     * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     prop (Required): {
-     *         model: BinaryData (Required)
-     *         literal: BinaryData (Required)
-     *         int: BinaryData (Required)
-     *         boolean: BinaryData (Required)
-     *         array (Required): [
-     *             BinaryData (Required)
-     *         ]
-     *     }
-     * }
-     * }
-     * </pre>
-     * 
-     * @param sendRequest9 The sendRequest9 parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param prop The prop parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> sendWithResponse(BinaryData sendRequest9, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> sendWithResponse(MixedTypesCases prop, RequestContext requestContext) {
         final String contentType = "application/json";
-        return service.sendSync(this.client.getEndpoint(), contentType, sendRequest9, requestOptions);
+        SendRequest9 sendRequest9 = new SendRequest9(prop);
+        return service.send(this.client.getEndpoint(), contentType, sendRequest9, requestContext);
     }
 }

@@ -12,6 +12,8 @@ namespace _Type.Model.Inheritance.SingleDiscriminator
     [PersistableModelProxy(typeof(UnknownDinosaur))]
     public abstract partial class Dinosaur : IJsonModel<Dinosaur>
     {
+        internal Dinosaur() => throw null;
+
         void IJsonModel<Dinosaur>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -29,8 +31,6 @@ namespace _Type.Model.Inheritance.SingleDiscriminator
         protected virtual Dinosaur PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<Dinosaur>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(Dinosaur dinosaur) => throw null;
 
         public static explicit operator Dinosaur(ClientResult result) => throw null;
     }

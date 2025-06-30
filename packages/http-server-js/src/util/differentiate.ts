@@ -20,7 +20,7 @@ import {
   isNeverType,
   isUnknownType,
 } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { $ } from "@typespec/compiler/typekit";
 import { getJsScalar } from "../common/scalar.js";
 import { JsContext, Module } from "../ctx.js";
 import { reportDiagnostic } from "../lib.js";

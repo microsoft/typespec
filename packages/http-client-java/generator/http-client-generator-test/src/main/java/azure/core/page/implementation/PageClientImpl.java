@@ -36,6 +36,7 @@ import com.azure.core.http.rest.RestProxy;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
+import com.azure.core.util.UrlBuilder;
 import com.azure.core.util.serializer.JacksonAdapter;
 import com.azure.core.util.serializer.SerializerAdapter;
 import java.util.List;
@@ -941,6 +942,15 @@ public final class PageClientImpl {
         RequestOptions requestOptionsForNextPage = new RequestOptions();
         requestOptionsForNextPage.setContext(
             requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : Context.NONE);
+        if (requestOptions != null) {
+            requestOptions.addRequestCallback(httpRequest -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(httpRequest.getUrl().toString());
+                Map<String, String> queryParams = urlBuilder.getQuery();
+                if (queryParams.containsKey("includePending")) {
+                    requestOptionsForNextPage.addQueryParam("includePending", queryParams.get("includePending"));
+                }
+            });
+        }
         return new PagedFlux<>(() -> withParameterizedNextLinkSinglePageAsync(select, requestOptions),
             nextLink -> withParameterizedNextLinkNextSinglePageAsync(nextLink, requestOptionsForNextPage));
     }
@@ -1032,6 +1042,15 @@ public final class PageClientImpl {
         RequestOptions requestOptionsForNextPage = new RequestOptions();
         requestOptionsForNextPage.setContext(
             requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : Context.NONE);
+        if (requestOptions != null) {
+            requestOptions.addRequestCallback(httpRequest -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(httpRequest.getUrl().toString());
+                Map<String, String> queryParams = urlBuilder.getQuery();
+                if (queryParams.containsKey("includePending")) {
+                    requestOptionsForNextPage.addQueryParam("includePending", queryParams.get("includePending"));
+                }
+            });
+        }
         return new PagedIterable<>(() -> withParameterizedNextLinkSinglePage(select, requestOptions),
             nextLink -> withParameterizedNextLinkNextSinglePage(nextLink, requestOptionsForNextPage));
     }

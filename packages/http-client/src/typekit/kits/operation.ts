@@ -1,5 +1,5 @@
 import { ModelProperty, Operation, Type } from "@typespec/compiler";
-import { defineKit } from "@typespec/compiler/experimental/typekit";
+import { defineKit } from "@typespec/compiler/typekit";
 import { HttpOperation } from "@typespec/http";
 import { InternalClient as Client } from "../../interfaces.js";
 import { getConstructors } from "../../utils/client-helpers.js";
@@ -39,7 +39,7 @@ interface SdkKit {
   operation: SdkOperationKit;
 }
 
-declare module "@typespec/compiler/experimental/typekit" {
+declare module "@typespec/compiler/typekit" {
   interface OperationKit extends SdkOperationKit {}
 }
 

@@ -11,6 +11,8 @@ namespace SpecialWords._Models
 {
     public partial class And : IJsonModel<And>
     {
+        internal And() => throw null;
+
         void IJsonModel<And>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -30,7 +32,5 @@ namespace SpecialWords._Models
         string IPersistableModel<And>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(And @and) => throw null;
-
-        public static explicit operator And(ClientResult result) => throw null;
     }
 }

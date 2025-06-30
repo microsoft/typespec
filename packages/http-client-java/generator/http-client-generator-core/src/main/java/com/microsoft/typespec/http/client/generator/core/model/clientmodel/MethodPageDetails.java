@@ -3,68 +3,124 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Property;
-import com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel.PageableContinuationToken;
-import com.microsoft.typespec.http.client.generator.core.mapper.ProxyParameterMapper;
-import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
-import java.util.ArrayList;
+import com.azure.core.util.CoreUtils;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
-/**
- * A page class that contains results that are received from a service request.
- */
 public final class MethodPageDetails {
-    /**
-     * Get whether or not this method is a request to get the next page of a sequence of pages.
-     */
-    private final ModelPropertySegment nextLinkPropertyReference;
-    private final ModelPropertySegment itemPropertyReference;
-
-    private final ClientMethod nextMethod;
-
-    // Proxy method return type is Flux<ByteBuffer>. Client method return type is PagedResponse<>.
-    // This intermediate type is the type of pagination response (the type with values and nextLink).
+    private final List<ModelPropertySegment> pageItemsPropertyReference;
+    private final List<ModelPropertySegment> nextLinkPropertyReference;
     private final IType lroIntermediateType;
+    private final ClientMethod nextMethod;
+    private final ContinuationToken continuationToken;
+    private final ClientMethodParameter maxPageSizeParameter;
+    private final NextLinkReInjection nextLinkReInjection;
+
+    public MethodPageDetails(List<ModelPropertySegment> pageItemsPropertyReference,
+        List<ModelPropertySegment> nextLinkPropertyReference, ClientMethod nextMethod, IType lroIntermediateType,
+        ContinuationToken continuationToken, ClientMethodParameter maxPageSizeParameter,
+        NextLinkReInjection nextLinkReInjectedParameterNames) {
+        this.pageItemsPropertyReference = Objects.requireNonNull(pageItemsPropertyReference);
+        this.nextLinkPropertyReference = nextLinkPropertyReference;
+        this.lroIntermediateType = lroIntermediateType;
+        this.nextMethod = nextMethod;
+        this.continuationToken = continuationToken;
+        this.maxPageSizeParameter = maxPageSizeParameter;
+        this.nextLinkReInjection = nextLinkReInjectedParameterNames;
+    }
+
+    public String getNextLinkName() {
+        if (CoreUtils.isNullOrEmpty(nextLinkPropertyReference)) {
+            return null;
+        }
+        return nextLinkPropertyReference.get(0).getProperty().getName();
+    }
+
+    public IType getNextLinkType() {
+        if (CoreUtils.isNullOrEmpty(nextLinkPropertyReference)) {
+            return null;
+        }
+        return nextLinkPropertyReference.get(0).getProperty().getClientType();
+    }
+
+    public String getSerializedNextLinkName() {
+        if (CoreUtils.isNullOrEmpty(nextLinkPropertyReference)) {
+            return null;
+        }
+        return nextLinkPropertyReference.get(0).getProperty().getSerializedName();
+    }
+
+    public String getItemName() {
+        return pageItemsPropertyReference.get(0).getProperty().getName();
+    }
+
+    public String getSerializedItemName() {
+        return pageItemsPropertyReference.get(0).getProperty().getSerializedName();
+    }
+
+    public ClientMethod getNextMethod() {
+        return nextMethod;
+    }
+
+    public IType getLroIntermediateType() {
+        return lroIntermediateType;
+    }
+
+    public List<ModelPropertySegment> getPageItemsPropertyReference() {
+        return pageItemsPropertyReference;
+    }
+
+    public List<ModelPropertySegment> getNextLinkPropertyReference() {
+        return nextLinkPropertyReference;
+    }
+
+    public ContinuationToken getContinuationToken() {
+        return continuationToken;
+    }
+
+    public boolean nonNullNextLink() {
+        final String nextLinkName = getNextLinkName();
+        return nextLinkName != null && !nextLinkName.isEmpty();
+    }
+
+    public boolean shouldHideParameter(ClientMethodParameter parameter) {
+        if (continuationToken != null) {
+            if (parameter == continuationToken.getClientMethodParameter()) {
+                return true;
+            }
+        }
+        if (JavaSettings.getInstance().isPageSizeEnabled()) {
+            return parameter == maxPageSizeParameter;
+        }
+        return false;
+    }
+
+    public NextLinkReInjection getNextLinkReInjection() {
+        return nextLinkReInjection;
+    }
 
     public static final class ContinuationToken {
         private final ProxyMethodParameter requestParameter;
-        private final List<ModelPropertySegment> responsePropertyReference;
+        private final ClientMethodParameter clientMethodParameter;
         private final String responseHeaderSerializedName;
+        private final List<ModelPropertySegment> responsePropertyReference;
 
-        private ContinuationToken(PageableContinuationToken continuationToken, IType responseBodyType) {
-            this.requestParameter = ProxyParameterMapper.getInstance().map(continuationToken.getParameter());
-            this.responseHeaderSerializedName = continuationToken.getResponseHeader() == null
-                ? null
-                : continuationToken.getResponseHeader().getHeader();
-
-            List<ModelPropertySegment> responsePropertyReference = null;
-            if (continuationToken.getResponseProperty() != null) {
-                responsePropertyReference = new ArrayList<>();
-                IType modelType = responseBodyType;
-                for (Property p : continuationToken.getResponseProperty()) {
-                    ModelPropertySegment segment
-                        = ClientModelUtil.getModelPropertySegment(modelType, p.getSerializedName());
-                    if (segment != null) {
-                        responsePropertyReference.add(segment);
-                    } else {
-                        throw new RuntimeException(
-                            String.format("Property of serialized name '%s' is not found in model '%s'.",
-                                p.getSerializedName(), modelType.toString()));
-                    }
-
-                    modelType = segment.getProperty().getClientType();
-                }
-            }
+        public ContinuationToken(ProxyMethodParameter requestParameter, ClientMethodParameter clientMethodParameter,
+            String responseHeaderSerializedName, List<ModelPropertySegment> responsePropertyReference) {
+            this.requestParameter = requestParameter;
+            this.clientMethodParameter = clientMethodParameter;
+            this.responseHeaderSerializedName = responseHeaderSerializedName;
             this.responsePropertyReference = responsePropertyReference;
-        }
-
-        public static ContinuationToken fromContinuationToken(PageableContinuationToken continuationToken,
-            IType responseBodyType) {
-            return continuationToken == null ? null : new ContinuationToken(continuationToken, responseBodyType);
         }
 
         public ProxyMethodParameter getRequestParameter() {
             return requestParameter;
+        }
+
+        public ClientMethodParameter getClientMethodParameter() {
+            return clientMethodParameter;
         }
 
         public List<ModelPropertySegment> getResponsePropertyReference() {
@@ -76,50 +132,19 @@ public final class MethodPageDetails {
         }
     }
 
-    private ContinuationToken continuationToken;
+    /**
+     * Represents the nextLink re-injected parameters for paging. Legacy feature.
+     * Only query parameters are included.
+     */
+    public static final class NextLinkReInjection {
+        private final List<String> queryParameterSerializedNames;
 
-    public MethodPageDetails(ModelPropertySegment itemPropertyReference, ModelPropertySegment nextLinkPropertyReference,
-        ClientMethod nextMethod, IType lroIntermediateType, ContinuationToken continuationToken) {
-        this.itemPropertyReference = itemPropertyReference;
-        this.nextLinkPropertyReference = nextLinkPropertyReference;
-        this.nextMethod = nextMethod;
-        this.lroIntermediateType = lroIntermediateType;
-        this.continuationToken = continuationToken;
-    }
+        public NextLinkReInjection(List<String> queryParameterNames) {
+            this.queryParameterSerializedNames = Collections.unmodifiableList(queryParameterNames);
+        }
 
-    public String getNextLinkName() {
-        return nextLinkPropertyReference == null ? null : nextLinkPropertyReference.getProperty().getName();
-    }
-
-    public IType getNextLinkType() {
-        return nextLinkPropertyReference == null ? null : nextLinkPropertyReference.getProperty().getClientType();
-    }
-
-    public String getSerializedNextLinkName() {
-        return nextLinkPropertyReference.getProperty().getSerializedName();
-    }
-
-    public String getItemName() {
-        return itemPropertyReference == null ? null : itemPropertyReference.getProperty().getName();
-    }
-
-    public String getSerializedItemName() {
-        return itemPropertyReference == null ? null : itemPropertyReference.getProperty().getSerializedName();
-    }
-
-    public ClientMethod getNextMethod() {
-        return nextMethod;
-    }
-
-    public IType getLroIntermediateType() {
-        return lroIntermediateType;
-    }
-
-    public boolean nonNullNextLink() {
-        return getNextLinkName() != null && !getNextLinkName().isEmpty();
-    }
-
-    public ContinuationToken getContinuationToken() {
-        return continuationToken;
+        public List<String> getQueryParameterSerializedNames() {
+            return queryParameterSerializedNames;
+        }
     }
 }

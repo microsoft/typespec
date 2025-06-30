@@ -1,12 +1,14 @@
-import { splitProps } from "@alloy-js/core/jsx-runtime";
+import { Children, splitProps } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Operation } from "@typespec/compiler";
+import { useTsp } from "../../core/index.js";
 import { buildParameterDescriptors, getReturnType } from "../utils/operation.js";
 import { TypeExpression } from "./type-expression.jsx";
 
 export interface InterfaceMethodPropsWithType extends Omit<ts.InterfaceMethodProps, "name"> {
   type: Operation;
   name?: string;
+  doc?: Children;
   parametersMode?: "prepend" | "append" | "replace";
 }
 
@@ -18,6 +20,7 @@ export type InterfaceMethodProps = InterfaceMethodPropsWithType | ts.InterfaceMe
  * provided will take precedence.
  */
 export function InterfaceMethod(props: Readonly<InterfaceMethodProps>) {
+  const { $ } = useTsp();
   const isTypeSpecTyped = "type" in props;
   if (!isTypeSpecTyped) {
     return <ts.InterfaceMethod {...props} />;
@@ -36,6 +39,8 @@ export function InterfaceMethod(props: Readonly<InterfaceMethodProps>) {
     mode: props.parametersMode,
   });
 
+  const doc = props.doc ?? $.type.getDoc(props.type);
+
   return (
     <ts.InterfaceMethod
       {...forwardProps}
@@ -43,6 +48,7 @@ export function InterfaceMethod(props: Readonly<InterfaceMethodProps>) {
       name={name}
       returnType={returnType}
       parameters={allParameters}
+      doc={doc}
     />
   );
 }

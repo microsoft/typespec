@@ -11,6 +11,8 @@ namespace SpecialWords._Models
 {
     public partial class Yield : IJsonModel<Yield>
     {
+        internal Yield() => throw null;
+
         void IJsonModel<Yield>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -30,7 +32,5 @@ namespace SpecialWords._Models
         string IPersistableModel<Yield>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(Yield @yield) => throw null;
-
-        public static explicit operator Yield(ClientResult result) => throw null;
     }
 }

@@ -1,20 +1,21 @@
 package payload.jsonmergepatch.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
-import io.clientcore.core.http.RestProxy;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
-import io.clientcore.core.models.binarydata.BinaryData;
+import java.lang.reflect.InvocationTargetException;
 import payload.jsonmergepatch.Resource;
+import payload.jsonmergepatch.ResourcePatch;
 
 /**
  * Initializes a new instance of the JsonMergePatchClient type.
@@ -62,7 +63,7 @@ public final class JsonMergePatchClientImpl {
     public JsonMergePatchClientImpl(HttpPipeline httpPipeline, String endpoint) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.service = RestProxy.create(JsonMergePatchClientService.class, this.httpPipeline);
+        this.service = JsonMergePatchClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -71,235 +72,93 @@ public final class JsonMergePatchClientImpl {
      */
     @ServiceInterface(name = "JsonMergePatchClient", host = "{endpoint}")
     public interface JsonMergePatchClientService {
+        static JsonMergePatchClientService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("payload.jsonmergepatch.implementation.JsonMergePatchClientServiceImpl");
+                return (JsonMergePatchClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(
             method = HttpMethod.PUT,
             path = "/json-merge-patch/create/resource",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<Resource> createResourceSync(@HostParam("endpoint") String endpoint,
+        Response<Resource> createResource(@HostParam("endpoint") String endpoint,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") BinaryData body, RequestOptions requestOptions);
+            @BodyParam("application/json") Resource body, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.PATCH,
             path = "/json-merge-patch/update/resource",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<Resource> updateResourceSync(@HostParam("endpoint") String endpoint,
+        Response<Resource> updateResource(@HostParam("endpoint") String endpoint,
             @HeaderParam("content-type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/merge-patch+json") BinaryData body, RequestOptions requestOptions);
+            @BodyParam("application/merge-patch+json") ResourcePatch body, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.PATCH,
             path = "/json-merge-patch/update/resource/optional",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<Resource> updateOptionalResourceSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestOptions requestOptions);
+        Response<Resource> updateOptionalResource(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, @BodyParam("application/merge-patch+json") ResourcePatch body,
+            RequestContext requestContext);
     }
 
     /**
      * Test content-type: application/merge-patch+json with required body.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     *     description: String (Optional)
-     *     map (Optional): {
-     *         String (Required): {
-     *             name: String (Optional)
-     *             description: String (Optional)
-     *         }
-     *     }
-     *     array (Optional): [
-     *         (recursive schema, see above)
-     *     ]
-     *     intValue: Integer (Optional)
-     *     floatValue: Double (Optional)
-     *     innerModel (Optional): (recursive schema, see innerModel above)
-     *     intArray (Optional): [
-     *         int (Optional)
-     *     ]
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     *     description: String (Optional)
-     *     map (Optional): {
-     *         String (Required): {
-     *             name: String (Optional)
-     *             description: String (Optional)
-     *         }
-     *     }
-     *     array (Optional): [
-     *         (recursive schema, see above)
-     *     ]
-     *     intValue: Integer (Optional)
-     *     floatValue: Double (Optional)
-     *     innerModel (Optional): (recursive schema, see innerModel above)
-     *     intArray (Optional): [
-     *         int (Optional)
-     *     ]
-     * }
-     * }
-     * </pre>
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return details about a resource.
      */
-    public Response<Resource> createResourceWithResponse(BinaryData body, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Resource> createResourceWithResponse(Resource body, RequestContext requestContext) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.createResourceSync(this.getEndpoint(), contentType, accept, body, requestOptions);
+        return service.createResource(this.getEndpoint(), contentType, accept, body, requestContext);
     }
 
     /**
      * Test content-type: application/merge-patch+json with required body.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     description: String (Optional)
-     *     map (Optional): {
-     *         String (Required): {
-     *             name: String (Optional)
-     *             description: String (Optional)
-     *         }
-     *     }
-     *     array (Optional): [
-     *         (recursive schema, see above)
-     *     ]
-     *     intValue: Integer (Optional)
-     *     floatValue: Double (Optional)
-     *     innerModel (Optional): (recursive schema, see innerModel above)
-     *     intArray (Optional): [
-     *         int (Optional)
-     *     ]
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     *     description: String (Optional)
-     *     map (Optional): {
-     *         String (Required): {
-     *             name: String (Optional)
-     *             description: String (Optional)
-     *         }
-     *     }
-     *     array (Optional): [
-     *         (recursive schema, see above)
-     *     ]
-     *     intValue: Integer (Optional)
-     *     floatValue: Double (Optional)
-     *     innerModel (Optional): (recursive schema, see innerModel above)
-     *     intArray (Optional): [
-     *         int (Optional)
-     *     ]
-     * }
-     * }
-     * </pre>
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return details about a resource.
      */
-    public Response<Resource> updateResourceWithResponse(BinaryData body, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Resource> updateResourceWithResponse(ResourcePatch body, RequestContext requestContext) {
         final String contentType = "application/merge-patch+json";
         final String accept = "application/json";
-        return service.updateResourceSync(this.getEndpoint(), contentType, accept, body, requestOptions);
+        return service.updateResource(this.getEndpoint(), contentType, accept, body, requestContext);
     }
 
     /**
      * Test content-type: application/merge-patch+json with optional body.
-     * <p><strong>Header Parameters</strong></p>
-     * <table border="1">
-     * <caption>Header Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>Content-Type</td><td>String</td><td>No</td><td>The content type. Allowed values:
-     * "application/merge-patch+json".</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addHeader}
-     * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     description: String (Optional)
-     *     map (Optional): {
-     *         String (Required): {
-     *             name: String (Optional)
-     *             description: String (Optional)
-     *         }
-     *     }
-     *     array (Optional): [
-     *         (recursive schema, see above)
-     *     ]
-     *     intValue: Integer (Optional)
-     *     floatValue: Double (Optional)
-     *     innerModel (Optional): (recursive schema, see innerModel above)
-     *     intArray (Optional): [
-     *         int (Optional)
-     *     ]
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     *     description: String (Optional)
-     *     map (Optional): {
-     *         String (Required): {
-     *             name: String (Optional)
-     *             description: String (Optional)
-     *         }
-     *     }
-     *     array (Optional): [
-     *         (recursive schema, see above)
-     *     ]
-     *     intValue: Integer (Optional)
-     *     floatValue: Double (Optional)
-     *     innerModel (Optional): (recursive schema, see innerModel above)
-     *     intArray (Optional): [
-     *         int (Optional)
-     *     ]
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return details about a resource.
      */
-    public Response<Resource> updateOptionalResourceWithResponse(RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Resource> updateOptionalResourceWithResponse(ResourcePatch body, RequestContext requestContext) {
         final String accept = "application/json";
-        RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
-        requestOptionsLocal.addRequestCallback(requestLocal -> {
-            if (requestLocal.getBody() != null && requestLocal.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
-                requestLocal.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/merge-patch+json");
-            }
-        });
-        return service.updateOptionalResourceSync(this.getEndpoint(), accept, requestOptionsLocal);
+        return service.updateOptionalResource(this.getEndpoint(), accept, body, requestContext);
     }
 }

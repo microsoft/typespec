@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 
 namespace Microsoft.TypeSpec.Generator.Expressions
@@ -13,13 +14,18 @@ namespace Microsoft.TypeSpec.Generator.Expressions
     /// Represents a single operator or operand, or a sequence of operators or operands.
     /// </summary>
     [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
-    public record ValueExpression
+    public abstract record ValueExpression
     {
-        public static readonly ValueExpression Empty = new();
+        public static readonly ValueExpression Empty = new EmptyValueExpression();
 
         private protected ValueExpression() { }
 
         internal virtual void Write(CodeWriter writer) { }
+
+        internal virtual ValueExpression? Accept(LibraryVisitor visitor, MethodProvider method)
+        {
+            return this;
+        }
 
         protected internal virtual bool IsEmptyExpression() => ReferenceEquals(this, Empty);
 
@@ -77,6 +83,12 @@ namespace Microsoft.TypeSpec.Generator.Expressions
                 CallAsAsync = methodSignature.Modifiers.HasFlag(MethodSignatureModifiers.Async)
             };
 
+        public InvokeMethodExpression Invoke(
+            string methodName,
+            IReadOnlyList<ValueExpression> args,
+            IReadOnlyList<CSharpType> typeArgs)
+            => new InvokeMethodExpression(this, methodName, args) { TypeArguments = typeArgs };
+
         public InvokeMethodExpression Invoke(MethodSignature methodSignature, IReadOnlyList<ValueExpression> arguments, bool addConfigureAwaitFalse = true)
             => new InvokeMethodExpression(this, methodSignature, arguments)
             {
@@ -129,6 +141,10 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             using CodeWriter writer = new CodeWriter();
             Write(writer);
             return writer.ToString(false);
+        }
+
+        private record EmptyValueExpression : ValueExpression
+        {
         }
     }
 }

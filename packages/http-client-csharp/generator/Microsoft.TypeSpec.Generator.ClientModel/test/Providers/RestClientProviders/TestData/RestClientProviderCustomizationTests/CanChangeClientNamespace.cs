@@ -4,7 +4,6 @@
 
 namespace Sample.Custom
 {
-    /// <summary></summary>
     public partial class TestClient
     {
     }

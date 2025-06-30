@@ -1,10 +1,11 @@
 import { isErrorModel } from "@typespec/compiler";
-import { defineKit } from "@typespec/compiler/experimental/typekit";
+import { defineKit } from "@typespec/compiler/typekit";
 import { HttpStatusCodeRange, HttpStatusCodesEntry } from "../../../types.js";
 import { FlatHttpResponse } from "./http-operation.js";
 
 /**
  * Utilities for working with HTTP responses.
+ * @typekit httpResponse
  * @experimental
  */
 export interface HttpResponseKit {
@@ -42,7 +43,7 @@ interface TypekitExtension {
   httpResponse: HttpResponseKit;
 }
 
-declare module "@typespec/compiler/experimental/typekit" {
+declare module "@typespec/compiler/typekit" {
   interface Typekit extends TypekitExtension {}
 }
 

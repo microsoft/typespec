@@ -57,7 +57,7 @@ public final class MultipleSpreadsImpl {
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "AdditionalProperties")
+    @ServiceInterface(name = "AdditionalPropertiesClientMultipleSpreads")
     public interface MultipleSpreadsService {
         @Get("/type/property/additionalProperties/multipleSpreadRecord")
         @ExpectedResponses({ 200 })

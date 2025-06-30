@@ -212,21 +212,22 @@ public class SchemaUtil {
     }
 
     public static IType removeModelFromParameter(RequestParameterLocation parameterRequestLocation, IType type) {
-        IType returnType = type;
         if (parameterRequestLocation == RequestParameterLocation.BODY) {
-            returnType = ClassType.BINARY_DATA;
-        } else if (!(returnType instanceof PrimitiveType)) {
-            if (type instanceof EnumType) {
-                returnType = ClassType.STRING;
-            }
-            if (type instanceof IterableType && ((IterableType) type).getElementType() instanceof EnumType) {
-                returnType = new IterableType(ClassType.STRING);
-            }
-            if (type instanceof ListType && ((ListType) type).getElementType() instanceof EnumType) {
-                returnType = new ListType(ClassType.STRING);
-            }
+            return ClassType.BINARY_DATA;
         }
-        return returnType;
+        if (type instanceof PrimitiveType) {
+            return type;
+        }
+        if (type instanceof EnumType) {
+            return ClassType.STRING;
+        }
+        if (type instanceof ListType && ((ListType) type).getElementType() instanceof EnumType) {
+            return new ListType(ClassType.STRING);
+        }
+        if (type instanceof IterableType && ((IterableType) type).getElementType() instanceof EnumType) {
+            return new IterableType(ClassType.STRING);
+        }
+        return type;
     }
 
     public static IType tryMapToBinaryData(IType type, Operation operation) {
@@ -258,7 +259,8 @@ public class SchemaUtil {
                     // https://github.com/Azure/azure-sdk-for-java/blob/main/sdk/core/azure-core/src/main/java/com/azure/core/models/ResponseError.java
                     if (Objects.equals(name, "Error")
                         || (Objects.equals(SchemaUtil.getCrossLanguageDefinitionId(compositeType),
-                            "Azure.Core.Foundations.Error"))) {
+                            "Azure.Core.Foundations.Error"))
+                        || Objects.equals(name, "ErrorResponse")) {
                         classType = ClassType.RESPONSE_ERROR;
                     }
                     /*
@@ -276,11 +278,11 @@ public class SchemaUtil {
                         && Objects.equals(compositeType.getLanguage().getJava().getNamespace(),
                             ClassType.POLL_OPERATION_DETAILS.getPackage())) {
                         classType = ClassType.POLL_OPERATION_DETAILS;
-                    } else if (Objects.equals(name, ClassType.REQUEST_CONDITIONS.getName())
+                    } else if (ClassType.REQUEST_CONDITIONS.getName().endsWith(name)
                         && Objects.equals(compositeType.getLanguage().getJava().getNamespace(),
                             ClassType.REQUEST_CONDITIONS.getPackage())) {
                         classType = ClassType.REQUEST_CONDITIONS;
-                    } else if (Objects.equals(name, ClassType.MATCH_CONDITIONS.getName())
+                    } else if (ClassType.MATCH_CONDITIONS.getName().endsWith(name)
                         && Objects.equals(compositeType.getLanguage().getJava().getNamespace(),
                             ClassType.REQUEST_CONDITIONS.getPackage())) {
                         classType = ClassType.MATCH_CONDITIONS;

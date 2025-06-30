@@ -8,7 +8,7 @@ TypeSpec library for emitting Http Client libraries for JavaScript/TypeScript
 npm install @typespec/http-client-js
 ```
 
-## Usage
+## Emitter usage
 
 1. Via the command line
 

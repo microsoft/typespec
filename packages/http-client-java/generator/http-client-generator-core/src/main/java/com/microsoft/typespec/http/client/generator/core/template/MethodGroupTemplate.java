@@ -15,6 +15,8 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVis
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ModelNamer;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
+import io.clientcore.core.serialization.ObjectSerializer;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,7 +47,9 @@ public class MethodGroupTemplate implements IJavaTemplate<MethodGroupClient, Jav
         String serviceClientPackageName
             = ClientModelUtil.getServiceClientPackageName(methodGroupClient.getServiceClientName());
         imports.add(String.format("%1$s.%2$s", serviceClientPackageName, methodGroupClient.getServiceClientName()));
-
+        imports.add(InvocationTargetException.class.getName());
+        imports.add(ObjectSerializer.class.getName());
+        ClassType.HTTP_PIPELINE.addImportsTo(imports, false);
         javaFile.declareImport(imports);
 
         List<String> interfaces
@@ -114,9 +118,9 @@ public class MethodGroupTemplate implements IJavaTemplate<MethodGroupClient, Jav
             });
     }
 
-    private void writeServiceProxyConstruction(JavaBlock constructor, MethodGroupClient methodGroupClient) {
+    protected void writeServiceProxyConstruction(JavaBlock constructor, MethodGroupClient methodGroupClient) {
         ClassType proxyType = ClassType.REST_PROXY;
-        if (JavaSettings.getInstance().isBranded()) {
+        if (JavaSettings.getInstance().isAzureV1()) {
             constructor.line(String.format(
                 "this.service = %1$s.create(%2$s.class, client.getHttpPipeline(), client.getSerializerAdapter());",
                 proxyType.getName(), methodGroupClient.getProxy().getName()));

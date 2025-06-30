@@ -1,5 +1,29 @@
 # Changelog - @typespec/http-server-js
 
+## 0.58.0-alpha.15
+
+### Features
+
+- [#7256](https://github.com/microsoft/typespec/pull/7256) Implemented canonical visibility transforms. When HTTP operations imply particular implicit visibility transforms, this change enables `@typespec/http-server-js` to perform those transforms, removing invisible properties in contexts where they cannot be used.
+
+### Bug Fixes
+
+- [#7554](https://github.com/microsoft/typespec/pull/7554) Fixes emitter crash when operation return types included metadata or `@body` properties that only contained underscores
+- [#7494](https://github.com/microsoft/typespec/pull/7494) Corrected a bug that sometimes caused the generated server code to sometimes attempt to extract path parameters from the wrong location.
+  
+  Fixed an issue that caused all generated helper modules to be emitted even if they were not used. Now, the generator will only emit the helper modules that are actually used by the generated code.
+- [#7280](https://github.com/microsoft/typespec/pull/7280) Fixed an error in which the scaffolding script incorrectly considered built-in Node.js modules external dependencies.
+- [#7276](https://github.com/microsoft/typespec/pull/7276) Fixed an issue in which differences between model and JSON serialized property names were not correctly detected and property names for JSON serialization were not correctly quoted as necessary.
+
+
+## 0.58.0-alpha.14
+
+### Bug Fixes
+
+- [#7234](https://github.com/microsoft/typespec/pull/7234) Fixed a few bugs with output directory resolution logic in `hsjs-scaffolding`, improving robustness of the scaffolding script by re-using existing compiler logic to resolve emitter options.
+- [#7225](https://github.com/microsoft/typespec/pull/7225) Added a missing shebang line to `hsjs-scaffold` for better platform compatibility.
+
+
 ## 0.58.0-alpha.13
 
 ### Features

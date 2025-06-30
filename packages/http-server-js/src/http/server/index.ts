@@ -9,10 +9,12 @@ import {
   isArrayModelType,
   isRecordModelType,
 } from "@typespec/compiler";
+import { $ } from "@typespec/compiler/typekit";
 import {
   HttpOperation,
   HttpOperationParameter,
   getHeaderFieldName,
+  getHttpOperation,
   isBody,
   isHeader,
   isStatusCode,
@@ -37,7 +39,6 @@ import { reportDiagnostic } from "../../lib.js";
 import { differentiateUnion, writeCodeTree } from "../../util/differentiate.js";
 import { emitMultipart, emitMultipartLegacy } from "./multipart.js";
 
-import { $ } from "@typespec/compiler/experimental/typekit";
 import { module as headerHelpers } from "../../../generated-defs/helpers/header.js";
 import { module as httpHelpers } from "../../../generated-defs/helpers/http.js";
 import { getJsScalar } from "../../common/scalar.js";
@@ -46,6 +47,7 @@ import {
   transposeExpressionFromJson,
 } from "../../common/serialization/json.js";
 import { getFullyQualifiedTypeName } from "../../util/name.js";
+import { canonicalizeHttpOperation } from "../operation.js";
 
 const DEFAULT_CONTENT_TYPE = "application/json";
 
@@ -96,11 +98,14 @@ function* emitRawServerOperation(
   module: Module,
   responderNames: Pick<Names, "isHttpResponder" | "httpResponderSym">,
 ): Iterable<string> {
-  const op = operation.operation;
+  let op = operation.operation;
   const operationNameCase = parseCase(op.name);
 
   const container = op.interface ?? op.namespace!;
   const containerNameCase = parseCase(container.name);
+
+  op = canonicalizeHttpOperation(ctx, op);
+  [operation] = getHttpOperation(ctx.program, op);
 
   module.imports.push({
     binder: [containerNameCase.pascalCase],
@@ -411,7 +416,13 @@ function* emitRawServerOperation(
     const paramNameSafe = keywordSafe(paramNameCase.camelCase);
     const isBodyField = bodyFields.has(param.name) && bodyFields.get(param.name) === param.type;
     const isBodyExact = operation.parameters.body?.property === param;
-    if (isBodyField) {
+    const isPathParameter = operation.parameters.parameters.some(
+      (p) => p.type === "path" && p.param === param,
+    );
+
+    if (isPathParameter) {
+      paramBaseExpression = `${paramNameSafe}`;
+    } else if (isBodyField) {
       paramBaseExpression = `${bodyName}.${paramNameCase.camelCase}`;
     } else if (isBodyExact) {
       paramBaseExpression = bodyName!;

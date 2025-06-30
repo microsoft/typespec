@@ -1,5 +1,5 @@
-import { joinPaths } from "../core/path-utils.js";
-import type { CompilerHost } from "../core/types.js";
+import { joinPaths, resolvePath } from "../core/path-utils.js";
+import type { CompilerHost, SystemHost } from "../core/types.js";
 
 export async function mkTempDir(host: CompilerHost, base: string, prefix: string): Promise<string> {
   const rnd = Math.random() * 0x100000000;
@@ -18,4 +18,28 @@ export async function mkTempDir(host: CompilerHost, base: string, prefix: string
       throw error;
     }
   }
+}
+
+/**
+ * List all files in dir recursively
+ * @returns relative path of the files from the given directory
+ */
+export async function listAllFilesInDir(host: SystemHost, dir: string): Promise<string[]> {
+  const files: string[] = [];
+  async function readDirs(currentDir: string) {
+    const currentDirPath = resolvePath(dir, currentDir);
+    const fileOrDirs = await host.readDir(currentDirPath);
+    for (const file of fileOrDirs) {
+      const fullPath = resolvePath(currentDirPath, file);
+      const stat = await host.stat(fullPath);
+      if (stat.isDirectory()) {
+        await readDirs(resolvePath(currentDir, file));
+      } else {
+        files.push(resolvePath(currentDir, file));
+      }
+    }
+  }
+
+  await readDirs("");
+  return files;
 }

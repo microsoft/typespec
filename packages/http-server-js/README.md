@@ -10,7 +10,7 @@ TypeSpec HTTP server code generator for JavaScript
 npm install @typespec/http-server-js
 ```
 
-## Usage
+## Emitter usage
 
 1. Via the command line
 

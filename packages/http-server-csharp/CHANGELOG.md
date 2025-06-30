@@ -1,5 +1,43 @@
 # Change Log - @typespec/http-server-csharp
 
+## 0.58.0-alpha.17
+
+No changes, version bump only.
+
+## 0.58.0-alpha.16
+
+### Bug Fixes
+
+- Fix reference issues with some declared types
+
+## 0.58.0-alpha.15
+
+### Breaking Changes
+
+- [#6428](https://github.com/microsoft/typespec/pull/6428) ### Change in Array Scaffolding from TypeSpec to C#
+  
+  The default behavior for scaffolding arrays remains unchanged: arrays will continue to be scaffolded as `T[]` by default. However, for arrays decorated with the `@uniqueItems` decorator, they will now be scaffolded as `ISet<T>`, with `HashSet<T>` as the default implementation.
+  
+  Additionally, a new emitter option, `collection-type`, has been introduced to provide flexibility in how collections are generated:
+  - **`collection-type`**:
+    - **`array` (default)**: Generates arrays (`T[]`).
+    - **`enumerable`**: Generates `IEnumerable<T>` for collections, with `List<T>` used as the default implementation when needed.
+  
+  #### Unique Items
+  For arrays decorated with the `@uniqueItems` decorator, they will be scaffolded as `ISet<T>`, regardless of the `collection-type` option, with `HashSet<T>` as the default implementation.
+  
+  #### Byte Arrays
+  The `bytes` type will always be treated as an array of bytes (`byte[]`) in C#, regardless of the `collection-type` option selected.
+
+### Bug Fixes
+
+- [#7196](https://github.com/microsoft/typespec/pull/7196) Fix issues with string union defaults and namespace management
+- [#6845](https://github.com/microsoft/typespec/pull/6845) - Mirror namespaces from typespec document
+  - Make many usings dynamic
+  - Update management of scopes
+  - Detect and substitute many language reserved words
+
+
 ## 0.58.0-alpha.14
 
 ### Bug Fixes

@@ -855,69 +855,71 @@ function isDeclaration(type: Type): type is TypeSpecDeclaration | Namespace {
 /**
  * An interner takes an object and returns either that same object, or a
  * previously seen object that has the identical shape.
- *
- * This implementation is EXTREMELY non-optimal (O(n*m) where n = number of unique
- * state objects and m = the number of properties a state object contains). This
- * will very quickly be a bottleneck. That said, the common case is no state at
- * all, and also this is essentially implementing records and tuples, so could
- * probably adopt those when they are released. That that said, the records and
- * tuples are presently facing headwinds due to implementations facing exactly
- * these performance characteristics. Regardless, there are optimizations we
- * could consider.
  */
 function createInterner() {
   type PlainObject = Record<string, any>;
-
   const emptyObject = {};
-  const knownKeys = new Map<string, Set<PlainObject>>();
+  // Root map: key = property count, value = Map of property names
+  const root = new Map();
 
-  return {
-    intern<T extends PlainObject>(object: T): T {
-      const keys = Object.keys(object);
-      const keyLen = keys.length;
-      if (keyLen === 0) return emptyObject as any;
+  function intern<T extends PlainObject>(object: T): T {
+    if (object === null || typeof object !== "object") return object;
+    const keys = Object.keys(object);
+    if (keys.length === 0) return emptyObject as any;
 
-      // Find an object set with minimum size by object keys
-      let knownObjects = new Set<PlainObject>();
-      let minSize = Infinity;
-      for (const objs of keys.map((key) => knownKeys.get(key))) {
-        if (objs && objs.size < minSize) {
-          knownObjects = objs;
-          minSize = objs.size;
-        }
+    // Use property count as first-level key for efficiency
+    let node = root.get(keys.length);
+    if (!node) {
+      node = new Map();
+      root.set(keys.length, node);
+    }
+
+    // Sort keys for stable structure
+    const sortedKeys = keys.sort();
+    let curr = node;
+    for (const key of sortedKeys) {
+      if (!curr.has(key)) curr.set(key, new Map());
+      curr = curr.get(key);
+    }
+
+    // Now curr is a map from values to interned objects
+    // Use WeakMap for object values, Map for primitives
+    let valueNode = curr.valueNode;
+    if (!valueNode) {
+      valueNode = new Map();
+      curr.valueNode = valueNode;
+    }
+
+    // Build a tuple of values for this key order
+    const values = sortedKeys.map((k) => object[k]);
+    let leaf = valueNode;
+    for (let i = 0; i < values.length; i++) {
+      const v = values[i];
+      const isObj = v && typeof v === "object";
+      let next;
+      if (isObj) {
+        if (!leaf.has("obj")) leaf.set("obj", new WeakMap());
+        next = leaf.get("obj");
+        if (!next.has(v)) next.set(v, new Map());
+        next = next.get(v);
+      } else {
+        if (!leaf.has("prim")) leaf.set("prim", new Map());
+        next = leaf.get("prim");
+        if (!next.has(v)) next.set(v, new Map());
+        next = next.get(v);
       }
+      leaf = next;
+    }
 
-      // Now find a known object from the found smallest object set
-      for (const ko of knownObjects) {
-        const entries = Object.entries(ko);
-        if (entries.length !== keyLen) continue;
+    // At the leaf, check for existing interned object
+    if (leaf.has("interned")) {
+      return leaf.get("interned");
+    }
+    leaf.set("interned", object);
+    return object;
+  }
 
-        let found = true;
-        for (const [key, value] of entries) {
-          if (object[key] !== value) {
-            found = false;
-            break;
-          }
-        }
-
-        if (found) {
-          return ko as any;
-        }
-      }
-
-      // If the object is not known, add all keys as known
-      for (const key of keys) {
-        const ko = knownKeys.get(key);
-        if (ko) {
-          ko.add(object);
-        } else {
-          knownKeys.set(key, new Set([object]));
-        }
-      }
-
-      return object;
-    },
-  };
+  return { intern };
 }
 
 const noContext = new Set<string>(["modelPropertyReference", "enumMemberReference"]);

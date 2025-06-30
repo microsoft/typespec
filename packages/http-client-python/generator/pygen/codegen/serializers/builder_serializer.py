@@ -607,6 +607,8 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         if params_added_on:
             retval.append(f"    params_added_on={dict(params_added_on)},")
         if retval:
+            if builder.api_versions:
+                retval.append(f"   api_versions_list={builder.api_versions},")
             retval_str = "\n".join(retval)
             return f"@api_version_validation(\n{retval_str}\n)"
         return ""
@@ -1276,6 +1278,17 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
                 else api_version_param.full_client_name
             )
             retval.append(f'_next_request_params["api-version"] = {api_version}')
+            if builder.next_link_reinjected_parameters:
+                for param in builder.next_link_reinjected_parameters:
+                    if param.location == ParameterLocation.QUERY:
+                        retval.extend(
+                            self.parameter_serializer.serialize_query_header(
+                                param,
+                                "next_request_params",
+                                self.serializer_name,
+                                self.code_model.is_legacy,
+                            )
+                        )
             query_str = ", params=_next_request_params"
             next_link_str = "urllib.parse.urljoin(next_link, _parsed_next_link.path)"
         except StopIteration:

@@ -1,7 +1,7 @@
 package specialwords.models;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -11,12 +11,12 @@ import java.io.IOException;
 /**
  * The Assert model.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class Assert implements JsonSerializable<Assert> {
     /*
      * The name property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final String name;
 
     /**
@@ -24,7 +24,7 @@ public final class Assert implements JsonSerializable<Assert> {
      * 
      * @param name the name value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public Assert(String name) {
         this.name = name;
     }
@@ -34,7 +34,7 @@ public final class Assert implements JsonSerializable<Assert> {
      * 
      * @return the name value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getName() {
         return this.name;
     }
@@ -42,7 +42,7 @@ public final class Assert implements JsonSerializable<Assert> {
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -59,7 +59,7 @@ public final class Assert implements JsonSerializable<Assert> {
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the Assert.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static Assert fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             String name = null;

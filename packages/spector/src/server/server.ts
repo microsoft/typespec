@@ -82,18 +82,32 @@ export class MockApiServer {
     this.app.use(route, ...handlers);
   }
 
-  public start(): void {
+  public start(): Promise<number> {
     this.app.use(errorHandler);
 
-    const server = this.app.listen(this.config.port, () => {
-      logger.info(`Started server on ${getAddress(server)}`);
+    return new Promise((resolve, reject) => {
+      const server = this.app.listen(this.config.port, () => {
+        const resolvedPort = getPort(server);
+        if (!resolvedPort) {
+          logger.error("Failed to resolve port");
+          reject(new Error("Failed to resolve port"));
+          return;
+        }
+        logger.info(`Started server on ${resolvedPort}`);
+        resolve(resolvedPort);
+      });
+
+      server.on("error", (err) => {
+        logger.error("Error starting server", err);
+        reject(err);
+      });
     });
   }
 }
 
 export type ServerRequestHandler = (request: RequestExt, response: Response) => void;
 
-const getAddress = (server: Server): string => {
+const getPort = (server: Server): number | undefined | null => {
   const address = server?.address();
-  return typeof address === "string" ? "pipe " + address : "port " + address?.port;
+  return typeof address === "string" ? null : address?.port;
 };

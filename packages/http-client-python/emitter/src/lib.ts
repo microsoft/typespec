@@ -80,6 +80,12 @@ export const PythonEmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = 
       description:
         "Whether to generate using `pyodide` instead of `python`. If there is no python installed on your device, we will default to using pyodide to generate the code.",
     },
+    "validate-versioning": {
+      type: "boolean",
+      nullable: true,
+      description:
+        "Whether to validate the versioning of the package. Defaults to `true`. If set to `false`, we will not validate the versioning of the package.",
+    },
   },
   required: [],
 };
@@ -99,12 +105,6 @@ const libDef = {
       messages: {
         default:
           "Python is not installed. Please follow https://www.python.org/ to install Python or set 'use-pyodide' to true.",
-      },
-    },
-    "no-valid-client": {
-      severity: "warning",
-      messages: {
-        default: "Can't generate Python SDK since no client defined in typespec file.",
       },
     },
     "invalid-paging-items": {

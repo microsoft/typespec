@@ -16,8 +16,8 @@ export interface JsonUnionTransformProps {
 
 export function JsonUnionTransform(props: JsonUnionTransformProps) {
   const { $ } = useTsp();
-  const discriminator = $.type.getDiscriminator(props.type);
-  if (discriminator) {
+  const discriminator = $.union.getDiscriminatedUnion(props.type);
+  if (discriminator?.options.discriminatorPropertyName) {
     // return <JsonTransformDiscriminator {...props} discriminator={discriminator}/>;
     return (
       <>

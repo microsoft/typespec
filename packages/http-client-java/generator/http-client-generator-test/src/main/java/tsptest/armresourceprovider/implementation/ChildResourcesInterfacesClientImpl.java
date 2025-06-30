@@ -55,25 +55,25 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
     /**
      * The service client containing this operation class.
      */
-    private final ArmResourceProviderClientImpl client;
+    private final ArmClientImpl client;
 
     /**
      * Initializes an instance of ChildResourcesInterfacesClientImpl.
      * 
      * @param client the instance of the service client containing this operation class.
      */
-    ChildResourcesInterfacesClientImpl(ArmResourceProviderClientImpl client) {
+    ChildResourcesInterfacesClientImpl(ArmClientImpl client) {
         this.service = RestProxy.create(ChildResourcesInterfacesService.class, client.getHttpPipeline(),
             client.getSerializerAdapter());
         this.client = client;
     }
 
     /**
-     * The interface defining all the services for ArmResourceProviderClientChildResourcesInterfaces to be used by the
-     * proxy service to perform REST calls.
+     * The interface defining all the services for ArmClientChildResourcesInterfaces to be used by the proxy service to
+     * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArmResourceProviderC")
+    @ServiceInterface(name = "ArmClientChildResourcesInterfaces")
     public interface ChildResourcesInterfacesService {
         @Headers({ "Content-Type: application/json" })
         @Get("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childResources/{childResourceName}")

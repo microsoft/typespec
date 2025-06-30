@@ -7,7 +7,7 @@ import {
   NoTarget,
   Operation,
 } from "@typespec/compiler";
-import { defineKit } from "@typespec/compiler/experimental/typekit";
+import { defineKit } from "@typespec/compiler/typekit";
 import {
   getHttpService,
   getServers,
@@ -85,7 +85,7 @@ interface TypekitExtension {
   client: ClientKit;
 }
 
-declare module "@typespec/compiler/experimental/typekit" {
+declare module "@typespec/compiler/typekit" {
   interface Typekit extends TypekitExtension {}
 }
 

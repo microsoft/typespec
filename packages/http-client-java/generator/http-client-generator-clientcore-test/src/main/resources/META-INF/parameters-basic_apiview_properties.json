@@ -3,11 +3,7 @@
   "CrossLanguageDefinitionId": {
     "parameters.basic.BasicClientBuilder": "Parameters.Basic",
     "parameters.basic.ExplicitBodyClient": "Parameters.Basic.ExplicitBody",
-    "parameters.basic.ExplicitBodyClient.simple": "Parameters.Basic.ExplicitBody.simple",
-    "parameters.basic.ExplicitBodyClient.simpleWithResponse": "Parameters.Basic.ExplicitBody.simple",
     "parameters.basic.ImplicitBodyClient": "Parameters.Basic.ImplicitBody",
-    "parameters.basic.ImplicitBodyClient.simple": "Parameters.Basic.ImplicitBody.simple",
-    "parameters.basic.ImplicitBodyClient.simpleWithResponse": "Parameters.Basic.ImplicitBody.simple",
     "parameters.basic.explicitbody.User": "Parameters.Basic.ExplicitBody.User",
     "parameters.basic.implicitbody.implementation.SimpleRequest": "Parameters.Basic.ImplicitBody.simple.Request.anonymous"
   }

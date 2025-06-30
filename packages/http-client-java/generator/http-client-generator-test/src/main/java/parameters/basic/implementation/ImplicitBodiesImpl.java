@@ -56,7 +56,7 @@ public final class ImplicitBodiesImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "BasicClientImplicitB")
+    @ServiceInterface(name = "BasicClientImplicitBodies")
     public interface ImplicitBodiesService {
         @Put("/parameters/basic/implicit-body/simple")
         @ExpectedResponses({ 204 })

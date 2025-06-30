@@ -1,15 +1,14 @@
-import { Operation } from "@typespec/compiler";
-import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
+import { expectDiagnosticEmpty, expectDiagnostics, t } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
 import { PathOptions } from "../generated-defs/TypeSpec.Http.js";
-import { HttpOperation, HttpOperationParameter, getRoutePath } from "../src/index.js";
+import { getRoutePath, HttpOperation, HttpOperationParameter } from "../src/index.js";
 import {
   compileOperations,
-  createHttpTestRunner,
   diagnoseOperations,
   getOperations,
   getRoutesFor,
+  Tester,
 } from "./test-host.js";
 
 describe("http: routes", () => {
@@ -462,26 +461,23 @@ describe("http: routes", () => {
 
   describe("shared routes", () => {
     it("@sharedRoute decorator makes routes shared", async () => {
-      const runner = await createHttpTestRunner();
-      const { get1, get2 } = (await runner.compile(`
+      const { program, get1, get2 } = await Tester.compile(t.code`
         @route("/test")
         namespace Foo {
-          @test
           @sharedRoute
           @route("/get1")
-          op get1(): string;
+          op ${t.op("get1")}(): string;
         }
 
         @route("/test")
         namespace Foo {
-          @test
           @route("/get2")
-          op get2(): string;
+          op ${t.op("get2")}(): string;
         }
-      `)) as { get1: Operation; get2: Operation };
+      `);
 
-      strictEqual(getRoutePath(runner.program, get1)?.shared, true);
-      strictEqual(getRoutePath(runner.program, get2)?.shared, false);
+      strictEqual(getRoutePath(program, get1)?.shared, true);
+      strictEqual(getRoutePath(program, get2)?.shared, false);
     });
   });
 });
@@ -531,7 +527,7 @@ describe("uri template", () => {
       ["/", "path"],
     ] as const)("%s map to style: %s", async (operator, style) => {
       const param = await getParameter(
-        `@route("/bar/{${operator}foo}") op foo(foo: string): void;`,
+        `@route("/bar{${operator}foo}") op foo(foo: string): void;`,
         "foo",
       );
       expectPathParameter(param, { style, allowReserved: false, explode: false });
@@ -570,7 +566,7 @@ describe("uri template", () => {
       [`@path(#{style: "matrix"}) one: string`, "/foo/{;one}"],
       [`@path(#{style: "label"}) one: string`, "/foo/{.one}"],
       [`@path(#{style: "fragment"}) one: string`, "/foo/{#one}"],
-      [`@path(#{style: "path"}) one: string`, "/foo/{/one}"],
+      [`@path(#{style: "path"}) one: string`, "/foo{/one}"],
       ["@path(#{allowReserved: true, explode: true}) one: string", "/foo/{+one*}"],
       ["@query one: string", "/foo{?one}"],
       ["@query(#{explode: true}) one: string", "/foo{?one*}"],
@@ -585,6 +581,35 @@ describe("uri template", () => {
     ])("%s -> %s", async (param, expectedUri) => {
       const op = await getOp(`@route("/foo") op foo(${param}): void;`);
       expect(op.uriTemplate).toEqual(expectedUri);
+    });
+  });
+
+  describe("warn when path interpolation would result in duplicate //", () => {
+    it.each([
+      [
+        "/foo/{/myPath}",
+        "optional",
+        "Route will result in duplicate slashes when optional parameter 'myPath' is not set.",
+      ],
+      [
+        "/foo/{/myPath}",
+        "required",
+        "Route will result in duplicate slashes as parameter 'myPath' use path expansion and is prefixed with a /",
+      ],
+      [
+        "/foo/{/myPath}/bar",
+        "optional",
+        "Route will result in duplicate slashes when optional parameter 'myPath' is not set.",
+      ],
+    ] as const)("%s with %s param", async (route, value, message) => {
+      const diagnostics = await diagnoseOperations(`
+        @route("${route}") op test(@path myPath${value === "optional" ? "?" : ""}: string): string;
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/http/double-slash",
+        message,
+      });
     });
   });
 

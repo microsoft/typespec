@@ -1,9 +1,11 @@
+import pc from "picocolors";
 import { typespecVersion } from "../../../../manifest.js";
 import { logDiagnostics } from "../../../diagnostics.js";
 import { resolveTypeSpecEntrypoint } from "../../../entrypoint-resolution.js";
 import { CompilerOptions } from "../../../options.js";
 import { resolvePath } from "../../../path-utils.js";
 import { Program, compile as compileProgram } from "../../../program.js";
+import { RuntimeStats, Stats } from "../../../stats.js";
 import { CompilerHost, Diagnostic } from "../../../types.js";
 import { CliCompilerHost } from "../../types.js";
 import {
@@ -68,6 +70,9 @@ async function compileOnce(
   try {
     const program = await compileProgram(host, entrypoint, cliOptions);
     logProgramResult(host, program);
+    if (args.stats) {
+      printStats(program.stats);
+    }
     if (program.hasError()) {
       process.exit(1);
     }
@@ -191,4 +196,73 @@ function logProgramResult(
       "No emitter was configured, no output was generated. Use `--emit <emitterName>` to pick emitter or specify it in the TypeSpec config.",
     );
   }
+}
+
+function printStats(stats: Stats) {
+  print("Compiler statistics:");
+  print("  Complexity:");
+  printKV("Created types", stats.complexity.createdTypes.toString(), 4);
+  printKV("Finished types", stats.complexity.finishedTypes.toString(), 4);
+  print("  Performance:");
+  printRuntimeStats(stats.runtime);
+
+  function printRuntimeStats(stats: RuntimeStats) {
+    printRuntime(stats, "loader", Performance.stage, 4);
+    printRuntime(stats, "resolver", Performance.stage, 4);
+    printRuntime(stats, "checker", Performance.stage, 4);
+    printGroup(stats, "validation", "validators", Performance.validator, 4);
+    printGroup(stats, "linter", "rules", Performance.lintingRule, 4);
+    printGroup(stats, "emit", "emitters", Performance.stage, 4);
+  }
+
+  function printGroup<K extends keyof RuntimeStats, L extends keyof RuntimeStats[K]>(
+    base: RuntimeStats,
+    groupName: K,
+    itemsKey: L,
+    perf: readonly [number, number],
+    indent: number = 0,
+  ) {
+    const group: any = base[groupName];
+    printKV(groupName, runtimeStr(group["total"] ?? 0), indent);
+    for (const [key, value] of Object.entries(group[itemsKey]).sort((a, b) =>
+      a[0].localeCompare(b[0]),
+    )) {
+      if (typeof value === "number") {
+        printRuntime(group[itemsKey], key, perf, indent + 2);
+      }
+    }
+  }
+  function printRuntime(
+    base: any,
+    key: string,
+    perf: readonly [number, number],
+    indent: number = 0,
+  ) {
+    printKV(key, runtimeStr(base[key], perf), indent);
+  }
+
+  function runtimeStr(runtime: number, perf: readonly [number, number] = Performance.stage) {
+    const str = `${Math.round(runtime)}ms`;
+    if (runtime > perf[1]) {
+      return pc.red(str);
+    } else if (runtime > perf[0]) {
+      return pc.yellow(str);
+    }
+    return pc.green(str);
+  }
+
+  function printKV(key: string, value: string, indent: number = 0) {
+    print(`${" ".repeat(indent)}${pc.gray(key)}: ${value}`);
+  }
+}
+
+const Performance = {
+  stage: [200, 400],
+  lintingRule: [10, 20],
+  validator: [10, 20],
+} as const;
+
+function print(message: string) {
+  // eslint-disable-next-line no-console
+  console.log(message);
 }

@@ -56,7 +56,8 @@ public class ObjectMapper implements IMapper<ObjectSchema, IType>, NeedsPlainObj
         } else if (settings.isFluent() && compositeType.isFlattenedSchema()) {
             // put class of flattened type to fluent package
             packageSuffixes = new String[] { settings.getFluentModelsSubpackage() };
-        } else if (settings.isDataPlaneClient() && isInternalModel(compositeType)) {
+        } else if ((settings.isDataPlaneClient() || settings.isAzureV2() || !settings.isAzureV1())
+            && isInternalModel(compositeType)) {
             // internal type is not exposed to user
             packageSuffixes = new String[] { settings.getImplementationSubpackage(), settings.getModelsSubpackage() };
         } else if (isPageModel(compositeType)) {
@@ -94,7 +95,7 @@ public class ObjectMapper implements IMapper<ObjectSchema, IType>, NeedsPlainObj
      * @return The predefined type.
      */
     protected ClassType mapPredefinedModel(ObjectSchema compositeType) {
-        if (JavaSettings.getInstance().isBranded()) {
+        if (JavaSettings.getInstance().isAzureV1() || JavaSettings.getInstance().isAzureV2()) {
             return SchemaUtil.mapExternalModel(compositeType);
         } else {
             return null;

@@ -3,7 +3,6 @@
 #nullable disable
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
@@ -11,6 +10,8 @@ namespace _Type.Property.AdditionalProperties
 {
     public partial class ModelForRecord : IJsonModel<ModelForRecord>
     {
+        internal ModelForRecord() => throw null;
+
         void IJsonModel<ModelForRecord>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -28,9 +29,5 @@ namespace _Type.Property.AdditionalProperties
         protected virtual ModelForRecord PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<ModelForRecord>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(ModelForRecord modelForRecord) => throw null;
-
-        public static explicit operator ModelForRecord(ClientResult result) => throw null;
     }
 }

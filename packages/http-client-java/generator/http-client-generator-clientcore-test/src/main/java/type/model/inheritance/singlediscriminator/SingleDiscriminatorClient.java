@@ -1,11 +1,13 @@
 package type.model.inheritance.singlediscriminator;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
 import type.model.inheritance.singlediscriminator.implementation.SingleDiscriminatorClientImpl;
 
 /**
@@ -13,7 +15,7 @@ import type.model.inheritance.singlediscriminator.implementation.SingleDiscrimin
  */
 @ServiceClient(builder = SingleDiscriminatorClientBuilder.class)
 public final class SingleDiscriminatorClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final SingleDiscriminatorClientImpl serviceClient;
 
     /**
@@ -21,165 +23,24 @@ public final class SingleDiscriminatorClient {
      * 
      * @param serviceClient the service client implementation.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     SingleDiscriminatorClient(SingleDiscriminatorClientImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
 
     /**
      * The getModel operation.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String (Required)
-     *     wingspan: int (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic single level inheritance with a discriminator.
      */
-    @Metadata(generated = true)
-    public Response<Bird> getModelWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.getModelWithResponse(requestOptions);
-    }
-
-    /**
-     * The putModel operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String (Required)
-     *     wingspan: int (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param input The input parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> putModelWithResponse(BinaryData input, RequestOptions requestOptions) {
-        return this.serviceClient.putModelWithResponse(input, requestOptions);
-    }
-
-    /**
-     * The getRecursiveModel operation.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String (Required)
-     *     wingspan: int (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return this is base model for polymorphic single level inheritance with a discriminator.
-     */
-    @Metadata(generated = true)
-    public Response<Bird> getRecursiveModelWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.getRecursiveModelWithResponse(requestOptions);
-    }
-
-    /**
-     * The putRecursiveModel operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String (Required)
-     *     wingspan: int (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param input The input parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> putRecursiveModelWithResponse(BinaryData input, RequestOptions requestOptions) {
-        return this.serviceClient.putRecursiveModelWithResponse(input, requestOptions);
-    }
-
-    /**
-     * The getMissingDiscriminator operation.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String (Required)
-     *     wingspan: int (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return this is base model for polymorphic single level inheritance with a discriminator.
-     */
-    @Metadata(generated = true)
-    public Response<Bird> getMissingDiscriminatorWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.getMissingDiscriminatorWithResponse(requestOptions);
-    }
-
-    /**
-     * The getWrongDiscriminator operation.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String (Required)
-     *     wingspan: int (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return this is base model for polymorphic single level inheritance with a discriminator.
-     */
-    @Metadata(generated = true)
-    public Response<Bird> getWrongDiscriminatorWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.getWrongDiscriminatorWithResponse(requestOptions);
-    }
-
-    /**
-     * The getLegacyModel operation.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String (Required)
-     *     size: int (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return define a base class in the legacy way.
-     */
-    @Metadata(generated = true)
-    public Response<Dinosaur> getLegacyModelWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.getLegacyModelWithResponse(requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Bird> getModelWithResponse(RequestContext requestContext) {
+        return this.serviceClient.getModelWithResponse(requestContext);
     }
 
     /**
@@ -189,11 +50,26 @@ public final class SingleDiscriminatorClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic single level inheritance with a discriminator.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public Bird getModel() {
-        // Generated convenience method for getModelWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return getModelWithResponse(requestOptions).getValue();
+        return getModelWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The putModel operation.
+     * 
+     * @param input The input parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> putModelWithResponse(Bird input, RequestContext requestContext) {
+        return this.serviceClient.putModelWithResponse(input, requestContext);
     }
 
     /**
@@ -204,11 +80,25 @@ public final class SingleDiscriminatorClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void putModel(Bird input) {
-        // Generated convenience method for putModelWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        putModelWithResponse(BinaryData.fromObject(input), requestOptions).getValue();
+        putModelWithResponse(input, RequestContext.none());
+    }
+
+    /**
+     * The getRecursiveModel operation.
+     * 
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return this is base model for polymorphic single level inheritance with a discriminator.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Bird> getRecursiveModelWithResponse(RequestContext requestContext) {
+        return this.serviceClient.getRecursiveModelWithResponse(requestContext);
     }
 
     /**
@@ -218,11 +108,26 @@ public final class SingleDiscriminatorClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic single level inheritance with a discriminator.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public Bird getRecursiveModel() {
-        // Generated convenience method for getRecursiveModelWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return getRecursiveModelWithResponse(requestOptions).getValue();
+        return getRecursiveModelWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The putRecursiveModel operation.
+     * 
+     * @param input The input parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> putRecursiveModelWithResponse(Bird input, RequestContext requestContext) {
+        return this.serviceClient.putRecursiveModelWithResponse(input, requestContext);
     }
 
     /**
@@ -233,11 +138,25 @@ public final class SingleDiscriminatorClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void putRecursiveModel(Bird input) {
-        // Generated convenience method for putRecursiveModelWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        putRecursiveModelWithResponse(BinaryData.fromObject(input), requestOptions).getValue();
+        putRecursiveModelWithResponse(input, RequestContext.none());
+    }
+
+    /**
+     * The getMissingDiscriminator operation.
+     * 
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return this is base model for polymorphic single level inheritance with a discriminator.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Bird> getMissingDiscriminatorWithResponse(RequestContext requestContext) {
+        return this.serviceClient.getMissingDiscriminatorWithResponse(requestContext);
     }
 
     /**
@@ -247,11 +166,25 @@ public final class SingleDiscriminatorClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic single level inheritance with a discriminator.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public Bird getMissingDiscriminator() {
-        // Generated convenience method for getMissingDiscriminatorWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return getMissingDiscriminatorWithResponse(requestOptions).getValue();
+        return getMissingDiscriminatorWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The getWrongDiscriminator operation.
+     * 
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return this is base model for polymorphic single level inheritance with a discriminator.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Bird> getWrongDiscriminatorWithResponse(RequestContext requestContext) {
+        return this.serviceClient.getWrongDiscriminatorWithResponse(requestContext);
     }
 
     /**
@@ -261,11 +194,25 @@ public final class SingleDiscriminatorClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic single level inheritance with a discriminator.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public Bird getWrongDiscriminator() {
-        // Generated convenience method for getWrongDiscriminatorWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return getWrongDiscriminatorWithResponse(requestOptions).getValue();
+        return getWrongDiscriminatorWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The getLegacyModel operation.
+     * 
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return define a base class in the legacy way.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Dinosaur> getLegacyModelWithResponse(RequestContext requestContext) {
+        return this.serviceClient.getLegacyModelWithResponse(requestContext);
     }
 
     /**
@@ -275,10 +222,9 @@ public final class SingleDiscriminatorClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return define a base class in the legacy way.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public Dinosaur getLegacyModel() {
-        // Generated convenience method for getLegacyModelWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return getLegacyModelWithResponse(requestOptions).getValue();
+        return getLegacyModelWithResponse(RequestContext.none()).getValue();
     }
 }

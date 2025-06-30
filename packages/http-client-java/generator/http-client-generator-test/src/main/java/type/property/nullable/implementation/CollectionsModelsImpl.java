@@ -57,7 +57,7 @@ public final class CollectionsModelsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "NullableClientCollec")
+    @ServiceInterface(name = "NullableClientCollectionsModels")
     public interface CollectionsModelsService {
         @Get("/type/property/nullable/collections/model/non-null")
         @ExpectedResponses({ 200 })

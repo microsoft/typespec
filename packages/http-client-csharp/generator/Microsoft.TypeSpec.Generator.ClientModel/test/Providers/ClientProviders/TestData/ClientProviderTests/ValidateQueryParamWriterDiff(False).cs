@@ -9,7 +9,6 @@ using Sample.Models;
 
 namespace Sample
 {
-    /// <summary> TestClient description. </summary>
     public partial class TestClient
     {
         public virtual global::System.ClientModel.ClientResult Operation(global::Sample.Models.InputEnum queryParam, global::System.Threading.CancellationToken cancellationToken = default)

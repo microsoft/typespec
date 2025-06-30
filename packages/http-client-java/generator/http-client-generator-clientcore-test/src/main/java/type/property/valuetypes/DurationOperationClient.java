@@ -1,11 +1,13 @@
 package type.property.valuetypes;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
 import type.property.valuetypes.implementation.DurationOperationsImpl;
 
 /**
@@ -13,7 +15,7 @@ import type.property.valuetypes.implementation.DurationOperationsImpl;
  */
 @ServiceClient(builder = ValueTypesClientBuilder.class)
 public final class DurationOperationClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final DurationOperationsImpl serviceClient;
 
     /**
@@ -21,52 +23,24 @@ public final class DurationOperationClient {
      * 
      * @param serviceClient the service client implementation.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     DurationOperationClient(DurationOperationsImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
 
     /**
      * Get call.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     property: Duration (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return call.
      */
-    @Metadata(generated = true)
-    public Response<DurationProperty> getWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.getWithResponse(requestOptions);
-    }
-
-    /**
-     * Put operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     property: Duration (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body body.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> putWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.putWithResponse(body, requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<DurationProperty> getWithResponse(RequestContext requestContext) {
+        return this.serviceClient.getWithResponse(requestContext);
     }
 
     /**
@@ -76,11 +50,26 @@ public final class DurationOperationClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return call.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public DurationProperty get() {
-        // Generated convenience method for getWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return getWithResponse(requestOptions).getValue();
+        return getWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * Put operation.
+     * 
+     * @param body body.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> putWithResponse(DurationProperty body, RequestContext requestContext) {
+        return this.serviceClient.putWithResponse(body, requestContext);
     }
 
     /**
@@ -91,10 +80,9 @@ public final class DurationOperationClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void put(DurationProperty body) {
-        // Generated convenience method for putWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        putWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        putWithResponse(body, RequestContext.none());
     }
 }
