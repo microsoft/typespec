@@ -30,12 +30,11 @@ def main():
 
     env_builder = venv.EnvBuilder(with_pip=True)
     venv_context = env_builder.ensure_directories(venv_path)
+    
     try:
-        python_run(
-            venv_context,
-            "pip",
-            ["install", "-r", f"{_ROOT_DIR}/generator/dev_requirements.txt"],
-        )
+        # Use the abstracted install_packages function
+        from package_manager import install_packages
+        install_packages(["-r", f"{_ROOT_DIR}/generator/dev_requirements.txt"], venv_context)
     except FileNotFoundError as e:
         raise ValueError(e.filename)
 
