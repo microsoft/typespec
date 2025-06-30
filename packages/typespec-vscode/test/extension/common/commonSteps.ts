@@ -38,6 +38,7 @@ async function contrastResult(page: Page, res: string[], dir: string) {
   let resLength = 0
   if (fs.existsSync(dir)) {
     resLength = fs.readdirSync(dir).length
+    fs.rmSync(path.resolve(__dirname, "../../images-linux"), { recursive: true, force: true })
   }
   if (resLength !== res.length) {
     await page.screenshot({ path: path.resolve(__dirname, "../../images-linux/error.png") })
