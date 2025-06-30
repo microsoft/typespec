@@ -70,13 +70,13 @@ try {
 
     $packageJson = Get-Content $PackageJsonPath -Raw | ConvertFrom-Json
 
-    # Get the version of @azure-tools/typespec-azure-core from peerDependencies
-    if (-not $packageJson.peerDependencies -or -not $packageJson.peerDependencies.'@azure-tools/typespec-azure-core') {
-        Write-Error "Could not find @azure-tools/typespec-azure-core in peerDependencies"
+    # Get the version of @azure-tools/typespec-azure-core from devDependencies
+    if (-not $packageJson.devDependencies -or -not $packageJson.devDependencies.'@azure-tools/typespec-azure-core') {
+        Write-Error "Could not find @azure-tools/typespec-azure-core in devDependencies"
         exit 1
     }
 
-    $azureCoreVersion = $packageJson.peerDependencies.'@azure-tools/typespec-azure-core'
+    $azureCoreVersion = $packageJson.devDependencies.'@azure-tools/typespec-azure-core'
     Write-Host "Using version $azureCoreVersion for injected dependencies"
 
     # Inject the two required dependencies with the same version
