@@ -3,8 +3,8 @@
 <#
 .DESCRIPTION
 Updates the package.json file with required dependencies and then invokes tsp-client to generate config files.
-This script injects @azure-tools/typespec-azure-rulesets and @azure-tools/typespec-azure-resource-manager 
-dependencies, validates the dependencies with npm install, and then calls tsp-client generate-config-files.
+This script injects dependencies defined in the $InjectedDependencies variable, validates the dependencies 
+with npm install, and then calls tsp-client generate-config-files.
 
 .PARAMETER PackageVersion
 The version to set in the package.json file.
@@ -36,6 +36,12 @@ param(
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 3.0
+
+# Define the list of dependencies to inject
+$InjectedDependencies = @(
+    '@azure-tools/typespec-azure-rulesets',
+    '@azure-tools/typespec-azure-resource-manager'
+)
 
 # Resolve paths
 $PackageJsonPath = Resolve-Path $PackageJsonPath
@@ -79,18 +85,18 @@ try {
     $azureCoreVersion = $packageJson.devDependencies.'@azure-tools/typespec-azure-core'
     Write-Host "Using version $azureCoreVersion for injected dependencies"
 
-    # Inject the two required dependencies with the same version
+    # Inject the required dependencies with the same version
     Write-Host "Injecting required dependencies..."
-    $packageJson.devDependencies | Add-Member -Type NoteProperty -Name '@azure-tools/typespec-azure-rulesets' -Value $azureCoreVersion -Force
-    $packageJson.devDependencies | Add-Member -Type NoteProperty -Name '@azure-tools/typespec-azure-resource-manager' -Value $azureCoreVersion -Force
+    foreach ($dependency in $InjectedDependencies) {
+        $packageJson.devDependencies | Add-Member -Type NoteProperty -Name $dependency -Value $azureCoreVersion -Force
+    }
 
-    # Create array of all peerDependencies plus the two injected dependencies
+    # Create array of all peerDependencies plus the injected dependencies
     $peerDeps = @()
     if ($packageJson.peerDependencies) {
         $peerDeps = @($packageJson.peerDependencies.PSObject.Properties.Name)
     }
-    $injectedDeps = @('@azure-tools/typespec-azure-rulesets', '@azure-tools/typespec-azure-resource-manager')
-    $allDeps = $peerDeps + $injectedDeps
+    $allDeps = $peerDeps + $InjectedDependencies
 
     # Add the azure-sdk/emitter-package-json-pinning property
     Write-Host "Adding azure-sdk/emitter-package-json-pinning property..."
