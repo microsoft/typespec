@@ -53,31 +53,11 @@ def create(
     return builder.context
 
 
-@contextmanager
-def create_venv_with_package(packages):
-    """Create a venv with these packages in a temp dir and yield the env.
 
-    packages should be an iterable of package version instruction (e.g. package~=1.2.3)
-    """
-    from package_manager import install_packages
-    
-    with tempfile.TemporaryDirectory() as tempdir:
-        my_env = create(tempdir, with_pip=True, upgrade_deps=True)
-        
-        if packages:
-            install_packages(list(packages), my_env)
-        yield my_env
 
 
 def python_run(venv_context, module, command=None, *, additional_dir="."):
     try:
-        # Handle pip installations through package manager abstraction
-        if module == "pip":
-            from package_manager import install_packages
-            install_packages(command if command else [], venv_context)
-            return
-        
-        # For non-pip modules, use original behavior
         cmd_line = [venv_context.env_exe, "-m", module] + (command if command else [])
         
         print("Executing: {}".format(" ".join(cmd_line)))

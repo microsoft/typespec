@@ -11,6 +11,7 @@ import subprocess
 import sys
 import venv
 from pathlib import Path
+from .venvtools import ExtendedEnvBuilder
 
 
 class PackageManagerNotFoundError(Exception):
@@ -128,19 +129,7 @@ def create_venv_with_package_manager(venv_path):
         
         return MockVenvContext(venv_path)
     else:
-        # Use standard venv for pip - avoid circular import
-        class ExtendedEnvBuilder(venv.EnvBuilder):
-            """An extended env builder which saves the context."""
-            def __init__(self, *args, **kwargs):
-                self.context = None
-                if sys.version_info < (3, 9, 0):
-                    kwargs.pop("upgrade_deps", None)
-                super().__init__(*args, **kwargs)
-
-            def ensure_directories(self, env_dir):
-                self.context = super(ExtendedEnvBuilder, self).ensure_directories(env_dir)
-                return self.context
-        
+        # Use standard venv for pip
         if venv_path.exists():
             env_builder = venv.EnvBuilder(with_pip=True)
             return env_builder.ensure_directories(venv_path)
