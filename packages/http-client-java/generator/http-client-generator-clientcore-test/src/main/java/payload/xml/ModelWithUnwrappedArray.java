@@ -21,7 +21,7 @@ public final class ModelWithUnwrappedArray implements XmlSerializable<ModelWithU
      * The colors property.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private final List<String> colors = new ArrayList<>();
+    private final List<String> colors;
 
     /*
      * The counts property.

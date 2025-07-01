@@ -623,7 +623,12 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                     fieldSignature = propertyType + " " + propertyName;
                 }
             } else if (propertyType instanceof IterableType) {
-                fieldSignature = propertyType + " " + propertyName + " = new ArrayList<>()";
+                if (property.isRequired() && settings.isRequiredFieldsAsConstructorArgs()) {
+                    // required property is initialized via constructor
+                    fieldSignature = propertyType + " " + propertyName;
+                } else {
+                    fieldSignature = propertyType + " " + propertyName + " = new ArrayList<>()";
+                }
             } else {
                 // handle x-ms-client-default
                 // Only set the property to a default value if the property isn't included in the constructor.
