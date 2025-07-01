@@ -1,5 +1,4 @@
-import * as ay from "@alloy-js/core";
-import { Children, code } from "@alloy-js/core";
+import { Children, code, mapJoin } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import type { Model } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
@@ -21,7 +20,7 @@ export function JsonAdditionalPropertiesTransform(props: JsonAdditionalPropertie
 
   if (props.target === "application") {
     const properties = $.model.getProperties(props.type, { includeExtended: true });
-    const destructuredProperties = ay.mapJoin(
+    const destructuredProperties = mapJoin(
       () => properties,
       (name) => name,
       {
