@@ -1,9 +1,9 @@
 import { CreateSdkContextOptions } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, JSONSchemaType } from "@typespec/compiler";
 import { _defaultGeneratorName } from "./constants.js";
+import { CSharpEmitterContext } from "./index.js";
 import { LoggerLevel } from "./lib/logger-level.js";
 import { CodeModel } from "./type/code-model.js";
-import { CSharpEmitterContext } from "./index.js";
 
 /**
  * The emitter options for the CSharp emitter.
