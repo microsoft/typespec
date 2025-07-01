@@ -55,7 +55,7 @@ public final class Decimal128VerifyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public List<BigDecimal> prepareVerify() {
-        return this.serviceClient.prepareVerify();
+        return prepareVerifyWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -85,6 +85,6 @@ public final class Decimal128VerifyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void verify(BigDecimal body) {
-        this.serviceClient.verify(body);
+        verifyWithResponse(body, RequestContext.none());
     }
 }

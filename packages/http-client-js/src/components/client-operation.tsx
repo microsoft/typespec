@@ -1,4 +1,4 @@
-import * as ay from "@alloy-js/core";
+import { For, List, Refkey, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { useTsp } from "@typespec/emitter-framework";
 import { FunctionDeclaration, TypeExpression } from "@typespec/emitter-framework/typescript";
@@ -28,26 +28,31 @@ export function ClientOperations(props: ClientOperationsProps) {
 
   return (
     <ts.SourceFile path={`${fileName}.ts`}>
-      <ay.For each={clientOperations}>
+      <For each={clientOperations}>
         {(operation) => (
           <OperationPipeline
             httpOperation={operation.httpOperation}
             pipeline={{ handlers: [PaginatedOperationHandler] }}
           />
         )}
-      </ay.For>
+      </For>
     </ts.SourceFile>
   );
 }
 
 export interface ClientOperationProps {
   httpOperation: HttpOperation;
-  refkey: ay.Refkey;
+  refkey: Refkey;
   internal?: boolean;
+}
+
+function getClientOperationOptionsParamRef(httpOperation: HttpOperation): Refkey {
+  return refkey(httpOperation, "client-operation-options-parameter");
 }
 
 export function ClientOperation(props: ClientOperationProps) {
   const { $ } = useTsp();
+  const optionsRefkey = getClientOperationOptionsParamRef(props.httpOperation);
   const clientLibrary = cl.useClientLibrary();
   const client = clientLibrary.getClientForOperation(props.httpOperation);
 
@@ -60,14 +65,17 @@ export function ClientOperation(props: ClientOperationProps) {
   }
 
   const returnType = $.httpOperation.getReturnType(props.httpOperation);
-  const responseRefkey = ay.refkey(props.httpOperation, "http-response");
+  const responseRefkey = refkey(props.httpOperation, "http-response");
   const clientContextInterfaceRef = getClientcontextDeclarationRef(client);
   const signatureParams: ts.ParameterDescriptor[] = [
-    { name: "client", type: clientContextInterfaceRef, refkey: ay.refkey(client, "client") },
-    ...getOperationParameters(props.httpOperation),
+    {
+      name: "client",
+      type: clientContextInterfaceRef,
+    },
+    ...getOperationParameters(props.httpOperation, optionsRefkey),
   ];
   return (
-    <ay.List hardline>
+    <List hardline>
       <OperationOptionsDeclaration operation={props.httpOperation} />
       <FunctionDeclaration
         export={!props.internal}
@@ -78,12 +86,16 @@ export function ClientOperation(props: ClientOperationProps) {
         parameters={signatureParams}
         refkey={props.refkey}
       >
-        <ay.List hardline>
-          <HttpRequest httpOperation={props.httpOperation} responseRefkey={responseRefkey} />
+        <List hardline>
+          <HttpRequest
+            httpOperation={props.httpOperation}
+            responseRefkey={responseRefkey}
+            operationOptionsParamRefkey={optionsRefkey}
+          />
           <HttpResponse httpOperation={props.httpOperation} responseRefkey={responseRefkey} />
-        </ay.List>
+        </List>
       </FunctionDeclaration>
       ;
-    </ay.List>
+    </List>
   );
 }

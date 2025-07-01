@@ -1,5 +1,5 @@
 import * as ts from "@alloy-js/typescript";
-import { Type } from "@typespec/compiler";
+import type { Type } from "@typespec/compiler";
 import { HasName, TransformNamePolicyContext, useTsp } from "@typespec/emitter-framework";
 import { HttpOperation } from "@typespec/http";
 import { reportDiagnostic } from "../../lib.js";

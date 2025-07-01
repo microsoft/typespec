@@ -89,7 +89,7 @@ public final class ServerDrivenPaginationsImpl {
         final String accept = "application/json";
         Response<LinkResponse> res = service.link(this.client.getEndpoint(), accept, RequestContext.none());
         return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
-            null, res.getValue().getNext(), null, null, null);
+            null, res.getValue().getNext() != null ? res.getValue().getNext() : null, null, null, null);
     }
 
     /**
@@ -106,45 +106,7 @@ public final class ServerDrivenPaginationsImpl {
         final String accept = "application/json";
         Response<LinkResponse> res = service.link(this.client.getEndpoint(), accept, requestContext);
         return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
-            null, res.getValue().getNext(), null, null, null);
-    }
-
-    /**
-     * The link operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> link() {
-        return new PagedIterable<>((pagingOptions) -> {
-            if (pagingOptions.getOffset() != null) {
-                throw LOGGER.throwableAtError()
-                    .addKeyValue("propertyName", "offset")
-                    .addKeyValue("methodName", "link")
-                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
-            }
-            if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.throwableAtError()
-                    .addKeyValue("propertyName", "pageSize")
-                    .addKeyValue("methodName", "link")
-                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
-            }
-            if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.throwableAtError()
-                    .addKeyValue("propertyName", "pageIndex")
-                    .addKeyValue("methodName", "link")
-                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
-            }
-            if (pagingOptions.getContinuationToken() != null) {
-                throw LOGGER.throwableAtError()
-                    .addKeyValue("propertyName", "continuationToken")
-                    .addKeyValue("methodName", "link")
-                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
-            }
-            return linkSinglePage();
-        }, (pagingOptions, nextLink) -> linkNextSinglePage(nextLink));
+            null, res.getValue().getNext() != null ? res.getValue().getNext() : null, null, null, null);
     }
 
     /**
@@ -203,7 +165,7 @@ public final class ServerDrivenPaginationsImpl {
         Response<LinkResponse> res
             = service.linkNext(nextLink, this.client.getEndpoint(), accept, RequestContext.none());
         return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
-            null, res.getValue().getNext(), null, null, null);
+            null, res.getValue().getNext() != null ? res.getValue().getNext() : null, null, null, null);
     }
 
     /**
@@ -221,7 +183,7 @@ public final class ServerDrivenPaginationsImpl {
         final String accept = "application/json";
         Response<LinkResponse> res = service.linkNext(nextLink, this.client.getEndpoint(), accept, requestContext);
         return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
-            null, res.getValue().getNext(), null, null, null);
+            null, res.getValue().getNext() != null ? res.getValue().getNext() : null, null, null, null);
     }
 
     private static final ClientLogger LOGGER = new ClientLogger(ServerDrivenPaginationsImpl.class);

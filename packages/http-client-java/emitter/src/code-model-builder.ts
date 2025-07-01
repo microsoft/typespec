@@ -126,6 +126,7 @@ import {
   ORIGIN_API_VERSION,
   SPECIAL_HEADER_NAMES,
   cloneOperationParameter,
+  findResponsePropertySegments,
   getServiceVersion,
   isKnownContentType,
   isLroNewPollingStrategy,
@@ -152,6 +153,7 @@ import {
   DiagnosticError,
   escapeJavaKeywords,
   getNamespace,
+  optionBoolean,
   pascalCase,
   removeClientSuffix,
   stringArrayContainsIgnoreCase,
@@ -181,6 +183,7 @@ export interface EmitterOptionsDev {
   "custom-types"?: string;
   "custom-types-subpackage"?: string;
   "customization-class"?: string;
+  "use-default-http-status-code-to-exception-type-mapping"?: boolean;
 
   // configure
   "skip-special-headers"?: string[];
@@ -608,6 +611,8 @@ export class CodeModelBuilder {
     if (this.isArm()) {
       if (
         this.options["service-name"] &&
+        client.__raw &&
+        client.__raw.type &&
         !getClientNameOverride(this.sdkContext, client.__raw.type)
       ) {
         // When no `@clientName` override, use "service-name" to infer the client name
@@ -697,7 +702,7 @@ export class CodeModelBuilder {
       codeModelClient.apiVersions,
     );
 
-    const enableSubclient: boolean = Boolean(this.options["enable-subclient"]);
+    const enableSubclient: boolean = optionBoolean(this.options["enable-subclient"]) ?? false;
 
     // preprocess operation groups and operations
     // operations without operation group
@@ -834,7 +839,7 @@ export class CodeModelBuilder {
    * Whether we support advanced versioning in non-breaking fashion.
    */
   private supportsAdvancedVersioning(): boolean {
-    return Boolean(this.options["advanced-versioning"]);
+    return optionBoolean(this.options["advanced-versioning"]) ?? false;
   }
 
   private getOperationExample(
@@ -1053,17 +1058,6 @@ export class CodeModelBuilder {
       }
     });
 
-    function getLastPropertySegment(
-      segments: SdkModelPropertyType[] | undefined,
-    ): SdkBodyModelPropertyType | undefined {
-      if (segments) {
-        const lastSegment = segments[segments.length - 1];
-        if (lastSegment.kind === "property") {
-          return lastSegment;
-        }
-      }
-      return undefined;
-    }
     function getLastSegment(
       segments: SdkModelPropertyType[] | undefined,
     ): SdkModelPropertyType | undefined {
@@ -1072,30 +1066,41 @@ export class CodeModelBuilder {
       }
       return undefined;
     }
-    function getLastSegmentSerializedName(
-      segments: SdkModelPropertyType[] | undefined,
-    ): string | undefined {
-      const lastSegment = getLastPropertySegment(segments);
-      return lastSegment ? getPropertySerializedName(lastSegment) : undefined;
-    }
 
-    // TODO: in future the property could be nested, so that the "itemSegments" or "nextLinkSegments" would contain more than 1 element
-    // item/result
-    // "itemsSegments" should exist for "paging"/"lropaging"
-    const itemSerializedName = getLastSegmentSerializedName(sdkMethod.response.resultSegments);
+    // pageItems
+    const pageItemsResponseProperty = findResponsePropertySegments(
+      op,
+      sdkMethod.response.resultSegments,
+    );
+    // "sdkMethod.response.resultSegments" should not be empty for "paging"/"lropaging"
+    // "itemSerializedName" take 1st property for backward compatibility
+    const itemSerializedName =
+      pageItemsResponseProperty && pageItemsResponseProperty.length > 0
+        ? pageItemsResponseProperty[0].serializedName
+        : undefined;
+
     // nextLink
-    const nextLinkSerializedName = getLastSegmentSerializedName(
+    // TODO: nextLink can also be a response header, similar to "sdkMethod.pagingMetadata.continuationTokenResponseSegments"
+    const nextLinkResponseProperty = findResponsePropertySegments(
+      op,
       sdkMethod.pagingMetadata.nextLinkSegments,
     );
+    // "nextLinkSerializedName" take 1st property for backward compatibility
+    const nextLinkSerializedName =
+      nextLinkResponseProperty && nextLinkResponseProperty.length > 0
+        ? nextLinkResponseProperty[0].serializedName
+        : undefined;
 
     // continuationToken
     let continuationTokenParameter: Parameter | undefined;
     let continuationTokenResponseProperty: Property[] | undefined;
     let continuationTokenResponseHeader: HttpHeader | undefined;
     if (!this.isBranded()) {
+      // parameter would either be query or header parameter, so taking the last segment would be enough
       const continuationTokenParameterSegment = getLastSegment(
         sdkMethod.pagingMetadata.continuationTokenParameterSegments,
       );
+      // response could be response header, where the last segment would do; or it be json path in the response body, where we use "findResponsePropertySegments" to find them
       const continuationTokenResponseSegment = getLastSegment(
         sdkMethod.pagingMetadata.continuationTokenResponseSegments,
       );
@@ -1143,28 +1148,10 @@ export class CodeModelBuilder {
             }
           }
         } else if (continuationTokenResponseSegment?.kind === "property") {
-          // continuationToken is response body property
-          // TODO: the property could be nested
-          for (const response of op.responses) {
-            if (
-              response instanceof SchemaResponse &&
-              response.schema instanceof ObjectSchema &&
-              response.schema.properties
-            ) {
-              for (const property of response.schema.properties) {
-                if (
-                  property.serializedName ===
-                  getPropertySerializedName(continuationTokenResponseSegment)
-                ) {
-                  continuationTokenResponseProperty = [property];
-                  break;
-                }
-              }
-            }
-            if (continuationTokenResponseProperty) {
-              break;
-            }
-          }
+          continuationTokenResponseProperty = findResponsePropertySegments(
+            op,
+            sdkMethod.pagingMetadata.continuationTokenResponseSegments,
+          );
         }
       }
     }
@@ -1205,8 +1192,12 @@ export class CodeModelBuilder {
 
     op.extensions = op.extensions ?? {};
     op.extensions["x-ms-pageable"] = {
+      // this part need to be compatible with modelerfour
       itemName: itemSerializedName,
       nextLinkName: nextLinkSerializedName,
+      // this part is only available in TypeSpec
+      pageItemsProperty: pageItemsResponseProperty,
+      nextLinkProperty: nextLinkResponseProperty,
       continuationToken: continuationTokenParameter
         ? new PageableContinuationToken(
             continuationTokenParameter,
@@ -2209,10 +2200,27 @@ export class CodeModelBuilder {
       if (response instanceof SchemaResponse) {
         this.trackSchemaUsage(response.schema, { usage: [SchemaContext.Exception] });
 
-        if (trackConvenienceApi && !this.isBranded()) {
-          this.trackSchemaUsage(response.schema, {
-            usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
-          });
+        if (trackConvenienceApi) {
+          let outputErrorModel = false;
+          if (!this.isBranded()) {
+            outputErrorModel = true;
+          }
+          if (
+            this.isBranded() &&
+            !(
+              optionBoolean(
+                this.options["use-default-http-status-code-to-exception-type-mapping"],
+              ) ?? true
+            )
+          ) {
+            outputErrorModel = true;
+          }
+
+          if (outputErrorModel) {
+            this.trackSchemaUsage(response.schema, {
+              usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
+            });
+          }
         }
       }
     } else {

@@ -1,5 +1,5 @@
-import { Namespace } from "@typespec/compiler";
-import { BasicTestRunner } from "@typespec/compiler/testing";
+import type { Namespace } from "@typespec/compiler";
+import type { BasicTestRunner } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { beforeEach, describe, expect, it } from "vitest";
 import "../../src/typekit/index.js";

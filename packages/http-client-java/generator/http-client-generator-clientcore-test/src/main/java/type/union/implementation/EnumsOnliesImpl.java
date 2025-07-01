@@ -89,18 +89,6 @@ public final class EnumsOnliesImpl {
     }
 
     /**
-     * The get operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public GetResponse6 get() {
-        return getWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * The send operation.
      * 
      * @param prop The prop parameter.
@@ -115,18 +103,5 @@ public final class EnumsOnliesImpl {
         final String contentType = "application/json";
         SendRequest6 sendRequest6 = new SendRequest6(prop);
         return service.send(this.client.getEndpoint(), contentType, sendRequest6, requestContext);
-    }
-
-    /**
-     * The send operation.
-     * 
-     * @param prop The prop parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void send(EnumsOnlyCases prop) {
-        sendWithResponse(prop, RequestContext.none());
     }
 }

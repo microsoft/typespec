@@ -19,6 +19,15 @@ Write-Host "Parallelization: $Parallelization"
 $generateScript = {
   $tspFile = $_
 
+  if (($tspFile -match "payload[\\/]pageable[\\/]main\.tsp") -and (-not ($tspFile -match "azure[\\/]payload[\\/]pageable[\\/]main\.tsp"))) {
+    Write-Host "
+    SKIPPED
+    $tspFile
+    "
+    # nested pageItems/nextLink/continuationToken is not supported
+    return
+  }
+
   $tspClientFile = $tspFile -replace 'main.tsp', 'client.tsp'
   if (($tspClientFile -match 'client.tsp$') -and (Test-Path $tspClientFile)) {
     $tspFile = $tspClientFile
@@ -62,6 +71,9 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.api-version=2022-09-01"""
     # exclude preview from service versions
     $tspOptions += " --option ""@typespec/http-client-java.service-version-exclude-preview=true"""
+  } elseif ($tspFile -match "tsp[\\/]error.tsp") {
+    # test for default-http-exception-type
+    $tspOptions += " --option ""@typespec/http-client-java.use-default-http-status-code-to-exception-type-mapping=false"""
   } elseif ($tspFile -match "type[\\/]array" -or $tspFile -match "type[\\/]dictionary") {
     # TODO https://github.com/Azure/autorest.java/issues/2964
     # also serve as a test for "use-object-for-unknown" emitter option
@@ -96,9 +108,8 @@ $generateScript = {
 
   # Test customization using only JavaParser for one of the TypeSpec definitions - naming-javaparser.tsp
   if ($tspFile -match "tsp[\\/]naming-javaparser.tsp$") {
-      # Add the customization-class option for Java emitter
-      $tspOptions += " --option ""@typespec/http-client-java.customization-class=../../customization/src/main/java/JavaParserCustomizationTest.java"""
-      $tspOptions += " --option ""@typespec/http-client-java.use-eclipse-language-server=false"""
+    # Add the customization-class option for Java emitter
+    $tspOptions += " --option ""@typespec/http-client-java.customization-class=../../customization/src/main/java/JavaParserCustomizationTest.java"""
   }
 
   $tspTrace = "--trace import-resolution --trace projection --trace http-client-java"

@@ -53,7 +53,7 @@ public final class BytesClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public BytesProperty getAll() {
-        return this.serviceClient.getAll();
+        return getAllWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -81,7 +81,7 @@ public final class BytesClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public BytesProperty getDefault() {
-        return this.serviceClient.getDefault();
+        return getDefaultWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -111,7 +111,7 @@ public final class BytesClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putAll(BytesProperty body) {
-        this.serviceClient.putAll(body);
+        putAllWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -141,6 +141,6 @@ public final class BytesClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putDefault(BytesProperty body) {
-        this.serviceClient.putDefault(body);
+        putDefaultWithResponse(body, RequestContext.none());
     }
 }

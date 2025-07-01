@@ -52,7 +52,7 @@ public final class ResponseHeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void defaultMethod() {
-        this.serviceClient.defaultMethod();
+        defaultMethodWithResponse(RequestContext.none());
     }
 
     /**
@@ -79,7 +79,7 @@ public final class ResponseHeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void rfc3339() {
-        this.serviceClient.rfc3339();
+        rfc3339WithResponse(RequestContext.none());
     }
 
     /**
@@ -106,7 +106,7 @@ public final class ResponseHeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void rfc7231() {
-        this.serviceClient.rfc7231();
+        rfc7231WithResponse(RequestContext.none());
     }
 
     /**
@@ -133,6 +133,6 @@ public final class ResponseHeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void unixTimestamp() {
-        this.serviceClient.unixTimestamp();
+        unixTimestampWithResponse(RequestContext.none());
     }
 }

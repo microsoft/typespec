@@ -53,7 +53,7 @@ public final class NestedDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Fish getModel() {
-        return this.serviceClient.getModel();
+        return getModelWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -83,7 +83,7 @@ public final class NestedDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putModel(Fish input) {
-        this.serviceClient.putModel(input);
+        putModelWithResponse(input, RequestContext.none());
     }
 
     /**
@@ -111,7 +111,7 @@ public final class NestedDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Fish getRecursiveModel() {
-        return this.serviceClient.getRecursiveModel();
+        return getRecursiveModelWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -141,7 +141,7 @@ public final class NestedDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putRecursiveModel(Fish input) {
-        this.serviceClient.putRecursiveModel(input);
+        putRecursiveModelWithResponse(input, RequestContext.none());
     }
 
     /**
@@ -169,7 +169,7 @@ public final class NestedDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Fish getMissingDiscriminator() {
-        return this.serviceClient.getMissingDiscriminator();
+        return getMissingDiscriminatorWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -197,6 +197,6 @@ public final class NestedDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Fish getWrongDiscriminator() {
-        return this.serviceClient.getWrongDiscriminator();
+        return getWrongDiscriminatorWithResponse(RequestContext.none()).getValue();
     }
 }

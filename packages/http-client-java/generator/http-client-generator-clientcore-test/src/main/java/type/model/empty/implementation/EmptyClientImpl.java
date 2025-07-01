@@ -127,19 +127,6 @@ public final class EmptyClientImpl {
     }
 
     /**
-     * The putEmpty operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putEmpty(EmptyInput input) {
-        putEmptyWithResponse(input, RequestContext.none());
-    }
-
-    /**
      * The getEmpty operation.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -152,18 +139,6 @@ public final class EmptyClientImpl {
     public Response<EmptyOutput> getEmptyWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
         return service.getEmpty(this.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * The getEmpty operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return empty model used in operation return type.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public EmptyOutput getEmpty() {
-        return getEmptyWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -182,19 +157,5 @@ public final class EmptyClientImpl {
         final String contentType = "application/json";
         final String accept = "application/json";
         return service.postRoundTripEmpty(this.getEndpoint(), contentType, accept, body, requestContext);
-    }
-
-    /**
-     * The postRoundTripEmpty operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return empty model used in both parameter and return type.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public EmptyInputOutput postRoundTripEmpty(EmptyInputOutput body) {
-        return postRoundTripEmptyWithResponse(body, RequestContext.none()).getValue();
     }
 }

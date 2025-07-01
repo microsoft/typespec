@@ -33,7 +33,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public bool IsOut { get; private set; }
         public bool IsParams { get; private set; }
 
-        internal IReadOnlyList<AttributeStatement> Attributes { get; private set; } = [];
+        public IReadOnlyList<AttributeStatement> Attributes { get; private set; }
         public WireInformation WireInfo { get; private set; }
         public ParameterLocation Location { get; private set; }
 
@@ -62,11 +62,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 DefaultValue = Snippet.Default;
             }
             Type = type;
-            Validation = inputParameter.IsRequired && !Type.IsValueType && !Type.IsNullable
-                ? ParameterValidationType.AssertNotNull
+            Validation = inputParameter.IsRequired && Type is { IsValueType: false, IsNullable: false }
+                ? inputParameter.Type is InputPrimitiveType { Kind: InputPrimitiveTypeKind.String } ?
+                    ParameterValidationType.AssertNotNullOrEmpty :
+                    ParameterValidationType.AssertNotNull
                 : ParameterValidationType.None;
             WireInfo = new WireInformation(CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputParameter.Type), inputParameter.NameInRequest);
             Location = inputParameter.Location.ToParameterLocation();
+            Attributes = [];
         }
 
         public ParameterProvider(
@@ -77,7 +80,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             bool isRef = false,
             bool isOut = false,
             bool isParams = false,
-            IReadOnlyList<AttributeStatement>? attributes = null,
+            IEnumerable<AttributeStatement>? attributes = null,
             PropertyProvider? property = null,
             FieldProvider? field = null,
             ValueExpression? initializationValue = null,
@@ -94,7 +97,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             IsOut = isOut;
             IsParams = isParams;
             DefaultValue = defaultValue;
-            Attributes = attributes ?? Array.Empty<AttributeStatement>();
+            Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [];
             Property = property;
             Field = field;
             Validation = validation ?? GetParameterValidation();
@@ -249,7 +252,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             bool? isRef = null,
             bool? isOut = null,
             bool? isParams = null,
-            IReadOnlyList<AttributeStatement>? attributes = null,
+            IEnumerable<AttributeStatement>? attributes = null,
             PropertyProvider? property = null,
             FieldProvider? field = null,
             ValueExpression? initializationValue = null,
@@ -297,7 +300,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (attributes is not null)
             {
-                Attributes = attributes;
+                Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [];
             }
 
             if (property is not null)

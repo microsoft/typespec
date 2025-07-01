@@ -142,19 +142,4 @@ public final class RenamedFromClientImpl {
         return service.newOp(this.getEndpoint(), this.getServiceVersion().getVersion(), newQuery, contentType, accept,
             body, requestContext);
     }
-
-    /**
-     * The newOp operation.
-     * 
-     * @param newQuery The newQuery parameter.
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public NewModel newOp(String newQuery, NewModel body) {
-        return newOpWithResponse(newQuery, body, RequestContext.none()).getValue();
-    }
 }

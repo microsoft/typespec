@@ -533,8 +533,6 @@ public class Transformer {
                             });
                     }
                 }
-                operation.getExtensions().getXmsPageable().setNextOperation(nextOperation);
-                nextOperation.getExtensions().getXmsPageable().setNextOperation(nextOperation);
                 operationNextPageOperationMap.put(operationSignature, nextOperation);
             } else {
                 // In case the same operation instance is processed more than once(both in "transformOperationGroups"
@@ -542,6 +540,9 @@ public class Transformer {
                 // we share the same next-page operation for the same operation instance.
                 nextOperation = operationNextPageOperationMap.get(operationSignature);
             }
+            operation.getExtensions().getXmsPageable().setNextOperation(nextOperation);
+            nextOperation.getExtensions().getXmsPageable().setNextOperation(nextOperation);
+
             operationGroup.getOperations().add(nextOperation);
         } else {
             Operation nextOperation = operationGroup.getOperations()
@@ -689,9 +690,7 @@ public class Transformer {
 
     private static void renameOdataParameterNames(Request request) {
         List<Parameter> parameters = request.getParameters();
-        ListIterator<Parameter> iter = parameters.listIterator();
-        while (iter.hasNext()) {
-            Parameter parameter = iter.next();
+        for (Parameter parameter : parameters) {
             if (parameter.getProtocol() != null
                 && parameter.getProtocol().getHttp() != null
                 && (parameter.getProtocol().getHttp().getIn() == RequestParameterLocation.QUERY
