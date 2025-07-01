@@ -47,12 +47,12 @@ class GeneralSerializer(BaseSerializer):
         package_parts = (
             self.code_model.namespace.split(".")[:-1]
             if self.code_model.is_tsp
-            else (self.code_model.options["package-name"] or "").split("-")[:-1]
+            else (self.code_model.options.get("package-name", "")).split("-")[:-1]
         )
         token_credential = any(
             c for c in self.code_model.clients if isinstance(getattr(c.credential, "type", None), TokenCredentialType)
         )
-        version = self.code_model.options["package-version"]
+        version = self.code_model.options.get("package-version", "")
         if any(x in version for x in ["a", "b", "rc"]) or version[0] == "0":
             dev_status = "4 - Beta"
         else:

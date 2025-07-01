@@ -40,7 +40,7 @@ if not version:
 {% set author_email = "azpysdkhelp@microsoft.com" %}
 {% set url = "https://github.com/Azure/azure-sdk-for-python/tree/main/sdk" %}
 {% else %}
-version = "{{ options["package-version"] }}"
+version = "{{ options.get("package-version", "unknown") }}"
 {% set description = "\"%s\""|format(package_name) %}
 {% set long_description = code_model.description %}
 {% set author_email = "" %}

@@ -106,7 +106,7 @@ class JinjaSerializer(ReaderAndWriter):
             serialized_version = match.group(1) if match else ""
         except (FileNotFoundError, IndexError):
             serialized_version = ""
-        return serialized_version > self.code_model.options["package-version"]
+        return serialized_version > self.code_model.options.get("package-version", "")
 
     def serialize(self) -> None:
         env = Environment(
