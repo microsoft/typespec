@@ -40,7 +40,6 @@ import {
   UnixTimeSchema,
   UriSchema,
   VirtualParameter,
-  XmlSerlializationFormat,
 } from "@autorest/codemodel";
 import { KnownMediaType } from "@azure-tools/codegen";
 import {
@@ -112,6 +111,7 @@ import {
   PageableContinuationToken,
 } from "./common/client.js";
 import { CodeModel } from "./common/code-model.js";
+import { XmlSerializationFormat } from "./common/formats/xml.js";
 import { LongRunningMetadata } from "./common/long-running-metadata.js";
 import { Operation as CodeModelOperation, ConvenienceApi, Request } from "./common/operation.js";
 import { ChoiceSchema, SealedChoiceSchema } from "./common/schemas/choice.js";
@@ -147,7 +147,7 @@ import {
   getPropertySerializedName,
   getUnionDescription,
   getUsage,
-  getXmlSerlializationFormat,
+  getXmlSerializationFormat,
   modelIs,
   pushDistinct,
 } from "./type-utils.js";
@@ -2710,7 +2710,7 @@ export class CodeModelBuilder {
     // xml
     if (type.serializationOptions.xml) {
       objectSchema.serialization = objectSchema.serialization ?? {};
-      objectSchema.serialization.xml = getXmlSerlializationFormat(type);
+      objectSchema.serialization.xml = getXmlSerializationFormat(type);
     }
 
     return objectSchema;
@@ -2778,11 +2778,11 @@ export class CodeModelBuilder {
       // this avoid duplicate schema, when different property has different serialization options, but refers to the same schema
       const propertyWithSerialization = property as Property & {
         serialization?: {
-          xml?: XmlSerlializationFormat;
+          xml?: XmlSerializationFormat;
         };
       };
       propertyWithSerialization.serialization = propertyWithSerialization.serialization ?? {};
-      propertyWithSerialization.serialization.xml = getXmlSerlializationFormat(prop);
+      propertyWithSerialization.serialization.xml = getXmlSerializationFormat(prop);
     }
 
     return property;

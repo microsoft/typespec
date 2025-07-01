@@ -1,4 +1,3 @@
-import { XmlSerlializationFormat } from "@autorest/codemodel";
 import { getUnionAsEnum } from "@azure-tools/typespec-azure-core";
 import {
   SdkBodyModelPropertyType,
@@ -29,6 +28,7 @@ import {
   isTemplateInstance,
   isTypeSpecValueTypeOf,
 } from "@typespec/compiler";
+import { XmlSerializationFormat } from "./common/formats/xml.js";
 import { DurationSchema } from "./common/schemas/time.js";
 import { SchemaContext } from "./common/schemas/usage.js";
 import { getNamespace } from "./utils.js";
@@ -357,12 +357,13 @@ export function getPropertySerializedName(property: SdkBodyModelPropertyType): s
   );
 }
 
-export function getXmlSerlializationFormat(
+export function getXmlSerializationFormat(
   type: SdkModelType | SdkBodyModelPropertyType,
-): XmlSerlializationFormat | undefined {
+): XmlSerializationFormat | undefined {
   if (!type.serializationOptions.xml) {
     return undefined;
   }
+  // "unwrapped" from xml lib can be applied to both array and string
   let propertyTypeIsArray = false;
   let propertyTypeIsText = false;
   if (type.kind === "property") {
@@ -370,6 +371,8 @@ export function getXmlSerlializationFormat(
     propertyTypeIsText =
       type.type.kind !== "array" && type.type.kind !== "dict" && type.type.kind !== "model";
   }
+  // name, namespace and prefix on type and property
+  // attribute, wrapped, text on property
   return {
     name: type.serializationOptions.xml.name ?? undefined,
     namespace: type.serializationOptions.xml.ns?.namespace ?? undefined,
