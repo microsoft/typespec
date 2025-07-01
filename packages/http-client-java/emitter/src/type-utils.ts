@@ -1,3 +1,4 @@
+import { XmlSerlializationFormat } from "@autorest/codemodel";
 import { getUnionAsEnum } from "@azure-tools/typespec-azure-core";
 import {
   SdkBodyModelPropertyType,
@@ -349,10 +350,27 @@ export function getPropertySerializedName(property: SdkBodyModelPropertyType): s
   // still fallback to "property.name", as for orphan model, serializationOptions.json is undefined
   return (
     property.serializationOptions.json?.name ??
+    property.serializationOptions.xml?.name ??
     property.serializationOptions.multipart?.name ??
     property.__raw?.name ??
     property.name
   );
+}
+
+export function getXmlSerlializationFormat(
+  type: SdkModelType | SdkBodyModelPropertyType,
+): XmlSerlializationFormat | undefined {
+  if (!type.serializationOptions.xml) {
+    return undefined;
+  }
+  return {
+    name: type.serializationOptions.xml.name ?? undefined,
+    namespace: type.serializationOptions.xml.ns?.namespace ?? undefined,
+    prefix: type.serializationOptions.xml.ns?.prefix ?? undefined,
+    attribute: type.serializationOptions.xml.attribute ?? false,
+    wrapped: !(type.serializationOptions.xml.unwrapped ?? true),
+    text: type.serializationOptions.xml.unwrapped ?? false,
+  };
 }
 
 function getDecoratorScopedValue<T>(

@@ -127,7 +127,11 @@ public class ModelPropertyMapper implements IMapper<Property, ClientModelPropert
         }
 
         XmlSerializationFormat xmlSerializationFormat = null;
-        if (property.getSchema().getSerialization() != null) {
+        if (property.getSerialization() != null) {
+            // TypeSpec sets "serialization" to property
+            xmlSerializationFormat = property.getSerialization().getXml();
+        } else if (property.getSchema().getSerialization() != null) {
+            // m4 sets "serialization" to schema of the property
             xmlSerializationFormat = property.getSchema().getSerialization().getXml();
         }
 
