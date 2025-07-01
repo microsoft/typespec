@@ -404,7 +404,7 @@ class Config(_ClientConfigBase[ConfigGlobalParameterList]):
 
     @property
     def sdk_moniker(self) -> str:
-        package_name = self.code_model.options["package-name"]
+        package_name = self.code_model.options.get("package-name")
         if package_name and package_name.startswith("azure-"):
             package_name = package_name[len("azure-") :]
         return package_name if package_name else self.yaml_data["name"].lower()
@@ -421,7 +421,7 @@ class Config(_ClientConfigBase[ConfigGlobalParameterList]):
             ImportType.SDKCORE,
         )
         file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, TypingSection.CONDITIONAL)
-        if self.code_model.options["package-version"]:
+        if self.code_model.options.get("package-version"):
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             file_import.add_submodule_import(
                 self.code_model.get_relative_import_path(serialize_namespace, module_name="_version"),

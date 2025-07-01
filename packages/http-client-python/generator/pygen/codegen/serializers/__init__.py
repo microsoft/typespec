@@ -127,7 +127,7 @@ class JinjaSerializer(ReaderAndWriter):
                     self.write_file(exec_path / Path("setup.py"), general_serializer.serialize_setup_file())
 
                 # add packaging files in root namespace (e.g. setup.py, README.md, etc.)
-                if self.code_model.options["package-mode"]:
+                if self.code_model.options.get("package-mode"):
                     self._serialize_and_write_package_files(client_namespace)
 
                 # write apiview-properties.json
@@ -221,7 +221,7 @@ class JinjaSerializer(ReaderAndWriter):
         else:
             return
         serializer = GeneralSerializer(self.code_model, env, async_mode=False)
-        params = self.code_model.options["packaging-files-config"] or {}
+        params = self.code_model.options.get("packaging-files-config", {})
         for template_name in package_files:
             if not self.code_model.is_azure_flavor and template_name == "dev_requirements.txt.jinja2":
                 continue
@@ -371,7 +371,7 @@ class JinjaSerializer(ReaderAndWriter):
             _write_version_file(original_version_file_name="_version.py")
         elif self.keep_version_file and _read_version_file("version.py"):
             _write_version_file(original_version_file_name="version.py")
-        elif self.code_model.options["package-version"]:
+        elif self.code_model.options.get("package-version"):
             self.write_file(
                 exec_path / Path("_version.py"),
                 general_serializer.serialize_version_file(),

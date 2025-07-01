@@ -106,10 +106,7 @@ class OptionsDict(MutableMapping):
                 models_mode_default = "dpg"
             # switch to falsy value for easier code writing
             return models_mode_default
-        try:
-            return self.DEFAULTS[key]
-        except KeyError:
-            return None
+        return self.DEFAULTS[key]
 
     def _validate_combinations(self) -> None:
         if not self.get("show-operations") and self.get("builders-visibility") == "embedded":
