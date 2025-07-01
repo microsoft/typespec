@@ -1,4 +1,4 @@
-import * as ay from "@alloy-js/core";
+import { Refkey, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { useTransformNamePolicy } from "@typespec/emitter-framework";
 import * as ef from "@typespec/emitter-framework/typescript";
@@ -12,7 +12,7 @@ export interface OperationParametersProps {
 
 export function getOperationParameters(
   operation: HttpOperation,
-  optionsRefkey: ay.Refkey,
+  optionsRefkey: Refkey,
 ): ts.ParameterDescriptor[] {
   const transformNamer = useTransformNamePolicy();
   const requiredParameters = operation.parameters.properties
@@ -25,7 +25,7 @@ export function getOperationParameters(
     const name = transformNamer.getApplicationName(parameter.property);
     const parameterDescriptor: ts.ParameterDescriptor = {
       name,
-      refkey: ay.refkey(),
+      refkey: refkey(),
       type: <ef.TypeExpression type={parameter.property.type} />,
     };
 

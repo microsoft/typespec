@@ -1,4 +1,4 @@
-import { OutputDirectory } from "@alloy-js/core";
+import type { OutputDirectory } from "@alloy-js/core";
 import { assert } from "vitest";
 
 export function assertFileContents(res: OutputDirectory, contents: string) {
