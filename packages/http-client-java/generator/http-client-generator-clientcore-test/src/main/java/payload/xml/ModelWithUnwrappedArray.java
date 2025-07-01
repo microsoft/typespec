@@ -76,6 +76,11 @@ public final class ModelWithUnwrappedArray implements XmlSerializable<ModelWithU
         rootElementName
             = rootElementName == null || rootElementName.isEmpty() ? "ModelWithUnwrappedArray" : rootElementName;
         xmlWriter.writeStartElement(rootElementName);
+        if (this.colors != null) {
+            for (String element : this.colors) {
+                xmlWriter.writeStringElement("colors", element);
+            }
+        }
         if (this.counts != null) {
             xmlWriter.writeStartElement("counts");
             for (int element : this.counts) {
@@ -117,12 +122,14 @@ public final class ModelWithUnwrappedArray implements XmlSerializable<ModelWithU
         String finalRootElementName
             = rootElementName == null || rootElementName.isEmpty() ? "ModelWithUnwrappedArray" : rootElementName;
         return xmlReader.readObject(finalRootElementName, reader -> {
-            List<Integer> counts = null;
             List<String> colors = null;
+            List<Integer> counts = null;
             while (reader.nextElement() != XmlToken.END_ELEMENT) {
                 QName elementName = reader.getElementName();
 
-                if ("counts".equals(elementName.getLocalPart())) {
+                if ("colors".equals(elementName.getLocalPart())) {
+                    colors.add(reader.getStringElement());
+                } else if ("counts".equals(elementName.getLocalPart())) {
                     while (reader.nextElement() != XmlToken.END_ELEMENT) {
                         elementName = reader.getElementName();
                         if ("int32".equals(elementName.getLocalPart())) {

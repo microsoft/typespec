@@ -76,6 +76,11 @@ public final class ModelWithRenamedArrays implements XmlSerializable<ModelWithRe
         rootElementName
             = rootElementName == null || rootElementName.isEmpty() ? "ModelWithRenamedArrays" : rootElementName;
         xmlWriter.writeStartElement(rootElementName);
+        if (this.colors != null) {
+            for (String element : this.colors) {
+                xmlWriter.writeStringElement("Colors", element);
+            }
+        }
         if (this.counts != null) {
             xmlWriter.writeStartElement("Counts");
             for (int element : this.counts) {
@@ -117,12 +122,14 @@ public final class ModelWithRenamedArrays implements XmlSerializable<ModelWithRe
         String finalRootElementName
             = rootElementName == null || rootElementName.isEmpty() ? "ModelWithRenamedArrays" : rootElementName;
         return xmlReader.readObject(finalRootElementName, reader -> {
-            List<Integer> counts = null;
             List<String> colors = null;
+            List<Integer> counts = null;
             while (reader.nextElement() != XmlToken.END_ELEMENT) {
                 QName elementName = reader.getElementName();
 
-                if ("Counts".equals(elementName.getLocalPart())) {
+                if ("Colors".equals(elementName.getLocalPart())) {
+                    colors.add(reader.getStringElement());
+                } else if ("Counts".equals(elementName.getLocalPart())) {
                     while (reader.nextElement() != XmlToken.END_ELEMENT) {
                         elementName = reader.getElementName();
                         if ("int32".equals(elementName.getLocalPart())) {

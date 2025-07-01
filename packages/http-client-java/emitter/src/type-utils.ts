@@ -363,13 +363,20 @@ export function getXmlSerlializationFormat(
   if (!type.serializationOptions.xml) {
     return undefined;
   }
+  let propertyTypeIsArray = false;
+  let propertyTypeIsText = false;
+  if (type.kind === "property") {
+    propertyTypeIsArray = type.type.kind === "array";
+    propertyTypeIsText =
+      type.type.kind !== "array" && type.type.kind !== "dict" && type.type.kind !== "model";
+  }
   return {
     name: type.serializationOptions.xml.name ?? undefined,
     namespace: type.serializationOptions.xml.ns?.namespace ?? undefined,
     prefix: type.serializationOptions.xml.ns?.prefix ?? undefined,
     attribute: type.serializationOptions.xml.attribute ?? false,
-    wrapped: !(type.serializationOptions.xml.unwrapped ?? true),
-    text: type.serializationOptions.xml.unwrapped ?? false,
+    wrapped: propertyTypeIsArray ? !(type.serializationOptions.xml.unwrapped ?? true) : false,
+    text: propertyTypeIsText ? (type.serializationOptions.xml.unwrapped ?? false) : false,
   };
 }
 
