@@ -1,4 +1,4 @@
-import { Model } from "@typespec/compiler";
+import type { Model } from "@typespec/compiler";
 import { t } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { describe, expect, it } from "vitest";

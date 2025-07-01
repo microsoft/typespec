@@ -1,11 +1,12 @@
-import * as ay from "@alloy-js/core";
+import { code } from "@alloy-js/core";
+import { Children } from "@alloy-js/core/jsx-runtime";
 import * as ts from "@alloy-js/typescript";
 import { HttpOperationPart } from "@typespec/http";
 import { HttpPartTransform } from "./part-transform.jsx";
 
 export interface ArrayPartTransformProps {
   part: HttpOperationPart;
-  itemRef: ay.Children;
+  itemRef: Children;
 }
 
 export function ArrayPartTransform(props: ArrayPartTransformProps) {
@@ -29,15 +30,15 @@ export function ArrayPartTransform(props: ArrayPartTransformProps) {
   return (
     <>
       {inputExpression}.map({mapCallbackSignature}{" "}
-      {ay.code`=> (${(<HttpPartTransform itemRef={null} part={partElement} />)})`} )
+      {code`=> (${(<HttpPartTransform itemRef={null} part={partElement} />)})`} )
     </>
   );
 }
 
-function getPartRef(itemRef: ay.Children, partName: string) {
+function getPartRef(itemRef: Children, partName: string) {
   if (itemRef === null) {
     return partName;
   }
 
-  return ay.code`${itemRef}.${partName}`;
+  return code`${itemRef}.${partName}`;
 }

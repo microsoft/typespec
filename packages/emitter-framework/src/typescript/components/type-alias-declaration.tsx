@@ -1,5 +1,5 @@
 import * as ts from "@alloy-js/typescript";
-import { Type } from "@typespec/compiler";
+import type { Type } from "@typespec/compiler";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
 import { declarationRefkeys } from "../utils/refkey.js";

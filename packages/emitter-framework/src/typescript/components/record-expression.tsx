@@ -1,5 +1,5 @@
 import { code } from "@alloy-js/core";
-import { Type } from "@typespec/compiler";
+import type { Type } from "@typespec/compiler";
 import { TypeExpression } from "./type-expression.js";
 
 export interface RecordExpressionProps {
