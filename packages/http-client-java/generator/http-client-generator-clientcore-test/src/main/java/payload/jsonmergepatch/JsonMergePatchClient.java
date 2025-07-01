@@ -46,8 +46,8 @@ public final class JsonMergePatchClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Resource> createResourceWithResponse(Resource body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("JsonMergePatchClient.createResource", requestContext,
-            updatedContext -> this.serviceClient.createResourceWithResponse(body, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Payload.JsonMergePatch.JsonMergePatchClient.createResource",
+            requestContext, updatedContext -> this.serviceClient.createResourceWithResponse(body, updatedContext));
     }
 
     /**
@@ -78,8 +78,8 @@ public final class JsonMergePatchClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Resource> updateResourceWithResponse(ResourcePatch body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("JsonMergePatchClient.updateResource", requestContext,
-            updatedContext -> this.serviceClient.updateResourceWithResponse(body, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Payload.JsonMergePatch.JsonMergePatchClient.updateResource",
+            requestContext, updatedContext -> this.serviceClient.updateResourceWithResponse(body, updatedContext));
     }
 
     /**
@@ -110,8 +110,8 @@ public final class JsonMergePatchClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Resource> updateOptionalResourceWithResponse(ResourcePatch body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("JsonMergePatchClient.updateOptionalResource",
-            requestContext,
+        return this.instrumentation.instrumentWithResponse(
+            "Payload.JsonMergePatch.JsonMergePatchClient.updateOptionalResource", requestContext,
             updatedContext -> this.serviceClient.updateOptionalResourceWithResponse(body, updatedContext));
     }
 

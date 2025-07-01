@@ -47,8 +47,8 @@ public final class HeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> csvWithResponse(List<String> colors, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("CollectionFormatClient.csv", requestContext,
-            updatedContext -> this.serviceClient.csvWithResponse(colors, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Parameters.CollectionFormat.CollectionFormatClient.csv",
+            requestContext, updatedContext -> this.serviceClient.csvWithResponse(colors, updatedContext));
     }
 
     /**

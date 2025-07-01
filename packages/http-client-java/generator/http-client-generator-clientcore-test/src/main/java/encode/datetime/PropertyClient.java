@@ -47,7 +47,7 @@ public final class PropertyClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<DefaultDatetimeProperty> defaultMethodWithResponse(DefaultDatetimeProperty body,
         RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("DatetimeClient.default", requestContext,
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.DatetimeClient.default", requestContext,
             updatedContext -> this.serviceClient.defaultMethodWithResponse(body, updatedContext));
     }
 
@@ -80,7 +80,7 @@ public final class PropertyClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Rfc3339DatetimeProperty> rfc3339WithResponse(Rfc3339DatetimeProperty body,
         RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("DatetimeClient.rfc3339", requestContext,
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.DatetimeClient.rfc3339", requestContext,
             updatedContext -> this.serviceClient.rfc3339WithResponse(body, updatedContext));
     }
 
@@ -113,7 +113,7 @@ public final class PropertyClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Rfc7231DatetimeProperty> rfc7231WithResponse(Rfc7231DatetimeProperty body,
         RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("DatetimeClient.rfc7231", requestContext,
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.DatetimeClient.rfc7231", requestContext,
             updatedContext -> this.serviceClient.rfc7231WithResponse(body, updatedContext));
     }
 
@@ -146,8 +146,8 @@ public final class PropertyClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<UnixTimestampDatetimeProperty> unixTimestampWithResponse(UnixTimestampDatetimeProperty body,
         RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("DatetimeClient.unixTimestamp", requestContext,
-            updatedContext -> this.serviceClient.unixTimestampWithResponse(body, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.DatetimeClient.unixTimestamp",
+            requestContext, updatedContext -> this.serviceClient.unixTimestampWithResponse(body, updatedContext));
     }
 
     /**
@@ -179,8 +179,8 @@ public final class PropertyClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<UnixTimestampArrayDatetimeProperty>
         unixTimestampArrayWithResponse(UnixTimestampArrayDatetimeProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("DatetimeClient.unixTimestampArray", requestContext,
-            updatedContext -> this.serviceClient.unixTimestampArrayWithResponse(body, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.DatetimeClient.unixTimestampArray",
+            requestContext, updatedContext -> this.serviceClient.unixTimestampArrayWithResponse(body, updatedContext));
     }
 
     /**

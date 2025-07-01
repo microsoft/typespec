@@ -49,7 +49,8 @@ public final class FormDataHttpPartsClient {
         RequestContext requestContext) {
         // Operation 'jsonArrayAndFileArray' is of content-type 'multipart/form-data'. Protocol API is not usable and
         // hence not generated.
-        return this.instrumentation.instrumentWithResponse("MultiPartClient.jsonArrayAndFileArray", requestContext,
+        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.MultiPartClient.jsonArrayAndFileArray",
+            requestContext,
             updatedContext -> this.serviceClient.jsonArrayAndFileArrayWithResponse(body, updatedContext));
     }
 

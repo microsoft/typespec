@@ -47,7 +47,7 @@ public final class ExplicitBodyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> simpleWithResponse(User body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("BasicClient.simple", requestContext,
+        return this.instrumentation.instrumentWithResponse("Parameters.Basic.BasicClient.simple", requestContext,
             updatedContext -> this.serviceClient.simpleWithResponse(body, updatedContext));
     }
 

@@ -46,7 +46,7 @@ public final class Float32ValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Map<String, Double>> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("DictionaryClient.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("Type.Dictionary.DictionaryClient.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -76,7 +76,7 @@ public final class Float32ValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(Map<String, Double> body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("DictionaryClient.put", requestContext,
+        return this.instrumentation.instrumentWithResponse("Type.Dictionary.DictionaryClient.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 

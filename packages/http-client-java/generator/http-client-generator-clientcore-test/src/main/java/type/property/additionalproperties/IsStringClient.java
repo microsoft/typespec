@@ -45,7 +45,8 @@ public final class IsStringClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<IsStringAdditionalProperties> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("AdditionalPropertiesClient.get", requestContext,
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Property.AdditionalProperties.AdditionalPropertiesClient.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -75,7 +76,8 @@ public final class IsStringClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(IsStringAdditionalProperties body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("AdditionalPropertiesClient.put", requestContext,
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Property.AdditionalProperties.AdditionalPropertiesClient.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 

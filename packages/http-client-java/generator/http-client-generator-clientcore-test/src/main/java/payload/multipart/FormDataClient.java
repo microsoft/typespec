@@ -49,7 +49,7 @@ public final class FormDataClient {
     public Response<Void> basicWithResponse(MultiPartRequest body, RequestContext requestContext) {
         // Operation 'basic' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
         // generated.
-        return this.instrumentation.instrumentWithResponse("MultiPartClient.basic", requestContext,
+        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.MultiPartClient.basic", requestContext,
             updatedContext -> this.serviceClient.basicWithResponse(body, updatedContext));
     }
 
@@ -82,8 +82,8 @@ public final class FormDataClient {
     public Response<Void> fileArrayAndBasicWithResponse(ComplexPartsRequest body, RequestContext requestContext) {
         // Operation 'fileArrayAndBasic' is of content-type 'multipart/form-data'. Protocol API is not usable and hence
         // not generated.
-        return this.instrumentation.instrumentWithResponse("MultiPartClient.fileArrayAndBasic", requestContext,
-            updatedContext -> this.serviceClient.fileArrayAndBasicWithResponse(body, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.MultiPartClient.fileArrayAndBasic",
+            requestContext, updatedContext -> this.serviceClient.fileArrayAndBasicWithResponse(body, updatedContext));
     }
 
     /**
@@ -115,7 +115,7 @@ public final class FormDataClient {
     public Response<Void> jsonPartWithResponse(JsonPartRequest body, RequestContext requestContext) {
         // Operation 'jsonPart' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
         // generated.
-        return this.instrumentation.instrumentWithResponse("MultiPartClient.jsonPart", requestContext,
+        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.MultiPartClient.jsonPart", requestContext,
             updatedContext -> this.serviceClient.jsonPartWithResponse(body, updatedContext));
     }
 
@@ -148,8 +148,8 @@ public final class FormDataClient {
     public Response<Void> binaryArrayPartsWithResponse(BinaryArrayPartsRequest body, RequestContext requestContext) {
         // Operation 'binaryArrayParts' is of content-type 'multipart/form-data'. Protocol API is not usable and hence
         // not generated.
-        return this.instrumentation.instrumentWithResponse("MultiPartClient.binaryArrayParts", requestContext,
-            updatedContext -> this.serviceClient.binaryArrayPartsWithResponse(body, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.MultiPartClient.binaryArrayParts",
+            requestContext, updatedContext -> this.serviceClient.binaryArrayPartsWithResponse(body, updatedContext));
     }
 
     /**
@@ -181,8 +181,8 @@ public final class FormDataClient {
     public Response<Void> multiBinaryPartsWithResponse(MultiBinaryPartsRequest body, RequestContext requestContext) {
         // Operation 'multiBinaryParts' is of content-type 'multipart/form-data'. Protocol API is not usable and hence
         // not generated.
-        return this.instrumentation.instrumentWithResponse("MultiPartClient.multiBinaryParts", requestContext,
-            updatedContext -> this.serviceClient.multiBinaryPartsWithResponse(body, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.MultiPartClient.multiBinaryParts",
+            requestContext, updatedContext -> this.serviceClient.multiBinaryPartsWithResponse(body, updatedContext));
     }
 
     /**
@@ -215,8 +215,8 @@ public final class FormDataClient {
         RequestContext requestContext) {
         // Operation 'checkFileNameAndContentType' is of content-type 'multipart/form-data'. Protocol API is not usable
         // and hence not generated.
-        return this.instrumentation.instrumentWithResponse("MultiPartClient.checkFileNameAndContentType",
-            requestContext,
+        return this.instrumentation.instrumentWithResponse(
+            "Payload.MultiPart.MultiPartClient.checkFileNameAndContentType", requestContext,
             updatedContext -> this.serviceClient.checkFileNameAndContentTypeWithResponse(body, updatedContext));
     }
 
@@ -249,8 +249,8 @@ public final class FormDataClient {
     public Response<Void> anonymousModelWithResponse(AnonymousModelRequest body, RequestContext requestContext) {
         // Operation 'anonymousModel' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
         // generated.
-        return this.instrumentation.instrumentWithResponse("MultiPartClient.anonymousModel", requestContext,
-            updatedContext -> this.serviceClient.anonymousModelWithResponse(body, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.MultiPartClient.anonymousModel",
+            requestContext, updatedContext -> this.serviceClient.anonymousModelWithResponse(body, updatedContext));
     }
 
     /**

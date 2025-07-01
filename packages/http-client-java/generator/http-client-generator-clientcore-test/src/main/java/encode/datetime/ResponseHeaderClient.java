@@ -45,7 +45,7 @@ public final class ResponseHeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> defaultMethodWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("DatetimeClient.default", requestContext,
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.DatetimeClient.default", requestContext,
             updatedContext -> this.serviceClient.defaultMethodWithResponse(updatedContext));
     }
 
@@ -73,7 +73,7 @@ public final class ResponseHeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> rfc3339WithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("DatetimeClient.rfc3339", requestContext,
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.DatetimeClient.rfc3339", requestContext,
             updatedContext -> this.serviceClient.rfc3339WithResponse(updatedContext));
     }
 
@@ -101,7 +101,7 @@ public final class ResponseHeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> rfc7231WithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("DatetimeClient.rfc7231", requestContext,
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.DatetimeClient.rfc7231", requestContext,
             updatedContext -> this.serviceClient.rfc7231WithResponse(updatedContext));
     }
 
@@ -129,8 +129,8 @@ public final class ResponseHeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> unixTimestampWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("DatetimeClient.unixTimestamp", requestContext,
-            updatedContext -> this.serviceClient.unixTimestampWithResponse(updatedContext));
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.DatetimeClient.unixTimestamp",
+            requestContext, updatedContext -> this.serviceClient.unixTimestampWithResponse(updatedContext));
     }
 
     /**

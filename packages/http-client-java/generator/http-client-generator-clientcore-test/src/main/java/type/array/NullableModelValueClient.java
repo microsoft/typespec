@@ -46,7 +46,7 @@ public final class NullableModelValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<List<InnerModel>> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("ArrayClient.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("Type.Array.ArrayClient.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -76,7 +76,7 @@ public final class NullableModelValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(List<InnerModel> body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("ArrayClient.put", requestContext,
+        return this.instrumentation.instrumentWithResponse("Type.Array.ArrayClient.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 

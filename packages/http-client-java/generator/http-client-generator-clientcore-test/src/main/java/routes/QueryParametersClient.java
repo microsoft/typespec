@@ -46,7 +46,7 @@ public final class QueryParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> templateOnlyWithResponse(String param, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("RoutesClient.templateOnly", requestContext,
+        return this.instrumentation.instrumentWithResponse("Routes.RoutesClient.templateOnly", requestContext,
             updatedContext -> this.serviceClient.templateOnlyWithResponse(param, updatedContext));
     }
 
@@ -77,7 +77,7 @@ public final class QueryParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> explicitWithResponse(String param, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("RoutesClient.explicit", requestContext,
+        return this.instrumentation.instrumentWithResponse("Routes.RoutesClient.explicit", requestContext,
             updatedContext -> this.serviceClient.explicitWithResponse(param, updatedContext));
     }
 
@@ -108,7 +108,7 @@ public final class QueryParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> annotationOnlyWithResponse(String param, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("RoutesClient.annotationOnly", requestContext,
+        return this.instrumentation.instrumentWithResponse("Routes.RoutesClient.annotationOnly", requestContext,
             updatedContext -> this.serviceClient.annotationOnlyWithResponse(param, updatedContext));
     }
 

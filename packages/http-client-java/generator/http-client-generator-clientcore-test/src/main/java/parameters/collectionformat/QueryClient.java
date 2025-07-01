@@ -47,8 +47,8 @@ public final class QueryClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> multiWithResponse(List<String> colors, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("CollectionFormatClient.multi", requestContext,
-            updatedContext -> this.serviceClient.multiWithResponse(colors, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Parameters.CollectionFormat.CollectionFormatClient.multi",
+            requestContext, updatedContext -> this.serviceClient.multiWithResponse(colors, updatedContext));
     }
 
     /**
@@ -78,8 +78,8 @@ public final class QueryClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> ssvWithResponse(List<String> colors, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("CollectionFormatClient.ssv", requestContext,
-            updatedContext -> this.serviceClient.ssvWithResponse(colors, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Parameters.CollectionFormat.CollectionFormatClient.ssv",
+            requestContext, updatedContext -> this.serviceClient.ssvWithResponse(colors, updatedContext));
     }
 
     /**
@@ -109,8 +109,8 @@ public final class QueryClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> pipesWithResponse(List<String> colors, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("CollectionFormatClient.pipes", requestContext,
-            updatedContext -> this.serviceClient.pipesWithResponse(colors, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Parameters.CollectionFormat.CollectionFormatClient.pipes",
+            requestContext, updatedContext -> this.serviceClient.pipesWithResponse(colors, updatedContext));
     }
 
     /**
@@ -140,8 +140,8 @@ public final class QueryClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> csvWithResponse(List<String> colors, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("CollectionFormatClient.csv", requestContext,
-            updatedContext -> this.serviceClient.csvWithResponse(colors, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Parameters.CollectionFormat.CollectionFormatClient.csv",
+            requestContext, updatedContext -> this.serviceClient.csvWithResponse(colors, updatedContext));
     }
 
     /**

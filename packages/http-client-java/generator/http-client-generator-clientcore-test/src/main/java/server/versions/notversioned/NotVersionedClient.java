@@ -45,7 +45,8 @@ public final class NotVersionedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withoutApiVersionWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("NotVersionedClient.withoutApiVersion", requestContext,
+        return this.instrumentation.instrumentWithResponse(
+            "Server.Versions.NotVersioned.NotVersionedClient.withoutApiVersion", requestContext,
             updatedContext -> this.serviceClient.withoutApiVersionWithResponse(updatedContext));
     }
 
@@ -74,7 +75,8 @@ public final class NotVersionedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withQueryApiVersionWithResponse(String apiVersion, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("NotVersionedClient.withQueryApiVersion", requestContext,
+        return this.instrumentation.instrumentWithResponse(
+            "Server.Versions.NotVersioned.NotVersionedClient.withQueryApiVersion", requestContext,
             updatedContext -> this.serviceClient.withQueryApiVersionWithResponse(apiVersion, updatedContext));
     }
 
@@ -105,7 +107,8 @@ public final class NotVersionedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withPathApiVersionWithResponse(String apiVersion, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("NotVersionedClient.withPathApiVersion", requestContext,
+        return this.instrumentation.instrumentWithResponse(
+            "Server.Versions.NotVersioned.NotVersionedClient.withPathApiVersion", requestContext,
             updatedContext -> this.serviceClient.withPathApiVersionWithResponse(apiVersion, updatedContext));
     }
 

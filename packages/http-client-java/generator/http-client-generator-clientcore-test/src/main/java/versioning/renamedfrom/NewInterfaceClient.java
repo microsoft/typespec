@@ -46,7 +46,8 @@ public final class NewInterfaceClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<NewModel> newOpInNewInterfaceWithResponse(NewModel body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("RenamedFromClient.newOpInNewInterface", requestContext,
+        return this.instrumentation.instrumentWithResponse(
+            "Versioning.RenamedFrom.RenamedFromClient.newOpInNewInterface", requestContext,
             updatedContext -> this.serviceClient.newOpInNewInterfaceWithResponse(body, updatedContext));
     }
 

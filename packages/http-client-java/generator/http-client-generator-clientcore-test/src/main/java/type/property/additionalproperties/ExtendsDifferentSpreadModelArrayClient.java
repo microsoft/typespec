@@ -46,7 +46,8 @@ public final class ExtendsDifferentSpreadModelArrayClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<DifferentSpreadModelArrayDerived> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("AdditionalPropertiesClient.get", requestContext,
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Property.AdditionalProperties.AdditionalPropertiesClient.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -76,7 +77,8 @@ public final class ExtendsDifferentSpreadModelArrayClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(DifferentSpreadModelArrayDerived body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("AdditionalPropertiesClient.put", requestContext,
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Property.AdditionalProperties.AdditionalPropertiesClient.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 

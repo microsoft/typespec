@@ -45,8 +45,8 @@ public final class UnionIntLiteralClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<UnionIntLiteralProperty> getAllWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("OptionalClient.getAll", requestContext,
-            updatedContext -> this.serviceClient.getAllWithResponse(updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.OptionalClient.getAll",
+            requestContext, updatedContext -> this.serviceClient.getAllWithResponse(updatedContext));
     }
 
     /**
@@ -74,8 +74,8 @@ public final class UnionIntLiteralClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<UnionIntLiteralProperty> getDefaultWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("OptionalClient.getDefault", requestContext,
-            updatedContext -> this.serviceClient.getDefaultWithResponse(updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.OptionalClient.getDefault",
+            requestContext, updatedContext -> this.serviceClient.getDefaultWithResponse(updatedContext));
     }
 
     /**
@@ -104,8 +104,8 @@ public final class UnionIntLiteralClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putAllWithResponse(UnionIntLiteralProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("OptionalClient.putAll", requestContext,
-            updatedContext -> this.serviceClient.putAllWithResponse(body, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.OptionalClient.putAll",
+            requestContext, updatedContext -> this.serviceClient.putAllWithResponse(body, updatedContext));
     }
 
     /**
@@ -135,8 +135,8 @@ public final class UnionIntLiteralClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putDefaultWithResponse(UnionIntLiteralProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("OptionalClient.putDefault", requestContext,
-            updatedContext -> this.serviceClient.putDefaultWithResponse(body, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.OptionalClient.putDefault",
+            requestContext, updatedContext -> this.serviceClient.putDefaultWithResponse(body, updatedContext));
     }
 
     /**

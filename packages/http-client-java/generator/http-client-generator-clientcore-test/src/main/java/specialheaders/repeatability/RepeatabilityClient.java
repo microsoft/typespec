@@ -45,7 +45,8 @@ public final class RepeatabilityClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> immediateSuccessWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("RepeatabilityClient.immediateSuccess", requestContext,
+        return this.instrumentation.instrumentWithResponse(
+            "SpecialHeaders.Repeatability.RepeatabilityClient.immediateSuccess", requestContext,
             updatedContext -> this.serviceClient.immediateSuccessWithResponse(updatedContext));
     }
 

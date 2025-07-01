@@ -45,8 +45,8 @@ public final class MultipleClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> noOperationParamsWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("MultipleClient.noOperationParams", requestContext,
-            updatedContext -> this.serviceClient.noOperationParamsWithResponse(updatedContext));
+        return this.instrumentation.instrumentWithResponse("Server.Path.Multiple.MultipleClient.noOperationParams",
+            requestContext, updatedContext -> this.serviceClient.noOperationParamsWithResponse(updatedContext));
     }
 
     /**
@@ -74,7 +74,8 @@ public final class MultipleClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withOperationPathParamWithResponse(String keyword, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("MultipleClient.withOperationPathParam", requestContext,
+        return this.instrumentation.instrumentWithResponse("Server.Path.Multiple.MultipleClient.withOperationPathParam",
+            requestContext,
             updatedContext -> this.serviceClient.withOperationPathParamWithResponse(keyword, updatedContext));
     }
 

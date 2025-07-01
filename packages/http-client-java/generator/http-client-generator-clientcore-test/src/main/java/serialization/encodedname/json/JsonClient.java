@@ -47,8 +47,8 @@ public final class JsonClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> sendWithResponse(JsonEncodedNameModel body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("JsonClient.send", requestContext,
-            updatedContext -> this.serviceClient.sendWithResponse(body, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Serialization.EncodedName.Json.JsonClient.send",
+            requestContext, updatedContext -> this.serviceClient.sendWithResponse(body, updatedContext));
     }
 
     /**
@@ -77,8 +77,8 @@ public final class JsonClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<JsonEncodedNameModel> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("JsonClient.get", requestContext,
-            updatedContext -> this.serviceClient.getWithResponse(updatedContext));
+        return this.instrumentation.instrumentWithResponse("Serialization.EncodedName.Json.JsonClient.get",
+            requestContext, updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
     /**

@@ -47,7 +47,7 @@ public final class DatetimeValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Map<String, OffsetDateTime>> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("DictionaryClient.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("Type.Dictionary.DictionaryClient.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -77,7 +77,7 @@ public final class DatetimeValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(Map<String, OffsetDateTime> body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("DictionaryClient.put", requestContext,
+        return this.instrumentation.instrumentWithResponse("Type.Dictionary.DictionaryClient.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 

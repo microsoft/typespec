@@ -46,7 +46,7 @@ public final class InterfaceV2Client {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ModelV2> v2InInterfaceWithResponse(ModelV2 body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("AddedClient.v2InInterface", requestContext,
+        return this.instrumentation.instrumentWithResponse("Versioning.Added.AddedClient.v2InInterface", requestContext,
             updatedContext -> this.serviceClient.v2InInterfaceWithResponse(body, updatedContext));
     }
 
