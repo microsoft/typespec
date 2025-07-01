@@ -14,9 +14,6 @@ The path to the package.json file to update.
 
 .PARAMETER EmitterPackageJsonPath
 The path where the emitter package.json file should be generated.
-
-.PARAMETER WorkingDirectory
-The working directory to run commands in. Defaults to the directory containing the package.json.
 #>
 
 [CmdletBinding()]
@@ -28,10 +25,7 @@ param(
     [string]$PackageJsonPath,
 
     [Parameter(Mandatory = $true)]
-    [string]$EmitterPackageJsonPath,
-
-    [Parameter(Mandatory = $false)]
-    [string]$WorkingDirectory
+    [string]$EmitterPackageJsonPath
 )
 
 $ErrorActionPreference = 'Stop'
@@ -47,16 +41,11 @@ $InjectedDependencies = @(
 $PackageJsonPath = Resolve-Path $PackageJsonPath
 $EmitterPackageJsonPath = [System.IO.Path]::GetFullPath($EmitterPackageJsonPath)
 
-# Set working directory if not provided
-if (-not $WorkingDirectory) {
-    $WorkingDirectory = Split-Path $PackageJsonPath -Parent
-}
-
 Write-Host "Updating package.json and invoking tsp-client..."
 Write-Host "Package Version: $PackageVersion"
 Write-Host "Package.json Path: $PackageJsonPath"
 Write-Host "Emitter Package.json Path: $EmitterPackageJsonPath"
-Write-Host "Working Directory: $WorkingDirectory"
+Write-Host "Current Working Directory: $(Get-Location)"
 
 try {
     # Set the package version
@@ -108,17 +97,10 @@ try {
 
     # Validate dependencies by running npm install
     Write-Host "Validating dependencies with npm install..."
-    Push-Location $WorkingDirectory
-    try {
-        $npmInstallResult = & npm install 2>&1
-        if ($LASTEXITCODE -ne 0) {
-            Write-Error "npm install failed after injecting dependencies: $npmInstallResult"
-            exit 1
-        }
-        Write-Host "Dependencies validated successfully"
-    }
-    finally {
-        Pop-Location
+    $npmInstallResult = & npm install 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "npm install failed after injecting dependencies: $npmInstallResult"
+        exit 1
     }
 
     # Generate emitter-package.json files using tsp-client
