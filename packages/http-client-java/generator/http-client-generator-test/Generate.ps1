@@ -181,8 +181,6 @@ try {
   # generate for http-specs/azure-http-specs test sources
   Copy-Item -Path node_modules/@typespec/http-specs/specs -Destination ./ -Recurse -Force
   Copy-Item -Path node_modules/@azure-tools/azure-http-specs/specs -Destination ./ -Recurse -Force
-  # remove xml tests, emitter has not supported xml model
-  Remove-Item ./specs/payload/xml -Recurse -Force
 
   $job = (Get-ChildItem ./specs -Include "main.tsp","old.tsp" -File -Recurse) | ForEach-Object -Parallel $generateScript -ThrottleLimit $Parallelization -AsJob
 
