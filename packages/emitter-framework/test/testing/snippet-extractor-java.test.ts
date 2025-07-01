@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import {
   createJavaExtractorConfig,
   createSnipperExtractor,
-  SnippetExtractor,
+  type SnippetExtractor,
 } from "../../src/testing/index.js";
 
 describe("Java Snippet Extractor", () => {

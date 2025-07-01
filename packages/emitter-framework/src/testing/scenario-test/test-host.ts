@@ -1,10 +1,10 @@
-import { CompilerOptions, Diagnostic } from "@typespec/compiler";
+import type { CompilerOptions, Diagnostic } from "@typespec/compiler";
 import {
-  BasicTestRunner,
+  type BasicTestRunner,
   createTestHost,
   createTestWrapper,
-  TestHostConfig,
-  TypeSpecTestLibrary,
+  type TestHostConfig,
+  type TypeSpecTestLibrary,
 } from "@typespec/compiler/testing";
 import { HttpTestLibrary } from "@typespec/http/testing";
 import { RestTestLibrary } from "@typespec/rest/testing";

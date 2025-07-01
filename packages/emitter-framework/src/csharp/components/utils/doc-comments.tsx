@@ -1,7 +1,7 @@
-import * as ay from "@alloy-js/core";
+import { type Children, List } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
-import { getReturnsDoc, Type } from "@typespec/compiler";
-import { Typekit } from "@typespec/compiler/typekit";
+import { getReturnsDoc, type Type } from "@typespec/compiler";
+import type { Typekit } from "@typespec/compiler/typekit";
 
 /**
  * Helper to render a doc string for a given TypeSpec type.
@@ -12,13 +12,13 @@ import { Typekit } from "@typespec/compiler/typekit";
  * @param type The TypeSpec type to generate documentation for
  * @returns A DocSummary component containing the rendered doc string, or undefined if no doc is available.
  */
-export function getDocComments($: Typekit, type: Type): ay.Children {
+export function getDocComments($: Typekit, type: Type): Children {
   const typeDoc = $.type.getDoc(type);
   if (!typeDoc) {
     return undefined;
   }
 
-  const docElements: ay.Children[] = [];
+  const docElements: Children[] = [];
 
   // Add main type documentation
   docElements.push(
@@ -54,5 +54,5 @@ export function getDocComments($: Typekit, type: Type): ay.Children {
     }
   }
 
-  return <ay.List doubleHardline>{docElements}</ay.List>;
+  return <List doubleHardline>{docElements}</List>;
 }

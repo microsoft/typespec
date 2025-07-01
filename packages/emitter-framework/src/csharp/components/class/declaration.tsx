@@ -1,6 +1,6 @@
-import * as ay from "@alloy-js/core";
+import { type Children, For } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
-import { Interface, Model } from "@typespec/compiler";
+import type { Interface, Model } from "@typespec/compiler";
 import { useTsp } from "../../../core/index.js";
 import { Property } from "../property/property.jsx";
 import { TypeExpression } from "../type-expression.jsx";
@@ -26,7 +26,7 @@ interface ClassMethodsProps {
   type: Interface;
 }
 
-export function ClassDeclaration(props: ClassDeclarationProps): ay.Children {
+export function ClassDeclaration(props: ClassDeclarationProps): Children {
   const { $ } = useTsp();
 
   const namePolicy = cs.useCSharpNamePolicy();
@@ -51,19 +51,19 @@ export function ClassDeclaration(props: ClassDeclarationProps): ay.Children {
   );
 }
 
-function ClassProperties(props: ClassPropertiesProps): ay.Children {
+function ClassProperties(props: ClassPropertiesProps): Children {
   return (
-    <ay.For each={props.type.properties.entries()} hardline>
+    <For each={props.type.properties.entries()} hardline>
       {([name, property]) => <Property type={property} jsonAttributes={props.jsonAttributes} />}
-    </ay.For>
+    </For>
   );
 }
 
-function ClassMethods(props: ClassMethodsProps): ay.Children {
+function ClassMethods(props: ClassMethodsProps): Children {
   const { $ } = useTsp();
   const namePolicy = cs.useCSharpNamePolicy();
 
-  const abstractMethods: ay.Children = [];
+  const abstractMethods: Children = [];
   for (const [name, method] of props.type.operations) {
     abstractMethods.push(
       <cs.ClassMethod

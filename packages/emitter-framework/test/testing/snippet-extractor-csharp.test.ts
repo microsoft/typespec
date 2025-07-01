@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import {
   createCSharpExtractorConfig,
   createSnipperExtractor,
-  SnippetExtractor,
+  type SnippetExtractor,
 } from "../../src/testing/index.js";
 describe("C# Snippet Extractor", () => {
   let extractor: SnippetExtractor;
