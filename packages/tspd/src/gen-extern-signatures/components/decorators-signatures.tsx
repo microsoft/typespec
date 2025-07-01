@@ -1,4 +1,12 @@
-import * as ay from "@alloy-js/core";
+import {
+  For,
+  Output,
+  OutputDirectory,
+  Refkey,
+  refkey,
+  render,
+  StatementList,
+} from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Program } from "@typespec/compiler";
 import { typespecCompiler } from "../external-packages/compiler.js";
@@ -65,7 +73,7 @@ export function generateSignatures(
   decorators: DecoratorSignature[],
   libraryName: string,
   namespaceName: string,
-): ay.OutputDirectory {
+): OutputDirectory {
   const context = createTspdContext(program);
   const base = namespaceName === "" ? "__global__" : namespaceName;
   const $decoratorsRef = refkey();
@@ -81,7 +89,7 @@ export function generateSignatures(
 
   const jsxContent = (
     <TspdContext.Provider value={context}>
-      <ay.Output externals={[typespecCompiler, userLib]}>
+      <Output externals={[typespecCompiler, userLib]}>
         <ts.SourceFile path={`${base}.ts`}>
           <DecoratorSignatures
             namespaceName={namespaceName}
@@ -101,9 +109,9 @@ export function generateSignatures(
             />
           </ts.SourceFile>
         )}
-      </ay.Output>
+      </Output>
     </TspdContext.Provider>
   );
 
-  return ay.render(jsxContent);
+  return render(jsxContent);
 }

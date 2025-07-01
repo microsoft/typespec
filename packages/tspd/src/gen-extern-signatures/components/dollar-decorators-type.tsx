@@ -1,3 +1,4 @@
+import { For, Refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { DecoratorSignature } from "../types.js";
 

@@ -1,3 +1,4 @@
+import { Refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 
 export interface DecoratorSignatureTests {
