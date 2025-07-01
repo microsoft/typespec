@@ -464,6 +464,11 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
 
         addGeneratedImport(imports);
 
+        if (model.isUsedInXml()) {
+            // Used in XML getter of unwrapped arrays
+            imports.add(Collections.class.getName());
+        }
+
         model.addImportsTo(imports, settings);
 
         // add Json merge patch related imports
@@ -1058,7 +1063,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                 String thisGetName = "this." + property.getName();
                 if (settings.isStreamStyleSerialization()) {
                     methodBlock.ifBlock(thisGetName + " == null",
-                        ifBlock -> ifBlock.line(thisGetName + " = new ArrayList<>();"));
+                        ifBlock -> ifBlock.methodReturn("Collections.emptyList()"));
                     methodBlock.methodReturn("this." + property.getName());
                 } else {
                     methodBlock.ifBlock(thisGetName + " == null",
