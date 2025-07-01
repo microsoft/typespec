@@ -7,11 +7,20 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace Microsoft.TypeSpec.Generator.Input.Extensions
 {
+    /// <summary>
+    /// Provides extension methods for string manipulation and identifier generation.
+    /// </summary>
     public static class StringExtensions
     {
         private static bool IsWordSeparator(char c) => !SyntaxFacts.IsIdentifierPartCharacter(c) || c == '_';
 
         [return: NotNullIfNotNull("name")]
+        /// <summary>
+        /// Converts a string to a valid C# identifier name, optionally using camel case.
+        /// </summary>
+        /// <param name="name">The string to convert to an identifier name.</param>
+        /// <param name="useCamelCase">Whether to use camel case for the identifier.</param>
+        /// <returns>A valid C# identifier name.</returns>
         public static string ToIdentifierName(this string name, bool useCamelCase = false)
         {
             if (string.IsNullOrEmpty(name))
@@ -77,6 +86,11 @@ namespace Microsoft.TypeSpec.Generator.Input.Extensions
         }
 
         [return: NotNullIfNotNull(nameof(name))]
+        /// <summary>
+        /// Converts a string to a valid C# variable name using camel case.
+        /// </summary>
+        /// <param name="name">The string to convert to a variable name.</param>
+        /// <returns>A valid C# variable name in camel case.</returns>
         public static string ToVariableName(this string name) => name.ToIdentifierName(useCamelCase: true);
     }
 }

@@ -12,8 +12,16 @@ using Microsoft.TypeSpec.Generator.Input.Extensions;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
+    /// <summary>
+    /// Provides serialization and deserialization functionality for TypeSpec input models.
+    /// </summary>
     public static class TypeSpecSerialization
     {
+        /// <summary>
+        /// Deserializes a JSON string into an <see cref="InputNamespace"/> object.
+        /// </summary>
+        /// <param name="json">The JSON string to deserialize.</param>
+        /// <returns>The deserialized <see cref="InputNamespace"/> object, or <see langword="null"/> if deserialization fails.</returns>
         public static InputNamespace? Deserialize(string json)
         {
             var referenceHandler = new TypeSpecReferenceHandler();

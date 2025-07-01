@@ -3,8 +3,16 @@
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
+    /// <summary>
+    /// Provides extension methods for <see cref="SerializationFormat"/> enumeration.
+    /// </summary>
     public static class SerializationFormatExtensions
     {
+        /// <summary>
+        /// Converts a <see cref="SerializationFormat"/> to its corresponding format specifier string.
+        /// </summary>
+        /// <param name="format">The serialization format to convert.</param>
+        /// <returns>A format specifier string for the given format, or <see langword="null"/> if no specifier is available.</returns>
         public static string? ToFormatSpecifier(this SerializationFormat format) => format switch
         {
             SerializationFormat.DateTime_RFC1123 => "R",

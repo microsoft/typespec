@@ -3,6 +3,7 @@
   <PropertyGroup>
     <PackageId>Microsoft.TypeSpec.Generator.Input</PackageId>
     <Version>1.0.0-beta.1</Version>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

@@ -4,6 +4,7 @@
     <PackageId>Microsoft.TypeSpec.Generator</PackageId>
     <OutputType>Exe</OutputType>
     <Version>1.0.0-beta.1</Version>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
