@@ -101,11 +101,11 @@ extends:
                 inputs:
                   pwsh: true
                   filePath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Update-PackageJson-And-Invoke-TspClient.ps1
+                  workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
                   arguments: >
                     -PackageVersion '$(PackageVersion)'
                     -PackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
                     -EmitterPackageJsonPath '$(Build.SourcesDirectory)/eng/http-client-csharp-emitter-package.json'
-                    -WorkingDirectory '$(Build.SourcesDirectory)/packages/http-client-csharp'
 
               - task: UseDotNet@2
                 inputs:
