@@ -41,7 +41,7 @@ if not version:
 {% set url = "https://github.com/Azure/azure-sdk-for-python/tree/main/sdk" %}
 {% else %}
 version = "{{ options["package-version"] }}"
-{% set description = "\"%s\""|format(options["package-name"]) %}
+{% set description = "\"%s\""|format(package_name) %}
 {% set long_description = code_model.description %}
 {% set author_email = "" %}
 {% set url = "" %}
