@@ -8,7 +8,7 @@
     <PackageReference Update="BenchmarkDotNet" Version="0.13.4" />
     <PackageReference Update="BenchmarkDotNet.Diagnostics.Windows" Version="0.13.4" />
     <PackageReference Update="CommandLineParser" Version="2.9.1" />
-    <PackageReference Update="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.8.0" />
+    <PackageReference Update="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.14.0" />
     <PackageReference Update="Microsoft.Build" Version="17.9.5" />
     <PackageReference Update="NuGet.Configuration" Version="6.14.0" />
     <PackageReference Update="NuGet.Versioning" Version="6.14.0" />
