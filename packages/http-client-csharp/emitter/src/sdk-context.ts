@@ -30,12 +30,6 @@ import {
 import { OperationResponse } from "./type/operation-response.js";
 
 /**
- * Provides the default SDK context used throughout the application.
- * @beta
- */
-export let defaultSdkContext: SdkContext<CSharpEmitterOptions, SdkHttpOperation> = undefined as any;
-
-/**
  * The emitter context for the CSharp emitter.
  * @beta
  */
@@ -54,7 +48,6 @@ export interface CSharpEmitterContext extends SdkContext<CSharpEmitterOptions> {
 export function createCSharpEmitterContext<
   TOptions extends CSharpEmitterOptions = CSharpEmitterOptions,
 >(context: SdkContext<TOptions>, logger: Logger): CSharpEmitterContext {
-  defaultSdkContext = context;
   return {
     ...context,
     logger,
