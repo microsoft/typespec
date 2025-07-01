@@ -6,7 +6,6 @@ package payload.xml;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public final class XmlTests {
@@ -50,8 +49,6 @@ public final class XmlTests {
         client.put(new ModelWithAttributes(123, "foo", true));
     }
 
-    // TODO ModelWithUnwrappedArray
-    @Disabled
     @Test
     public void testModelWithUnwrappedArray() {
         ModelWithUnwrappedArrayValueClient client = new XmlClientBuilder().buildModelWithUnwrappedArrayValueClient();
@@ -59,7 +56,12 @@ public final class XmlTests {
         client.put(new ModelWithUnwrappedArray(List.of("red", "green", "blue"), List.of(1, 2)));
     }
 
-    // TODO ModelWithRenamedArrays
+    @Test
+    public void testModelWithRenamedArrays() {
+        ModelWithRenamedArraysValueClient client = new XmlClientBuilder().buildModelWithRenamedArraysValueClient();
+
+        client.put(new ModelWithRenamedArrays(List.of("red", "green", "blue"), List.of(1, 2)));
+    }
 
     @Test
     public void testModelWithRenamedFields() {
