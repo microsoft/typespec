@@ -140,7 +140,7 @@ namespace Microsoft.TypeSpec.Generator
         };
 
         /// <summary>
-        /// Factory method for creating a <see cref="TypeProvider"/> based on an <see cref="InputModelType"> <paramref name="model"/>.
+        /// Factory method for creating a <see cref="TypeProvider"/> based on an <see cref="InputModelType"/> <paramref name="model"/>.
         /// </summary>
         /// <param name="model">The <see cref="InputModelType"/> to convert.</param>
         /// <returns>An instance of <see cref="TypeProvider"/>.</returns>
@@ -163,10 +163,10 @@ namespace Microsoft.TypeSpec.Generator
         protected virtual ModelProvider? CreateModelCore(InputModelType model) => new ModelProvider(model);
 
         /// <summary>
-        /// Factory method for creating a <see cref="TypeProvider"/> based on an <see cref="InputEnumType"> <paramref name="enumType"/>.
+        /// Factory method for creating a <see cref="TypeProvider"/> based on an <see cref="InputEnumType"/> <paramref name="enumType"/>.
         /// </summary>
         /// <param name="enumType">The <see cref="InputEnumType"/> to convert.</param>
-        /// <param name="declaringType"/> The declaring <see cref="TypeProvider".</param>
+        /// <param name="declaringType">The declaring <see cref="TypeProvider"/>.</param>
         /// <returns>An instance of <see cref="EnumProvider"/>.</returns>
         public EnumProvider? CreateEnum(InputEnumType enumType, TypeProvider? declaringType = null)
         {
