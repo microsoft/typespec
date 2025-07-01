@@ -63,10 +63,10 @@ export const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
         },
       },
       nullable: true,
-      additionalProperties: true,
+      additionalProperties: false,
       required: [],
     },
   },
-  additionalProperties: true,
+  additionalProperties: false,
   required: [],
 };
