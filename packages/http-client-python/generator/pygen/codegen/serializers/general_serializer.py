@@ -39,7 +39,7 @@ class GeneralSerializer(BaseSerializer):
             "MIN_PYTHON_VERSION": MIN_PYTHON_VERSION,
             "MAX_PYTHON_VERSION": MAX_PYTHON_VERSION,
         }
-        params.update(self.code_model.options)
+        params.update({"options": self.code_model.options})
         return template.render(code_model=self.code_model, **params)
 
     def serialize_package_file(self, template_name: str, **kwargs: Any) -> str:
