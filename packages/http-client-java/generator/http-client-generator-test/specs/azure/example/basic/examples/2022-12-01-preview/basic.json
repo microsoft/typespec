@@ -1,0 +1,26 @@
+{
+  "operationId": "ServiceOperationGroup_Basic",
+  "title": "Basic action",
+  "parameters": {
+    "api-version": "2022-12-01-preview",
+    "query-param": "query",
+    "header-param": "header",
+    "body": {
+      "stringProperty": "text",
+      "modelProperty": {
+        "int32Property": 1,
+        "float32Property": 1.5,
+        "enumProperty": "EnumValue1"
+      },
+      "arrayProperty": ["item"],
+      "recordProperty": {
+        "record": "value"
+      }
+    }
+  },
+  "responses": {
+    "200": {
+      "stringProperty": "text"
+    }
+  }
+}
