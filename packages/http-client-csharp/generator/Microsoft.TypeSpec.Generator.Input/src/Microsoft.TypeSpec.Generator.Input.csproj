@@ -12,5 +12,4 @@
     <PackageReference Include="System.Memory.Data" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
   </ItemGroup>
-
 </Project>

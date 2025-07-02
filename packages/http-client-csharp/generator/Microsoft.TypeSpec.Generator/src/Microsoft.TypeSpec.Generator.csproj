@@ -22,5 +22,4 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Microsoft.TypeSpec.Generator.Input\src\Microsoft.TypeSpec.Generator.Input.csproj" />
   </ItemGroup>
-
 </Project>
