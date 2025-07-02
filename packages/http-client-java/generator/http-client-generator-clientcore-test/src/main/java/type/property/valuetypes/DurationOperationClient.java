@@ -45,8 +45,8 @@ public final class DurationOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<DurationProperty> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.ValueTypes.ValueTypesClient.get",
-            requestContext, updatedContext -> this.serviceClient.getWithResponse(updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Property.ValueTypes.Duration.get", requestContext,
+            updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
     /**
@@ -75,8 +75,8 @@ public final class DurationOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(DurationProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.ValueTypes.ValueTypesClient.put",
-            requestContext, updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Property.ValueTypes.Duration.put", requestContext,
+            updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 
     /**

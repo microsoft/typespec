@@ -45,7 +45,7 @@ public final class UnionStringLiteralClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<UnionStringLiteralProperty> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.ValueTypes.ValueTypesClient.get",
+        return this.instrumentation.instrumentWithResponse("Type.Property.ValueTypes.UnionStringLiteral.get",
             requestContext, updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -75,7 +75,7 @@ public final class UnionStringLiteralClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(UnionStringLiteralProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.ValueTypes.ValueTypesClient.put",
+        return this.instrumentation.instrumentWithResponse("Type.Property.ValueTypes.UnionStringLiteral.put",
             requestContext, updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 

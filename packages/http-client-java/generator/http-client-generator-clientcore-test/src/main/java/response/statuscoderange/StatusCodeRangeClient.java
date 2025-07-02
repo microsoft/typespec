@@ -45,8 +45,8 @@ public final class StatusCodeRangeClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> errorResponseStatusCodeInRangeWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "Response.StatusCodeRange.StatusCodeRangeClient.errorResponseStatusCodeInRange", requestContext,
+        return this.instrumentation.instrumentWithResponse("Response.StatusCodeRange.errorResponseStatusCodeInRange",
+            requestContext,
             updatedContext -> this.serviceClient.errorResponseStatusCodeInRangeWithResponse(updatedContext));
     }
 
@@ -74,8 +74,8 @@ public final class StatusCodeRangeClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> errorResponseStatusCode404WithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "Response.StatusCodeRange.StatusCodeRangeClient.errorResponseStatusCode404", requestContext,
+        return this.instrumentation.instrumentWithResponse("Response.StatusCodeRange.errorResponseStatusCode404",
+            requestContext,
             updatedContext -> this.serviceClient.errorResponseStatusCode404WithResponse(updatedContext));
     }
 

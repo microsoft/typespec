@@ -45,8 +45,8 @@ public final class DatetimeOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<DatetimeProperty> getAllWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.OptionalClient.getAll",
-            requestContext, updatedContext -> this.serviceClient.getAllWithResponse(updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.Datetime.getAll", requestContext,
+            updatedContext -> this.serviceClient.getAllWithResponse(updatedContext));
     }
 
     /**
@@ -74,8 +74,8 @@ public final class DatetimeOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<DatetimeProperty> getDefaultWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.OptionalClient.getDefault",
-            requestContext, updatedContext -> this.serviceClient.getDefaultWithResponse(updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.Datetime.getDefault", requestContext,
+            updatedContext -> this.serviceClient.getDefaultWithResponse(updatedContext));
     }
 
     /**
@@ -104,8 +104,8 @@ public final class DatetimeOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putAllWithResponse(DatetimeProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.OptionalClient.putAll",
-            requestContext, updatedContext -> this.serviceClient.putAllWithResponse(body, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.Datetime.putAll", requestContext,
+            updatedContext -> this.serviceClient.putAllWithResponse(body, updatedContext));
     }
 
     /**
@@ -135,8 +135,8 @@ public final class DatetimeOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putDefaultWithResponse(DatetimeProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.OptionalClient.putDefault",
-            requestContext, updatedContext -> this.serviceClient.putDefaultWithResponse(body, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.Datetime.putDefault", requestContext,
+            updatedContext -> this.serviceClient.putDefaultWithResponse(body, updatedContext));
     }
 
     /**

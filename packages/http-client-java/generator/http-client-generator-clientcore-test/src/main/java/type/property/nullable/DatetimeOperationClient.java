@@ -45,8 +45,8 @@ public final class DatetimeOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<DatetimeProperty> getNonNullWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.NullableClient.getNonNull",
-            requestContext, updatedContext -> this.serviceClient.getNonNullWithResponse(updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.Datetime.getNonNull", requestContext,
+            updatedContext -> this.serviceClient.getNonNullWithResponse(updatedContext));
     }
 
     /**
@@ -74,8 +74,8 @@ public final class DatetimeOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<DatetimeProperty> getNullWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.NullableClient.getNull",
-            requestContext, updatedContext -> this.serviceClient.getNullWithResponse(updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.Datetime.getNull", requestContext,
+            updatedContext -> this.serviceClient.getNullWithResponse(updatedContext));
     }
 
     /**
@@ -104,7 +104,7 @@ public final class DatetimeOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> patchNonNullWithResponse(DatetimeProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.NullableClient.patchNonNull",
+        return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.Datetime.patchNonNull",
             requestContext, updatedContext -> this.serviceClient.patchNonNullWithResponse(body, updatedContext));
     }
 
@@ -135,8 +135,8 @@ public final class DatetimeOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> patchNullWithResponse(DatetimeProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.NullableClient.patchNull",
-            requestContext, updatedContext -> this.serviceClient.patchNullWithResponse(body, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.Datetime.patchNull", requestContext,
+            updatedContext -> this.serviceClient.patchNullWithResponse(body, updatedContext));
     }
 
     /**

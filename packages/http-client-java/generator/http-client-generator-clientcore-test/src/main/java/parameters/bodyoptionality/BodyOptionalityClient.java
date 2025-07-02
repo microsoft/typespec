@@ -46,9 +46,8 @@ public final class BodyOptionalityClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> requiredExplicitWithResponse(BodyModel body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "Parameters.BodyOptionality.BodyOptionalityClient.requiredExplicit", requestContext,
-            updatedContext -> this.serviceClient.requiredExplicitWithResponse(body, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Parameters.BodyOptionality.requiredExplicit",
+            requestContext, updatedContext -> this.serviceClient.requiredExplicitWithResponse(body, updatedContext));
     }
 
     /**
@@ -78,9 +77,8 @@ public final class BodyOptionalityClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> requiredImplicitWithResponse(String name, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "Parameters.BodyOptionality.BodyOptionalityClient.requiredImplicit", requestContext,
-            updatedContext -> this.serviceClient.requiredImplicitWithResponse(name, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Parameters.BodyOptionality.requiredImplicit",
+            requestContext, updatedContext -> this.serviceClient.requiredImplicitWithResponse(name, updatedContext));
     }
 
     /**

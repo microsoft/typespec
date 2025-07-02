@@ -45,8 +45,8 @@ public final class UnknownIntClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<UnknownIntProperty> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.ValueTypes.ValueTypesClient.get",
-            requestContext, updatedContext -> this.serviceClient.getWithResponse(updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Property.ValueTypes.UnknownInt.get", requestContext,
+            updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
     /**
@@ -75,8 +75,8 @@ public final class UnknownIntClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(UnknownIntProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.ValueTypes.ValueTypesClient.put",
-            requestContext, updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Property.ValueTypes.UnknownInt.put", requestContext,
+            updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 
     /**

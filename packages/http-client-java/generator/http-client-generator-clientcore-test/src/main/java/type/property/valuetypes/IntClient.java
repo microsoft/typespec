@@ -45,8 +45,8 @@ public final class IntClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<IntProperty> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.ValueTypes.ValueTypesClient.get",
-            requestContext, updatedContext -> this.serviceClient.getWithResponse(updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Property.ValueTypes.Int.get", requestContext,
+            updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
     /**
@@ -75,8 +75,8 @@ public final class IntClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(IntProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.ValueTypes.ValueTypesClient.put",
-            requestContext, updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Property.ValueTypes.Int.put", requestContext,
+            updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 
     /**

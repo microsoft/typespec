@@ -45,7 +45,7 @@ public final class RoutesClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> fixedWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Routes.RoutesClient.fixed", requestContext,
+        return this.instrumentation.instrumentWithResponse("Routes.fixed", requestContext,
             updatedContext -> this.serviceClient.fixedWithResponse(updatedContext));
     }
 

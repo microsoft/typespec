@@ -45,7 +45,7 @@ public final class StringsOnlyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<GetResponse> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Union.UnionClient.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("Type.Union.StringsOnly.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -75,7 +75,7 @@ public final class StringsOnlyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> sendWithResponse(GetResponseProp prop, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Union.UnionClient.send", requestContext,
+        return this.instrumentation.instrumentWithResponse("Type.Union.StringsOnly.send", requestContext,
             updatedContext -> this.serviceClient.sendWithResponse(prop, updatedContext));
     }
 

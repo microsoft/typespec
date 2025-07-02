@@ -45,8 +45,8 @@ public final class IntLiteralClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<IntLiteralProperty> getAllWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.OptionalClient.getAll",
-            requestContext, updatedContext -> this.serviceClient.getAllWithResponse(updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.IntLiteral.getAll", requestContext,
+            updatedContext -> this.serviceClient.getAllWithResponse(updatedContext));
     }
 
     /**
@@ -74,7 +74,7 @@ public final class IntLiteralClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<IntLiteralProperty> getDefaultWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.OptionalClient.getDefault",
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.IntLiteral.getDefault",
             requestContext, updatedContext -> this.serviceClient.getDefaultWithResponse(updatedContext));
     }
 
@@ -104,8 +104,8 @@ public final class IntLiteralClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putAllWithResponse(IntLiteralProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.OptionalClient.putAll",
-            requestContext, updatedContext -> this.serviceClient.putAllWithResponse(body, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.IntLiteral.putAll", requestContext,
+            updatedContext -> this.serviceClient.putAllWithResponse(body, updatedContext));
     }
 
     /**
@@ -135,7 +135,7 @@ public final class IntLiteralClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putDefaultWithResponse(IntLiteralProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.OptionalClient.putDefault",
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.IntLiteral.putDefault",
             requestContext, updatedContext -> this.serviceClient.putDefaultWithResponse(body, updatedContext));
     }
 

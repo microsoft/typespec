@@ -46,7 +46,7 @@ public final class NullableFloatValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Map<String, Double>> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Dictionary.DictionaryClient.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("Type.Dictionary.NullableFloatValue.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -76,7 +76,7 @@ public final class NullableFloatValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(Map<String, Double> body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Dictionary.DictionaryClient.put", requestContext,
+        return this.instrumentation.instrumentWithResponse("Type.Dictionary.NullableFloatValue.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 

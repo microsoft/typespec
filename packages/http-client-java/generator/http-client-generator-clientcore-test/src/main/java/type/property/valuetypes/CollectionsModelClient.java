@@ -45,7 +45,7 @@ public final class CollectionsModelClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<CollectionsModelProperty> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.ValueTypes.ValueTypesClient.get",
+        return this.instrumentation.instrumentWithResponse("Type.Property.ValueTypes.CollectionsModel.get",
             requestContext, updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -75,7 +75,7 @@ public final class CollectionsModelClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(CollectionsModelProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.ValueTypes.ValueTypesClient.put",
+        return this.instrumentation.instrumentWithResponse("Type.Property.ValueTypes.CollectionsModel.put",
             requestContext, updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 

@@ -45,7 +45,7 @@ public final class CollectionsByteClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<CollectionsByteProperty> getNonNullWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.NullableClient.getNonNull",
+        return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.CollectionsByte.getNonNull",
             requestContext, updatedContext -> this.serviceClient.getNonNullWithResponse(updatedContext));
     }
 
@@ -74,7 +74,7 @@ public final class CollectionsByteClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<CollectionsByteProperty> getNullWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.NullableClient.getNull",
+        return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.CollectionsByte.getNull",
             requestContext, updatedContext -> this.serviceClient.getNullWithResponse(updatedContext));
     }
 
@@ -104,7 +104,7 @@ public final class CollectionsByteClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> patchNonNullWithResponse(CollectionsByteProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.NullableClient.patchNonNull",
+        return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.CollectionsByte.patchNonNull",
             requestContext, updatedContext -> this.serviceClient.patchNonNullWithResponse(body, updatedContext));
     }
 
@@ -135,7 +135,7 @@ public final class CollectionsByteClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> patchNullWithResponse(CollectionsByteProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.NullableClient.patchNull",
+        return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.CollectionsByte.patchNull",
             requestContext, updatedContext -> this.serviceClient.patchNullWithResponse(body, updatedContext));
     }
 

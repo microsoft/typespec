@@ -46,8 +46,7 @@ public final class ReturnTypeChangedFromClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<String> testWithResponse(String body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "Versioning.ReturnTypeChangedFrom.ReturnTypeChangedFromClient.test", requestContext,
+        return this.instrumentation.instrumentWithResponse("Versioning.ReturnTypeChangedFrom.test", requestContext,
             updatedContext -> this.serviceClient.testWithResponse(body, updatedContext));
     }
 

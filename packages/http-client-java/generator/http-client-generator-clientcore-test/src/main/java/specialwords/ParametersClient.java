@@ -46,7 +46,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withAndWithResponse(String and, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withAnd", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withAnd", requestContext,
             updatedContext -> this.serviceClient.withAndWithResponse(and, updatedContext));
     }
 
@@ -77,7 +77,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withAsWithResponse(String as, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withAs", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withAs", requestContext,
             updatedContext -> this.serviceClient.withAsWithResponse(as, updatedContext));
     }
 
@@ -108,7 +108,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withAssertWithResponse(String assertParameter, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withAssert", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withAssert", requestContext,
             updatedContext -> this.serviceClient.withAssertWithResponse(assertParameter, updatedContext));
     }
 
@@ -139,7 +139,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withAsyncWithResponse(String async, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withAsync", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withAsync", requestContext,
             updatedContext -> this.serviceClient.withAsyncWithResponse(async, updatedContext));
     }
 
@@ -170,7 +170,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withAwaitWithResponse(String await, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withAwait", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withAwait", requestContext,
             updatedContext -> this.serviceClient.withAwaitWithResponse(await, updatedContext));
     }
 
@@ -201,7 +201,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withBreakWithResponse(String breakParameter, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withBreak", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withBreak", requestContext,
             updatedContext -> this.serviceClient.withBreakWithResponse(breakParameter, updatedContext));
     }
 
@@ -232,7 +232,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withClassWithResponse(String classParameter, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withClass", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withClass", requestContext,
             updatedContext -> this.serviceClient.withClassWithResponse(classParameter, updatedContext));
     }
 
@@ -263,8 +263,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withConstructorWithResponse(String constructor, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withConstructor",
-            requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withConstructor", requestContext,
             updatedContext -> this.serviceClient.withConstructorWithResponse(constructor, updatedContext));
     }
 
@@ -295,8 +294,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withContinueWithResponse(String continueParameter, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withContinue",
-            requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withContinue", requestContext,
             updatedContext -> this.serviceClient.withContinueWithResponse(continueParameter, updatedContext));
     }
 
@@ -327,7 +325,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withDefWithResponse(String def, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withDef", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withDef", requestContext,
             updatedContext -> this.serviceClient.withDefWithResponse(def, updatedContext));
     }
 
@@ -358,7 +356,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withDelWithResponse(String del, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withDel", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withDel", requestContext,
             updatedContext -> this.serviceClient.withDelWithResponse(del, updatedContext));
     }
 
@@ -389,7 +387,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withElifWithResponse(String elif, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withElif", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withElif", requestContext,
             updatedContext -> this.serviceClient.withElifWithResponse(elif, updatedContext));
     }
 
@@ -420,7 +418,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withElseWithResponse(String elseParameter, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withElse", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withElse", requestContext,
             updatedContext -> this.serviceClient.withElseWithResponse(elseParameter, updatedContext));
     }
 
@@ -451,7 +449,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withExceptWithResponse(String except, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withExcept", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withExcept", requestContext,
             updatedContext -> this.serviceClient.withExceptWithResponse(except, updatedContext));
     }
 
@@ -482,7 +480,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withExecWithResponse(String exec, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withExec", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withExec", requestContext,
             updatedContext -> this.serviceClient.withExecWithResponse(exec, updatedContext));
     }
 
@@ -513,8 +511,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withFinallyWithResponse(String finallyParameter, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withFinally",
-            requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withFinally", requestContext,
             updatedContext -> this.serviceClient.withFinallyWithResponse(finallyParameter, updatedContext));
     }
 
@@ -545,7 +542,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withForWithResponse(String forParameter, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withFor", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withFor", requestContext,
             updatedContext -> this.serviceClient.withForWithResponse(forParameter, updatedContext));
     }
 
@@ -576,7 +573,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withFromWithResponse(String from, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withFrom", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withFrom", requestContext,
             updatedContext -> this.serviceClient.withFromWithResponse(from, updatedContext));
     }
 
@@ -607,7 +604,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withGlobalWithResponse(String global, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withGlobal", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withGlobal", requestContext,
             updatedContext -> this.serviceClient.withGlobalWithResponse(global, updatedContext));
     }
 
@@ -638,7 +635,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withIfWithResponse(String ifParameter, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withIf", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withIf", requestContext,
             updatedContext -> this.serviceClient.withIfWithResponse(ifParameter, updatedContext));
     }
 
@@ -669,7 +666,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withImportWithResponse(String importParameter, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withImport", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withImport", requestContext,
             updatedContext -> this.serviceClient.withImportWithResponse(importParameter, updatedContext));
     }
 
@@ -700,7 +697,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withInWithResponse(String in, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withIn", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withIn", requestContext,
             updatedContext -> this.serviceClient.withInWithResponse(in, updatedContext));
     }
 
@@ -731,7 +728,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withIsWithResponse(String is, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withIs", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withIs", requestContext,
             updatedContext -> this.serviceClient.withIsWithResponse(is, updatedContext));
     }
 
@@ -762,7 +759,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withLambdaWithResponse(String lambda, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withLambda", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withLambda", requestContext,
             updatedContext -> this.serviceClient.withLambdaWithResponse(lambda, updatedContext));
     }
 
@@ -793,7 +790,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withNotWithResponse(String not, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withNot", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withNot", requestContext,
             updatedContext -> this.serviceClient.withNotWithResponse(not, updatedContext));
     }
 
@@ -824,7 +821,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withOrWithResponse(String or, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withOr", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withOr", requestContext,
             updatedContext -> this.serviceClient.withOrWithResponse(or, updatedContext));
     }
 
@@ -855,7 +852,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withPassWithResponse(String pass, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withPass", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withPass", requestContext,
             updatedContext -> this.serviceClient.withPassWithResponse(pass, updatedContext));
     }
 
@@ -886,7 +883,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withRaiseWithResponse(String raise, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withRaise", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withRaise", requestContext,
             updatedContext -> this.serviceClient.withRaiseWithResponse(raise, updatedContext));
     }
 
@@ -917,7 +914,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withReturnWithResponse(String returnParameter, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withReturn", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withReturn", requestContext,
             updatedContext -> this.serviceClient.withReturnWithResponse(returnParameter, updatedContext));
     }
 
@@ -948,7 +945,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withTryWithResponse(String tryParameter, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withTry", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withTry", requestContext,
             updatedContext -> this.serviceClient.withTryWithResponse(tryParameter, updatedContext));
     }
 
@@ -979,7 +976,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withWhileWithResponse(String whileParameter, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withWhile", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withWhile", requestContext,
             updatedContext -> this.serviceClient.withWhileWithResponse(whileParameter, updatedContext));
     }
 
@@ -1010,7 +1007,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withWithWithResponse(String with, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withWith", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withWith", requestContext,
             updatedContext -> this.serviceClient.withWithWithResponse(with, updatedContext));
     }
 
@@ -1041,7 +1038,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withYieldWithResponse(String yield, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withYield", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withYield", requestContext,
             updatedContext -> this.serviceClient.withYieldWithResponse(yield, updatedContext));
     }
 
@@ -1072,7 +1069,7 @@ public final class ParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withCancellationTokenWithResponse(String cancellationToken, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.withCancellationToken",
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withCancellationToken",
             requestContext,
             updatedContext -> this.serviceClient.withCancellationTokenWithResponse(cancellationToken, updatedContext));
     }

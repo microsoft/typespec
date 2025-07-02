@@ -47,8 +47,8 @@ public final class ModelPropertiesClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> sameAsModelWithResponse(SameAsModel body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.SpecialWordsClient.sameAsModel",
-            requestContext, updatedContext -> this.serviceClient.sameAsModelWithResponse(body, updatedContext));
+        return this.instrumentation.instrumentWithResponse("SpecialWords.ModelProperties.sameAsModel", requestContext,
+            updatedContext -> this.serviceClient.sameAsModelWithResponse(body, updatedContext));
     }
 
     /**

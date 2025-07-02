@@ -45,7 +45,7 @@ public final class FixedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<DaysOfWeekEnum> getKnownValueWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Enum.Fixed.FixedClient.getKnownValue", requestContext,
+        return this.instrumentation.instrumentWithResponse("Type.Enum.Fixed.String.getKnownValue", requestContext,
             updatedContext -> this.serviceClient.getKnownValueWithResponse(updatedContext));
     }
 
@@ -75,7 +75,7 @@ public final class FixedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putKnownValueWithResponse(DaysOfWeekEnum body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Enum.Fixed.FixedClient.putKnownValue", requestContext,
+        return this.instrumentation.instrumentWithResponse("Type.Enum.Fixed.String.putKnownValue", requestContext,
             updatedContext -> this.serviceClient.putKnownValueWithResponse(body, updatedContext));
     }
 
@@ -106,8 +106,8 @@ public final class FixedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putUnknownValueWithResponse(DaysOfWeekEnum body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Enum.Fixed.FixedClient.putUnknownValue",
-            requestContext, updatedContext -> this.serviceClient.putUnknownValueWithResponse(body, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Enum.Fixed.String.putUnknownValue", requestContext,
+            updatedContext -> this.serviceClient.putUnknownValueWithResponse(body, updatedContext));
     }
 
     /**

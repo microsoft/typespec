@@ -47,9 +47,8 @@ public final class DifferentBodyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getAvatarAsPngWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "Payload.ContentNegotiation.ContentNegotiationClient.getAvatarAsPng", requestContext,
-            updatedContext -> this.serviceClient.getAvatarAsPngWithResponse(updatedContext));
+        return this.instrumentation.instrumentWithResponse("Payload.ContentNegotiation.DifferentBody.getAvatarAsPng",
+            requestContext, updatedContext -> this.serviceClient.getAvatarAsPngWithResponse(updatedContext));
     }
 
     /**
@@ -77,9 +76,8 @@ public final class DifferentBodyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<PngImageAsJson> getAvatarAsJsonWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "Payload.ContentNegotiation.ContentNegotiationClient.getAvatarAsJson", requestContext,
-            updatedContext -> this.serviceClient.getAvatarAsJsonWithResponse(updatedContext));
+        return this.instrumentation.instrumentWithResponse("Payload.ContentNegotiation.DifferentBody.getAvatarAsJson",
+            requestContext, updatedContext -> this.serviceClient.getAvatarAsJsonWithResponse(updatedContext));
     }
 
     /**

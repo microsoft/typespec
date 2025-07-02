@@ -45,7 +45,7 @@ public final class CollectionsByteClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<CollectionsByteProperty> getAllWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.OptionalClient.getAll",
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.CollectionsByte.getAll",
             requestContext, updatedContext -> this.serviceClient.getAllWithResponse(updatedContext));
     }
 
@@ -74,7 +74,7 @@ public final class CollectionsByteClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<CollectionsByteProperty> getDefaultWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.OptionalClient.getDefault",
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.CollectionsByte.getDefault",
             requestContext, updatedContext -> this.serviceClient.getDefaultWithResponse(updatedContext));
     }
 
@@ -104,7 +104,7 @@ public final class CollectionsByteClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putAllWithResponse(CollectionsByteProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.OptionalClient.putAll",
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.CollectionsByte.putAll",
             requestContext, updatedContext -> this.serviceClient.putAllWithResponse(body, updatedContext));
     }
 
@@ -135,7 +135,7 @@ public final class CollectionsByteClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putDefaultWithResponse(CollectionsByteProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.OptionalClient.putDefault",
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.CollectionsByte.putDefault",
             requestContext, updatedContext -> this.serviceClient.putDefaultWithResponse(body, updatedContext));
     }
 

@@ -47,7 +47,7 @@ public final class AddedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ModelV1> v1WithResponse(String headerV2, ModelV1 body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Versioning.Added.AddedClient.v1", requestContext,
+        return this.instrumentation.instrumentWithResponse("Versioning.Added.v1", requestContext,
             updatedContext -> this.serviceClient.v1WithResponse(headerV2, body, updatedContext));
     }
 
@@ -80,7 +80,7 @@ public final class AddedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ModelV2> v2WithResponse(ModelV2 body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Versioning.Added.AddedClient.v2", requestContext,
+        return this.instrumentation.instrumentWithResponse("Versioning.Added.v2", requestContext,
             updatedContext -> this.serviceClient.v2WithResponse(body, updatedContext));
     }
 

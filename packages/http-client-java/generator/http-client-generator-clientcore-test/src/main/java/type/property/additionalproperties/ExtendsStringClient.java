@@ -45,9 +45,8 @@ public final class ExtendsStringClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ExtendsStringAdditionalProperties> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "Type.Property.AdditionalProperties.AdditionalPropertiesClient.get", requestContext,
-            updatedContext -> this.serviceClient.getWithResponse(updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Property.AdditionalProperties.ExtendsString.get",
+            requestContext, updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
     /**
@@ -76,9 +75,8 @@ public final class ExtendsStringClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(ExtendsStringAdditionalProperties body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "Type.Property.AdditionalProperties.AdditionalPropertiesClient.put", requestContext,
-            updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Property.AdditionalProperties.ExtendsString.put",
+            requestContext, updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 
     /**

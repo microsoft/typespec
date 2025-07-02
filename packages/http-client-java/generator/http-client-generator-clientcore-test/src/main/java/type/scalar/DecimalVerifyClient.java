@@ -47,7 +47,7 @@ public final class DecimalVerifyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<List<BigDecimal>> prepareVerifyWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Scalar.ScalarClient.prepareVerify", requestContext,
+        return this.instrumentation.instrumentWithResponse("Type.Scalar.DecimalVerify.prepareVerify", requestContext,
             updatedContext -> this.serviceClient.prepareVerifyWithResponse(updatedContext));
     }
 
@@ -77,7 +77,7 @@ public final class DecimalVerifyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> verifyWithResponse(BigDecimal body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Scalar.ScalarClient.verify", requestContext,
+        return this.instrumentation.instrumentWithResponse("Type.Scalar.DecimalVerify.verify", requestContext,
             updatedContext -> this.serviceClient.verifyWithResponse(body, updatedContext));
     }
 

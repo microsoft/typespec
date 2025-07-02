@@ -46,7 +46,7 @@ public final class Decimal128TypeClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BigDecimal> responseBodyWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Scalar.ScalarClient.responseBody", requestContext,
+        return this.instrumentation.instrumentWithResponse("Type.Scalar.Decimal128Type.responseBody", requestContext,
             updatedContext -> this.serviceClient.responseBodyWithResponse(updatedContext));
     }
 
@@ -76,7 +76,7 @@ public final class Decimal128TypeClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> requestBodyWithResponse(BigDecimal body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Scalar.ScalarClient.requestBody", requestContext,
+        return this.instrumentation.instrumentWithResponse("Type.Scalar.Decimal128Type.requestBody", requestContext,
             updatedContext -> this.serviceClient.requestBodyWithResponse(body, updatedContext));
     }
 
@@ -107,8 +107,8 @@ public final class Decimal128TypeClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> requestParameterWithResponse(BigDecimal value, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Scalar.ScalarClient.requestParameter", requestContext,
-            updatedContext -> this.serviceClient.requestParameterWithResponse(value, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Scalar.Decimal128Type.requestParameter",
+            requestContext, updatedContext -> this.serviceClient.requestParameterWithResponse(value, updatedContext));
     }
 
     /**

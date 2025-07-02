@@ -45,7 +45,7 @@ public final class IntsOnlyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<GetResponse3> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Union.UnionClient.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("Type.Union.IntsOnly.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -75,7 +75,7 @@ public final class IntsOnlyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> sendWithResponse(GetResponseProp2 prop, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Union.UnionClient.send", requestContext,
+        return this.instrumentation.instrumentWithResponse("Type.Union.IntsOnly.send", requestContext,
             updatedContext -> this.serviceClient.sendWithResponse(prop, updatedContext));
     }
 

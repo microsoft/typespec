@@ -58,7 +58,6 @@ public final class ServerDrivenPaginationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> link(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Payload.Pageable.PageableClient.link", requestContext,
-            updatedContext -> this.serviceClient.link(updatedContext));
+        return this.serviceClient.link(requestContext);
     }
 }

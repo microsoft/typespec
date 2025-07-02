@@ -46,7 +46,7 @@ public final class RemovedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ModelV2> v2WithResponse(ModelV2 body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Versioning.Removed.RemovedClient.v2", requestContext,
+        return this.instrumentation.instrumentWithResponse("Versioning.Removed.v2", requestContext,
             updatedContext -> this.serviceClient.v2WithResponse(body, updatedContext));
     }
 
@@ -78,7 +78,7 @@ public final class RemovedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ModelV3> modelV3WithResponse(ModelV3 body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Versioning.Removed.RemovedClient.modelV3", requestContext,
+        return this.instrumentation.instrumentWithResponse("Versioning.Removed.modelV3", requestContext,
             updatedContext -> this.serviceClient.modelV3WithResponse(body, updatedContext));
     }
 

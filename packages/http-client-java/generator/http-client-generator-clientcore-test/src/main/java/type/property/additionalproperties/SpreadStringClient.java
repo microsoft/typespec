@@ -45,9 +45,8 @@ public final class SpreadStringClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<SpreadStringRecord> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "Type.Property.AdditionalProperties.AdditionalPropertiesClient.get", requestContext,
-            updatedContext -> this.serviceClient.getWithResponse(updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Property.AdditionalProperties.SpreadString.get",
+            requestContext, updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
     /**
@@ -76,9 +75,8 @@ public final class SpreadStringClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(SpreadStringRecord body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "Type.Property.AdditionalProperties.AdditionalPropertiesClient.put", requestContext,
-            updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Property.AdditionalProperties.SpreadString.put",
+            requestContext, updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 
     /**

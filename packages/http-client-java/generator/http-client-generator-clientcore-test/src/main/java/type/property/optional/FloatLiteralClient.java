@@ -45,8 +45,8 @@ public final class FloatLiteralClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<FloatLiteralProperty> getAllWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.OptionalClient.getAll",
-            requestContext, updatedContext -> this.serviceClient.getAllWithResponse(updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.FloatLiteral.getAll", requestContext,
+            updatedContext -> this.serviceClient.getAllWithResponse(updatedContext));
     }
 
     /**
@@ -74,7 +74,7 @@ public final class FloatLiteralClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<FloatLiteralProperty> getDefaultWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.OptionalClient.getDefault",
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.FloatLiteral.getDefault",
             requestContext, updatedContext -> this.serviceClient.getDefaultWithResponse(updatedContext));
     }
 
@@ -104,8 +104,8 @@ public final class FloatLiteralClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putAllWithResponse(FloatLiteralProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.OptionalClient.putAll",
-            requestContext, updatedContext -> this.serviceClient.putAllWithResponse(body, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.FloatLiteral.putAll", requestContext,
+            updatedContext -> this.serviceClient.putAllWithResponse(body, updatedContext));
     }
 
     /**
@@ -135,7 +135,7 @@ public final class FloatLiteralClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putDefaultWithResponse(FloatLiteralProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.OptionalClient.putDefault",
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.FloatLiteral.putDefault",
             requestContext, updatedContext -> this.serviceClient.putDefaultWithResponse(body, updatedContext));
     }
 

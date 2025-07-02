@@ -46,7 +46,7 @@ public final class PathClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> normalWithResponse(String name, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Parameters.Path.PathClient.normal", requestContext,
+        return this.instrumentation.instrumentWithResponse("Parameters.Path.normal", requestContext,
             updatedContext -> this.serviceClient.normalWithResponse(name, updatedContext));
     }
 
@@ -77,7 +77,7 @@ public final class PathClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> optionalWithResponse(String name, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Parameters.Path.PathClient.optional", requestContext,
+        return this.instrumentation.instrumentWithResponse("Parameters.Path.optional", requestContext,
             updatedContext -> this.serviceClient.optionalWithResponse(name, updatedContext));
     }
 

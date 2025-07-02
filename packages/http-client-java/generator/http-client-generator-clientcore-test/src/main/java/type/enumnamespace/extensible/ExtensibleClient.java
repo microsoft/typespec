@@ -45,8 +45,8 @@ public final class ExtensibleClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<DaysOfWeekExtensibleEnum> getKnownValueWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Enum.Extensible.ExtensibleClient.getKnownValue",
-            requestContext, updatedContext -> this.serviceClient.getKnownValueWithResponse(updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Enum.Extensible.String.getKnownValue", requestContext,
+            updatedContext -> this.serviceClient.getKnownValueWithResponse(updatedContext));
     }
 
     /**
@@ -74,7 +74,7 @@ public final class ExtensibleClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<DaysOfWeekExtensibleEnum> getUnknownValueWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Enum.Extensible.ExtensibleClient.getUnknownValue",
+        return this.instrumentation.instrumentWithResponse("Type.Enum.Extensible.String.getUnknownValue",
             requestContext, updatedContext -> this.serviceClient.getUnknownValueWithResponse(updatedContext));
     }
 
@@ -104,8 +104,8 @@ public final class ExtensibleClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putKnownValueWithResponse(DaysOfWeekExtensibleEnum body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Enum.Extensible.ExtensibleClient.putKnownValue",
-            requestContext, updatedContext -> this.serviceClient.putKnownValueWithResponse(body, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Enum.Extensible.String.putKnownValue", requestContext,
+            updatedContext -> this.serviceClient.putKnownValueWithResponse(body, updatedContext));
     }
 
     /**
@@ -135,7 +135,7 @@ public final class ExtensibleClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putUnknownValueWithResponse(DaysOfWeekExtensibleEnum body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Enum.Extensible.ExtensibleClient.putUnknownValue",
+        return this.instrumentation.instrumentWithResponse("Type.Enum.Extensible.String.putUnknownValue",
             requestContext, updatedContext -> this.serviceClient.putUnknownValueWithResponse(body, updatedContext));
     }
 

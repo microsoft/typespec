@@ -45,7 +45,7 @@ public final class StringOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<String> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Scalar.ScalarClient.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("Type.Scalar.String.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -75,7 +75,7 @@ public final class StringOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(String body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Scalar.ScalarClient.put", requestContext,
+        return this.instrumentation.instrumentWithResponse("Type.Scalar.String.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 

@@ -45,9 +45,8 @@ public final class SingleDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Bird> getModelWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "Type.Model.Inheritance.SingleDiscriminator.SingleDiscriminatorClient.getModel", requestContext,
-            updatedContext -> this.serviceClient.getModelWithResponse(updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.SingleDiscriminator.getModel",
+            requestContext, updatedContext -> this.serviceClient.getModelWithResponse(updatedContext));
     }
 
     /**
@@ -76,9 +75,8 @@ public final class SingleDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putModelWithResponse(Bird input, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "Type.Model.Inheritance.SingleDiscriminator.SingleDiscriminatorClient.putModel", requestContext,
-            updatedContext -> this.serviceClient.putModelWithResponse(input, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.SingleDiscriminator.putModel",
+            requestContext, updatedContext -> this.serviceClient.putModelWithResponse(input, updatedContext));
     }
 
     /**
@@ -108,7 +106,7 @@ public final class SingleDiscriminatorClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Bird> getRecursiveModelWithResponse(RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse(
-            "Type.Model.Inheritance.SingleDiscriminator.SingleDiscriminatorClient.getRecursiveModel", requestContext,
+            "Type.Model.Inheritance.SingleDiscriminator.getRecursiveModel", requestContext,
             updatedContext -> this.serviceClient.getRecursiveModelWithResponse(updatedContext));
     }
 
@@ -139,7 +137,7 @@ public final class SingleDiscriminatorClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putRecursiveModelWithResponse(Bird input, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse(
-            "Type.Model.Inheritance.SingleDiscriminator.SingleDiscriminatorClient.putRecursiveModel", requestContext,
+            "Type.Model.Inheritance.SingleDiscriminator.putRecursiveModel", requestContext,
             updatedContext -> this.serviceClient.putRecursiveModelWithResponse(input, updatedContext));
     }
 
@@ -170,8 +168,8 @@ public final class SingleDiscriminatorClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Bird> getMissingDiscriminatorWithResponse(RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse(
-            "Type.Model.Inheritance.SingleDiscriminator.SingleDiscriminatorClient.getMissingDiscriminator",
-            requestContext, updatedContext -> this.serviceClient.getMissingDiscriminatorWithResponse(updatedContext));
+            "Type.Model.Inheritance.SingleDiscriminator.getMissingDiscriminator", requestContext,
+            updatedContext -> this.serviceClient.getMissingDiscriminatorWithResponse(updatedContext));
     }
 
     /**
@@ -200,8 +198,8 @@ public final class SingleDiscriminatorClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Bird> getWrongDiscriminatorWithResponse(RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse(
-            "Type.Model.Inheritance.SingleDiscriminator.SingleDiscriminatorClient.getWrongDiscriminator",
-            requestContext, updatedContext -> this.serviceClient.getWrongDiscriminatorWithResponse(updatedContext));
+            "Type.Model.Inheritance.SingleDiscriminator.getWrongDiscriminator", requestContext,
+            updatedContext -> this.serviceClient.getWrongDiscriminatorWithResponse(updatedContext));
     }
 
     /**
@@ -229,9 +227,8 @@ public final class SingleDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Dinosaur> getLegacyModelWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "Type.Model.Inheritance.SingleDiscriminator.SingleDiscriminatorClient.getLegacyModel", requestContext,
-            updatedContext -> this.serviceClient.getLegacyModelWithResponse(updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.SingleDiscriminator.getLegacyModel",
+            requestContext, updatedContext -> this.serviceClient.getLegacyModelWithResponse(updatedContext));
     }
 
     /**

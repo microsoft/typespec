@@ -45,9 +45,8 @@ public final class NestedDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Fish> getModelWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "Type.Model.Inheritance.NestedDiscriminator.NestedDiscriminatorClient.getModel", requestContext,
-            updatedContext -> this.serviceClient.getModelWithResponse(updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.NestedDiscriminator.getModel",
+            requestContext, updatedContext -> this.serviceClient.getModelWithResponse(updatedContext));
     }
 
     /**
@@ -76,9 +75,8 @@ public final class NestedDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putModelWithResponse(Fish input, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "Type.Model.Inheritance.NestedDiscriminator.NestedDiscriminatorClient.putModel", requestContext,
-            updatedContext -> this.serviceClient.putModelWithResponse(input, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.NestedDiscriminator.putModel",
+            requestContext, updatedContext -> this.serviceClient.putModelWithResponse(input, updatedContext));
     }
 
     /**
@@ -108,7 +106,7 @@ public final class NestedDiscriminatorClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Fish> getRecursiveModelWithResponse(RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse(
-            "Type.Model.Inheritance.NestedDiscriminator.NestedDiscriminatorClient.getRecursiveModel", requestContext,
+            "Type.Model.Inheritance.NestedDiscriminator.getRecursiveModel", requestContext,
             updatedContext -> this.serviceClient.getRecursiveModelWithResponse(updatedContext));
     }
 
@@ -139,7 +137,7 @@ public final class NestedDiscriminatorClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putRecursiveModelWithResponse(Fish input, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse(
-            "Type.Model.Inheritance.NestedDiscriminator.NestedDiscriminatorClient.putRecursiveModel", requestContext,
+            "Type.Model.Inheritance.NestedDiscriminator.putRecursiveModel", requestContext,
             updatedContext -> this.serviceClient.putRecursiveModelWithResponse(input, updatedContext));
     }
 
@@ -170,8 +168,8 @@ public final class NestedDiscriminatorClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Fish> getMissingDiscriminatorWithResponse(RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse(
-            "Type.Model.Inheritance.NestedDiscriminator.NestedDiscriminatorClient.getMissingDiscriminator",
-            requestContext, updatedContext -> this.serviceClient.getMissingDiscriminatorWithResponse(updatedContext));
+            "Type.Model.Inheritance.NestedDiscriminator.getMissingDiscriminator", requestContext,
+            updatedContext -> this.serviceClient.getMissingDiscriminatorWithResponse(updatedContext));
     }
 
     /**
@@ -200,8 +198,8 @@ public final class NestedDiscriminatorClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Fish> getWrongDiscriminatorWithResponse(RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse(
-            "Type.Model.Inheritance.NestedDiscriminator.NestedDiscriminatorClient.getWrongDiscriminator",
-            requestContext, updatedContext -> this.serviceClient.getWrongDiscriminatorWithResponse(updatedContext));
+            "Type.Model.Inheritance.NestedDiscriminator.getWrongDiscriminator", requestContext,
+            updatedContext -> this.serviceClient.getWrongDiscriminatorWithResponse(updatedContext));
     }
 
     /**

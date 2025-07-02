@@ -45,7 +45,7 @@ public final class EnumsOnlyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<GetResponse6> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Union.UnionClient.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("Type.Union.EnumsOnly.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -75,7 +75,7 @@ public final class EnumsOnlyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> sendWithResponse(EnumsOnlyCases prop, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Union.UnionClient.send", requestContext,
+        return this.instrumentation.instrumentWithResponse("Type.Union.EnumsOnly.send", requestContext,
             updatedContext -> this.serviceClient.sendWithResponse(prop, updatedContext));
     }
 

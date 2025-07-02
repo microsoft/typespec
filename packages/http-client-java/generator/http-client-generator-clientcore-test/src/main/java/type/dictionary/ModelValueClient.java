@@ -46,7 +46,7 @@ public final class ModelValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Map<String, InnerModel>> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Dictionary.DictionaryClient.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("Type.Dictionary.ModelValue.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -76,7 +76,7 @@ public final class ModelValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(Map<String, InnerModel> body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Dictionary.DictionaryClient.put", requestContext,
+        return this.instrumentation.instrumentWithResponse("Type.Dictionary.ModelValue.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 

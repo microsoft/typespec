@@ -46,7 +46,7 @@ public final class IsUnknownDiscriminatedClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<IsUnknownAdditionalPropertiesDiscriminated> getWithResponse(RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse(
-            "Type.Property.AdditionalProperties.AdditionalPropertiesClient.get", requestContext,
+            "Type.Property.AdditionalProperties.IsUnknownDiscriminated.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -78,7 +78,7 @@ public final class IsUnknownDiscriminatedClient {
     public Response<Void> putWithResponse(IsUnknownAdditionalPropertiesDiscriminated body,
         RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse(
-            "Type.Property.AdditionalProperties.AdditionalPropertiesClient.put", requestContext,
+            "Type.Property.AdditionalProperties.IsUnknownDiscriminated.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 

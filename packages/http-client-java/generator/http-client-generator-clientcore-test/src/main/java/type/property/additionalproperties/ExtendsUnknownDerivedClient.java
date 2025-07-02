@@ -46,7 +46,7 @@ public final class ExtendsUnknownDerivedClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ExtendsUnknownAdditionalPropertiesDerived> getWithResponse(RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse(
-            "Type.Property.AdditionalProperties.AdditionalPropertiesClient.get", requestContext,
+            "Type.Property.AdditionalProperties.ExtendsUnknownDerived.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -78,7 +78,7 @@ public final class ExtendsUnknownDerivedClient {
     public Response<Void> putWithResponse(ExtendsUnknownAdditionalPropertiesDerived body,
         RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse(
-            "Type.Property.AdditionalProperties.AdditionalPropertiesClient.put", requestContext,
+            "Type.Property.AdditionalProperties.ExtendsUnknownDerived.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 

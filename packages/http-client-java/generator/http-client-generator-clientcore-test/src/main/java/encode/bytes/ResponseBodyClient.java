@@ -46,7 +46,7 @@ public final class ResponseBodyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> defaultMethodWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Encode.Bytes.BytesClient.default", requestContext,
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.ResponseBody.default", requestContext,
             updatedContext -> this.serviceClient.defaultMethodWithResponse(updatedContext));
     }
 
@@ -75,7 +75,7 @@ public final class ResponseBodyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> octetStreamWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Encode.Bytes.BytesClient.octetStream", requestContext,
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.ResponseBody.octetStream", requestContext,
             updatedContext -> this.serviceClient.octetStreamWithResponse(updatedContext));
     }
 
@@ -104,8 +104,8 @@ public final class ResponseBodyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> customContentTypeWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Encode.Bytes.BytesClient.customContentType", requestContext,
-            updatedContext -> this.serviceClient.customContentTypeWithResponse(updatedContext));
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.ResponseBody.customContentType",
+            requestContext, updatedContext -> this.serviceClient.customContentTypeWithResponse(updatedContext));
     }
 
     /**
@@ -133,7 +133,7 @@ public final class ResponseBodyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<byte[]> base64WithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Encode.Bytes.BytesClient.base64", requestContext,
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.ResponseBody.base64", requestContext,
             updatedContext -> this.serviceClient.base64WithResponse(updatedContext));
     }
 
@@ -162,7 +162,7 @@ public final class ResponseBodyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<byte[]> base64urlWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Encode.Bytes.BytesClient.base64url", requestContext,
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.ResponseBody.base64url", requestContext,
             updatedContext -> this.serviceClient.base64urlWithResponse(updatedContext));
     }
 

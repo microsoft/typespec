@@ -46,7 +46,7 @@ public final class BooleanValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<List<Boolean>> getWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Array.ArrayClient.get", requestContext,
+        return this.instrumentation.instrumentWithResponse("Type.Array.BooleanValue.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
@@ -76,7 +76,7 @@ public final class BooleanValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(List<Boolean> body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Array.ArrayClient.put", requestContext,
+        return this.instrumentation.instrumentWithResponse("Type.Array.BooleanValue.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 

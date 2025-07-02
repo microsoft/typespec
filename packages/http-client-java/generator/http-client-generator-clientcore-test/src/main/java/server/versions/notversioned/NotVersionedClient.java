@@ -45,9 +45,8 @@ public final class NotVersionedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withoutApiVersionWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "Server.Versions.NotVersioned.NotVersionedClient.withoutApiVersion", requestContext,
-            updatedContext -> this.serviceClient.withoutApiVersionWithResponse(updatedContext));
+        return this.instrumentation.instrumentWithResponse("Server.Versions.NotVersioned.withoutApiVersion",
+            requestContext, updatedContext -> this.serviceClient.withoutApiVersionWithResponse(updatedContext));
     }
 
     /**
@@ -75,8 +74,8 @@ public final class NotVersionedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withQueryApiVersionWithResponse(String apiVersion, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "Server.Versions.NotVersioned.NotVersionedClient.withQueryApiVersion", requestContext,
+        return this.instrumentation.instrumentWithResponse("Server.Versions.NotVersioned.withQueryApiVersion",
+            requestContext,
             updatedContext -> this.serviceClient.withQueryApiVersionWithResponse(apiVersion, updatedContext));
     }
 
@@ -107,8 +106,8 @@ public final class NotVersionedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withPathApiVersionWithResponse(String apiVersion, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "Server.Versions.NotVersioned.NotVersionedClient.withPathApiVersion", requestContext,
+        return this.instrumentation.instrumentWithResponse("Server.Versions.NotVersioned.withPathApiVersion",
+            requestContext,
             updatedContext -> this.serviceClient.withPathApiVersionWithResponse(apiVersion, updatedContext));
     }
 

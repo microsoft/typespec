@@ -47,7 +47,7 @@ public final class PropertyClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<DefaultBytesProperty> defaultMethodWithResponse(DefaultBytesProperty body,
         RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Encode.Bytes.BytesClient.default", requestContext,
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.Property.default", requestContext,
             updatedContext -> this.serviceClient.defaultMethodWithResponse(body, updatedContext));
     }
 
@@ -79,7 +79,7 @@ public final class PropertyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Base64BytesProperty> base64WithResponse(Base64BytesProperty body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Encode.Bytes.BytesClient.base64", requestContext,
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.Property.base64", requestContext,
             updatedContext -> this.serviceClient.base64WithResponse(body, updatedContext));
     }
 
@@ -112,7 +112,7 @@ public final class PropertyClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Base64urlBytesProperty> base64urlWithResponse(Base64urlBytesProperty body,
         RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Encode.Bytes.BytesClient.base64url", requestContext,
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.Property.base64url", requestContext,
             updatedContext -> this.serviceClient.base64urlWithResponse(body, updatedContext));
     }
 
@@ -145,7 +145,7 @@ public final class PropertyClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Base64urlArrayBytesProperty> base64urlArrayWithResponse(Base64urlArrayBytesProperty body,
         RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Encode.Bytes.BytesClient.base64urlArray", requestContext,
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.Property.base64urlArray", requestContext,
             updatedContext -> this.serviceClient.base64urlArrayWithResponse(body, updatedContext));
     }
 

@@ -46,9 +46,8 @@ public final class NotDiscriminatedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> postValidWithResponse(Siamese input, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "Type.Model.Inheritance.NotDiscriminated.NotDiscriminatedClient.postValid", requestContext,
-            updatedContext -> this.serviceClient.postValidWithResponse(input, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.NotDiscriminated.postValid",
+            requestContext, updatedContext -> this.serviceClient.postValidWithResponse(input, updatedContext));
     }
 
     /**
@@ -77,9 +76,8 @@ public final class NotDiscriminatedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Siamese> getValidWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "Type.Model.Inheritance.NotDiscriminated.NotDiscriminatedClient.getValid", requestContext,
-            updatedContext -> this.serviceClient.getValidWithResponse(updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.NotDiscriminated.getValid",
+            requestContext, updatedContext -> this.serviceClient.getValidWithResponse(updatedContext));
     }
 
     /**
@@ -108,9 +106,8 @@ public final class NotDiscriminatedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Siamese> putValidWithResponse(Siamese input, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "Type.Model.Inheritance.NotDiscriminated.NotDiscriminatedClient.putValid", requestContext,
-            updatedContext -> this.serviceClient.putValidWithResponse(input, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.NotDiscriminated.putValid",
+            requestContext, updatedContext -> this.serviceClient.putValidWithResponse(input, updatedContext));
     }
 
     /**

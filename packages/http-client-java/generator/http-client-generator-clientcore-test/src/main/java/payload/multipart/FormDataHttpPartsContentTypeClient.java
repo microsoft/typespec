@@ -50,8 +50,8 @@ public final class FormDataHttpPartsContentTypeClient {
         RequestContext requestContext) {
         // Operation 'imageJpegContentType' is of content-type 'multipart/form-data'. Protocol API is not usable and
         // hence not generated.
-        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.MultiPartClient.imageJpegContentType",
-            requestContext,
+        return this.instrumentation.instrumentWithResponse(
+            "Payload.MultiPart.FormData.HttpParts.ContentType.imageJpegContentType", requestContext,
             updatedContext -> this.serviceClient.imageJpegContentTypeWithResponse(body, updatedContext));
     }
 
@@ -85,8 +85,9 @@ public final class FormDataHttpPartsContentTypeClient {
         RequestContext requestContext) {
         // Operation 'requiredContentType' is of content-type 'multipart/form-data'. Protocol API is not usable and
         // hence not generated.
-        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.MultiPartClient.requiredContentType",
-            requestContext, updatedContext -> this.serviceClient.requiredContentTypeWithResponse(body, updatedContext));
+        return this.instrumentation.instrumentWithResponse(
+            "Payload.MultiPart.FormData.HttpParts.ContentType.requiredContentType", requestContext,
+            updatedContext -> this.serviceClient.requiredContentTypeWithResponse(body, updatedContext));
     }
 
     /**
@@ -119,8 +120,9 @@ public final class FormDataHttpPartsContentTypeClient {
         RequestContext requestContext) {
         // Operation 'optionalContentType' is of content-type 'multipart/form-data'. Protocol API is not usable and
         // hence not generated.
-        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.MultiPartClient.optionalContentType",
-            requestContext, updatedContext -> this.serviceClient.optionalContentTypeWithResponse(body, updatedContext));
+        return this.instrumentation.instrumentWithResponse(
+            "Payload.MultiPart.FormData.HttpParts.ContentType.optionalContentType", requestContext,
+            updatedContext -> this.serviceClient.optionalContentTypeWithResponse(body, updatedContext));
     }
 
     /**

@@ -45,7 +45,7 @@ public final class ApiKeyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> validWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Authentication.ApiKey.ApiKeyClient.valid", requestContext,
+        return this.instrumentation.instrumentWithResponse("Authentication.ApiKey.valid", requestContext,
             updatedContext -> this.serviceClient.validWithResponse(updatedContext));
     }
 
@@ -73,7 +73,7 @@ public final class ApiKeyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> invalidWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Authentication.ApiKey.ApiKeyClient.invalid", requestContext,
+        return this.instrumentation.instrumentWithResponse("Authentication.ApiKey.invalid", requestContext,
             updatedContext -> this.serviceClient.invalidWithResponse(updatedContext));
     }
 

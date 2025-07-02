@@ -47,9 +47,8 @@ public final class ConditionalRequestClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> postIfMatchWithResponse(String ifMatch, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "SpecialHeaders.ConditionalRequest.ConditionalRequestClient.postIfMatch", requestContext,
-            updatedContext -> this.serviceClient.postIfMatchWithResponse(ifMatch, updatedContext));
+        return this.instrumentation.instrumentWithResponse("SpecialHeaders.ConditionalRequest.postIfMatch",
+            requestContext, updatedContext -> this.serviceClient.postIfMatchWithResponse(ifMatch, updatedContext));
     }
 
     /**
@@ -92,8 +91,8 @@ public final class ConditionalRequestClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> postIfNoneMatchWithResponse(String ifNoneMatch, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "SpecialHeaders.ConditionalRequest.ConditionalRequestClient.postIfNoneMatch", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialHeaders.ConditionalRequest.postIfNoneMatch",
+            requestContext,
             updatedContext -> this.serviceClient.postIfNoneMatchWithResponse(ifNoneMatch, updatedContext));
     }
 
@@ -140,8 +139,8 @@ public final class ConditionalRequestClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> headIfModifiedSinceWithResponse(OffsetDateTime ifModifiedSince,
         RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "SpecialHeaders.ConditionalRequest.ConditionalRequestClient.headIfModifiedSince", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialHeaders.ConditionalRequest.headIfModifiedSince",
+            requestContext,
             updatedContext -> this.serviceClient.headIfModifiedSinceWithResponse(ifModifiedSince, updatedContext));
     }
 
@@ -190,8 +189,8 @@ public final class ConditionalRequestClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> postIfUnmodifiedSinceWithResponse(OffsetDateTime ifUnmodifiedSince,
         RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "SpecialHeaders.ConditionalRequest.ConditionalRequestClient.postIfUnmodifiedSince", requestContext,
+        return this.instrumentation.instrumentWithResponse("SpecialHeaders.ConditionalRequest.postIfUnmodifiedSince",
+            requestContext,
             updatedContext -> this.serviceClient.postIfUnmodifiedSinceWithResponse(ifUnmodifiedSince, updatedContext));
     }
 

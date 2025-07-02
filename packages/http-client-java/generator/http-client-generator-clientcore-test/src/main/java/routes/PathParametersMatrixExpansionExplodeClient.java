@@ -49,8 +49,8 @@ public final class PathParametersMatrixExpansionExplodeClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> primitiveWithResponse(String param, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Routes.RoutesClient.primitive", requestContext,
-            updatedContext -> this.serviceClient.primitiveWithResponse(param, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Routes.PathParameters.MatrixExpansion.Explode.primitive",
+            requestContext, updatedContext -> this.serviceClient.primitiveWithResponse(param, updatedContext));
     }
 
     /**
@@ -80,8 +80,8 @@ public final class PathParametersMatrixExpansionExplodeClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> arrayWithResponse(List<String> param, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Routes.RoutesClient.array", requestContext,
-            updatedContext -> this.serviceClient.arrayWithResponse(param, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Routes.PathParameters.MatrixExpansion.Explode.array",
+            requestContext, updatedContext -> this.serviceClient.arrayWithResponse(param, updatedContext));
     }
 
     /**
@@ -111,8 +111,8 @@ public final class PathParametersMatrixExpansionExplodeClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> recordWithResponse(Map<String, Integer> param, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Routes.RoutesClient.record", requestContext,
-            updatedContext -> this.serviceClient.recordWithResponse(param, updatedContext));
+        return this.instrumentation.instrumentWithResponse("Routes.PathParameters.MatrixExpansion.Explode.record",
+            requestContext, updatedContext -> this.serviceClient.recordWithResponse(param, updatedContext));
     }
 
     /**
