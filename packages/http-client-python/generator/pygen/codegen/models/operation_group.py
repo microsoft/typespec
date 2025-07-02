@@ -89,7 +89,7 @@ class OperationGroup(BaseModel):
             retval = add_to_pylint_disable(retval, "abstract-class-instantiated")
         if len(self.operations) > 20:
             retval = add_to_pylint_disable(retval, "too-many-public-methods")
-        if len(self.class_name) > NAME_LENGTH_LIMIT:
+        if len(self.class_name) > NAME_LENGTH_LIMIT and self.class_name[0] != "_":
             retval = add_to_pylint_disable(retval, "name-too-long")
         if len(self.operation_groups) > 6:
             retval = add_to_pylint_disable(retval, "too-many-instance-attributes")
