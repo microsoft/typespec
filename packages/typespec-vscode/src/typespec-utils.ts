@@ -3,12 +3,13 @@ import { ServerDiagnostic } from "@typespec/compiler/internals";
 import { readFile } from "fs/promises";
 import path from "path";
 import vscode from "vscode";
+import { Document } from "yaml";
 import { StartFileName } from "./const.js";
 import logger from "./log/logger.js";
 import { getDirectoryPath, joinPaths, normalizeSlashes } from "./path-utils.js";
 import { Result, ResultCode } from "./types.js";
 import { ConfirmOptions, QuickPickOptionsWithExternalLink, tryExecuteWithUi } from "./ui-utils.js";
-import { isFile, loadPackageJsonFile, spawnExecutionAndLogToOutput } from "./utils.js";
+import { isFile, loadModule, loadPackageJsonFile, spawnExecutionAndLogToOutput } from "./utils.js";
 
 export async function getEntrypointTspFile(tspPath: string): Promise<string | undefined> {
   const isFilePath = await isFile(tspPath);
@@ -197,4 +198,115 @@ export async function installCompilerWithUi(
     );
   }
   return result;
+}
+
+function getConfigEntriesFromEmitterOptions(
+  emitterOptions: Record<string, any>,
+  configYamlContent: string,
+  defaultEmitKeys: string[] = [],
+): Record<string, any> {
+  const configEntries: Record<string, any> = {};
+  if (!emitterOptions.properties) {
+    return configEntries;
+  }
+
+  for (const [propertyName, propertySchema] of Object.entries(emitterOptions.properties)) {
+    if (configYamlContent.includes(propertyName)) {
+      continue;
+    }
+    if (defaultEmitKeys.includes(propertyName)) {
+      continue;
+    }
+
+    const propSchema = propertySchema as any;
+    let comment = "";
+    if (propSchema.description) {
+      comment = propSchema.description;
+    }
+    if (propSchema.type) {
+      comment += ` (Type: ${propSchema.type})`;
+    }
+    if (propSchema.enum) {
+      comment += ` (Options: ${propSchema.enum.join(", ")})`;
+    }
+
+    let defaultValue: any;
+    if (propSchema.default !== undefined) {
+      defaultValue = propSchema.default;
+    }
+
+    configEntries[propertyName] = {
+      value: defaultValue,
+      comment: comment,
+    };
+  }
+
+  return configEntries;
+}
+
+async function extractEmitterOptions(
+  baseDir: string,
+  packageName: string,
+): Promise<Record<string, any> | undefined> {
+  try {
+    const moduleResult = await loadModule(baseDir, packageName);
+    if (!moduleResult) {
+      logger.debug(`Failed to resolve module ${packageName}`);
+      return undefined;
+    }
+
+    const mainFilePath = moduleResult.type === "file" ? moduleResult.path : moduleResult.mainFile;
+    const moduleExports = await import(vscode.Uri.file(mainFilePath).toString());
+    if (moduleExports.$lib?.emitter?.options) {
+      return moduleExports.$lib.emitter.options;
+    }
+
+    logger.debug(`No emitter options schema found in ${packageName}`);
+    return undefined;
+  } catch (error) {
+    logger.debug(`Error extracting schema from ${packageName}:`, [error]);
+    return undefined;
+  }
+}
+
+export async function generateAnnotatedYamlFile(
+  configYaml: Document,
+  packageName: string,
+  baseDir: string,
+  defaultEmitKeys: string[] = [],
+): Promise<void> {
+  try {
+    const emitterOptions = await extractEmitterOptions(baseDir, packageName);
+    if (emitterOptions === undefined) {
+      logger.debug(`No emitter options found for ${packageName}, using basic configuration`);
+      return;
+    }
+    const configEntries = getConfigEntriesFromEmitterOptions(
+      emitterOptions,
+      configYaml.toString(),
+      defaultEmitKeys,
+    );
+    if (Object.keys(configEntries).length === 0) {
+      logger.debug(`No configuration entries found for ${packageName}`);
+      return;
+    }
+
+    for (const [propertyName, propertyConfig] of Object.entries(configEntries)) {
+      const { value, comment } = propertyConfig as { value: any; comment: string };
+      const key = `X*X${propertyName}`;
+
+      const keyScalar = configYaml.createNode(key);
+      const valueScalar = configYaml.createNode(value);
+      const parentMap = configYaml.getIn(["options", packageName], true);
+      if (parentMap && typeof parentMap === "object" && "items" in parentMap) {
+        const newPair = configYaml.createPair(keyScalar, valueScalar);
+        (parentMap as any).items.push(newPair);
+        if (comment && newPair.key) {
+          newPair.key.commentBefore = ` ${comment}`;
+        }
+      }
+    }
+  } catch (error) {
+    logger.error(`Error generating annotated yaml file content for ${packageName}:`, [error]);
+  }
 }
