@@ -41,7 +41,7 @@
   "license": "MIT",
   "description": "",
   "peerDependencies": {
-    "@alloy-js/core": "^0.18.0",
+    "@alloy-js/core": "^0.18.2",
     "@alloy-js/typescript": "^0.18.0",
     "@alloy-js/csharp": "^0.18.0",
     "@typespec/compiler": "workspace:^",
@@ -51,7 +51,7 @@
   "devDependencies": {
     "@alloy-js/cli": "^0.18.0",
     "@alloy-js/rollup-plugin": "^0.1.0",
-    "@alloy-js/core": "^0.18.0",
+    "@alloy-js/core": "^0.18.2",
     "@alloy-js/typescript": "^0.18.0",
     "@types/minimist": "^1.2.5",
     "@typespec/compiler": "workspace:^",
