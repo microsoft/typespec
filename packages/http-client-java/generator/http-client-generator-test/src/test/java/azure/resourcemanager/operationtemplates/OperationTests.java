@@ -24,13 +24,12 @@ import azure.resourcemanager.operationtemplates.models.WidgetProperties;
 import com.azure.core.http.HttpPipeline;
 import com.azure.core.management.Region;
 import com.azure.core.management.profile.AzureProfile;
+import com.azure.core.util.Context;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import com.azure.core.util.Context;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.utils.ArmUtils;
@@ -104,11 +103,13 @@ public class OperationTests {
         widget = manager.optionalBodies().patch(rgName, resourceName);
         Assertions.assertEquals("A test widget", widget.properties().description());
 
-
         ChangeAllowanceResult result = manager.optionalBodies().providerPost();
         Assertions.assertEquals(50, result.totalAllowed());
         Assertions.assertEquals("Changed to default allowance", result.status());
-        result = manager.optionalBodies().providerPostWithResponse(new ChangeAllowanceRequest().withReason("Increased demand").withTotalAllowed(100), Context.NONE).getValue();
+        result = manager.optionalBodies()
+            .providerPostWithResponse(new ChangeAllowanceRequest().withReason("Increased demand").withTotalAllowed(100),
+                Context.NONE)
+            .getValue();
         Assertions.assertEquals(100, result.totalAllowed());
         Assertions.assertEquals("Changed to requested allowance", result.status());
 
@@ -121,7 +122,10 @@ public class OperationTests {
         ActionResult actionResult = manager.optionalBodies().post(rgName, resourceName);
         Assertions.assertEquals("Action completed successfully", actionResult.result());
 
-        actionResult = manager.optionalBodies().postWithResponse(rgName, resourceName, new ActionRequest().withActionType("perform").withParameters("test-parameters"), Context.NONE).getValue();
+        actionResult = manager.optionalBodies()
+            .postWithResponse(rgName, resourceName,
+                new ActionRequest().withActionType("perform").withParameters("test-parameters"), Context.NONE)
+            .getValue();
         Assertions.assertEquals("Action completed successfully with parameters", actionResult.result());
     }
 
