@@ -1,0 +1,12 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "azure.clientgenerator.core.apiversion.path.PathAsyncClient": "Client.AlternateApiVersion.Service.Path",
+    "azure.clientgenerator.core.apiversion.path.PathAsyncClient.pathApiVersion": "Client.AlternateApiVersion.Service.Path.pathApiVersion",
+    "azure.clientgenerator.core.apiversion.path.PathAsyncClient.pathApiVersionWithResponse": "Client.AlternateApiVersion.Service.Path.pathApiVersion",
+    "azure.clientgenerator.core.apiversion.path.PathClient": "Client.AlternateApiVersion.Service.Path",
+    "azure.clientgenerator.core.apiversion.path.PathClient.pathApiVersion": "Client.AlternateApiVersion.Service.Path.pathApiVersion",
+    "azure.clientgenerator.core.apiversion.path.PathClient.pathApiVersionWithResponse": "Client.AlternateApiVersion.Service.Path.pathApiVersion",
+    "azure.clientgenerator.core.apiversion.path.PathClientBuilder": "Client.AlternateApiVersion.Service.Path"
+  }
+}

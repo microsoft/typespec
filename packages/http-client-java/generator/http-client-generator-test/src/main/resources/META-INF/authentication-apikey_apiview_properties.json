@@ -1,0 +1,16 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "authentication.apikey.ApiKeyAsyncClient": "Authentication.ApiKey",
+    "authentication.apikey.ApiKeyAsyncClient.invalid": "Authentication.ApiKey.invalid",
+    "authentication.apikey.ApiKeyAsyncClient.invalidWithResponse": "Authentication.ApiKey.invalid",
+    "authentication.apikey.ApiKeyAsyncClient.valid": "Authentication.ApiKey.valid",
+    "authentication.apikey.ApiKeyAsyncClient.validWithResponse": "Authentication.ApiKey.valid",
+    "authentication.apikey.ApiKeyClient": "Authentication.ApiKey",
+    "authentication.apikey.ApiKeyClient.invalid": "Authentication.ApiKey.invalid",
+    "authentication.apikey.ApiKeyClient.invalidWithResponse": "Authentication.ApiKey.invalid",
+    "authentication.apikey.ApiKeyClient.valid": "Authentication.ApiKey.valid",
+    "authentication.apikey.ApiKeyClient.validWithResponse": "Authentication.ApiKey.valid",
+    "authentication.apikey.ApiKeyClientBuilder": "Authentication.ApiKey"
+  }
+}
