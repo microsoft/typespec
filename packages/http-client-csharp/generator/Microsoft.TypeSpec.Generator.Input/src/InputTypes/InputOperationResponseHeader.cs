@@ -2,8 +2,19 @@
 // Licensed under the MIT License.
 
 namespace Microsoft.TypeSpec.Generator.Input
-{    public sealed class InputOperationResponseHeader
-    {        public InputOperationResponseHeader(string name, string nameInResponse, string? summary, string? doc, InputType type)
+{
+    /// <summary>
+    /// Represents an operation response header.
+    /// </summary>
+    public sealed class InputOperationResponseHeader
+    {
+        /// <summary>Creates an instance of <see cref="InputOperationResponseHeader"/>.</summary>
+        /// <param name="name">The name of the header.</param>
+        /// <param name="nameInResponse">The name of the header in the operation response.</param>
+        /// <param name="summary">The summary of the header.</param>
+        /// <param name="doc">The doc string of the header.</param>
+        /// <param name="type">The input type.</param>
+        public InputOperationResponseHeader(string name, string nameInResponse, string? summary, string? doc, InputType type)
         {
             Name = name;
             NameInResponse = nameInResponse;

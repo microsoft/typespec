@@ -64,7 +64,13 @@ namespace Microsoft.TypeSpec.Generator.Input
         public string? ArraySerializationDelimiter { get; }
         public string? HeaderCollectionPrefix { get; }
         public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; } = new List<InputDecoratorInfo>();
-        public string? ServerUrlTemplate { get; }        public void Update(InputParameterKind kind)
+        public string? ServerUrlTemplate { get; }
+
+        /// <summary>
+        /// Update the instance with given parameters.
+        /// </summary>
+        /// <param name="kind">The kind of the <see cref="InputParameter"/></param>
+        public void Update(InputParameterKind kind)
         {
             Kind = kind;
         }

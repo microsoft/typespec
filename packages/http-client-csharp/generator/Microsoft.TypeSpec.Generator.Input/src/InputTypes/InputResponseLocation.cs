@@ -2,7 +2,11 @@
 // Licensed under the MIT License.
 
 namespace Microsoft.TypeSpec.Generator.Input
-{    public enum InputResponseLocation
+{
+    /// <summary>
+    /// Represents the HTTP response location.
+    /// </summary>
+    public enum InputResponseLocation
     {
         None,
         Header,

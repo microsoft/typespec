@@ -4,35 +4,14 @@
 using System.Collections.Generic;
 
 namespace Microsoft.TypeSpec.Generator.Input
-{    /// <summary>
-    /// Represents nextlink information.
-    /// </summary>
-    /// <summary>
-
-    /// Gets the inputnextlink.
-
-    /// </summary>
-
+{
     public class InputNextLink
     {
-        /// <summary>
+        public InputOperation? Operation { get; }
+        public IReadOnlyList<string> ResponseSegments { get; }
+        public InputResponseLocation ResponseLocation { get; }
+        public IReadOnlyList<InputParameter>? ReInjectedParameters { get; }
 
-        /// Gets the operation.
-
-        /// </summary>
-
-        public InputOperation? Operation { get; }        /// <summary>
-        /// Gets the responsesegments.
-        /// </summary>
-        public IReadOnlyList<string> ResponseSegments { get; }        /// <summary>
-        /// Gets the responselocation.
-        /// </summary>
-        public InputResponseLocation ResponseLocation { get; }        /// <summary>
-        /// Gets the reinjectedparameters.
-        /// </summary>
-        public IReadOnlyList<InputParameter>? ReInjectedParameters { get; }        /// <summary>
-        /// Initializes a new instance of the <see cref="InputNextLink"/> class.
-        /// </summary>
         public InputNextLink(
             InputOperation? operation,
             IReadOnlyList<string> responseSegments,

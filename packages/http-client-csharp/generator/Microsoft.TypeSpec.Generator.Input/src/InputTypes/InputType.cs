@@ -4,8 +4,17 @@
 using System.Collections.Generic;
 
 namespace Microsoft.TypeSpec.Generator.Input
-{    public abstract class InputType
-    {        protected InputType(string name)
+{
+    /// <summary>
+    /// Represents an input type to the generator.
+    /// </summary>
+    public abstract class InputType
+    {
+        /// <summary>
+        /// Construct a new <see cref="InputType"/> instance
+        /// </summary>
+        /// <param name="name">The name of the input type.</param>
+        protected InputType(string name)
         {
             Name = name;
         }

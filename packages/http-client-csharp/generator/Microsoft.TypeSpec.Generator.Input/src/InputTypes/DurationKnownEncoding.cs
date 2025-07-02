@@ -2,7 +2,23 @@
 // Licensed under the MIT License.
 
 namespace Microsoft.TypeSpec.Generator.Input
-{    public enum DurationKnownEncoding
-    {        Iso8601,        Seconds,        Constant
+{
+    /// <summary>
+    /// Defines known encoding formats for duration values.
+    /// </summary>
+    public enum DurationKnownEncoding
+    {
+        /// <summary>
+        /// ISO 8601 duration format.
+        /// </summary>
+        Iso8601,
+        /// <summary>
+        /// Duration represented in seconds.
+        /// </summary>
+        Seconds,
+        /// <summary>
+        /// Constant duration value.
+        /// </summary>
+        Constant
     }
 }

@@ -5,7 +5,11 @@ using System;
 using System.Collections.Generic;
 
 namespace Microsoft.TypeSpec.Generator.Input
-{    public sealed class InputOperationResponse
+{
+    /// <summary>
+    /// Represents an operation response.
+    /// </summary>
+    public sealed class InputOperationResponse
     {
         public InputOperationResponse(IReadOnlyList<int> statusCodes, InputType? bodyType, IReadOnlyList<InputOperationResponseHeader> headers, bool isErrorResponse, IReadOnlyList<string> contentTypes)
         {

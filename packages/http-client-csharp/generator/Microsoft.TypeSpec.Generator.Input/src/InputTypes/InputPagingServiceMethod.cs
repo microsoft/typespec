@@ -4,19 +4,9 @@
 using System.Collections.Generic;
 
 namespace Microsoft.TypeSpec.Generator.Input
-{    /// <summary>
-    /// Represents pagingservicemethod information.
-    /// </summary>
-    /// <summary>
-
-    /// Gets the inputservicemethod.
-
-    /// </summary>
-
+{
     public class InputPagingServiceMethod : InputServiceMethod
-    {        /// <summary>
-        /// Initializes a new instance of the <see cref="InputPagingServiceMethod"/> class.
-        /// </summary>
+    {
         public InputPagingServiceMethod(
             string name,
             string? accessibility,
@@ -64,9 +54,8 @@ namespace Microsoft.TypeSpec.Generator.Input
            false,
            string.Empty,
            new InputPagingServiceMetadata())
-        { }        /// <summary>
-        /// Gets the pagingmetadata.
-        /// </summary>
+        { }
+
         public InputPagingServiceMetadata PagingMetadata { get; internal set; }
     }
 }
