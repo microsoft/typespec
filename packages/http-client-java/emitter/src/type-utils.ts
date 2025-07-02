@@ -346,6 +346,12 @@ export function isArmCommonType(entity: Type): boolean {
   return false;
 }
 
+/**
+ * Get the serialized name of a property, based on either JSON, or XML, or Multipart.
+ *
+ * @param property the model property.
+ * @returns the serialized name of the property.
+ */
 export function getPropertySerializedName(property: SdkBodyModelPropertyType): string {
   // still fallback to "property.name", as for orphan model, serializationOptions.json is undefined
   return (
@@ -357,6 +363,12 @@ export function getPropertySerializedName(property: SdkBodyModelPropertyType): s
   );
 }
 
+/**
+ * Get the XML serialization format for a type or property.
+ *
+ * @param type the type or model property.
+ * @returns the XML serialization format, or undefined if not applicable.
+ */
 export function getXmlSerializationFormat(
   type: SdkModelType | SdkBodyModelPropertyType,
 ): XmlSerializationFormat | undefined {

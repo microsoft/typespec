@@ -109,9 +109,9 @@ import {
   Client as CodeModelClient,
   EncodedSchema,
   PageableContinuationToken,
+  Serializable,
 } from "./common/client.js";
 import { CodeModel } from "./common/code-model.js";
-import { XmlSerializationFormat } from "./common/formats/xml.js";
 import { LongRunningMetadata } from "./common/long-running-metadata.js";
 import { Operation as CodeModelOperation, ConvenienceApi, Request } from "./common/operation.js";
 import { ChoiceSchema, SealedChoiceSchema } from "./common/schemas/choice.js";
@@ -2776,11 +2776,7 @@ export class CodeModelBuilder {
 
       // "serialization" is set to the property in TypeSpec emitter, not in the schema
       // this avoid duplicate schema, when different property has different serialization options, but refers to the same schema
-      const propertyWithSerialization = property as Property & {
-        serialization?: {
-          xml?: XmlSerializationFormat;
-        };
-      };
+      const propertyWithSerialization = property as Serializable;
       propertyWithSerialization.serialization = propertyWithSerialization.serialization ?? {};
       propertyWithSerialization.serialization.xml = getXmlSerializationFormat(prop);
     }
