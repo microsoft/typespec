@@ -5,7 +5,7 @@ import {
 } from "@typespec/emitter-framework/testing";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
-import { HttpClientJavascriptEmitterTestLibrary } from "../src/testing/index.js";
+import { Tester } from "./test-host.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -18,7 +18,7 @@ const scenarioPath = join(__dirname, "scenarios");
 const outputPath = join("tsp-output", "@typespec", "http-client-js");
 
 await executeScenarios(
-  HttpClientJavascriptEmitterTestLibrary,
+  Tester.importLibraries().using("Http", "Rest"),
   tsExtractorConfig,
   scenarioPath,
   outputPath,

@@ -26,16 +26,14 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/src/index.d.ts",
-      "default": "./dist/src/index.js"
+      "typespec": "./dist/src/index.js",
+      "import": "./dist/src/index.js"
     },
     "./testing": {
-      "types": "./dist/src/testing/index.d.ts",
-      "default": "./dist/src/testing/index.js"
+      "import": "./dist/src/testing/index.js"
     },
     "./components": {
-      "types": "./dist/src/components/index.d.ts",
-      "default": "./dist/src/components/index.js"
+      "import": "./dist/src/components/index.js"
     }
   },
   "keywords": [

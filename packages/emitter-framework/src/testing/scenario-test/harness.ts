@@ -1,12 +1,11 @@
 import { normalizePath } from "@typespec/compiler";
-import type { TypeSpecTestLibrary } from "@typespec/compiler/testing";
+import type { EmitterTester } from "@typespec/compiler/testing";
 import { readdirSync, readFileSync, statSync, writeFileSync } from "fs";
 import minimist from "minimist";
 import path from "path";
 import { format } from "prettier";
 import { afterAll, describe, expect, it } from "vitest";
 import type { LanguageConfiguration, SnippetExtractor } from "./snippet-extractor.js";
-import { emitWithDiagnostics } from "./test-host.js";
 
 const rawArgs = process.env.TEST_ARGS ? process.env.TEST_ARGS.split(" ") : [];
 
@@ -32,18 +31,8 @@ const SCENARIOS_UPDATE =
 
 type EmitterFunction = (tsp: string, namedArgs: Record<string, string>) => Promise<string>;
 
-async function assertGetEmittedFile(
-  testLibrary: TypeSpecTestLibrary,
-  emitterOutputDir: string,
-  file: string,
-  code: string,
-) {
-  const [emittedFiles, diagnostics] = await emitWithDiagnostics(
-    testLibrary,
-    emitterOutputDir,
-    code,
-  );
-
+async function assertGetEmittedFile(tester: EmitterTester, file: string, code: string) {
+  const [{ outputs }, diagnostics] = await tester.compileAndDiagnose(code);
   const errors = diagnostics.filter((d) => d.severity === "error");
   const warnings = diagnostics.filter((d) => d.severity === "warning");
   if (warnings.length > 0) {
@@ -55,11 +44,11 @@ async function assertGetEmittedFile(
   }
 
   const normalizedTarget = normalizePath(file);
-  const sourceFile = emittedFiles.find((x) => normalizePath(x.path) === normalizedTarget);
+  const sourceFile = outputs[normalizedTarget];
 
   if (!sourceFile) {
     throw new Error(
-      `File ${file} not found in emitted files:\n ${emittedFiles.map((f) => f.path).join("\n")}`,
+      `File ${file} not found in emitted files:\n ${Object.keys(outputs).join("\n")}`,
     );
   }
   return sourceFile;
@@ -70,7 +59,7 @@ async function assertGetEmittedFile(
  * Snapshot types can take single-word string arguments templated in curly braces {} and are otherwise regex
  */
 function getCodeBlockTypes(
-  testLibrary: TypeSpecTestLibrary,
+  tester: EmitterTester,
   languageConfiguration: LanguageConfiguration,
   emitterOutputDir: string,
   snippetExtractor: SnippetExtractor,
@@ -79,8 +68,8 @@ function getCodeBlockTypes(
   return {
     // Snapshot of a particular interface named {name} in the models file
     [`(${languageTags}) {file} interface {name}`]: async (code, { file, name }) => {
-      const sourceFile = await assertGetEmittedFile(testLibrary, emitterOutputDir, file, code);
-      const snippet = snippetExtractor.getInterface(sourceFile.content, name);
+      const sourceFile = await assertGetEmittedFile(tester, file, code);
+      const snippet = snippetExtractor.getInterface(sourceFile, name);
 
       if (!snippet) {
         throw new Error(`Interface ${name} not found in ${file}`);
@@ -90,8 +79,8 @@ function getCodeBlockTypes(
     },
 
     [`(${languageTags}) {file} type {name}`]: async (code, { file, name }) => {
-      const sourceFile = await assertGetEmittedFile(testLibrary, emitterOutputDir, file, code);
-      const snippet = snippetExtractor.getTypeAlias(sourceFile.content, name);
+      const sourceFile = await assertGetEmittedFile(tester, file, code);
+      const snippet = snippetExtractor.getTypeAlias(sourceFile, name);
 
       if (!snippet) {
         throw new Error(`Type alias ${name} not found in ${file}`);
@@ -102,8 +91,8 @@ function getCodeBlockTypes(
 
     // Snapshot of a particular function named {name} in the models file
     [`(${languageTags}) {file} function {name}`]: async (code, { file, name }) => {
-      const sourceFile = await assertGetEmittedFile(testLibrary, emitterOutputDir, file, code);
-      const snippet = snippetExtractor.getFunction(sourceFile.content, name);
+      const sourceFile = await assertGetEmittedFile(tester, file, code);
+      const snippet = snippetExtractor.getFunction(sourceFile, name);
 
       if (!snippet) {
         throw new Error(`Function ${name} not found in ${file}`);
@@ -114,8 +103,8 @@ function getCodeBlockTypes(
 
     // Snapshot of a particular class named {name} in the models file
     [`(${languageTags}) {file} class {name}`]: async (code, { file, name }) => {
-      const sourceFile = await assertGetEmittedFile(testLibrary, emitterOutputDir, file, code);
-      const snippet = snippetExtractor.getClass(sourceFile.content, name);
+      const sourceFile = await assertGetEmittedFile(tester, file, code);
+      const snippet = snippetExtractor.getClass(sourceFile, name);
 
       if (!snippet) {
         throw new Error(`Class ${name} not found in ${file}`);
@@ -126,14 +115,14 @@ function getCodeBlockTypes(
 
     // Snapshot of the entire file
     [`(${languageTags}) {file}`]: async (code, { file }) => {
-      const sourceFile = await assertGetEmittedFile(testLibrary, emitterOutputDir, file, code);
-      return sourceFile.content;
+      const sourceFile = await assertGetEmittedFile(tester, file, code);
+      return sourceFile;
     },
   };
 }
 
 export async function executeScenarios(
-  testLibrary: TypeSpecTestLibrary,
+  tester: EmitterTester,
   languageConfiguration: LanguageConfiguration,
   scenariosLocation: string,
   emitterOutputDir: string,
@@ -150,7 +139,7 @@ export async function executeScenarios(
 
   describeScenarios(
     scenarioList,
-    testLibrary,
+    tester,
     languageConfiguration,
     emitterOutputDir,
     snippetExtractor,
@@ -210,7 +199,7 @@ interface ScenarioFile {
 
 function parseFile(
   path: string,
-  testLibrary: TypeSpecTestLibrary,
+  tester: EmitterTester,
   languageConfiguration: LanguageConfiguration,
   emitterOutputDir: string,
   snippetExtractor: SnippetExtractor,
@@ -229,7 +218,7 @@ function parseFile(
   for (const section of sections) {
     const scenarioContent = parseScenario(
       section.content,
-      testLibrary,
+      tester,
       languageConfiguration,
       emitterOutputDir,
       snippetExtractor,
@@ -251,7 +240,7 @@ function isTestCodeBlock(codeBlock: ScenarioCodeBlock): codeBlock is TestCodeBlo
 
 function parseScenario(
   content: string,
-  testLibrary: TypeSpecTestLibrary,
+  tester: EmitterTester,
   languageConfiguration: LanguageConfiguration,
   emitterOutputDir: string,
   snippetExtractor: SnippetExtractor,
@@ -267,7 +256,7 @@ function parseScenario(
 
   // Precompute output code block types once
   const outputCodeBlockTypes = getCodeBlockTypes(
-    testLibrary,
+    tester,
     languageConfiguration,
     emitterOutputDir,
     snippetExtractor,
@@ -316,13 +305,13 @@ function parseScenario(
 
 function describeScenarios(
   scenarioFiles: string[],
-  testLibrary: TypeSpecTestLibrary,
+  tester: EmitterTester,
   languageConfiguration: LanguageConfiguration,
   emitterOutputDir: string,
   snippetExtractor: SnippetExtractor,
 ) {
   const scenarios = scenarioFiles.map((f) =>
-    parseFile(f, testLibrary, languageConfiguration, emitterOutputDir, snippetExtractor),
+    parseFile(f, tester, languageConfiguration, emitterOutputDir, snippetExtractor),
   );
 
   for (const scenarioFile of scenarios) {

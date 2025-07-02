@@ -63,7 +63,9 @@ async function createTesterFs(base: string, options: TesterOptions) {
   const sl = await createSourceLoader(host);
   const selfName = JSON.parse(await readFile(resolvePath(base, "package.json"), "utf8")).name;
   for (const lib of options.libraries) {
+    console.log("LOAding", lib);
     await sl.importPath(lib, NoTarget, base);
+    console.log("LOAding2", lib, sl.resolution.diagnostics);
 
     const resolved = await resolveModule(
       {
