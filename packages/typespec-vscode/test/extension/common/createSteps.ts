@@ -1,5 +1,6 @@
 import { Page } from "playwright"
 import { retry } from "./utils"
+import { fileURLToPath } from "node:url";
 import path from "node:path"
 
 /**
@@ -24,7 +25,7 @@ async function selectEmitters(page: Page, emitters?: string[]) {
     async () => {
       checks = await Promise.all(
         emittersConfig.map(async (emitter, index) => {
-          const nameLocator = page.locator("a").filter({ hasText: emitter.name });
+          const nameLocator = page.getByRole('checkbox', { name: emitter.name }).locator("a").filter({ hasText: emitter.name });
           const nameExists = await nameLocator.count() > 0;
 
           const nameBoxLocator = page.getByRole("checkbox", { name: `${emitter.name}, @`})
@@ -51,6 +52,7 @@ async function selectEmitters(page: Page, emitters?: string[]) {
     "Failed to find the selectEmitter box."
   );
   await page.getByRole("checkbox", { name: "Toggle all checkboxes" }).check()
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
   await page.screenshot({ path: path.resolve(__dirname, "../../images-linux/select_emitter.png") })
   await page.keyboard.press("Enter")
 }
@@ -68,7 +70,7 @@ async function selectTemplate(page: Page, templateName: string, templateNameDesc
     page,
     3,
     async () => {
-      templateListName = page.locator("a").filter({ hasText: templateName })
+      templateListName = page.getByRole('option', { name: templateName }).filter({ hasText: templateName })
       return (await templateListName.count() > 0)
     },
     `Failed to find the following template: "${templateName}".`
@@ -115,6 +117,7 @@ async function inputProjectName(page: Page) {
     },
     "Failed to find the project name input box."
   )
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
   await page.screenshot({ path: path.resolve(__dirname, "../../images-linux/input_project_name.png") })
   await page.keyboard.press("Enter")
 }
@@ -142,6 +145,7 @@ async function inputServiceNameSpace(page: Page) {
     },
     "Failed to find the service namespace input box."
   )
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
   await page.screenshot({ path: path.resolve(__dirname, "../../images-linux/input_service_namespace.png") })
   await page.keyboard.press("Enter")
 }
@@ -169,6 +173,7 @@ async function inputARMResourceProviderName(page: Page) {
     },
     "Failed to find the ARM Resource Provider name input box."
   )
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
   await page.screenshot({ path: path.resolve(__dirname, "../../images-linux/input_ARM_Resource_name.png") })
   await page.keyboard.press("Enter")
 }
@@ -178,6 +183,7 @@ async function inputARMResourceProviderName(page: Page) {
  */
 
 async function startWithClick(page: Page) {
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
   await page.screenshot({ path: path.resolve(__dirname, "../../images-linux/start_with_click.png") })
   await page.screenshot({ path: path.resolve(__dirname, "../../images-linux/open_tabs.png") })
   await page.getByRole("button", { name: "Create TypeSpec Project" }).click()

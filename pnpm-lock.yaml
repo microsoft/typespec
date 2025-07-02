@@ -2290,15 +2290,9 @@ importers:
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
-      '@typespec/http':
-        specifier: workspace:^
-        version: link:../http
       '@typespec/internal-build-utils':
         specifier: workspace:^
         version: link:../internal-build-utils
-      '@typespec/openapi3':
-        specifier: workspace:^
-        version: link:../openapi3
       '@vitest/coverage-v8':
         specifier: ^3.1.2
         version: 3.2.4(vitest@3.2.4)

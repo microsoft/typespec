@@ -12,6 +12,8 @@ type CreateConfigType = {
   expectedResults: string[]
 }
 
+const CreateTypespecProjectFolder = "CreateTypespecProject"
+
 const createCase = "CreateTypespecProject"
 let templateName = "Generic Rest API"
 let templateNameDesctiption = "Create a project representing a generic REST API service."
@@ -35,4 +37,4 @@ const CreateCasesConfigList: CreateConfigType[] = [
   },
 ]
 
-export { CreateCasesConfigList, CreateProjectTriggerType}
+export { CreateCasesConfigList, CreateTypespecProjectFolder, CreateProjectTriggerType}

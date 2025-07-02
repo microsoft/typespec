@@ -1,4 +1,5 @@
 import { Page, _electron } from "playwright"
+import { fileURLToPath } from "node:url";
 import fs from "node:fs"
 import os from "node:os"
 import path, { resolve } from "node:path"
@@ -113,6 +114,7 @@ async function retry(
     }
     count--
   }
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
   await page.screenshot({ path: path.resolve(__dirname, "../../images-linux/error.png") })
   await closeVscode()
   throw new Error(errMessage)
