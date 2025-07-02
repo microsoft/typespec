@@ -85,7 +85,7 @@ azure-mgmt-core==1.5.0
 -e ./generated/payload-media-type
 -e ./generated/payload-xml
 -e ./generated/routes
-.e ./generated/response-status-code-range
+-e ./generated/response-status-code-range
 -e ./generated/versioning-added
 -e ./generated/versioning-madeoptional
 -e ./generated/versioning-removed
