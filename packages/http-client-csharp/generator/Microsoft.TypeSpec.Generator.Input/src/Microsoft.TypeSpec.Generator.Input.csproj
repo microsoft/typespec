@@ -4,7 +4,8 @@
     <PackageId>Microsoft.TypeSpec.Generator.Input</PackageId>
     <Version>1.0.0-beta.1</Version>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-
+    <!-- Temporarily suppress malformed XML warnings while working on other libraries -->
+    <NoWarn>$(NoWarn);CS1570;CS1591;CS1587</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

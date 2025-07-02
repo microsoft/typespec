@@ -21,7 +21,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         /// Gets the parameter.
         /// </summary>
         public InputParameter Parameter { get; }
-        
+
         /// <summary>
         /// Gets the examplevalue.
         /// </summary>
