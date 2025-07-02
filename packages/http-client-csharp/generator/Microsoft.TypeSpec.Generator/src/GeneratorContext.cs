@@ -3,8 +3,14 @@
 
 namespace Microsoft.TypeSpec.Generator
 {
+    /// <summary>
+    /// Provides context information for code generation operations.
+    /// </summary>
     public class GeneratorContext
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeneratorContext"/> class for mocking purposes.
+        /// </summary>
         /// <summary>
         /// For mocking.
         /// </summary>

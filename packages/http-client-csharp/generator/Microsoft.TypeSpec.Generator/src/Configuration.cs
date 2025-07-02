@@ -84,6 +84,9 @@ namespace Microsoft.TypeSpec.Generator
         private string? _testGeneratedDirectory;
         internal string TestGeneratedDirectory => _testGeneratedDirectory ??= Path.Combine(TestProjectDirectory, GeneratedFolderName);
 
+        /// <summary>
+        /// Gets the package name for the generated library.
+        /// </summary>
         public string PackageName { get; }
 
         /// <summary>
@@ -210,6 +213,11 @@ namespace Microsoft.TypeSpec.Generator
             return (T)GetDefaultEnumOptionValue(option)!;
         }
 
+        /// <summary>
+        /// Gets the default value for the specified enum configuration option.
+        /// </summary>
+        /// <param name="option">The option name.</param>
+        /// <returns>The default enum value for the option.</returns>
         public static Enum? GetDefaultEnumOptionValue(string option) => option switch
         {
             Options.UnreferencedTypesHandling => UnreferencedTypesHandlingOption.RemoveOrInternalize,
