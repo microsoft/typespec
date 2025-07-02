@@ -47,7 +47,11 @@ async def test_check_name_availability_check_local(client):
 @pytest.mark.asyncio
 async def test_operations_list(client):
     result = client.operations.list()
-    assert result
+    async for operation in result:
+        assert operation.name == "Microsoft.Compute/virtualMachines/write"
+        assert operation.display.operation == "Create or Update Virtual Machine."
+        assert operation.origin == "user,system"
+        assert operation.action_type == "Internal"
 
 
 @pytest.mark.asyncio
