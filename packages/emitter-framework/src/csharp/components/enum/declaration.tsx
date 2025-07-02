@@ -1,10 +1,10 @@
+import { useTsp } from "#core/context/tsp-context.js";
 import { type Children, For } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
 import type { Enum, Union } from "@typespec/compiler";
-import { useTsp } from "../../core/index.js";
-import { reportDiagnostic } from "../../lib.js";
-import { getDocComments } from "./utils/doc-comments.jsx";
-import { declarationRefkeys, efRefkey } from "./utils/refkey.js";
+import { reportDiagnostic } from "../../../lib.js";
+import { getDocComments } from "../utils/doc-comments.jsx";
+import { declarationRefkeys, efRefkey } from "../utils/refkey.js";
 
 export interface EnumDeclarationProps extends Omit<cs.EnumDeclarationProps, "name"> {
   name?: string;
