@@ -42,10 +42,11 @@ npm run build
 
 ### 4. Verify Installation
 
-After building, you can verify everything is working correctly by running the tests:
+After building, you can verify everything is working correctly by running:
 
 ```bash
-npm test
+npm run regenerate
+npm run ci
 ```
 
 ## Development Workflow
@@ -53,6 +54,7 @@ npm test
 ### Making Changes
 
 1. **Create a feature branch** from the main branch:
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
@@ -60,24 +62,26 @@ npm test
 2. **Make your changes** to the codebase
 
 3. **Build and test** your changes:
+
    ```bash
    npm run build
-   npm test
+   npm run regenerate
+   npm run ci
    ```
 
 4. **Add a changeset** (required for all changes):
+
    ```bash
    # Navigate to the root of the TypeSpec repository
    cd ../../
    pnpm changeset add
    ```
-   
+
    Follow the prompts to describe your changes. This helps with automated changelog generation and versioning.
 
 ### Code Style and Linting
 
 - Run linting: `npm run lint`
-- Fix linting issues: `npm run lint:fix`
 - Format code: `npm run format`
 
 ## Creating Pull Requests
@@ -86,8 +90,9 @@ npm test
 
 Before creating a pull request:
 
-- [ ] Ensure all tests pass: `npm test`
+- [ ] Ensure all tests pass: `npm run regenerate && npm run ci`
 - [ ] Ensure code is properly formatted: `npm run format`
+- [ ] Ensure code is properly linted: `npm run lint`
 - [ ] Add a changeset: `pnpm changeset add` (from repo root)
 - [ ] Update documentation if needed
 
@@ -107,16 +112,19 @@ Due to the integration with `@azure-tools/typespec-python`, we require downstrea
 After your PR is created and CI passes:
 
 1. **Get the build artifact URL**:
+
    - In your PR's CI results, click on "5 published; 1 consumed" (or similar)
    - Navigate to: `Published artifacts` → `build_artifacts_python` → `packages` → `typespec-http-client-python-x.x.x.tgz`
    - Click the three dots and select "Copy download url"
 
 2. **Trigger downstream testing**:
+
    - Run [this pipeline](https://dev.azure.com/azure-sdk/internal/_build/results?buildId=4278466&view=results) with:
      - `PULL-REQUEST-URL`: Your PR URL from step 1
      - `ARTIFACTS-URL`: The artifact URL from step 1
 
 3. **Review downstream changes**:
+
    - The pipeline will create a PR in [autorest.python](https://github.com/Azure/autorest.python)
    - Follow the [autorest.python CONTRIBUTING.md](https://github.com/Azure/autorest.python/blob/main/CONTRIBUTING.md) for any additional changes needed
 
