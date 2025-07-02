@@ -2,17 +2,8 @@
 // Licensed under the MIT License.
 
 namespace Microsoft.TypeSpec.Generator.Input
-{
-    /// <summary>
-    /// Represents an input dictionary type.
-    /// </summary>
-    public sealed class InputDictionaryType : InputType
-    {
-        /// <summary>Creates an instance of <see cref="InputDictionaryType"/>.</summary>
-        /// <param name="name">The name of the dictionary.</param>
-        /// <param name="keyType">The key's <see cref="InputType"/>.</param>
-        /// <param name="valueType">The value's <see cref="InputType"/>.</param>
-        public InputDictionaryType(string name, InputType keyType, InputType valueType) : base(name)
+{    public sealed class InputDictionaryType : InputType
+    {        public InputDictionaryType(string name, InputType keyType, InputType valueType) : base(name)
         {
             KeyType = keyType;
             ValueType = valueType;

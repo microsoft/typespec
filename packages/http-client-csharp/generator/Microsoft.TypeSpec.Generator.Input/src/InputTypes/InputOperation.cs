@@ -5,12 +5,19 @@ using System;
 using System.Collections.Generic;
 
 namespace Microsoft.TypeSpec.Generator.Input
-{
-    /// <summary>
-    /// Represents an input operation.
+{    /// <summary>
+    /// Represents operation information.
     /// </summary>
+    /// <summary>
+
+    /// Gets the inputoperation.
+
+    /// </summary>
+
     public class InputOperation
-    {
+    {        /// <summary>
+        /// Initializes a new instance of the <see cref="InputOperation"/> class.
+        /// </summary>
         public InputOperation(
             string name,
             string? resourceName,
@@ -47,8 +54,9 @@ namespace Microsoft.TypeSpec.Generator.Input
             GenerateProtocolMethod = generateProtocolMethod;
             GenerateConvenienceMethod = generateConvenienceMethod;
             CrossLanguageDefinitionId = crossLanguageDefinitionId;
-        }
-
+        }        /// <summary>
+        /// Initializes a new instance of the <see cref="InputOperation"/> class.
+        /// </summary>
         public InputOperation() : this(
             name: string.Empty,
             resourceName: null,
@@ -67,25 +75,60 @@ namespace Microsoft.TypeSpec.Generator.Input
             generateProtocolMethod: true,
             generateConvenienceMethod: false,
             crossLanguageDefinitionId: string.Empty)
-        { }
-
-        public string Name { get; internal set; }
-        public string? ResourceName { get; internal set; }
-        public string? Summary { get; internal set; }
-        public string? Doc { get; internal set; }
-        public string? Deprecated { get; internal set; }
-        public string? Accessibility { get; internal set; }
-        public IReadOnlyList<InputParameter> Parameters { get; internal set; }
-        public IReadOnlyList<InputOperationResponse> Responses { get; internal set; }
-        public string HttpMethod { get; internal set; }
-        public string Uri { get; internal set; }
-        public string Path { get; internal set; }
-        public string? ExternalDocsUrl { get; internal set; }
-        public IReadOnlyList<string>? RequestMediaTypes { get; internal set; }
-        public bool BufferResponse { get; internal set; }
-        public bool GenerateProtocolMethod { get; internal set; }
-        public bool GenerateConvenienceMethod { get; internal set; }
-        public string CrossLanguageDefinitionId { get; internal set; }
+        { }        /// <summary>
+        /// Gets the  name.
+        /// </summary>
+        public string Name { get; internal set; }        /// <summary>
+        /// Gets the resourc name.
+        /// </summary>
+        public string? ResourceName { get; internal set; }        /// <summary>
+        /// Gets the summary.
+        /// </summary>
+        public string? Summary { get; internal set; }        /// <summary>
+        /// Gets the doc.
+        /// </summary>
+        public string? Doc { get; internal set; }        /// <summary>
+        /// Gets the deprecated.
+        /// </summary>
+        public string? Deprecated { get; internal set; }        /// <summary>
+        /// Gets the accessibility.
+        /// </summary>
+        public string? Accessibility { get; internal set; }        /// <summary>
+        /// Gets the parameters.
+        /// </summary>
+        public IReadOnlyList<InputParameter> Parameters { get; internal set; }        /// <summary>
+        /// Gets the responses.
+        /// </summary>
+        public IReadOnlyList<InputOperationResponse> Responses { get; internal set; }        /// <summary>
+        /// Gets the httpmethod.
+        /// </summary>
+        public string HttpMethod { get; internal set; }        /// <summary>
+        /// Gets the uri.
+        /// </summary>
+        public string Uri { get; internal set; }        /// <summary>
+        /// Gets the path.
+        /// </summary>
+        public string Path { get; internal set; }        /// <summary>
+        /// Gets the externaldocsurl.
+        /// </summary>
+        public string? ExternalDocsUrl { get; internal set; }        /// <summary>
+        /// Gets the requestmediatypes.
+        /// </summary>
+        public IReadOnlyList<string>? RequestMediaTypes { get; internal set; }        /// <summary>
+        /// Gets the bufferresponse.
+        /// </summary>
+        public bool BufferResponse { get; internal set; }        /// <summary>
+        /// Gets the generateprotocolmethod.
+        /// </summary>
+        public bool GenerateProtocolMethod { get; internal set; }        /// <summary>
+        /// Gets the generateconveniencemethod.
+        /// </summary>
+        public bool GenerateConvenienceMethod { get; internal set; }        /// <summary>
+        /// Gets the crosslanguagedefinitio identifier.
+        /// </summary>
+        public string CrossLanguageDefinitionId { get; internal set; }        /// <summary>
+        /// Gets the decorators.
+        /// </summary>
         public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; } = new List<InputDecoratorInfo>();
 
         private IReadOnlyDictionary<string, InputOperationExample>? _examples;

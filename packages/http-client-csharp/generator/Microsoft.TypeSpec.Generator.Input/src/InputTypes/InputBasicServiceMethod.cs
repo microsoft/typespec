@@ -5,9 +5,19 @@ using System;
 using System.Collections.Generic;
 
 namespace Microsoft.TypeSpec.Generator.Input
-{
+{    /// <summary>
+    /// Represents basicservicemethod information.
+    /// </summary>
+    /// <summary>
+
+    /// Gets the inputservicemethod.
+
+    /// </summary>
+
     public class InputBasicServiceMethod : InputServiceMethod
-    {
+    {        /// <summary>
+        /// Initializes a new instance of the <see cref="InputBasicServiceMethod"/> class.
+        /// </summary>
         public InputBasicServiceMethod(
             string name,
             string? accessibility,

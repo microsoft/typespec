@@ -18,12 +18,7 @@ namespace Microsoft.TypeSpec.Generator.Input
 
         public int FinalStateVia { get; }
         public InputOperationResponse FinalResponse { get; }
-        public string? ResultPath { get; }
-
-        /// <summary>
-        /// Meaningful return type of the long running operation.
-        /// </summary>
-        public InputType? ReturnType
+        public string? ResultPath { get; }        public InputType? ReturnType
         {
             get
             {

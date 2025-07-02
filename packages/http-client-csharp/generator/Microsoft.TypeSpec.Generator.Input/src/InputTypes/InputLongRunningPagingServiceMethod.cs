@@ -4,9 +4,19 @@
 using System.Collections.Generic;
 
 namespace Microsoft.TypeSpec.Generator.Input
-{
+{    /// <summary>
+    /// Represents longrunningpagingservicemethod information.
+    /// </summary>
+    /// <summary>
+
+    /// Gets the inputservicemethod.
+
+    /// </summary>
+
     public class InputLongRunningPagingServiceMethod : InputServiceMethod
-    {
+    {        /// <summary>
+        /// Initializes a new instance of the <see cref="InputLongRunningPagingServiceMethod"/> class.
+        /// </summary>
         public InputLongRunningPagingServiceMethod(
             string name,
             string? accessibility,
@@ -57,9 +67,12 @@ namespace Microsoft.TypeSpec.Generator.Input
            string.Empty,
            new InputLongRunningServiceMetadata(),
            new InputPagingServiceMetadata())
-        { }
-
-        public InputLongRunningServiceMetadata LongRunningServiceMetadata { get; internal set; }
+        { }        /// <summary>
+        /// Gets the longrunningservicemetadata.
+        /// </summary>
+        public InputLongRunningServiceMetadata LongRunningServiceMetadata { get; internal set; }        /// <summary>
+        /// Gets the pagingmetadata.
+        /// </summary>
         public InputPagingServiceMetadata PagingMetadata { get; internal set; }
     }
 }
