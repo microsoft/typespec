@@ -1,4 +1,4 @@
-import * as ay from "@alloy-js/core";
+import { List } from "@alloy-js/core";
 import * as md from "@alloy-js/markdown";
 import * as ts from "@alloy-js/typescript";
 import { Excerpt, ExcerptToken } from "@microsoft/api-extractor-model";
@@ -36,11 +36,11 @@ export function DiagnosableTypekitFunction(props: DiagnosableTypekitFunctionProp
   return (
     <md.Section heading={`${props.typekit.name} <Badge variant="note" text="Diagnosable" />`}>
       <md.Code lang="ts">
-        <ay.List>
+        <List>
           {props.typekit.docComment?.emitAsTsdoc().trimEnd()}
           {fnSig}
           {fnDiagSig}
-        </ay.List>
+        </List>
       </md.Code>
     </md.Section>
   );

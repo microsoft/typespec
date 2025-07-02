@@ -1,7 +1,7 @@
-import { Children, code } from "@alloy-js/core";
+import { type Children, code } from "@alloy-js/core";
 import { Reference } from "@alloy-js/csharp";
-import { getTypeName, IntrinsicType, Scalar, Type } from "@typespec/compiler";
-import { Typekit } from "@typespec/compiler/typekit";
+import { getTypeName, type IntrinsicType, type Scalar, type Type } from "@typespec/compiler";
+import type { Typekit } from "@typespec/compiler/typekit";
 import { useTsp } from "../../core/index.js";
 import { reportTypescriptDiagnostic } from "../../typescript/lib.js";
 import { efRefkey } from "./utils/refkey.js";

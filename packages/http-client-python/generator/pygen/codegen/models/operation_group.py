@@ -40,7 +40,7 @@ class OperationGroup(BaseModel):
         self.operations = operations
         self.api_versions = api_versions
         self.operation_groups: List[OperationGroup] = []
-        if self.code_model.options["show_operations"]:
+        if self.code_model.options["show-operations"]:
             self.operation_groups = [
                 OperationGroup.from_yaml(op_group, code_model, client)
                 for op_group in self.yaml_data.get("operationGroups", [])
@@ -78,7 +78,7 @@ class OperationGroup(BaseModel):
         for operation in self.operations:
             file_import.merge(operation.imports_for_multiapi(async_mode, **kwargs))
         if (self.code_model.model_types or self.code_model.enums) and self.code_model.options[
-            "models_mode"
+            "models-mode"
         ] == "msrest":
             file_import.add_submodule_import(relative_path, "models", ImportType.LOCAL, alias="_models")
         return file_import
@@ -110,7 +110,7 @@ class OperationGroup(BaseModel):
 
         for operation in self.operations:
             file_import.merge(operation.imports(async_mode, **kwargs))
-        if not self.code_model.options["combine_operation_files"]:
+        if not self.code_model.options["combine-operation-files"]:
             for og in self.operation_groups:
                 file_import.add_submodule_import(
                     self.code_model.get_relative_import_path(
@@ -138,7 +138,7 @@ class OperationGroup(BaseModel):
         # for multiapi
         if (
             (self.code_model.public_model_types)
-            and self.code_model.options["models_mode"] == "msrest"
+            and self.code_model.options["models-mode"] == "msrest"
             and not self.is_mixin
         ):
             file_import.add_submodule_import(

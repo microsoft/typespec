@@ -1,8 +1,8 @@
 import { render } from "@alloy-js/core";
 import { d } from "@alloy-js/core/testing";
 import { SourceFile } from "@alloy-js/typescript";
-import { Enum, Model, Union } from "@typespec/compiler";
-import { BasicTestRunner } from "@typespec/compiler/testing";
+import type { Enum, Model, Union } from "@typespec/compiler";
+import type { BasicTestRunner } from "@typespec/compiler/testing";
 import { beforeEach, describe, it } from "vitest";
 import { Output } from "../../../src/core/components/output.jsx";
 import { UnionDeclaration } from "../../../src/typescript/components/union-declaration.js";

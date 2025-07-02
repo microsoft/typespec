@@ -1,8 +1,8 @@
 import { Tester } from "#test/test-host.js";
-import { Children, render } from "@alloy-js/core";
+import { type Children, render } from "@alloy-js/core";
 import { d } from "@alloy-js/core/testing";
 import { createCSharpNamePolicy, Namespace, SourceFile } from "@alloy-js/csharp";
-import { t, TesterInstance } from "@typespec/compiler/testing";
+import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, it } from "vitest";
 import { assertFileContents } from "../../../../test/csharp/utils.js";
 import { Output } from "../../../core/index.js";

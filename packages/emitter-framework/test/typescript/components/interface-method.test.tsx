@@ -1,8 +1,8 @@
 import { render } from "@alloy-js/core";
 import { d } from "@alloy-js/core/testing";
 import { InterfaceDeclaration, SourceFile } from "@alloy-js/typescript";
-import { Operation } from "@typespec/compiler";
-import { BasicTestRunner } from "@typespec/compiler/testing";
+import type { Operation } from "@typespec/compiler";
+import type { BasicTestRunner } from "@typespec/compiler/testing";
 import { beforeEach, describe, it } from "vitest";
 import { Output } from "../../../src/core/components/output.jsx";
 import { InterfaceMethod } from "../../../src/typescript/components/interface-method.jsx";

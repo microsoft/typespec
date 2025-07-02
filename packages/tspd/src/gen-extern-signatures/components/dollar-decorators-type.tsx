@@ -1,11 +1,11 @@
-import * as ay from "@alloy-js/core";
+import { For, Refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { DecoratorSignature } from "../types.js";
 
 export interface DollarDecoratorsTypeProps {
   namespaceName: string;
   decorators: DecoratorSignature[];
-  refkey: ay.Refkey;
+  refkey: Refkey;
 }
 
 /** Type for the $decorators variable for the given namespace */
@@ -17,11 +17,11 @@ export function DollarDecoratorsType(props: Readonly<DollarDecoratorsTypeProps>)
       refkey={props.refkey}
     >
       <ts.InterfaceExpression>
-        <ay.For each={props.decorators}>
+        <For each={props.decorators}>
           {(signature) => {
             return <ts.InterfaceMember name={signature.name.slice(1)} type={signature.typeName} />;
           }}
-        </ay.For>
+        </For>
       </ts.InterfaceExpression>
     </ts.TypeDeclaration>
   );

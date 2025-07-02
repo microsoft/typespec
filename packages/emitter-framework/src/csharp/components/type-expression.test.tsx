@@ -1,8 +1,8 @@
-import { Children, render } from "@alloy-js/core";
+import { type Children, render } from "@alloy-js/core";
 import { d } from "@alloy-js/core/testing";
 import { Namespace, SourceFile } from "@alloy-js/csharp";
-import { Model, ModelProperty } from "@typespec/compiler";
-import { BasicTestRunner } from "@typespec/compiler/testing";
+import type { Model, ModelProperty } from "@typespec/compiler";
+import type { BasicTestRunner } from "@typespec/compiler/testing";
 import { beforeEach, describe, it } from "vitest";
 import { createEmitterFrameworkTestRunner } from "../../../test/typescript/test-host.js";
 import { assertFileContents } from "../../../test/utils.js";
