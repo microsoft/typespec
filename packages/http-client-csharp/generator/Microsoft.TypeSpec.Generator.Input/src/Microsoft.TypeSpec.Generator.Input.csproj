@@ -4,8 +4,7 @@
     <PackageId>Microsoft.TypeSpec.Generator.Input</PackageId>
     <Version>1.0.0-beta.1</Version>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <!-- Suppress missing XML documentation warnings for now -->
-    <NoWarn>$(NoWarn);CS1591</NoWarn>
+
   </PropertyGroup>
 
   <ItemGroup>

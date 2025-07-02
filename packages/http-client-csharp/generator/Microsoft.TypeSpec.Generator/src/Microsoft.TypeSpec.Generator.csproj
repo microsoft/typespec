@@ -5,8 +5,7 @@
     <OutputType>Exe</OutputType>
     <Version>1.0.0-beta.1</Version>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <!-- Suppress XML documentation warnings for existing parameter mismatches and missing docs -->
-    <NoWarn>$(NoWarn);CS1591;CS1572;CS1573;CS1574</NoWarn>
+
   </PropertyGroup>
 
   <ItemGroup>
