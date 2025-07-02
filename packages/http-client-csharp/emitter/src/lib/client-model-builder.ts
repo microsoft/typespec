@@ -20,7 +20,6 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   // convert all the models and enums in the sdkPackage to the type cache.
   const models = sdkPackage.models.map((m) => fromSdkType(sdkContext, m));
   const enums = sdkPackage.enums.map((e) => fromSdkType(sdkContext, e));
-  // navigateModels(sdkContext);
 
   const sdkApiVersionEnums = sdkPackage.enums.filter((e) => e.usage === UsageFlags.ApiVersionEnum);
   const rootClients = sdkPackage.clients;
