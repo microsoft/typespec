@@ -7,7 +7,6 @@ import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Languages;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
-import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 
 /**
@@ -17,10 +16,8 @@ public class OperationInstrumentationInfo {
     private final String operationName;
 
     public OperationInstrumentationInfo(Operation operation) {
-
-        if (JavaSettings.getInstance().isAzureV1() || JavaSettings.getInstance().isAzureV2()) {
-            this.operationName = SchemaUtil.getCrossLanguageDefinitionId(operation);
-        } else {
+        String localOperationName = SchemaUtil.getCrossLanguageDefinitionId(operation);
+        if (localOperationName == null) {
             // cross language operation id is not available for unbranded libs, let's fallback to
             // namespace.clientName.methodName
             Client codeModel = operation.getOperationGroup().getCodeModel();
@@ -32,9 +29,11 @@ public class OperationInstrumentationInfo {
             }
 
             String methodName = getName(operation.getLanguage());
-            this.operationName
+            localOperationName
                 = CoreUtils.isNullOrEmpty(clientName) ? methodName : String.format("%s.%s", clientName, methodName);
         }
+
+        this.operationName = localOperationName;
     }
 
     /**
