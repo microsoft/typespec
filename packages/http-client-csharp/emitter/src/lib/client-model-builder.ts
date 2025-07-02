@@ -16,10 +16,12 @@ import { firstLetterToUpperCase, getClientNamespaceString } from "./utils.js";
  * @beta
  */
 export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
-  // convert all the models and enums in the sdkPackage to the type cache.
-  navigateModels(sdkContext);
-
   const sdkPackage = sdkContext.sdkPackage;
+  // convert all the models and enums in the sdkPackage to the type cache.
+  const models = sdkPackage.models.map((m) => fromSdkType(sdkContext, m));
+  const enums = sdkPackage.enums.map((e) => fromSdkType(sdkContext, e));
+  // navigateModels(sdkContext);
+
   const sdkApiVersionEnums = sdkPackage.enums.filter((e) => e.usage === UsageFlags.ApiVersionEnum);
   const rootClients = sdkPackage.clients;
   const rootApiVersions =
@@ -29,15 +31,6 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
 
   const inputClients = fromSdkClients(sdkContext, rootClients, rootApiVersions);
 
-  // TODO -- because of an implementation bug in autorest.csharp,
-  // we have to do this in this way instead the nicer way of
-  // const enums = fromSdkEnums(sdkContext, sdkPackage.enums);
-  // we could change it back once autorest.csharp is deprecated for DPG.
-  const enums = Array.from(sdkContext.__typeCache.enums.values());
-  // TODO -- for models, because we do not have a way to deal with models with the same name in different namespaces,
-  // we collapse all models with the same name into one model.
-  // until we find a solution for that, we would always need this workaround.
-  const models = Array.from(sdkContext.__typeCache.models.values());
   // TODO -- TCGC now does not have constants field in its sdkPackage, they might add it in the future.
   const constants = Array.from(sdkContext.__typeCache.constants.values());
 
@@ -47,7 +40,7 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   // - https://github.com/Azure/typespec-azure/issues/2572 (constants in operations)
   // - https://github.com/Azure/typespec-azure/issues/2563 (constants in models)
   // First we correct the names of the constants in models.
-  for (const model of sdkContext.__typeCache.models.values()) {
+  for (const model of models) {
     // because this `models` list already contains all the models, therefore we just need to iterate all of them to find if any their properties is constant
     for (const property of model.properties) {
       const type = property.type;
@@ -87,13 +80,4 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   };
 
   return clientModel;
-}
-
-function navigateModels(sdkContext: CSharpEmitterContext) {
-  for (const m of sdkContext.sdkPackage.models) {
-    fromSdkType(sdkContext, m);
-  }
-  for (const e of sdkContext.sdkPackage.enums) {
-    fromSdkType(sdkContext, e);
-  }
 }
