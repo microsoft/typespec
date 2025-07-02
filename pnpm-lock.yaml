@@ -2332,9 +2332,6 @@ importers:
       mocha:
         specifier: ^11.1.0
         version: 11.7.0
-      moment:
-        specifier: ^2.30.1
-        version: 2.30.1
       playwright:
         specifier: ^1.51.1
         version: 1.53.0
@@ -10945,9 +10942,6 @@ packages:
     resolution: {integrity: sha512-bXfLy/mI8n4QICg+pWj1G8VduX5vC0SHRwFpiR5/Fxc8S2G906pSfkyMmHVsdJNQJQNh3LE67koad9GzEvkV6g==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     hasBin: true
-
-  moment@2.30.1:
-    resolution: {integrity: sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==}
 
   monaco-editor-core@0.52.2:
     resolution: {integrity: sha512-5TOyTUymNx7jB24TGP4Qs5UEVrntDKSMzDUvW3ADaI1CFRO1t7FPhbT2u4m3iIKZf85zTM+mkCxiUSgj+v/YtA==}
@@ -25510,8 +25504,6 @@ snapshots:
       yargs: 17.7.2
       yargs-parser: 21.1.1
       yargs-unparser: 2.0.0
-
-  moment@2.30.1: {}
 
   monaco-editor-core@0.52.2: {}
 
