@@ -18,8 +18,8 @@ public class OperationInstrumentationInfo {
     public OperationInstrumentationInfo(Operation operation) {
         String localOperationName = SchemaUtil.getCrossLanguageDefinitionId(operation);
         if (localOperationName == null) {
-            // cross language operation id is not available for unbranded libs, let's fallback to
-            // namespace.clientName.methodName
+            // cross language operation id is not available for unbranded libs, let's fallback
+            // to namespace.clientName.methodName
             Client codeModel = operation.getOperationGroup().getCodeModel();
             String clientName = null;
             if (codeModel != null) {

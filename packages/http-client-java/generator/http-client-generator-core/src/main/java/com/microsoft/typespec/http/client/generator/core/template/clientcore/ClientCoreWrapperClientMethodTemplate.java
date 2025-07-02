@@ -13,6 +13,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPageDetails;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
@@ -83,14 +84,21 @@ public class ClientCoreWrapperClientMethodTemplate extends WrapperClientMethodTe
             .findFirst()
             .orElse(null);
 
-        final String argumentList
-            = argStream.map(p -> p.getClientType() == ClassType.REQUEST_CONTEXT ? "updatedContext" : p.getName())
-                .collect(Collectors.joining(", "));
+        // don't instrument pageables on the client level, we'll instrument them on the impl
+        final boolean shouldInstrument = !clientMethod.isPageStreamingType();
+        if (shouldInstrument) {
+            final String argumentList
+                = argStream.map(p -> p.getClientType() == ClassType.REQUEST_CONTEXT ? "updatedContext" : p.getName())
+                    .collect(Collectors.joining(", "));
 
-        function.line((shouldReturn ? "return " : "")
-            + "this.instrumentation.instrumentWithResponse(\"%1$s\", %2$s, updatedContext -> this.serviceClient.%3$s(%4$s));",
-            clientMethod.getOperationInstrumentationInfo().getOperationName(), requestContextParam,
-            clientMethod.getName(), argumentList);
+            function.line((shouldReturn ? "return " : "")
+                + "this.instrumentation.instrumentWithResponse(\"%1$s\", %2$s, updatedContext -> this.serviceClient.%3$s(%4$s));",
+                clientMethod.getOperationInstrumentationInfo().getOperationName(), requestContextParam,
+                clientMethod.getName(), argumentList);
+        } else {
+            function.line((shouldReturn ? "return " : "") + "this.serviceClient.%1$s(%2$s);", clientMethod.getName(),
+                argStream.map(MethodParameter::getName).collect(Collectors.joining(", ")));
+        }
     }
 
     protected void generateJavadoc(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod) {
