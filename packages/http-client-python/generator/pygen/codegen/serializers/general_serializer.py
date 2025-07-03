@@ -49,10 +49,19 @@ class GeneralSerializer(BaseSerializer):
         return template.render(code_model=self.code_model, **params)
 
     def _extract_min_dependency(self, s):
+        # Extract the minimum version from a dependency string.
+        #
+        # Handles formats like:
+        # - >=1.2.3
+        # - >=0.1.0b1 (beta versions)
+        # - >=1.2.3rc2 (release candidates)
+        #
+        # Returns the parsed version if found, otherwise version "0".
         m = re.search(r"[>=]=?([\d.]+(?:[a-z]+\d+)?)", s)
         return parse_version(m.group(1)) if m else parse_version("0")
 
     def _keep_pyproject_fields(self, file_path: str) -> dict:
+        # Load the pyproject.toml file if it exists and extract fields to keep.
         result = {"KEEP_FIELDS": {}}
         try:
             with open(file_path, "rb") as f:
@@ -87,7 +96,7 @@ class GeneralSerializer(BaseSerializer):
             if kept_deps:
               result["KEEP_FIELDS"]["project.dependencies"] = kept_deps
 
-          # Handle optional dependencies
+          # Keep optional dependencies
           if "optional-dependencies" in loaded_pyproject_toml["project"]:
             result["KEEP_FIELDS"]["project.optional-dependencies"] = loaded_pyproject_toml["project"]["optional-dependencies"]
 
