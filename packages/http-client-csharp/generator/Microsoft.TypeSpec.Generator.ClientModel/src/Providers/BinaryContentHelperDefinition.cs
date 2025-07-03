@@ -237,7 +237,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MethodBodyStatement[] body =
             [
                 Declare("content", New.Instance<Utf8JsonBinaryContentDefinition>(), out var content),
-                ScmCodeModelGenerator.Instance.TypeFactory.SerializeJsonValue(typeof(object),valueParameter, content.JsonWriter(), ModelSerializationExtensionsSnippets.Wire, SerializationFormat.Default),
+                ScmCodeModelGenerator.Instance.TypeFactory.SerializeJsonValue(typeof(object), valueParameter, content.JsonWriter(), ModelSerializationExtensionsSnippets.Wire, SerializationFormat.Default),
                 Return(content)
             ];
 
