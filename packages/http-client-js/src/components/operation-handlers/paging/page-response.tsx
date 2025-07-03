@@ -27,6 +27,8 @@ export function PageResponseDeclaration(props: PageResponseProps) {
     "firstLink",
     "lastLink",
   ];
+  // TODO: consider the nested response
+  // https://github.com/microsoft/typespec/issues/7787
   const responseProperties: PagingProperty[] = [];
   for (const key in definedResponses) {
     const property = definedResponses[key as keyof typeof definedResponses];
