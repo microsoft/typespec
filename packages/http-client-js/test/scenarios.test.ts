@@ -1,5 +1,5 @@
 import {
-  createSnipperExtractor,
+  createSnippetExtractor,
   createTypeScriptExtractorConfig,
   executeScenarios,
 } from "@typespec/emitter-framework/testing";
@@ -11,7 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const tsExtractorConfig = await createTypeScriptExtractorConfig();
-const snipperExtractor = createSnipperExtractor(tsExtractorConfig);
+const snipperExtractor = createSnippetExtractor(tsExtractorConfig);
 
 // Construct the test path relative to this file.
 const scenarioPath = join(__dirname, "scenarios");

@@ -1,102 +1,18 @@
-import { logDiagnostics, NodeHost, normalizePath } from "@typespec/compiler";
+import { logDiagnostics, NodeHost } from "@typespec/compiler";
 import { expectDiagnosticEmpty, type EmitterTester } from "@typespec/compiler/testing";
 import { readdirSync, readFileSync, statSync, writeFileSync } from "fs";
 import { join } from "pathe";
 import { format } from "prettier";
-import { afterAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import {
+  getExcerptForQuery,
+  parseCodeblockExpectation,
+  type CodeBlockExpectation,
+} from "./code-block-expectation.js";
 import type { LanguageConfiguration, SnippetExtractor } from "./snippet-extractor.js";
 
 const SCENARIOS_UPDATE =
   process.env["RECORD"] === "true" || process.env["SCENARIOS_UPDATE"] === "true";
-
-type EmitterFunction = (tsp: string, namedArgs: Record<string, string>) => Promise<string>;
-
-async function assertGetEmittedFile(tester: EmitterTester, file: string, code: string) {
-  const [{ outputs }, diagnostics] = await tester.compileAndDiagnose(code);
-  const errors = diagnostics.filter((d) => d.severity === "error");
-  const warnings = diagnostics.filter((d) => d.severity === "warning");
-  if (warnings.length > 0) {
-    // TODO: this should ideally fail the test or be part of the expectation.
-    logDiagnostics(warnings, NodeHost.logSink);
-  }
-  expectDiagnosticEmpty(errors);
-
-  const normalizedTarget = normalizePath(file);
-  const sourceFile = outputs[normalizedTarget];
-
-  if (!sourceFile) {
-    throw new Error(
-      `File ${file} not found in emitted files:\n ${Object.keys(outputs).join("\n")}`,
-    );
-  }
-  return sourceFile;
-}
-
-/**
- * Mapping of different snapshot types to how to get them.
- * Snapshot types can take single-word string arguments templated in curly braces {} and are otherwise regex
- */
-function getCodeBlockTypes(
-  tester: EmitterTester,
-  languageConfiguration: LanguageConfiguration,
-  snippetExtractor: SnippetExtractor,
-): Record<string, EmitterFunction> {
-  const languageTags = languageConfiguration.codeBlockTypes.join("|");
-  return {
-    // Snapshot of a particular interface named {name} in the models file
-    [`(${languageTags}) {file} interface {name}`]: async (code, { file, name }) => {
-      const sourceFile = await assertGetEmittedFile(tester, file, code);
-      const snippet = snippetExtractor.getInterface(sourceFile, name);
-
-      if (!snippet) {
-        throw new Error(`Interface ${name} not found in ${file}`);
-      }
-
-      return snippet;
-    },
-
-    [`(${languageTags}) {file} type {name}`]: async (code, { file, name }) => {
-      const sourceFile = await assertGetEmittedFile(tester, file, code);
-      const snippet = snippetExtractor.getTypeAlias(sourceFile, name);
-
-      if (!snippet) {
-        throw new Error(`Type alias ${name} not found in ${file}`);
-      }
-
-      return snippet;
-    },
-
-    // Snapshot of a particular function named {name} in the models file
-    [`(${languageTags}) {file} function {name}`]: async (code, { file, name }) => {
-      const sourceFile = await assertGetEmittedFile(tester, file, code);
-      const snippet = snippetExtractor.getFunction(sourceFile, name);
-
-      if (!snippet) {
-        throw new Error(`Function ${name} not found in ${file}`);
-      }
-
-      return snippet;
-    },
-
-    // Snapshot of a particular class named {name} in the models file
-    [`(${languageTags}) {file} class {name}`]: async (code, { file, name }) => {
-      const sourceFile = await assertGetEmittedFile(tester, file, code);
-      const snippet = snippetExtractor.getClass(sourceFile, name);
-
-      if (!snippet) {
-        throw new Error(`Class ${name} not found in ${file}`);
-      }
-
-      return snippet;
-    },
-
-    // Snapshot of the entire file
-    [`(${languageTags}) {file}`]: async (code, { file }) => {
-      const sourceFile = await assertGetEmittedFile(tester, file, code);
-      return sourceFile;
-    },
-  };
-}
 
 export async function executeScenarios(
   tester: EmitterTester,
@@ -153,28 +69,19 @@ interface ScenarioContents {
 
 interface SpecCodeBlock {
   kind: "spec" | "test";
-  content: string[];
+  content: string;
 }
 
 interface TestCodeBlock {
   kind: "test";
   heading: string;
-  content: string[];
-  matchedTemplate: {
-    template: string;
-    fn: EmitterFunction;
-    namedArgs: Record<string, string> | null;
-  };
+  content: string;
+  expectation: CodeBlockExpectation;
 }
 
 type ScenarioCodeBlock = SpecCodeBlock | TestCodeBlock;
 
-function parseFile(
-  file: ScenarioFileId,
-  tester: EmitterTester,
-  languageConfiguration: LanguageConfiguration,
-  snippetExtractor: SnippetExtractor,
-): ScenarioFile {
+function parseFile(file: ScenarioFileId): ScenarioFile {
   // Read the whole file
   const rawContent = readFileSync(file.path, { encoding: "utf-8" });
 
@@ -187,12 +94,7 @@ function parseFile(
   };
 
   for (const section of sections) {
-    const scenarioContent = parseScenario(
-      section.content,
-      tester,
-      languageConfiguration,
-      snippetExtractor,
-    );
+    const scenarioContent = parseScenario(section.content);
     const scenario: Scenario = {
       title: section.title,
       content: scenarioContent,
@@ -208,53 +110,43 @@ function isTestCodeBlock(codeBlock: ScenarioCodeBlock): codeBlock is TestCodeBlo
   return codeBlock.kind === "test";
 }
 
-function parseScenario(
-  content: string,
-  tester: EmitterTester,
-  languageConfiguration: LanguageConfiguration,
-  snippetExtractor: SnippetExtractor,
-): ScenarioContents {
+function parseScenario(content: string): ScenarioContents {
   const rawLines = content.split("\n");
   const scenario: ScenarioContents = {
     lines: [],
-    specBlock: { kind: "spec", content: [] },
+    specBlock: { kind: "spec", content: "" },
     testBlocks: [],
   };
 
-  let currentCodeBlock: ScenarioCodeBlock | null = null;
-
-  // Precompute output code block types once
-  const outputCodeBlockTypes = getCodeBlockTypes(tester, languageConfiguration, snippetExtractor);
+  let currentCodeBlock: { heading: string; content: string[] } | null = null;
 
   for (const line of rawLines) {
     if (line.startsWith("```") && currentCodeBlock) {
-      // Close the code block
-      scenario.lines.push(currentCodeBlock);
-      if (!isTestCodeBlock(currentCodeBlock)) {
-        scenario.specBlock.content = currentCodeBlock.content;
+      const heading = currentCodeBlock.heading;
+      const codeBlockKind =
+        heading.includes("tsp") || heading.includes("typespec") ? "spec" : "test";
+      const content = currentCodeBlock.content.join("\n");
+      if (codeBlockKind === "spec") {
+        const codeblock: SpecCodeBlock = {
+          kind: "spec",
+          content,
+        };
+        scenario.lines.push(codeblock);
+        scenario.specBlock.content = content;
       } else {
-        for (const [template, fn] of Object.entries(outputCodeBlockTypes)) {
-          const templateRegex = new RegExp(
-            "^" + template.replace(/\{(\w+)\}/g, "(?<$1>[^\\s]+)") + "$",
-          );
-
-          const match = currentCodeBlock.heading.match(templateRegex);
-          if (match) {
-            currentCodeBlock.matchedTemplate = {
-              template,
-              fn,
-              namedArgs: match.groups ?? null,
-            };
-            break;
-          }
-        }
-        scenario.testBlocks.push(currentCodeBlock);
+        const codeblock: TestCodeBlock = {
+          kind: "test",
+          heading: currentCodeBlock.heading,
+          content,
+          expectation: parseCodeblockExpectation(currentCodeBlock.heading, content),
+        };
+        scenario.lines.push(codeblock);
+        scenario.testBlocks.push(codeblock);
       }
       currentCodeBlock = null;
     } else if (line.startsWith("```")) {
-      const codeBlockKind = line.includes("tsp") || line.includes("typespec") ? "spec" : "test";
       // Start a new code block
-      currentCodeBlock = { kind: codeBlockKind, heading: line.substring(3), content: [] };
+      currentCodeBlock = { heading: line.substring(3), content: [] };
     } else if (currentCodeBlock) {
       // Append to code block content
       currentCodeBlock.content.push(line);
@@ -273,31 +165,42 @@ function describeScenarios(
   languageConfiguration: LanguageConfiguration,
   snippetExtractor: SnippetExtractor,
 ) {
-  const scenarios = scenarioFiles.map((f) =>
-    parseFile(f, tester, languageConfiguration, snippetExtractor),
-  );
+  const scenarios = scenarioFiles.map((f) => parseFile(f));
 
   for (const scenarioFile of scenarios) {
     describe(`${scenarioFile.relativePath}`, () => {
       for (const scenario of scenarioFile.scenarios) {
         const isOnly = scenario.title.includes("only:");
         const isSkip = scenario.title.includes("skip:");
-
         const describeFn = isSkip ? describe.skip : isOnly ? describe.only : describe;
+
+        let outputFiles: Record<string, string>;
+        beforeAll(async () => {
+          const code = scenario.content.specBlock.content;
+          const [{ outputs }, diagnostics] = await tester.compileAndDiagnose(code);
+          const errors = diagnostics.filter((d) => d.severity === "error");
+          const warnings = diagnostics.filter((d) => d.severity === "warning");
+          if (warnings.length > 0) {
+            // TODO: this should ideally fail the test or be part of the expectation.
+            logDiagnostics(warnings, NodeHost.logSink);
+          }
+          expectDiagnosticEmpty(errors);
+          outputFiles = outputs;
+        });
 
         describeFn(`Scenario: ${scenario.title}`, () => {
           for (const testBlock of scenario.content.testBlocks) {
             it(`Test: ${testBlock.heading}`, async () => {
-              const { fn, namedArgs } = testBlock.matchedTemplate;
-              const result = await fn(
-                scenario.content.specBlock.content.join("\n"),
-                namedArgs ?? {},
+              const result = getExcerptForQuery(
+                snippetExtractor,
+                testBlock.expectation,
+                outputFiles,
               );
 
               if (SCENARIOS_UPDATE) {
-                testBlock.content = (await languageConfiguration.format(result)).split("\n");
+                testBlock.content = await languageConfiguration.format(result);
               } else {
-                const expected = await languageConfiguration.format(testBlock.content.join("\n"));
+                const expected = await languageConfiguration.format(testBlock.content);
                 const actual = await languageConfiguration.format(result);
                 expect(actual).toBe(expected);
               }
@@ -327,7 +230,7 @@ async function updateFile(scenarioFile: ScenarioFile) {
       } else {
         const heading = isTestCodeBlock(line) ? line.heading : "tsp";
         newContent.push("```" + heading);
-        newContent.push(...line.content);
+        newContent.push(line.content);
         newContent.push("```");
       }
     }
