@@ -49,7 +49,7 @@ class GeneralSerializer(BaseSerializer):
         return template.render(code_model=self.code_model, **params)
 
     def _extract_version(self, s):
-        m = re.search(r"[><=]=?([\d.]+)", s)
+        m = re.search(r"[><=]=?([\d.]+(?:[a-z]+\d+)?)", s)
         return parse_version(m.group(1)) if m else parse_version("0")
 
     def _keep_pyproject_fields(self, file_path: str) -> dict:
