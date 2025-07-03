@@ -108,9 +108,19 @@ async function retry(
     }
     count--;
   }
-  await page.screenshot({ path: path.resolve(__dirname, "../../images-linux/error.png") });
+  await screenshot(page, "linux", "error");
   await closeVscode();
   throw new Error(errMessage);
 }
 
-export { retry, sleep, test };
+/**
+ * Take a screenshot with a consistent path pattern.
+ * @param page playwright page
+ * @param os operating system, e.g. "linux"
+ * @param name screenshot name, without extension
+ */
+async function screenshot(page: Page, os: "linux", name: string) {
+  await page.screenshot({ path: path.resolve(__dirname, `../../images-${os}/${name}.png`) });
+}
+
+export { sleep, test, retry, screenshot }

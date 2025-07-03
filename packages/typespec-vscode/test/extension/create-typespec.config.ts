@@ -12,7 +12,7 @@ type CreateConfigType = {
   expectedResults: string[];
 };
 
-const CreateTypespecProjectFolder = "CreateTypespecProject";
+const CreateTypespecProjectFolderPath = "../.vscode-test/CreateTypespecProject";
 
 const createCase = "CreateTypespecProject";
 const templateName = "Generic Rest API";
@@ -29,7 +29,7 @@ const expectedResults = [
 const CreateCasesConfigList: CreateConfigType[] = [
   {
     triggerType: CreateProjectTriggerType.Command,
-    caseName: `${createCase}-${templateName.replaceAll(" ", "")}-Trigger_${CreateProjectTriggerType.Command}-EmptyFolder`,
+    caseName: `${createCase} ${templateName.replaceAll(" ", "")} Trigger ${CreateProjectTriggerType.Command} EmptyFolder`,
     templateName,
     templateNameDescription,
     isEmptyFolder: true,
@@ -37,4 +37,4 @@ const CreateCasesConfigList: CreateConfigType[] = [
   },
 ];
 
-export { CreateCasesConfigList, CreateProjectTriggerType, CreateTypespecProjectFolder };
+export { CreateCasesConfigList, CreateProjectTriggerType, CreateTypespecProjectFolderPath };

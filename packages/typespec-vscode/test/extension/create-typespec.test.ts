@@ -1,6 +1,6 @@
-import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { mkdir, rm } from "fs/promises";
 import { beforeEach, describe } from "vitest";
 import {
   closeVscode,
@@ -23,24 +23,20 @@ import { test } from "./common/utils";
 import {
   CreateCasesConfigList,
   CreateProjectTriggerType,
-  CreateTypespecProjectFolder,
-} from "./config";
+  CreateTypespecProjectFolderPath,
+} from "./create-typespec.config";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-beforeEach(() => {
-  const dir = path.resolve(__dirname, CreateTypespecProjectFolder);
-  if (fs.existsSync(dir)) {
-    for (const file of fs.readdirSync(dir)) {
-      const filePath = path.resolve(dir, file);
-      fs.rmSync(filePath, { recursive: true, force: true });
-    }
-  } else {
-    fs.mkdirSync(dir, { recursive: true });
-  }
+beforeEach(async () => {
+  const dir = path.resolve(__dirname, CreateTypespecProjectFolderPath);
+  try {
+    await rm(dir, { recursive: true});
+  } catch {}
+    await mkdir(dir, { recursive: true });
 });
 
-describe.each(CreateCasesConfigList)("CreateTypespecProject-cases", async (item) => {
+describe.each(CreateCasesConfigList)("CreateTypespecProject", async (item) => {
   const {
     caseName,
     triggerType,
@@ -51,7 +47,7 @@ describe.each(CreateCasesConfigList)("CreateTypespecProject-cases", async (item)
   } = item;
 
   test(caseName, async ({ launch }) => {
-    const workspacePath = path.resolve(__dirname, CreateTypespecProjectFolder);
+    const workspacePath = path.resolve(__dirname, CreateTypespecProjectFolderPath);
     const { page, extensionDir } = await launch({
       workspacePath: triggerType === CreateProjectTriggerType.Command ? workspacePath : "test",
     });
@@ -64,7 +60,7 @@ describe.each(CreateCasesConfigList)("CreateTypespecProject-cases", async (item)
 
     if (triggerType === CreateProjectTriggerType.Command) {
       await startWithCommandPalette(page, {
-        folderName: CreateTypespecProjectFolder,
+        folderName: path.basename(CreateTypespecProjectFolderPath),
         command: "Create Typespec Project",
       });
     } else {

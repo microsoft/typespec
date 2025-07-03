@@ -1,9 +1,6 @@
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { Page } from "playwright";
 import { retry } from "./utils";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import { screenshot } from "./utils";
 
 /**
  * When creating, select emitters
@@ -56,7 +53,7 @@ async function selectEmitters(page: Page, emitters?: string[]) {
     "Failed to find the selectEmitter box.",
   );
   await page.getByRole("checkbox", { name: "Toggle all checkboxes" }).check();
-  await page.screenshot({ path: path.resolve(__dirname, "../../images-linux/select_emitter.png") });
+  await screenshot(page, "linux", "select_emitter");
   await page.keyboard.press("Enter");
 }
 
@@ -98,11 +95,12 @@ async function selectTemplate(page: Page, templateName: string, templateNameDesc
     },
     "Failed to find the selectTemplate box.",
   );
+  await screenshot(page, "linux", "select_template");
   await templateListName!.first().click();
 }
 
 /**
- * When creating, verify the descripton below, then input project name
+ * When creating, verify the description below, then input project name
  * @param page vscode project
  */
 async function inputProjectName(page: Page) {
@@ -129,77 +127,7 @@ async function inputProjectName(page: Page) {
     },
     "Failed to find the project name input box.",
   );
-  await page.screenshot({
-    path: path.resolve(__dirname, "../../images-linux/input_project_name.png"),
-  });
-  await page.keyboard.press("Enter");
-}
-
-/**
- * When creating, verify the description below, then input service namespace
- * @param page vscode project
- */
-async function inputServiceNameSpace(page: Page) {
-  const titleInfoDescription =
-    "Please provide service namespace in Pascal case: (Press 'Enter' to confirm or 'Escape' to cancel)";
-  await retry(
-    page,
-    3,
-    async () => {
-      const titleBox = page.locator("div").filter({ hasText: "0 Results0 SelectedPlease" }).nth(2);
-      let titleBoxText = await titleBox.textContent();
-      // Remove the known prefix and suffix noise in the captured lines.
-      titleBoxText = titleBoxText
-        ? titleBoxText.replace(/^0 Results0 Selected/, "").replace(/OK$/, "")
-        : null;
-      if (titleBoxText === titleInfoDescription) {
-        return true;
-      } else {
-        console.error(
-          `Description mismatched, expected "${titleInfoDescription}", got "${titleBoxText}".`,
-        );
-        return false;
-      }
-    },
-    "Failed to find the service namespace input box.",
-  );
-  await page.screenshot({
-    path: path.resolve(__dirname, "../../images-linux/input_service_namespace.png"),
-  });
-  await page.keyboard.press("Enter");
-}
-
-/**
- * When creating, verify the description below, then input ARM Resource Provider name
- * @param page vscode project
- */
-async function inputARMResourceProviderName(page: Page) {
-  const titleInfoDescription =
-    "Please provide ARM Resource Provider Name in Pascal case, excluding the 'Microsoft.' prefix: (Press 'Enter' to confirm or 'Escape' to cancel)";
-  await retry(
-    page,
-    3,
-    async () => {
-      const titleBox = page.locator("div").filter({ hasText: "0 Results0 SelectedPlease" }).nth(2);
-      let titleBoxText = await titleBox.textContent();
-      // Remove the known prefix and suffix noise in the captured lines.
-      titleBoxText = titleBoxText
-        ? titleBoxText.replace(/^0 Results0 Selected/, "").replace(/OK$/, "")
-        : null;
-      if (titleBoxText === titleInfoDescription) {
-        return true;
-      } else {
-        console.error(
-          `Description mismatched, expected "${titleInfoDescription}", got "${titleBoxText}".`,
-        );
-        return false;
-      }
-    },
-    "Failed to find the ARM Resource Provider name input box.",
-  );
-  await page.screenshot({
-    path: path.resolve(__dirname, "../../images-linux/input_ARM_Resource_name.png"),
-  });
+  await screenshot(page, "linux", "input_project_name");
   await page.keyboard.press("Enter");
 }
 
@@ -207,17 +135,12 @@ async function inputARMResourceProviderName(page: Page) {
  * When creating, start with click
  */
 async function startWithClick(page: Page) {
-  await page.screenshot({
-    path: path.resolve(__dirname, "../../images-linux/start_with_click.png"),
-  });
-  await page.screenshot({ path: path.resolve(__dirname, "../../images-linux/open_tabs.png") });
+  await screenshot(page, "linux", "start_with_click");
   await page.getByRole("button", { name: "Create TypeSpec Project" }).click();
 }
 
 export {
-  inputARMResourceProviderName,
   inputProjectName,
-  inputServiceNameSpace,
   selectEmitters,
   selectTemplate,
   startWithClick,
