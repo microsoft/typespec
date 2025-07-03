@@ -1,5 +1,30 @@
 # Change Log - @typespec/http-client-python
 
+## 0.13.0
+
+### Features
+
+- [#7817](https://github.com/microsoft/typespec/pull/7817) Make mixin operations classes private to remove from documentation
+
+
+## 0.12.5
+
+### Bug Fixes
+
+- [#7760](https://github.com/microsoft/typespec/pull/7760) [http-client-python] Add support for uv package manager alongside pip
+
+
+## 0.12.4
+
+### Bump dependencies
+
+- [#7735](https://github.com/microsoft/typespec/pull/7735) bump TCGC 0.57.2
+
+### Bug Fixes
+
+- [#7713](https://github.com/microsoft/typespec/pull/7713) Allow discriminators in derived classes that are from a fixed enum class
+
+
 ## 0.12.3
 
 ### Bug Fixes

@@ -14,7 +14,7 @@
     <PackageReference Update="NuGet.Versioning" Version="6.14.0" />
     <PackageReference Update="NuGet.Protocol" Version="6.14.0" />
     <PackageReference Update="System.ComponentModel.Composition" Version="8.0.0" />
-    <PackageReference Update="System.ClientModel" Version="1.4.1" />
+    <PackageReference Update="System.ClientModel" Version="1.4.2" />
     <PackageReference Update="System.Memory.Data" Version="8.0.1" />
   </ItemGroup>
 </Project>

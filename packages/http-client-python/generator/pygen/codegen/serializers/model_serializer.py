@@ -164,7 +164,7 @@ class MsrestModelSerializer(_ModelSerializer):
     def declare_model(self, model: ModelType) -> str:
         basename = (
             "msrest.serialization.Model"
-            if self.code_model.options["client_side_validation"]
+            if self.code_model.options["client-side-validation"]
             else "_serialization.Model"
         )
         if model.parents:

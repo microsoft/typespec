@@ -1,5 +1,5 @@
 import * as ts from "@alloy-js/typescript";
-import { Type } from "@typespec/compiler";
+import type { Type } from "@typespec/compiler";
 import * as ef from "@typespec/emitter-framework";
 import { kebabCase } from "change-case";
 import { reportDiagnostic } from "../../lib.js";

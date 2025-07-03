@@ -25,8 +25,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     {
         private readonly MethodProvider _createRequestMethod;
         private static readonly ClientPipelineExtensionsDefinition _clientPipelineExtensionsDefinition = new();
-        private IReadOnlyList<ParameterProvider> ProtocolMethodParameters => _protocolMethodParameters ??= RestClientProvider.GetMethodParameters(ServiceMethod, RestClientProvider.MethodType.Protocol);
-        private IReadOnlyList<ParameterProvider>? _protocolMethodParameters;
+        private IList<ParameterProvider> ProtocolMethodParameters => _protocolMethodParameters ??= RestClientProvider.GetMethodParameters(ServiceMethod, RestClientProvider.MethodType.Protocol);
+        private IList<ParameterProvider>? _protocolMethodParameters;
 
         private IReadOnlyList<ParameterProvider> ConvenienceMethodParameters => _convenienceMethodParameters ??= RestClientProvider.GetMethodParameters(ServiceMethod, RestClientProvider.MethodType.Convenience);
         private IReadOnlyList<ParameterProvider>? _convenienceMethodParameters;
@@ -77,8 +77,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected virtual IReadOnlyList<ScmMethodProvider> BuildMethods()
         {
-            var syncProtocol = BuildProtocolMethod(_createRequestMethod, false);
-            var asyncProtocol = BuildProtocolMethod(_createRequestMethod, true);
+            bool shouldMakeParametersRequired = ShouldMakeProtocolMethodParametersRequired();
+
+            var syncProtocol = BuildProtocolMethod(_createRequestMethod, false, shouldMakeParametersRequired);
+            var asyncProtocol = BuildProtocolMethod(_createRequestMethod, true, shouldMakeParametersRequired);
 
             if (_generateConvenienceMethod)
             {
@@ -487,7 +489,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return (required, optional);
         }
 
-        private ScmMethodProvider BuildProtocolMethod(MethodProvider createRequestMethod, bool isAsync)
+        private ScmMethodProvider BuildProtocolMethod(MethodProvider createRequestMethod, bool isAsync, bool shouldMakeParametersRequired)
         {
             if (EnclosingType is not ClientProvider client)
             {
@@ -520,29 +522,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     optionalParameters.Add(parameter);
                 }
             }
-            bool addOptionalRequestOptionsParameter = ShouldAddOptionalRequestOptionsParameter();
-            ParameterProvider requestOptionsParameter = addOptionalRequestOptionsParameter ? ScmKnownParameters.OptionalRequestOptions : ScmKnownParameters.RequestOptions;
+            ParameterProvider requestOptionsParameter = ScmKnownParameters.RequestOptions;
 
-            if (!addOptionalRequestOptionsParameter && optionalParameters.Count > 0)
+            if (shouldMakeParametersRequired)
             {
-                // If there are optional parameters, but the request options parameter is not optional, make the optional parameters nullable required.
-                // This is to ensure that the request options parameter is always the last parameter.
-                var newlyRequiredParameters = new List<ParameterProvider>(optionalParameters.Count);
-                foreach (var parameter in optionalParameters)
-                {
-                    // don't mutate the static request content parameter
-                    if (parameter.Equals(ScmKnownParameters.OptionalRequestContent))
-                    {
-                        newlyRequiredParameters.Add(ScmKnownParameters.NullableRequiredRequestContent);
-                        continue;
-                    }
-                    parameter.DefaultValue = null;
-                    parameter.Type = parameter.Type.WithNullable(true);
-                    newlyRequiredParameters.Add(parameter);
-                }
-
-                requiredParameters.AddRange(newlyRequiredParameters);
-                optionalParameters.Clear();
+                ProcessOptionalParameters(optionalParameters, requiredParameters, ref requestOptionsParameter);
+            }
+            else
+            {
+                requestOptionsParameter = ScmKnownParameters.OptionalRequestOptions;
             }
 
             ParameterProvider[] parameters = [.. requiredParameters, .. optionalParameters, requestOptionsParameter];
@@ -593,6 +581,69 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 protocolMethod.XmlDocs.Update(summary: summary, exceptions: exceptions);
             }
             return protocolMethod;
+        }
+
+        private ParameterProvider ProcessOptionalParameters(
+            List<ParameterProvider> optionalParameters,
+            List<ParameterProvider> requiredParameters,
+            ref ParameterProvider requestOptionsParameter)
+        {
+            // If we need to make parameters required, make only the first optional parameter nullable required.
+            // This is to prevent ambiguous callsites with the RequestOptions parameter while avoiding overly aggressive required parameter conversion.
+            bool hasOptionalRequestContent =
+                optionalParameters.Any(p => p.Equals(ScmKnownParameters.OptionalRequestContent));
+
+            // If there is an optional request content parameter, we need to make all parameters required up to and including the request content parameter
+            if (hasOptionalRequestContent)
+            {
+                int parametersMadeRequired = 0;
+                foreach (var optionalParameter in optionalParameters)
+                {
+                    if (optionalParameter.Equals(ScmKnownParameters.OptionalRequestContent))
+                    {
+                        requiredParameters.Add(ScmKnownParameters.NullableRequiredRequestContent);
+                        // Update the body param in the underlying collection
+                        var bodyParamIndex = ProtocolMethodParameters.IndexOf(optionalParameter);
+                        ProtocolMethodParameters[bodyParamIndex] =
+                            ScmKnownParameters.NullableRequiredRequestContent;
+                        parametersMadeRequired++;
+                        break;
+                    }
+
+                    optionalParameter.DefaultValue = null;
+                    optionalParameter.Type = optionalParameter.Type.WithNullable(true);
+                    requiredParameters.Add(optionalParameter);
+                    parametersMadeRequired++;
+                }
+
+                optionalParameters.RemoveRange(0, parametersMadeRequired);
+                requestOptionsParameter = ScmKnownParameters.OptionalRequestOptions;
+            }
+            else
+            {
+                // If there is a required request content, then we don't need to make the optional parameters required
+                bool hasRequiredRequestContent =
+                    requiredParameters.Any(p => p.Equals(ScmKnownParameters.RequestContent));
+
+                if (hasRequiredRequestContent)
+                {
+                    requestOptionsParameter = ScmKnownParameters.OptionalRequestOptions;
+                }
+                else
+                {
+                    // Otherwise we need to make all parameters required
+                    foreach (var optionalParameter in optionalParameters)
+                    {
+                        optionalParameter.DefaultValue = null;
+                        optionalParameter.Type = optionalParameter.Type.WithNullable(true);
+                        requiredParameters.Add(optionalParameter);
+                    }
+
+                    optionalParameters.Clear();
+                }
+            }
+
+            return requestOptionsParameter;
         }
 
         private IEnumerable<MethodBodyStatement> GetPagingMethodBody(
@@ -687,33 +738,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputType);
         }
 
-        private bool ShouldAddOptionalRequestOptionsParameter()
+        private bool ShouldMakeProtocolMethodParametersRequired()
         {
             var convenienceMethodParameterCount = ConvenienceMethodParameters.Count;
             if (!_generateConvenienceMethod)
             {
-                return true;
+                return false;
             }
             if (convenienceMethodParameterCount == 0)
             {
-                return false;
+                return true;
             }
 
             for (int i = 0; i < convenienceMethodParameterCount; i++)
             {
-                // Once we hit an optional parameter, then we need to make the request options required
-                // to prevent ambiguous callsites.
-                if (ConvenienceMethodParameters[i].DefaultValue != null)
+                // If protocol parameter is required, and convenience is optional, we don't need any changes.
+                if (ProtocolMethodParameters[i].DefaultValue == null && ConvenienceMethodParameters[i].DefaultValue != null)
                 {
                     return false;
                 }
-                if (!ProtocolMethodParameters[i].Type.Equals(ConvenienceMethodParameters[i].Type))
+                // If convenience is optional, and protocol is optional, we do need to make the protocol required.
+                if (ConvenienceMethodParameters[i].DefaultValue != null)
                 {
                     return true;
                 }
+                if (!ProtocolMethodParameters[i].Type.Equals(ConvenienceMethodParameters[i].Type))
+                {
+                    return false;
+                }
             }
 
-            return false;
+            return true;
         }
     }
 }
