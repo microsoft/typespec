@@ -1,5 +1,12 @@
 # Change Log - @typespec/http-client-python
 
+## 0.14.0
+
+### Features
+
+- [#7829](https://github.com/microsoft/typespec/pull/7829) [http-client-python] add pyproject toml
+
+
 ## 0.13.0
 
 ### Features
