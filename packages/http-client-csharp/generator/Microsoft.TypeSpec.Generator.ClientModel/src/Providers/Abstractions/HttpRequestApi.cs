@@ -24,6 +24,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public abstract ValueExpression Content();
         public abstract HttpRequestApi FromExpression(ValueExpression original);
         public abstract HttpRequestApi ToExpression();
-        public abstract string? HttpRequestClientIdPropertyName { get; }
+        public abstract string? ClientRequestIdPropertyName { get; }
     }
 }
