@@ -48,8 +48,8 @@ class GeneralSerializer(BaseSerializer):
         params.update({"options": self.code_model.options})
         return template.render(code_model=self.code_model, **params)
 
-    def _extract_version(self, s):
-        m = re.search(r"[><=]=?([\d.]+(?:[a-z]+\d+)?)", s)
+    def _extract_min_dependency(self, s):
+        m = re.search(r"[>=]=?([\d.]+(?:[a-z]+\d+)?)", s)
         return parse_version(m.group(1)) if m else parse_version("0")
 
     def _keep_pyproject_fields(self, file_path: str) -> dict:
@@ -76,8 +76,8 @@ class GeneralSerializer(BaseSerializer):
                 if dep_name in VERSION_MAP:
                     # For tracked dependencies, check if the version is higher than our default
                     default_version = parse_version(VERSION_MAP[dep_name])
-                    dep_version = self._extract_version(dep)
-                    # If the version is higher than the default, update VERSION_MAP with higher version
+                    dep_version = self._extract_min_dependency(dep)
+                    # If the version is higher than the default, update VERSION_MAP with higher min dependency version
                     if dep_version > default_version:
                       VERSION_MAP[dep_name] = dep_version
                 else:
