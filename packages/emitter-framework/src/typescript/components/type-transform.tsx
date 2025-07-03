@@ -227,7 +227,7 @@ export function ModelTransformExpression(props: ModelTransformExpressionProps) {
       {mapJoin(
         () => modelProperties,
         (_, property) => {
-          const unpackedType = $.httpPart.unpack(property.type) ?? property.type;
+          const unpackedType = property.type;
           let targetPropertyName = property.name;
           let sourcePropertyName = namePolicy.getName(property.name, "interface-member");
 
@@ -368,9 +368,7 @@ export function TypeTransformCall(props: TypeTransformCallProps): Children {
   }
   const transformType = collapsedProperty?.type ?? props.type;
   if ($.model.is(transformType) && $.array.is(transformType)) {
-    const unpackedElement =
-      $.httpPart.unpack($.array.getElementType(transformType)) ??
-      $.array.getElementType(transformType);
+    const unpackedElement = $.array.getElementType(transformType);
     return (
       <ts.FunctionCallExpression
         target={ArraySerializerRefkey}
@@ -380,9 +378,7 @@ export function TypeTransformCall(props: TypeTransformCallProps): Children {
   }
 
   if ($.model.is(transformType) && $.record.is(transformType)) {
-    const unpackedElement =
-      $.httpPart.unpack($.record.getElementType(transformType)) ??
-      $.record.getElementType(transformType);
+    const unpackedElement = $.record.getElementType(transformType);
     return (
       <ts.FunctionCallExpression
         target={RecordSerializerRefkey}

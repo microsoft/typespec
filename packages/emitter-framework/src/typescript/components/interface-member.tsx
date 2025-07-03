@@ -1,7 +1,6 @@
 import { type Children } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { isNeverType, type ModelProperty, type Operation } from "@typespec/compiler";
-import { getHttpPart } from "@typespec/http";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { InterfaceMethod } from "./interface-method.jsx";
 import { TypeExpression } from "./type-expression.js";
@@ -23,11 +22,7 @@ export function InterfaceMember(props: InterfaceMemberProps) {
       return null;
     }
 
-    let unpackedType = props.type.type;
-    const part = getHttpPart($.program, props.type.type);
-    if (part) {
-      unpackedType = part.type;
-    }
+    const unpackedType = props.type.type;
 
     return (
       <ts.InterfaceMember

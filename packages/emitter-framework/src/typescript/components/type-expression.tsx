@@ -2,7 +2,6 @@ import { For } from "@alloy-js/core";
 import { Reference, ValueExpression } from "@alloy-js/typescript";
 import type { IntrinsicType, Model, Scalar, Type } from "@typespec/compiler";
 import type { Typekit } from "@typespec/compiler/typekit";
-import "@typespec/http/experimental/typekit";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportTypescriptDiagnostic } from "../../typescript/lib.js";
 import { efRefkey } from "../utils/refkey.js";
@@ -25,7 +24,7 @@ export interface TypeExpressionProps {
 
 export function TypeExpression(props: TypeExpressionProps) {
   const { $ } = useTsp();
-  const type = $.httpPart.unpack(props.type);
+  const type = props.type;
   if (!props.noReference && isDeclaration($, type)) {
     // todo: probably need abstraction around deciding what's a declaration in the output
     // (it may not correspond to things which are declarations in TypeSpec?)
@@ -67,11 +66,6 @@ export function TypeExpression(props: TypeExpressionProps) {
       if ($.record.is(type)) {
         const elementType = (type as Model).indexer!.value;
         return <RecordExpression elementType={elementType} />;
-      }
-
-      if ($.httpPart.is(type)) {
-        const partType = $.httpPart.unpack(type);
-        return <TypeExpression type={partType} />;
       }
 
       return <InterfaceExpression type={type} />;
