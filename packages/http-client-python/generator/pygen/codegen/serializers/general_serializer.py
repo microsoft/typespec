@@ -5,6 +5,12 @@
 # --------------------------------------------------------------------------
 import json
 from typing import Any, List
+import re
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib
+from packaging.version import parse as parse_version
 from .import_serializer import FileImportSerializer, TypingSection
 from ..models.imports import MsrestImportType, FileImport
 from ..models import (
@@ -42,8 +48,60 @@ class GeneralSerializer(BaseSerializer):
         params.update(self.code_model.options)
         return template.render(code_model=self.code_model, **params)
 
-    def serialize_package_file(self, template_name: str, **kwargs: Any) -> str:
+    def _extract_version(self, s):
+        m = re.search(r"[><=]=?([\d.]+)", s)
+        return parse_version(m.group(1)) if m else parse_version("0")
+
+    def _keep_pyproject_fields(self, file_path: str) -> dict:
+        result = {"KEEP_FIELDS": {}}
+        try:
+            with open(file_path, "rb") as f:
+                loaded_pyproject_toml = tomllib.load(f)
+        except:
+            return result
+
+        # Keep azure-sdk-build configuration
+        if "tool" in loaded_pyproject_toml and "azure-sdk-build" in loaded_pyproject_toml["tool"]:
+          result["KEEP_FIELDS"]["tool.azure-sdk-build"] = loaded_pyproject_toml["tool"]["azure-sdk-build"]
+
+        # Process dependencies
+        if "project" in loaded_pyproject_toml:
+          # Handle main dependencies
+          if "dependencies" in loaded_pyproject_toml["project"]:
+            kept_deps = []
+            for dep in loaded_pyproject_toml["project"]["dependencies"]:
+                dep_name = re.split(r'[<>=\[]', dep)[0].strip()
+
+                # Check if dependency is one we track in VERSION_MAP
+                if dep_name in VERSION_MAP:
+                    # For tracked dependencies, check if the version is higher than our default
+                    default_version = parse_version(VERSION_MAP[dep_name])
+                    dep_version = self._extract_version(dep)
+                    # If the version is higher than the default, update VERSION_MAP with higher version
+                    if dep_version > default_version:
+                      VERSION_MAP[dep_name] = dep_version
+                else:
+                  # Keep non-default dependencies
+                  kept_deps.append(dep)
+
+            if kept_deps:
+              result["KEEP_FIELDS"]["project.dependencies"] = kept_deps
+
+          # Handle optional dependencies
+          if "optional-dependencies" in loaded_pyproject_toml["project"]:
+            result["KEEP_FIELDS"]["project.optional-dependencies"] = loaded_pyproject_toml["project"]["optional-dependencies"]
+
+        return result
+
+    def serialize_package_file(self, template_name: str, file_path: str, **kwargs: Any) -> str:
         template = self.env.get_template(template_name)
+
+        # Add fields to keep from an existing pyproject.toml
+        if template_name == "pyproject.toml.jinja2":
+            params = self._keep_pyproject_fields(file_path)
+        else:
+            params = {}
+
         package_parts = (
             self.code_model.namespace.split(".")[:-1]
             if self.code_model.is_tsp
@@ -57,7 +115,7 @@ class GeneralSerializer(BaseSerializer):
             dev_status = "4 - Beta"
         else:
             dev_status = "5 - Production/Stable"
-        params = {
+        params.update({
             "code_model": self.code_model,
             "dev_status": dev_status,
             "token_credential": token_credential,
@@ -67,7 +125,7 @@ class GeneralSerializer(BaseSerializer):
             "VERSION_MAP": VERSION_MAP,
             "MIN_PYTHON_VERSION": MIN_PYTHON_VERSION,
             "MAX_PYTHON_VERSION": MAX_PYTHON_VERSION,
-        }
+        })
         params.update(self.code_model.options)
         params.update(kwargs)
         return template.render(file_import=FileImport(self.code_model), **params)

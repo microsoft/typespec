@@ -53,13 +53,11 @@ _PACKAGE_FILES = [
     "LICENSE.jinja2",
     "MANIFEST.in.jinja2",
     "README.md.jinja2",
-    "setup.py.jinja2",
-    "pyproject.py.jinja2",
+    "pyproject.toml.jinja2",
 ]
 
-_REGENERATE_FILES = {"setup.py", "MANIFEST.in", "pyproject.toml"}
+_REGENERATE_FILES = {"MANIFEST.in", "pyproject.toml"}
 AsyncInfo = namedtuple("AsyncInfo", ["async_mode", "async_path"])
-
 
 # extract sub folders. For example, source_file_path is like:
 # "xxx/resource-manager/Microsoft.XX/stable/2023-04-01/examples/Compute/createOrUpdate/AKSCompute.json",
@@ -233,9 +231,10 @@ class JinjaSerializer(ReaderAndWriter):
                 if self.keep_version_file and file == "setup.py":
                     # don't regenerate setup.py file if the version file is more up to date
                     continue
+                file_path = self.exec_path(self.code_model.namespace) / output_name
                 self.write_file(
                     output_name,
-                    serializer.serialize_package_file(template_name, **params),
+                    serializer.serialize_package_file(template_name, file_path, **params),
                 )
 
     def _keep_patch_file(self, path_file: Path, env: Environment):

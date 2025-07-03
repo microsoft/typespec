@@ -33,9 +33,7 @@ description = "{{ package_name }}"
 {% if code_model.is_azure_flavor %}
 keywords = ["azure", "azure sdk"]
 {% endif %}
-## TODO: grab existing one and read in as JSON and parse and keep non-default dependencies.
-## Set dependency to max version.
-## Always override or never override keys.
+
 dependencies = [
     {% if code_model.is_legacy %}
     "msrest>={{ VERSION_MAP['msrest'] }}",
@@ -50,10 +48,25 @@ dependencies = [
     "corehttp[requests]>={{ VERSION_MAP['corehttp'] }}",
     {% endif %}
     "typing-extensions>={{ VERSION_MAP['typing-extensions'] }}",
+    {% if KEEP_FIELDS and KEEP_FIELDS.get('project.dependencies') %}
+      {% for dep in KEEP_FIELDS['project.dependencies'] %}
+        "{{ dep }}",
+      {% endfor %}
+    {% endif %}
 ]
 dynamic = [
     {% if package_mode %}"version", {% endif %}"readme"
 ]
+{% if KEEP_FIELDS and KEEP_FIELDS.get('project.optional-dependencies') %}
+[project.optional-dependencies]
+{% for key, val in KEEP_FIELDS['project.optional-dependencies'].items() %}
+{{ key }} = [
+    {% for dep in val %}
+    "{{ dep }}",
+    {% endfor %}
+]
+{% endfor %}
+{% endif %}
 {% if code_model.is_azure_flavor %}
 [project.urls]
 repository = "https://github.com/Azure/azure-sdk-for-python/tree/main/sdk"
@@ -83,6 +96,9 @@ exclude = [
 pytyped = ["py.typed"]
 {% endif %}
 
-## TODO: grab existing one and read in as JSON and parse and keep stuff.
+{% if KEEP_FIELDS and KEEP_FIELDS.get('[tool.azure-sdk-build]') %}
 [tool.azure-sdk-build]
-pyright = false
+{% for key, val in KEEP_FIELDS['[tool.azure-sdk-build]'].items() %}
+{{ key }} = {{ val | tojson }}
+{% endfor %}
+{% endif %}
