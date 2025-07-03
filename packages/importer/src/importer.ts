@@ -1,18 +1,21 @@
 import {
-  createSourceLoader,
   normalizePath,
+  NoTarget,
   printTypeSpecNode,
-  SyntaxKind,
-  visitChildren,
   type CompilerHost,
   type Diagnostic,
+  type Statement,
+} from "@typespec/compiler";
+import {
+  SyntaxKind,
+  visitChildren,
   type IdentifierNode,
   type ImportStatementNode,
   type MemberExpressionNode,
-  type Statement,
   type TypeSpecScriptNode,
   type UsingStatementNode,
-} from "@typespec/compiler";
+} from "@typespec/compiler/ast";
+import { createSourceLoader } from "../../compiler/src/core/source-loader.js";
 
 export interface ImportResult {
   /** TypeSpec Content */
@@ -42,7 +45,7 @@ export async function combineProjectIntoFile(
       return !(path === entrypoint || path.startsWith("."));
     },
   });
-  await loader.importFile(entrypoint);
+  await loader.importFile(entrypoint, NoTarget);
 
   if (loader.resolution.diagnostics.length > 0) {
     return { diagnostics: loader.resolution.diagnostics };
