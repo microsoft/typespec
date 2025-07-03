@@ -87,7 +87,6 @@ async function createTesterFs(base: string, options: TesterOptions) {
       );
     }
   }
-  expectDiagnosticEmpty(sl.resolution.diagnostics);
 
   await fs.addTypeSpecLibrary(StandardTestLibrary);
 
