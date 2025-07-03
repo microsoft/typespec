@@ -59,11 +59,7 @@ async function createTesterFs(base: string, options: TesterOptions) {
     },
   };
 
-  const sl = await createSourceLoader(host, {
-    resolve: {
-      conditions: ["typespec", "import", "default"],
-    },
-  });
+  const sl = await createSourceLoader(host);
   const selfName = JSON.parse(await readFile(resolvePath(base, "package.json"), "utf8")).name;
   for (const lib of options.libraries) {
     await sl.importPath(lib, NoTarget, base);
