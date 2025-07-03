@@ -426,9 +426,6 @@ importers:
       '@alloy-js/typescript':
         specifier: ^0.18.0
         version: 0.18.0
-      '@types/minimist':
-        specifier: ^1.2.5
-        version: 1.2.5
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
@@ -441,9 +438,9 @@ importers:
       concurrently:
         specifier: ^9.1.2
         version: 9.2.0
-      minimist:
-        specifier: ^1.2.8
-        version: 1.2.8
+      pathe:
+        specifier: ^2.0.3
+        version: 2.0.3
       prettier:
         specifier: ~3.5.3
         version: 3.5.3
@@ -6105,9 +6102,6 @@ packages:
 
   '@types/mime@1.3.5':
     resolution: {integrity: sha512-/pyBZWSLD2n0dcHE3hq8s8ZvcETHtEuF+3E7XVt0Ig2nvsVQXdghHVcEkIWjy9A0wKfTn97a/PSDYohKIlnP/w==}
-
-  '@types/minimist@1.2.5':
-    resolution: {integrity: sha512-hov8bUuiLiyFPGyFPE1lwWhmzYbirOXQNNo40+y3zow8aFVTeyn3VWL0VFFfdNddA8S4Vf0Tc062rzyNr7Paag==}
 
   '@types/mocha@10.0.10':
     resolution: {integrity: sha512-xPyYSz1cMPnJQhl0CLMH68j3gprKZaTjG3s5Vi+fDgx+uhG9NOXwbVt52eFS8ECyXhyKcjDLCBEqBExKuiZb7Q==}
@@ -18300,8 +18294,6 @@ snapshots:
       '@types/braces': 3.0.5
 
   '@types/mime@1.3.5': {}
-
-  '@types/minimist@1.2.5': {}
 
   '@types/mocha@10.0.10': {}
 
