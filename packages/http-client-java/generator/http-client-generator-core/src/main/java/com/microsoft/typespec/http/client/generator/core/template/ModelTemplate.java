@@ -1064,18 +1064,29 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         }
 
         if (sourceTypeName.equals(targetTypeName)) {
-            if (treatAsXml && property.isXmlWrapper() && (property.getWireType() instanceof IterableType)) {
-                String thisGetName = "this." + property.getName();
-                if (settings.isStreamStyleSerialization()) {
-                    methodBlock.ifBlock(thisGetName + " == null",
-                        ifBlock -> ifBlock.methodReturn("Collections.emptyList()"));
-                    methodBlock.methodReturn("this." + property.getName());
+            if (treatAsXml && (property.getWireType() instanceof IterableType)) {
+                if (property.isXmlWrapper()) {
+                    if (settings.isStreamStyleSerialization()) {
+                        methodBlock.ifBlock(expression + " == null",
+                            ifBlock -> ifBlock.methodReturn("Collections.emptyList()"));
+                        methodBlock.methodReturn(expression);
+                    } else {
+                        methodBlock.ifBlock(expression + " == null",
+                            ifBlock -> ifBlock.line("this.%s = new %s(new ArrayList<%s>());", property.getName(),
+                                getPropertyXmlWrapperClassName(property),
+                                ((GenericType) property.getWireType()).getTypeArguments()[0]));
+                        methodBlock.methodReturn(expression + ".items");
+                    }
                 } else {
-                    methodBlock.ifBlock(thisGetName + " == null",
-                        ifBlock -> ifBlock.line("this.%s = new %s(new ArrayList<%s>());", property.getName(),
-                            getPropertyXmlWrapperClassName(property),
-                            ((GenericType) property.getWireType()).getTypeArguments()[0]));
-                    methodBlock.methodReturn(thisGetName + ".items");
+                    if (property.isRequired()
+                        && settings.isRequiredFieldsAsConstructorArgs()
+                        && settings.isStreamStyleSerialization()) {
+                        methodBlock.ifBlock(expression + " == null",
+                            ifBlock -> ifBlock.methodReturn("Collections.emptyList()"));
+                        methodBlock.methodReturn(expression);
+                    } else {
+                        methodBlock.methodReturn(expression);
+                    }
                 }
             } else {
                 methodBlock.methodReturn(expression);

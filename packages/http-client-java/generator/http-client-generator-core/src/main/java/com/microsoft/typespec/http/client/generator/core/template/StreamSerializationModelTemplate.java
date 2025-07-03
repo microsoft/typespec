@@ -2442,6 +2442,16 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                 }
 
                 if (!property.isXmlWrapper()) {
+                    if (property.isRequired() && settings.isRequiredFieldsAsConstructorArgs()) {
+                        deserializationBlock.ifBlock(fieldAccess + " == null", ifStatement -> {
+                            if (fromSuper) {
+                                ifStatement.line(propertiesManager.getDeserializedModelName() + "."
+                                    + property.getSetterName() + "(new ArrayList<>());");
+                            } else {
+                                ifStatement.line(fieldAccess + " = new ArrayList<>();");
+                            }
+                        });
+                    }
                     deserializationBlock.line(fieldAccess + ".add(" + elementDeserialization + ");");
                 } else {
                     deserializationBlock.block("while (reader.nextElement() != XmlToken.END_ELEMENT)", whileBlock -> {
