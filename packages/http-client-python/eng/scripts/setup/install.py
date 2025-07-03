@@ -14,6 +14,7 @@ if not sys.version_info >= (3, 9, 0):
 
 try:
     from package_manager import detect_package_manager, PackageManagerNotFoundError
+
     detect_package_manager()  # Just check if we have a package manager
 except (ImportError, ModuleNotFoundError, PackageManagerNotFoundError):
     raise Warning(
@@ -37,11 +38,12 @@ _ROOT_DIR = Path(__file__).parent.parent.parent.parent
 
 def main():
     venv_path = _ROOT_DIR / "venv"
-    
+
     # Create virtual environment using package manager abstraction
     from package_manager import create_venv_with_package_manager, install_packages
+
     venv_context = create_venv_with_package_manager(venv_path)
-    
+
     # Install required packages - install_packages handles package manager logic
     install_packages(["-U", "black"], venv_context)
     install_packages(["-e", f"{_ROOT_DIR}/generator"], venv_context)

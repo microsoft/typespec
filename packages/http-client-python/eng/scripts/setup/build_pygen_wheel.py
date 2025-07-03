@@ -12,6 +12,7 @@ if not sys.version_info >= (3, 9, 0):
 
 try:
     from package_manager import detect_package_manager, PackageManagerNotFoundError
+
     detect_package_manager()  # Just check if we have a package manager
 except (ImportError, ModuleNotFoundError, PackageManagerNotFoundError):
     raise Exception("Your Python installation doesn't have a suitable package manager (pip or uv) available")
