@@ -50,7 +50,8 @@ class ClientSerializer:
         class_name = self.client.name
         base_class = ""
         if self.client.has_mixin:
-            base_class = f"_{class_name}OperationsMixin"
+            prefix = "" if self.client.code_model.options["multiapi"] else "_"
+            base_class = f"{prefix}{class_name}OperationsMixin"
         pylint_disable = self.client.pylint_disable()
         if base_class:
             return f"class {class_name}({base_class}):{pylint_disable}"

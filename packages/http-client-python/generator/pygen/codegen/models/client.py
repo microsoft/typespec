@@ -322,12 +322,13 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):  # pylint: disable=t
         )
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         for og in self.operation_groups:
+            suffix = f".{og.filename}" if (not self.code_model.options["multiapi"]) and og.is_mixin else ""
             file_import.add_submodule_import(
                 self.code_model.get_relative_import_path(
                     serialize_namespace,
                     self.code_model.get_imported_namespace_for_operation(og.client_namespace, async_mode),
                 )
-                + (f".{og.filename}" if og.is_mixin else ""),
+                + suffix,
                 og.class_name,
                 ImportType.LOCAL,
             )

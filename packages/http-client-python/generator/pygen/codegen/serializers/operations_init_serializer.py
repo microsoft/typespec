@@ -29,7 +29,7 @@ class OperationsInitSerializer:
         return [
             f"from .{_get_filename(og)} import {og.class_name}  # type: ignore"
             for og in self.operation_groups
-            if not og.is_mixin
+            if not og.is_mixin or self.code_model.options["multiapi"]
         ]
 
     def serialize(self) -> str:

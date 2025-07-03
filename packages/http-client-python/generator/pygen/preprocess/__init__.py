@@ -115,10 +115,10 @@ def update_description(description: Optional[str], default_description: str = ""
 
 def update_operation_group_class_name(prefix: str, class_name: str) -> str:
     if class_name == "":
-        return f"_{prefix}OperationsMixin"
+        return prefix + "OperationsMixin"
     if class_name == "Operations":
         return "Operations"
-    return f"{class_name}Operations"
+    return class_name + "Operations"
 
 
 def update_paging_response(yaml_data: Dict[str, Any]) -> None:
