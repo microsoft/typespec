@@ -1,5 +1,5 @@
 import { Interface, Namespace, StringLiteral, StringValue, Union } from "@typespec/compiler";
-import { BasicTestRunner } from "@typespec/compiler/testing";
+import type { BasicTestRunner } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { ok } from "assert";
 import { beforeEach, describe, expect, it } from "vitest";

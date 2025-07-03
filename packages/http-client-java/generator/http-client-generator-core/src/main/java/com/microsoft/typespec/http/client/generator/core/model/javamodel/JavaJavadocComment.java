@@ -33,7 +33,7 @@ public class JavaJavadocComment {
             // escape tab
             text = text.replace("\t", " ");
         }
-        return CodeNamer.escapeComment(text);
+        return CodeNamer.escapeIllegalUnicodeEscape(CodeNamer.escapeComment(text));
     }
 
     private void addExpectedLineSeparator() {

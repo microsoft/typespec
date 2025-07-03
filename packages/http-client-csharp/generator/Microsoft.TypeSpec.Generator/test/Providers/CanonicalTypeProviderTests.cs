@@ -184,8 +184,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             protected override string BuildNamespace() => _namespace;
 
-            protected override TypeSignatureModifiers BuildDeclarationModifiers() => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial |TypeSignatureModifiers.Class;
-
             protected override PropertyProvider[] BuildProperties()
             {
                 var nullInputWireInfo = InputFactory.Property("NullWireInfo", InputPrimitiveType.String);

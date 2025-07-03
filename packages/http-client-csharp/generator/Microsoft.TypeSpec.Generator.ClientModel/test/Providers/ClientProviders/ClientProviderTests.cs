@@ -1042,6 +1042,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             StringAssert.Contains($"uri.Reset(_endpoint);", createMethod?.BodyStatements?.ToDisplayString());
         }
 
+        [Test]
+        public void ListMethodsAreRenamedToGet()
+        {
+            MockHelpers.LoadMockGenerator();
+
+            var inputOperation = InputFactory.Operation(
+                "ListCats");
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod("ListCats", inputOperation);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            foreach (var method in client!.Methods)
+            {
+                Assert.IsTrue(method.Signature.Name.StartsWith("Get", StringComparison.OrdinalIgnoreCase));
+            }
+
+            foreach (var method in client.RestClient.Methods)
+            {
+                Assert.IsTrue(method.Signature.Name.StartsWith("CreateGet", StringComparison.OrdinalIgnoreCase));
+            }
+        }
+
         private static InputClient GetEnumQueryParamClient()
         {
             return InputFactory.Client(
@@ -1646,7 +1671,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                 "p1",
                                 InputPrimitiveType.String,
                                 location: InputRequestLocation.Body),
-                        ]), false, false);
+                        ]), true, true);
 
                 // Protocol & convenience methods will have different parameters since there is a model body param, so RequestOptions should be optional.
                 yield return new TestCaseData(
@@ -1681,7 +1706,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                 isRequired: true),
                         ]), true, false);
 
-                // Protocol & convenience methods will have different parameters but since the body parameter is optional, the request options should be required in protocol method.
+                // Protocol & convenience methods will have different parameters but since the body parameter is optional,
+                // the body parameter of the protocol method will be made required, and the request options should remain optional.
                 yield return new TestCaseData(
                     InputFactory.BasicServiceMethod(
                         "TestServiceMethod",
@@ -1712,7 +1738,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                 InputFactory.Model("SampleModel"),
                                 location: InputRequestLocation.Body,
                                 isRequired: false),
-                        ]), false, true);
+                        ]), true, true);
 
 
                 // Convenience method has no parameters, RequestOptions should be required in protocol method.

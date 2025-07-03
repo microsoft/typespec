@@ -66,4 +66,11 @@ public interface OperationTemplatesClient {
      * @return the LroesClient object.
      */
     LroesClient getLroes();
+
+    /**
+     * Gets the OptionalBodiesClient object to access its operations.
+     * 
+     * @return the OptionalBodiesClient object.
+     */
+    OptionalBodiesClient getOptionalBodies();
 }

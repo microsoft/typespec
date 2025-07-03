@@ -78,6 +78,7 @@ words:
   - fastify
   - fluentui
   - français
+  - freadme
   - fslib
   - genproto
   - getpgid
@@ -295,6 +296,7 @@ ignorePaths:
   - common/scripts/*
   - "**/ThirdPartyNotices.txt"
   - packages/compiler/test/formatter/scenarios/**
+  - packages/http-client-java/generator/http-client-generator/src/main/resources/PerfAutomation.jfc
   - packages/http-client-java/generator/http-client-generator-test/**
   - packages/http-client-java/generator/http-client-generator-clientcore-test/**
   - packages/http-client-js/test/e2e/**

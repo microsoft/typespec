@@ -277,7 +277,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [TestCase(true, false, true)]
-        [TestCase(true, true, false)]
+        [TestCase(true, true, true)]
         [TestCase(false, false, false)]
         [TestCase(false, true, false)]
         public void RequestOptionsOptionality(bool inBody, bool hasOptionalParameter, bool shouldBeOptional)
@@ -330,6 +330,135 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             var optionsParameter = protocolMethod!.Signature.Parameters.Single(p => p.Name == "options");
             Assert.IsNotNull(optionsParameter.DefaultValue);
+        }
+
+        [Test]
+        public void ProtocolMethodWithMultipleOptionalParameters()
+        {
+            MockHelpers.LoadMockGenerator();
+            List<InputParameter> parameters =
+            [
+                InputFactory.Parameter(
+                    "required1",
+                    InputPrimitiveType.String,
+                    isRequired: true,
+                    location: InputRequestLocation.Query),
+                InputFactory.Parameter(
+                    "optional1",
+                    InputPrimitiveType.String,
+                    isRequired: false,
+                    location: InputRequestLocation.Query),
+                InputFactory.Parameter(
+                    "optional2",
+                    InputPrimitiveType.Int32,
+                    isRequired: false,
+                    location: InputRequestLocation.Query),
+                InputFactory.Parameter(
+                    "optional3",
+                    InputPrimitiveType.Boolean,
+                    isRequired: false,
+                    location: InputRequestLocation.Query)
+            ];
+            var inputOperation = InputFactory.Operation(
+                "TestOperation",
+                parameters: parameters);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("Test", inputOperation, parameters: parameters);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            var protocolMethods = methodCollection.Where(m =>
+                m.Signature.Parameters.Any(p => p.Name == "options") && m.Signature.Name.StartsWith("TestOperation")).ToList();
+            Assert.AreEqual(2, protocolMethods.Count);
+
+            foreach (var protocolMethod in protocolMethods)
+            {
+                Assert.AreEqual(inputServiceMethod, protocolMethod.ServiceMethod);
+
+                var methodParameters = protocolMethod.Signature.Parameters;
+
+                // First required parameter should remain required
+                var required1Param = methodParameters.Single(p => p.Name == "required1");
+                Assert.IsNull(required1Param.DefaultValue, "Required parameter should remain required");
+                Assert.IsFalse(required1Param.Type.IsNullable, "Required parameter should not be nullable");
+
+                // First optional parameter should become required nullable
+                var optional1Param = methodParameters.Single(p => p.Name == "optional1");
+                Assert.IsNull(optional1Param.DefaultValue, "First optional parameter should become required");
+                Assert.IsTrue(optional1Param.Type.IsNullable, "First optional parameter should be nullable");
+
+                // Subsequent optional parameters still need to be made required
+                var optional2Param = methodParameters.Single(p => p.Name == "optional2");
+                Assert.IsNull(optional2Param.DefaultValue, "Second optional parameter should be required");
+                Assert.IsTrue(optional2Param.Type.IsNullable, "Second optional parameter should be nullable");
+
+                var optional3Param = methodParameters.Single(p => p.Name == "optional3");
+                Assert.IsNull(optional3Param.DefaultValue, "Third optional parameter should be required");
+                Assert.IsTrue(optional3Param.Type.IsNullable, "Third optional parameter should be nullable");
+
+                // RequestOptions should be required
+                var optionsParameter = methodParameters.Single(p => p.Name == "options");
+                Assert.IsNull(optionsParameter.DefaultValue, "RequestOptions should be required");
+            }
+        }
+
+        [Test]
+        public void ProtocolMethodWithOptionalBodyParameter()
+        {
+            MockHelpers.LoadMockGenerator();
+            List<InputParameter> parameters =
+            [
+                InputFactory.Parameter(
+                    "required1",
+                    InputPrimitiveType.String,
+                    isRequired: true,
+                    location: InputRequestLocation.Query),
+                InputFactory.Parameter(
+                    "optional1",
+                    InputPrimitiveType.String,
+                    isRequired: false,
+                    location: InputRequestLocation.Body),
+                InputFactory.Parameter(
+                    "optional2",
+                    InputPrimitiveType.Int32,
+                    isRequired: false,
+                    location: InputRequestLocation.Query),
+            ];
+            var inputOperation = InputFactory.Operation(
+                "TestOperation",
+                parameters: parameters);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("Test", inputOperation, parameters: parameters);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            var protocolMethods = methodCollection.Where(m =>
+                m.Signature.Parameters.Any(p => p.Name == "options") && m.Signature.Name.StartsWith("TestOperation")).ToList();
+            Assert.AreEqual(2, protocolMethods.Count);
+
+            foreach (var protocolMethod in protocolMethods)
+            {
+                Assert.AreEqual(inputServiceMethod, protocolMethod.ServiceMethod);
+
+                var methodParameters = protocolMethod.Signature.Parameters;
+
+                // First required parameter should remain required
+                var required1Param = methodParameters.Single(p => p.Name == "required1");
+                Assert.IsNull(required1Param.DefaultValue, "Required parameter should remain required");
+                Assert.IsFalse(required1Param.Type.IsNullable, "Required parameter should not be nullable");
+
+                // Body parameter should become required nullable
+                var bodyParam = methodParameters.Single(p => p.Name == "content");
+                Assert.IsNull(bodyParam.DefaultValue, "Body parameter should become required");
+                Assert.AreEqual(ParameterValidationType.None, bodyParam.Validation, "Body parameter should not have any validation");
+
+                // Subsequent optional parameters should remain optional
+                var optional2Param = methodParameters.Single(p => p.Name == "optional2");
+                Assert.IsNotNull(optional2Param.DefaultValue, "Second optional parameter should remain optional");
+                Assert.IsTrue(optional2Param.Type.IsNullable, "Second optional parameter should not be nullable");
+
+                // RequestOptions should be optional
+                var optionsParameter = methodParameters.Single(p => p.Name == "options");
+                Assert.IsNotNull(optionsParameter.DefaultValue, "RequestOptions should be optional");
+            }
         }
 
         [Test]

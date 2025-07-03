@@ -796,6 +796,12 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     "requestOptionsForNextPage.setContext(requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : "
                         + TemplateUtil.getContextNone() + ");");
 
+                MethodPageDetails.NextLinkReInjection nextLinkReInjection
+                    = clientMethod.getMethodPageDetails().getNextLinkReInjection();
+                if (nextLinkReInjection != null) {
+                    addQueryParameterReInjectionLogic(nextLinkReInjection, function);
+                }
+
                 function.line("return new PagedIterable<>(");
                 function.indent(() -> {
                     function.line("%s,",
@@ -998,6 +1004,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                         "requestOptionsForNextPage.setContext(requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : "
                             + TemplateUtil.getContextNone() + ");");
                 }
+
                 function.line("return new PagedIterable<>(");
 
                 String nextMethodArgs = clientMethod.getMethodPageDetails()
@@ -1041,6 +1048,13 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                         "requestOptionsForNextPage.setContext(requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : "
                             + TemplateUtil.getContextNone() + ");");
                 }
+
+                MethodPageDetails.NextLinkReInjection reinjectedParams
+                    = clientMethod.getMethodPageDetails().getNextLinkReInjection();
+                if (reinjectedParams != null) {
+                    addQueryParameterReInjectionLogic(reinjectedParams, function);
+                }
+
                 function.line("return new PagedFlux<>(");
                 function.indent(() -> {
                     function.line(this.getPagingSinglePageExpression(clientMethod,
@@ -1067,6 +1081,29 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
     private static void addServiceMethodAnnotation(JavaType typeBlock, ReturnType returnType) {
         typeBlock.annotation("ServiceMethod(returns = ReturnType." + returnType.name() + ")");
+    }
+
+    protected void addQueryParameterReInjectionLogic(MethodPageDetails.NextLinkReInjection nextLinkReInjection,
+        JavaBlock javaBlock) {
+        javaBlock.line("if (requestOptions != null) {");
+        javaBlock.indent(() -> {
+            javaBlock.line("requestOptions.addRequestCallback(httpRequest -> {");
+            javaBlock.indent(() -> {
+                javaBlock.line("UrlBuilder urlBuilder = UrlBuilder.parse(httpRequest.getUrl().toString());");
+                javaBlock.line("Map<String, String> queryParams = urlBuilder.getQuery();");
+                for (String paramSerializedName : nextLinkReInjection.getQueryParameterSerializedNames()) {
+                    javaBlock.line("if (queryParams.containsKey(\"" + paramSerializedName + "\")) {");
+                    javaBlock.indent(() -> {
+                        javaBlock.line("requestOptionsForNextPage.addQueryParam(\"" + paramSerializedName
+                            + "\", queryParams.get(\"" + paramSerializedName + "\"));");
+                    });
+                    javaBlock.line("}");
+                }
+            });
+            javaBlock.line("});");
+        });
+        javaBlock.line("}");
+
     }
 
     protected void generateResumable(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {

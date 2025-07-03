@@ -84,6 +84,29 @@ extends:
                   Write-Host "##vso[task.setvariable variable=TypeSpecCommitUrl]$typeSpecCommitUrl"
                 displayName: Set variables for PR creation
 
+              - task: UseNode@1
+                displayName: "Install Node.js"
+                inputs:
+                  version: "22.x"
+
+              - download: current
+                displayName: Download pipeline artifacts
+
+              - pwsh: |
+                  npm install -g @azure-tools/typespec-client-generator-cli@latest
+                displayName: Install tsp-client
+
+              - task: PowerShell@2
+                displayName: Update package.json and generate emitter-package.json files
+                inputs:
+                  pwsh: true
+                  filePath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Update-PackageJson-And-Invoke-TspClient.ps1
+                  workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+                  arguments: >
+                    -PackageVersion '$(PackageVersion)'
+                    -PackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
+                    -EmitterPackageJsonPath '$(Build.SourcesDirectory)/eng/http-client-csharp-emitter-package.json'
+
               - task: UseDotNet@2
                 inputs:
                   useGlobalJson: true
@@ -98,3 +121,4 @@ extends:
                     -PackageVersion '$(PackageVersion)'
                     -TypeSpecCommitUrl '$(TypeSpecCommitUrl)'
                     -AuthToken '$(azuresdk-github-pat)'
+                    -TypeSpecSourceDirectory '$(Build.SourcesDirectory)'
