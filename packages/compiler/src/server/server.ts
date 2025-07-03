@@ -17,7 +17,7 @@ import { NodeHost } from "../core/node-host.js";
 import { typespecVersion } from "../manifest.js";
 import { createClientConfigProvider } from "./client-config-provider.js";
 import { createServer } from "./serverlib.js";
-import { CustomRequestName, Server, ServerHost, ServerLog } from "./types.js";
+import { ConsoleLogger, CustomRequestName, Server, ServerHost, ServerLog } from "./types.js";
 
 let server: Server | undefined = undefined;
 
@@ -41,6 +41,10 @@ function main() {
   let clientHasWorkspaceFolderCapability = false;
   const connection = createConnection(ProposedFeatures.all);
   const documents = new TextDocuments(TextDocument);
+
+  // Initialize global debug logger for all server modules,
+  // this will override console methods to use LSP connection.
+  initializeConsoleLogger(connection.console);
 
   const host: ServerHost = {
     compilerHost: NodeHost,
@@ -149,6 +153,51 @@ function main() {
 
   documents.listen(connection);
   connection.listen();
+}
+
+function initializeConsoleLogger(logger: ConsoleLogger): void {
+  function formatMessage(...args: any[]): string {
+    return args
+      .map((arg) => (typeof arg === "object" ? JSON.stringify(arg, null, 2) : String(arg)))
+      .join(" ");
+  }
+
+  // eslint-disable-next-line no-console
+  console.log = (...args: any[]) => {
+    // Because the output to the custom log of the vscode extension does not define the log level,
+    // use info directly
+    logger.info(formatMessage(...args));
+  };
+  // eslint-disable-next-line no-console
+  console.error = (...args: any[]) => {
+    logger.error(formatMessage(...args));
+  };
+  // eslint-disable-next-line no-console
+  console.warn = (...args: any[]) => {
+    logger.warn(formatMessage(...args));
+  };
+  // eslint-disable-next-line no-console
+  console.info = (...args: any[]) => {
+    logger.info(formatMessage(...args));
+  };
+  // eslint-disable-next-line no-console
+  console.debug = (...args: any[]) => {
+    logger.debug(formatMessage(...args));
+  };
+
+  // Also override global console if available
+  if (typeof global !== "undefined" && global.console) {
+    // eslint-disable-next-line no-console
+    global.console.log = console.log;
+    // eslint-disable-next-line no-console
+    global.console.error = console.error;
+    // eslint-disable-next-line no-console
+    global.console.warn = console.warn;
+    // eslint-disable-next-line no-console
+    global.console.info = console.info;
+    // eslint-disable-next-line no-console
+    global.console.debug = console.debug;
+  }
 }
 
 function fatalError(e: unknown) {
