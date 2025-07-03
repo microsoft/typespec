@@ -174,7 +174,7 @@ class ClientSerializer:
             )
             if add_private_models and self.client.code_model.model_types:
                 update_dict = "{k: v for k, v in _models.__dict__.items() if isinstance(v, type)}"
-                retval.append(f"client_models.update({update_dict})")
+                retval.append(f"client_models |= {update_dict}")
         client_models_str = "client_models" if is_msrest_model else ""
         retval.append(f"self._serialize = Serializer({client_models_str})")
         retval.append(f"self._deserialize = Deserializer({client_models_str})")

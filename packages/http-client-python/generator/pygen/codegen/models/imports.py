@@ -167,7 +167,7 @@ class FileImport:
         """Merge the given file import format."""
         for i in file_import.imports:
             self._append_import(i)
-        self.type_definitions.update(file_import.type_definitions)
+        self.type_definitions |= file_import.type_definitions
 
     def add_mutable_mapping_import(self) -> None:
         self.add_submodule_import("collections.abc", "MutableMapping", ImportType.STDLIB)

@@ -39,7 +39,7 @@ class GeneralSerializer(BaseSerializer):
             "MIN_PYTHON_VERSION": MIN_PYTHON_VERSION,
             "MAX_PYTHON_VERSION": MAX_PYTHON_VERSION,
         }
-        params.update({"options": self.code_model.options})
+        params |= {"options": self.code_model.options}
         return template.render(code_model=self.code_model, **params)
 
     def serialize_package_file(self, template_name: str, **kwargs: Any) -> str:
@@ -68,8 +68,8 @@ class GeneralSerializer(BaseSerializer):
             "MIN_PYTHON_VERSION": MIN_PYTHON_VERSION,
             "MAX_PYTHON_VERSION": MAX_PYTHON_VERSION,
         }
-        params.update({"options": self.code_model.options})
-        params.update(kwargs)
+        params |= {"options": self.code_model.options}
+        params |= kwargs
         return template.render(file_import=FileImport(self.code_model), **params)
 
     def serialize_pkgutil_init_file(self) -> str:
@@ -204,19 +204,18 @@ class GeneralSerializer(BaseSerializer):
             f"{model.client_namespace}.models.{model.name}": model.cross_language_definition_id
             for model in self.code_model.public_model_types
         }
-        cross_langauge_def_dict.update(
-            {
-                f"{self.code_model.namespace}.models.{enum.name}": enum.cross_language_definition_id
-                for enum in self.code_model.enums
-                if not enum.internal
-            }
-        )
+        cross_langauge_def_dict |= ({
+            f"{self.code_model.namespace}.models.{enum.name}": enum.cross_language_definition_id
+            for enum in self.code_model.enums
+            if not enum.internal
+        })
+        
         for client in self.code_model.clients:
             for operation_group in client.operation_groups:
                 for operation in operation_group.operations:
                     if operation.name.startswith("_"):
                         continue
-                    cross_langauge_def_dict.update(
+                    cross_langauge_def_dict |= (
                         {
                             f"{self.code_model.namespace}."
                             + (
@@ -227,7 +226,7 @@ class GeneralSerializer(BaseSerializer):
                             + f"{operation.name}": operation.cross_language_definition_id
                         }
                     )
-                    cross_langauge_def_dict.update(
+                    cross_langauge_def_dict |= (
                         {
                             f"{self.code_model.namespace}.aio."
                             + (

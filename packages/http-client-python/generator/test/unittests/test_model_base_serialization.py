@@ -2772,17 +2772,17 @@ def test_update():
         my_dict = copy.deepcopy(my_dict)  # so we don't get rid of the dict each time we run tests
 
         assert my_dict["aProp"] == my_model.a_prop == my_model["aProp"] == {"aStrProp": "a"}
-        my_dict.update({"aProp": {"aStrProp": "newA"}})
-        my_model.a_prop.update({"aStrProp": "newA"})
+        my_dict |= {"aProp": {"aStrProp": "newA"}}
+        my_model.a_prop |= {"aStrProp": "newA"}
         assert my_dict["aProp"] == my_model.a_prop == my_model["aProp"] == {"aStrProp": "newA"}
 
-        my_dict["bProp"].update({"newBProp": "hello"})
-        my_model.b_prop.update({"newBProp": "hello"})
+        my_dict["bProp"] |= {"newBProp": "hello"}
+        my_model.b_prop |= {"newBProp": "hello"}
 
         assert my_dict["bProp"] == my_model.b_prop == my_model["bProp"] == {"bStrProp": "b", "newBProp": "hello"}
 
-        my_dict.update({"dProp": "hello"})
-        my_model.update({"dProp": "hello"})
+        my_dict |= {"dProp": "hello"}
+        my_model |= {"dProp": "hello"}
 
         assert my_dict["dProp"] == my_model["dProp"] == "hello"
 

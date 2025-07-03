@@ -71,9 +71,9 @@ class SampleSerializer(BaseSerializer):
         special_param = {}
         credential_type = getattr(self.code_model.clients[0].credential, "type", None)
         if isinstance(credential_type, TokenCredentialType):
-            special_param.update({"credential": "DefaultAzureCredential()"})
+            special_param |= {"credential": "DefaultAzureCredential()"}
         elif isinstance(credential_type, KeyCredentialType):
-            special_param.update({"credential": 'AzureKeyCredential(key=os.getenv("AZURE_KEY"))'})
+            special_param |= {"credential": 'AzureKeyCredential(key=os.getenv("AZURE_KEY"))'}
 
         params = [
             p

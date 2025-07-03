@@ -181,7 +181,7 @@ class OptionsDict(MutableMapping):
         for key in self.DEFAULTS:
             if key not in all_keys:
                 all_keys.add(key)
-        all_keys.update(self.DEFAULTS.keys())
+        all_keys |= self.DEFAULTS.keys()
         return KeysView({key: None for key in all_keys})
 
     def values(self) -> ValuesView[Any]:

@@ -1207,7 +1207,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     "    error_map[412] = ResourceExistsError",
                 ]
             )
-        retval.append("error_map.update(kwargs.pop('error_map', {}) or {})")
+        retval.append("error_map |= (kwargs.pop('error_map', {}) or {})")
         return retval
 
     @property

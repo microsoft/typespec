@@ -408,7 +408,7 @@ class Model:
             return {}
         result = dict(cls._subtype_map[key])
         for valuetype in cls._subtype_map[key].values():
-            result.update(objects[valuetype]._flatten_subtype(key, objects))  # pylint: disable=protected-access
+            result |= objects[valuetype]._flatten_subtype(key, objects)  # pylint: disable=protected-access
         return result
 
     @classmethod
@@ -573,7 +573,7 @@ class Serializer:  # pylint: disable=too-many-public-methods
 
                 if attr_name == "additional_properties" and attr_desc["key"] == "":
                     if target_obj.additional_properties is not None:
-                        serialized.update(target_obj.additional_properties)
+                        serialized |= target_obj.additional_properties
                     continue
                 try:
 
