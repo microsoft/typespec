@@ -14,13 +14,17 @@ import io.clientcore.core.http.pipeline.HttpRedirectOptions;
 import io.clientcore.core.http.pipeline.HttpRedirectPolicy;
 import io.clientcore.core.http.pipeline.HttpRetryOptions;
 import io.clientcore.core.http.pipeline.HttpRetryPolicy;
+import io.clientcore.core.instrumentation.Instrumentation;
+import io.clientcore.core.instrumentation.SdkInstrumentationOptions;
 import io.clientcore.core.traits.ConfigurationTrait;
 import io.clientcore.core.traits.EndpointTrait;
 import io.clientcore.core.traits.HttpTrait;
 import io.clientcore.core.traits.ProxyTrait;
+import io.clientcore.core.utils.CoreUtils;
 import io.clientcore.core.utils.configuration.Configuration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import type.dictionary.implementation.DictionaryClientImpl;
 
@@ -48,6 +52,9 @@ public final class DictionaryClientBuilder
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("type-dictionary.properties");
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
@@ -226,7 +233,16 @@ public final class DictionaryClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public Int32ValueClient buildInt32ValueClient() {
-        return new Int32ValueClient(buildInnerClient().getInt32Values());
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        return new Int32ValueClient(buildInnerClient().getInt32Values(), instrumentation);
     }
 
     /**
@@ -236,7 +252,16 @@ public final class DictionaryClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public Int64ValueClient buildInt64ValueClient() {
-        return new Int64ValueClient(buildInnerClient().getInt64Values());
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        return new Int64ValueClient(buildInnerClient().getInt64Values(), instrumentation);
     }
 
     /**
@@ -246,7 +271,16 @@ public final class DictionaryClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public BooleanValueClient buildBooleanValueClient() {
-        return new BooleanValueClient(buildInnerClient().getBooleanValues());
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        return new BooleanValueClient(buildInnerClient().getBooleanValues(), instrumentation);
     }
 
     /**
@@ -256,7 +290,16 @@ public final class DictionaryClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public StringValueClient buildStringValueClient() {
-        return new StringValueClient(buildInnerClient().getStringValues());
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        return new StringValueClient(buildInnerClient().getStringValues(), instrumentation);
     }
 
     /**
@@ -266,7 +309,16 @@ public final class DictionaryClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public Float32ValueClient buildFloat32ValueClient() {
-        return new Float32ValueClient(buildInnerClient().getFloat32Values());
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        return new Float32ValueClient(buildInnerClient().getFloat32Values(), instrumentation);
     }
 
     /**
@@ -276,7 +328,16 @@ public final class DictionaryClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public DatetimeValueClient buildDatetimeValueClient() {
-        return new DatetimeValueClient(buildInnerClient().getDatetimeValues());
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        return new DatetimeValueClient(buildInnerClient().getDatetimeValues(), instrumentation);
     }
 
     /**
@@ -286,7 +347,16 @@ public final class DictionaryClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public DurationValueClient buildDurationValueClient() {
-        return new DurationValueClient(buildInnerClient().getDurationValues());
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        return new DurationValueClient(buildInnerClient().getDurationValues(), instrumentation);
     }
 
     /**
@@ -296,7 +366,16 @@ public final class DictionaryClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public UnknownValueClient buildUnknownValueClient() {
-        return new UnknownValueClient(buildInnerClient().getUnknownValues());
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        return new UnknownValueClient(buildInnerClient().getUnknownValues(), instrumentation);
     }
 
     /**
@@ -306,7 +385,16 @@ public final class DictionaryClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ModelValueClient buildModelValueClient() {
-        return new ModelValueClient(buildInnerClient().getModelValues());
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        return new ModelValueClient(buildInnerClient().getModelValues(), instrumentation);
     }
 
     /**
@@ -316,7 +404,16 @@ public final class DictionaryClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public RecursiveModelValueClient buildRecursiveModelValueClient() {
-        return new RecursiveModelValueClient(buildInnerClient().getRecursiveModelValues());
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        return new RecursiveModelValueClient(buildInnerClient().getRecursiveModelValues(), instrumentation);
     }
 
     /**
@@ -326,6 +423,15 @@ public final class DictionaryClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public NullableFloatValueClient buildNullableFloatValueClient() {
-        return new NullableFloatValueClient(buildInnerClient().getNullableFloatValues());
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        return new NullableFloatValueClient(buildInnerClient().getNullableFloatValues(), instrumentation);
     }
 }

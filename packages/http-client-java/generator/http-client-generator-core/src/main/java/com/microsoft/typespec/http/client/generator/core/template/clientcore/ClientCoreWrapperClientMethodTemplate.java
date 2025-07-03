@@ -7,11 +7,13 @@ import com.azure.core.annotation.ReturnType;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Annotation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPageDetails;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
@@ -69,18 +71,34 @@ public class ClientCoreWrapperClientMethodTemplate extends WrapperClientMethodTe
     @Override
     protected void writeMethodInvocation(ClientMethod clientMethod, JavaBlock function, boolean shouldReturn) {
         List<ClientMethodParameter> parameters = clientMethod.getMethodInputParameters();
-        final String argumentList;
+        Stream<ClientMethodParameter> argStream = parameters.stream();
+
         if (clientMethod.isPageStreamingType()) {
-            final MethodPageDetails pageDetails = clientMethod.getMethodPageDetails();
-            argumentList = parameters.stream()
-                .filter(parameter -> !pageDetails.shouldHideParameter(parameter))
-                .map(ClientMethodParameter::getName)
-                .collect(Collectors.joining(", "));
-        } else {
-            argumentList = parameters.stream().map(ClientMethodParameter::getName).collect(Collectors.joining(", "));
+            argStream
+                = argStream.filter(parameter -> !clientMethod.getMethodPageDetails().shouldHideParameter(parameter));
         }
-        function.line((shouldReturn ? "return " : "") + "this.serviceClient.%1$s(%2$s);", clientMethod.getName(),
-            argumentList);
+
+        final String requestContextParam = parameters.stream()
+            .filter(p -> p.getClientType() == ClassType.REQUEST_CONTEXT)
+            .map(ClientMethodParameter::getName)
+            .findFirst()
+            .orElse(null);
+
+        // don't instrument pageables on the client level, we'll instrument them on the impl
+        final boolean shouldInstrument = !clientMethod.isPageStreamingType();
+        if (shouldInstrument) {
+            final String argumentList
+                = argStream.map(p -> p.getClientType() == ClassType.REQUEST_CONTEXT ? "updatedContext" : p.getName())
+                    .collect(Collectors.joining(", "));
+
+            function.line((shouldReturn ? "return " : "")
+                + "this.instrumentation.instrumentWithResponse(\"%1$s\", %2$s, updatedContext -> this.serviceClient.%3$s(%4$s));",
+                clientMethod.getOperationInstrumentationInfo().getOperationName(), requestContextParam,
+                clientMethod.getName(), argumentList);
+        } else {
+            function.line((shouldReturn ? "return " : "") + "this.serviceClient.%1$s(%2$s);", clientMethod.getName(),
+                argStream.map(MethodParameter::getName).collect(Collectors.joining(", ")));
+        }
     }
 
     protected void generateJavadoc(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod) {

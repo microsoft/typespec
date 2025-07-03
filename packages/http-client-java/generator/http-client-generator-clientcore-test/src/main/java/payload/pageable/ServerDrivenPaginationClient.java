@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.paging.PagedIterable;
+import io.clientcore.core.instrumentation.Instrumentation;
 import payload.pageable.implementation.ServerDrivenPaginationsImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class ServerDrivenPaginationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final ServerDrivenPaginationsImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of ServerDrivenPaginationClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    ServerDrivenPaginationClient(ServerDrivenPaginationsImpl serviceClient) {
+    ServerDrivenPaginationClient(ServerDrivenPaginationsImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
