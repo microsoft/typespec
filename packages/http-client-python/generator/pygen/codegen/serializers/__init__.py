@@ -9,6 +9,7 @@ from collections import namedtuple
 import re
 from typing import List, Any, Union
 from pathlib import Path
+from packaging.version import parse as parse_version
 from jinja2 import PackageLoader, Environment, FileSystemLoader, StrictUndefined
 
 from ... import ReaderAndWriter
@@ -106,7 +107,11 @@ class JinjaSerializer(ReaderAndWriter):
             serialized_version = match.group(1) if match else ""
         except (FileNotFoundError, IndexError):
             serialized_version = ""
-        return serialized_version > self.code_model.options["package_version"]
+        try:
+            return parse_version(serialized_version) > parse_version(self.code_model.options["package_version"])
+        except:
+            # Overwrite version file if parsing or version comparison fails.
+            return False
 
     def serialize(self) -> None:
         env = Environment(
@@ -231,7 +236,7 @@ class JinjaSerializer(ReaderAndWriter):
                 if self.keep_version_file and file == "setup.py":
                     # don't regenerate setup.py file if the version file is more up to date
                     continue
-                file_path = self.exec_path(self.code_model.namespace) / output_name
+                file_path = self.output_folder / Path(output_name)
                 self.write_file(
                     output_name,
                     serializer.serialize_package_file(template_name, file_path, **params),
