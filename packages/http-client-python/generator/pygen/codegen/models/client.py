@@ -326,7 +326,8 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):  # pylint: disable=t
                 self.code_model.get_relative_import_path(
                     serialize_namespace,
                     self.code_model.get_imported_namespace_for_operation(og.client_namespace, async_mode),
-                ),
+                )
+                + (f".{og.filename}" if og.is_mixin else ""),
                 og.class_name,
                 ImportType.LOCAL,
             )
