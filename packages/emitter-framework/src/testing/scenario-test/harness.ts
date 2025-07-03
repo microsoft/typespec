@@ -1,7 +1,7 @@
-import { normalizePath } from "@typespec/compiler";
+import { logDiagnostics, NodeHost, normalizePath } from "@typespec/compiler";
 import { expectDiagnosticEmpty, type EmitterTester } from "@typespec/compiler/testing";
 import { readdirSync, readFileSync, statSync, writeFileSync } from "fs";
-import path from "path";
+import { join } from "pathe";
 import { format } from "prettier";
 import { afterAll, describe, expect, it } from "vitest";
 import type { LanguageConfiguration, SnippetExtractor } from "./snippet-extractor.js";
@@ -16,8 +16,8 @@ async function assertGetEmittedFile(tester: EmitterTester, file: string, code: s
   const errors = diagnostics.filter((d) => d.severity === "error");
   const warnings = diagnostics.filter((d) => d.severity === "warning");
   if (warnings.length > 0) {
-    // eslint-disable-next-line no-console
-    console.warn(`Warning compiling code:\n ${warnings.map((x) => x.message).join("\n")}`);
+    // TODO: this should ideally fail the test or be part of the expectation.
+    logDiagnostics(warnings, NodeHost.logSink);
   }
   expectDiagnosticEmpty(errors);
 
@@ -109,19 +109,33 @@ export async function executeScenarios(
   describeScenarios(scenarioList, tester, languageConfiguration, snippetExtractor);
 }
 
-function discoverAllScenarios(dir: string, scenarios: string[] = []) {
-  const children = readdirSync(dir);
-  for (const child of children) {
-    const fullPath = path.join(dir, child);
-    const stat = statSync(fullPath);
-    if (stat.isDirectory()) {
-      discoverAllScenarios(fullPath, scenarios);
-    } else {
-      scenarios.push(fullPath);
+function discoverAllScenarios(dir: string): ScenarioFileId[] {
+  const scenarios: ScenarioFileId[] = [];
+
+  function recurse(current: string) {
+    const children = readdirSync(join(dir, current));
+    for (const child of children) {
+      const fullPath = join(dir, current, child);
+      const stat = statSync(fullPath);
+      if (stat.isDirectory()) {
+        recurse(join(current, child));
+      } else {
+        scenarios.push({ path: fullPath, relativePath: join(current, child) });
+      }
     }
   }
 
+  recurse("");
   return scenarios;
+}
+
+interface ScenarioFileId {
+  path: string;
+  relativePath: string;
+}
+
+interface ScenarioFile extends ScenarioFileId {
+  scenarios: Scenario[];
 }
 
 interface Scenario {
@@ -156,25 +170,20 @@ interface TestCodeBlock {
 
 type ScenarioCodeBlock = SpecCodeBlock | TestCodeBlock;
 
-interface ScenarioFile {
-  path: string;
-  scenarios: Scenario[];
-}
-
 function parseFile(
-  path: string,
+  file: ScenarioFileId,
   tester: EmitterTester,
   languageConfiguration: LanguageConfiguration,
   snippetExtractor: SnippetExtractor,
 ): ScenarioFile {
   // Read the whole file
-  const rawContent = readFileSync(path, { encoding: "utf-8" });
+  const rawContent = readFileSync(file.path, { encoding: "utf-8" });
 
   // Split the content by H1
   const sections = splitByH1(rawContent);
 
   const scenarioFile: ScenarioFile = {
-    path,
+    ...file,
     scenarios: [],
   };
 
@@ -260,7 +269,7 @@ function parseScenario(
 }
 
 function describeScenarios(
-  scenarioFiles: string[],
+  scenarioFiles: ScenarioFileId[],
   tester: EmitterTester,
   languageConfiguration: LanguageConfiguration,
   snippetExtractor: SnippetExtractor,
@@ -270,7 +279,7 @@ function describeScenarios(
   );
 
   for (const scenarioFile of scenarios) {
-    describe(`Scenario File: ${scenarioFile.path}`, () => {
+    describe(`${scenarioFile.relativePath}`, () => {
       for (const scenario of scenarioFile.scenarios) {
         const isOnly = scenario.title.includes("only:");
         const isSkip = scenario.title.includes("skip:");
