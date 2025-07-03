@@ -9,6 +9,7 @@ import { getRelativePathFromDirectory, joinPaths, resolvePath } from "../core/pa
 import { Program, compile as coreCompile } from "../core/program.js";
 import { createSourceLoader } from "../core/source-loader.js";
 import { CompilerHost, Diagnostic, Entity, NoTarget, SourceFile } from "../core/types.js";
+import { resolveModule } from "../module-resolver/module-resolver.js";
 import { expectDiagnosticEmpty } from "./expect.js";
 import { PositionedMarker, extractMarkers } from "./fourslash.js";
 import { createTestFileSystem } from "./fs.js";
@@ -63,6 +64,28 @@ async function createTesterFs(base: string, options: TesterOptions) {
   const selfName = JSON.parse(await readFile(resolvePath(base, "package.json"), "utf8")).name;
   for (const lib of options.libraries) {
     await sl.importPath(lib, NoTarget, base);
+
+    // We also need to load the library js entrypoint for emitters and linters.
+    const resolved = await resolveModule(
+      {
+        realpath: async (x) => x,
+        stat: NodeHost.stat,
+        readFile: async (path) => {
+          const file = await NodeHost.readFile(path);
+          return file.text;
+        },
+      },
+      lib,
+      { baseDir: base, conditions: ["import", "default"] },
+    );
+    if (resolved.type === "module") {
+      const virtualPath = computeRelativePath(lib, resolved.mainFile);
+      fs.addJsFile(virtualPath, host.getJsImport(resolved.mainFile));
+      fs.add(
+        resolvePath("node_modules", lib, "package.json"),
+        (resolved.manifest as any).file.text,
+      );
+    }
   }
   expectDiagnosticEmpty(sl.resolution.diagnostics);
 
