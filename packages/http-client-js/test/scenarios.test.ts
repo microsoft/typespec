@@ -17,7 +17,7 @@ const snipperExtractor = createSnipperExtractor(tsExtractorConfig);
 const scenarioPath = join(__dirname, "scenarios");
 
 await executeScenarios(
-  Tester.importLibraries().using("Http", "Rest"),
+  Tester.import("@typespec/http", "@typespec/rest").using("Http", "Rest"),
   tsExtractorConfig,
   scenarioPath,
   snipperExtractor,

@@ -162,8 +162,7 @@ interface TestCodeBlock {
   content: string[];
   matchedTemplate: {
     template: string;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-    fn: Function;
+    fn: EmitterFunction;
     namedArgs: Record<string, string> | null;
   };
 }
