@@ -15,8 +15,8 @@ import { resolveTypeSpecCli } from "../../tsp-executable-resolver.js";
 import { TspLanguageClient } from "../../tsp-language-client.js";
 import { ResultCode } from "../../types.js";
 import {
+  extractEmitterOptions,
   formatDiagnostic,
-  generateAnnotatedYamlFile,
   getEntrypointTspFile,
   TraverseMainTspFileInWorkspace,
 } from "../../typespec-utils.js";
@@ -401,7 +401,7 @@ async function doEmit(
           defaultEmitOutputDirInConfig,
         );
 
-        await generateAnnotatedYamlFile(configYaml, emitter.package, baseDir, [defaultEmitKey]);
+        await generateAnnotatedYamlFile(configYaml, emitter.package, baseDir);
       } else {
         outputDir = emitOutputDir as string;
       }
@@ -419,7 +419,7 @@ async function doEmit(
       generations.push({ emitter: emitter, outputDir: outputDir, codeInfo: codeInfoStr });
     }
     let newYamlContent = configYaml.toString();
-    newYamlContent = newYamlContent.replaceAll("X*X", "# ");
+    newYamlContent = newYamlContent.replaceAll("ReplacedStr_", "# ");
     await writeFile(tspConfigFile, newYamlContent);
   } catch (error: any) {
     logger.error(error);
@@ -841,4 +841,80 @@ async function isCompilerSupport(client: TspLanguageClient): Promise<boolean> {
     return false;
   }
   return true;
+}
+
+function getConfigEntriesFromEmitterOptions(
+  emitterOptions: Record<string, any>,
+  configYamlContent: string,
+): Record<string, any> {
+  const configEntries: Record<string, any> = {};
+  if (!emitterOptions.properties) {
+    return configEntries;
+  }
+
+  for (const [propertyName, propertySchema] of Object.entries(emitterOptions.properties)) {
+    if (configYamlContent.includes(propertyName)) {
+      continue;
+    }
+
+    const propSchema = propertySchema as any;
+    let comment = "";
+    if (propSchema.description) {
+      comment = propSchema.description;
+    }
+    if (propSchema.type) {
+      comment += ` (Type: ${propSchema.type})`;
+    }
+    if (propSchema.enum) {
+      comment += ` (Options: ${propSchema.enum.join(", ")})`;
+    }
+
+    let defaultValue: any;
+    if (propSchema.default !== undefined) {
+      defaultValue = propSchema.default;
+    }
+
+    configEntries[propertyName] = {
+      value: defaultValue,
+      comment: comment,
+    };
+  }
+
+  return configEntries;
+}
+
+async function generateAnnotatedYamlFile(
+  configYaml: Document,
+  packageName: string,
+  baseDir: string,
+): Promise<void> {
+  try {
+    const emitterOptions = await extractEmitterOptions(baseDir, packageName);
+    const configEntries = getConfigEntriesFromEmitterOptions(emitterOptions, configYaml.toString());
+    if (Object.keys(configEntries).length === 0) {
+      logger.debug(`No configuration entries found for ${packageName}`);
+      return;
+    }
+
+    for (const [propertyName, propertyConfig] of Object.entries(configEntries)) {
+      const { value, comment } = propertyConfig as { value: any; comment: string };
+      // Use a custom key by adding 'ReplacedStr_' to make it easier to later replace 'ReplacedStr_' with '# ',
+      // and finally implement adding a commented property under a certain package under option.
+      const key = `ReplacedStr_${propertyName}`;
+
+      const keyScalar = configYaml.createNode(key);
+      const valueScalar = configYaml.createNode(value);
+      const parentMap = configYaml.getIn(["options", packageName], true);
+      if (parentMap && typeof parentMap === "object" && "items" in parentMap) {
+        const newPair = configYaml.createPair(keyScalar, valueScalar);
+        (parentMap as any).items.push(newPair);
+
+        if (comment && newPair.key) {
+          newPair.key.commentBefore = ` ${comment}`;
+        }
+      }
+    }
+  } catch (error) {
+    logger.error(`Error generating annotated yaml file content for ${packageName}:`, [error]);
+  }
 }
