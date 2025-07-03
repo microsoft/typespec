@@ -4,12 +4,9 @@
 # license information.
 # --------------------------------------------------------------------------
 import json
-from typing import Any, List
+from typing import Any, List, TYPE_CHECKING
 import re
-try:
-    import tomllib
-except ImportError:
-    import tomli as tomllib
+import tomli as tomllib
 from packaging.version import parse as parse_version
 from .import_serializer import FileImportSerializer, TypingSection
 from ..models.imports import MsrestImportType, FileImport
@@ -21,6 +18,9 @@ from ..models import (
 from ..models.utils import NamespaceType
 from .client_serializer import ClientSerializer, ConfigSerializer
 from .base_serializer import BaseSerializer
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 VERSION_MAP = {
     "msrest": "0.7.1",
@@ -60,49 +60,53 @@ class GeneralSerializer(BaseSerializer):
         m = re.search(r"[>=]=?([\d.]+(?:[a-z]+\d+)?)", s)
         return parse_version(m.group(1)) if m else parse_version("0")
 
-    def _keep_pyproject_fields(self, file_path: str) -> dict:
+    def _keep_pyproject_fields(self, file_path: "Path") -> dict:
         # Load the pyproject.toml file if it exists and extract fields to keep.
-        result = {"KEEP_FIELDS": {}}
+        result: dict = {"KEEP_FIELDS": {}}
         try:
             with open(file_path, "rb") as f:
                 loaded_pyproject_toml = tomllib.load(f)
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
+            # If parsing the pyproject.toml fails, we assume the it does not exist or is incorrectly formatted.
             return result
 
         # Keep azure-sdk-build configuration
         if "tool" in loaded_pyproject_toml and "azure-sdk-build" in loaded_pyproject_toml["tool"]:
-          result["KEEP_FIELDS"]["tool.azure-sdk-build"] = loaded_pyproject_toml["tool"]["azure-sdk-build"]
+            result["KEEP_FIELDS"]["tool.azure-sdk-build"] = loaded_pyproject_toml["tool"]["azure-sdk-build"]
 
         # Process dependencies
         if "project" in loaded_pyproject_toml:
-          # Handle main dependencies
-          if "dependencies" in loaded_pyproject_toml["project"]:
-            kept_deps = []
-            for dep in loaded_pyproject_toml["project"]["dependencies"]:
-                dep_name = re.split(r'[<>=\[]', dep)[0].strip()
+            # Handle main dependencies
+            if "dependencies" in loaded_pyproject_toml["project"]:
+                kept_deps = []
+                for dep in loaded_pyproject_toml["project"]["dependencies"]:
+                    dep_name = re.split(r'[<>=\[]', dep)[0].strip()
 
-                # Check if dependency is one we track in VERSION_MAP
-                if dep_name in VERSION_MAP:
-                    # For tracked dependencies, check if the version is higher than our default
-                    default_version = parse_version(VERSION_MAP[dep_name])
-                    dep_version = self._extract_min_dependency(dep)
-                    # If the version is higher than the default, update VERSION_MAP with higher min dependency version
-                    if dep_version > default_version:
-                      VERSION_MAP[dep_name] = dep_version
-                else:
-                  # Keep non-default dependencies
-                  kept_deps.append(dep)
+                    # Check if dependency is one we track in VERSION_MAP
+                    if dep_name in VERSION_MAP:
+                        # For tracked dependencies, check if the version is higher than our default
+                        default_version = parse_version(VERSION_MAP[dep_name])
+                        dep_version = self._extract_min_dependency(dep)
+                        # If the version is higher than the default, update VERSION_MAP
+                        # with higher min dependency version
+                        if dep_version > default_version:
+                            VERSION_MAP[dep_name] = str(dep_version)
+                    else:
+                        # Keep non-default dependencies
+                        kept_deps.append(dep)
 
-            if kept_deps:
-              result["KEEP_FIELDS"]["project.dependencies"] = kept_deps
+                if kept_deps:
+                    result["KEEP_FIELDS"]["project.dependencies"] = kept_deps
 
-          # Keep optional dependencies
-          if "optional-dependencies" in loaded_pyproject_toml["project"]:
-            result["KEEP_FIELDS"]["project.optional-dependencies"] = loaded_pyproject_toml["project"]["optional-dependencies"]
+            # Keep optional dependencies
+            if "optional-dependencies" in loaded_pyproject_toml["project"]:
+                result["KEEP_FIELDS"]["project.optional-dependencies"] = (
+                    loaded_pyproject_toml["project"]["optional-dependencies"]
+                )
 
         return result
 
-    def serialize_package_file(self, template_name: str, file_path: str, **kwargs: Any) -> str:
+    def serialize_package_file(self, template_name: str, file_path: "Path", **kwargs: Any) -> str:
         template = self.env.get_template(template_name)
 
         # Add fields to keep from an existing pyproject.toml

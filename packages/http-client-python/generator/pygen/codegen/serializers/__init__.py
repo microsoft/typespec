@@ -108,8 +108,8 @@ class JinjaSerializer(ReaderAndWriter):
             serialized_version = ""
         try:
             return parse_version(serialized_version) > parse_version(self.code_model.options.get("package-version", ""))
-        except:
-            # Overwrite version file if parsing or version comparison fails.
+        except Exception:  # pylint: disable=broad-except
+            # If parsing the version fails, we assume the version file is not valid and overwrite.
             return False
 
     def serialize(self) -> None:
