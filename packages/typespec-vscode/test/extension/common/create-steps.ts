@@ -1,6 +1,5 @@
 import { Page } from "playwright";
-import { retry } from "./utils";
-import { screenshot } from "./utils";
+import { retry, screenshot } from "./utils";
 
 /**
  * When creating, select emitters
@@ -139,9 +138,4 @@ async function startWithClick(page: Page) {
   await page.getByRole("button", { name: "Create TypeSpec Project" }).click();
 }
 
-export {
-  inputProjectName,
-  selectEmitters,
-  selectTemplate,
-  startWithClick,
-};
+export { inputProjectName, selectEmitters, selectTemplate, startWithClick };

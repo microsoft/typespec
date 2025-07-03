@@ -1,6 +1,6 @@
+import { mkdir, rm } from "fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { mkdir, rm } from "fs/promises";
 import { beforeEach, describe } from "vitest";
 import {
   closeVscode,
@@ -31,9 +31,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 beforeEach(async () => {
   const dir = path.resolve(__dirname, CreateTypespecProjectFolderPath);
   try {
-    await rm(dir, { recursive: true});
+    await rm(dir, { recursive: true });
   } catch {}
-    await mkdir(dir, { recursive: true });
+  await mkdir(dir, { recursive: true });
 });
 
 describe.each(CreateCasesConfigList)("CreateTypespecProject", async (item) => {
