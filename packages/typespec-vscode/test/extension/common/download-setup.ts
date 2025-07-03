@@ -1,5 +1,5 @@
-import { download } from "@vscode/test-electron"
-import type { GlobalSetupContext } from "vitest/node"
+import { download } from "@vscode/test-electron";
+import type { GlobalSetupContext } from "vitest/node";
 
 /**
  * The global method will download a brand new vscode to your local computer.
@@ -15,6 +15,6 @@ export default async function downloadVscode({ provide }: GlobalSetupContext) {
 
 declare module "vitest" {
   export interface ProvidedContext {
-    executablePath: string
+    executablePath: string;
   }
 }

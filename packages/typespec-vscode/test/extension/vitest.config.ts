@@ -1,4 +1,4 @@
-import { defineConfig } from "vitest/config"
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
@@ -9,7 +9,7 @@ export default defineConfig({
       VSCODE_E2E_EXTENSION_PATH: "./",
       VSCODE_E2E_TRACE: "on",
     },
-    globalSetup: ["./common/downloadSetup.ts"],
+    globalSetup: ["./common/download-setup.ts"],
     retry: 1,
   },
-})
+});

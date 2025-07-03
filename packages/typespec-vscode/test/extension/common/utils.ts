@@ -1,48 +1,47 @@
-import { Page, _electron } from "playwright"
+import fs from "node:fs";
+import os from "node:os";
+import path, { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import fs from "node:fs"
-import os from "node:os"
-import path, { resolve } from "node:path"
-import { test as baseTest, inject } from "vitest"
-import { closeVscode } from "./commonSteps"
+import { Page, _electron } from "playwright";
+import { test as baseTest, inject } from "vitest";
+import { closeVscode } from "./common-steps";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 interface Context {
-  page: Page
-  extensionDir: string
+  page: Page;
+  extensionDir: string;
 }
 
 type LaunchFixture = (options: {
-  extensionPath?: string
-  workspacePath: string
-  trace?: "on" | "off"
-}) => Promise<Context>
+  extensionPath?: string;
+  workspacePath: string;
+  trace?: "on" | "off";
+}) => Promise<Context>;
 
 /**
  * The core method of the test, this method is encapsulated.
  * With the help of the `_electron` object, you can open a vscode and get the page object
  */
 const test = baseTest.extend<{
-  launch: LaunchFixture
-  taskName: string
-  logPath: string
+  launch: LaunchFixture;
+  taskName: string;
+  logPath: string;
 }>({
   taskName: async ({ task }, use) => use(`${task.name}-${task.id}`),
-  logPath: async ({ taskName }, use) =>
-    use(resolve(`./tests-logs-${taskName}.txt`)),
+  logPath: async ({ taskName }, use) => use(resolve(`./tests-logs-${taskName}.txt`)),
   launch: async ({ taskName, logPath }, use) => {
-    const teardowns: (() => Promise<void>)[] = []
+    const teardowns: (() => Promise<void>)[] = [];
 
     await use(async (options) => {
-      const executablePath = inject("executablePath")
-      const workspacePath = options.workspacePath
-      let envOverrides = {}
-      const codePath = path.join(executablePath, "../bin")
+      const executablePath = inject("executablePath");
+      const workspacePath = options.workspacePath;
+      let envOverrides = {};
+      const codePath = path.join(executablePath, "../bin");
       envOverrides = {
         PATH: `${codePath}${path.delimiter}${process.env.PATH}`,
-      }
-      const tempDir = await fs.promises.mkdtemp(
-        path.join(os.tmpdir(), "typespec-automation")
-      )
+      };
+      const tempDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), "typespec-automation"));
 
       const app = await _electron.launch({
         executablePath,
@@ -63,14 +62,9 @@ const test = baseTest.extend<{
           `--user-data-dir=${path.resolve(tempDir, "user-data")}`,
           `--folder-uri=file:${path.resolve(workspacePath)}`,
         ].filter((v): v is string => !!v),
-      })
-      const page = await app.firstWindow()
-      const userSettingsPath = path.join(
-        tempDir,
-        "user-data",
-        "User",
-        "settings.json"
-      )
+      });
+      const page = await app.firstWindow();
+      const userSettingsPath = path.join(tempDir, "user-data", "User", "settings.json");
       fs.writeFileSync(
         userSettingsPath,
         JSON.stringify({
@@ -80,17 +74,17 @@ const test = baseTest.extend<{
               url: "https://aka.ms/typespec/azure-init",
             },
           ],
-        })
-      )
-      return { page, extensionDir: path.join(tempDir, "extensions") }
-    })
+        }),
+      );
+      return { page, extensionDir: path.join(tempDir, "extensions") };
+    });
 
-    for (const teardown of teardowns) await teardown()
+    for (const teardown of teardowns) await teardown();
   },
-})
+});
 
 async function sleep(s: number) {
-  return new Promise((resolve) => setTimeout(resolve, s * 1000))
+  return new Promise((resolve) => setTimeout(resolve, s * 1000));
 }
 
 /**
@@ -105,19 +99,18 @@ async function retry(
   count: number,
   fn: () => Promise<boolean>,
   errMessage: string,
-  gap: number = 2
+  gap: number = 2,
 ) {
   while (count > 0) {
-    await sleep(gap)
+    await sleep(gap);
     if (await fn()) {
-      return
+      return;
     }
-    count--
+    count--;
   }
-  const __dirname = path.dirname(fileURLToPath(import.meta.url));
-  await page.screenshot({ path: path.resolve(__dirname, "../../images-linux/error.png") })
-  await closeVscode()
-  throw new Error(errMessage)
+  await page.screenshot({ path: path.resolve(__dirname, "../../images-linux/error.png") });
+  await closeVscode();
+  throw new Error(errMessage);
 }
 
-export { sleep, test, retry }
+export { retry, sleep, test };
