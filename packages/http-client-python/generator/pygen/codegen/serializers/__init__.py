@@ -126,9 +126,8 @@ class JinjaSerializer(ReaderAndWriter):
         for client_namespace, client_namespace_type in self.code_model.client_namespace_types.items():
             exec_path = self.exec_path(client_namespace)
             if client_namespace == "":
-                # Write the setup file
-                if self.code_model.options["basic-setup-py"]:
-                    self.write_file(exec_path / Path("setup.py"), general_serializer.serialize_setup_file())
+                # remove setup.py file
+                self.remove_file(exec_path / Path("setup.py"))
 
                 # add packaging files in root namespace (e.g. setup.py, README.md, etc.)
                 if self.code_model.options.get("package-mode"):
