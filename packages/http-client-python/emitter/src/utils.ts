@@ -148,6 +148,7 @@ type ParamBase = {
   isApiVersion: boolean;
   type: Record<string, any>;
   isContinuationToken: boolean;
+  apiVersions: string[];
 };
 
 export function getAddedOn<TServiceOperation extends SdkServiceOperation>(
@@ -228,6 +229,7 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
     isApiVersion: parameter.isApiVersionParam,
     isContinuationToken: isContinuationToken(parameter, method),
     type,
+    apiVersions: parameter.apiVersions,
   };
 }
 

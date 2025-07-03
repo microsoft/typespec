@@ -88,10 +88,16 @@ class Property(BaseModel):  # pylint: disable=too-many-instance-attributes
         return self.is_discriminator and self.type.type == "enum"
 
     @property
+    def is_combined_discriminator(self) -> bool:
+        return self.is_discriminator and self.type.type == "combined"
+
+    @property
     def is_base_discriminator(self) -> bool:
         """If this discriminator is on the base model for polymorphic inheritance"""
         if self.is_enum_discriminator:
             return self.is_polymorphic and self.client_default_value is None
+        if self.is_combined_discriminator:
+            return True
         return self.is_discriminator and self.is_polymorphic and cast(ConstantType, self.type).value is None
 
     @property
@@ -146,7 +152,7 @@ class Property(BaseModel):  # pylint: disable=too-many-instance-attributes
         file_import.merge(self.type.imports(**kwargs))
         if (self.optional and self.client_default_value is None) or self.readonly:
             file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
-        if self.code_model.options["models_mode"] == "dpg":
+        if self.code_model.options["models-mode"] == "dpg":
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             file_import.add_submodule_import(
                 self.code_model.get_relative_import_path(serialize_namespace, module_name="_utils.model_base"),

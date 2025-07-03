@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -19,6 +20,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public XmlDocProvider XmlDocs { get; private set; }
 
         public TypeProvider EnclosingType { get; }
+        public IReadOnlyList<AttributeStatement> Attributes { get; private set; }
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -34,13 +36,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <param name="bodyStatements">The method body.</param>
         /// <param name="enclosingType">The enclosing type.</param>
         /// <param name="xmlDocProvider">The XML documentation provider.</param>
-        public MethodProvider(MethodSignature signature, MethodBodyStatement bodyStatements, TypeProvider enclosingType, XmlDocProvider? xmlDocProvider = default)
+        /// <param name="attributes"> The attributes for the method.</param>
+        public MethodProvider(
+            MethodSignature signature,
+            MethodBodyStatement bodyStatements,
+            TypeProvider enclosingType,
+            XmlDocProvider? xmlDocProvider = default,
+            IEnumerable<AttributeStatement>? attributes = default)
         {
             Signature = signature;
             var paramHash = MethodProviderHelpers.GetParamHash(signature);
             BodyStatements = MethodProviderHelpers.GetBodyStatementWithValidation(signature.Parameters, bodyStatements, paramHash);
             XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature);
             EnclosingType = enclosingType;
+            Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [];
         }
 
         /// <summary>
@@ -50,19 +59,27 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <param name="bodyExpression">The method body expression.</param>
         /// <param name="enclosingType">The enclosing type.</param>
         /// <param name="xmlDocProvider">The XML documentation provider.</param>
-        public MethodProvider(MethodSignature signature, ValueExpression bodyExpression, TypeProvider enclosingType, XmlDocProvider? xmlDocProvider = default)
+        /// <param name="attributes"> The attributes for the method.</param>
+        public MethodProvider(
+            MethodSignature signature,
+            ValueExpression bodyExpression,
+            TypeProvider enclosingType,
+            XmlDocProvider? xmlDocProvider = default,
+            IEnumerable<AttributeStatement>? attributes = default)
         {
             Signature = signature;
             BodyExpression = bodyExpression;
             XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature);
             EnclosingType = enclosingType;
+            Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [];
         }
 
         public void Update(
             MethodSignature? signature = null,
             MethodBodyStatement? bodyStatements = null,
             ValueExpression? bodyExpression = null,
-            XmlDocProvider? xmlDocProvider = null)
+            XmlDocProvider? xmlDocProvider = null,
+            IEnumerable<AttributeStatement>? attributes = default)
         {
             if (signature != null)
             {
@@ -84,6 +101,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 XmlDocs = xmlDocProvider;
             }
+            if (attributes != null)
+            {
+                Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [];
+            }
         }
 
         internal virtual MethodProvider? Accept(LibraryVisitor visitor)
@@ -100,6 +121,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             Signature = updated.Signature;
+            Attributes = updated.Attributes;
 
             if (BodyExpression != null)
             {

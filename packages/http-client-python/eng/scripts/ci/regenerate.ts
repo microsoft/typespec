@@ -46,6 +46,9 @@ const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<stri
   "azure/client-generator-core/client-initialization": {
     namespace: "specs.azure.clientgenerator.core.clientinitialization",
   },
+  "azure/client-generator-core/client-location": {
+    namespace: "specs.azure.clientgenerator.core.clientlocation",
+  },
   "azure/client-generator-core/deserialize-empty-string-as-null": {
     namespace: "specs.azure.clientgenerator.core.emptystring",
   },
@@ -256,17 +259,13 @@ function getEmitterOption(spec: string, flavor: string): Record<string, string>[
 
 // Function to execute CLI commands asynchronously
 async function executeCommand(tspCommand: TspCommand): Promise<void> {
-  try {
-    rmSync(tspCommand.outputDir, { recursive: true, force: true });
-  } catch (error) {
-    console.error(chalk.red(`rm error: ${error}`));
-  }
   const execFileAsync = promisify(execFile);
   try {
     console.log(chalk.green(`start tsp ${tspCommand.command.join(" ")}`));
     await execFileAsync("tsp", tspCommand.command, { shell: true });
     console.log(chalk.green(`tsp ${tspCommand.command.join(" ")} succeeded`));
   } catch (err) {
+    rmSync(tspCommand.outputDir, { recursive: true, force: true });
     console.error(chalk.red(`exec error: ${err}`));
     throw err;
   }

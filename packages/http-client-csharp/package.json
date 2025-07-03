@@ -47,9 +47,6 @@
     "dist/emitter/src/**",
     "dist/generator/**"
   ],
-  "dependencies": {
-    "json-serialize-refs": "0.1.0-0"
-  },
   "peerDependencies": {
     "@azure-tools/typespec-azure-core": ">=0.57.0 <0.58.0 || ~0.58.0-0",
     "@azure-tools/typespec-client-generator-core": ">=0.57.0 <0.58.0 || ~0.58.0-0",
@@ -62,7 +59,7 @@
   "devDependencies": {
     "@azure-tools/azure-http-specs": "0.1.0-alpha.19",
     "@azure-tools/typespec-azure-core": "0.57.0",
-    "@azure-tools/typespec-client-generator-core": "0.57.1",
+    "@azure-tools/typespec-client-generator-core": "0.57.2",
     "@microsoft/api-extractor": "^7.52.2",
     "@types/node": "~22.7.5",
     "@typespec/compiler": "1.1.0",

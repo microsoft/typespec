@@ -55,9 +55,9 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@alloy-js/core": "^0.17.0",
-    "@alloy-js/markdown": "^0.17.0",
-    "@alloy-js/typescript": "^0.17.0",
+    "@alloy-js/core": "^0.18.2",
+    "@alloy-js/markdown": "^0.18.0",
+    "@alloy-js/typescript": "^0.18.0",
     "@microsoft/api-extractor": "^7.52.1",
     "@microsoft/api-extractor-model": "^7.30.6",
     "@microsoft/tsdoc": "^0.15.1",
@@ -71,7 +71,7 @@
     "yargs": "~18.0.0"
   },
   "devDependencies": {
-    "@alloy-js/cli": "^0.17.0",
+    "@alloy-js/cli": "^0.18.0",
     "@alloy-js/rollup-plugin": "^0.1.0",
     "@types/node": "~24.0.3",
     "@types/yargs": "~17.0.33",
