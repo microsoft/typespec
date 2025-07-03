@@ -134,7 +134,7 @@ export async function combineProjectIntoFile(
     }
   }
 
-  const newSourceFile: TypeSpecScriptNode = {
+  const newSourceFile = {
     kind: SyntaxKind.TypeSpecScript,
     statements: [...Object.values(imports), ...Object.values(usings), ...statements],
     comments: [],
@@ -150,9 +150,8 @@ export async function combineProjectIntoFile(
     printable: true,
     id: undefined as any,
     flags: 0,
-    symbol: undefined as any,
     locals: undefined as any,
-  };
+  } as any as TypeSpecScriptNode;
 
   const content = await printTypeSpecNode(newSourceFile);
 
