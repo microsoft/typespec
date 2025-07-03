@@ -15,12 +15,10 @@ const snipperExtractor = createSnipperExtractor(tsExtractorConfig);
 
 // Construct the test path relative to this file.
 const scenarioPath = join(__dirname, "scenarios");
-const outputPath = join("tsp-output", "@typespec", "http-client-js");
 
 await executeScenarios(
   Tester.importLibraries().using("Http", "Rest"),
   tsExtractorConfig,
   scenarioPath,
-  outputPath,
   snipperExtractor,
 );

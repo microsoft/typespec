@@ -1,30 +1,10 @@
 import { normalizePath } from "@typespec/compiler";
-import type { EmitterTester } from "@typespec/compiler/testing";
+import { expectDiagnosticEmpty, type EmitterTester } from "@typespec/compiler/testing";
 import { readdirSync, readFileSync, statSync, writeFileSync } from "fs";
-import minimist from "minimist";
 import path from "path";
 import { format } from "prettier";
 import { afterAll, describe, expect, it } from "vitest";
 import type { LanguageConfiguration, SnippetExtractor } from "./snippet-extractor.js";
-
-const rawArgs = process.env.TEST_ARGS ? process.env.TEST_ARGS.split(" ") : [];
-
-// Parse command-line arguments with minimist
-const args = minimist(rawArgs, {
-  alias: {
-    filter: "f", // Short alias for `--filter`
-  },
-  default: {
-    filter: undefined, // Default to undefined if no filter is provided
-  },
-});
-
-// Extract the filter paths from the parsed arguments
-const filterPaths = args.filter
-  ? Array.isArray(args.filter) // Handle single or multiple file paths
-    ? args.filter
-    : [args.filter]
-  : undefined;
 
 const SCENARIOS_UPDATE =
   process.env["RECORD"] === "true" || process.env["SCENARIOS_UPDATE"] === "true";
@@ -39,9 +19,7 @@ async function assertGetEmittedFile(tester: EmitterTester, file: string, code: s
     // eslint-disable-next-line no-console
     console.warn(`Warning compiling code:\n ${warnings.map((x) => x.message).join("\n")}`);
   }
-  if (errors.length > 0) {
-    throw new Error(`Error compiling code:\n ${errors.map((x) => x.message).join("\n")}`);
-  }
+  expectDiagnosticEmpty(errors);
 
   const normalizedTarget = normalizePath(file);
   const sourceFile = outputs[normalizedTarget];
@@ -61,7 +39,6 @@ async function assertGetEmittedFile(tester: EmitterTester, file: string, code: s
 function getCodeBlockTypes(
   tester: EmitterTester,
   languageConfiguration: LanguageConfiguration,
-  emitterOutputDir: string,
   snippetExtractor: SnippetExtractor,
 ): Record<string, EmitterFunction> {
   const languageTags = languageConfiguration.codeBlockTypes.join("|");
@@ -125,31 +102,17 @@ export async function executeScenarios(
   tester: EmitterTester,
   languageConfiguration: LanguageConfiguration,
   scenariosLocation: string,
-  emitterOutputDir: string,
   snippetExtractor: SnippetExtractor,
 ) {
-  const scenarioList = filterPaths ?? [];
-  // eslint-disable-next-line no-console
-  scenarioList.length && console.log("Filtering scenarios: ", scenarioList);
+  const scenarioList = discoverAllScenarios(scenariosLocation);
 
-  if (!scenarioList.length) {
-    // Add all scenarios.
-    discoverAllScenarios(scenariosLocation, scenarioList);
-  }
-
-  describeScenarios(
-    scenarioList,
-    tester,
-    languageConfiguration,
-    emitterOutputDir,
-    snippetExtractor,
-  );
+  describeScenarios(scenarioList, tester, languageConfiguration, snippetExtractor);
 }
 
-function discoverAllScenarios(location: string, scenarios: string[]) {
-  const children = readdirSync(location);
+function discoverAllScenarios(dir: string, scenarios: string[] = []) {
+  const children = readdirSync(dir);
   for (const child of children) {
-    const fullPath = path.join(location, child);
+    const fullPath = path.join(dir, child);
     const stat = statSync(fullPath);
     if (stat.isDirectory()) {
       discoverAllScenarios(fullPath, scenarios);
@@ -160,6 +123,7 @@ function discoverAllScenarios(location: string, scenarios: string[]) {
 
   return scenarios;
 }
+
 interface Scenario {
   // The title of the scenario delimited by H1
   title: string;
@@ -201,7 +165,6 @@ function parseFile(
   path: string,
   tester: EmitterTester,
   languageConfiguration: LanguageConfiguration,
-  emitterOutputDir: string,
   snippetExtractor: SnippetExtractor,
 ): ScenarioFile {
   // Read the whole file
@@ -220,7 +183,6 @@ function parseFile(
       section.content,
       tester,
       languageConfiguration,
-      emitterOutputDir,
       snippetExtractor,
     );
     const scenario: Scenario = {
@@ -242,7 +204,6 @@ function parseScenario(
   content: string,
   tester: EmitterTester,
   languageConfiguration: LanguageConfiguration,
-  emitterOutputDir: string,
   snippetExtractor: SnippetExtractor,
 ): ScenarioContents {
   const rawLines = content.split("\n");
@@ -255,12 +216,7 @@ function parseScenario(
   let currentCodeBlock: ScenarioCodeBlock | null = null;
 
   // Precompute output code block types once
-  const outputCodeBlockTypes = getCodeBlockTypes(
-    tester,
-    languageConfiguration,
-    emitterOutputDir,
-    snippetExtractor,
-  );
+  const outputCodeBlockTypes = getCodeBlockTypes(tester, languageConfiguration, snippetExtractor);
 
   for (const line of rawLines) {
     if (line.startsWith("```") && currentCodeBlock) {
@@ -307,11 +263,10 @@ function describeScenarios(
   scenarioFiles: string[],
   tester: EmitterTester,
   languageConfiguration: LanguageConfiguration,
-  emitterOutputDir: string,
   snippetExtractor: SnippetExtractor,
 ) {
   const scenarios = scenarioFiles.map((f) =>
-    parseFile(f, tester, languageConfiguration, emitterOutputDir, snippetExtractor),
+    parseFile(f, tester, languageConfiguration, snippetExtractor),
   );
 
   for (const scenarioFile of scenarios) {
