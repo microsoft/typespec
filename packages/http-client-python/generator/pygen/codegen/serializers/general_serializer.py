@@ -66,7 +66,7 @@ class GeneralSerializer(BaseSerializer):
         try:
             with open(file_path, "rb") as f:
                 loaded_pyproject_toml = tomllib.load(f)
-        except:
+        except Exception:
             return result
 
         # Keep azure-sdk-build configuration
