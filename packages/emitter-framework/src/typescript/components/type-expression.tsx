@@ -8,6 +8,7 @@ import { efRefkey } from "../utils/refkey.js";
 import { ArrayExpression } from "./array-expression.js";
 import { FunctionType } from "./function-type.js";
 import { InterfaceExpression } from "./interface-declaration.js";
+import { OverridableComponent } from "./overrides/component-overrides.jsx";
 import { RecordExpression } from "./record-expression.js";
 import { UnionExpression } from "./union-expression.js";
 
@@ -28,7 +29,11 @@ export function TypeExpression(props: TypeExpressionProps) {
   if (!props.noReference && isDeclaration($, type)) {
     // todo: probably need abstraction around deciding what's a declaration in the output
     // (it may not correspond to things which are declarations in TypeSpec?)
-    return <Reference refkey={efRefkey(type)} />;
+    return (
+      <OverridableComponent reference type={type}>
+        <Reference refkey={efRefkey(type)} />
+      </OverridableComponent>
+    );
     //throw new Error("Reference not implemented");
   }
 

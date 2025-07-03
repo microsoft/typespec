@@ -10,6 +10,7 @@ export default [
  */
 export const defaultTypeSpecVitestConfig = defineConfig({
   test: {
+    hideSkippedTests: true,
     environment: "node",
     isolate: false,
     coverage: {
