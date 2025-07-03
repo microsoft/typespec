@@ -248,5 +248,157 @@ namespace ServerDrivenPagination {
 
       @continuationToken @header nextToken?: string;
     };
+    }
+}
+
+@route("/nested-xml-like")
+namespace NestedXmlLike {
+  model BlobFlatListSegment {
+    @pageItems
+    blobItems: Pet[];
   }
+
+  model ListBlobsFlatSegmentResponse {
+    containerName: string;
+    segment: BlobFlatListSegment;
+    
+    @continuationToken
+    nextMarker?: string;
+  }
+
+  @scenario
+  @scenarioDoc("""
+    Test case for nested paging with XML-like structure similar to Azure Storage blob listing.
+    
+    Tests that @pageItems and @continuationToken can be found in deeply nested structures
+    that would be suitable for XML serialization.
+    
+    Expected route: /payload/pageable/nested-xml-like/blob-flat-segment
+    Expected response body:
+    ```json
+    { 
+      "enumerationResults": {
+        "containerName": "mycontainer",
+        "segment": {
+          "blobItems": [
+            { "id": "1", "name": "blob1" },
+            { "id": "2", "name": "blob2" }
+          ]
+        },
+        "nextMarker": "marker1"
+      }
+    }
+    ```
+    """)
+  @route("/blob-flat-segment")
+  @list
+  op blobFlatSegment(@continuationToken @query marker?: string): {
+    enumerationResults: ListBlobsFlatSegmentResponse;
+  };
+
+  model ItemsContainer {
+    @pageItems
+    items: Pet[];
+  }
+
+  model PaginationInfo {
+    @continuationToken
+    token?: string;
+  }
+
+  model NestedResponse {
+    data: {
+      itemsContainer: ItemsContainer;
+      paginationInfo: PaginationInfo;
+    };
+  }
+
+  @scenario  
+  @scenarioDoc("""
+    Test case for deeply nested paging structure across multiple levels.
+    
+    Tests that paging properties can be found when spread across different 
+    nested containers in a hierarchy suitable for XML structures.
+    
+    Expected route: /payload/pageable/nested-xml-like/deeply-nested
+    Expected response body:
+    ```json
+    { 
+      "data": {
+        "itemsContainer": {
+          "items": [
+            { "id": "1", "name": "item1" },
+            { "id": "2", "name": "item2" }
+          ]
+        },
+        "paginationInfo": {
+          "token": "token1"
+        }
+      }
+    }
+    ```
+    """)
+  @route("/deeply-nested")
+  @list
+  op deeplyNested(@continuationToken @query inputToken?: string): NestedResponse;
+
+  model ComplexBlobContainer {
+    @pageItems
+    blobs: Pet[];
+    metadata: {
+      containerInfo: {
+        name: string;
+        properties: Record<string>;
+      };
+    };
+  }
+
+  model ComplexEnumerationResults {
+    @continuationToken
+    nextMarker?: string;
+    serviceEndpoint: string;
+    containerName: string;
+    prefix?: string;
+    marker?: string; 
+    maxResults?: int32;
+    blobsContainer: ComplexBlobContainer;
+  }
+
+  @scenario
+  @scenarioDoc("""
+    Test case for complex Azure Storage-like nested structure.
+    
+    Tests a comprehensive nested structure with metadata that represents
+    the kind of complex XML hierarchies found in Azure Storage APIs.
+    
+    Expected route: /payload/pageable/nested-xml-like/complex-azure-storage
+    Expected response body:
+    ```json
+    { 
+      "enumerationResults": {
+        "nextMarker": "marker2", 
+        "serviceEndpoint": "https://myaccount.blob.core.windows.net/",
+        "containerName": "mycontainer",
+        "maxResults": 5000,
+        "blobsContainer": {
+          "blobs": [
+            { "id": "1", "name": "complexblob1" },
+            { "id": "2", "name": "complexblob2" }
+          ],
+          "metadata": {
+            "containerInfo": {
+              "name": "mycontainer",
+              "properties": {}
+            }
+          }
+        }
+      }
+    }
+    ```
+    """)
+  @route("/complex-azure-storage")
+  @list
+  op complexAzureStorage(@continuationToken @query marker?: string): {
+    enumerationResults: ComplexEnumerationResults;
+  };
 }
