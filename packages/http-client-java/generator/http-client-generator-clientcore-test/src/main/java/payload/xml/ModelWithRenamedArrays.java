@@ -48,6 +48,9 @@ public final class ModelWithRenamedArrays implements XmlSerializable<ModelWithRe
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public List<String> getColors() {
+        if (this.colors == null) {
+            return Collections.emptyList();
+        }
         return this.colors;
     }
 
@@ -128,6 +131,9 @@ public final class ModelWithRenamedArrays implements XmlSerializable<ModelWithRe
                 QName elementName = reader.getElementName();
 
                 if ("Colors".equals(elementName.getLocalPart())) {
+                    if (colors == null) {
+                        colors = new ArrayList<>();
+                    }
                     colors.add(reader.getStringElement());
                 } else if ("Counts".equals(elementName.getLocalPart())) {
                     while (reader.nextElement() != XmlToken.END_ELEMENT) {

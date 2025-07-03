@@ -48,6 +48,9 @@ public final class ModelWithUnwrappedArray implements XmlSerializable<ModelWithU
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public List<String> getColors() {
+        if (this.colors == null) {
+            return Collections.emptyList();
+        }
         return this.colors;
     }
 
@@ -128,6 +131,9 @@ public final class ModelWithUnwrappedArray implements XmlSerializable<ModelWithU
                 QName elementName = reader.getElementName();
 
                 if ("colors".equals(elementName.getLocalPart())) {
+                    if (colors == null) {
+                        colors = new ArrayList<>();
+                    }
                     colors.add(reader.getStringElement());
                 } else if ("counts".equals(elementName.getLocalPart())) {
                     while (reader.nextElement() != XmlToken.END_ELEMENT) {
