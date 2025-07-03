@@ -7,6 +7,7 @@ import { test as baseTest, inject } from "vitest";
 import { closeVscode } from "./common-steps";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const imagesPath = path.resolve(__dirname, "../../images-linux");
 
 interface Context {
   page: Page;
@@ -120,7 +121,8 @@ async function retry(
  * @param name screenshot name, without extension
  */
 async function screenshot(page: Page, os: "linux", name: string) {
-  await page.screenshot({ path: path.resolve(__dirname, `../../images-${os}/${name}.png`) });
+  const filePath = path.join(imagesPath, `${name}.png`);
+  await page.screenshot({ path: filePath });
 }
 
-export { sleep, test, retry, screenshot }
+export { retry, screenshot, sleep, test };

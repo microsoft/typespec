@@ -1,12 +1,13 @@
 import { Key, keyboard } from "@nut-tree-fork/nut-js";
+import { rm } from "fs/promises";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Locator, Page } from "playwright";
-import { retry, sleep } from "./utils";
-import { screenshot } from "./utils";
+import { retry, screenshot, sleep } from "./utils";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const imagesPath = path.resolve(__dirname, "../../images-linux");
 
 /**
  * Before comparing the results, you need to check whether the conditions for result comparison are met.
@@ -42,6 +43,7 @@ async function contrastResult(page: Page, res: string[], dir: string) {
   let resLength = 0;
   if (fs.existsSync(dir)) {
     resLength = fs.readdirSync(dir).length;
+    await rm(imagesPath, { recursive: true });
   }
   if (resLength !== res.length) {
     await screenshot(page, "linux", "error");
@@ -76,15 +78,14 @@ async function startWithCommandPalette(
       listForCreate = page
         .locator("a")
         .filter({ hasText: `TypeSpec: ${command}` })
-        .first()
-      return (await listForCreate.count()) > 0
+        .first();
+      return (await listForCreate.count()) > 0;
     },
-    "Failed to find the specified option"
-  )
+    "Failed to find the specified option",
+  );
   await screenshot(page, "linux", "input_command");
-  await listForCreate!.click()
+  await listForCreate!.click();
 }
-
 
 /**
  * In vscode, when you need to select a folder or a file, call this method
