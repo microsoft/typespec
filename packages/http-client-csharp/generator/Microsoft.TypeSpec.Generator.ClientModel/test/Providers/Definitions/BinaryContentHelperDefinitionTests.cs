@@ -14,7 +14,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         [Test]
         public void FromObjectMethodIsCorrectlyDefined()
         {
-            MockHelpers.LoadMockGenerator(requestContentApi: BinaryContentProvider.Instance);
+            MockHelpers.LoadMockGenerator();
+
             var binaryContentHelper = new BinaryContentHelperDefinition();
             Assert.IsNotNull(binaryContentHelper.Methods);
             var fromObjectMethod = binaryContentHelper.Methods.Single(m => m.Signature.Name == "FromObject"
@@ -27,7 +28,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         [Test]
         public void FromObjectBinaryDataMethodIsCorrectlyDefined()
         {
-            MockHelpers.LoadMockGenerator(requestContentApi: BinaryContentProvider.Instance);
+            MockHelpers.LoadMockGenerator();
+
             var binaryContentHelper = new BinaryContentHelperDefinition();
             Assert.IsNotNull(binaryContentHelper.Methods);
             var fromObjectMethod = binaryContentHelper.Methods.Single(m => m.Signature.Name == "FromObject"
