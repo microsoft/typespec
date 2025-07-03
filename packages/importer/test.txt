@@ -1,0 +1,3 @@
+TODO: delete 
+
+node ./dist/cli.js https://raw.githubusercontent.com/Azure/azure-rest-api-specs/main/specification/batch/Azure.Batch/main.tsp
