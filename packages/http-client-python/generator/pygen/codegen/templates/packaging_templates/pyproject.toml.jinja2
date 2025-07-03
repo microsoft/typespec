@@ -9,26 +9,26 @@ requires = ["setuptools>=61.0.0", "wheel"]  # Requires 61.0.0 for dynamic versio
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "{{ package_name|lower }}"
-{% if package_mode %}
+name = "{{ options.get('package-name')|lower }}"
+{% if options.get('package-mode') %}
 authors = [
   { name = "{{ code_model.company_name }}"{% if code_model.is_azure_flavor %}, email = "azpysdkhelp@microsoft.com"{% endif %} },
 ]
-description = "{{ code_model.company_name }} {{ package_pprint_name }} Client Library for Python"
+description = "{{ code_model.company_name }} {% if code_model.is_azure_flavor and not options.get('package-pprint-name').startswith('Azure ') %}Azure {% endif %}{{ options.get('package-pprint-name') }} Client Library for Python"
 license = {text = "MIT License"}
 classifiers = [
     "Development Status :: {{ dev_status }}",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3",
-    {% for version in range(min_version, max_version + 1)  %}
+    {% for version in range(min_version, max_version + 1) %}
     "Programming Language :: Python :: 3.{{ version }}",
     {% endfor %}
     "License :: OSI Approved :: MIT License",
 ]
 requires-python = ">={{ MIN_PYTHON_VERSION }}"
 {% else %}
-description = "{{ package_name }}"
+description = "{{ options.get('package-name') }}"
 {% endif %}
 {% if code_model.is_azure_flavor %}
 keywords = ["azure", "azure sdk"]
@@ -40,7 +40,7 @@ dependencies = [
     {% else %}
     "isodate>={{ VERSION_MAP['isodate'] }}",
     {% endif %}
-    {% if azure_arm %}
+    {% if options.get('azure_arm') %}
     "azure-mgmt-core>={{ VERSION_MAP['azure-mgmt-core'] }}",
     {% elif code_model.is_azure_flavor %}
     "azure-core>={{ VERSION_MAP['azure-core'] }}",
@@ -49,41 +49,43 @@ dependencies = [
     {% endif %}
     "typing-extensions>={{ VERSION_MAP['typing-extensions'] }}",
     {% if KEEP_FIELDS and KEEP_FIELDS.get('project.dependencies') %}
-      {% for dep in KEEP_FIELDS['project.dependencies'] %}
-        "{{ dep }}",
-      {% endfor %}
+    {% for dep in KEEP_FIELDS.get('project.dependencies') %}
+    "{{ dep }}",
+    {% endfor %}
     {% endif %}
 ]
 dynamic = [
-    {% if package_mode %}"version", {% endif %}"readme"
+    {% if options.get('package-mode') %}"version", {% endif %}"readme"
 ]
 {% if KEEP_FIELDS and KEEP_FIELDS.get('project.optional-dependencies') %}
+
 [project.optional-dependencies]
-{% for key, val in KEEP_FIELDS['project.optional-dependencies'].items() %}
+{% for key, val in KEEP_FIELDS.get('project.optional-dependencies').items() %}
 {{ key }} = [
-    {% for dep in val %}
-    "{{ dep }}",
-    {% endfor %}
+  {% for dep in val %}
+  "{{ dep }}",
+  {% endfor %}
 ]
 {% endfor %}
 {% endif %}
 {% if code_model.is_azure_flavor %}
+
 [project.urls]
 repository = "https://github.com/Azure/azure-sdk-for-python/tree/main/sdk"
 {% endif %}
 
 [tool.setuptools.dynamic]
-{% if package_mode %}
+{% if options.get('package-mode') %}
     {% if code_model.is_tsp %}
 version = {attr = "{{ code_model.namespace|lower|replace('.', '/') }}/_version.VERSION"}
     {% else %}
-version = {attr = "{{ package_name|lower|replace('-', '/') }}/_version.VERSION"}
+version = {attr = "{{ options.get('package-name')|lower|replace('-', '/') }}/_version.VERSION"}
     {% endif %}
 {% else %}
-version = "{{ package_version }}"
+version = "{{ options.get('package-version') }}"
 {% endif %}readme = {file = ["README.md"], content-type = "text/markdown"}
+{% if options.get('package-mode') %}
 
-{% if package_mode %}
 [tool.setuptools.packages.find]
 exclude = [
     "tests*",
@@ -95,10 +97,10 @@ exclude = [
 [tool.setuptools.package-data]
 pytyped = ["py.typed"]
 {% endif %}
+{% if KEEP_FIELDS and KEEP_FIELDS.get('tool.azure-sdk-build') %}
 
-{% if KEEP_FIELDS and KEEP_FIELDS.get('[tool.azure-sdk-build]') %}
 [tool.azure-sdk-build]
-{% for key, val in KEEP_FIELDS['[tool.azure-sdk-build]'].items() %}
-{{ key }} = {{ val | tojson }}
+{% for key, val in KEEP_FIELDS.get('tool.azure-sdk-build').items() %}
+{{ key }} = {{ val|tojson }}
 {% endfor %}
 {% endif %}
