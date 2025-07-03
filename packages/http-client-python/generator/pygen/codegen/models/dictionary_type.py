@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import Any, Dict, Optional, TYPE_CHECKING, List
+from typing import Any, Optional, TYPE_CHECKING
 from .base import BaseType
 from .imports import FileImport, ImportType, TypingSection
 
@@ -23,7 +23,7 @@ class DictionaryType(BaseType):
 
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         element_type: BaseType,
     ) -> None:
@@ -48,7 +48,7 @@ class DictionaryType(BaseType):
         :return: The type annotation for this schema
         :rtype: str
         """
-        return f"Dict[str, {self.element_type.type_annotation(**kwargs)}]"
+        return f"dict[str, {self.element_type.type_annotation(**kwargs)}]"
 
     def description(self, *, is_operation_file: bool) -> str:
         return "" if is_operation_file else self.yaml_data.get("description", "")
@@ -79,7 +79,7 @@ class DictionaryType(BaseType):
             )
         }
 
-    def get_polymorphic_subtypes(self, polymorphic_subtypes: List["ModelType"]) -> None:
+    def get_polymorphic_subtypes(self, polymorphic_subtypes: list["ModelType"]) -> None:
         from .model_type import ModelType
 
         if isinstance(self.element_type, ModelType):
@@ -90,7 +90,7 @@ class DictionaryType(BaseType):
                 polymorphic_subtypes.append(self.element_type)
 
     @classmethod
-    def from_yaml(cls, yaml_data: Dict[str, Any], code_model: "CodeModel") -> "DictionaryType":
+    def from_yaml(cls, yaml_data: dict[str, Any], code_model: "CodeModel") -> "DictionaryType":
         """Constructs a DictionaryType from yaml data.
 
         :param yaml_data: the yaml data from which we will construct this schema
@@ -99,7 +99,7 @@ class DictionaryType(BaseType):
         :return: A created DictionaryType
         :rtype: ~autorest.models.DictionaryType
         """
-        element_schema: Dict[str, Any] = yaml_data["elementType"]
+        element_schema: dict[str, Any] = yaml_data["elementType"]
 
         from . import build_type  # pylint: disable=import-outside-toplevel
 
@@ -113,7 +113,6 @@ class DictionaryType(BaseType):
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
-        file_import.add_submodule_import("typing", "Dict", ImportType.STDLIB, TypingSection.CONDITIONAL)
         file_import.merge(self.element_type.imports(**kwargs))
         return file_import
 

@@ -5,7 +5,7 @@
 # --------------------------------------------------------------------------
 from enum import Enum
 from collections import OrderedDict
-from typing import Any, Dict, List, Optional, TYPE_CHECKING, cast
+from typing import Any, Optional, TYPE_CHECKING, cast
 import sys
 from .utils import add_to_pylint_disable, NamespaceType
 from .base import BaseType
@@ -36,7 +36,7 @@ class UsageFlags(Enum):
     Xml = 512
 
 
-def _get_properties(type: "ModelType", properties: List[Property]) -> List[Property]:
+def _get_properties(type: "ModelType", properties: list[Property]) -> list[Property]:
     for parent in type.parents:
         # here we're adding the properties from our parents
 
@@ -61,12 +61,12 @@ class ModelType(BaseType):  # pylint: disable=too-many-instance-attributes, too-
 
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         *,
-        properties: Optional[List[Property]] = None,
-        parents: Optional[List["ModelType"]] = None,
-        discriminated_subtypes: Optional[Dict[str, "ModelType"]] = None,
+        properties: Optional[list[Property]] = None,
+        parents: Optional[list["ModelType"]] = None,
+        discriminated_subtypes: Optional[dict[str, "ModelType"]] = None,
     ) -> None:
         super().__init__(yaml_data=yaml_data, code_model=code_model)
         self.name: str = self.yaml_data["name"]
@@ -96,7 +96,7 @@ class ModelType(BaseType):  # pylint: disable=too-many-instance-attributes, too-
             return None
 
     @property
-    def flattened_items(self) -> List[str]:
+    def flattened_items(self) -> list[str]:
         return [
             item.client_name
             for prop in self.properties
@@ -141,7 +141,7 @@ class ModelType(BaseType):  # pylint: disable=too-many-instance-attributes, too-
         return super().xml_serialization_ctxt
 
     @property
-    def discriminated_subtypes_name_mapping(self) -> Dict[str, str]:
+    def discriminated_subtypes_name_mapping(self) -> dict[str, str]:
         return {k: v.name for k, v in self.discriminated_subtypes.items()}
 
     def get_json_template_representation(
@@ -181,7 +181,7 @@ class ModelType(BaseType):  # pylint: disable=too-many-instance-attributes, too-
             )
         )
 
-    def get_polymorphic_subtypes(self, polymorphic_subtypes: List["ModelType"]) -> None:
+    def get_polymorphic_subtypes(self, polymorphic_subtypes: list["ModelType"]) -> None:
         is_polymorphic_subtype = self.discriminator_value and not self.discriminated_subtypes
         if self._got_polymorphic_subtypes:
             return
@@ -195,13 +195,13 @@ class ModelType(BaseType):  # pylint: disable=too-many-instance-attributes, too-
         self._got_polymorphic_subtypes = False
 
     @classmethod
-    def from_yaml(cls, yaml_data: Dict[str, Any], code_model: "CodeModel") -> "ModelType":
+    def from_yaml(cls, yaml_data: dict[str, Any], code_model: "CodeModel") -> "ModelType":
         raise ValueError(
             "You shouldn't call from_yaml for ModelType to avoid recursion. "
             "Please initial a blank ModelType, then call .fill_instance_from_yaml on the created type."
         )
 
-    def fill_instance_from_yaml(self, yaml_data: Dict[str, Any], code_model: "CodeModel") -> None:
+    def fill_instance_from_yaml(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
         from . import build_type
 
         self.parents = [cast(ModelType, build_type(bm, code_model)) for bm in yaml_data.get("parents", [])]

@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import Any, Dict, Optional, TYPE_CHECKING, List, cast, Union
+from typing import Any, Optional, TYPE_CHECKING, cast, Union
 
 from .base import BaseModel
 from .constant_type import ConstantType
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 class Property(BaseModel):  # pylint: disable=too-many-instance-attributes
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         type: BaseType,
     ) -> None:
@@ -30,13 +30,13 @@ class Property(BaseModel):  # pylint: disable=too-many-instance-attributes
         self.type = type
         self.optional: bool = self.yaml_data["optional"]
         self.readonly: bool = self.yaml_data.get("readonly", False)
-        self.visibility: List[str] = self.yaml_data.get("visibility", [])
+        self.visibility: list[str] = self.yaml_data.get("visibility", [])
         self.is_polymorphic: bool = self.yaml_data.get("isPolymorphic", False)
         self.is_discriminator: bool = yaml_data.get("isDiscriminator", False)
         self.client_default_value = yaml_data.get("clientDefaultValue", None)
         if self.client_default_value is None:
             self.client_default_value = self.type.client_default_value
-        self.flattened_names: List[str] = yaml_data.get("flattenedNames", [])
+        self.flattened_names: list[str] = yaml_data.get("flattenedNames", [])
         self.is_multipart_file_input: bool = yaml_data.get("isMultipartFileInput", False)
         self.flatten = self.yaml_data.get("flatten", False) and not getattr(self.type, "flattened_property", False)
 
@@ -101,7 +101,7 @@ class Property(BaseModel):  # pylint: disable=too-many-instance-attributes
         return self.is_discriminator and self.is_polymorphic and cast(ConstantType, self.type).value is None
 
     @property
-    def xml_metadata(self) -> Optional[Dict[str, Union[str, bool]]]:
+    def xml_metadata(self) -> Optional[dict[str, Union[str, bool]]]:
         return self.yaml_data.get("xmlMetadata")
 
     def type_annotation(self, *, is_operation_file: bool = False, **kwargs: Any) -> str:
@@ -127,15 +127,15 @@ class Property(BaseModel):  # pylint: disable=too-many-instance-attributes
             client_default_value_declaration=client_default_value_declaration,
         )
 
-    def get_polymorphic_subtypes(self, polymorphic_subtypes: List["ModelType"]) -> None:
+    def get_polymorphic_subtypes(self, polymorphic_subtypes: list["ModelType"]) -> None:
         from .model_type import ModelType
 
         if isinstance(self.type, ModelType):
             self.type.get_polymorphic_subtypes(polymorphic_subtypes)
 
     @property
-    def validation(self) -> Optional[Dict[str, Any]]:
-        retval: Dict[str, Any] = {}
+    def validation(self) -> Optional[dict[str, Any]]:
+        retval: dict[str, Any] = {}
         if not self.optional:
             retval["required"] = True
         if self.readonly:
@@ -164,7 +164,7 @@ class Property(BaseModel):  # pylint: disable=too-many-instance-attributes
     @classmethod
     def from_yaml(
         cls,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
     ) -> "Property":
         from . import build_type  # pylint: disable=import-outside-toplevel

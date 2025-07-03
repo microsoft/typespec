@@ -4,7 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import json
-from typing import Any, List
+from typing import Any
 from .import_serializer import FileImportSerializer, TypingSection
 from ..models.imports import MsrestImportType, FileImport
 from ..models import (
@@ -76,7 +76,7 @@ class GeneralSerializer(BaseSerializer):
         template = self.env.get_template("pkgutil_init.py.jinja2")
         return template.render()
 
-    def serialize_init_file(self, clients: List[Client]) -> str:
+    def serialize_init_file(self, clients: list[Client]) -> str:
         template = self.env.get_template("init.py.jinja2")
         return template.render(
             code_model=self.code_model,
@@ -85,7 +85,7 @@ class GeneralSerializer(BaseSerializer):
             serialize_namespace=self.serialize_namespace,
         )
 
-    def serialize_service_client_file(self, clients: List[Client]) -> str:
+    def serialize_service_client_file(self, clients: list[Client]) -> str:
         template = self.env.get_template("client_container.py.jinja2")
 
         imports = FileImport(self.code_model)
@@ -135,13 +135,10 @@ class GeneralSerializer(BaseSerializer):
             )
         if self.code_model.need_utils_form_data(self.async_mode, self.client_namespace):
             file_import.add_submodule_import("typing", "IO", ImportType.STDLIB)
-            file_import.add_submodule_import("typing", "Tuple", ImportType.STDLIB)
             file_import.add_submodule_import("typing", "Union", ImportType.STDLIB)
             file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
             file_import.add_submodule_import("typing", "Mapping", ImportType.STDLIB)
-            file_import.add_submodule_import("typing", "Dict", ImportType.STDLIB)
             file_import.add_submodule_import("typing", "Any", ImportType.STDLIB)
-            file_import.add_submodule_import("typing", "List", ImportType.STDLIB)
             file_import.add_submodule_import(
                 ".._utils.model_base",
                 "SdkJSONEncoder",
@@ -164,7 +161,7 @@ class GeneralSerializer(BaseSerializer):
             client_namespace=self.client_namespace,
         )
 
-    def serialize_config_file(self, clients: List[Client]) -> str:
+    def serialize_config_file(self, clients: list[Client]) -> str:
         template = self.env.get_template("config_container.py.jinja2")
         imports = FileImport(self.code_model)
         for client in self.code_model.clients:

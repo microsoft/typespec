@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import Any, Dict, Optional, Union, TYPE_CHECKING, List
+from typing import Any, Optional, Union, TYPE_CHECKING
 from .base import BaseType
 from .imports import FileImport, ImportType, TypingSection
 
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 class ListType(BaseType):
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         element_type: BaseType,
     ) -> None:
@@ -40,7 +40,7 @@ class ListType(BaseType):
         ):
             # this means we're version tolerant XML, we just return the XML element
             return self.element_type.type_annotation(**kwargs)
-        return f"List[{self.element_type.type_annotation(**kwargs)}]"
+        return f"list[{self.element_type.type_annotation(**kwargs)}]"
 
     def description(self, *, is_operation_file: bool) -> str:
         return "" if is_operation_file else self.yaml_data.get("description", "")
@@ -80,8 +80,8 @@ class ListType(BaseType):
         return f"list of {self.element_type.docstring_text(**kwargs)}"
 
     @property
-    def validation(self) -> Optional[Dict[str, Union[bool, int, str]]]:
-        validation: Dict[str, Union[bool, int, str]] = {}
+    def validation(self) -> Optional[dict[str, Union[bool, int, str]]]:
+        validation: dict[str, Union[bool, int, str]] = {}
         if self.max_items:
             validation["max_items"] = self.max_items
             validation["min_items"] = self.min_items or 0
@@ -102,7 +102,7 @@ class ListType(BaseType):
             )
         ]
 
-    def get_polymorphic_subtypes(self, polymorphic_subtypes: List["ModelType"]) -> None:
+    def get_polymorphic_subtypes(self, polymorphic_subtypes: list["ModelType"]) -> None:
         from .model_type import ModelType
 
         if isinstance(self.element_type, ModelType):
@@ -117,7 +117,7 @@ class ListType(BaseType):
         return "isinstance({}, list)"
 
     @classmethod
-    def from_yaml(cls, yaml_data: Dict[str, Any], code_model: "CodeModel") -> "ListType":
+    def from_yaml(cls, yaml_data: dict[str, Any], code_model: "CodeModel") -> "ListType":
         from . import build_type
 
         return cls(
@@ -128,12 +128,6 @@ class ListType(BaseType):
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
-        if not (
-            self.code_model.options["version-tolerant"]
-            and self.element_type.is_xml
-            and not self.code_model.options["models-mode"]
-        ):
-            file_import.add_submodule_import("typing", "List", ImportType.STDLIB, TypingSection.CONDITIONAL)
         file_import.merge(self.element_type.imports(**kwargs))
         return file_import
 

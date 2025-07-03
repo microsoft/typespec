@@ -4,7 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import logging
-from typing import Dict, Any, Union, Tuple
+from typing import Any, Union
 from jinja2 import Environment
 
 from ..models.operation import OperationBase
@@ -32,7 +32,7 @@ class SampleSerializer(BaseSerializer):
         env: Environment,
         operation_group: OperationGroup,
         operation: OperationBase[Any],
-        sample: Dict[str, Any],
+        sample: dict[str, Any],
         file_name: str,
     ) -> None:
         super().__init__(code_model, env)
@@ -66,7 +66,7 @@ class SampleSerializer(BaseSerializer):
                 imports.merge(param.type.imports_for_sample())
         return FileImportSerializer(imports, True)
 
-    def _client_params(self) -> Dict[str, Any]:
+    def _client_params(self) -> dict[str, Any]:
         # client params
         special_param = {}
         credential_type = getattr(self.code_model.clients[0].credential, "type", None)
@@ -101,7 +101,7 @@ class SampleSerializer(BaseSerializer):
         return param.type.serialize_sample_value(param_value)
 
     # prepare operation parameters
-    def _operation_params(self) -> Dict[str, Any]:
+    def _operation_params(self) -> dict[str, Any]:
         params = [
             p
             for p in (self.operation.parameters.positional + self.operation.parameters.keyword_only)
@@ -122,7 +122,7 @@ class SampleSerializer(BaseSerializer):
             return ""
         return f".{self.operation_group.property_name}"
 
-    def _operation_result(self) -> Tuple[str, str]:
+    def _operation_result(self) -> tuple[str, str]:
         is_response_none = "None" in self.operation.response_type_annotation(async_mode=False)
         lro = ".result()"
         if is_response_none:
