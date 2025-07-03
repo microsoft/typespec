@@ -38,5 +38,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             => Original.Property("Uri").Assign(value.As<ClientUriBuilderDefinition>().ToUri()).Terminate();
 
         public override HttpRequestApi ToExpression() => this;
+        public override string? HttpRequestClientIdPropertyName => null;
     }
 }
