@@ -1,13 +1,13 @@
-import { Key, keyboard } from "@nut-tree-fork/nut-js";
+import { execSync } from "child_process";
 import { rm } from "fs/promises";
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { Locator, Page } from "playwright";
-import { retry, screenshot, sleep } from "./utils";
+import { pressEnter, retry, screenshot, sendKeys, sleep } from "./utils";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const imagesPath = path.resolve(__dirname, "../../images-linux");
+const __dirname = import.meta.dirname;
+const projectRoot = path.resolve(__dirname, "../../");
+const imagesPath = path.resolve(projectRoot, "images-linux");
 
 /**
  * Before comparing the results, you need to check whether the conditions for result comparison are met.
@@ -93,10 +93,11 @@ async function startWithCommandPalette(
  */
 async function selectFolder(page: Page, file: string = "") {
   await sleep(10);
-  await keyboard.type(file);
+  sendKeys(file);
+  await screenshot(page, "linux", "select_folder_text");
+  await sleep(2);
+  pressEnter();
   await screenshot(page, "linux", "select_folder");
-  await keyboard.pressKey(Key.Enter);
-  await keyboard.releaseKey(Key.Enter);
   await sleep(3);
 }
 
@@ -204,8 +205,7 @@ async function installExtensionForCommand(page: Page, extensionDir: string) {
 }
 
 async function closeVscode() {
-  await keyboard.pressKey(Key.LeftAlt, Key.F4);
-  await keyboard.releaseKey(Key.LeftAlt, Key.F4);
+  execSync("xdotool key Alt+F4");
 }
 
 /**

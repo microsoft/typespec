@@ -273,7 +273,6 @@
     "test:extension": "vitest --root test/extension"
   },
   "devDependencies": {
-    "@nut-tree-fork/nut-js": "^4.2.6",
     "@types/cross-spawn": "~6.0.6",
     "@types/mocha": "^10.0.9",
     "@types/node": "~24.0.3",

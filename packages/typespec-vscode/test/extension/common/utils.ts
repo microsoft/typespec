@@ -1,13 +1,14 @@
+import { execSync } from "child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path, { resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import { Page, _electron } from "playwright";
 import { test as baseTest, inject } from "vitest";
 import { closeVscode } from "./common-steps";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const imagesPath = path.resolve(__dirname, "../../images-linux");
+const __dirname = import.meta.dirname;
+const projectRoot = path.resolve(__dirname, "../../");
+const imagesPath = path.resolve(projectRoot, "images-linux");
 
 interface Context {
   page: Page;
@@ -123,6 +124,21 @@ async function retry(
 async function screenshot(page: Page, os: "linux", name: string) {
   const filePath = path.join(imagesPath, `${name}.png`);
   await page.screenshot({ path: filePath });
+}
+
+/**
+ * Simulate global keyboard input
+ * @param {string} text The text to input
+ */
+export function sendKeys(text: string) {
+  execSync(`xdotool type --delay 100 "${text}"`);
+}
+
+/**
+ * Simulate pressing the Enter key
+ */
+export function pressEnter() {
+  execSync(`xdotool key Return`);
 }
 
 export { retry, screenshot, sleep, test };

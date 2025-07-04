@@ -1,6 +1,5 @@
 import { mkdir, rm } from "fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { beforeEach, describe } from "vitest";
 import {
   closeVscode,
@@ -20,16 +19,52 @@ import {
   startWithClick,
 } from "./common/create-steps";
 import { test } from "./common/utils";
-import {
-  CreateCasesConfigList,
-  CreateProjectTriggerType,
-  CreateTypespecProjectFolderPath,
-} from "./create-typespec.config";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const __dirname = import.meta.dirname;
+const projectRoot = path.resolve(__dirname, "../");
+const tempDir = path.resolve(projectRoot, "./temp");
+
+enum CreateProjectTriggerType {
+  Click = "RightClick",
+  Command = "CommandPalette",
+}
+
+type CreateConfigType = {
+  caseName: string;
+  triggerType: CreateProjectTriggerType;
+  templateName: string;
+  templateNameDescription: string;
+  isEmptyFolder: boolean;
+  expectedResults: string[];
+};
+
+const CreateTypespecProjectFolderPath = path.resolve(tempDir, "CreateTypespecProject");
+
+const createCase = "CreateTypespecProject";
+const templateName = "Generic Rest API";
+const templateNameDescription = "Create a project representing a generic REST API service.";
+const expectedResults = [
+  ".gitignore",
+  "main.tsp",
+  "node_modules",
+  "package-lock.json",
+  "package.json",
+  "tspconfig.yaml",
+];
+
+const CreateCasesConfigList: CreateConfigType[] = [
+  {
+    triggerType: CreateProjectTriggerType.Command,
+    caseName: `${createCase} ${templateName.replaceAll(" ", "")} Trigger ${CreateProjectTriggerType.Command} EmptyFolder`,
+    templateName,
+    templateNameDescription,
+    isEmptyFolder: true,
+    expectedResults,
+  },
+];
 
 beforeEach(async () => {
-  const dir = path.resolve(__dirname, CreateTypespecProjectFolderPath);
+  const dir = CreateTypespecProjectFolderPath;
   try {
     await rm(dir, { recursive: true });
   } catch {}
@@ -47,11 +82,10 @@ describe.each(CreateCasesConfigList)("CreateTypespecProject", async (item) => {
   } = item;
 
   test(caseName, async ({ launch }) => {
-    const workspacePath = path.resolve(__dirname, CreateTypespecProjectFolderPath);
+    const workspacePath = CreateTypespecProjectFolderPath;
     const { page, extensionDir } = await launch({
       workspacePath: triggerType === CreateProjectTriggerType.Command ? workspacePath : "test",
     });
-
     if (!isEmptyFolder) {
       createTestFile(workspacePath);
     }
