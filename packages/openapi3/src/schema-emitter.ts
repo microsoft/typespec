@@ -208,11 +208,22 @@ export class OpenAPI3SchemaEmitterBase<
   modelDeclaration(model: Model, _: string): EmitterOutput<object> {
     const program = this.emitter.getProgram();
     const visibility = this.#getVisibilityContext();
-    const schema: ObjectBuilder<any> = new ObjectBuilder({
-      type: "object",
-      required: this.#requiredModelProperties(model, visibility),
-      properties: this.emitter.emitModelProperties(model),
-    });
+    
+    // Check if this model extends an array type and get element type
+    const extendsArray = model.baseModel && isArrayModelType(program, model.baseModel);
+    const elementType = extendsArray ? model.baseModel!.indexer?.value : undefined;
+    
+    // Create array schema if extending array with valid element type, otherwise object schema
+    const schema: ObjectBuilder<any> = elementType
+      ? new ObjectBuilder({
+          type: "array",
+          items: this.emitter.emitTypeReference(elementType),
+        })
+      : new ObjectBuilder({
+          type: "object",
+          required: this.#requiredModelProperties(model, visibility),
+          properties: this.emitter.emitModelProperties(model),
+        });
 
     this.applyModelIndexer(schema, model);
 
@@ -225,7 +236,8 @@ export class OpenAPI3SchemaEmitterBase<
     this.applyDiscriminator(model, schema as any);
     this.#applyExternalDocs(model, schema);
 
-    if (model.baseModel) {
+    if (model.baseModel && !elementType) {
+      // Only add allOf for non-array base models
       schema.set("allOf", Builders.array([this.emitter.emitTypeReference(model.baseModel)]));
     }
 
