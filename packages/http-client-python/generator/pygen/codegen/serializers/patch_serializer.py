@@ -12,7 +12,6 @@ class PatchSerializer(BaseSerializer):
     def serialize(self) -> str:
         template = self.env.get_template("patch.py.jinja2")
         imports = FileImport(self.code_model)
-        imports.add_submodule_import("typing", "List", ImportType.STDLIB)
         return template.render(
             code_model=self.code_model,
             imports=FileImportSerializer(imports),
