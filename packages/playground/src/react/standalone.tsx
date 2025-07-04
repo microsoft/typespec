@@ -90,6 +90,8 @@ export const StandalonePlayground: FunctionComponent<ReactPlaygroundConfig> = (c
         defaultEmitter: context.initialState.emitter ?? config.defaultEmitter,
         defaultCompilerOptions: context.initialState.options,
         defaultSampleName: context.initialState.sampleName,
+        defaultSelectedViewer: context.initialState.selectedViewer,
+        defaultViewerState: context.initialState.viewerState,
       },
     [config.defaultEmitter, config.libraries, context],
   );
@@ -142,6 +144,13 @@ export function createStandalonePlaygroundStateStorage(): UrlStateStorage<Playgr
     sampleName: {
       queryParam: "sample",
     },
+    selectedViewer: {
+      queryParam: "v",
+    },
+    viewerState: {
+      type: "object",
+      queryParam: "vs",
+    },
   });
 
   return {
@@ -149,7 +158,9 @@ export function createStandalonePlaygroundStateStorage(): UrlStateStorage<Playgr
     resolveSearchParams: stateStorage.resolveSearchParams,
     save(data: PlaygroundSaveData) {
       stateStorage.save(
-        data.sampleName ? { sampleName: data.sampleName, options: data.options } : data,
+        data.sampleName
+          ? { ...data, content: undefined, emitter: undefined, sampleName: data.sampleName }
+          : data,
       );
     },
   };

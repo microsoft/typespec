@@ -73,6 +73,16 @@ export interface PlaygroundProps {
   /** Custom file viewers that enabled for certain emitters. Key of the map is emitter name */
   emitterViewers?: Record<string, FileOutputViewer[]>;
 
+  /** Selected viewer */
+  selectedViewer?: string;
+  /** Default selected viewer if leaving this unmanaged. */
+  defaultSelectedViewer?: string;
+  /** Callback when selected viewer changes */
+  onSelectedViewerChange?: (viewer: string) => void;
+
+  /** Initial viewer state */
+  defaultViewerState?: Record<string, any>;
+
   onSave?: (value: PlaygroundSaveData) => void;
 
   editorOptions?: PlaygroundEditorsOptions;
@@ -99,6 +109,12 @@ export interface PlaygroundSaveData {
 
   /** If a sample is selected and the content hasn't changed since. */
   sampleName?: string;
+
+  /** Selected viewer. */
+  selectedViewer?: string;
+
+  /** Internal state of viewers. */
+  viewerState?: Record<string, any>;
 }
 
 export interface PlaygroundLinks {
@@ -128,6 +144,14 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     props.sampleName,
     props.defaultSampleName,
     props.onSampleNameChange,
+  );
+  const [selectedViewer, onSelectedViewerChange] = useControllableValue(
+    props.selectedViewer,
+    props.defaultSelectedViewer,
+    props.onSelectedViewerChange,
+  );
+  const [viewerState, setViewerState] = useState<Record<string, any>>(
+    props.defaultViewerState ?? {},
   );
   const [content, setContent] = useState(props.defaultContent);
   const isSampleUntouched = useMemo(() => {
@@ -210,6 +234,8 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
         emitter: selectedEmitter,
         options: compilerOptions,
         sampleName: isSampleUntouched ? selectedSampleName : undefined,
+        selectedViewer: selectedViewer,
+        viewerState: viewerState,
       });
     }
   }, [
@@ -219,6 +245,8 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     compilerOptions,
     selectedSampleName,
     isSampleUntouched,
+    selectedViewer,
+    viewerState,
   ]);
 
   const formatCode = useCallback(() => {
@@ -313,6 +341,10 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
                   editorOptions={props.editorOptions}
                   viewers={props.viewers}
                   fileViewers={props.emitterViewers?.[selectedEmitter]}
+                  selectedViewer={selectedViewer}
+                  onViewerChange={onSelectedViewerChange}
+                  viewerState={viewerState}
+                  onViewerStateChange={setViewerState}
                 />
               </Pane>
             </SplitPane>

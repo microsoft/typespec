@@ -17,6 +17,10 @@ export interface OutputViewerProps {
   readonly program: Program;
   /** Files emitted */
   readonly outputFiles: string[];
+  /** Current viewer state (for viewers that have internal state) */
+  readonly viewerState?: Record<string, any>;
+  /** Callback to update viewer state */
+  readonly onViewerStateChange?: (state: Record<string, any>) => void;
 }
 
 export interface ProgramViewer {
