@@ -13,7 +13,7 @@ import style from "./type-data-table.module.css";
 
 export const TypeDataTable: FC<{ type: Type }> = ({ type }) => {
   const program = useProgram();
-  const entries = [...program.stateMaps.entries()]
+  const entries = [...(program as any).stateMaps.entries()]
     .map(([k, v]) => [k, v.get(type) as any])
     .filter(([k, v]) => !!v);
   if (entries.length === 0) {
