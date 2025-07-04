@@ -3,4 +3,4 @@
 {{ code_model.license_header }}
 {% endif %}
 
-VERSION = "{{ code_model.options['package_version'] }}"
+VERSION = "{{ code_model.options.get("package-version") }}"

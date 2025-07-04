@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
-using System.ClientModel;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.Expressions;
+using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
@@ -237,7 +237,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MethodBodyStatement[] body =
             [
                 Declare("content", New.Instance<Utf8JsonBinaryContentDefinition>(), out var content),
-                content.JsonWriter().WriteObjectValue(valueParameter.As<object>(), ModelSerializationExtensionsSnippets.Wire),
+                ScmCodeModelGenerator.Instance.TypeFactory.SerializeJsonValue(typeof(object), valueParameter, content.JsonWriter(), ModelSerializationExtensionsSnippets.Wire, SerializationFormat.Default),
                 Return(content)
             ];
 
