@@ -2,7 +2,7 @@ import { createDiagnosticCollector } from "../core/diagnostics.js";
 import { createDiagnostic } from "../core/messages.js";
 import { CompilerOptions } from "../core/options.js";
 import { getDirectoryPath, normalizePath } from "../core/path-utils.js";
-import { CompilerHost, Diagnostic, NoTarget } from "../core/types.js";
+import { Diagnostic, NoTarget, SystemHost } from "../core/types.js";
 import { doIO } from "../utils/io.js";
 import { deepClone, omitUndefined } from "../utils/misc.js";
 import { expandConfigVariables } from "./config-interpolation.js";
@@ -43,7 +43,7 @@ export interface ConfigToOptionsOptions {
  * @param options
  */
 export async function resolveCompilerOptions(
-  host: CompilerHost,
+  host: SystemHost,
   options: ResolveCompilerOptionsOptions,
 ): Promise<[CompilerOptions, readonly Diagnostic[]]> {
   const diagnostics = createDiagnosticCollector();

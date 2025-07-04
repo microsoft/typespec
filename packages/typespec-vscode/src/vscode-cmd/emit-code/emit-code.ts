@@ -1,3 +1,4 @@
+import { NodeSystemHost, resolveCompilerOptions } from "@typespec/compiler/internals";
 import { createHash } from "crypto";
 import { readFile, writeFile } from "fs/promises";
 import path from "path";
@@ -371,7 +372,6 @@ async function doEmit(
   }[] = [];
   try {
     for (const emitter of emitters) {
-      let outputDir = defaultEmitOutputDirInConfig;
       /*update emitter in config.yaml. */
       const emitNode = configYaml.get("emit");
       if (emitNode) {
@@ -397,9 +397,19 @@ async function doEmit(
           ["options", emitter.package, "emitter-output-dir"],
           defaultEmitOutputDirInConfig,
         );
-      } else {
-        outputDir = emitOutputDir as string;
       }
+      // else {
+      //   outputDir = emitOutputDir as string;
+      // }
+    }
+    const newYamlContent = configYaml.toString();
+    await writeFile(tspConfigFile, newYamlContent);
+
+    const [tspConfigOptions] = await resolveCompilerOptions(NodeSystemHost, {
+      entrypoint: mainTspFile,
+      cwd: baseDir,
+    });
+    for (const emitter of emitters) {
       let codeInfoStr: string = "code";
       if (emitter.kind !== EmitterKind.Unknown) {
         codeInfoStr = `${emitter.kind} code`;
@@ -407,14 +417,20 @@ async function doEmit(
       if (emitter.language) {
         codeInfoStr += ` for ${emitter.language}`;
       }
-      outputDir = outputDir
-        .replace("{project-root}", baseDir)
-        .replace("{output-dir}", `${baseDir}/tsp-output`)
-        .replace("{emitter-name}", emitter.package);
+
+      let outputDir =
+        (configYaml.getIn(["options", emitter.package, "emitter-output-dir"]) as string) ??
+        defaultEmitOutputDirInConfig;
+      if (tspConfigOptions.options) {
+        outputDir = tspConfigOptions.options[emitter.package]["emitter-output-dir"] ?? outputDir;
+      } else {
+        outputDir = outputDir
+          .replace("{project-root}", baseDir)
+          .replace("{output-dir}", `${baseDir}/tsp-output`)
+          .replace("{emitter-name}", emitter.package);
+      }
       generations.push({ emitter: emitter, outputDir: outputDir, codeInfo: codeInfoStr });
     }
-    const newYamlContent = configYaml.toString();
-    await writeFile(tspConfigFile, newYamlContent);
   } catch (error: any) {
     logger.error(error);
   }
