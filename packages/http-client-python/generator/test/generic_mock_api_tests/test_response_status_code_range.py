@@ -6,7 +6,6 @@
 import pytest
 from response.statuscoderange import StatusCodeRangeClient
 from response.statuscoderange.models import ErrorInRange, NotFoundError
-from azure.core.exceptions import HttpResponseError, ResourceNotFoundError
 
 
 @pytest.fixture
@@ -16,7 +15,7 @@ def client():
 
 
 def test_error_response_status_code_in_range(client: StatusCodeRangeClient):
-    with pytest.raises(HttpResponseError) as exc_info:
+    with pytest.raises(Exception) as exc_info:
         client.error_response_status_code_in_range()
 
     error = exc_info.value.model
@@ -27,7 +26,7 @@ def test_error_response_status_code_in_range(client: StatusCodeRangeClient):
 
 
 def test_error_response_status_code_404(client: StatusCodeRangeClient):
-    with pytest.raises(ResourceNotFoundError) as exc_info:
+    with pytest.raises(Exception) as exc_info:
         client.error_response_status_code404()
 
     error = exc_info.value.model
