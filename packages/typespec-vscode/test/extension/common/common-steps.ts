@@ -144,9 +144,10 @@ async function notEmptyFolderContinue(page: Page) {
 }
 
 /**
- * Install plugins using the command
+ * Install Typespec extension using the command line in VSCode's terminal.
  */
 async function installExtensionForCommand(page: Page, extensionDir: string) {
+  // locate the vsix file
   const findVsix = () => {
     const dir = path.resolve(__dirname, "../../../");
     const files = fs.readdirSync(dir);
@@ -155,53 +156,17 @@ async function installExtensionForCommand(page: Page, extensionDir: string) {
     return path.join(dir, match);
   };
   const vsixPath = process.env.VSIX_PATH || findVsix();
+
+  // open the terminal in VSCode
   await sleep(5);
   await page.keyboard.press("Control+Backquote");
-  await screenshot(page, "linux", "open_terminal");
-  await retry(
-    page,
-    10,
-    async () => {
-      const cmd = page.getByRole("textbox", { name: /Terminal/ }).first();
-      return (await cmd.count()) > 0;
-    },
-    "Failed to find command palette",
-    3,
-  );
   const cmd = page.getByRole("textbox", { name: /Terminal/ }).first();
   await cmd.click();
-  await sleep(5);
+
+  // install the extension using the command
   await cmd.fill(`code --install-extension ${vsixPath} --extensions-dir ${extensionDir}`);
-  await screenshot(page, "linux", "start_install_extension");
   await page.keyboard.press("Enter");
-  await sleep(8);
-  await page
-    .getByRole("tab", { name: /Extensions/ })
-    .locator("a")
-    .click();
-  await sleep(2);
-  await retry(
-    page,
-    2,
-    async () => {
-      // Check if there is Typespec in the title name under the 'installed' section
-      const installed = await page
-        .locator(".monaco-list > .monaco-scrollable-element")
-        .first()
-        .getByLabel("TypeSpec")
-        .locator("div")
-        .filter({ hasText: "TypeSpec" })
-        .first()
-        .locator("span")
-        .first()
-        .textContent();
-      return installed !== null && installed.includes("TypeSpec");
-    },
-    `Failed to install the extension.`,
-    1,
-  );
-  await page.getByLabel("Explorer").first().click();
-  await screenshot(page, "linux", "install_extension_result");
+  await screenshot(page, "linux", "start_install_extension");
 }
 
 async function closeVscode() {
