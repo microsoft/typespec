@@ -128,6 +128,113 @@ Scenarios.SpecialWords_Operations_try = createOperationsTests(`/special-words/op
 Scenarios.SpecialWords_Operations_while = createOperationsTests(`/special-words/operations/while`);
 Scenarios.SpecialWords_Operations_with = createOperationsTests(`/special-words/operations/with`);
 Scenarios.SpecialWords_Operations_yield = createOperationsTests(`/special-words/operations/yield`);
+// additional special words
+Scenarios.SpecialWords_Operations_any = createOperationsTests(`/special-words/operations/any`);
+Scenarios.SpecialWords_Operations_boolean = createOperationsTests(
+  `/special-words/operations/boolean`,
+);
+Scenarios.SpecialWords_Operations_case = createOperationsTests(`/special-words/operations/case`);
+Scenarios.SpecialWords_Operations_catch = createOperationsTests(`/special-words/operations/catch`);
+Scenarios.SpecialWords_Operations_const = createOperationsTests(`/special-words/operations/const`);
+Scenarios.SpecialWords_Operations_date = createOperationsTests(`/special-words/operations/date`);
+Scenarios.SpecialWords_Operations_debugger = createOperationsTests(
+  `/special-words/operations/debugger`,
+);
+Scenarios.SpecialWords_Operations_declare = createOperationsTests(
+  `/special-words/operations/declare`,
+);
+Scenarios.SpecialWords_Operations_default = createOperationsTests(
+  `/special-words/operations/default`,
+);
+Scenarios.SpecialWords_Operations_delete = createOperationsTests(
+  `/special-words/operations/delete`,
+);
+Scenarios.SpecialWords_Operations_do = createOperationsTests(`/special-words/operations/do`);
+Scenarios.SpecialWords_Operations_enum = createOperationsTests(`/special-words/operations/enum`);
+Scenarios.SpecialWords_Operations_error = createOperationsTests(`/special-words/operations/error`);
+Scenarios.SpecialWords_Operations_export = createOperationsTests(
+  `/special-words/operations/export`,
+);
+Scenarios.SpecialWords_Operations_extends = createOperationsTests(
+  `/special-words/operations/extends`,
+);
+Scenarios.SpecialWords_Operations_false = createOperationsTests(`/special-words/operations/false`);
+Scenarios.SpecialWords_Operations_function = createOperationsTests(
+  `/special-words/operations/function`,
+);
+Scenarios.SpecialWords_Operations_get = createOperationsTests(`/special-words/operations/get`);
+Scenarios.SpecialWords_Operations_implements = createOperationsTests(
+  `/special-words/operations/implements`,
+);
+Scenarios.SpecialWords_Operations_instanceof = createOperationsTests(
+  `/special-words/operations/instanceof`,
+);
+Scenarios.SpecialWords_Operations_interface = createOperationsTests(
+  `/special-words/operations/interface`,
+);
+Scenarios.SpecialWords_Operations_let = createOperationsTests(`/special-words/operations/let`);
+Scenarios.SpecialWords_Operations_module = createOperationsTests(
+  `/special-words/operations/module`,
+);
+Scenarios.SpecialWords_Operations_new = createOperationsTests(`/special-words/operations/new`);
+Scenarios.SpecialWords_Operations_null = createOperationsTests(`/special-words/operations/null`);
+Scenarios.SpecialWords_Operations_number = createOperationsTests(
+  `/special-words/operations/number`,
+);
+Scenarios.SpecialWords_Operations_of = createOperationsTests(`/special-words/operations/of`);
+Scenarios.SpecialWords_Operations_package = createOperationsTests(
+  `/special-words/operations/package`,
+);
+Scenarios.SpecialWords_Operations_private = createOperationsTests(
+  `/special-words/operations/private`,
+);
+Scenarios.SpecialWords_Operations_protected = createOperationsTests(
+  `/special-words/operations/protected`,
+);
+Scenarios.SpecialWords_Operations_public = createOperationsTests(
+  `/special-words/operations/public`,
+);
+Scenarios.SpecialWords_Operations_requestoptions = createOperationsTests(
+  `/special-words/operations/requestoptions`,
+);
+Scenarios.SpecialWords_Operations_require = createOperationsTests(
+  `/special-words/operations/require`,
+);
+Scenarios.SpecialWords_Operations_set = createOperationsTests(`/special-words/operations/set`);
+Scenarios.SpecialWords_Operations_switch = createOperationsTests(
+  `/special-words/operations/switch`,
+);
+Scenarios.SpecialWords_Operations_static = createOperationsTests(
+  `/special-words/operations/static`,
+);
+Scenarios.SpecialWords_Operations_super = createOperationsTests(`/special-words/operations/super`);
+Scenarios.SpecialWords_Operations_this = createOperationsTests(`/special-words/operations/this`);
+Scenarios.SpecialWords_Operations_string = createOperationsTests(
+  `/special-words/operations/string`,
+);
+Scenarios.SpecialWords_Operations_symbol = createOperationsTests(
+  `/special-words/operations/symbol`,
+);
+Scenarios.SpecialWords_Operations_throw = createOperationsTests(`/special-words/operations/throw`);
+Scenarios.SpecialWords_Operations_true = createOperationsTests(`/special-words/operations/true`);
+Scenarios.SpecialWords_Operations_type = createOperationsTests(`/special-words/operations/type`);
+Scenarios.SpecialWords_Operations_typeof = createOperationsTests(
+  `/special-words/operations/typeof`,
+);
+Scenarios.SpecialWords_Operations_var = createOperationsTests(`/special-words/operations/var`);
+Scenarios.SpecialWords_Operations_void = createOperationsTests(`/special-words/operations/void`);
+Scenarios.SpecialWords_Operations_arguments = createOperationsTests(
+  `/special-words/operations/arguments`,
+);
+Scenarios.SpecialWords_Operations_client = createOperationsTests(
+  `/special-words/operations/client`,
+);
+Scenarios.SpecialWords_Operations_endpoint = createOperationsTests(
+  `/special-words/operations/endpoint`,
+);
+Scenarios.SpecialWords_Operations_apiVersion = createOperationsTests(
+  `/special-words/operations/apiVersion`,
+);
 
 function createParametersTests(uri: string, data: any, paramName: string) {
   return passOnSuccess({

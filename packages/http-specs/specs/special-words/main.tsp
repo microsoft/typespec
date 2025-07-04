@@ -86,6 +86,57 @@ interface Operations {
   @opNameScenario("while") while(): void;
   @opNameScenario("with") `with`(): void;
   @opNameScenario("yield") yield(): void;
+  // additional reserved words
+  @opNameScenario("any") any(): void;
+  @opNameScenario("boolean") boolean(): void;
+  @opNameScenario("case") case(): void;
+  @opNameScenario("catch") catch(): void;
+  @opNameScenario("const") `const`(): void;
+  @opNameScenario("date") date(): void;
+  @opNameScenario("debugger") debugger(): void;
+  @opNameScenario("declare") `declare`(): void;
+  @opNameScenario("default") default(): void;
+  @opNameScenario("delete") delete(): void;
+  @opNameScenario("do") do(): void;
+  @opNameScenario("enum") `enum`(): void;
+  @opNameScenario("error") error(): void;
+  @opNameScenario("export") export(): void;
+  @opNameScenario("extends") `extends`(): void;
+  @opNameScenario("false") `false`(): void;
+  @opNameScenario("function") function(): void;
+  @opNameScenario("get") get(): void;
+  @opNameScenario("implements") `implements`(): void;
+  @opNameScenario("instanceof") instanceof(): void;
+  @opNameScenario("interface") `interface`(): void;
+  @opNameScenario("let") let(): void;
+  @opNameScenario("module") `module`(): void;
+  @opNameScenario("new") new(): void;
+  @opNameScenario("null") null(): void;
+  @opNameScenario("number") number(): void;
+  @opNameScenario("of") of(): void;
+  @opNameScenario("package") `package`(): void;
+  @opNameScenario("private") `private`(): void;
+  @opNameScenario("protected") `protected`(): void;
+  @opNameScenario("public") `public`(): void;
+  @opNameScenario("requestoptions") requestoptions(): void;
+  @opNameScenario("require") require(): void;
+  @opNameScenario("set") set(): void;
+  @opNameScenario("switch") switch(): void;
+  @opNameScenario("static") static(): void;
+  @opNameScenario("super") `super`(): void;
+  @opNameScenario("this") `this`(): void;
+  @opNameScenario("string") string(): void;
+  @opNameScenario("symbol") symbol(): void;
+  @opNameScenario("throw") throw(): void;
+  @opNameScenario("true") `true`(): void;
+  @opNameScenario("type") type(): void;
+  @opNameScenario("typeof") `typeof`(): void;
+  @opNameScenario("var") var(): void;
+  @opNameScenario("void") `void`(): void;
+  @opNameScenario("arguments") arguments(): void;
+  @opNameScenario("client") client(): void;
+  @opNameScenario("endpoint") endpoint(): void;
+  @opNameScenario("apiVersion") apiVersion(): void;
 }
 
 /**
