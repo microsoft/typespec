@@ -109,6 +109,7 @@ import {
   Client as CodeModelClient,
   EncodedSchema,
   PageableContinuationToken,
+  Serializable,
 } from "./common/client.js";
 import { CodeModel } from "./common/code-model.js";
 import { LongRunningMetadata } from "./common/long-running-metadata.js";
@@ -146,6 +147,7 @@ import {
   getPropertySerializedName,
   getUnionDescription,
   getUsage,
+  getXmlSerializationFormat,
   modelIs,
   pushDistinct,
 } from "./type-utils.js";
@@ -2705,6 +2707,12 @@ export class CodeModelBuilder {
       }
     }
 
+    // xml
+    if (type.serializationOptions.xml) {
+      objectSchema.serialization = objectSchema.serialization ?? {};
+      objectSchema.serialization.xml = getXmlSerializationFormat(type);
+    }
+
     return objectSchema;
   }
 
@@ -2753,7 +2761,7 @@ export class CodeModelBuilder {
       schema = this.processSchema(nonNullType, "");
     }
 
-    return new Property(prop.name, prop.doc ?? "", schema, {
+    const property = new Property(prop.name, prop.doc ?? "", schema, {
       summary: prop.summary,
       required: !prop.optional,
       nullable: nullable,
@@ -2761,6 +2769,19 @@ export class CodeModelBuilder {
       serializedName: prop.kind === "property" ? getPropertySerializedName(prop) : undefined,
       extensions: extensions,
     });
+
+    // xml
+    if (prop.kind === "property" && prop.serializationOptions.xml) {
+      // property.serializedName is set via getPropertySerializedName
+
+      // "serialization" is set to the property in TypeSpec emitter, not in the schema
+      // this avoid duplicate schema, when different property has different serialization options, but refers to the same schema
+      const propertyWithSerialization = property as Serializable;
+      propertyWithSerialization.serialization = propertyWithSerialization.serialization ?? {};
+      propertyWithSerialization.serialization.xml = getXmlSerializationFormat(prop);
+    }
+
+    return property;
   }
 
   private processUnionSchema(type: SdkUnionType, name: string): Schema {

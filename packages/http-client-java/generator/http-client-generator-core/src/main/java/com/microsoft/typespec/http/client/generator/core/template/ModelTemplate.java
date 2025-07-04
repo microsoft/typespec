@@ -464,6 +464,11 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
 
         addGeneratedImport(imports);
 
+        if (model.isUsedInXml()) {
+            // Used in XML getter of unwrapped arrays
+            imports.add(Collections.class.getName());
+        }
+
         model.addImportsTo(imports, settings);
 
         // add Json merge patch related imports
@@ -618,7 +623,12 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                     fieldSignature = propertyType + " " + propertyName;
                 }
             } else if (propertyType instanceof IterableType) {
-                fieldSignature = propertyType + " " + propertyName + " = new ArrayList<>()";
+                if (property.isRequired() && settings.isRequiredFieldsAsConstructorArgs()) {
+                    // required property is initialized via constructor
+                    fieldSignature = propertyType + " " + propertyName;
+                } else {
+                    fieldSignature = propertyType + " " + propertyName + " = new ArrayList<>()";
+                }
             } else {
                 // handle x-ms-client-default
                 // Only set the property to a default value if the property isn't included in the constructor.
@@ -1054,18 +1064,29 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         }
 
         if (sourceTypeName.equals(targetTypeName)) {
-            if (treatAsXml && property.isXmlWrapper() && (property.getWireType() instanceof IterableType)) {
-                String thisGetName = "this." + property.getName();
-                if (settings.isStreamStyleSerialization()) {
-                    methodBlock.ifBlock(thisGetName + " == null",
-                        ifBlock -> ifBlock.line(thisGetName + " = new ArrayList<>();"));
-                    methodBlock.methodReturn("this." + property.getName());
+            if (treatAsXml && (property.getWireType() instanceof IterableType)) {
+                if (property.isXmlWrapper()) {
+                    if (settings.isStreamStyleSerialization()) {
+                        methodBlock.ifBlock(expression + " == null",
+                            ifBlock -> ifBlock.methodReturn("Collections.emptyList()"));
+                        methodBlock.methodReturn(expression);
+                    } else {
+                        methodBlock.ifBlock(expression + " == null",
+                            ifBlock -> ifBlock.line("this.%s = new %s(new ArrayList<%s>());", property.getName(),
+                                getPropertyXmlWrapperClassName(property),
+                                ((GenericType) property.getWireType()).getTypeArguments()[0]));
+                        methodBlock.methodReturn(expression + ".items");
+                    }
                 } else {
-                    methodBlock.ifBlock(thisGetName + " == null",
-                        ifBlock -> ifBlock.line("this.%s = new %s(new ArrayList<%s>());", property.getName(),
-                            getPropertyXmlWrapperClassName(property),
-                            ((GenericType) property.getWireType()).getTypeArguments()[0]));
-                    methodBlock.methodReturn(thisGetName + ".items");
+                    if (property.isRequired()
+                        && settings.isRequiredFieldsAsConstructorArgs()
+                        && settings.isStreamStyleSerialization()) {
+                        methodBlock.ifBlock(expression + " == null",
+                            ifBlock -> ifBlock.methodReturn("Collections.emptyList()"));
+                        methodBlock.methodReturn(expression);
+                    } else {
+                        methodBlock.methodReturn(expression);
+                    }
                 }
             } else {
                 methodBlock.methodReturn(expression);

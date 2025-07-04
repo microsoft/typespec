@@ -128,19 +128,21 @@ public final class MapperUtils {
     public static IType getExpectedResponseBodyType(Operation operation, JavaSettings settings) {
         final Schema responseSchema = SchemaUtil.getLowestCommonParent(operation.getResponseSchemas().iterator());
         if (responseSchema != null && responseSchema.isXmlWrapped()) {
-            // Create and return type for the XML wrapped schema.
-            //
-            // Note: XML wrapped response schemas are defined as ArraySchema but in reality it's a specialized
-            // ObjectSchema.
-            final ArraySchema arraySchema = (ArraySchema) responseSchema;
-            final String className = arraySchema.getElementType().getLanguage().getJava().getName() + "Wrapper";
-            final String classPackage = settings.isCustomType(className)
-                ? settings.getPackage(className)
-                : settings.getPackage(settings.getImplementationSubpackage() + ".models");
-            return new ClassType.Builder().packageName(classPackage)
-                .name(className)
-                .extensions(responseSchema.getExtensions())
-                .build();
+            if (responseSchema instanceof ArraySchema) {
+                // Create and return type for the XML wrapped schema.
+                //
+                // Note: XML wrapped response schemas are defined as ArraySchema but in reality it's a specialized
+                // ObjectSchema.
+                final ArraySchema arraySchema = (ArraySchema) responseSchema;
+                final String className = arraySchema.getElementType().getLanguage().getJava().getName() + "Wrapper";
+                final String classPackage = settings.isCustomType(className)
+                    ? settings.getPackage(className)
+                    : settings.getPackage(settings.getImplementationSubpackage() + ".models");
+                return new ClassType.Builder().packageName(classPackage)
+                    .name(className)
+                    .extensions(responseSchema.getExtensions())
+                    .build();
+            }
         }
         return SchemaUtil.getOperationResponseType(responseSchema, operation, settings);
     }

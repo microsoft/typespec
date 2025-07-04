@@ -16,6 +16,8 @@ public class Property extends Value {
     private List<Parameter> originalParameter;
     private String clientDefaultValue;
     private String summary;
+    // TypeSpec only
+    private SerializationFormats serialization;
     // internal use, not from modelerfour
     private ObjectSchema parentSchema;
 
@@ -149,6 +151,14 @@ public class Property extends Value {
      */
     public void setClientDefaultValue(String clientDefaultValue) {
         this.clientDefaultValue = clientDefaultValue;
+    }
+
+    public SerializationFormats getSerialization() {
+        return serialization;
+    }
+
+    public void setSerialization(SerializationFormats serialization) {
+        this.serialization = serialization;
     }
 
     @Override
