@@ -1,9 +1,9 @@
 import { type Children } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { isNeverType, type ModelProperty, type Operation } from "@typespec/compiler";
-import { getHttpPart } from "@typespec/http";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { InterfaceMethod } from "./interface-method.jsx";
+import { OverridableComponent } from "./overrides/component-overrides.jsx";
 import { TypeExpression } from "./type-expression.js";
 
 export interface InterfaceMemberProps {
@@ -23,19 +23,23 @@ export function InterfaceMember(props: InterfaceMemberProps) {
       return null;
     }
 
-    let unpackedType = props.type.type;
-    const part = getHttpPart($.program, props.type.type);
-    if (part) {
-      unpackedType = part.type;
-    }
+    const unpackedType = props.type.type;
 
+    const interfaceMemberProps = {
+      doc,
+      name,
+      optional: props.optional ?? props.type.optional,
+      type: <TypeExpression type={unpackedType} />,
+    };
     return (
-      <ts.InterfaceMember
-        doc={doc}
-        name={name}
-        optional={props.optional ?? props.type.optional}
-        type={<TypeExpression type={unpackedType} />}
-      />
+      <OverridableComponent
+        declare
+        type={props.type}
+        Declaration={ts.InterfaceMember}
+        declarationProps={interfaceMemberProps}
+      >
+        <ts.InterfaceMember {...interfaceMemberProps} />
+      </OverridableComponent>
     );
   }
 
