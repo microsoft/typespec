@@ -6,7 +6,7 @@ import { Locator, Page } from "playwright";
 import { pressEnter, retry, screenshot, sendKeys, sleep } from "./utils";
 
 const __dirname = import.meta.dirname;
-const projectRoot = path.resolve(__dirname, "../../");
+const projectRoot = path.resolve(__dirname, "../");
 const imagesPath = path.resolve(projectRoot, "images-linux");
 
 /**

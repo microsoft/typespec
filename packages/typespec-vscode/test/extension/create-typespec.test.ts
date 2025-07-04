@@ -21,7 +21,7 @@ import {
 import { test } from "./common/utils";
 
 const __dirname = import.meta.dirname;
-const projectRoot = path.resolve(__dirname, "../");
+const projectRoot = path.resolve(__dirname, "./");
 const tempDir = path.resolve(projectRoot, "./temp");
 
 enum CreateProjectTriggerType {

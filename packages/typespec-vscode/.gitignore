@@ -1,3 +1,3 @@
 templates/
 .vscode-test
-temp
+test/extension/temp
