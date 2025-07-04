@@ -23,7 +23,7 @@ azure-mgmt-core==1.5.0
 -e ./generated/azure-resource-manager-non-resource
 -e ./generated/azure-resource-manager-operation-templates
 -e ./generated/azure-resource-manager-resources
-# -e ./generated/client-namespace
+-e ./generated/client-namespace
 -e ./generated/azure-payload-pageable
 -e ./generated/client-naming
 -e ./generated/client-structure-default
