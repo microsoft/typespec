@@ -16,7 +16,6 @@ def client():
 
 
 def test_error_response_status_code_in_range(client: StatusCodeRangeClient):
-    """Test that error response with status code in range (494-499) raises HttpResponseError with ErrorInRange model."""
     with pytest.raises(HttpResponseError) as exc_info:
         client.error_response_status_code_in_range()
 
@@ -28,7 +27,6 @@ def test_error_response_status_code_in_range(client: StatusCodeRangeClient):
 
 
 def test_error_response_status_code_404(client: StatusCodeRangeClient):
-    """Test that error response with status code 404 raises ResourceNotFoundError with NotFoundError model."""
     with pytest.raises(ResourceNotFoundError) as exc_info:
         client.error_response_status_code404()
 
