@@ -14,10 +14,10 @@ import style from "./type-data-table.module.css";
 export const TypeDataTable: FC<{ type: Type }> = ({ type }) => {
   const program = useProgram();
   const entries = [...(program as any).stateMaps.entries()]
-    .map(([k, v]) => [k, v.get(undefined)?.get(type) as any])
+    .map(([k, v]) => [k, v.get(type) as any])
     .filter(([k, v]) => !!v);
   if (entries.length === 0) {
-    return null;
+    return "No decorator state found on this type.";
   }
   return (
     <table className={style["table"]}>
