@@ -1,10 +1,8 @@
 import { Tester } from "#test/test-host.js";
-import { type Children, render } from "@alloy-js/core";
-import { d } from "@alloy-js/core/testing";
+import { type Children } from "@alloy-js/core";
 import { createCSharpNamePolicy, Namespace, SourceFile } from "@alloy-js/csharp";
 import { t, type TesterInstance } from "@typespec/compiler/testing";
-import { beforeEach, describe, it } from "vitest";
-import { assertFileContents } from "../../../../test/csharp/utils.js";
+import { beforeEach, describe, expect, it } from "vitest";
 import { Output } from "../../../core/index.js";
 import { ClassDeclaration, EnumDeclaration } from "../../index.js";
 
@@ -30,24 +28,19 @@ it("renders an empty class declaration", async () => {
     model ${t.model("TestModel")} {}
   `);
 
-  const res = render(
+  expect(
     <Wrapper>
       <ClassDeclaration type={TestModel} />
     </Wrapper>,
-  );
+  ).toRenderTo(`
+    namespace TestNamespace
+    {
+        class TestModel
+        {
 
-  assertFileContents(
-    res,
-    d`
-      namespace TestNamespace
-      {
-          class TestModel
-          {
-
-          }
-      }
-    `,
-  );
+        }
+    }
+  `);
 });
 
 it("renders a class declaration with properties", async () => {
@@ -58,25 +51,20 @@ it("renders a class declaration with properties", async () => {
     }
   `);
 
-  const res = render(
+  expect(
     <Wrapper>
       <ClassDeclaration type={TestModel} />
     </Wrapper>,
-  );
-
-  assertFileContents(
-    res,
-    d`
-      namespace TestNamespace
-      {
-          class TestModel
-          {
-              public required string Prop1 { get; set; }
-              public required int Prop2 { get; set; }
-          }
-      }
-    `,
-  );
+  ).toRenderTo(`
+    namespace TestNamespace
+    {
+        class TestModel
+        {
+            public required string Prop1 { get; set; }
+            public required int Prop2 { get; set; }
+        }
+    }
+  `);
 });
 
 it("can override class name", async () => {
@@ -84,24 +72,19 @@ it("can override class name", async () => {
     model ${t.model("TestModel")} {}
   `);
 
-  const res = render(
+  expect(
     <Wrapper>
       <ClassDeclaration type={TestModel} name="CustomClassName" />
     </Wrapper>,
-  );
+  ).toRenderTo(`
+    namespace TestNamespace
+    {
+        class CustomClassName
+        {
 
-  assertFileContents(
-    res,
-    d`
-      namespace TestNamespace
-      {
-          class CustomClassName
-          {
-
-          }
-      }
-    `,
-  );
+        }
+    }
+  `);
 });
 
 it("renders a class with access modifiers", async () => {
@@ -110,24 +93,19 @@ it("renders a class with access modifiers", async () => {
     }
   `);
 
-  const res = render(
+  expect(
     <Wrapper>
       <ClassDeclaration type={TestModel} protected />
     </Wrapper>,
-  );
+  ).toRenderTo(`
+    namespace TestNamespace
+    {
+        protected class TestModel
+        {
 
-  assertFileContents(
-    res,
-    d`
-      namespace TestNamespace
-      {
-          protected class TestModel
-          {
-
-          }
-      }
-    `,
-  );
+        }
+    }
+  `);
 });
 
 describe("from an interface", () => {
@@ -137,15 +115,11 @@ describe("from an interface", () => {
     }
   `);
 
-    const res = render(
+    expect(
       <Wrapper>
         <ClassDeclaration type={TestInterface} />
       </Wrapper>,
-    );
-
-    assertFileContents(
-      res,
-      d`
+    ).toRenderTo(`
       namespace TestNamespace
       {
           class TestInterface
@@ -153,8 +127,7 @@ describe("from an interface", () => {
 
           }
       }
-    `,
-    );
+    `);
   });
 
   it("renders a class with operations", async () => {
@@ -164,15 +137,11 @@ describe("from an interface", () => {
     }
   `);
 
-    const res = render(
+    expect(
       <Wrapper>
         <ClassDeclaration type={TestInterface} />
       </Wrapper>,
-    );
-
-    assertFileContents(
-      res,
-      d`
+    ).toRenderTo(`
       namespace TestNamespace
       {
           class TestInterface
@@ -180,8 +149,7 @@ describe("from an interface", () => {
               public abstract string GetName(string id);
           }
       }
-    `,
-    );
+    `);
   });
 });
 
@@ -193,30 +161,25 @@ it("renders a class with model members", async () => {
     }
   `);
 
-  const res = render(
+  expect(
     <Wrapper>
       <ClassDeclaration type={TestReference} />
       <hbr />
       <ClassDeclaration type={TestModel} />
     </Wrapper>,
-  );
+  ).toRenderTo(`
+    namespace TestNamespace
+    {
+        class TestReference
+        {
 
-  assertFileContents(
-    res,
-    d`
-      namespace TestNamespace
-      {
-          class TestReference
-          {
-
-          }
-          class TestModel
-          {
-              public required TestReference Prop1 { get; set; }
-          }
-      }
-    `,
-  );
+        }
+        class TestModel
+        {
+            public required TestReference Prop1 { get; set; }
+        }
+    }
+  `);
 });
 
 it("renders a class with enum members", async () => {
@@ -230,31 +193,26 @@ it("renders a class with enum members", async () => {
     }
   `);
 
-  const res = render(
+  expect(
     <Wrapper>
       <EnumDeclaration type={TestEnum} />
       <hbr />
       <ClassDeclaration type={TestModel} />
     </Wrapper>,
-  );
-
-  assertFileContents(
-    res,
-    d`
-      namespace TestNamespace
-      {
-          enum TestEnum
-          {
-              Value1,
-              Value2
-          }
-          class TestModel
-          {
-              public required TestEnum Prop1 { get; set; }
-          }
-      }
-    `,
-  );
+  ).toRenderTo(`
+    namespace TestNamespace
+    {
+        enum TestEnum
+        {
+            Value1,
+            Value2
+        }
+        class TestModel
+        {
+            public required TestEnum Prop1 { get; set; }
+        }
+    }
+  `);
 });
 
 it("maps prop: string | null to nullable property", async () => {
@@ -264,24 +222,19 @@ it("maps prop: string | null to nullable property", async () => {
     }
   `);
 
-  const res = render(
+  expect(
     <Wrapper>
       <ClassDeclaration type={TestModel} />
     </Wrapper>,
-  );
-
-  assertFileContents(
-    res,
-    d`
-      namespace TestNamespace
-      {
-          class TestModel
-          {
-              public required string? Prop1 { get; set; }
-          }
-      }
-    `,
-  );
+  ).toRenderTo(`
+    namespace TestNamespace
+    {
+        class TestModel
+        {
+            public required string? Prop1 { get; set; }
+        }
+    }
+  `);
 });
 
 it("renders a class with string enums", async () => {
@@ -295,31 +248,26 @@ it("renders a class with string enums", async () => {
     }
   `);
 
-  const res = render(
+  expect(
     <Wrapper>
       <EnumDeclaration type={TestEnum} />
       <hbr />
       <ClassDeclaration type={TestModel} />
     </Wrapper>,
-  );
-
-  assertFileContents(
-    res,
-    d`
-      namespace TestNamespace
-      {
-          enum TestEnum
-          {
-              Value1,
-              Value2
-          }
-          class TestModel
-          {
-              public required TestEnum Prop1 { get; set; }
-          }
-      }
-    `,
-  );
+  ).toRenderTo(`
+    namespace TestNamespace
+    {
+        enum TestEnum
+        {
+            Value1,
+            Value2
+        }
+        class TestModel
+        {
+            public required TestEnum Prop1 { get; set; }
+        }
+    }
+  `);
 });
 
 describe("with doc comments", () => {
@@ -333,15 +281,11 @@ describe("with doc comments", () => {
     
   `);
 
-    const res = render(
+    expect(
       <Wrapper>
         <ClassDeclaration type={TestModel} />
       </Wrapper>,
-    );
-
-    assertFileContents(
-      res,
-      d`
+    ).toRenderTo(`
       namespace TestNamespace
       {
           /// <summary>
@@ -355,8 +299,7 @@ describe("with doc comments", () => {
               public required string Prop1 { get; set; }
           }
       }
-    `,
-    );
+    `);
   });
 
   it("renders an interface with docs", async () => {
@@ -369,15 +312,11 @@ describe("with doc comments", () => {
       }
     `);
 
-    const res = render(
+    expect(
       <Wrapper>
         <ClassDeclaration type={TestInterface} />
       </Wrapper>,
-    );
-
-    assertFileContents(
-      res,
-      d`
+    ).toRenderTo(`
       namespace TestNamespace
       {
           /// <summary>
@@ -395,7 +334,6 @@ describe("with doc comments", () => {
               public abstract string GetName(string id);
           }
       }
-    `,
-    );
+    `);
   });
 });

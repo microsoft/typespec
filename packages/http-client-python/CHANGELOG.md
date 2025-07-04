@@ -1,5 +1,12 @@
 # Change Log - @typespec/http-client-python
 
+## 0.13.0
+
+### Features
+
+- [#7817](https://github.com/microsoft/typespec/pull/7817) Make mixin operations classes private to remove from documentation
+
+
 ## 0.12.5
 
 ### Bug Fixes
