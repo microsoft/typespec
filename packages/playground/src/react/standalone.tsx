@@ -26,7 +26,12 @@ import {
   type UrlStateStorage,
 } from "../state-storage.js";
 import type { BrowserHost } from "../types.js";
-import { Playground, type PlaygroundProps, type PlaygroundSaveData } from "./playground.js";
+import {
+  Playground,
+  type PlaygroundProps,
+  type PlaygroundSaveData,
+  type PlaygroundState,
+} from "./playground.js";
 
 export interface ReactPlaygroundConfig extends Partial<PlaygroundProps> {
   readonly libraries: readonly string[];
@@ -63,12 +68,23 @@ export const StandalonePlayground: FunctionComponent<ReactPlaygroundConfig> = (c
   const toasterId = useId();
   const { dispatchToast } = useToastController(toasterId);
 
-  const onSave = useCallback(
+  // Keep track of the last saved data to preserve content
+  const [lastSavedData, setLastSavedData] = useState<PlaygroundSaveData | null>(null);
+
+  const saveToStorage = useCallback(
     (value: PlaygroundSaveData) => {
       if (!context) {
         return;
       }
       context.stateStorage.save(value);
+      setLastSavedData(value);
+    },
+    [context],
+  );
+
+  const onSave = useCallback(
+    (value: PlaygroundSaveData) => {
+      saveToStorage(value);
       void navigator.clipboard.writeText(window.location.toString());
       dispatchToast(
         <Toast>
@@ -78,7 +94,24 @@ export const StandalonePlayground: FunctionComponent<ReactPlaygroundConfig> = (c
         { intent: "success" },
       );
     },
-    [dispatchToast, context],
+    [dispatchToast, saveToStorage],
+  );
+
+  const onPlaygroundStateChange = useCallback(
+    (newState: PlaygroundState) => {
+      // Auto-save state changes to storage without showing toast
+      // Preserve the last known content or use empty string if none
+      const saveData: PlaygroundSaveData = {
+        content: lastSavedData?.content || "",
+        emitter: newState.emitter || "",
+        options: newState.compilerOptions,
+        sampleName: newState.sampleName,
+        selectedViewer: newState.selectedViewer,
+        viewerState: newState.viewerState,
+      };
+      saveToStorage(saveData);
+    },
+    [lastSavedData?.content, saveToStorage],
   );
 
   const fixedOptions: PlaygroundProps | undefined = useMemo(
@@ -87,13 +120,18 @@ export const StandalonePlayground: FunctionComponent<ReactPlaygroundConfig> = (c
         host: context.host,
         libraries: config.libraries,
         defaultContent: context.initialState.content,
-        defaultEmitter: context.initialState.emitter ?? config.defaultEmitter,
-        defaultCompilerOptions: context.initialState.options,
-        defaultSampleName: context.initialState.sampleName,
-        defaultSelectedViewer: context.initialState.selectedViewer,
-        defaultViewerState: context.initialState.viewerState,
+        defaultPlaygroundState: {
+          emitter: context.initialState.emitter ?? config.defaultPlaygroundState?.emitter,
+          compilerOptions:
+            context.initialState.options ?? config.defaultPlaygroundState?.compilerOptions,
+          sampleName: context.initialState.sampleName ?? config.defaultPlaygroundState?.sampleName,
+          selectedViewer:
+            context.initialState.selectedViewer ?? config.defaultPlaygroundState?.selectedViewer,
+          viewerState:
+            context.initialState.viewerState ?? config.defaultPlaygroundState?.viewerState,
+        },
       },
-    [config.defaultEmitter, config.libraries, context],
+    [config.defaultPlaygroundState, config.libraries, context],
   );
   if (context === undefined || fixedOptions === undefined) {
     return config.fallback;
@@ -103,12 +141,13 @@ export const StandalonePlayground: FunctionComponent<ReactPlaygroundConfig> = (c
     ...config,
     ...fixedOptions,
     onSave,
+    onPlaygroundStateChange,
   };
 
   return (
     <>
       <Toaster toasterId={toasterId} />
-      {options && <Playground {...options} />}
+      <Playground {...options} />
     </>
   );
 };

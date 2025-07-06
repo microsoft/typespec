@@ -26,38 +26,43 @@ import { ProblemPane } from "./problem-pane/index.js";
 import type { CompilationState, FileOutputViewer, ProgramViewer } from "./types.js";
 import { TypeSpecEditor } from "./typespec-editor.js";
 
+export interface PlaygroundState {
+  /** Emitter to use */
+  emitter?: string;
+  /** Emitter options */
+  compilerOptions?: CompilerOptions;
+  /** Sample to use */
+  sampleName?: string;
+  /** Selected viewer */
+  selectedViewer?: string;
+  /** Internal state of viewers */
+  viewerState?: Record<string, any>;
+}
+
 export interface PlaygroundProps {
   host: BrowserHost;
 
-  /** Default emitter if leaving this unmanaged. */
+  /** Default content if leaving this unmanaged. */
   defaultContent?: string;
 
   /** List of available libraries */
   readonly libraries: readonly string[];
 
-  /** Emitter to use */
-  emitter?: string;
-  /** Default emitter if leaving this unmanaged. */
-  defaultEmitter?: string;
-  /** Callback when emitter change */
-  onEmitterChange?: (emitter: string) => void;
-
-  /** Emitter options */
-  compilerOptions?: CompilerOptions;
-  /** Default emitter options if leaving this unmanaged. */
-  defaultCompilerOptions?: CompilerOptions;
-  /** Callback when emitter options change */
-  onCompilerOptionsChange?: (emitter: CompilerOptions) => void;
-
   /** Samples available */
   samples?: Record<string, PlaygroundSample>;
 
-  /** Sample to use */
-  sampleName?: string;
-  /** Default sample if leaving this unmanaged. */
-  defaultSampleName?: string;
-  /** Callback when sample change */
-  onSampleNameChange?: (sampleName: string) => void;
+  /** Playground state (controlled) */
+  playgroundState?: PlaygroundState;
+  /** Default playground state if leaving this unmanaged */
+  defaultPlaygroundState?: PlaygroundState;
+  /** Callback when playground state changes */
+  onPlaygroundStateChange?: (state: PlaygroundState) => void;
+
+  /**
+   * Default emitter to use if not provided in defaultPlaygroundState.
+   * @deprecated Use defaultPlaygroundState.emitter instead
+   */
+  defaultEmitter?: string;
 
   onFileBug?: () => void;
 
@@ -73,16 +78,6 @@ export interface PlaygroundProps {
   /** Custom file viewers that enabled for certain emitters. Key of the map is emitter name */
   emitterViewers?: Record<string, FileOutputViewer[]>;
 
-  /** Selected viewer */
-  selectedViewer?: string;
-  /** Default selected viewer if leaving this unmanaged. */
-  defaultSelectedViewer?: string;
-  /** Callback when selected viewer changes */
-  onSelectedViewerChange?: (viewer: string) => void;
-
-  /** Initial viewer state */
-  defaultViewerState?: Record<string, any>;
-
   onSave?: (value: PlaygroundSaveData) => void;
 
   editorOptions?: PlaygroundEditorsOptions;
@@ -97,24 +92,12 @@ export interface PlaygroundEditorsOptions {
   theme?: string;
 }
 
-export interface PlaygroundSaveData {
+export interface PlaygroundSaveData extends PlaygroundState {
   /** Current content of the playground.   */
   content: string;
 
   /** Emitter name. */
   emitter: string;
-
-  /** Emitter options. */
-  options?: CompilerOptions;
-
-  /** If a sample is selected and the content hasn't changed since. */
-  sampleName?: string;
-
-  /** Selected viewer. */
-  selectedViewer?: string;
-
-  /** Internal state of viewers. */
-  viewerState?: Record<string, any>;
 }
 
 export interface PlaygroundLinks {
@@ -122,37 +105,142 @@ export interface PlaygroundLinks {
   documentationUrl?: string;
 }
 
+/**
+ * Playground component for TypeSpec with consolidated state management.
+ *
+ * @example
+ * ```tsx
+ * const [playgroundState, setPlaygroundState] = useState<PlaygroundState>({
+ *   emitter: 'openapi3',
+ *   compilerOptions: {},
+ *   sampleName: 'basic',
+ *   selectedViewer: 'openapi',
+ *   viewerState: {}
+ * });
+ *
+ * <Playground
+ *   host={host}
+ *   playgroundState={playgroundState}
+ *   onPlaygroundStateChange={setPlaygroundState}
+ *   samples={samples}
+ *   viewers={viewers}
+ * />
+ * ```
+ *
+ * For uncontrolled usage, use defaultPlaygroundState:
+ * ```tsx
+ * <Playground
+ *   host={host}
+ *   defaultPlaygroundState={{
+ *     emitter: 'openapi3',
+ *     compilerOptions: {},
+ *   }}
+ *   samples={samples}
+ *   viewers={viewers}
+ * />
+ * ```
+ *
+ * For backward compatibility, you can also use the deprecated defaultEmitter prop:
+ * ```tsx
+ * <Playground
+ *   host={host}
+ *   defaultEmitter="openapi3"
+ *   samples={samples}
+ *   viewers={viewers}
+ * />
+ * ```
+ */
 export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
-  const { host, onSave } = props;
+  const { host, onSave, onPlaygroundStateChange } = props;
   const editorRef = useRef<editor.IStandaloneCodeEditor | undefined>(undefined);
 
   useEffect(() => {
     editor.setTheme(props.editorOptions?.theme ?? "typespec");
   }, [props.editorOptions?.theme]);
 
-  const [selectedEmitter, onSelectedEmitterChange] = useControllableValue(
-    props.emitter,
-    props.defaultEmitter,
-    props.onEmitterChange,
+  // Create the effective default state with proper fallback logic
+  const effectiveDefaultState = useMemo((): PlaygroundState => {
+    const baseDefault = props.defaultPlaygroundState ?? {};
+
+    // If no emitter is provided in defaultPlaygroundState, use fallback logic
+    if (!baseDefault.emitter) {
+      // First try the deprecated defaultEmitter prop
+      if (props.defaultEmitter) {
+        return { ...baseDefault, emitter: props.defaultEmitter };
+      }
+      // Then fallback to the first available emitter from libraries
+      if (props.libraries.length > 0) {
+        return { ...baseDefault, emitter: props.libraries[0] };
+      }
+    }
+
+    return baseDefault;
+  }, [props.defaultPlaygroundState, props.defaultEmitter, props.libraries]);
+
+  // Use a single controllable value for the entire playground state
+  const [playgroundState, setPlaygroundState] = useControllableValue(
+    props.playgroundState,
+    effectiveDefaultState,
+    onPlaygroundStateChange,
   );
-  const [compilerOptions, onCompilerOptionsChange] = useControllableValue(
-    props.compilerOptions,
-    props.defaultCompilerOptions ?? {},
-    props.onCompilerOptionsChange,
+
+  // Extract individual values from the consolidated state with proper defaults
+  const selectedEmitter = playgroundState.emitter as any;
+  const compilerOptions = useMemo(
+    () => playgroundState.compilerOptions ?? {},
+    [playgroundState.compilerOptions],
   );
-  const [selectedSampleName, onSelectedSampleNameChange] = useControllableValue(
-    props.sampleName,
-    props.defaultSampleName,
-    props.onSampleNameChange,
+  const selectedSampleName = playgroundState.sampleName ?? "";
+  const selectedViewer = playgroundState.selectedViewer;
+
+  // Individual change handlers that update the consolidated state
+  const onSelectedEmitterChange = useCallback(
+    (emitter: string) => {
+      setPlaygroundState({ ...playgroundState, emitter });
+    },
+    [playgroundState, setPlaygroundState],
   );
-  const [selectedViewer, onSelectedViewerChange] = useControllableValue(
-    props.selectedViewer,
-    props.defaultSelectedViewer,
-    props.onSelectedViewerChange,
+
+  const onCompilerOptionsChange = useCallback(
+    (compilerOptions: CompilerOptions) => {
+      setPlaygroundState({ ...playgroundState, compilerOptions });
+    },
+    [playgroundState, setPlaygroundState],
   );
+
+  const onSelectedSampleNameChange = useCallback(
+    (sampleName: string) => {
+      setPlaygroundState({ ...playgroundState, sampleName });
+    },
+    [playgroundState, setPlaygroundState],
+  );
+
+  const onSelectedViewerChange = useCallback(
+    (selectedViewer: string) => {
+      setPlaygroundState({ ...playgroundState, selectedViewer });
+    },
+    [playgroundState, setPlaygroundState],
+  );
+
   const [viewerState, setViewerState] = useState<Record<string, any>>(
-    props.defaultViewerState ?? {},
+    playgroundState.viewerState ?? {},
   );
+
+  // Update viewerState when playgroundState.viewerState changes
+  useEffect(() => {
+    if (playgroundState.viewerState) {
+      setViewerState(playgroundState.viewerState);
+    }
+  }, [playgroundState.viewerState]);
+
+  const handleViewerStateChange = useCallback(
+    (newViewerState: Record<string, any>) => {
+      setViewerState(newViewerState);
+      setPlaygroundState({ ...playgroundState, viewerState: newViewerState });
+    },
+    [playgroundState, setPlaygroundState],
+  );
+
   const [content, setContent] = useState(props.defaultContent);
   const isSampleUntouched = useMemo(() => {
     return Boolean(selectedSampleName && content === props.samples?.[selectedSampleName]?.content);
@@ -232,10 +320,10 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
       onSave({
         content: typespecModel.getValue(),
         emitter: selectedEmitter,
-        options: compilerOptions,
+        compilerOptions,
         sampleName: isSampleUntouched ? selectedSampleName : undefined,
-        selectedViewer: selectedViewer,
-        viewerState: viewerState,
+        selectedViewer,
+        viewerState,
       });
     }
   }, [
@@ -340,11 +428,13 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
                   compilationState={compilationState}
                   editorOptions={props.editorOptions}
                   viewers={props.viewers}
-                  fileViewers={props.emitterViewers?.[selectedEmitter]}
+                  fileViewers={
+                    selectedEmitter ? props.emitterViewers?.[selectedEmitter] : undefined
+                  }
                   selectedViewer={selectedViewer}
                   onViewerChange={onSelectedViewerChange}
                   viewerState={viewerState}
-                  onViewerStateChange={setViewerState}
+                  onViewerStateChange={handleViewerStateChange}
                 />
               </Pane>
             </SplitPane>
