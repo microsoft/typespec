@@ -104,7 +104,7 @@ export const StandalonePlayground: FunctionComponent<ReactPlaygroundConfig> = (c
       const saveData: PlaygroundSaveData = {
         content: lastSavedData?.content || "",
         emitter: newState.emitter || "",
-        options: newState.compilerOptions,
+        compilerOptions: newState.compilerOptions,
         sampleName: newState.sampleName,
         selectedViewer: newState.selectedViewer,
         viewerState: newState.viewerState,
@@ -123,7 +123,7 @@ export const StandalonePlayground: FunctionComponent<ReactPlaygroundConfig> = (c
         defaultPlaygroundState: {
           emitter: context.initialState.emitter ?? config.defaultPlaygroundState?.emitter,
           compilerOptions:
-            context.initialState.options ?? config.defaultPlaygroundState?.compilerOptions,
+            context.initialState.compilerOptions ?? config.defaultPlaygroundState?.compilerOptions,
           sampleName: context.initialState.sampleName ?? config.defaultPlaygroundState?.sampleName,
           selectedViewer:
             context.initialState.selectedViewer ?? config.defaultPlaygroundState?.selectedViewer,
@@ -176,7 +176,7 @@ export function createStandalonePlaygroundStateStorage(): UrlStateStorage<Playgr
     emitter: {
       queryParam: "e",
     },
-    options: {
+    compilerOptions: {
       type: "object",
       queryParam: "options",
     },
