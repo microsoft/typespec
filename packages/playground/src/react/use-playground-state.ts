@@ -1,6 +1,6 @@
 import type { CompilerOptions } from "@typespec/compiler";
 import { useControllableValue } from "@typespec/react-components";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import type { PlaygroundSample } from "../types.js";
 
 export interface PlaygroundState {
@@ -101,52 +101,34 @@ export function usePlaygroundState({
   const selectedSampleName = playgroundState.sampleName ?? "";
   const selectedViewer = playgroundState.selectedViewer;
 
-  // Individual change handlers that update the consolidated state
+  // Create a generic state updater that can handle any field
+  const updateState = useCallback(
+    (updates: Partial<PlaygroundState>) => {
+      setPlaygroundState({ ...playgroundState, ...updates });
+    },
+    [playgroundState, setPlaygroundState],
+  );
+
+  // Simple one-liner change handlers
   const onSelectedEmitterChange = useCallback(
-    (emitter: string) => {
-      setPlaygroundState({ ...playgroundState, emitter });
-    },
-    [playgroundState, setPlaygroundState],
+    (emitter: string) => updateState({ emitter }),
+    [updateState],
   );
-
   const onCompilerOptionsChange = useCallback(
-    (compilerOptions: CompilerOptions) => {
-      setPlaygroundState({ ...playgroundState, compilerOptions });
-    },
-    [playgroundState, setPlaygroundState],
+    (compilerOptions: CompilerOptions) => updateState({ compilerOptions }),
+    [updateState],
   );
-
   const onSelectedSampleNameChange = useCallback(
-    (sampleName: string) => {
-      setPlaygroundState({ ...playgroundState, sampleName });
-    },
-    [playgroundState, setPlaygroundState],
+    (sampleName: string) => updateState({ sampleName }),
+    [updateState],
   );
-
   const onSelectedViewerChange = useCallback(
-    (selectedViewer: string) => {
-      setPlaygroundState({ ...playgroundState, selectedViewer });
-    },
-    [playgroundState, setPlaygroundState],
+    (selectedViewer: string) => updateState({ selectedViewer }),
+    [updateState],
   );
-
-  const [viewerState, setViewerState] = useState<Record<string, any>>(
-    playgroundState.viewerState ?? {},
-  );
-
-  // Update viewerState when playgroundState.viewerState changes
-  useEffect(() => {
-    if (playgroundState.viewerState) {
-      setViewerState(playgroundState.viewerState);
-    }
-  }, [playgroundState.viewerState]);
-
   const onViewerStateChange = useCallback(
-    (newViewerState: Record<string, any>) => {
-      setViewerState(newViewerState);
-      setPlaygroundState({ ...playgroundState, viewerState: newViewerState });
-    },
-    [playgroundState, setPlaygroundState],
+    (viewerState: Record<string, any>) => updateState({ viewerState }),
+    [updateState],
   );
 
   // Store refs to latest callback functions to avoid dependency issues
@@ -181,7 +163,7 @@ export function usePlaygroundState({
     compilerOptions,
     selectedSampleName,
     selectedViewer,
-    viewerState,
+    viewerState: playgroundState.viewerState ?? {},
 
     // State setters
     onSelectedEmitterChange,
