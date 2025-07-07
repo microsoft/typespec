@@ -1,6 +1,5 @@
 export { usePlaygroundContext } from "./context/index.js";
 export { Editor, useMonacoModel, type EditorProps } from "./editor.js";
-export { usePlaygroundState, type PlaygroundState } from "./use-playground-state.js";
 export {
   Footer,
   FooterItem,
@@ -20,3 +19,4 @@ export {
   renderReactPlayground,
 } from "./standalone.js";
 export type * from "./types.js";
+export { usePlaygroundState, type PlaygroundState } from "./use-playground-state.js";
