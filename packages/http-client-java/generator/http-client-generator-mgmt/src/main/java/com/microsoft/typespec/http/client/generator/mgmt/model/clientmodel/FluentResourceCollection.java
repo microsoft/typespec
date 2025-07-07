@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel;
 
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
@@ -103,7 +104,11 @@ public class FluentResourceCollection {
             if (WellKnownMethodName.DELETE.getMethodName().equals(methodName)
                 && (methodType == ClientMethodType.SimpleSync || methodType == ClientMethodType.LongRunningSync)
                 && !existingMethodNames.contains(WellKnownMethodName.DELETE_BY_RESOURCE_GROUP.getMethodName())
-                && methodParameters.size() == 2
+                // TODO(xiaofei) in mgmt on core-v2, also rename 2 params + Context method:
+                // https://github.com/Azure/azure-sdk-for-java/issues/45687
+                && methodParameters.stream()
+                    .filter(param -> param.getRequestParameterLocation() != RequestParameterLocation.HEADER)
+                    .count() == 2
                 && methodParameters.get(0).getClientType() == ClassType.STRING
                 && methodParameters.get(1).getClientType() == ClassType.STRING) {
                 // Transform "delete(String, String)" into "deleteByResourceGroup(String, String)"
@@ -115,7 +120,9 @@ public class FluentResourceCollection {
                 && methodType == ClientMethodType.SimpleSyncRestResponse
                 && !existingMethodNames.contains(
                     WellKnownMethodName.DELETE_BY_RESOURCE_GROUP.getMethodName() + Utils.METHOD_POSTFIX_WITH_RESPONSE)
-                && methodParameters.size() == 3
+                && methodParameters.stream()
+                    .filter(param -> param.getRequestParameterLocation() != RequestParameterLocation.HEADER)
+                    .count() == 3
                 && methodParameters.get(0).getClientType() == ClassType.STRING
                 && methodParameters.get(1).getClientType() == ClassType.STRING) {
                 // Transform "deleteWithResponse(String, String, ?)" into "deleteByResourceGroupWithResponse(String,

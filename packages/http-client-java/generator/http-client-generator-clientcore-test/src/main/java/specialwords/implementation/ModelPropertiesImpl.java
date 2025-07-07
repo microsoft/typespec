@@ -83,17 +83,4 @@ public final class ModelPropertiesImpl {
         final String contentType = "application/json";
         return service.sameAsModel(this.client.getEndpoint(), contentType, body, requestContext);
     }
-
-    /**
-     * The sameAsModel operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void sameAsModel(SameAsModel body) {
-        sameAsModelWithResponse(body, RequestContext.none());
-    }
 }

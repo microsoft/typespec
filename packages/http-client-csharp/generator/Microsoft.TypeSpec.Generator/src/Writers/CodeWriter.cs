@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Expressions;
@@ -183,6 +184,14 @@ namespace Microsoft.TypeSpec.Generator
 
             using (WriteXmlDocs(method.XmlDocs))
             {
+                if (method.Attributes.Count > 0)
+                {
+                    foreach (var attr in method.Attributes)
+                    {
+                        attr.Write(this);
+                    }
+                }
+
                 if (method.BodyStatements is { } body)
                 {
                     using (WriteMethodDeclaration(method.Signature))
@@ -208,6 +217,14 @@ namespace Microsoft.TypeSpec.Generator
 
             using (WriteXmlDocs(ctor.XmlDocs))
             {
+                if (ctor.Attributes.Count > 0)
+                {
+                    foreach (var attr in ctor.Attributes)
+                    {
+                        attr.Write(this);
+                    }
+                }
+
                 if (ctor.BodyStatements is { } body)
                 {
                     using (WriteMethodDeclaration(ctor.Signature))
@@ -274,6 +291,14 @@ namespace Microsoft.TypeSpec.Generator
         public void WriteProperty(PropertyProvider property)
         {
             WriteXmlDocsNoScope(property.XmlDocs);
+
+            if (property.Attributes.Count > 0)
+            {
+                foreach (var attr in property.Attributes)
+                {
+                    attr.Write(this);
+                }
+            }
 
             CodeScope? indexerScope = null;
 
@@ -433,6 +458,14 @@ namespace Microsoft.TypeSpec.Generator
         public CodeWriter WriteField(FieldProvider field)
         {
             WriteXmlDocsNoScope(field.XmlDocs);
+
+            if (field.Attributes.Count > 0)
+            {
+                foreach (var attr in field.Attributes)
+                {
+                    attr.Write(this);
+                }
+            }
 
             var modifiers = field.Modifiers;
 

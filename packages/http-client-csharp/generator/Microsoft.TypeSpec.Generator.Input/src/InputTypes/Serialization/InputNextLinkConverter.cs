@@ -10,36 +10,35 @@ namespace Microsoft.TypeSpec.Generator.Input
 {
     internal sealed class InputNextLinkConverter : JsonConverter<InputNextLink>
     {
-        private readonly TypeSpecReferenceHandler _referenceHandler;
-
-        public InputNextLinkConverter(TypeSpecReferenceHandler referenceHandler)
+        public InputNextLinkConverter()
         {
-            _referenceHandler = referenceHandler;
         }
 
         public override InputNextLink? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            => reader.ReadReferenceAndResolve<InputNextLink>(_referenceHandler.CurrentResolver) ?? CreateNextLink(ref reader, options, _referenceHandler.CurrentResolver);
+            => CreateNextLink(ref reader, options);
 
         public override void Write(Utf8JsonWriter writer, InputNextLink value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        internal static InputNextLink CreateNextLink(ref Utf8JsonReader reader, JsonSerializerOptions options, ReferenceResolver resolver)
+        internal static InputNextLink CreateNextLink(ref Utf8JsonReader reader, JsonSerializerOptions options)
         {
-            string? id = null;
-            reader.TryReadReferenceId(ref id);
-
-            id = id ?? throw new JsonException();
+            if (reader.TokenType == JsonTokenType.StartObject)
+            {
+                reader.Read();
+            }
 
             InputOperation? operation = null;
             IReadOnlyList<string>? responseSegments = null;
             InputResponseLocation? responseLocation = null;
+            IReadOnlyList<InputParameter>? reInjectedParameters = null;
 
             // read all possible properties and throw away the unknown properties
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadComplexType("operation", options, ref operation)
                     || reader.TryReadComplexType("responseSegments", options, ref responseSegments)
-                    || reader.TryReadComplexType("responseLocation", options, ref responseLocation);
+                    || reader.TryReadComplexType("responseLocation", options, ref responseLocation)
+                    || reader.TryReadComplexType("reInjectedParameters", options, ref reInjectedParameters);
 
                 if (!isKnownProperty)
                 {
@@ -50,8 +49,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             var nextLink = new InputNextLink(
                 operation,
                 responseSegments ?? throw new JsonException("NextLink response segments must be defined."),
-                responseLocation ?? throw new JsonException("NextLink response location must be defined."));
-            resolver.AddReference(id, nextLink);
+                responseLocation ?? throw new JsonException("NextLink response location must be defined."),
+                reInjectedParameters);
 
             return nextLink;
         }

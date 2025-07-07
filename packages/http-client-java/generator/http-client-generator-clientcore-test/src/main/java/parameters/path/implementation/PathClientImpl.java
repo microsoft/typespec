@@ -112,19 +112,6 @@ public final class PathClientImpl {
     }
 
     /**
-     * The normal operation.
-     * 
-     * @param name The name parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void normal(String name) {
-        normalWithResponse(name, RequestContext.none());
-    }
-
-    /**
      * The optional operation.
      * 
      * @param name The name parameter.
@@ -137,30 +124,5 @@ public final class PathClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> optionalWithResponse(String name, RequestContext requestContext) {
         return service.optional(this.getEndpoint(), name, requestContext);
-    }
-
-    /**
-     * The optional operation.
-     * 
-     * @param name The name parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void optional(String name) {
-        optionalWithResponse(name, RequestContext.none());
-    }
-
-    /**
-     * The optional operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void optional() {
-        final String name = null;
-        optionalWithResponse(name, RequestContext.none());
     }
 }

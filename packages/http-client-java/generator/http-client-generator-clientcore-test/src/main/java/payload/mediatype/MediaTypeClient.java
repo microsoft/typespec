@@ -55,7 +55,7 @@ public final class MediaTypeClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void sendAsText(String text) {
-        this.serviceClient.sendAsText(text);
+        sendAsTextWithResponse(text, RequestContext.none());
     }
 
     /**
@@ -83,7 +83,7 @@ public final class MediaTypeClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public String getAsText() {
-        return this.serviceClient.getAsText();
+        return getAsTextWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -113,7 +113,7 @@ public final class MediaTypeClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void sendAsJson(String text) {
-        this.serviceClient.sendAsJson(text);
+        sendAsJsonWithResponse(text, RequestContext.none());
     }
 
     /**
@@ -141,6 +141,6 @@ public final class MediaTypeClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public String getAsJson() {
-        return this.serviceClient.getAsJson();
+        return getAsJsonWithResponse(RequestContext.none()).getValue();
     }
 }

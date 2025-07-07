@@ -1,4 +1,4 @@
-import * as ay from "@alloy-js/core";
+import { code, mapJoin, Refkey, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { ModelProperty, Value } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
@@ -10,7 +10,7 @@ import { httpRuntimeTemplateLib } from "../components/external-packages/ts-http-
 
 export function buildClientParameters(
   client: cl.Client,
-  suffixRefkey: ay.Refkey,
+  suffixRefkey: Refkey,
 ): ts.ParameterDescriptor[] {
   const { $ } = useTsp();
   const initialization = $.client.getInitialization(client);
@@ -33,7 +33,7 @@ export function buildClientParameters(
     name,
     type: <TypeExpression type={p.type} />,
     optional: p.defaultValue ? true : p.optional,
-    refkey: ay.refkey(p.type, suffixRefkey, name),
+    refkey: refkey(p.type, suffixRefkey, name),
   }));
 
   const endpointParam = endpointParameters.find((p) => p.name === "endpoint");
@@ -43,7 +43,7 @@ export function buildClientParameters(
     name: "options",
     optional: true,
     type: getClientContextOptionsRef(client),
-    refkey: ay.refkey(),
+    refkey: refkey(),
   };
 
   const clientConstructorParams: ts.ParameterDescriptor[] = [];
@@ -89,20 +89,20 @@ function buildClientCredentialParameter(client: cl.Client): ts.ParameterDescript
   // TODO: Need to handle multiple authentication schemes
   const credentialDescriptor: ts.ParameterDescriptor = {
     name: "credential",
-    type: ay.mapJoin(
+    type: mapJoin(
       () => initialization.authentication!.options,
       (authScheme) => {
         return getCredentialType(authScheme.schemes[0]);
       },
       { joiner: " | " },
     ),
-    refkey: ay.refkey(),
+    refkey: refkey(),
   };
 
   return credentialDescriptor;
 }
 
-const oauth2FlowRefs: Record<OAuth2FlowType, ay.Refkey> = {
+const oauth2FlowRefs: Record<OAuth2FlowType, Refkey> = {
   authorizationCode: httpRuntimeTemplateLib.AuthorizationCodeFlow,
   clientCredentials: httpRuntimeTemplateLib.ClientCredentialsFlow,
   password: httpRuntimeTemplateLib.PasswordFlow,
@@ -120,12 +120,12 @@ function getCredentialType(scheme: HttpAuth) {
         return httpRuntimeTemplateLib.BearerTokenCredential;
       }
     case "oauth2":
-      const flowType = ay.mapJoin(
+      const flowType = mapJoin(
         () => scheme.flows,
         (x) => oauth2FlowRefs[x.type],
         { joiner: " | " },
       );
-      return ay.code`${httpRuntimeTemplateLib.OAuth2TokenCredential}<${flowType}>`;
+      return code`${httpRuntimeTemplateLib.OAuth2TokenCredential}<${flowType}>`;
     default:
       return null;
   }

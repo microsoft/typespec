@@ -29,7 +29,7 @@ namespace SampleTypeSpec
         /// <returns> The raw pages of the collection. </returns>
         public override IEnumerable<ClientResult> GetRawPages()
         {
-            PipelineMessage message = _client.CreateListWithPagingRequest(_options);
+            PipelineMessage message = _client.CreateGetWithPagingRequest(_options);
             yield return ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
         }
 

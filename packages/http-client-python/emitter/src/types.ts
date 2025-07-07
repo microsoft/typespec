@@ -249,6 +249,7 @@ function emitProperty(
     optional: property.optional,
     description: property.summary ? property.summary : property.doc,
     addedOn: getAddedOn(context, property),
+    apiVersions: property.apiVersions,
     visibility: visibilityMapping(property.visibility),
     isDiscriminator: property.discriminator,
     flatten: property.flatten,
@@ -320,6 +321,14 @@ function emitModel(context: PythonSdkContext, type: SdkModelType): Record<string
   return newValue;
 }
 
+function getConstantFromEnumValueType(type: SdkEnumValueType): Record<string, any> {
+  return getSimpleTypeResult({
+    type: "constant",
+    value: type.value,
+    valueType: emitBuiltInType(type.valueType),
+  });
+}
+
 function emitEnum(context: PythonSdkContext, type: SdkEnumType): Record<string, any> {
   if (typesMap.has(type)) {
     return typesMap.get(type)!;
@@ -327,13 +336,7 @@ function emitEnum(context: PythonSdkContext, type: SdkEnumType): Record<string, 
   if (type.isGeneratedName) {
     const types = [];
     for (const value of type.values) {
-      types.push(
-        getSimpleTypeResult({
-          type: "constant",
-          value: value.value,
-          valueType: emitBuiltInType(type.valueType),
-        }),
-      );
+      types.push(getConstantFromEnumValueType(value));
     }
     if (!type.isFixed) {
       types.push(emitBuiltInType(type.valueType));
@@ -381,6 +384,11 @@ function emitEnumMember(
   type: SdkEnumValueType,
   enumType: Record<string, any>,
 ): Record<string, any> {
+  // python don't generate enum created by TCGC, so we shall not generate type for enum member of the enum, either.
+  if (type.enumType.isGeneratedName) {
+    return getConstantFromEnumValueType(type);
+  }
+
   return {
     name: enumName(type.name),
     value: type.value,

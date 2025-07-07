@@ -45,5 +45,80 @@ extends:
           AdditionalInitializeSteps:
             - task: UseDotNet@2
               inputs:
+                displayName: "Install .NET 8"
+                performMultiLevelLookup: true
+                useGlobalJson: false
+                version: 8.x
+                workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+            - task: UseDotNet@2
+              inputs:
+                displayName: "Install .NET 9"
+                performMultiLevelLookup: true
                 useGlobalJson: true
                 workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+
+      - stage: CreateAzureSdkForNetPR
+        displayName: Create PR for azure-sdk-for-net
+        dependsOn:
+          - CSharp_Publish
+          - CSharp_Build
+        condition: and(succeeded(), and(ne(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranchName'], 'main')))
+        variables:
+          PackageVersion: $[ stageDependencies.CSharp_Build.Build_linux_20.outputs['ci_build.emitterVersion'] ]
+        pool:
+          name: $(LINUXPOOL)
+          image: $(LINUXVMIMAGE)
+          os: linux
+        jobs:
+          - job: CreatePR
+            steps:
+              - checkout: self
+              - pwsh: |
+                  # Determine the TypeSpec PR URL 
+                  $repoUrl = '$(Build.Repository.Uri)'.TrimEnd('/')
+                  $commitSha = '$(Build.SourceVersion)'
+                  $typeSpecCommitUrl = "$repoUrl/commit/$commitSha"
+
+                  Write-Host "Commit SHA: $commitSha"
+                  Write-Host "TypeSpec Commit URL: $typeSpecCommitUrl"
+                  Write-Host "##vso[task.setvariable variable=TypeSpecCommitUrl]$typeSpecCommitUrl"
+                displayName: Set variables for PR creation
+
+              - task: UseNode@1
+                displayName: "Install Node.js"
+                inputs:
+                  version: "22.x"
+
+              - download: current
+                displayName: Download pipeline artifacts
+
+              - pwsh: |
+                  npm install -g @azure-tools/typespec-client-generator-cli@latest
+                displayName: Install tsp-client
+
+              - task: PowerShell@2
+                displayName: Update package.json and generate emitter-package.json files
+                inputs:
+                  pwsh: true
+                  filePath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Update-PackageJson-And-Invoke-TspClient.ps1
+                  workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+                  arguments: >
+                    -PackageVersion '$(PackageVersion)'
+                    -PackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
+                    -EmitterPackageJsonPath '$(Build.SourcesDirectory)/eng/http-client-csharp-emitter-package.json'
+
+              - task: UseDotNet@2
+                inputs:
+                  useGlobalJson: true
+                  workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+
+              - task: PowerShell@2
+                displayName: Create PR in azure-sdk-for-net
+                inputs:
+                  pwsh: true
+                  filePath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Submit-AzureSdkForNetPr.ps1
+                  arguments: >
+                    -PackageVersion '$(PackageVersion)'
+                    -TypeSpecCommitUrl '$(TypeSpecCommitUrl)'
+                    -AuthToken '$(azuresdk-github-pat)'
+                    -TypeSpecSourceDirectory '$(Build.SourcesDirectory)'

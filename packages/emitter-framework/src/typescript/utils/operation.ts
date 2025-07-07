@@ -1,6 +1,6 @@
-import { refkey, Refkey } from "@alloy-js/core";
+import { refkey, type Refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Model, ModelProperty, Operation, Type } from "@typespec/compiler";
+import type { Model, ModelProperty, Operation, Type } from "@typespec/compiler";
 import { useTsp } from "../../core/index.js";
 import { TypeExpression } from "../components/type-expression.jsx";
 import { efRefkey } from "./refkey.js";

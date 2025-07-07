@@ -1,4 +1,4 @@
-import * as ay from "@alloy-js/core";
+import { Children, For, List, refkey, Refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { useTsp } from "@typespec/emitter-framework";
 import { HttpAuth, type OAuth2Flow } from "@typespec/http";
@@ -15,7 +15,7 @@ export interface ClientContextFactoryProps {
 }
 
 export function getClientContextFactoryRef(client: cl.Client) {
-  return ay.refkey(client, "contextFactory");
+  return refkey(client, "contextFactory");
 }
 
 export function ClientContextFactoryDeclaration(props: ClientContextFactoryProps) {
@@ -25,9 +25,9 @@ export function ClientContextFactoryDeclaration(props: ClientContextFactoryProps
   const namePolicy = ts.useTSNamePolicy();
   const factoryFunctionName = namePolicy.getName(`create_${props.client.name}Context`, "function");
 
-  const parameters = buildClientParameters(props.client, ay.refkey());
+  const parameters = buildClientParameters(props.client, refkey());
   const urlTemplate = $.client.getInitialization(props.client)!.endpoints[0];
-  const endpointRef = ay.refkey();
+  const endpointRef = refkey();
   const resolvedEndpoint = (
     <ParametrizedEndpoint
       refkey={endpointRef}
@@ -66,7 +66,7 @@ export function ClientContextFactoryDeclaration(props: ClientContextFactoryProps
 
 interface ClientFactoryArgumentsProps {
   client: cl.Client;
-  endpointRef: ay.Refkey;
+  endpointRef: Refkey;
   credentialsRef?: string;
 }
 
@@ -101,10 +101,10 @@ function AuthScheme(props: AuthSchemeProps) {
     case "http":
       return (
         <ts.ObjectExpression>
-          <ay.List comma>
+          <List comma>
             <ts.ObjectProperty name="kind" jsValue="http" />
             <ts.ObjectProperty name="scheme" jsValue={props.scheme.scheme.toLowerCase()} />
-          </ay.List>
+          </List>
         </ts.ObjectExpression>
       );
     case "apiKey":
@@ -118,26 +118,26 @@ function AuthScheme(props: AuthSchemeProps) {
 
       return (
         <ts.ObjectExpression>
-          <ay.List comma>
+          <List comma>
             <ts.ObjectProperty name="kind" jsValue="apiKey" />
             <ts.ObjectProperty name="apiKeyLocation" jsValue={props.scheme.in} />
             <ts.ObjectProperty name="name" jsValue={props.scheme.name} />
-          </ay.List>
+          </List>
         </ts.ObjectExpression>
       );
     case "oauth2":
       return (
         <ts.ObjectExpression>
-          <ay.List comma>
+          <List comma>
             <ts.ObjectProperty name="kind" jsValue="oauth2" />
             <ts.ObjectProperty name="flows">
               [
-              <ay.For each={props.scheme.flows} comma line>
+              <For each={props.scheme.flows} comma line>
                 {(flow) => <OAuth2Flow flow={flow} />}
-              </ay.For>
+              </For>
               ]
             </ts.ObjectProperty>
-          </ay.List>
+          </List>
         </ts.ObjectExpression>
       );
     default:
@@ -179,20 +179,20 @@ function AuthSchemeOptions(props: AuthSchemeOptionsProps) {
   return (
     <ts.ObjectProperty name="authSchemes">
       [
-      <ay.For each={supportedSchemes} comma line>
+      <For each={supportedSchemes} comma line>
         {(scheme) => <AuthScheme scheme={scheme} client={props.client} />}
-      </ay.For>
+      </For>
       ]
     </ts.ObjectProperty>
   );
 }
 
 interface ClientOptionsExpressionProps {
-  children?: ay.Children;
+  children?: Children;
 }
 
 function ClientOptionsExpression(props: ClientOptionsExpressionProps) {
-  const options: ay.Children = ["...options"];
+  const options: Children = ["...options"];
 
   // Conditionally add test options
   // based on the environment variable TYPESPEC_JS_EMITTER_TESTING
@@ -206,9 +206,9 @@ function ClientOptionsExpression(props: ClientOptionsExpressionProps) {
 
   return (
     <ts.ObjectExpression>
-      <ay.For each={options} joiner="," line>
+      <For each={options} joiner="," line>
         {(child) => child}
-      </ay.For>
+      </For>
     </ts.ObjectExpression>
   );
 }

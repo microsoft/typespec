@@ -35,7 +35,7 @@
   },
   "homepage": "https://github.com/microsoft/typespec#readme",
   "dependencies": {
-    "@azure/identity": "~4.9.1",
+    "@azure/identity": "~4.10.1",
     "@types/js-yaml": "^4.0.5",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
@@ -55,7 +55,7 @@
     "picocolors": "~1.1.1",
     "source-map-support": "~0.5.21",
     "xml2js": "^0.6.2",
-    "yargs": "~17.7.2"
+    "yargs": "~18.0.0"
   },
   "devDependencies": {
     "@types/body-parser": "^1.19.2",
@@ -64,7 +64,7 @@
     "@types/micromatch": "^4.0.9",
     "@types/morgan": "^1.9.9",
     "@types/multer": "^1.4.10",
-    "@types/node": "~22.13.11",
+    "@types/node": "~24.0.3",
     "@types/xml2js": "^0.4.11",
     "@types/yargs": "~17.0.33",
     "@typespec/tspd": "workspace:^",

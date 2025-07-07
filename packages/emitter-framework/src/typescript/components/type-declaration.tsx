@@ -1,5 +1,5 @@
 import * as ts from "@alloy-js/typescript";
-import { Type } from "@typespec/compiler";
+import type { Type } from "@typespec/compiler";
 import { useTsp } from "../../core/index.js";
 import { declarationRefkeys } from "../utils/refkey.js";
 import { EnumDeclaration } from "./enum-declaration.js";

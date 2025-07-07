@@ -146,17 +146,6 @@ public final class VersionedClientImpl {
     }
 
     /**
-     * The withoutApiVersion operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withoutApiVersion() {
-        withoutApiVersionWithResponse(RequestContext.none());
-    }
-
-    /**
      * The withQueryApiVersion operation.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -168,17 +157,6 @@ public final class VersionedClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withQueryApiVersionWithResponse(RequestContext requestContext) {
         return service.withQueryApiVersion(this.getEndpoint(), this.getServiceVersion().getVersion(), requestContext);
-    }
-
-    /**
-     * The withQueryApiVersion operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withQueryApiVersion() {
-        withQueryApiVersionWithResponse(RequestContext.none());
     }
 
     /**
@@ -196,17 +174,6 @@ public final class VersionedClientImpl {
     }
 
     /**
-     * The withPathApiVersion operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withPathApiVersion() {
-        withPathApiVersionWithResponse(RequestContext.none());
-    }
-
-    /**
      * The withQueryOldApiVersion operation.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -219,16 +186,5 @@ public final class VersionedClientImpl {
     public Response<Void> withQueryOldApiVersionWithResponse(RequestContext requestContext) {
         return service.withQueryOldApiVersion(this.getEndpoint(), this.getServiceVersion().getVersion(),
             requestContext);
-    }
-
-    /**
-     * The withQueryOldApiVersion operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withQueryOldApiVersion() {
-        withQueryOldApiVersionWithResponse(RequestContext.none());
     }
 }

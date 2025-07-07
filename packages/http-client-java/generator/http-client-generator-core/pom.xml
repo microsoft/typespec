@@ -54,7 +54,7 @@
     <dependency>
       <groupId>com.github.javaparser</groupId>
       <artifactId>javaparser-core</artifactId>
-      <version>3.25.10</version>
+      <version>3.27.0</version>
     </dependency>
     <!-- 1.24.0 is the last version that supports Java 11 -->
     <dependency>

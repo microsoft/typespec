@@ -97,19 +97,6 @@ public final class PathParametersImpl {
     }
 
     /**
-     * The templateOnly operation.
-     * 
-     * @param param The param parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void templateOnly(String param) {
-        templateOnlyWithResponse(param, RequestContext.none());
-    }
-
-    /**
      * The explicit operation.
      * 
      * @param param The param parameter.
@@ -125,19 +112,6 @@ public final class PathParametersImpl {
     }
 
     /**
-     * The explicit operation.
-     * 
-     * @param param The param parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void explicit(String param) {
-        explicitWithResponse(param, RequestContext.none());
-    }
-
-    /**
      * The annotationOnly operation.
      * 
      * @param param The param parameter.
@@ -150,18 +124,5 @@ public final class PathParametersImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> annotationOnlyWithResponse(String param, RequestContext requestContext) {
         return service.annotationOnly(this.client.getEndpoint(), param, requestContext);
-    }
-
-    /**
-     * The annotationOnly operation.
-     * 
-     * @param param The param parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void annotationOnly(String param) {
-        annotationOnlyWithResponse(param, RequestContext.none());
     }
 }

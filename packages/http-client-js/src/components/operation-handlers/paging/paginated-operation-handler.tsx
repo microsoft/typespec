@@ -1,5 +1,4 @@
-import * as ay from "@alloy-js/core";
-import { Children } from "@alloy-js/core";
+import { Children, code, List, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { useTsp } from "@typespec/emitter-framework";
 import { FunctionDeclaration } from "@typespec/emitter-framework/typescript";
@@ -45,16 +44,16 @@ export const PaginatedOperationHandler: OperationHandler = {
       return;
     }
     const pagingOperation = $.operation.getPagingMetadata(httpOperation.operation)!;
-    const responseRefkey = ay.refkey(httpOperation, "http-response");
-    const operationRefkey = ay.refkey(httpOperation.operation);
-    const returnType = ay.code`${getPagedAsyncIterableIteratorRefkey()}<${getPageItemTypeName(pagingOperation)},${getPageResponseTypeRefkey(httpOperation)},${getPageSettingsTypeRefkey(httpOperation)}>`;
+    const responseRefkey = refkey(httpOperation, "http-response");
+    const operationRefkey = refkey(httpOperation.operation);
+    const returnType = code`${getPagedAsyncIterableIteratorRefkey()}<${getPageItemTypeName(pagingOperation)},${getPageResponseTypeRefkey(httpOperation)},${getPageSettingsTypeRefkey(httpOperation)}>`;
     const clientContextInterfaceRef = getClientcontextDeclarationRef(client);
-    const optionsRefkey = ay.refkey();
+    const optionsRefkey = refkey();
     const signatureParams: ts.ParameterDescriptor[] = [
       {
         name: "client",
         type: clientContextInterfaceRef,
-        refkey: ay.refkey(client, "paging-operation-client-param"),
+        refkey: refkey(client, "paging-operation-client-param"),
       },
       ...getOperationParameters(httpOperation, optionsRefkey),
     ];
@@ -62,7 +61,7 @@ export const PaginatedOperationHandler: OperationHandler = {
     // Exclude from operation options and include them into PageSettings
     const excludes = getPageSettingProperties(pagingOperation).map((p) => p.property);
     return (
-      <ay.List>
+      <List>
         <OperationOptionsDeclaration httpOperation={httpOperation} excludes={excludes} />
         <PageSettingsDeclaration operation={httpOperation} pagingOperation={pagingOperation} />
         <PageResponseDeclaration operation={httpOperation} pagingOperation={pagingOperation} />
@@ -76,7 +75,7 @@ export const PaginatedOperationHandler: OperationHandler = {
           parametersMode="replace"
           parameters={signatureParams}
         >
-          <ay.List>
+          <List>
             <GetElements httpOperation={httpOperation} pageDetail={pagingDetail} />
             <GetPagedResponse
               httpOperation={httpOperation}
@@ -84,12 +83,12 @@ export const PaginatedOperationHandler: OperationHandler = {
               operationParams={signatureParams}
             />
             <>
-              {ay.code`
+              {code`
               return ${getBuildPagedAsyncIteratorRefkey}<${getPageItemTypeName(pagingOperation)}, ${getPageResponseTypeRefkey(httpOperation)}, ${getPageSettingsTypeRefkey(httpOperation)}>({${getElementsRefkey(httpOperation)}, ${getPagedResponseFunctionRefkey(httpOperation)}});`}
             </>
-          </ay.List>
+          </List>
         </FunctionDeclaration>
-      </ay.List>
+      </List>
     );
   },
 };
@@ -100,19 +99,19 @@ interface GetPagedResponseProps {
   operationParams: ts.ParameterDescriptor[];
 }
 function getPagedResponseFunctionRefkey(httpOperation: HttpOperation) {
-  return ay.refkey(httpOperation, "get-paged-response");
+  return refkey(httpOperation, "get-paged-response");
 }
 
 function GetPagedResponse(props: GetPagedResponseProps) {
   const pagingDetail = props.pageDetail;
   const httpOperation = props.httpOperation;
   const params: ts.ParameterDescriptor[] = [
-    { name: "nextToken", type: "string", optional: true, refkey: ay.refkey() },
+    { name: "nextToken", type: "string", optional: true, refkey: refkey() },
     {
       name: "settings",
       type: getPageSettingsTypeRefkey(httpOperation),
       optional: true,
-      refkey: ay.refkey(),
+      refkey: refkey(),
     },
   ];
   // TODO: template can't resolve the ref key so fallback to useTSNamePolicy
@@ -129,7 +128,7 @@ function GetPagedResponse(props: GetPagedResponseProps) {
       refkey={getPagedResponseFunctionRefkey(httpOperation)}
       parameters={params}
     >
-      {ay.code` 
+      {code` 
       ${
         props.pageDetail.pattern === "nextLink"
           ? `
@@ -171,7 +170,7 @@ interface GetElementsProps {
   pageDetail: PagingDetail;
 }
 function getElementsRefkey(httpOperation: HttpOperation) {
-  return ay.refkey(httpOperation, "get-elements");
+  return refkey(httpOperation, "get-elements");
 }
 function GetElements(props: GetElementsProps) {
   const pagingDetail = props.pageDetail;
@@ -180,7 +179,7 @@ function GetElements(props: GetElementsProps) {
     {
       name: "response",
       type: getPageResponseTypeRefkey(httpOperation),
-      refkey: ay.refkey(),
+      refkey: refkey(),
     },
   ];
   return (
@@ -189,7 +188,7 @@ function GetElements(props: GetElementsProps) {
       refkey={getElementsRefkey(httpOperation)}
       parameters={params}
     >
-      {ay.code`
+      {code`
       return response.${pagingDetail.output.items};
       `}
     </FunctionDeclaration>

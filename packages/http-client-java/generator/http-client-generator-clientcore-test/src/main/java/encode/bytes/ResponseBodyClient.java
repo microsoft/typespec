@@ -54,7 +54,7 @@ public final class ResponseBodyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public BinaryData defaultMethod() {
-        return this.serviceClient.defaultMethod();
+        return defaultMethodWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -82,7 +82,7 @@ public final class ResponseBodyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public BinaryData octetStream() {
-        return this.serviceClient.octetStream();
+        return octetStreamWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -110,7 +110,7 @@ public final class ResponseBodyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public BinaryData customContentType() {
-        return this.serviceClient.customContentType();
+        return customContentTypeWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -138,7 +138,7 @@ public final class ResponseBodyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public byte[] base64() {
-        return this.serviceClient.base64();
+        return base64WithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -166,6 +166,6 @@ public final class ResponseBodyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public byte[] base64url() {
-        return this.serviceClient.base64url();
+        return base64urlWithResponse(RequestContext.none()).getValue();
     }
 }

@@ -38,7 +38,7 @@ public final class ServerDrivenPaginationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> link() {
-        return this.serviceClient.link();
+        return link(RequestContext.none());
     }
 
     /**

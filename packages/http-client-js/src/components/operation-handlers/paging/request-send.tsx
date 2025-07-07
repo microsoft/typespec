@@ -1,4 +1,3 @@
-import * as ay from "@alloy-js/core";
 import { List, Refkey, StatementList, code, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Reference } from "@alloy-js/typescript";
@@ -32,7 +31,7 @@ export function getHttpRequestSendParams(httpOperation: HttpOperation) {
     {
       name: "client",
       type: clientContextInterfaceRef,
-      refkey: ay.refkey(client, "send-client-param"),
+      refkey: refkey(client, "send-client-param"),
     },
     ...getOperationParameters(httpOperation, optionsRefkey),
   ];

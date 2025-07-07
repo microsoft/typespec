@@ -53,7 +53,7 @@ public final class SpreadStringClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public SpreadStringRecord get() {
-        return this.serviceClient.get();
+        return getWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -83,6 +83,6 @@ public final class SpreadStringClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void put(SpreadStringRecord body) {
-        this.serviceClient.put(body);
+        putWithResponse(body, RequestContext.none());
     }
 }

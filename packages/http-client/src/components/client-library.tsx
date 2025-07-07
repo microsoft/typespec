@@ -1,4 +1,4 @@
-import { Children } from "@alloy-js/core";
+import { type Children } from "@alloy-js/core";
 import { Program } from "@typespec/compiler";
 import { createClientLibrary } from "../client-library.js";
 import { ResolveClientsOptions } from "../client-resolution.js";

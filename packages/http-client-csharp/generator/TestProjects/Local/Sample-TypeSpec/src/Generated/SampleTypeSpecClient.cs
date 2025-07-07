@@ -522,7 +522,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult TopAction2(RequestOptions options)
+        public virtual ClientResult TopAction2(RequestOptions options = null)
         {
             using PipelineMessage message = CreateTopAction2Request(options);
             return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
@@ -539,7 +539,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> TopAction2Async(RequestOptions options)
+        public virtual async Task<ClientResult> TopAction2Async(RequestOptions options = null)
         {
             using PipelineMessage message = CreateTopAction2Request(options);
             return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
@@ -1314,7 +1314,7 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual CollectionResult GetWithNextLink(RequestOptions options)
         {
-            return new SampleTypeSpecClientGetWithNextLinkCollectionResult(this, null, options);
+            return new SampleTypeSpecClientGetWithNextLinkCollectionResult(this, options);
         }
 
         /// <summary>
@@ -1330,7 +1330,7 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual AsyncCollectionResult GetWithNextLinkAsync(RequestOptions options)
         {
-            return new SampleTypeSpecClientGetWithNextLinkAsyncCollectionResult(this, null, options);
+            return new SampleTypeSpecClientGetWithNextLinkAsyncCollectionResult(this, options);
         }
 
         /// <summary> List things with nextlink. </summary>
@@ -1338,7 +1338,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual CollectionResult<Thing> GetWithNextLink(CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithNextLinkCollectionResultOfT(this, null, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            return new SampleTypeSpecClientGetWithNextLinkCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
 
         /// <summary> List things with nextlink. </summary>
@@ -1346,7 +1346,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual AsyncCollectionResult<Thing> GetWithNextLinkAsync(CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithNextLinkAsyncCollectionResultOfT(this, null, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            return new SampleTypeSpecClientGetWithNextLinkAsyncCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
 
         /// <summary>

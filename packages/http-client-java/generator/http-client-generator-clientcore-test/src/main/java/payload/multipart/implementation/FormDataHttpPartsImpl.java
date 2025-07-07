@@ -85,17 +85,4 @@ public final class FormDataHttpPartsImpl {
         final String contentType = "multipart/form-data";
         return service.jsonArrayAndFileArray(this.client.getEndpoint(), contentType, body, requestContext);
     }
-
-    /**
-     * Test content-type: multipart/form-data for mixed scenarios.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void jsonArrayAndFileArray(ComplexHttpPartsModelRequest body) {
-        jsonArrayAndFileArrayWithResponse(body, RequestContext.none());
-    }
 }
