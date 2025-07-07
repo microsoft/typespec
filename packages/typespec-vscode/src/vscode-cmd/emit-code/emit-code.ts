@@ -366,7 +366,7 @@ async function doEmit(
 
   const generations: {
     emitter: Emitter;
-    outputDir: string;
+    outputDir: string | undefined;
     options?: Record<string, string>;
     codeInfo: string;
   }[] = [];
@@ -398,9 +398,6 @@ async function doEmit(
           defaultEmitOutputDirInConfig,
         );
       }
-      // else {
-      //   outputDir = emitOutputDir as string;
-      // }
     }
     const newYamlContent = configYaml.toString();
     await writeFile(tspConfigFile, newYamlContent);
@@ -418,16 +415,9 @@ async function doEmit(
         codeInfoStr += ` for ${emitter.language}`;
       }
 
-      let outputDir =
-        (configYaml.getIn(["options", emitter.package, "emitter-output-dir"]) as string) ??
-        defaultEmitOutputDirInConfig;
+      let outputDir: string | undefined;
       if (tspConfigOptions.options) {
-        outputDir = tspConfigOptions.options[emitter.package]["emitter-output-dir"] ?? outputDir;
-      } else {
-        outputDir = outputDir
-          .replace("{project-root}", baseDir)
-          .replace("{output-dir}", `${baseDir}/tsp-output`)
-          .replace("{emitter-name}", emitter.package);
+        outputDir = tspConfigOptions.options[emitter.package]["emitter-output-dir"];
       }
       generations.push({ emitter: emitter, outputDir: outputDir, codeInfo: codeInfoStr });
     }
@@ -436,9 +426,14 @@ async function doEmit(
   }
 
   const allCodesToGenerate = generations
+    .filter((g) => g.outputDir)
     .map((g) => `${g.codeInfo} under directory ${g.outputDir}`)
     .join(", ");
-  logger.info(`Start to emit ${allCodesToGenerate}...`);
+  if (generations.some((g) => g.outputDir)) {
+    logger.info(`Start to emit ${allCodesToGenerate}...`);
+  } else {
+    logger.debug("Failed to get the output folder");
+  }
   const codeInfoStr = generations.map((g) => g.codeInfo).join(", ");
   return await vscode.window.withProgress<ResultCode>(
     {
