@@ -1,5 +1,6 @@
 import {
   ArrayBuilder,
+  type AssetEmitter,
   type Context,
   Declaration,
   type EmitEntity,
@@ -7,6 +8,7 @@ import {
   type EmitterOutput,
   ObjectBuilder,
   Placeholder,
+  ReferenceCycle,
   type Scope,
   type SourceFile,
   type SourceFileScope,
@@ -78,7 +80,20 @@ import { type JSONSchemaEmitterOptions, reportDiagnostic } from "./lib.js";
 import { includeDerivedModel } from "./utils.js";
 
 /** @internal */
+export interface JsonSchemaEmitterConfig {
+  noDeclarations?: boolean;
+}
+/** @internal */
 export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSchemaEmitterOptions> {
+  #config: JsonSchemaEmitterConfig;
+
+  constructor(
+    emitter: AssetEmitter<Record<string, any>, JSONSchemaEmitterOptions>,
+    config: JsonSchemaEmitterConfig = {},
+  ) {
+    super(emitter);
+    this.#config = config;
+  }
   #idDuplicateTracker = new DuplicateTracker<string, DiagnosticTarget>();
   #typeForSourceFile = new Map<SourceFile<any>, JsonSchemaDeclaration>();
 
@@ -382,6 +397,24 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     throw new Error("JSON Pointer refs to arbitrary schemas is not supported");
   }
 
+  circularReference(
+    target: EmitEntity<Record<string, any>>,
+    scope: Scope<Record<string, any>> | undefined,
+    cycle: ReferenceCycle,
+  ): Record<string, any> | EmitEntity<Record<string, any>> {
+    // If in noDeclaration mode circular reference drop information and are rendered as any schema
+    if (this.#config.noDeclarations) {
+      const result: any = {};
+      if (target.kind === "code") {
+        if ("description" in target.value) {
+          result.description = target.value.description;
+        }
+      }
+      return result;
+    }
+    return super.circularReference(target, scope, cycle);
+  }
+
   scalarInstantiation(
     scalar: Scalar,
     name: string | undefined,
@@ -607,10 +640,14 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   #createDeclaration(type: JsonSchemaDeclaration, name: string, schema: ObjectBuilder<unknown>) {
-    const decl = this.emitter.result.declaration(name, schema);
-    const sf = (decl.scope as SourceFileScope<any>).sourceFile;
-    sf.meta.shouldEmit = this.#shouldEmitRootSchema(type);
-    return decl;
+    if (this.#config.noDeclarations) {
+      return schema;
+    } else {
+      const decl = this.emitter.result.declaration(name, schema);
+      const sf = (decl.scope as SourceFileScope<any>).sourceFile;
+      sf.meta.shouldEmit = this.#shouldEmitRootSchema(type);
+      return decl;
+    }
   }
 
   #initializeSchema(
