@@ -149,22 +149,8 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     editor.setTheme(props.editorOptions?.theme ?? "typespec");
   }, [props.editorOptions?.theme]);
 
-  const [content, setContent] = useState(props.defaultContent);
   const typespecModel = useMonacoModel("inmemory://test/main.tsp", "typespec");
   const [compilationState, setCompilationState] = useState<CompilationState | undefined>(undefined);
-
-  const updateTypeSpec = useCallback(
-    (value: string) => {
-      if (typespecModel.getValue() !== value) {
-        typespecModel.setValue(value);
-      }
-    },
-    [typespecModel],
-  );
-
-  useEffect(() => {
-    updateTypeSpec(props.defaultContent ?? "");
-  }, [props.defaultContent, updateTypeSpec]);
 
   // Use the playground state hook
   const state = usePlaygroundState({
@@ -175,7 +161,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     onPlaygroundStateChange: props.onPlaygroundStateChange,
     // eslint-disable-next-line @typescript-eslint/no-deprecated
     defaultEmitter: props.defaultEmitter,
-    updateTypeSpec,
+    defaultContent: props.defaultContent,
   });
 
   // Extract values from the state hook
@@ -185,23 +171,42 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     selectedSampleName,
     selectedViewer,
     viewerState,
+    content,
     onSelectedEmitterChange,
     onCompilerOptionsChange,
     onSelectedSampleNameChange,
     onSelectedViewerChange,
     onViewerStateChange,
+    onContentChange,
   } = state;
+
+  // Sync Monaco model with state content
+  useEffect(() => {
+    if (typespecModel.getValue() !== (content ?? "")) {
+      typespecModel.setValue(content ?? "");
+    }
+  }, [content, typespecModel]);
+
+  // Update state when Monaco model changes
+  useEffect(() => {
+    const disposable = typespecModel.onDidChangeContent(() => {
+      const newContent = typespecModel.getValue();
+      if (newContent !== content) {
+        onContentChange(newContent);
+      }
+    });
+    return () => disposable.dispose();
+  }, [typespecModel, content, onContentChange]);
 
   const isSampleUntouched = useMemo(() => {
     return Boolean(selectedSampleName && content === props.samples?.[selectedSampleName]?.content);
   }, [content, selectedSampleName, props.samples]);
 
   const doCompile = useCallback(async () => {
-    const content = typespecModel.getValue();
-    setContent(content);
+    const currentContent = typespecModel.getValue();
     const typespecCompiler = host.compiler;
 
-    const state = await compile(host, content, selectedEmitter, compilerOptions);
+    const state = await compile(host, currentContent, selectedEmitter, compilerOptions);
     setCompilationState(state);
     if ("program" in state) {
       const markers: editor.IMarkerData[] = state.program.diagnostics.map((diag) => ({
@@ -215,7 +220,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     } else {
       editor.setModelMarkers(typespecModel, "owner", []);
     }
-  }, [host, selectedEmitter, compilerOptions, typespecModel, setContent]);
+  }, [host, selectedEmitter, compilerOptions, typespecModel]);
 
   useEffect(() => {
     const debouncer = debounce(() => doCompile(), 200);
@@ -233,7 +238,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   const saveCode = useCallback(() => {
     if (onSave) {
       onSave({
-        content: typespecModel.getValue(),
+        content: content ?? "",
         emitter: selectedEmitter,
         compilerOptions,
         sampleName: isSampleUntouched ? selectedSampleName : undefined,
@@ -242,7 +247,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
       });
     }
   }, [
-    typespecModel,
+    content,
     onSave,
     selectedEmitter,
     compilerOptions,
@@ -304,10 +309,10 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
       host,
       setContent: (val: string) => {
         typespecModel.setValue(val);
-        setContent(val);
+        onContentChange(val);
       },
     };
-  }, [host, typespecModel]);
+  }, [host, typespecModel, onContentChange]);
 
   return (
     <PlaygroundContextProvider value={playgroundContext}>

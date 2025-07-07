@@ -14,6 +14,8 @@ export interface PlaygroundState {
   selectedViewer?: string;
   /** Internal state of viewers */
   viewerState?: Record<string, any>;
+  /** TypeSpec content */
+  content?: string;
 }
 
 export interface UsePlaygroundStateProps {
@@ -36,8 +38,8 @@ export interface UsePlaygroundStateProps {
    */
   defaultEmitter?: string;
 
-  /** Function to update TypeSpec content */
-  updateTypeSpec?: (content: string) => void;
+  /** Default content if not provided in defaultPlaygroundState */
+  defaultContent?: string;
 }
 
 export interface PlaygroundStateResult {
@@ -47,6 +49,7 @@ export interface PlaygroundStateResult {
   selectedSampleName: string;
   selectedViewer?: string;
   viewerState: Record<string, any>;
+  content: string;
 
   // State setters
   onSelectedEmitterChange: (emitter: string) => void;
@@ -54,6 +57,7 @@ export interface PlaygroundStateResult {
   onSelectedSampleNameChange: (sampleName: string) => void;
   onSelectedViewerChange: (selectedViewer: string) => void;
   onViewerStateChange: (viewerState: Record<string, any>) => void;
+  onContentChange: (content: string) => void;
 
   // Full state management
   playgroundState: PlaygroundState;
@@ -68,7 +72,7 @@ export function usePlaygroundState({
   onPlaygroundStateChange,
   // eslint-disable-next-line @typescript-eslint/no-deprecated
   defaultEmitter,
-  updateTypeSpec,
+  defaultContent,
 }: UsePlaygroundStateProps): PlaygroundStateResult {
   // Create the effective default state with proper fallback logic
   const effectiveDefaultState = useMemo((): PlaygroundState => {
@@ -78,12 +82,12 @@ export function usePlaygroundState({
     if (!baseDefault.emitter) {
       // First try the deprecated defaultEmitter prop
       if (defaultEmitter) {
-        return { ...baseDefault, emitter: defaultEmitter };
+        return { ...baseDefault, emitter: defaultEmitter, content: defaultContent };
       }
     }
 
-    return baseDefault;
-  }, [defaultPlaygroundState, defaultEmitter, libraries]);
+    return { ...baseDefault, content: baseDefault.content ?? defaultContent };
+  }, [defaultPlaygroundState, defaultEmitter, libraries, defaultContent]);
 
   // Use a single controllable value for the entire playground state
   const [playgroundState, setPlaygroundState] = useControllableValue(
@@ -100,6 +104,7 @@ export function usePlaygroundState({
   );
   const selectedSampleName = playgroundState.sampleName ?? "";
   const selectedViewer = playgroundState.selectedViewer;
+  const content = playgroundState.content ?? "";
 
   // Create a generic state updater that can handle any field
   const updateState = useCallback(
@@ -130,32 +135,28 @@ export function usePlaygroundState({
     (viewerState: Record<string, any>) => updateState({ viewerState }),
     [updateState],
   );
+  const onContentChange = useCallback((content: string) => updateState({ content }), [updateState]);
 
-  // Store refs to latest callback functions to avoid dependency issues
-  const onSelectedEmitterChangeRef = useRef(onSelectedEmitterChange);
-  const onCompilerOptionsChangeRef = useRef(onCompilerOptionsChange);
-
-  // Update refs when callbacks change
-  useEffect(() => {
-    onSelectedEmitterChangeRef.current = onSelectedEmitterChange;
-    onCompilerOptionsChangeRef.current = onCompilerOptionsChange;
-  });
+  // Track last processed sample to avoid re-processing
+  const lastProcessedSample = useRef<string>("");
 
   // Handle sample changes
   useEffect(() => {
-    if (selectedSampleName && samples && updateTypeSpec) {
+    if (selectedSampleName && samples && selectedSampleName !== lastProcessedSample.current) {
       const config = samples[selectedSampleName];
-      if (config.content) {
-        updateTypeSpec(config.content);
+      if (config?.content) {
+        lastProcessedSample.current = selectedSampleName;
+        const updates: Partial<PlaygroundState> = { content: config.content };
         if (config.preferredEmitter) {
-          onSelectedEmitterChangeRef.current(config.preferredEmitter);
+          updates.emitter = config.preferredEmitter;
         }
         if (config.compilerOptions) {
-          onCompilerOptionsChangeRef.current(config.compilerOptions);
+          updates.compilerOptions = config.compilerOptions;
         }
+        updateState(updates);
       }
     }
-  }, [selectedSampleName, samples, updateTypeSpec]);
+  }, [selectedSampleName, samples, updateState]);
 
   return {
     // State values
@@ -164,6 +165,7 @@ export function usePlaygroundState({
     selectedSampleName,
     selectedViewer,
     viewerState: playgroundState.viewerState ?? {},
+    content,
 
     // State setters
     onSelectedEmitterChange,
@@ -171,6 +173,7 @@ export function usePlaygroundState({
     onSelectedSampleNameChange,
     onSelectedViewerChange,
     onViewerStateChange,
+    onContentChange,
 
     // Full state management
     playgroundState,
