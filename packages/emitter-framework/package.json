@@ -35,9 +35,18 @@
   },
   "imports": {
     "#test/*": "./test/*",
-    "#core/*": "./src/core/*",
-    "#csharp/*": "./src/csharp/*",
-    "#typescript/*": "./src/typescript/*"
+    "#core/*": {
+      "development": "./src/core/*",
+      "default": "./dist/src/core/*"
+    },
+    "#csharp/*": {
+      "development": "./src/csharp/*",
+      "default": "./dist/src/csharp/*"
+    },
+    "#typescript/*": {
+      "development": "./src/typescript/*",
+      "default": "./dist/src/typescript/*"
+    }
   },
   "keywords": [],
   "author": "",
