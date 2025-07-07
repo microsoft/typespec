@@ -80,10 +80,6 @@ export function usePlaygroundState({
       if (defaultEmitter) {
         return { ...baseDefault, emitter: defaultEmitter };
       }
-      // Then fallback to the first available emitter from libraries
-      if (libraries.length > 0) {
-        return { ...baseDefault, emitter: libraries[0] };
-      }
     }
 
     return baseDefault;
