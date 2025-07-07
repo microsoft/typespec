@@ -47,9 +47,7 @@
     "@alloy-js/core": "^0.18.2",
     "@alloy-js/typescript": "^0.18.0",
     "@alloy-js/csharp": "^0.18.0",
-    "@typespec/compiler": "workspace:^",
-    "@typespec/http": "workspace:^",
-    "@typespec/rest": "workspace:^"
+    "@typespec/compiler": "workspace:^"
   },
   "devDependencies": {
     "@alloy-js/cli": "^0.18.0",
@@ -57,8 +55,6 @@
     "@alloy-js/core": "^0.18.2",
     "@alloy-js/typescript": "^0.18.0",
     "@typespec/compiler": "workspace:^",
-    "@typespec/http": "workspace:^",
-    "@typespec/rest": "workspace:^",
     "concurrently": "^9.1.2",
     "pathe": "^2.0.3",
     "prettier": "~3.5.3",
