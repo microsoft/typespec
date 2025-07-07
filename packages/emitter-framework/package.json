@@ -35,9 +35,9 @@
   },
   "imports": {
     "#test/*": "./test/*",
-    "#core/*": "./src/core/*",
-    "#csharp/*": "./src/csharp/*",
-    "#typescript/*": "./src/typescript/*"
+    "#core/*": "./dist/src/core/*",
+    "#csharp/*": "./dist/src/csharp/*",
+    "#typescript/*": "./dist/src/typescript/*"
   },
   "keywords": [],
   "author": "",
