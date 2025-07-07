@@ -109,7 +109,10 @@ namespace Customization {
     options?: TspTest.MethodOverride.GroupQueryOptions,
     ...ApiVersionParameter,
   ): void;
-  op groupAllCustomization(options: TspTest.MethodOverride.GroupAllOptions, ...ApiVersionParameter): void;
+  op groupAllCustomization(
+    options: TspTest.MethodOverride.GroupAllOptions,
+    ...ApiVersionParameter,
+  ): void;
   op groupPartCustomization(
     ...TspTest.MethodOverride.GroupPartNotGrouped,
     options?: TspTest.MethodOverride.GroupPartOptions,
@@ -125,7 +128,10 @@ namespace Customization {
     options?: TspTest.MethodOverride.GroupQueryOptions,
     ...ApiVersionParameter,
   ): void;
-  op groupNoneCustomization(...TspTest.MethodOverride.GroupNoneNotGrouped, ...ApiVersionParameter): void;
+  op groupNoneCustomization(
+    ...TspTest.MethodOverride.GroupNoneNotGrouped,
+    ...ApiVersionParameter,
+  ): void;
 
   @@override(TspTest.MethodOverride.groupQuery, Customization.groupQueryCustomization);
   @@override(TspTest.MethodOverride.groupAll, Customization.groupAllCustomization);
