@@ -18,32 +18,37 @@ The TypeSpec Generator follows a layered architecture designed for extensibility
 └─────────────────┬───────────────────┘
                   │
 ┌─────────────────▼───────────────────┐
-│    1. Input Processing Layer        │  ← Parse & deserialize TypeSpec JSON
+│    1. Emitter Processing Layer      │  ← Parse TypeSpec & create artifacts
+│         (TypeSpec Emitter)          │    Generate configuration.json &
+└─────────────────┬───────────────────┘    tspCodeModel.json, invoke generator
+                  │
+┌─────────────────▼───────────────────┐
+│    2. Input Processing Layer        │  ← Parse & deserialize TypeSpec JSON
 │      (InputLibrary, InputTypes)     │
 └─────────────────┬───────────────────┘
                   │
 ┌─────────────────▼───────────────────┐
-│  2. Code Model Generation Layer     │  ← Transform input to output model
+│  3. Code Model Generation Layer     │  ← Transform input to output model
 │    (CodeModelGenerator, Factories)  │
 └─────────────────┬───────────────────┘
                   │
 ┌─────────────────▼───────────────────┐
-│    3. Output Model Layer            │  ← Type providers & representations
+│    4. Output Model Layer            │  ← Type providers & representations
 │    (OutputLibrary, TypeProvider)    │
 └─────────────────┬───────────────────┘
                   │
 ┌─────────────────▼───────────────────┐
-│  4. Transformation Pipeline         │  ← Apply transformations & plugins
+│  5. Transformation Pipeline         │  ← Apply transformations & plugins
 │   (LibraryVisitor, LibraryRewriter) │
 └─────────────────┬───────────────────┘
                   │
 ┌─────────────────▼───────────────────┐
-│   5. Code Generation Layer          │  ← Generate C# source files
+│   6. Code Generation Layer          │  ← Generate C# source files
 │    (Writers, Providers, Snippets)   │
 └─────────────────┬───────────────────┘
                   │
 ┌─────────────────▼───────────────────┐
-│   6. Configuration & Context        │  ← Runtime context & settings
+│   7. Configuration & Context        │  ← Runtime context & settings
 │  (Configuration, GeneratorContext)  │
 └─────────────────┬───────────────────┘
                   │
@@ -52,27 +57,36 @@ The TypeSpec Generator follows a layered architecture designed for extensibility
 └─────────────────┬───────────────────┘
                   │
 ┌─────────────────▼───────────────────┐
-│ 7. Emitter Communication Layer      │  ← JSON-RPC logging & diagnostics
+│ 8. Emitter Communication Layer      │  ← JSON-RPC logging & diagnostics
 │           (Emitter)                 │    back to TypeSpec compiler
 └─────────────────────────────────────┘
 ```
 
 ## Core Components
 
-### 1. **Input Processing Layer**
+### 1. **Emitter Processing Layer**
+
+- **`TypeSpec Emitter`**: TypeScript-based emitter that interfaces with the TypeSpec compiler
+  - Parses TypeSpec API definitions and emitter options
+  - Generates `configuration.json` with generator settings and emitter options
+  - Creates `tspCodeModel.json` containing the serialized TypeSpec model
+  - Invokes the `Microsoft.TypeSpec.Generator.dll` with translated command-line arguments
+  - Serves as the bridge between TypeSpec tooling and the C# generator
+
+### 2. **Input Processing Layer**
 
 - **`Microsoft.TypeSpec.Generator.Input`**: Handles deserialization of TypeSpec JSON output
 - **`InputLibrary`**: Entry point for loading and accessing TypeSpec model data
 - **`InputTypes`**: Strongly-typed representations of TypeSpec constructs (models, operations, etc.)
 
-### 2. **Code Model Generation Layer**
+### 3. **Code Model Generation Layer**
 
 - **`CodeModelGenerator`**: Abstract base class defining the generator contract and extensibility points
 - **`ScmCodeModelGenerator`**: Concrete implementation for System.ClientModel-based generators
 - **`TypeFactory`**: Factory pattern for creating output type providers from input types
 - **`GeneratorContext`**: Provides configuration and runtime context
 
-### 3. **Output Model Layer**
+### 4. **Output Model Layer**
 
 - **`OutputLibrary`**: Container for all generated type providers
 - **`TypeProvider`**: Abstract representation of generated types (models, enums, clients)
@@ -82,26 +96,26 @@ The TypeSpec Generator follows a layered architecture designed for extensibility
   - `MethodProvider`: Client methods and operations
   - `PropertyProvider`: Model properties with accessors
 
-### 4. **Transformation Pipeline**
+### 5. **Transformation Pipeline**
 
 - **`LibraryVisitor`**: Visitor pattern for traversing and modifying the output library
 - **`LibraryRewriter`**: Advanced transformation capabilities for code modification
 - **Plugin System**: MEF-based extensibility for custom transformations
 
-### 5. **Code Generation Layer**
+### 6. **Code Generation Layer**
 
 - **`Writers/`**: Responsible for converting providers to actual C# syntax
 - **`Snippets/`**: Reusable code patterns and expressions
 - **`Expressions/`**: Type-safe representation of C# expressions
 - **`Statements/`**: Type-safe representation of C# statements
 
-### 6. **Configuration & Context**
+### 7. **Configuration & Context**
 
 - **`Configuration`**: Centralized configuration management from JSON input
 - **`GeneratorContext`**: Runtime context and dependency injection container
 - **`SourceInputModel`**: Integration with existing custom code via Roslyn analysis
 
-### 7. **Emitter Communication Layer**
+### 8. **Emitter Communication Layer**
 
 - **`Emitter`**: JSON-RPC based communication channel for logging and diagnostics
   - Provides structured logging (info, debug, verbose) back to TypeSpec compiler
