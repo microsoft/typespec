@@ -1,5 +1,5 @@
 import type { CompilerOptions, Diagnostic } from "@typespec/compiler";
-import { Pane, SplitPane, useControllableValue } from "@typespec/react-components";
+import { Pane, SplitPane } from "@typespec/react-components";
 import "@typespec/react-components/style.css";
 import debounce from "debounce";
 import { KeyCode, KeyMod, MarkerSeverity, Uri, editor } from "monaco-editor";
@@ -25,19 +25,10 @@ import style from "./playground.module.css";
 import { ProblemPane } from "./problem-pane/index.js";
 import type { CompilationState, FileOutputViewer, ProgramViewer } from "./types.js";
 import { TypeSpecEditor } from "./typespec-editor.js";
+import { usePlaygroundState, type PlaygroundState } from "./use-playground-state.js";
 
-export interface PlaygroundState {
-  /** Emitter to use */
-  emitter?: string;
-  /** Emitter options */
-  compilerOptions?: CompilerOptions;
-  /** Sample to use */
-  sampleName?: string;
-  /** Selected viewer */
-  selectedViewer?: string;
-  /** Internal state of viewers */
-  viewerState?: Record<string, any>;
-}
+// Re-export the PlaygroundState type for convenience
+export type { PlaygroundState };
 
 export interface PlaygroundProps {
   host: BrowserHost;
@@ -151,102 +142,59 @@ export interface PlaygroundLinks {
  * ```
  */
 export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
-  const { host, onSave, onPlaygroundStateChange } = props;
+  const { host, onSave } = props;
   const editorRef = useRef<editor.IStandaloneCodeEditor | undefined>(undefined);
 
   useEffect(() => {
     editor.setTheme(props.editorOptions?.theme ?? "typespec");
   }, [props.editorOptions?.theme]);
 
-  // Create the effective default state with proper fallback logic
-  const effectiveDefaultState = useMemo((): PlaygroundState => {
-    const baseDefault = props.defaultPlaygroundState ?? {};
-
-    // If no emitter is provided in defaultPlaygroundState, use fallback logic
-    if (!baseDefault.emitter) {
-      // First try the deprecated defaultEmitter prop
-      if (props.defaultEmitter) {
-        return { ...baseDefault, emitter: props.defaultEmitter };
-      }
-      // Then fallback to the first available emitter from libraries
-      if (props.libraries.length > 0) {
-        return { ...baseDefault, emitter: props.libraries[0] };
-      }
-    }
-
-    return baseDefault;
-  }, [props.defaultPlaygroundState, props.defaultEmitter, props.libraries]);
-
-  // Use a single controllable value for the entire playground state
-  const [playgroundState, setPlaygroundState] = useControllableValue(
-    props.playgroundState,
-    effectiveDefaultState,
-    onPlaygroundStateChange,
-  );
-
-  // Extract individual values from the consolidated state with proper defaults
-  const selectedEmitter = playgroundState.emitter as any;
-  const compilerOptions = useMemo(
-    () => playgroundState.compilerOptions ?? {},
-    [playgroundState.compilerOptions],
-  );
-  const selectedSampleName = playgroundState.sampleName ?? "";
-  const selectedViewer = playgroundState.selectedViewer;
-
-  // Individual change handlers that update the consolidated state
-  const onSelectedEmitterChange = useCallback(
-    (emitter: string) => {
-      setPlaygroundState({ ...playgroundState, emitter });
-    },
-    [playgroundState, setPlaygroundState],
-  );
-
-  const onCompilerOptionsChange = useCallback(
-    (compilerOptions: CompilerOptions) => {
-      setPlaygroundState({ ...playgroundState, compilerOptions });
-    },
-    [playgroundState, setPlaygroundState],
-  );
-
-  const onSelectedSampleNameChange = useCallback(
-    (sampleName: string) => {
-      setPlaygroundState({ ...playgroundState, sampleName });
-    },
-    [playgroundState, setPlaygroundState],
-  );
-
-  const onSelectedViewerChange = useCallback(
-    (selectedViewer: string) => {
-      setPlaygroundState({ ...playgroundState, selectedViewer });
-    },
-    [playgroundState, setPlaygroundState],
-  );
-
-  const [viewerState, setViewerState] = useState<Record<string, any>>(
-    playgroundState.viewerState ?? {},
-  );
-
-  // Update viewerState when playgroundState.viewerState changes
-  useEffect(() => {
-    if (playgroundState.viewerState) {
-      setViewerState(playgroundState.viewerState);
-    }
-  }, [playgroundState.viewerState]);
-
-  const handleViewerStateChange = useCallback(
-    (newViewerState: Record<string, any>) => {
-      setViewerState(newViewerState);
-      setPlaygroundState({ ...playgroundState, viewerState: newViewerState });
-    },
-    [playgroundState, setPlaygroundState],
-  );
-
   const [content, setContent] = useState(props.defaultContent);
+  const typespecModel = useMonacoModel("inmemory://test/main.tsp", "typespec");
+  const [compilationState, setCompilationState] = useState<CompilationState | undefined>(undefined);
+
+  const updateTypeSpec = useCallback(
+    (value: string) => {
+      if (typespecModel.getValue() !== value) {
+        typespecModel.setValue(value);
+      }
+    },
+    [typespecModel],
+  );
+
+  useEffect(() => {
+    updateTypeSpec(props.defaultContent ?? "");
+  }, [props.defaultContent, updateTypeSpec]);
+
+  // Use the playground state hook
+  const state = usePlaygroundState({
+    libraries: props.libraries,
+    samples: props.samples,
+    playgroundState: props.playgroundState,
+    defaultPlaygroundState: props.defaultPlaygroundState,
+    onPlaygroundStateChange: props.onPlaygroundStateChange,
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
+    defaultEmitter: props.defaultEmitter,
+    updateTypeSpec,
+  });
+
+  // Extract values from the state hook
+  const {
+    selectedEmitter,
+    compilerOptions,
+    selectedSampleName,
+    selectedViewer,
+    viewerState,
+    onSelectedEmitterChange,
+    onCompilerOptionsChange,
+    onSelectedSampleNameChange,
+    onSelectedViewerChange,
+    onViewerStateChange,
+  } = state;
+
   const isSampleUntouched = useMemo(() => {
     return Boolean(selectedSampleName && content === props.samples?.[selectedSampleName]?.content);
   }, [content, selectedSampleName, props.samples]);
-  const typespecModel = useMonacoModel("inmemory://test/main.tsp", "typespec");
-  const [compilationState, setCompilationState] = useState<CompilationState | undefined>(undefined);
 
   const doCompile = useCallback(async () => {
     const content = typespecModel.getValue();
@@ -268,39 +216,6 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
       editor.setModelMarkers(typespecModel, "owner", []);
     }
   }, [host, selectedEmitter, compilerOptions, typespecModel, setContent]);
-
-  const updateTypeSpec = useCallback(
-    (value: string) => {
-      if (typespecModel.getValue() !== value) {
-        typespecModel.setValue(value);
-      }
-    },
-    [typespecModel],
-  );
-  useEffect(() => {
-    updateTypeSpec(props.defaultContent ?? "");
-  }, [props.defaultContent, updateTypeSpec]);
-
-  useEffect(() => {
-    if (selectedSampleName && props.samples) {
-      const config = props.samples[selectedSampleName];
-      if (config.content) {
-        updateTypeSpec(config.content);
-        if (config.preferredEmitter) {
-          onSelectedEmitterChange(config.preferredEmitter);
-        }
-        if (config.compilerOptions) {
-          onCompilerOptionsChange(config.compilerOptions);
-        }
-      }
-    }
-  }, [
-    updateTypeSpec,
-    selectedSampleName,
-    props.samples,
-    onSelectedEmitterChange,
-    onCompilerOptionsChange,
-  ]);
 
   useEffect(() => {
     const debouncer = debounce(() => doCompile(), 200);
@@ -392,7 +307,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
         setContent(val);
       },
     };
-  }, [host, setContent, typespecModel]);
+  }, [host, typespecModel]);
 
   return (
     <PlaygroundContextProvider value={playgroundContext}>
@@ -434,7 +349,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
                   selectedViewer={selectedViewer}
                   onViewerChange={onSelectedViewerChange}
                   viewerState={viewerState}
-                  onViewerStateChange={handleViewerStateChange}
+                  onViewerStateChange={onViewerStateChange}
                 />
               </Pane>
             </SplitPane>
