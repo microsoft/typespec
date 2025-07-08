@@ -10,14 +10,14 @@ export const $typescriptLib = createTypeSpecLibrary({
       },
     },
     "typescript-unsupported-type": {
-      severity: "error", // TODO: Warning for release and error for debug
+      severity: "warning", // TODO: Warning for release and error for debug
       messages: {
         default: "Unsupported type, falling back to any",
       },
       description: "This type is not supported by the emitter",
     },
     "typescript-unsupported-model-discriminator": {
-      severity: "error", // TODO: Warning for release and error for debug
+      severity: "warning", // TODO: Warning for release and error for debug
       messages: {
         default:
           "Unsupported model discriminator, falling back to not discriminating on serialization/deserialization",
@@ -25,14 +25,14 @@ export const $typescriptLib = createTypeSpecLibrary({
       description: "Discriminators at the model are not supported",
     },
     "typescript-unsupported-type-transform": {
-      severity: "error", // TODO: Warning for release and error for debug
+      severity: "warning", // TODO: Warning for release and error for debug
       messages: {
         default: "Unsupported type for transformation, falling back to not transforming this type",
       },
       description: "Discriminators at the model are not supported",
     },
     "typescript-unsupported-nondiscriminated-union": {
-      severity: "error", // TODO: Warning for release and error for debug
+      severity: "warning", // TODO: Warning for release and error for debug
       messages: {
         default: "Unsupported non-discriminated union, falling back to not transforming this type",
       },
