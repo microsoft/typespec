@@ -2,6 +2,7 @@ import {
   Diagnostic,
   DiagnosticResult,
   Interface,
+  isTemplateDeclaration,
   listServices,
   Namespace,
   Operation,
@@ -112,7 +113,7 @@ function* getSubClients(
   const childContainers: (Namespace | Interface)[] = [
     ...container.namespaces.values(),
     ...container.interfaces.values(),
-  ];
+  ].filter((e) => (e.kind === "Interface" && isTemplateDeclaration(e) ? false : true));
   for (const subNamespace of childContainers) {
     if (isExplicitClient(program, subNamespace)) {
       // If the sub-namespace is explicitly marked as a client, we skip it as a sub-client.
