@@ -30,6 +30,9 @@
       "default": "./dist/src/testing/index.js"
     }
   },
+  "imports": {
+    "#test/*": "./test/*"
+  },
   "tspMain": "lib/main.tsp",
   "engines": {
     "node": ">=20.0.0"
