@@ -8,6 +8,7 @@ beforeEach(async () => {
   const runner = await Tester.createInstance();
   ruleTester = createLinterRuleTester(runner, conflictingRouteRule, "@typespec/http");
 });
+
 it("should detect parameter vs literal conflicts", async () => {
   await ruleTester
     .expect(
@@ -29,6 +30,21 @@ it("should detect parameter vs literal conflicts", async () => {
       },
     ]);
 });
+
+it("detect conflict with path expansion", async () => {
+  await ruleTester
+    .expect(
+      `
+          @route("/foo{/prop}") op op1(prop: string): void;
+          @route("/foo/fixed") op op2(): void;
+        `,
+    )
+    .toEmitDiagnostics([
+      { code: "@typespec/http/conflicting-route" },
+      { code: "@typespec/http/conflicting-route" },
+    ]);
+});
+
 it("should detect operations with different parameter names but same structure", async () => {
   await ruleTester
     .expect(

@@ -1,6 +1,7 @@
 import { createRule, paramMessage } from "@typespec/compiler";
 import { getAllHttpServices } from "../operations.js";
 import { HttpOperation } from "../types.js";
+import { parseUriTemplate, UriTemplateParameter } from "../uri-template.js";
 
 export const conflictingRouteRule = createRule({
   name: "conflicting-route",
@@ -105,8 +106,8 @@ class RouteTree {
    * Adds a route to the tree and returns any conflicting operations.
    */
   addRoute(operation: HttpOperation): HttpOperation[] {
-    const segments = parseUriTemplate(operation.uriTemplate);
-    return this.root.addOperation(operation, segments, 0);
+    const segments = parseUriTemplate(operation.uriTemplate).segments;
+    return this.root.addOperation(operation, segments || [], 0);
   }
 }
 
@@ -122,7 +123,7 @@ class RouteNode {
 
   addOperation(
     operation: HttpOperation,
-    segments: Array<{ type: "literal" | "parameter"; value: string }>,
+    segments: Array<string | UriTemplateParameter>,
     index: number,
   ): HttpOperation[] {
     // If we've consumed all segments, this operation ends here
@@ -135,9 +136,18 @@ class RouteNode {
     const segment = segments[index];
     const conflicts: HttpOperation[] = [];
 
-    if (segment.type === "literal") {
-      // Literal segment
-      const literalValue = segment.value;
+    if (typeof segment === "string") {
+      // String segment - may contain multiple path parts separated by "/"
+      // Split by "/" and process each non-empty part as a literal segment
+      const parts = segment.split("/").filter((part) => part.length > 0);
+
+      if (parts.length === 0) {
+        // Empty segment, continue to next
+        return this.addOperation(operation, segments, index + 1);
+      }
+
+      // Process the first part at this level
+      const firstPart = parts[0];
 
       // Check for conflict with parameter child
       if (this.parameterChild) {
@@ -146,15 +156,23 @@ class RouteNode {
       }
 
       // Get or create literal child
-      let childNode = this.literalChildren.get(literalValue);
+      let childNode = this.literalChildren.get(firstPart);
       if (!childNode) {
         childNode = new RouteNode();
-        this.literalChildren.set(literalValue, childNode);
+        this.literalChildren.set(firstPart, childNode);
       }
 
-      // Continue with this literal child
-      const childConflicts = childNode.addOperation(operation, segments, index + 1);
-      conflicts.push(...childConflicts);
+      // If there are more parts, create a new segment array with remaining parts and continue
+      if (parts.length > 1) {
+        const remainingParts = parts.slice(1).join("/");
+        const newSegments = [remainingParts, ...segments.slice(index + 1)];
+        const childConflicts = childNode.addOperation(operation, newSegments, 0);
+        conflicts.push(...childConflicts);
+      } else {
+        // Continue with remaining segments
+        const childConflicts = childNode.addOperation(operation, segments, index + 1);
+        conflicts.push(...childConflicts);
+      }
     } else {
       // Parameter segment
 
@@ -194,25 +212,4 @@ class RouteNode {
 
     return operations;
   }
-}
-
-/**
- * Parses a URI template into segments, identifying literals vs parameters.
- */
-function parseUriTemplate(
-  template: string,
-): Array<{ type: "literal" | "parameter"; value: string }> {
-  // Remove query and fragment parts for path comparison
-  const pathPart = template.split(/[?#]/)[0];
-
-  // Split by / and filter out empty segments
-  const rawSegments = pathPart.split("/").filter((seg) => seg.length > 0);
-
-  return rawSegments.map((segment) => {
-    if (segment.startsWith("{") && segment.endsWith("}")) {
-      return { type: "parameter", value: segment };
-    } else {
-      return { type: "literal", value: segment };
-    }
-  });
 }
