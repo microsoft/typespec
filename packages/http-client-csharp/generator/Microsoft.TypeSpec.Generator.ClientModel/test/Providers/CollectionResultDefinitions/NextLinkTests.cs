@@ -1,11 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -179,6 +181,106 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             var fields = collectionResultDefinition.Fields;
 
             Assert.IsTrue(fields.Any(f => f.Name == "_foo"));
+        }
+
+        [Test]
+        public void NextLinkWithStringType()
+        {
+            // Test to reproduce the issue where nextLink can be a string instead of URL
+            MockHelpers.LoadMockGenerator();
+            var inputModel = InputFactory.Model("cat", properties:
+            [
+                InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
+            ]);
+            var pagingMetadata = InputFactory.NextLinkPagingMetadata("cats", "nextCat", InputResponseLocation.Body);
+            
+            // Define the page model with string nextCat property
+            var pageModel = InputFactory.Model(
+                "page",
+                properties: [
+                    InputFactory.Property("cats", InputFactory.Array(inputModel)), 
+                    InputFactory.Property("nextCat", InputPrimitiveType.String) // This is the key change - String instead of Url
+                ]);
+            
+            var response = InputFactory.OperationResponse([200], pageModel);
+            var operation = InputFactory.Operation("getCats", responses: [response]);
+            var inputServiceMethod = InputFactory.PagingServiceMethod("getCats", operation, pagingMetadata: pagingMetadata);
+            var client = InputFactory.Client("catClient", methods: [inputServiceMethod]);
+
+            try 
+            {
+                MockHelpers.LoadMockGenerator(inputModels: () => [inputModel, pageModel], clients: () => [client]);
+
+                // Check if the collection result is generated
+                var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+                    t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResult");
+                
+                if (collectionResultDefinition != null)
+                {
+                    var writer = new TypeProviderWriter(collectionResultDefinition!);
+                    var file = writer.Write();
+                    Assert.IsNotNull(file.Content);
+                    System.Console.WriteLine("Collection result generated successfully");
+                }
+                else
+                {
+                    System.Console.WriteLine("Collection result is null");
+                }
+
+                // Now check if the response model is generated 
+                var pageModelProvider = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+                    t => t is ModelProvider && t.Name == "Page");
+                
+                if (pageModelProvider != null)
+                {
+                    System.Console.WriteLine("Page model found");
+                    // Try to generate serialization code for the Page model
+                    var pageWriter = new TypeProviderWriter(pageModelProvider);
+                    var pageFile = pageWriter.Write();
+                    Assert.IsNotNull(pageFile.Content);
+                    System.Console.WriteLine("Page model generated successfully");
+                    
+                    // Check the content contains string property instead of URI
+                    var content = pageFile.Content;
+                    System.Console.WriteLine($"Generated Page model content:\n{content}");
+                    
+                    Assert.IsTrue(content.Contains("string NextCat") || content.Contains("string nextCat"), "nextCat should be generated as string property");
+                    Assert.IsFalse(content.Contains("Uri NextCat") || content.Contains("Uri nextCat"), "nextCat should not be generated as Uri property");
+                    
+                    // Also check the serialization logic
+                    var allPageProviders = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.Where(t => t.Name.Contains("Page"));
+                    foreach (var provider in allPageProviders)
+                    {
+                        var writer = new TypeProviderWriter(provider);
+                        var file = writer.Write();
+                        System.Console.WriteLine($"\nProvider: {provider.Name}");
+                        System.Console.WriteLine($"Content:\n{file.Content}");
+                    }
+                }
+                else
+                {
+                    System.Console.WriteLine("Page model is null - this indicates the issue");
+                    // Let's check all the generated models
+                    var allModels = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.Where(t => t is ModelProvider);
+                    System.Console.WriteLine($"Total generated models: {allModels.Count()}");
+                    foreach (var model in allModels)
+                    {
+                        System.Console.WriteLine($"Model name: {model.Name}");
+                    }
+                    
+                    // For now, just assert that we found some models
+                    Assert.IsTrue(allModels.Any(), "No models were generated at all");
+                    
+                    // This test is expected to fail until we fix the issue
+                    Assert.Fail("Page model should be generated when nextLink is a string");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"Exception during model generation: {ex.Message}");
+                System.Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                throw;
+            }
         }
 
 
