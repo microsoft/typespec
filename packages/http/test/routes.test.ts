@@ -520,6 +520,15 @@ describe("uri template", () => {
       expectPathParameter(param, { style: "simple", allowReserved: true, explode: false });
     });
 
+    // Regression test for https://github.com/microsoft/typespec/issues/7848
+    it("optional parameter with explicit name should still have simple style", async () => {
+      const param = await getParameter(
+        `@route("/bar/{bar}") op foo(@path("bar") foo?: string): void;`,
+        "bar",
+      );
+      expectPathParameter(param, { style: "simple", allowReserved: false, explode: false });
+    });
+
     it.each([
       [";", "matrix"],
       ["#", "fragment"],
