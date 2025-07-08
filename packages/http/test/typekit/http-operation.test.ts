@@ -1,7 +1,7 @@
+import { Tester } from "#test/test-host.js";
 import { expectDiagnostics, t } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { assert, describe, expect, it } from "vitest";
-import { Tester } from "./../../test-host.js";
 
 // Activate  Http TypeKit augmentation
 import "../../../src/experimental/typekit/index.js";
