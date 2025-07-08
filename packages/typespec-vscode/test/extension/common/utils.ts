@@ -7,8 +7,8 @@ import { test as baseTest, inject } from "vitest";
 import { closeVscode } from "./common-steps";
 
 const __dirname = import.meta.dirname;
-const projectRoot = path.resolve(__dirname, "../");
-const imagesPath = path.resolve(projectRoot, "images-linux");
+const projectRoot = path.resolve(__dirname, "../../../");
+const imagesPath = path.resolve(projectRoot, "test/extension/images-linux");
 
 interface Context {
   page: Page;
@@ -111,7 +111,7 @@ async function retry(
     count--;
   }
   await screenshot(page, "linux", "error");
-  await closeVscode();
+  await closeVscode(page);
   throw new Error(errMessage);
 }
 
@@ -141,4 +141,4 @@ export function pressEnter() {
   execSync(`xdotool key Return`);
 }
 
-export { retry, screenshot, sleep, test };
+export { imagesPath, projectRoot, retry, screenshot, sleep, test };

@@ -18,11 +18,9 @@ import {
   selectTemplate,
   startWithClick,
 } from "./common/create-steps";
-import { test } from "./common/utils";
+import { projectRoot, test } from "./common/utils";
 
-const __dirname = import.meta.dirname;
-const projectRoot = path.resolve(__dirname, "./");
-const tempDir = path.resolve(projectRoot, "./temp");
+const tempDir = path.resolve(projectRoot, "test/extension/temp");
 
 enum CreateProjectTriggerType {
   Click = "RightClick",
@@ -122,7 +120,7 @@ describe.each(CreateCasesConfigList)("CreateTypespecProject", async (item) => {
       "Failed to create project Successful",
       [10, 15],
     );
-    await closeVscode();
+    await closeVscode(page);
     await contrastResult(page, expectedResults, workspacePath);
   });
 });

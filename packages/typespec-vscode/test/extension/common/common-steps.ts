@@ -1,13 +1,8 @@
-import { execSync } from "child_process";
 import { rm } from "fs/promises";
 import fs from "node:fs";
 import path from "node:path";
 import { Locator, Page } from "playwright";
-import { pressEnter, retry, screenshot, sendKeys, sleep } from "./utils";
-
-const __dirname = import.meta.dirname;
-const projectRoot = path.resolve(__dirname, "../");
-const imagesPath = path.resolve(projectRoot, "images-linux");
+import { imagesPath, pressEnter, projectRoot, retry, screenshot, sendKeys, sleep } from "./utils";
 
 /**
  * Before comparing the results, you need to check whether the conditions for result comparison are met.
@@ -149,7 +144,7 @@ async function notEmptyFolderContinue(page: Page) {
 async function installExtensionForCommand(page: Page, extensionDir: string) {
   // locate the vsix file
   const findVsix = () => {
-    const dir = path.resolve(__dirname, "../../../");
+    const dir = path.resolve(projectRoot);
     const files = fs.readdirSync(dir);
     const match = files.find((f) => /^typespec-vscode-.*\.vsix$/.test(f));
     if (!match) throw new Error("No typespec-vscode-*.vsix file found");
@@ -169,8 +164,10 @@ async function installExtensionForCommand(page: Page, extensionDir: string) {
   await screenshot(page, "linux", "start_install_extension");
 }
 
-async function closeVscode() {
-  execSync("xdotool key Alt+F4");
+async function closeVscode(page: Page) {
+  await page.getByRole("menuitem", { name: "File" }).click();
+  await sleep(2);
+  await page.getByRole("menuitem", { name: "Exit" }).click();
 }
 
 /**
