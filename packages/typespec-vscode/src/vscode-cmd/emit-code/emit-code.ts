@@ -869,15 +869,17 @@ function getConfigEntriesFromEmitterOptions(
       comment += ` (Options: ${propSchema.enum.join(", ")})`;
     }
 
-    let defaultValue: any;
-    if (propSchema.default !== undefined) {
-      defaultValue = propSchema.default;
-    }
+    const defaultValue = propSchema.default ?? extractDefaultValue(propSchema.description);
 
     configEntries[propertyName] = {
       value: defaultValue,
       comment: comment,
     };
+  }
+
+  function extractDefaultValue(description: string): string {
+    const match = description.match(/The default value is `([^`]+)`/);
+    return match ? match[1] : "noDefaultVal";
   }
 
   return configEntries;
@@ -903,14 +905,14 @@ async function generateAnnotatedYamlFile(
       const key = `ReplacedStr_${propertyName}`;
 
       const keyScalar = configYaml.createNode(key);
-      const valueScalar = configYaml.createNode(value);
+      const valueScalar = configYaml.createNode(value ?? "undefined");
       const parentMap = configYaml.getIn(["options", packageName], true);
       if (parentMap && typeof parentMap === "object" && "items" in parentMap) {
         const newPair = configYaml.createPair(keyScalar, valueScalar);
         (parentMap as any).items.push(newPair);
 
-        if (comment && newPair.key) {
-          newPair.key.commentBefore = ` ${comment}`;
+        if (comment && newPair.value) {
+          newPair.value.comment = ` ${comment}`;
         }
       }
     }
