@@ -100,7 +100,7 @@ extends:
                 displayName: Update package.json with injected dependencies
                 inputs:
                   pwsh: true
-                  filePath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Update-PackageJson-And-Invoke-TspClient.ps1
+                  filePath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Update-PackageJson.ps1
                   workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
                   arguments: >
                     -PackageVersion '$(PackageVersion)'
@@ -112,7 +112,7 @@ extends:
                   workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
 
               - task: PowerShell@2
-                displayName: Create PR in azure-sdk-for-net
+                displayName: Generate emitter-package.json files & create PR in azure-sdk-for-net
                 inputs:
                   pwsh: true
                   filePath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Submit-AzureSdkForNetPr.ps1
