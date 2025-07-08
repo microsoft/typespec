@@ -4,7 +4,7 @@
 
 /**
  * <!-- start generated doc -->
- * Package containing the data models for MethodOverride.
+ * Package containing the classes for MethodOverride.
  * <!-- end generated doc -->
  */
-package methodoverride.models;
+package tsptest.methodoverride;
