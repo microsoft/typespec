@@ -7,4 +7,4 @@
  * Package containing the implementations for MethodOverride.
  * <!-- end generated doc -->
  */
-package methodoverride.implementation;
+package tsptest.methodoverride.implementation;
