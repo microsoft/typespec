@@ -2,18 +2,15 @@
 
 <#
 .DESCRIPTION
-Updates the package.json file with required dependencies and then invokes tsp-client to generate config files.
-This script injects dependencies defined in the $InjectedDependencies variable, validates the dependencies 
-with npm install, and then calls tsp-client generate-config-files.
+Updates the package.json file with required dependencies and validates them with npm install.
+This script injects dependencies defined in the $InjectedDependencies variable and validates the dependencies 
+with npm install. The tsp-client generate-config-files step is handled separately after repo cloning.
 
 .PARAMETER PackageVersion
 The version to set in the package.json file.
 
 .PARAMETER PackageJsonPath
 The path to the package.json file to update.
-
-.PARAMETER EmitterPackageJsonPath
-The path where the emitter package.json file should be generated.
 #>
 
 [CmdletBinding()]
@@ -22,10 +19,7 @@ param(
     [string]$PackageVersion,
 
     [Parameter(Mandatory = $true)]
-    [string]$PackageJsonPath,
-
-    [Parameter(Mandatory = $true)]
-    [string]$EmitterPackageJsonPath
+    [string]$PackageJsonPath
 )
 
 $ErrorActionPreference = 'Stop'
@@ -39,12 +33,10 @@ $InjectedDependencies = @(
 
 # Resolve paths
 $PackageJsonPath = Resolve-Path $PackageJsonPath
-$EmitterPackageJsonPath = [System.IO.Path]::GetFullPath($EmitterPackageJsonPath)
 
-Write-Host "Updating package.json and invoking tsp-client..."
+Write-Host "Updating package.json with dependencies and validating..."
 Write-Host "Package Version: $PackageVersion"
 Write-Host "Package.json Path: $PackageJsonPath"
-Write-Host "Emitter Package.json Path: $EmitterPackageJsonPath"
 Write-Host "Current Working Directory: $(Get-Location)"
 
 try {
@@ -103,15 +95,7 @@ try {
         exit 1
     }
 
-    # Generate emitter-package.json files using tsp-client
-    Write-Host "Generating emitter-package.json files..."
-    $tspClientResult = & tsp-client generate-config-files --package-json "$PackageJsonPath" --emitter-package-json-path "$EmitterPackageJsonPath" 2>&1
-    if ($LASTEXITCODE -ne 0) {
-        Write-Error "tsp-client generate-config-files failed: $tspClientResult"
-        exit 1
-    }
-
-    Write-Host "Successfully updated package.json and generated emitter config files"
+    Write-Host "Successfully updated package.json and validated dependencies"
 }
 catch {
     Write-Error "Script failed with error: $_"
