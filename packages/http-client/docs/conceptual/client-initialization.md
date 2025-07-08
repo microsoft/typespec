@@ -33,7 +33,6 @@ This document describes how `@typespec/http-client` computes client constructor 
 
 The following parameters and default instantiation strategy apply when no explicit `@clientInitialization` decorator is present:
 
-- **Endpoint, Credential, API Version, and Subscription ID parameters** are automatically included as described above.
 - **Initialization mode** is set to `individual`, where each client is constructed independently.
 
 ---

@@ -2,7 +2,7 @@ import { Enum, ignoreDiagnostics, Model, Program, Union } from "@typespec/compil
 import { unsafe_Mutator } from "@typespec/compiler/experimental";
 import { $ } from "@typespec/compiler/typekit";
 import { resolveClientInitialization } from "./client-initialization-resolution.js";
-import { ResolveClientsOptions } from "./client-resolution.js";
+import { getClientOperations, ResolveClientsOptions } from "./client-resolution.js";
 import { Client } from "./interfaces.js";
 import { collectDataTypes } from "./utils/type-collector.js";
 
@@ -39,8 +39,9 @@ function visitClient(program: Program, client: Client, dataTypes: Set<Model | Un
 
   visitClientServers(program, client, dataTypes);
 
+  const operations = getClientOperations(program, client);
   // Collect data types
-  for (const operation of client.operations) {
+  for (const operation of operations) {
     // Collect operation parameters
     collectDataTypes(tk, operation.parameters, dataTypes);
 

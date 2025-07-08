@@ -8,13 +8,18 @@ import {
   Operation,
   Program,
 } from "@typespec/compiler";
+import {
+  unsafe_mutateSubgraphWithNamespace,
+  unsafe_Mutator,
+} from "@typespec/compiler/experimental";
 import { ClientDecoratorOptions } from "../generated-defs/TypeSpec.HttpClient.js";
 import { Client, ClientNamePolicy } from "./interfaces.js";
-import { createDiagnostic, StateKeys } from "./lib.js";
+import { createDiagnostic, createStateSymbol, StateKeys } from "./lib.js";
 import { getClientName } from "./utils/get-client-name.js";
 
 export interface ResolveClientsOptions {
   clientNamePolicy?: ClientNamePolicy;
+  mutators?: unsafe_Mutator[];
 }
 
 /**
@@ -75,19 +80,23 @@ function buildClient(
     return clientState.get(container)!;
   }
 
+  let effectiveContainer: Namespace | Interface = container;
+  if (container.kind === "Namespace" && options.mutators) {
+    effectiveContainer = unsafe_mutateSubgraphWithNamespace(program, options.mutators, container)
+      .type as Namespace;
+  }
+
   const client: Client = {
     kind: "client",
-    name: container.name,
-    operations: [],
-    type: container,
+    name: effectiveContainer.name,
+    type: effectiveContainer,
     subClients: [],
     parent: undefined,
   };
 
-  clientState.set(container, client);
+  clientState.set(effectiveContainer, client);
   client.name = getClientName(program, client, options);
   client.subClients = [...getSubClients(program, client, options)];
-  client.operations = [...getClientOperations(program, client)];
 
   return client;
 }
@@ -134,14 +143,25 @@ function isExplicitClient(program: Program, container: Namespace | Interface): b
   return explicitClientState.get(container) !== undefined;
 }
 
-function* getClientOperations(program: Program, client: Client): Iterable<Operation> {
+const clientOperationsMapKey = createStateSymbol("clientOperationsMap");
+export function getClientOperations(program: Program, client: Client): Operation[] {
+  const operations: Operation[] = [];
   const container = client.type;
   // TODO: handle moveTo/clientLocation?
-  const clientOperationMap = program.stateMap(StateKeys.clientOperationMap);
-  for (const operation of container.operations.values()) {
-    clientOperationMap.set(operation, client);
-    yield operation;
+
+  const clientOperationsMap = program.stateMap(clientOperationsMapKey);
+  if (clientOperationsMap.has(container)) {
+    // If we already have the operations for this container, return them.
+    return clientOperationsMap.get(container)!;
   }
+
+  for (const operation of container.operations.values()) {
+    const clientOperationMap = program.stateMap(StateKeys.clientOperationMap);
+    clientOperationMap.set(operation, client);
+    operations.push(operation);
+  }
+  clientOperationsMap.set(container, operations);
+  return operations;
 }
 
 function hasOperations(namespace: Namespace | Interface): boolean {

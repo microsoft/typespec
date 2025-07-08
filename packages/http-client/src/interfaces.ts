@@ -1,4 +1,4 @@
-import { Interface, Namespace, Operation } from "@typespec/compiler";
+import { Interface, Namespace } from "@typespec/compiler";
 import { Authentication, HttpServer } from "@typespec/http";
 
 export interface Client {
@@ -11,10 +11,6 @@ export interface Client {
    * The type that the client is based on, which can be a Namespace or Interface.
    */
   type: Namespace | Interface;
-  /**
-   * Operations that belong to this client
-   */
-  operations: Operation[];
   /**
    * If this client is a sub-client, the parent client.
    */

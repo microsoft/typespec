@@ -34,6 +34,7 @@
     "@alloy-js/typescript": "^0.18.0",
     "@types/node": "~24.0.3",
     "@typespec/compiler": "workspace:^",
+    "@typespec/versioning": "workspace:^",
     "@typespec/emitter-framework": "workspace:^",
     "@typespec/http": "workspace:^",
     "@typespec/tspd": "workspace:^",

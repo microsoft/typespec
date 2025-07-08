@@ -24,7 +24,6 @@ describe("client-server-helpers::getService", () => {
       kind: "client",
       type: MyService,
       name: "MyService",
-      operations: [],
       subClients: [],
       parent: undefined,
     };

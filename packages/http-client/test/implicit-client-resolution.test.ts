@@ -1,7 +1,7 @@
 import { ignoreDiagnostics } from "@typespec/compiler";
 import { BasicTestRunner } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
-import { resolveClients } from "../src/client-resolution.js";
+import { getClientOperations, resolveClients } from "../src/client-resolution.js";
 import { Client } from "../src/interfaces.js";
 import { createTypespecHttpClientTestRunner } from "./test-host.js";
 
@@ -115,8 +115,9 @@ describe("Implicit Client Resolution", () => {
     expect(rootClient.name).toBe("RootService");
     expect(rootClient.subClients).toHaveLength(1);
     expect(rootClient.subClients[0].name).toBe("SubService");
-    expect(rootClient.subClients[0].operations).toHaveLength(1);
-    expect(rootClient.subClients[0].operations[0].name).toBe("getSubItems");
+    const operations = getClientOperations(runner.program, rootClient.subClients[0]);
+    expect(operations).toHaveLength(1);
+    expect(operations[0].name).toBe("getSubItems");
   });
 
   it("implicit client resolution with nested sub clients applies name policy", async () => {
@@ -155,8 +156,9 @@ describe("Implicit Client Resolution", () => {
     expect(rootClient.name).toBe("RootServiceClient");
     expect(rootClient.subClients).toHaveLength(1);
     expect(rootClient.subClients[0].name).toBe("SubService");
-    expect(rootClient.subClients[0].operations).toHaveLength(1);
-    expect(rootClient.subClients[0].operations[0].name).toBe("getSubItems");
+    const operations = getClientOperations(runner.program, rootClient.subClients[0]);
+    expect(operations).toHaveLength(1);
+    expect(operations[0].name).toBe("getSubItems");
   });
 
   it("implicit client resolution with direct operations included", async () => {
@@ -178,9 +180,10 @@ describe("Implicit Client Resolution", () => {
     const rootClient = clients[0];
     expect(rootClient).toBeDefined();
     expect(rootClient.name).toBe("DirectOperationsService");
-    expect(rootClient.operations).toHaveLength(2);
-    expect(rootClient.operations[0].name).toBe("getItems");
-    expect(rootClient.operations[1].name).toBe("getItemById");
+    const operations = getClientOperations(runner.program, rootClient);
+    expect(operations).toHaveLength(2);
+    expect(operations[0].name).toBe("getItems");
+    expect(operations[1].name).toBe("getItemById");
   });
 
   it("prunes clients with no methods or children", async () => {
