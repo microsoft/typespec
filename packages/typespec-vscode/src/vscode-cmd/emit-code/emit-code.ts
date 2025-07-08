@@ -426,14 +426,11 @@ async function doEmit(
   }
 
   const allCodesToGenerate = generations
-    .filter((g) => g.outputDir)
     .map((g) => `${g.codeInfo} under directory ${g.outputDir}`)
     .join(", ");
-  if (generations.some((g) => g.outputDir)) {
-    logger.info(`Start to emit ${allCodesToGenerate}...`);
-  } else {
-    logger.debug("Failed to get the output folder");
-  }
+
+  logger.info(`Start to emit ${allCodesToGenerate}...`);
+
   const codeInfoStr = generations.map((g) => g.codeInfo).join(", ");
   return await vscode.window.withProgress<ResultCode>(
     {
