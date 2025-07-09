@@ -42,7 +42,7 @@ jobs:
 
       - task: 1ES.PublishPipelineArtifact@1
         inputs:
-          path: ./packages/typespec-vscode/test/images-linux
+          path: ./packages/typespec-vscode/test/extension/images-linux
           artifact: "screenshots"
         displayName: Publish screenshots
         condition: ne(variables['Agent.OS'], 'Windows_NT')
