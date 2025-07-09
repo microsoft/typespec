@@ -8,7 +8,7 @@ using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
-namespace Microsoft.TypeSpec.Generator.Tests.Providers.ConstructorProviders.ConstructorInitializerTests
+namespace Microsoft.TypeSpec.Generator.Tests.Providers.ConstructorProviders
 {
     public class ConstructorInitializerTests
     {
