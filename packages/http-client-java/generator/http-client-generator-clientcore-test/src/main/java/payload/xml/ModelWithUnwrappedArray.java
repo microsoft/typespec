@@ -48,9 +48,6 @@ public final class ModelWithUnwrappedArray implements XmlSerializable<ModelWithU
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public List<String> getColors() {
-        if (this.colors == null) {
-            return Collections.emptyList();
-        }
         return this.colors;
     }
 

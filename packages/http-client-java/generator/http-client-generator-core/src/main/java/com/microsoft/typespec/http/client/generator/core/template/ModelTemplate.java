@@ -1064,29 +1064,28 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         }
 
         if (sourceTypeName.equals(targetTypeName)) {
-            if (treatAsXml && (property.getWireType() instanceof IterableType)) {
-                if (property.isXmlWrapper()) {
-                    if (settings.isStreamStyleSerialization()) {
+            if (treatAsXml && property.isXmlWrapper() && (property.getWireType() instanceof IterableType)) {
+                if (settings.isStreamStyleSerialization()) {
+                    // this always returns a List
+                    if (property.isRequired() && settings.isRequiredFieldsAsConstructorArgs()) {
+                        // the property is "final" and cannot be changed in setter
+                        // hence, return "Collections.emptyList()" (but no change to the property), if it is null
                         methodBlock.ifBlock(expression + " == null",
                             ifBlock -> ifBlock.methodReturn("Collections.emptyList()"));
                         methodBlock.methodReturn(expression);
                     } else {
+                        // assign a new ArrayList to the property, if it is null
+                        final String assignNewArrayListExpression = expression + " = new ArrayList<>();";
                         methodBlock.ifBlock(expression + " == null",
-                            ifBlock -> ifBlock.line("this.%s = new %s(new ArrayList<%s>());", property.getName(),
-                                getPropertyXmlWrapperClassName(property),
-                                ((GenericType) property.getWireType()).getTypeArguments()[0]));
-                        methodBlock.methodReturn(expression + ".items");
+                            ifBlock -> ifBlock.line(assignNewArrayListExpression));
+                        methodBlock.methodReturn(expression);
                     }
                 } else {
-                    if (property.isRequired()
-                        && settings.isRequiredFieldsAsConstructorArgs()
-                        && settings.isStreamStyleSerialization()) {
-                        methodBlock.ifBlock(expression + " == null",
-                            ifBlock -> ifBlock.methodReturn("Collections.emptyList()"));
-                        methodBlock.methodReturn(expression);
-                    } else {
-                        methodBlock.methodReturn(expression);
-                    }
+                    methodBlock.ifBlock(expression + " == null",
+                        ifBlock -> ifBlock.line("this.%s = new %s(new ArrayList<%s>());", property.getName(),
+                            getPropertyXmlWrapperClassName(property),
+                            ((GenericType) property.getWireType()).getTypeArguments()[0]));
+                    methodBlock.methodReturn(expression + ".items");
                 }
             } else {
                 methodBlock.methodReturn(expression);
