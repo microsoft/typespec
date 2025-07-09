@@ -2,8 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Tests.Common;
@@ -19,37 +18,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             MockHelpers.LoadMockGenerator();
         }
 
-        private static Compilation CreateCompilationFromSource(string source)
-        {
-            var syntaxTree = CSharpSyntaxTree.ParseText(source);
-            return CSharpCompilation.Create(
-                assemblyName: "TestAssembly",
-                syntaxTrees: [syntaxTree],
-                references: [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)]);
-        }
-
         [Test]
-        public void CustomConstructorWithThisInitializerShouldHaveInitializerPopulated()
+        public async Task CustomConstructorWithThisInitializerShouldHaveInitializerPopulated()
         {
             // Arrange
-            var customCode = @"
-using System;
-
-namespace Sample.Models
-{
-    public class TestClass
-    {
-        public TestClass(int bar) : this(bar, ""default"")
-        {
-        }
-        
-        public TestClass(int bar, string name)
-        {
-        }
-    }
-}";
-
-            var compilation = CreateCompilationFromSource(customCode);
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
             var testClassSymbol = compilation.GetTypeByMetadataName("Sample.Models.TestClass");
             var provider = new NamedTypeSymbolProvider(testClassSymbol!);
 
@@ -69,28 +42,10 @@ namespace Sample.Models
         }
 
         [Test]
-        public void CustomConstructorWithBaseInitializerShouldHaveInitializerPopulated()
+        public async Task CustomConstructorWithBaseInitializerShouldHaveInitializerPopulated()
         {
             // Arrange
-            var customCode = @"
-using System;
-
-namespace Sample.Models
-{
-    public class BaseClass
-    {
-        public BaseClass(string name) { }
-    }
-
-    public class TestClass : BaseClass
-    {
-        public TestClass(string value) : base(value)
-        {
-        }
-    }
-}";
-
-            var compilation = CreateCompilationFromSource(customCode);
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
             var testClassSymbol = compilation.GetTypeByMetadataName("Sample.Models.TestClass");
             var provider = new NamedTypeSymbolProvider(testClassSymbol!);
 
@@ -109,23 +64,10 @@ namespace Sample.Models
         }
 
         [Test]
-        public void CustomConstructorWithoutInitializerShouldHaveNullInitializer()
+        public async Task CustomConstructorWithoutInitializerShouldHaveNullInitializer()
         {
             // Arrange
-            var customCode = @"
-using System;
-
-namespace Sample.Models
-{
-    public class TestClass
-    {
-        public TestClass()
-        {
-        }
-    }
-}";
-
-            var compilation = CreateCompilationFromSource(customCode);
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
             var testClassSymbol = compilation.GetTypeByMetadataName("Sample.Models.TestClass");
             var provider = new NamedTypeSymbolProvider(testClassSymbol!);
 
