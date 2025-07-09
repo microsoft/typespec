@@ -50,10 +50,10 @@ it("should detect operations with different parameter names but same structure",
   await ruleTester
     .expect(
       `
-          @route("/providers/Microsoft.Contoso/foos/{fooName}/bars/{barName}") 
+          @route("/providers/Microsoft.Contoso/res/{fooName}/bars/{barName}") 
           op getBar1(fooName: string, barName: string): void;
           
-          @route("/providers/Microsoft.Contoso/foos/{name}/bars/{id}") 
+          @route("/providers/Microsoft.Contoso/res/{name}/bars/{id}") 
           op getBar2(name: string, id: string): void;
         `,
     )
@@ -75,10 +75,10 @@ it("should not flag operations with different HTTP verbs", async () => {
   await ruleTester
     .expect(
       `
-        @get @route("/providers/Microsoft.Contoso/foos/{fooName}") 
+        @get @route("/providers/Microsoft.Contoso/res/{fooName}") 
         op getFoo(fooName: string): void;
         
-        @post @route("/providers/Microsoft.Contoso/foos/{name}") 
+        @post @route("/providers/Microsoft.Contoso/res/{name}") 
         op createFoo(name: string): void;
       `,
     )
@@ -89,7 +89,7 @@ it("should not flag operations with different path structures", async () => {
   await ruleTester
     .expect(
       `
-        @route("/providers/Microsoft.Contoso/foos/{fooName}") 
+        @route("/providers/Microsoft.Contoso/res/{fooName}") 
         op getFoo(fooName: string): void;
         
         @route("/providers/Microsoft.Contoso/bars/{barName}") 
