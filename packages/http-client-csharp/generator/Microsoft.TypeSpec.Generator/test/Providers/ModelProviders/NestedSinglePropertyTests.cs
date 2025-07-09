@@ -65,6 +65,21 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     Console.WriteLine($"SecondThird has setter");
                 }
             }
+            else
+            {
+                Console.WriteLine("No SecondThird convenience property found");
+            }
+
+            // Generate the actual C# code to examine the output
+            var grandParentWriter = new TypeProviderWriter(grandParentProvider);
+            var generatedCode = grandParentWriter.Write();
+            Console.WriteLine("\n=== Generated GrandParent C# Code ===");
+            Console.WriteLine(generatedCode.Content);
+
+            var parentWriter = new TypeProviderWriter(parentProvider);
+            var parentCode = parentWriter.Write();
+            Console.WriteLine("\n=== Generated Parent C# Code ===");
+            Console.WriteLine(parentCode.Content);
         }
     }
 }
