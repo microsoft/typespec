@@ -7,7 +7,6 @@ import io.clientcore.core.serialization.xml.XmlSerializable;
 import io.clientcore.core.serialization.xml.XmlToken;
 import io.clientcore.core.serialization.xml.XmlWriter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -40,9 +39,6 @@ public final class ModelWithEmptyArray implements XmlSerializable<ModelWithEmpty
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public List<SimpleModel> getItems() {
-        if (this.items == null) {
-            return Collections.emptyList();
-        }
         return this.items;
     }
 

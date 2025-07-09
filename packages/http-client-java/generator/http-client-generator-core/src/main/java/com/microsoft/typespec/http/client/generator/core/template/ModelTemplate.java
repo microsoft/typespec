@@ -1064,7 +1064,11 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         }
 
         if (sourceTypeName.equals(targetTypeName)) {
-            if (treatAsXml && property.isXmlWrapper() && (property.getWireType() instanceof IterableType)) {
+            if (settings.isAzureV1()
+                && treatAsXml
+                && property.isXmlWrapper()
+                && (property.getWireType() instanceof IterableType)) {
+                // this logic only apply to azure v1, for backward-compatibility
                 if (settings.isStreamStyleSerialization()) {
                     // this always returns a List
                     if (property.isRequired() && settings.isRequiredFieldsAsConstructorArgs()) {

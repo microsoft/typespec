@@ -7,7 +7,6 @@ import io.clientcore.core.serialization.xml.XmlSerializable;
 import io.clientcore.core.serialization.xml.XmlToken;
 import io.clientcore.core.serialization.xml.XmlWriter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -58,9 +57,6 @@ public final class ModelWithEncodedNames implements XmlSerializable<ModelWithEnc
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public List<String> getColors() {
-        if (this.colors == null) {
-            return Collections.emptyList();
-        }
         return this.colors;
     }
 
