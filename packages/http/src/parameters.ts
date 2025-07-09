@@ -5,7 +5,12 @@ import {
   Operation,
   Program,
 } from "@typespec/compiler";
-import { getOperationVerb, getPatchOptions, getPathOptions } from "./decorators.js";
+import {
+  getOperationVerb,
+  getPatchOptions,
+  getPathOptions,
+  getQueryOptions,
+} from "./decorators.js";
 import { isMergePatchBody } from "./experimental/merge-patch/internal.js";
 import { createDiagnostic } from "./lib.js";
 import { resolveRequestVisibility } from "./metadata.js";
@@ -71,8 +76,10 @@ function getOperationParametersForVerb(
         param: ModelProperty,
       ): QueryParameterOptions | PathParameterOptions | undefined => {
         const isTopLevel = param.model === operation.parameters;
-        const uriParam =
-          isTopLevel && parsedUriTemplate.parameters.find((x) => x.name === param.name);
+        const pathOptions = getPathOptions(program, param);
+        const queryOptions = getQueryOptions(program, param);
+        const name = pathOptions?.name ?? queryOptions?.name ?? param.name;
+        const uriParam = isTopLevel && parsedUriTemplate.parameters.find((x) => x.name === name);
 
         if (!uriParam) {
           const pathOptions = getPathOptions(program, param);

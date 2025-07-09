@@ -16,6 +16,7 @@ from venvtools import ExtendedEnvBuilder
 
 class PackageManagerNotFoundError(Exception):
     """Raised when no suitable package manager is found."""
+
     pass
 
 
@@ -30,41 +31,38 @@ def _check_command_available(command: str) -> bool:
 
 def detect_package_manager() -> str:
     """Detect the best available package manager.
-    
+
     Returns:
         str: The package manager command ('uv' or 'pip')
-        
+
     Raises:
         PackageManagerNotFoundError: If no suitable package manager is found
     """
     # Check for uv first since it's more modern and faster
     if _check_command_available("uv"):
         return "uv"
-    
+
     # Fall back to pip
     if _check_command_available("pip"):
         return "pip"
-    
+
     # As a last resort, try using python -m pip
     try:
-        subprocess.run([sys.executable, "-m", "pip", "--version"], 
-                      capture_output=True, check=True)
+        subprocess.run([sys.executable, "-m", "pip", "--version"], capture_output=True, check=True)
         return "python -m pip"
     except (subprocess.CalledProcessError, FileNotFoundError):
         pass
-    
-    raise PackageManagerNotFoundError(
-        "No suitable package manager found. Please install either uv or pip."
-    )
+
+    raise PackageManagerNotFoundError("No suitable package manager found. Please install either uv or pip.")
 
 
 def get_install_command(package_manager: str, venv_context=None) -> list:
     """Get the install command for the given package manager.
-    
+
     Args:
         package_manager: The package manager command ('uv', 'pip', or 'python -m pip')
         venv_context: The virtual environment context (optional, used for pip)
-        
+
     Returns:
         list: The base install command as a list
     """
@@ -89,7 +87,7 @@ def get_install_command(package_manager: str, venv_context=None) -> list:
 
 def install_packages(packages: list, venv_context=None, package_manager: str = None) -> None:
     """Install packages using the available package manager.
-    
+
     Args:
         packages: List of packages to install
         venv_context: Virtual environment context (optional)
@@ -97,9 +95,9 @@ def install_packages(packages: list, venv_context=None, package_manager: str = N
     """
     if package_manager is None:
         package_manager = detect_package_manager()
-    
+
     install_cmd = get_install_command(package_manager, venv_context)
-    
+
     try:
         subprocess.check_call(install_cmd + packages)
     except subprocess.CalledProcessError as e:
@@ -108,25 +106,29 @@ def install_packages(packages: list, venv_context=None, package_manager: str = N
 
 def create_venv_with_package_manager(venv_path):
     """Create virtual environment using the best available package manager.
-    
+
     Args:
         venv_path: Path where to create the virtual environment
-        
+
     Returns:
         venv_context: Virtual environment context object
     """
     package_manager = detect_package_manager()
-    
+
     if package_manager == "uv":
         # Use uv to create and manage the virtual environment
         if not venv_path.exists():
             subprocess.check_call(["uv", "venv", str(venv_path)])
-        
+
         # Create a mock venv_context for compatibility
         class MockVenvContext:
             def __init__(self, venv_path):
-                self.env_exe = str(venv_path / "bin" / "python") if sys.platform != "win32" else str(venv_path / "Scripts" / "python.exe")
-        
+                self.env_exe = (
+                    str(venv_path / "bin" / "python")
+                    if sys.platform != "win32"
+                    else str(venv_path / "Scripts" / "python.exe")
+                )
+
         return MockVenvContext(venv_path)
     else:
         # Use standard venv for pip

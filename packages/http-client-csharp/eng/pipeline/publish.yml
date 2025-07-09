@@ -96,14 +96,15 @@ extends:
                   npm install -g @azure-tools/typespec-client-generator-cli@latest
                 displayName: Install tsp-client
 
-              - pwsh: |
-                  npm pkg set version='$(PackageVersion)'
-                  tsp-client generate-config-files `
-                  --package-json '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json' `
-                  --emitter-package-json-path '$(Build.SourcesDirectory)/eng/http-client-csharp-emitter-package.json'
-
-                displayName: Generate emitter-package.json and emitter-package-lock files
-                workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+              - task: PowerShell@2
+                displayName: Update package.json with injected dependencies
+                inputs:
+                  pwsh: true
+                  filePath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Update-PackageJson.ps1
+                  workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+                  arguments: >
+                    -PackageVersion '$(PackageVersion)'
+                    -PackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
 
               - task: UseDotNet@2
                 inputs:
@@ -111,7 +112,7 @@ extends:
                   workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
 
               - task: PowerShell@2
-                displayName: Create PR in azure-sdk-for-net
+                displayName: Generate emitter-package.json files & create PR in azure-sdk-for-net
                 inputs:
                   pwsh: true
                   filePath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Submit-AzureSdkForNetPr.ps1
@@ -119,4 +120,4 @@ extends:
                     -PackageVersion '$(PackageVersion)'
                     -TypeSpecCommitUrl '$(TypeSpecCommitUrl)'
                     -AuthToken '$(azuresdk-github-pat)'
-                    -TypeSpecSourceDirectory '$(Build.SourcesDirectory)'
+                    -TypeSpecSourcePackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'

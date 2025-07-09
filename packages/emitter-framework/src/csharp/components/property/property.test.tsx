@@ -1,7 +1,7 @@
 import { Tester } from "#test/test-host.js";
-import { Children } from "@alloy-js/core";
+import { type Children } from "@alloy-js/core";
 import { ClassDeclaration, createCSharpNamePolicy, Namespace, SourceFile } from "@alloy-js/csharp";
-import { t, TesterInstance } from "@typespec/compiler/testing";
+import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { Output } from "../../../core/components/output.jsx";
 import { Property } from "./property.jsx";
@@ -39,10 +39,10 @@ it("maps prop: string | null to nullable property", async () => {
   ).toRenderTo(`
       namespace TestNamespace
       {
-        class Test
-        {
-          public required string? Prop1 { get; set; }
-        }
+          class Test
+          {
+              public required string? Prop1 { get; set; }
+          }
       }
   `);
 });
@@ -62,11 +62,11 @@ describe("jsonAttributes", () => {
     ).toRenderTo(`
       namespace TestNamespace
       {
-        class Test
-        {
-          [System.Text.Json.JsonPropertyName("prop1")]
-          public required string Prop1 { get; set; }
-        }
+          class Test
+          {
+              [System.Text.Json.JsonPropertyName("prop1")]
+              public required string Prop1 { get; set; }
+          }
       }
   `);
   });
@@ -86,11 +86,11 @@ describe("jsonAttributes", () => {
     ).toRenderTo(`
       namespace TestNamespace
       {
-        class Test
-        {
-          [System.Text.Json.JsonPropertyName("prop_1")]
-          public required string Prop1 { get; set; }
-        }
+          class Test
+          {
+              [System.Text.Json.JsonPropertyName("prop_1")]
+              public required string Prop1 { get; set; }
+          }
       }
   `);
   });

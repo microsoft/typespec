@@ -29,7 +29,7 @@
         {% endif %}
     {% endfor %}
 
-    {% if code_model.options["models_mode"] == "dpg" and model.flattened_property %}
+    {% if code_model.options["models-mode"] == "dpg" and model.flattened_property %}
     __flattened_items = ["{{ model.flattened_items|join('\", \"') }}"]
     {% endif %}
 
@@ -65,7 +65,7 @@
         {% for initialize_property in initialize_properties %}
         {{ initialize_property }}
         {% endfor %}
-        {% if code_model.options["models_mode"] == "dpg" and model.flattened_property %}
+        {% if code_model.options["models-mode"] == "dpg" and model.flattened_property %}
         {% set flattened_property_attr = model.flattened_property.client_name %}
 
     def __getattr__(self, name: str) -> Any:

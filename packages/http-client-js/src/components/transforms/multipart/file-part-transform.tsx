@@ -1,11 +1,11 @@
-import * as ay from "@alloy-js/core";
+import { Children, code } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { HttpOperationPart } from "@typespec/http";
 import { getCreateFilePartDescriptorReference } from "../../static-helpers/multipart-helpers.jsx";
 
 export interface FilePartTransformProps {
   part: HttpOperationPart;
-  itemRef: ay.Children;
+  itemRef: Children;
 }
 
 export function FilePartTransform(props: FilePartTransformProps) {
@@ -13,7 +13,7 @@ export function FilePartTransform(props: FilePartTransformProps) {
   const defaultContentType = getContentType(props.part);
   const applicationName = namePolicy.getName(props.part.name!, "variable");
   const itemRef = getPartRef(props.itemRef, applicationName);
-  const args: ay.Children = [JSON.stringify(props.part.name), itemRef];
+  const args: Children = [JSON.stringify(props.part.name), itemRef];
   if (defaultContentType) {
     args.push(ts.ValueExpression({ jsValue: defaultContentType }));
   }
@@ -35,10 +35,10 @@ function getContentType(part: HttpOperationPart) {
   return contentType;
 }
 
-function getPartRef(itemRef: ay.Children, partName: string) {
+function getPartRef(itemRef: Children, partName: string) {
   if (itemRef === null) {
     return partName;
   }
 
-  return ay.code`${itemRef}.${partName}`;
+  return code`${itemRef}.${partName}`;
 }

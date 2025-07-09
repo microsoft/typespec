@@ -1,7 +1,7 @@
-import { Children } from "@alloy-js/core";
+import { type Children } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
 import { Attribute } from "@alloy-js/csharp";
-import { ModelProperty, resolveEncodedName, Type } from "@typespec/compiler";
+import { type ModelProperty, resolveEncodedName, type Type } from "@typespec/compiler";
 import { useTsp } from "../../../core/index.js";
 import { TypeExpression } from "../type-expression.jsx";
 import { getDocComments } from "../utils/doc-comments.jsx";

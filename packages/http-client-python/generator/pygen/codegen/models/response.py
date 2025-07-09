@@ -191,7 +191,7 @@ class PagingResponse(Response):
 
     def docstring_text(self, **kwargs: Any) -> str:
         base_description = "An iterator like instance of "
-        if not self.code_model.options["version_tolerant"]:
+        if not self.code_model.options["version-tolerant"]:
             base_description += "either "
         return base_description + self.item_type.docstring_text(**kwargs)
 
@@ -266,7 +266,7 @@ class LROResponse(Response):
     def docstring_text(self, **kwargs) -> str:
         super_text = super().docstring_text(**kwargs)
         base_description = f"An instance of {self.get_poller(kwargs.get('async_mode', False))} that returns "
-        if not self.code_model.options["version_tolerant"]:
+        if not self.code_model.options["version-tolerant"]:
             base_description += "either "
         return base_description + super_text
 
@@ -321,7 +321,7 @@ class LROPagingResponse(LROResponse, PagingResponse):
 
     def docstring_text(self, **kwargs) -> str:
         base_description = "An instance of LROPoller that returns an iterator like instance of "
-        if not self.code_model.options["version_tolerant"]:
+        if not self.code_model.options["version-tolerant"]:
             base_description += "either "
         return base_description + Response.docstring_text(self)
 
