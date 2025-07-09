@@ -1,7 +1,7 @@
 import { createRule, paramMessage } from "@typespec/compiler";
 import { getAllHttpServices } from "../operations.js";
-import { HttpOperation } from "../types.js";
-import { parseUriTemplate, UriTemplateParameter } from "../uri-template.js";
+import type { HttpOperation } from "../types.js";
+import { parseUriTemplate, type UriTemplateParameter } from "../uri-template.js";
 
 export const conflictingRouteRule = createRule({
   name: "conflicting-route",

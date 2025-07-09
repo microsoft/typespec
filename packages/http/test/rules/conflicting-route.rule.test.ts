@@ -1,9 +1,10 @@
 import { createLinterRuleTester, LinterRuleTester } from "@typespec/compiler/testing";
 import { beforeEach, it } from "vitest";
-import { Tester } from "../../test/test-host.js";
-import { conflictingRouteRule } from "./conflicting-route.rule.js";
+import { conflictingRouteRule } from "../../src/rules/conflicting-route.rule.js";
+import { Tester } from "../test-host.js";
 
 let ruleTester: LinterRuleTester;
+
 beforeEach(async () => {
   const runner = await Tester.createInstance();
   ruleTester = createLinterRuleTester(runner, conflictingRouteRule, "@typespec/http");
@@ -122,6 +123,7 @@ it("should not flag operations with different number of segments", async () => {
     )
     .toBeValid();
 });
+
 it("should handle three-way conflicts", async () => {
   await ruleTester
     .expect(
