@@ -377,7 +377,7 @@ public final class ArmResourceProviderManager {
     }
 
     /**
-     * Gets the resource collection API of ImmutableResourceModels. It manages NginxConfigurationResponse.
+     * Gets the resource collection API of ImmutableResourceModels.
      * 
      * @return Resource collection API of ImmutableResourceModels.
      */

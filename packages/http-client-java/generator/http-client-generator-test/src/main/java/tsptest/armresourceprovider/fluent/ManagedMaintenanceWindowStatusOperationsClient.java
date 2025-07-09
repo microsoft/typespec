@@ -9,7 +9,11 @@ import com.azure.core.annotation.ServiceMethod;
 import com.azure.core.http.rest.Response;
 import com.azure.core.management.polling.PollResult;
 import com.azure.core.util.Context;
+import com.azure.core.util.polling.PollerFlux;
 import com.azure.core.util.polling.SyncPoller;
+import java.nio.ByteBuffer;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import tsptest.armresourceprovider.fluent.models.ManagedMaintenanceWindowStatusInner;
 
 /**
@@ -17,6 +21,35 @@ import tsptest.armresourceprovider.fluent.models.ManagedMaintenanceWindowStatusI
  * ManagedMaintenanceWindowStatusOperationsClient.
  */
 public interface ManagedMaintenanceWindowStatusOperationsClient {
+    /**
+     * Get a ManagedMaintenanceWindowStatusContent.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param managedMaintenanceWindowStatusContentName The name of the ManagedMaintenanceWindowStatusContent.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a ManagedMaintenanceWindowStatusContent along with {@link Response} on successful completion of
+     * {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Mono<Response<ManagedMaintenanceWindowStatusInner>> getByResourceGroupWithResponseAsync(String resourceGroupName,
+        String managedMaintenanceWindowStatusContentName);
+
+    /**
+     * Get a ManagedMaintenanceWindowStatusContent.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param managedMaintenanceWindowStatusContentName The name of the ManagedMaintenanceWindowStatusContent.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a ManagedMaintenanceWindowStatusContent on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Mono<ManagedMaintenanceWindowStatusInner> getByResourceGroupAsync(String resourceGroupName,
+        String managedMaintenanceWindowStatusContentName);
+
     /**
      * Get a ManagedMaintenanceWindowStatusContent.
      * 
@@ -51,6 +84,52 @@ public interface ManagedMaintenanceWindowStatusOperationsClient {
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param managedMaintenanceWindowStatusContentName The name of the ManagedMaintenanceWindowStatusContent.
+     * @param ifMatch The request should only proceed if an entity matches this string.
+     * @param ifNoneMatch The request should only proceed if no entity matches this string.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Mono<Response<Flux<ByteBuffer>>> deleteWithResponseAsync(String resourceGroupName,
+        String managedMaintenanceWindowStatusContentName, String ifMatch, String ifNoneMatch);
+
+    /**
+     * Delete a ManagedMaintenanceWindowStatusContent.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param managedMaintenanceWindowStatusContentName The name of the ManagedMaintenanceWindowStatusContent.
+     * @param ifMatch The request should only proceed if an entity matches this string.
+     * @param ifNoneMatch The request should only proceed if no entity matches this string.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link PollerFlux} for polling of long-running operation.
+     */
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    PollerFlux<PollResult<Void>, Void> beginDeleteAsync(String resourceGroupName,
+        String managedMaintenanceWindowStatusContentName, String ifMatch, String ifNoneMatch);
+
+    /**
+     * Delete a ManagedMaintenanceWindowStatusContent.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param managedMaintenanceWindowStatusContentName The name of the ManagedMaintenanceWindowStatusContent.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link PollerFlux} for polling of long-running operation.
+     */
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    PollerFlux<PollResult<Void>, Void> beginDeleteAsync(String resourceGroupName,
+        String managedMaintenanceWindowStatusContentName);
+
+    /**
+     * Delete a ManagedMaintenanceWindowStatusContent.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param managedMaintenanceWindowStatusContentName The name of the ManagedMaintenanceWindowStatusContent.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -76,6 +155,35 @@ public interface ManagedMaintenanceWindowStatusOperationsClient {
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     SyncPoller<PollResult<Void>, Void> beginDelete(String resourceGroupName,
         String managedMaintenanceWindowStatusContentName, String ifMatch, String ifNoneMatch, Context context);
+
+    /**
+     * Delete a ManagedMaintenanceWindowStatusContent.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param managedMaintenanceWindowStatusContentName The name of the ManagedMaintenanceWindowStatusContent.
+     * @param ifMatch The request should only proceed if an entity matches this string.
+     * @param ifNoneMatch The request should only proceed if no entity matches this string.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Mono<Void> deleteAsync(String resourceGroupName, String managedMaintenanceWindowStatusContentName, String ifMatch,
+        String ifNoneMatch);
+
+    /**
+     * Delete a ManagedMaintenanceWindowStatusContent.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param managedMaintenanceWindowStatusContentName The name of the ManagedMaintenanceWindowStatusContent.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Mono<Void> deleteAsync(String resourceGroupName, String managedMaintenanceWindowStatusContentName);
 
     /**
      * Delete a ManagedMaintenanceWindowStatusContent.
