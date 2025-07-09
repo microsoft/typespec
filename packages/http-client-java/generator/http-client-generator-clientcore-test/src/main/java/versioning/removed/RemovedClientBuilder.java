@@ -205,7 +205,17 @@ public final class RemovedClientBuilder implements HttpTrait<RemovedClientBuilde
         this.validateClient();
         RemovedServiceVersion localServiceVersion
             = (serviceVersion != null) ? serviceVersion : RemovedServiceVersion.getLatest();
-        RemovedClientImpl client = new RemovedClientImpl(createHttpPipeline(), this.endpoint, localServiceVersion);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        RemovedClientImpl client
+            = new RemovedClientImpl(createHttpPipeline(), instrumentation, this.endpoint, localServiceVersion);
         return client;
     }
 
@@ -240,15 +250,7 @@ public final class RemovedClientBuilder implements HttpTrait<RemovedClientBuilde
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public RemovedClient buildClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint);
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new RemovedClient(buildInnerClient(), instrumentation);
+        RemovedClientImpl innerClient = buildInnerClient();
+        return new RemovedClient(innerClient, innerClient.getInstrumentation());
     }
 }

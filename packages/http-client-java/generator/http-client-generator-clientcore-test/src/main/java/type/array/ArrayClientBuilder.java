@@ -201,7 +201,16 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
     private ArrayClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        ArrayClientImpl client = new ArrayClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        ArrayClientImpl client = new ArrayClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -235,16 +244,8 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public Int32ValueClient buildInt32ValueClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new Int32ValueClient(buildInnerClient().getInt32Values(), instrumentation);
+        ArrayClientImpl innerClient = buildInnerClient();
+        return new Int32ValueClient(innerClient.getInt32Values(), innerClient.getInstrumentation());
     }
 
     /**
@@ -254,16 +255,8 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public Int64ValueClient buildInt64ValueClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new Int64ValueClient(buildInnerClient().getInt64Values(), instrumentation);
+        ArrayClientImpl innerClient = buildInnerClient();
+        return new Int64ValueClient(innerClient.getInt64Values(), innerClient.getInstrumentation());
     }
 
     /**
@@ -273,16 +266,8 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public BooleanValueClient buildBooleanValueClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new BooleanValueClient(buildInnerClient().getBooleanValues(), instrumentation);
+        ArrayClientImpl innerClient = buildInnerClient();
+        return new BooleanValueClient(innerClient.getBooleanValues(), innerClient.getInstrumentation());
     }
 
     /**
@@ -292,16 +277,8 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public StringValueClient buildStringValueClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new StringValueClient(buildInnerClient().getStringValues(), instrumentation);
+        ArrayClientImpl innerClient = buildInnerClient();
+        return new StringValueClient(innerClient.getStringValues(), innerClient.getInstrumentation());
     }
 
     /**
@@ -311,16 +288,8 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public Float32ValueClient buildFloat32ValueClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new Float32ValueClient(buildInnerClient().getFloat32Values(), instrumentation);
+        ArrayClientImpl innerClient = buildInnerClient();
+        return new Float32ValueClient(innerClient.getFloat32Values(), innerClient.getInstrumentation());
     }
 
     /**
@@ -330,16 +299,8 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public DatetimeValueClient buildDatetimeValueClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new DatetimeValueClient(buildInnerClient().getDatetimeValues(), instrumentation);
+        ArrayClientImpl innerClient = buildInnerClient();
+        return new DatetimeValueClient(innerClient.getDatetimeValues(), innerClient.getInstrumentation());
     }
 
     /**
@@ -349,16 +310,8 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public DurationValueClient buildDurationValueClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new DurationValueClient(buildInnerClient().getDurationValues(), instrumentation);
+        ArrayClientImpl innerClient = buildInnerClient();
+        return new DurationValueClient(innerClient.getDurationValues(), innerClient.getInstrumentation());
     }
 
     /**
@@ -368,16 +321,8 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public UnknownValueClient buildUnknownValueClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new UnknownValueClient(buildInnerClient().getUnknownValues(), instrumentation);
+        ArrayClientImpl innerClient = buildInnerClient();
+        return new UnknownValueClient(innerClient.getUnknownValues(), innerClient.getInstrumentation());
     }
 
     /**
@@ -387,16 +332,8 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ModelValueClient buildModelValueClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new ModelValueClient(buildInnerClient().getModelValues(), instrumentation);
+        ArrayClientImpl innerClient = buildInnerClient();
+        return new ModelValueClient(innerClient.getModelValues(), innerClient.getInstrumentation());
     }
 
     /**
@@ -406,16 +343,8 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public NullableFloatValueClient buildNullableFloatValueClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new NullableFloatValueClient(buildInnerClient().getNullableFloatValues(), instrumentation);
+        ArrayClientImpl innerClient = buildInnerClient();
+        return new NullableFloatValueClient(innerClient.getNullableFloatValues(), innerClient.getInstrumentation());
     }
 
     /**
@@ -425,16 +354,8 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public NullableInt32ValueClient buildNullableInt32ValueClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new NullableInt32ValueClient(buildInnerClient().getNullableInt32Values(), instrumentation);
+        ArrayClientImpl innerClient = buildInnerClient();
+        return new NullableInt32ValueClient(innerClient.getNullableInt32Values(), innerClient.getInstrumentation());
     }
 
     /**
@@ -444,16 +365,8 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public NullableBooleanValueClient buildNullableBooleanValueClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new NullableBooleanValueClient(buildInnerClient().getNullableBooleanValues(), instrumentation);
+        ArrayClientImpl innerClient = buildInnerClient();
+        return new NullableBooleanValueClient(innerClient.getNullableBooleanValues(), innerClient.getInstrumentation());
     }
 
     /**
@@ -463,16 +376,8 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public NullableStringValueClient buildNullableStringValueClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new NullableStringValueClient(buildInnerClient().getNullableStringValues(), instrumentation);
+        ArrayClientImpl innerClient = buildInnerClient();
+        return new NullableStringValueClient(innerClient.getNullableStringValues(), innerClient.getInstrumentation());
     }
 
     /**
@@ -482,15 +387,7 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public NullableModelValueClient buildNullableModelValueClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new NullableModelValueClient(buildInnerClient().getNullableModelValues(), instrumentation);
+        ArrayClientImpl innerClient = buildInnerClient();
+        return new NullableModelValueClient(innerClient.getNullableModelValues(), innerClient.getInstrumentation());
     }
 }

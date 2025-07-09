@@ -194,7 +194,16 @@ public final class ScalarClientBuilder implements HttpTrait<ScalarClientBuilder>
     private ScalarClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        ScalarClientImpl client = new ScalarClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        ScalarClientImpl client = new ScalarClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -228,16 +237,8 @@ public final class ScalarClientBuilder implements HttpTrait<ScalarClientBuilder>
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public StringOperationClient buildStringOperationClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new StringOperationClient(buildInnerClient().getStringOperations(), instrumentation);
+        ScalarClientImpl innerClient = buildInnerClient();
+        return new StringOperationClient(innerClient.getStringOperations(), innerClient.getInstrumentation());
     }
 
     /**
@@ -247,16 +248,8 @@ public final class ScalarClientBuilder implements HttpTrait<ScalarClientBuilder>
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public BooleanOperationClient buildBooleanOperationClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new BooleanOperationClient(buildInnerClient().getBooleanOperations(), instrumentation);
+        ScalarClientImpl innerClient = buildInnerClient();
+        return new BooleanOperationClient(innerClient.getBooleanOperations(), innerClient.getInstrumentation());
     }
 
     /**
@@ -266,16 +259,8 @@ public final class ScalarClientBuilder implements HttpTrait<ScalarClientBuilder>
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public UnknownClient buildUnknownClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new UnknownClient(buildInnerClient().getUnknowns(), instrumentation);
+        ScalarClientImpl innerClient = buildInnerClient();
+        return new UnknownClient(innerClient.getUnknowns(), innerClient.getInstrumentation());
     }
 
     /**
@@ -285,16 +270,8 @@ public final class ScalarClientBuilder implements HttpTrait<ScalarClientBuilder>
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public DecimalTypeClient buildDecimalTypeClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new DecimalTypeClient(buildInnerClient().getDecimalTypes(), instrumentation);
+        ScalarClientImpl innerClient = buildInnerClient();
+        return new DecimalTypeClient(innerClient.getDecimalTypes(), innerClient.getInstrumentation());
     }
 
     /**
@@ -304,16 +281,8 @@ public final class ScalarClientBuilder implements HttpTrait<ScalarClientBuilder>
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public Decimal128TypeClient buildDecimal128TypeClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new Decimal128TypeClient(buildInnerClient().getDecimal128Types(), instrumentation);
+        ScalarClientImpl innerClient = buildInnerClient();
+        return new Decimal128TypeClient(innerClient.getDecimal128Types(), innerClient.getInstrumentation());
     }
 
     /**
@@ -323,16 +292,8 @@ public final class ScalarClientBuilder implements HttpTrait<ScalarClientBuilder>
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public DecimalVerifyClient buildDecimalVerifyClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new DecimalVerifyClient(buildInnerClient().getDecimalVerifies(), instrumentation);
+        ScalarClientImpl innerClient = buildInnerClient();
+        return new DecimalVerifyClient(innerClient.getDecimalVerifies(), innerClient.getInstrumentation());
     }
 
     /**
@@ -342,15 +303,7 @@ public final class ScalarClientBuilder implements HttpTrait<ScalarClientBuilder>
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public Decimal128VerifyClient buildDecimal128VerifyClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new Decimal128VerifyClient(buildInnerClient().getDecimal128Verifies(), instrumentation);
+        ScalarClientImpl innerClient = buildInnerClient();
+        return new Decimal128VerifyClient(innerClient.getDecimal128Verifies(), innerClient.getInstrumentation());
     }
 }

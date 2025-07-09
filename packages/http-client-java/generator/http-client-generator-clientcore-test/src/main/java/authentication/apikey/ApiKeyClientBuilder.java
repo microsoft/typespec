@@ -206,7 +206,16 @@ public final class ApiKeyClientBuilder
     private ApiKeyClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        ApiKeyClientImpl client = new ApiKeyClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        ApiKeyClientImpl client = new ApiKeyClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -243,15 +252,7 @@ public final class ApiKeyClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ApiKeyClient buildClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new ApiKeyClient(buildInnerClient(), instrumentation);
+        ApiKeyClientImpl innerClient = buildInnerClient();
+        return new ApiKeyClient(innerClient, innerClient.getInstrumentation());
     }
 }

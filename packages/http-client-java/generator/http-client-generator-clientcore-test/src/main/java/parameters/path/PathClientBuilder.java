@@ -186,7 +186,16 @@ public final class PathClientBuilder implements HttpTrait<PathClientBuilder>, Pr
     private PathClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        PathClientImpl client = new PathClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        PathClientImpl client = new PathClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -220,15 +229,7 @@ public final class PathClientBuilder implements HttpTrait<PathClientBuilder>, Pr
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public PathClient buildClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new PathClient(buildInnerClient(), instrumentation);
+        PathClientImpl innerClient = buildInnerClient();
+        return new PathClient(innerClient, innerClient.getInstrumentation());
     }
 }

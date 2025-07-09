@@ -210,7 +210,16 @@ public final class OAuth2ClientBuilder
     private OAuth2ClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        OAuth2ClientImpl client = new OAuth2ClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        OAuth2ClientImpl client = new OAuth2ClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -249,15 +258,7 @@ public final class OAuth2ClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public OAuth2Client buildClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new OAuth2Client(buildInnerClient(), instrumentation);
+        OAuth2ClientImpl innerClient = buildInnerClient();
+        return new OAuth2Client(innerClient, innerClient.getInstrumentation());
     }
 }

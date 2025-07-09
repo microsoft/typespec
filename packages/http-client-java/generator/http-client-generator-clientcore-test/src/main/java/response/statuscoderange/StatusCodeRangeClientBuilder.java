@@ -189,7 +189,17 @@ public final class StatusCodeRangeClientBuilder
     private StatusCodeRangeClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        StatusCodeRangeClientImpl client = new StatusCodeRangeClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        StatusCodeRangeClientImpl client
+            = new StatusCodeRangeClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -223,15 +233,7 @@ public final class StatusCodeRangeClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public StatusCodeRangeClient buildClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new StatusCodeRangeClient(buildInnerClient(), instrumentation);
+        StatusCodeRangeClientImpl innerClient = buildInnerClient();
+        return new StatusCodeRangeClient(innerClient, innerClient.getInstrumentation());
     }
 }

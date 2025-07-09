@@ -187,7 +187,16 @@ public final class DatetimeClientBuilder implements HttpTrait<DatetimeClientBuil
     private DatetimeClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        DatetimeClientImpl client = new DatetimeClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        DatetimeClientImpl client = new DatetimeClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -221,16 +230,8 @@ public final class DatetimeClientBuilder implements HttpTrait<DatetimeClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public QueryClient buildQueryClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new QueryClient(buildInnerClient().getQueries(), instrumentation);
+        DatetimeClientImpl innerClient = buildInnerClient();
+        return new QueryClient(innerClient.getQueries(), innerClient.getInstrumentation());
     }
 
     /**
@@ -240,16 +241,8 @@ public final class DatetimeClientBuilder implements HttpTrait<DatetimeClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public PropertyClient buildPropertyClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new PropertyClient(buildInnerClient().getProperties(), instrumentation);
+        DatetimeClientImpl innerClient = buildInnerClient();
+        return new PropertyClient(innerClient.getProperties(), innerClient.getInstrumentation());
     }
 
     /**
@@ -259,16 +252,8 @@ public final class DatetimeClientBuilder implements HttpTrait<DatetimeClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public HeaderClient buildHeaderClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new HeaderClient(buildInnerClient().getHeaders(), instrumentation);
+        DatetimeClientImpl innerClient = buildInnerClient();
+        return new HeaderClient(innerClient.getHeaders(), innerClient.getInstrumentation());
     }
 
     /**
@@ -278,15 +263,7 @@ public final class DatetimeClientBuilder implements HttpTrait<DatetimeClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ResponseHeaderClient buildResponseHeaderClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new ResponseHeaderClient(buildInnerClient().getResponseHeaders(), instrumentation);
+        DatetimeClientImpl innerClient = buildInnerClient();
+        return new ResponseHeaderClient(innerClient.getResponseHeaders(), innerClient.getInstrumentation());
     }
 }

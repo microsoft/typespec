@@ -208,8 +208,17 @@ public final class ReturnTypeChangedFromClientBuilder
         this.validateClient();
         ReturnTypeChangedFromServiceVersion localServiceVersion
             = (serviceVersion != null) ? serviceVersion : ReturnTypeChangedFromServiceVersion.getLatest();
-        ReturnTypeChangedFromClientImpl client
-            = new ReturnTypeChangedFromClientImpl(createHttpPipeline(), this.endpoint, localServiceVersion);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        ReturnTypeChangedFromClientImpl client = new ReturnTypeChangedFromClientImpl(createHttpPipeline(),
+            instrumentation, this.endpoint, localServiceVersion);
         return client;
     }
 
@@ -244,15 +253,7 @@ public final class ReturnTypeChangedFromClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ReturnTypeChangedFromClient buildClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint);
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new ReturnTypeChangedFromClient(buildInnerClient(), instrumentation);
+        ReturnTypeChangedFromClientImpl innerClient = buildInnerClient();
+        return new ReturnTypeChangedFromClient(innerClient, innerClient.getInstrumentation());
     }
 }

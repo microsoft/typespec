@@ -204,7 +204,16 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
     private RoutesClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        RoutesClientImpl client = new RoutesClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        RoutesClientImpl client = new RoutesClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -238,16 +247,8 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public RoutesClient buildClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new RoutesClient(buildInnerClient(), instrumentation);
+        RoutesClientImpl innerClient = buildInnerClient();
+        return new RoutesClient(innerClient, innerClient.getInstrumentation());
     }
 
     /**
@@ -257,16 +258,8 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public PathParametersClient buildPathParametersClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new PathParametersClient(buildInnerClient().getPathParameters(), instrumentation);
+        RoutesClientImpl innerClient = buildInnerClient();
+        return new PathParametersClient(innerClient.getPathParameters(), innerClient.getInstrumentation());
     }
 
     /**
@@ -276,17 +269,9 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public PathParametersReservedExpansionClient buildPathParametersReservedExpansionClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new PathParametersReservedExpansionClient(buildInnerClient().getPathParametersReservedExpansions(),
-            instrumentation);
+        RoutesClientImpl innerClient = buildInnerClient();
+        return new PathParametersReservedExpansionClient(innerClient.getPathParametersReservedExpansions(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -296,17 +281,9 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public PathParametersSimpleExpansionStandardClient buildPathParametersSimpleExpansionStandardClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new PathParametersSimpleExpansionStandardClient(
-            buildInnerClient().getPathParametersSimpleExpansionStandards(), instrumentation);
+        RoutesClientImpl innerClient = buildInnerClient();
+        return new PathParametersSimpleExpansionStandardClient(innerClient.getPathParametersSimpleExpansionStandards(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -316,17 +293,9 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public PathParametersSimpleExpansionExplodeClient buildPathParametersSimpleExpansionExplodeClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new PathParametersSimpleExpansionExplodeClient(
-            buildInnerClient().getPathParametersSimpleExpansionExplodes(), instrumentation);
+        RoutesClientImpl innerClient = buildInnerClient();
+        return new PathParametersSimpleExpansionExplodeClient(innerClient.getPathParametersSimpleExpansionExplodes(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -336,17 +305,9 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public PathParametersPathExpansionStandardClient buildPathParametersPathExpansionStandardClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new PathParametersPathExpansionStandardClient(
-            buildInnerClient().getPathParametersPathExpansionStandards(), instrumentation);
+        RoutesClientImpl innerClient = buildInnerClient();
+        return new PathParametersPathExpansionStandardClient(innerClient.getPathParametersPathExpansionStandards(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -356,17 +317,9 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public PathParametersPathExpansionExplodeClient buildPathParametersPathExpansionExplodeClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new PathParametersPathExpansionExplodeClient(buildInnerClient().getPathParametersPathExpansionExplodes(),
-            instrumentation);
+        RoutesClientImpl innerClient = buildInnerClient();
+        return new PathParametersPathExpansionExplodeClient(innerClient.getPathParametersPathExpansionExplodes(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -376,17 +329,9 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public PathParametersLabelExpansionStandardClient buildPathParametersLabelExpansionStandardClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new PathParametersLabelExpansionStandardClient(
-            buildInnerClient().getPathParametersLabelExpansionStandards(), instrumentation);
+        RoutesClientImpl innerClient = buildInnerClient();
+        return new PathParametersLabelExpansionStandardClient(innerClient.getPathParametersLabelExpansionStandards(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -396,17 +341,9 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public PathParametersLabelExpansionExplodeClient buildPathParametersLabelExpansionExplodeClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new PathParametersLabelExpansionExplodeClient(
-            buildInnerClient().getPathParametersLabelExpansionExplodes(), instrumentation);
+        RoutesClientImpl innerClient = buildInnerClient();
+        return new PathParametersLabelExpansionExplodeClient(innerClient.getPathParametersLabelExpansionExplodes(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -416,17 +353,9 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public PathParametersMatrixExpansionStandardClient buildPathParametersMatrixExpansionStandardClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new PathParametersMatrixExpansionStandardClient(
-            buildInnerClient().getPathParametersMatrixExpansionStandards(), instrumentation);
+        RoutesClientImpl innerClient = buildInnerClient();
+        return new PathParametersMatrixExpansionStandardClient(innerClient.getPathParametersMatrixExpansionStandards(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -436,17 +365,9 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public PathParametersMatrixExpansionExplodeClient buildPathParametersMatrixExpansionExplodeClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new PathParametersMatrixExpansionExplodeClient(
-            buildInnerClient().getPathParametersMatrixExpansionExplodes(), instrumentation);
+        RoutesClientImpl innerClient = buildInnerClient();
+        return new PathParametersMatrixExpansionExplodeClient(innerClient.getPathParametersMatrixExpansionExplodes(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -456,16 +377,8 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public QueryParametersClient buildQueryParametersClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new QueryParametersClient(buildInnerClient().getQueryParameters(), instrumentation);
+        RoutesClientImpl innerClient = buildInnerClient();
+        return new QueryParametersClient(innerClient.getQueryParameters(), innerClient.getInstrumentation());
     }
 
     /**
@@ -475,17 +388,9 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public QueryParametersQueryExpansionStandardClient buildQueryParametersQueryExpansionStandardClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new QueryParametersQueryExpansionStandardClient(
-            buildInnerClient().getQueryParametersQueryExpansionStandards(), instrumentation);
+        RoutesClientImpl innerClient = buildInnerClient();
+        return new QueryParametersQueryExpansionStandardClient(innerClient.getQueryParametersQueryExpansionStandards(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -495,17 +400,9 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public QueryParametersQueryExpansionExplodeClient buildQueryParametersQueryExpansionExplodeClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new QueryParametersQueryExpansionExplodeClient(
-            buildInnerClient().getQueryParametersQueryExpansionExplodes(), instrumentation);
+        RoutesClientImpl innerClient = buildInnerClient();
+        return new QueryParametersQueryExpansionExplodeClient(innerClient.getQueryParametersQueryExpansionExplodes(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -515,17 +412,9 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public QueryParametersQueryContinuationStandardClient buildQueryParametersQueryContinuationStandardClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        RoutesClientImpl innerClient = buildInnerClient();
         return new QueryParametersQueryContinuationStandardClient(
-            buildInnerClient().getQueryParametersQueryContinuationStandards(), instrumentation);
+            innerClient.getQueryParametersQueryContinuationStandards(), innerClient.getInstrumentation());
     }
 
     /**
@@ -535,17 +424,9 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public QueryParametersQueryContinuationExplodeClient buildQueryParametersQueryContinuationExplodeClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        RoutesClientImpl innerClient = buildInnerClient();
         return new QueryParametersQueryContinuationExplodeClient(
-            buildInnerClient().getQueryParametersQueryContinuationExplodes(), instrumentation);
+            innerClient.getQueryParametersQueryContinuationExplodes(), innerClient.getInstrumentation());
     }
 
     /**
@@ -555,15 +436,7 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public InInterfaceClient buildInInterfaceClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new InInterfaceClient(buildInnerClient().getInInterfaces(), instrumentation);
+        RoutesClientImpl innerClient = buildInnerClient();
+        return new InInterfaceClient(innerClient.getInInterfaces(), innerClient.getInstrumentation());
     }
 }

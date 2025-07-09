@@ -186,7 +186,16 @@ public final class UsageClientBuilder implements HttpTrait<UsageClientBuilder>, 
     private UsageClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        UsageClientImpl client = new UsageClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        UsageClientImpl client = new UsageClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -220,15 +229,7 @@ public final class UsageClientBuilder implements HttpTrait<UsageClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public UsageClient buildClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new UsageClient(buildInnerClient(), instrumentation);
+        UsageClientImpl innerClient = buildInnerClient();
+        return new UsageClient(innerClient, innerClient.getInstrumentation());
     }
 }

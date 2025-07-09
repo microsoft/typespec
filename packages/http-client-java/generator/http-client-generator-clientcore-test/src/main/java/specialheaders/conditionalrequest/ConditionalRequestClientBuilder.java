@@ -189,7 +189,17 @@ public final class ConditionalRequestClientBuilder
     private ConditionalRequestClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        ConditionalRequestClientImpl client = new ConditionalRequestClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        ConditionalRequestClientImpl client
+            = new ConditionalRequestClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -223,15 +233,7 @@ public final class ConditionalRequestClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ConditionalRequestClient buildClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new ConditionalRequestClient(buildInnerClient(), instrumentation);
+        ConditionalRequestClientImpl innerClient = buildInnerClient();
+        return new ConditionalRequestClient(innerClient, innerClient.getInstrumentation());
     }
 }

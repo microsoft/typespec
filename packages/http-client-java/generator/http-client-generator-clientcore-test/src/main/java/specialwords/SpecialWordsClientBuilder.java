@@ -192,7 +192,17 @@ public final class SpecialWordsClientBuilder
     private SpecialWordsClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        SpecialWordsClientImpl client = new SpecialWordsClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        SpecialWordsClientImpl client
+            = new SpecialWordsClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -226,16 +236,8 @@ public final class SpecialWordsClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ModelsClient buildModelsClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new ModelsClient(buildInnerClient().getModels(), instrumentation);
+        SpecialWordsClientImpl innerClient = buildInnerClient();
+        return new ModelsClient(innerClient.getModels(), innerClient.getInstrumentation());
     }
 
     /**
@@ -245,16 +247,8 @@ public final class SpecialWordsClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ModelPropertiesClient buildModelPropertiesClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new ModelPropertiesClient(buildInnerClient().getModelProperties(), instrumentation);
+        SpecialWordsClientImpl innerClient = buildInnerClient();
+        return new ModelPropertiesClient(innerClient.getModelProperties(), innerClient.getInstrumentation());
     }
 
     /**
@@ -264,16 +258,8 @@ public final class SpecialWordsClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public OperationsClient buildOperationsClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new OperationsClient(buildInnerClient().getOperations(), instrumentation);
+        SpecialWordsClientImpl innerClient = buildInnerClient();
+        return new OperationsClient(innerClient.getOperations(), innerClient.getInstrumentation());
     }
 
     /**
@@ -283,15 +269,7 @@ public final class SpecialWordsClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ParametersClient buildParametersClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new ParametersClient(buildInnerClient().getParameters(), instrumentation);
+        SpecialWordsClientImpl innerClient = buildInnerClient();
+        return new ParametersClient(innerClient.getParameters(), innerClient.getInstrumentation());
     }
 }

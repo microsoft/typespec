@@ -186,7 +186,16 @@ public final class EmptyClientBuilder implements HttpTrait<EmptyClientBuilder>, 
     private EmptyClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        EmptyClientImpl client = new EmptyClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        EmptyClientImpl client = new EmptyClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -220,15 +229,7 @@ public final class EmptyClientBuilder implements HttpTrait<EmptyClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public EmptyClient buildClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new EmptyClient(buildInnerClient(), instrumentation);
+        EmptyClientImpl innerClient = buildInnerClient();
+        return new EmptyClient(innerClient, innerClient.getInstrumentation());
     }
 }

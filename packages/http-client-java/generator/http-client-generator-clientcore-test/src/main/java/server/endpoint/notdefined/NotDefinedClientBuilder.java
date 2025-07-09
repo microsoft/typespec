@@ -187,7 +187,16 @@ public final class NotDefinedClientBuilder
     @Metadata(properties = { MetadataProperties.GENERATED })
     private NotDefinedClientImpl buildInnerClient() {
         this.validateClient();
-        NotDefinedClientImpl client = new NotDefinedClientImpl(createHttpPipeline(), this.endpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        NotDefinedClientImpl client = new NotDefinedClientImpl(createHttpPipeline(), instrumentation, this.endpoint);
         return client;
     }
 
@@ -222,15 +231,7 @@ public final class NotDefinedClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public NotDefinedClient buildClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint);
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new NotDefinedClient(buildInnerClient(), instrumentation);
+        NotDefinedClientImpl innerClient = buildInnerClient();
+        return new NotDefinedClient(innerClient, innerClient.getInstrumentation());
     }
 }

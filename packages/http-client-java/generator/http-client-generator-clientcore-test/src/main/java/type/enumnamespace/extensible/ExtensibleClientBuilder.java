@@ -188,7 +188,16 @@ public final class ExtensibleClientBuilder
     private ExtensibleClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        ExtensibleClientImpl client = new ExtensibleClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        ExtensibleClientImpl client = new ExtensibleClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -222,15 +231,7 @@ public final class ExtensibleClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ExtensibleClient buildExtensibleClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new ExtensibleClient(buildInnerClient().getStringOperations(), instrumentation);
+        ExtensibleClientImpl innerClient = buildInnerClient();
+        return new ExtensibleClient(innerClient.getStringOperations(), innerClient.getInstrumentation());
     }
 }

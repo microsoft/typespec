@@ -205,7 +205,17 @@ public final class AddedClientBuilder implements HttpTrait<AddedClientBuilder>, 
         this.validateClient();
         AddedServiceVersion localServiceVersion
             = (serviceVersion != null) ? serviceVersion : AddedServiceVersion.getLatest();
-        AddedClientImpl client = new AddedClientImpl(createHttpPipeline(), this.endpoint, localServiceVersion);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        AddedClientImpl client
+            = new AddedClientImpl(createHttpPipeline(), instrumentation, this.endpoint, localServiceVersion);
         return client;
     }
 
@@ -240,16 +250,8 @@ public final class AddedClientBuilder implements HttpTrait<AddedClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public AddedClient buildClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint);
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new AddedClient(buildInnerClient(), instrumentation);
+        AddedClientImpl innerClient = buildInnerClient();
+        return new AddedClient(innerClient, innerClient.getInstrumentation());
     }
 
     /**
@@ -259,15 +261,7 @@ public final class AddedClientBuilder implements HttpTrait<AddedClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public InterfaceV2Client buildInterfaceV2Client() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint);
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new InterfaceV2Client(buildInnerClient().getInterfaceV2s(), instrumentation);
+        AddedClientImpl innerClient = buildInnerClient();
+        return new InterfaceV2Client(innerClient.getInterfaceV2s(), innerClient.getInstrumentation());
     }
 }

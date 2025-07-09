@@ -194,7 +194,16 @@ public final class NullableClientBuilder implements HttpTrait<NullableClientBuil
     private NullableClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        NullableClientImpl client = new NullableClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        NullableClientImpl client = new NullableClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -228,16 +237,8 @@ public final class NullableClientBuilder implements HttpTrait<NullableClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public StringOperationClient buildStringOperationClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new StringOperationClient(buildInnerClient().getStringOperations(), instrumentation);
+        NullableClientImpl innerClient = buildInnerClient();
+        return new StringOperationClient(innerClient.getStringOperations(), innerClient.getInstrumentation());
     }
 
     /**
@@ -247,16 +248,8 @@ public final class NullableClientBuilder implements HttpTrait<NullableClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public BytesClient buildBytesClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new BytesClient(buildInnerClient().getBytes(), instrumentation);
+        NullableClientImpl innerClient = buildInnerClient();
+        return new BytesClient(innerClient.getBytes(), innerClient.getInstrumentation());
     }
 
     /**
@@ -266,16 +259,8 @@ public final class NullableClientBuilder implements HttpTrait<NullableClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public DatetimeOperationClient buildDatetimeOperationClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new DatetimeOperationClient(buildInnerClient().getDatetimeOperations(), instrumentation);
+        NullableClientImpl innerClient = buildInnerClient();
+        return new DatetimeOperationClient(innerClient.getDatetimeOperations(), innerClient.getInstrumentation());
     }
 
     /**
@@ -285,16 +270,8 @@ public final class NullableClientBuilder implements HttpTrait<NullableClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public DurationOperationClient buildDurationOperationClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new DurationOperationClient(buildInnerClient().getDurationOperations(), instrumentation);
+        NullableClientImpl innerClient = buildInnerClient();
+        return new DurationOperationClient(innerClient.getDurationOperations(), innerClient.getInstrumentation());
     }
 
     /**
@@ -304,16 +281,8 @@ public final class NullableClientBuilder implements HttpTrait<NullableClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public CollectionsByteClient buildCollectionsByteClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new CollectionsByteClient(buildInnerClient().getCollectionsBytes(), instrumentation);
+        NullableClientImpl innerClient = buildInnerClient();
+        return new CollectionsByteClient(innerClient.getCollectionsBytes(), innerClient.getInstrumentation());
     }
 
     /**
@@ -323,16 +292,8 @@ public final class NullableClientBuilder implements HttpTrait<NullableClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public CollectionsModelClient buildCollectionsModelClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new CollectionsModelClient(buildInnerClient().getCollectionsModels(), instrumentation);
+        NullableClientImpl innerClient = buildInnerClient();
+        return new CollectionsModelClient(innerClient.getCollectionsModels(), innerClient.getInstrumentation());
     }
 
     /**
@@ -342,15 +303,7 @@ public final class NullableClientBuilder implements HttpTrait<NullableClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public CollectionsStringClient buildCollectionsStringClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new CollectionsStringClient(buildInnerClient().getCollectionsStrings(), instrumentation);
+        NullableClientImpl innerClient = buildInnerClient();
+        return new CollectionsStringClient(innerClient.getCollectionsStrings(), innerClient.getInstrumentation());
     }
 }

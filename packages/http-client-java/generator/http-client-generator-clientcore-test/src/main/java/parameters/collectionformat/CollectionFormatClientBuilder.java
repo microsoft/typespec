@@ -189,7 +189,17 @@ public final class CollectionFormatClientBuilder
     private CollectionFormatClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        CollectionFormatClientImpl client = new CollectionFormatClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        CollectionFormatClientImpl client
+            = new CollectionFormatClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -223,16 +233,8 @@ public final class CollectionFormatClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public QueryClient buildQueryClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new QueryClient(buildInnerClient().getQueries(), instrumentation);
+        CollectionFormatClientImpl innerClient = buildInnerClient();
+        return new QueryClient(innerClient.getQueries(), innerClient.getInstrumentation());
     }
 
     /**
@@ -242,15 +244,7 @@ public final class CollectionFormatClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public HeaderClient buildHeaderClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new HeaderClient(buildInnerClient().getHeaders(), instrumentation);
+        CollectionFormatClientImpl innerClient = buildInnerClient();
+        return new HeaderClient(innerClient.getHeaders(), innerClient.getInstrumentation());
     }
 }

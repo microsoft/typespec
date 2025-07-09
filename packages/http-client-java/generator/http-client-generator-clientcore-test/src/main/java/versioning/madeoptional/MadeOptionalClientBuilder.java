@@ -206,8 +206,17 @@ public final class MadeOptionalClientBuilder
         this.validateClient();
         MadeOptionalServiceVersion localServiceVersion
             = (serviceVersion != null) ? serviceVersion : MadeOptionalServiceVersion.getLatest();
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         MadeOptionalClientImpl client
-            = new MadeOptionalClientImpl(createHttpPipeline(), this.endpoint, localServiceVersion);
+            = new MadeOptionalClientImpl(createHttpPipeline(), instrumentation, this.endpoint, localServiceVersion);
         return client;
     }
 
@@ -242,15 +251,7 @@ public final class MadeOptionalClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public MadeOptionalClient buildClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint);
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new MadeOptionalClient(buildInnerClient(), instrumentation);
+        MadeOptionalClientImpl innerClient = buildInnerClient();
+        return new MadeOptionalClient(innerClient, innerClient.getInstrumentation());
     }
 }

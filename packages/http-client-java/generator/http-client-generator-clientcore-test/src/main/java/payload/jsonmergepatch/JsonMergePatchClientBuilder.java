@@ -188,7 +188,17 @@ public final class JsonMergePatchClientBuilder
     private JsonMergePatchClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        JsonMergePatchClientImpl client = new JsonMergePatchClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        JsonMergePatchClientImpl client
+            = new JsonMergePatchClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -222,15 +232,7 @@ public final class JsonMergePatchClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public JsonMergePatchClient buildClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new JsonMergePatchClient(buildInnerClient(), instrumentation);
+        JsonMergePatchClientImpl innerClient = buildInnerClient();
+        return new JsonMergePatchClient(innerClient, innerClient.getInstrumentation());
     }
 }

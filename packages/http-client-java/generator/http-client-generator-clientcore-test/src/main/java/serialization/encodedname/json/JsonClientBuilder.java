@@ -187,7 +187,16 @@ public final class JsonClientBuilder implements HttpTrait<JsonClientBuilder>, Pr
     private JsonClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        JsonClientImpl client = new JsonClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        JsonClientImpl client = new JsonClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -221,15 +230,7 @@ public final class JsonClientBuilder implements HttpTrait<JsonClientBuilder>, Pr
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public JsonClient buildJsonClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new JsonClient(buildInnerClient().getProperties(), instrumentation);
+        JsonClientImpl innerClient = buildInnerClient();
+        return new JsonClient(innerClient.getProperties(), innerClient.getInstrumentation());
     }
 }

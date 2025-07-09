@@ -187,7 +187,16 @@ public final class FixedClientBuilder implements HttpTrait<FixedClientBuilder>, 
     private FixedClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        FixedClientImpl client = new FixedClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        FixedClientImpl client = new FixedClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -221,15 +230,7 @@ public final class FixedClientBuilder implements HttpTrait<FixedClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public FixedClient buildFixedClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new FixedClient(buildInnerClient().getStringOperations(), instrumentation);
+        FixedClientImpl innerClient = buildInnerClient();
+        return new FixedClient(innerClient.getStringOperations(), innerClient.getInstrumentation());
     }
 }

@@ -186,7 +186,16 @@ public final class BasicClientBuilder implements HttpTrait<BasicClientBuilder>, 
     private BasicClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        BasicClientImpl client = new BasicClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        BasicClientImpl client = new BasicClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -220,16 +229,8 @@ public final class BasicClientBuilder implements HttpTrait<BasicClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ExplicitBodyClient buildExplicitBodyClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new ExplicitBodyClient(buildInnerClient().getExplicitBodies(), instrumentation);
+        BasicClientImpl innerClient = buildInnerClient();
+        return new ExplicitBodyClient(innerClient.getExplicitBodies(), innerClient.getInstrumentation());
     }
 
     /**
@@ -239,15 +240,7 @@ public final class BasicClientBuilder implements HttpTrait<BasicClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ImplicitBodyClient buildImplicitBodyClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new ImplicitBodyClient(buildInnerClient().getImplicitBodies(), instrumentation);
+        BasicClientImpl innerClient = buildInnerClient();
+        return new ImplicitBodyClient(innerClient.getImplicitBodies(), innerClient.getInstrumentation());
     }
 }

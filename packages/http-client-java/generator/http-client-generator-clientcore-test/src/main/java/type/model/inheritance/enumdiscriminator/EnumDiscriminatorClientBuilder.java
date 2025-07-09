@@ -189,7 +189,17 @@ public final class EnumDiscriminatorClientBuilder
     private EnumDiscriminatorClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        EnumDiscriminatorClientImpl client = new EnumDiscriminatorClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        EnumDiscriminatorClientImpl client
+            = new EnumDiscriminatorClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -223,15 +233,7 @@ public final class EnumDiscriminatorClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public EnumDiscriminatorClient buildClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new EnumDiscriminatorClient(buildInnerClient(), instrumentation);
+        EnumDiscriminatorClientImpl innerClient = buildInnerClient();
+        return new EnumDiscriminatorClient(innerClient, innerClient.getInstrumentation());
     }
 }

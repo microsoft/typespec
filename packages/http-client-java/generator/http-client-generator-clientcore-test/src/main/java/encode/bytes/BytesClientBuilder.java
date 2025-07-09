@@ -192,7 +192,16 @@ public final class BytesClientBuilder implements HttpTrait<BytesClientBuilder>, 
     private BytesClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        BytesClientImpl client = new BytesClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        BytesClientImpl client = new BytesClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -226,16 +235,8 @@ public final class BytesClientBuilder implements HttpTrait<BytesClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public QueryClient buildQueryClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new QueryClient(buildInnerClient().getQueries(), instrumentation);
+        BytesClientImpl innerClient = buildInnerClient();
+        return new QueryClient(innerClient.getQueries(), innerClient.getInstrumentation());
     }
 
     /**
@@ -245,16 +246,8 @@ public final class BytesClientBuilder implements HttpTrait<BytesClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public PropertyClient buildPropertyClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new PropertyClient(buildInnerClient().getProperties(), instrumentation);
+        BytesClientImpl innerClient = buildInnerClient();
+        return new PropertyClient(innerClient.getProperties(), innerClient.getInstrumentation());
     }
 
     /**
@@ -264,16 +257,8 @@ public final class BytesClientBuilder implements HttpTrait<BytesClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public HeaderClient buildHeaderClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new HeaderClient(buildInnerClient().getHeaders(), instrumentation);
+        BytesClientImpl innerClient = buildInnerClient();
+        return new HeaderClient(innerClient.getHeaders(), innerClient.getInstrumentation());
     }
 
     /**
@@ -283,16 +268,8 @@ public final class BytesClientBuilder implements HttpTrait<BytesClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public RequestBodyClient buildRequestBodyClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new RequestBodyClient(buildInnerClient().getRequestBodies(), instrumentation);
+        BytesClientImpl innerClient = buildInnerClient();
+        return new RequestBodyClient(innerClient.getRequestBodies(), innerClient.getInstrumentation());
     }
 
     /**
@@ -302,15 +279,7 @@ public final class BytesClientBuilder implements HttpTrait<BytesClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ResponseBodyClient buildResponseBodyClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new ResponseBodyClient(buildInnerClient().getResponseBodies(), instrumentation);
+        BytesClientImpl innerClient = buildInnerClient();
+        return new ResponseBodyClient(innerClient.getResponseBodies(), innerClient.getInstrumentation());
     }
 }

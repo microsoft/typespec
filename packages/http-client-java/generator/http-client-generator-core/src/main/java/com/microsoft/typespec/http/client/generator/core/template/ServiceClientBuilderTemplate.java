@@ -285,6 +285,28 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
                         }
                     }
 
+                    boolean writeInstrumentation = !JavaSettings.getInstance().isAzureV1();
+                    if (writeInstrumentation) {
+                        function.line(
+                            "HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null ? new HttpInstrumentationOptions() : this.httpInstrumentationOptions;");
+
+                        Optional<ServiceClientProperty> endpointProperty = clientBuilder.getBuilderTraits()
+                            .stream()
+                            .filter(trait -> trait.getTraitInterfaceName().equals(EndpointTrait.class.getSimpleName()))
+                            .flatMap(trait -> trait.getTraitMethods().stream())
+                            .map(ClientBuilderTraitMethod::getProperty)
+                            .filter(p -> p.getName().equals("endpoint"))
+                            .findFirst();
+
+                        function.line(
+                            "SdkInstrumentationOptions sdkInstrumentationOptions = new SdkInstrumentationOptions(%1$s).setSdkVersion(%2$s).setEndpoint(%3$s);",
+                            "PROPERTIES.getOrDefault(SDK_NAME, \"UnknownName\")", "PROPERTIES.get(SDK_VERSION)",
+                            endpointProperty.map(this::getClientConstructorArgName).orElse("null"));
+
+                        function.line(
+                            "Instrumentation instrumentation = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);");
+                    }
+
                     // additional service client properties in constructor arguments
                     String constructorArgs = serviceClient.getProperties()
                         .stream()
@@ -304,9 +326,9 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
 
                     if (!settings.isAzureV1() || settings.isAzureV2()) {
                         if (constructorArgs != null && !constructorArgs.isEmpty()) {
-                            function
-                                .line(String.format("%1$s client = new %2$s(%3$s%4$s);", serviceClient.getClassName(),
-                                    serviceClient.getClassName(), "createHttpPipeline()", constructorArgs));
+                            function.line(String.format("%1$s client = new %2$s(%3$s%4$s%5$s);",
+                                serviceClient.getClassName(), serviceClient.getClassName(), "createHttpPipeline()",
+                                writeInstrumentation ? ", instrumentation" : "", constructorArgs));
                         } else {
                             function.line(String.format("%1$s client = new %1$s(%2$s);", serviceClient.getClassName(),
                                 getLocalBuildVariableName("pipeline")));
@@ -474,45 +496,14 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
         String buildMethodName, boolean wrapServiceClient) {
 
         boolean writeInstrumentation = !JavaSettings.getInstance().isAzureV1();
-
-        if (writeInstrumentation) {
-            function.line(
-                "HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null ? new HttpInstrumentationOptions() : this.httpInstrumentationOptions;");
-
-            Optional<ServiceClientProperty> endpointProperty = syncClient.getClientBuilder()
-                .getBuilderTraits()
-                .stream()
-                .filter(trait -> trait.getTraitInterfaceName().equals(EndpointTrait.class.getSimpleName()))
-                .flatMap(trait -> trait.getTraitMethods().stream())
-                .map(ClientBuilderTraitMethod::getProperty)
-                .filter(p -> p.getName().equals("endpoint"))
-                .findFirst();
-
-            String endpointExpression = "null";
-            if (endpointProperty.isPresent()) {
-                if (endpointProperty.get().getDefaultValueExpression() != null) {
-                    endpointExpression = String.format("this.endpoint != null ? this.endpoint : %s",
-                        endpointProperty.get().getDefaultValueExpression());
-                } else {
-                    endpointExpression = "this.endpoint";
-                }
-            }
-
-            function.line(
-                "SdkInstrumentationOptions sdkInstrumentationOptions = new SdkInstrumentationOptions(%1$s).setSdkVersion(%2$s).setEndpoint(%3$s);",
-                "PROPERTIES.getOrDefault(SDK_NAME, \"UnknownName\")", "PROPERTIES.get(SDK_VERSION)",
-                endpointExpression);
-
-            function.line(
-                "Instrumentation instrumentation = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);");
-        }
+        function.line("%1$s innerClient = %2$s();", syncClient.getServiceClient().getClassName(), buildMethodName);
         if (wrapServiceClient) {
-            function.line("return new %1$s(%2$s()%3$s);", syncClient.getClassName(), buildMethodName,
-                writeInstrumentation ? ", instrumentation" : "");
+            function.line("return new %1$s(innerClient%2$s);", syncClient.getClassName(),
+                writeInstrumentation ? ", innerClient.getInstrumentation()" : "");
         } else {
-            function.line("return new %1$s(%2$s().get%3$s()%4$s);", syncClient.getClassName(), buildMethodName,
+            function.line("return new %1$s(innerClient.get%3$s()%4$s);", syncClient.getClassName(), buildMethodName,
                 CodeNamer.toPascalCase(syncClient.getMethodGroupClient().getVariableName()),
-                writeInstrumentation ? ", instrumentation" : "");
+                writeInstrumentation ? ", innerClient.getInstrumentation()" : "");
         }
     }
 

@@ -189,7 +189,17 @@ public final class SingleDiscriminatorClientBuilder
     private SingleDiscriminatorClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        SingleDiscriminatorClientImpl client = new SingleDiscriminatorClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        SingleDiscriminatorClientImpl client
+            = new SingleDiscriminatorClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -223,15 +233,7 @@ public final class SingleDiscriminatorClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public SingleDiscriminatorClient buildClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new SingleDiscriminatorClient(buildInnerClient(), instrumentation);
+        SingleDiscriminatorClientImpl innerClient = buildInnerClient();
+        return new SingleDiscriminatorClient(innerClient, innerClient.getInstrumentation());
     }
 }

@@ -205,7 +205,17 @@ public final class MultipleClientBuilder implements HttpTrait<MultipleClientBuil
         this.validateClient();
         MultipleServiceVersion localServiceVersion
             = (serviceVersion != null) ? serviceVersion : MultipleServiceVersion.getLatest();
-        MultipleClientImpl client = new MultipleClientImpl(createHttpPipeline(), this.endpoint, localServiceVersion);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        MultipleClientImpl client
+            = new MultipleClientImpl(createHttpPipeline(), instrumentation, this.endpoint, localServiceVersion);
         return client;
     }
 
@@ -240,15 +250,7 @@ public final class MultipleClientBuilder implements HttpTrait<MultipleClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public MultipleClient buildClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint);
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new MultipleClient(buildInnerClient(), instrumentation);
+        MultipleClientImpl innerClient = buildInnerClient();
+        return new MultipleClient(innerClient, innerClient.getInstrumentation());
     }
 }

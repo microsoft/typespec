@@ -218,7 +218,16 @@ public final class ValueTypesClientBuilder
     private ValueTypesClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        ValueTypesClientImpl client = new ValueTypesClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        ValueTypesClientImpl client = new ValueTypesClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -252,16 +261,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public BooleanOperationClient buildBooleanOperationClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new BooleanOperationClient(buildInnerClient().getBooleanOperations(), instrumentation);
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new BooleanOperationClient(innerClient.getBooleanOperations(), innerClient.getInstrumentation());
     }
 
     /**
@@ -271,16 +272,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public StringOperationClient buildStringOperationClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new StringOperationClient(buildInnerClient().getStringOperations(), instrumentation);
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new StringOperationClient(innerClient.getStringOperations(), innerClient.getInstrumentation());
     }
 
     /**
@@ -290,16 +283,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public BytesClient buildBytesClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new BytesClient(buildInnerClient().getBytes(), instrumentation);
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new BytesClient(innerClient.getBytes(), innerClient.getInstrumentation());
     }
 
     /**
@@ -309,16 +294,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public IntClient buildIntClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new IntClient(buildInnerClient().getInts(), instrumentation);
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new IntClient(innerClient.getInts(), innerClient.getInstrumentation());
     }
 
     /**
@@ -328,16 +305,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public FloatOperationClient buildFloatOperationClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new FloatOperationClient(buildInnerClient().getFloatOperations(), instrumentation);
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new FloatOperationClient(innerClient.getFloatOperations(), innerClient.getInstrumentation());
     }
 
     /**
@@ -347,16 +316,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public DecimalClient buildDecimalClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new DecimalClient(buildInnerClient().getDecimals(), instrumentation);
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new DecimalClient(innerClient.getDecimals(), innerClient.getInstrumentation());
     }
 
     /**
@@ -366,16 +327,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public Decimal128Client buildDecimal128Client() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new Decimal128Client(buildInnerClient().getDecimal128s(), instrumentation);
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new Decimal128Client(innerClient.getDecimal128s(), innerClient.getInstrumentation());
     }
 
     /**
@@ -385,16 +338,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public DatetimeOperationClient buildDatetimeOperationClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new DatetimeOperationClient(buildInnerClient().getDatetimeOperations(), instrumentation);
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new DatetimeOperationClient(innerClient.getDatetimeOperations(), innerClient.getInstrumentation());
     }
 
     /**
@@ -404,16 +349,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public DurationOperationClient buildDurationOperationClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new DurationOperationClient(buildInnerClient().getDurationOperations(), instrumentation);
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new DurationOperationClient(innerClient.getDurationOperations(), innerClient.getInstrumentation());
     }
 
     /**
@@ -423,16 +360,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public EnumClient buildEnumClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new EnumClient(buildInnerClient().getEnums(), instrumentation);
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new EnumClient(innerClient.getEnums(), innerClient.getInstrumentation());
     }
 
     /**
@@ -442,16 +371,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ExtensibleEnumClient buildExtensibleEnumClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new ExtensibleEnumClient(buildInnerClient().getExtensibleEnums(), instrumentation);
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new ExtensibleEnumClient(innerClient.getExtensibleEnums(), innerClient.getInstrumentation());
     }
 
     /**
@@ -461,16 +382,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ModelClient buildModelClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new ModelClient(buildInnerClient().getModels(), instrumentation);
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new ModelClient(innerClient.getModels(), innerClient.getInstrumentation());
     }
 
     /**
@@ -480,16 +393,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public CollectionsStringClient buildCollectionsStringClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new CollectionsStringClient(buildInnerClient().getCollectionsStrings(), instrumentation);
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new CollectionsStringClient(innerClient.getCollectionsStrings(), innerClient.getInstrumentation());
     }
 
     /**
@@ -499,16 +404,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public CollectionsIntClient buildCollectionsIntClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new CollectionsIntClient(buildInnerClient().getCollectionsInts(), instrumentation);
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new CollectionsIntClient(innerClient.getCollectionsInts(), innerClient.getInstrumentation());
     }
 
     /**
@@ -518,16 +415,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public CollectionsModelClient buildCollectionsModelClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new CollectionsModelClient(buildInnerClient().getCollectionsModels(), instrumentation);
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new CollectionsModelClient(innerClient.getCollectionsModels(), innerClient.getInstrumentation());
     }
 
     /**
@@ -537,16 +426,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public DictionaryStringClient buildDictionaryStringClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new DictionaryStringClient(buildInnerClient().getDictionaryStrings(), instrumentation);
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new DictionaryStringClient(innerClient.getDictionaryStrings(), innerClient.getInstrumentation());
     }
 
     /**
@@ -556,16 +437,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public NeverClient buildNeverClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new NeverClient(buildInnerClient().getNevers(), instrumentation);
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new NeverClient(innerClient.getNevers(), innerClient.getInstrumentation());
     }
 
     /**
@@ -575,16 +448,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public UnknownStringClient buildUnknownStringClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new UnknownStringClient(buildInnerClient().getUnknownStrings(), instrumentation);
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new UnknownStringClient(innerClient.getUnknownStrings(), innerClient.getInstrumentation());
     }
 
     /**
@@ -594,16 +459,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public UnknownIntClient buildUnknownIntClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new UnknownIntClient(buildInnerClient().getUnknownInts(), instrumentation);
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new UnknownIntClient(innerClient.getUnknownInts(), innerClient.getInstrumentation());
     }
 
     /**
@@ -613,16 +470,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public UnknownDictClient buildUnknownDictClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new UnknownDictClient(buildInnerClient().getUnknownDicts(), instrumentation);
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new UnknownDictClient(innerClient.getUnknownDicts(), innerClient.getInstrumentation());
     }
 
     /**
@@ -632,16 +481,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public UnknownArrayClient buildUnknownArrayClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new UnknownArrayClient(buildInnerClient().getUnknownArrays(), instrumentation);
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new UnknownArrayClient(innerClient.getUnknownArrays(), innerClient.getInstrumentation());
     }
 
     /**
@@ -651,16 +492,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public StringLiteralClient buildStringLiteralClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new StringLiteralClient(buildInnerClient().getStringLiterals(), instrumentation);
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new StringLiteralClient(innerClient.getStringLiterals(), innerClient.getInstrumentation());
     }
 
     /**
@@ -670,16 +503,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public IntLiteralClient buildIntLiteralClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new IntLiteralClient(buildInnerClient().getIntLiterals(), instrumentation);
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new IntLiteralClient(innerClient.getIntLiterals(), innerClient.getInstrumentation());
     }
 
     /**
@@ -689,16 +514,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public FloatLiteralClient buildFloatLiteralClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new FloatLiteralClient(buildInnerClient().getFloatLiterals(), instrumentation);
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new FloatLiteralClient(innerClient.getFloatLiterals(), innerClient.getInstrumentation());
     }
 
     /**
@@ -708,16 +525,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public BooleanLiteralClient buildBooleanLiteralClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new BooleanLiteralClient(buildInnerClient().getBooleanLiterals(), instrumentation);
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new BooleanLiteralClient(innerClient.getBooleanLiterals(), innerClient.getInstrumentation());
     }
 
     /**
@@ -727,16 +536,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public UnionStringLiteralClient buildUnionStringLiteralClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new UnionStringLiteralClient(buildInnerClient().getUnionStringLiterals(), instrumentation);
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new UnionStringLiteralClient(innerClient.getUnionStringLiterals(), innerClient.getInstrumentation());
     }
 
     /**
@@ -746,16 +547,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public UnionIntLiteralClient buildUnionIntLiteralClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new UnionIntLiteralClient(buildInnerClient().getUnionIntLiterals(), instrumentation);
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new UnionIntLiteralClient(innerClient.getUnionIntLiterals(), innerClient.getInstrumentation());
     }
 
     /**
@@ -765,16 +558,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public UnionFloatLiteralClient buildUnionFloatLiteralClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new UnionFloatLiteralClient(buildInnerClient().getUnionFloatLiterals(), instrumentation);
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new UnionFloatLiteralClient(innerClient.getUnionFloatLiterals(), innerClient.getInstrumentation());
     }
 
     /**
@@ -784,15 +569,7 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public UnionEnumValueClient buildUnionEnumValueClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new UnionEnumValueClient(buildInnerClient().getUnionEnumValues(), instrumentation);
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new UnionEnumValueClient(innerClient.getUnionEnumValues(), innerClient.getInstrumentation());
     }
 }

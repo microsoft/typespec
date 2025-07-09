@@ -186,7 +186,16 @@ public final class SpreadClientBuilder implements HttpTrait<SpreadClientBuilder>
     private SpreadClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        SpreadClientImpl client = new SpreadClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        SpreadClientImpl client = new SpreadClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -220,16 +229,8 @@ public final class SpreadClientBuilder implements HttpTrait<SpreadClientBuilder>
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ModelClient buildModelClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new ModelClient(buildInnerClient().getModels(), instrumentation);
+        SpreadClientImpl innerClient = buildInnerClient();
+        return new ModelClient(innerClient.getModels(), innerClient.getInstrumentation());
     }
 
     /**
@@ -239,15 +240,7 @@ public final class SpreadClientBuilder implements HttpTrait<SpreadClientBuilder>
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public AliasClient buildAliasClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new AliasClient(buildInnerClient().getAlias(), instrumentation);
+        SpreadClientImpl innerClient = buildInnerClient();
+        return new AliasClient(innerClient.getAlias(), innerClient.getInstrumentation());
     }
 }

@@ -206,8 +206,17 @@ public final class RenamedFromClientBuilder
         this.validateClient();
         RenamedFromServiceVersion localServiceVersion
             = (serviceVersion != null) ? serviceVersion : RenamedFromServiceVersion.getLatest();
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         RenamedFromClientImpl client
-            = new RenamedFromClientImpl(createHttpPipeline(), this.endpoint, localServiceVersion);
+            = new RenamedFromClientImpl(createHttpPipeline(), instrumentation, this.endpoint, localServiceVersion);
         return client;
     }
 
@@ -242,16 +251,8 @@ public final class RenamedFromClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public RenamedFromClient buildClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint);
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new RenamedFromClient(buildInnerClient(), instrumentation);
+        RenamedFromClientImpl innerClient = buildInnerClient();
+        return new RenamedFromClient(innerClient, innerClient.getInstrumentation());
     }
 
     /**
@@ -261,15 +262,7 @@ public final class RenamedFromClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public NewInterfaceClient buildNewInterfaceClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint);
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new NewInterfaceClient(buildInnerClient().getNewInterfaces(), instrumentation);
+        RenamedFromClientImpl innerClient = buildInnerClient();
+        return new NewInterfaceClient(innerClient.getNewInterfaces(), innerClient.getInstrumentation());
     }
 }

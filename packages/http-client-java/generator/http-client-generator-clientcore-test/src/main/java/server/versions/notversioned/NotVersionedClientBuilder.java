@@ -187,7 +187,17 @@ public final class NotVersionedClientBuilder
     @Metadata(properties = { MetadataProperties.GENERATED })
     private NotVersionedClientImpl buildInnerClient() {
         this.validateClient();
-        NotVersionedClientImpl client = new NotVersionedClientImpl(createHttpPipeline(), this.endpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        NotVersionedClientImpl client
+            = new NotVersionedClientImpl(createHttpPipeline(), instrumentation, this.endpoint);
         return client;
     }
 
@@ -222,15 +232,7 @@ public final class NotVersionedClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public NotVersionedClient buildClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint);
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new NotVersionedClient(buildInnerClient(), instrumentation);
+        NotVersionedClientImpl innerClient = buildInnerClient();
+        return new NotVersionedClient(innerClient, innerClient.getInstrumentation());
     }
 }

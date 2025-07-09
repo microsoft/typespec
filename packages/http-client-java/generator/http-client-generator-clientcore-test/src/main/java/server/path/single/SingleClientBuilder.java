@@ -185,7 +185,16 @@ public final class SingleClientBuilder implements HttpTrait<SingleClientBuilder>
     @Metadata(properties = { MetadataProperties.GENERATED })
     private SingleClientImpl buildInnerClient() {
         this.validateClient();
-        SingleClientImpl client = new SingleClientImpl(createHttpPipeline(), this.endpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        SingleClientImpl client = new SingleClientImpl(createHttpPipeline(), instrumentation, this.endpoint);
         return client;
     }
 
@@ -220,15 +229,7 @@ public final class SingleClientBuilder implements HttpTrait<SingleClientBuilder>
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public SingleClient buildClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint);
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new SingleClient(buildInnerClient(), instrumentation);
+        SingleClientImpl innerClient = buildInnerClient();
+        return new SingleClient(innerClient, innerClient.getInstrumentation());
     }
 }

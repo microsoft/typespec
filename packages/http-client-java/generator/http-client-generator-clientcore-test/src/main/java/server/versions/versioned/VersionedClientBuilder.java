@@ -207,7 +207,17 @@ public final class VersionedClientBuilder
         this.validateClient();
         VersionedServiceVersion localServiceVersion
             = (serviceVersion != null) ? serviceVersion : VersionedServiceVersion.getLatest();
-        VersionedClientImpl client = new VersionedClientImpl(createHttpPipeline(), this.endpoint, localServiceVersion);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        VersionedClientImpl client
+            = new VersionedClientImpl(createHttpPipeline(), instrumentation, this.endpoint, localServiceVersion);
         return client;
     }
 
@@ -242,15 +252,7 @@ public final class VersionedClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public VersionedClient buildClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint);
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new VersionedClient(buildInnerClient(), instrumentation);
+        VersionedClientImpl innerClient = buildInnerClient();
+        return new VersionedClient(innerClient, innerClient.getInstrumentation());
     }
 }

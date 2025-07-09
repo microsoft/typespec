@@ -192,7 +192,16 @@ public final class MultiPartClientBuilder
     private MultiPartClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        MultiPartClientImpl client = new MultiPartClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        MultiPartClientImpl client = new MultiPartClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -226,16 +235,8 @@ public final class MultiPartClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public FormDataClient buildFormDataClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new FormDataClient(buildInnerClient().getFormDatas(), instrumentation);
+        MultiPartClientImpl innerClient = buildInnerClient();
+        return new FormDataClient(innerClient.getFormDatas(), innerClient.getInstrumentation());
     }
 
     /**
@@ -245,16 +246,8 @@ public final class MultiPartClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public FormDataHttpPartsClient buildFormDataHttpPartsClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new FormDataHttpPartsClient(buildInnerClient().getFormDataHttpParts(), instrumentation);
+        MultiPartClientImpl innerClient = buildInnerClient();
+        return new FormDataHttpPartsClient(innerClient.getFormDataHttpParts(), innerClient.getInstrumentation());
     }
 
     /**
@@ -264,17 +257,9 @@ public final class MultiPartClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public FormDataHttpPartsContentTypeClient buildFormDataHttpPartsContentTypeClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new FormDataHttpPartsContentTypeClient(buildInnerClient().getFormDataHttpPartsContentTypes(),
-            instrumentation);
+        MultiPartClientImpl innerClient = buildInnerClient();
+        return new FormDataHttpPartsContentTypeClient(innerClient.getFormDataHttpPartsContentTypes(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -284,16 +269,8 @@ public final class MultiPartClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public FormDataHttpPartsNonStringClient buildFormDataHttpPartsNonStringClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new FormDataHttpPartsNonStringClient(buildInnerClient().getFormDataHttpPartsNonStrings(),
-            instrumentation);
+        MultiPartClientImpl innerClient = buildInnerClient();
+        return new FormDataHttpPartsNonStringClient(innerClient.getFormDataHttpPartsNonStrings(),
+            innerClient.getInstrumentation());
     }
 }

@@ -189,7 +189,17 @@ public final class ContentNegotiationClientBuilder
     private ContentNegotiationClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        ContentNegotiationClientImpl client = new ContentNegotiationClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        ContentNegotiationClientImpl client
+            = new ContentNegotiationClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -223,16 +233,8 @@ public final class ContentNegotiationClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public SameBodyClient buildSameBodyClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new SameBodyClient(buildInnerClient().getSameBodies(), instrumentation);
+        ContentNegotiationClientImpl innerClient = buildInnerClient();
+        return new SameBodyClient(innerClient.getSameBodies(), innerClient.getInstrumentation());
     }
 
     /**
@@ -242,15 +244,7 @@ public final class ContentNegotiationClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public DifferentBodyClient buildDifferentBodyClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new DifferentBodyClient(buildInnerClient().getDifferentBodies(), instrumentation);
+        ContentNegotiationClientImpl innerClient = buildInnerClient();
+        return new DifferentBodyClient(innerClient.getDifferentBodies(), innerClient.getInstrumentation());
     }
 }

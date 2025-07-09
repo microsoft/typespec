@@ -229,7 +229,16 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
     private UnionClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        UnionClientImpl client = new UnionClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        UnionClientImpl client = new UnionClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -271,15 +280,7 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public UnionClient buildClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new UnionClient(buildInnerClient(), instrumentation);
+        UnionClientImpl innerClient = buildInnerClient();
+        return new UnionClient(innerClient, innerClient.getInstrumentation());
     }
 }

@@ -187,7 +187,16 @@ public final class PageableClientBuilder implements HttpTrait<PageableClientBuil
     private PageableClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        PageableClientImpl client = new PageableClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        PageableClientImpl client = new PageableClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -221,16 +230,9 @@ public final class PageableClientBuilder implements HttpTrait<PageableClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ServerDrivenPaginationClient buildServerDrivenPaginationClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        return new ServerDrivenPaginationClient(buildInnerClient().getServerDrivenPaginations(), instrumentation);
+        PageableClientImpl innerClient = buildInnerClient();
+        return new ServerDrivenPaginationClient(innerClient.getServerDrivenPaginations(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -240,16 +242,8 @@ public final class PageableClientBuilder implements HttpTrait<PageableClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ServerDrivenPaginationContinuationTokenClient buildServerDrivenPaginationContinuationTokenClient() {
-        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
-            ? new HttpInstrumentationOptions()
-            : this.httpInstrumentationOptions;
-        SdkInstrumentationOptions sdkInstrumentationOptions
-            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
-                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
-                .setEndpoint(this.endpoint != null ? this.endpoint : "http://localhost:3000");
-        Instrumentation instrumentation
-            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        PageableClientImpl innerClient = buildInnerClient();
         return new ServerDrivenPaginationContinuationTokenClient(
-            buildInnerClient().getServerDrivenPaginationContinuationTokens(), instrumentation);
+            innerClient.getServerDrivenPaginationContinuationTokens(), innerClient.getInstrumentation());
     }
 }
