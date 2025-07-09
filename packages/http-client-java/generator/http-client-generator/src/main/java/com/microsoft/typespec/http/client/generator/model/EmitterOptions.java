@@ -10,7 +10,9 @@ import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PollingSettings;
+import com.microsoft.typespec.http.client.generator.mgmt.model.ResourceCollectionAssociation;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,9 +37,16 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private String modelsSubpackage;
     private String apiVersion;
     private Boolean useRestProxy;
-    private String renameModel;
     private Boolean useDefaultHttpStatusCodeToExceptionTypeMapping = true;
     private DevOptions devOptions;
+
+    // mgmt
+    private String renameModel;
+    private String addInner;
+    private String removeInner;
+    private String preserveModel;
+    private Boolean generateAsyncMethods;
+    private List<ResourceCollectionAssociation> resourceCollectionAssociations = new ArrayList<>();
 
     // internal
     private String outputDir;
@@ -150,6 +159,26 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return renameModel;
     }
 
+    public String getAddInner() {
+        return addInner;
+    }
+
+    public String getRemoveInner() {
+        return removeInner;
+    }
+
+    public String getPreserveModel() {
+        return preserveModel;
+    }
+
+    public Boolean getGenerateAsyncMethods() {
+        return generateAsyncMethods;
+    }
+
+    public List<ResourceCollectionAssociation> getResourceCollectionAssociations() {
+        return resourceCollectionAssociations;
+    }
+
     public Boolean getUseDefaultHttpStatusCodeToExceptionTypeMapping() {
         return useDefaultHttpStatusCodeToExceptionTypeMapping;
     }
@@ -208,10 +237,20 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                 options.apiVersion = emptyToNull(reader.getString());
             } else if ("use-rest-proxy".equals(fieldName)) {
                 options.useRestProxy = reader.getNullable(JsonReader::getBoolean);
-            } else if ("rename-model".equals(fieldName)) {
-                options.renameModel = reader.getNullable(EmitterOptions::getStringOrMap);
             } else if ("use-default-http-status-code-to-exception-type-mapping".equals(fieldName)) {
                 options.useDefaultHttpStatusCodeToExceptionTypeMapping = reader.getNullable(EmitterOptions::getBoolean);
+            } else if ("rename-model".equals(fieldName)) {
+                options.renameModel = reader.getNullable(EmitterOptions::getStringOrMap);
+            } else if ("add-inner".equals(fieldName)) {
+                options.addInner = reader.getNullable(EmitterOptions::getStringOrList);
+            } else if ("remove-inner".equals(fieldName)) {
+                options.removeInner = reader.getNullable(EmitterOptions::getStringOrList);
+            } else if ("preserve-model".equals(fieldName)) {
+                options.preserveModel = reader.getNullable(EmitterOptions::getStringOrList);
+            } else if ("generate-async-methods".equals(fieldName)) {
+                options.generateAsyncMethods = reader.getNullable(JsonReader::getBoolean);
+            } else if ("resource-collection-associations".equals(fieldName)) {
+                options.resourceCollectionAssociations = reader.readArray(ResourceCollectionAssociation::fromJson);
             } else {
                 reader.skipChildren();
             }
@@ -249,6 +288,22 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                     .stream()
                     .map(e -> e.getKey() + ":" + e.getValue())
                     .reduce("", (s1, s2) -> s1 + "," + s2);
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    private static String getStringOrList(JsonReader jsonReader) throws IOException {
+        JsonToken currentToken = jsonReader.currentToken();
+        if (currentToken == JsonToken.STRING) {
+            return jsonReader.getString();
+        } else if (currentToken == JsonToken.START_ARRAY) {
+            List<String> renameMap = jsonReader.readArray(JsonReader::getString);
+            if (!renameMap.isEmpty()) {
+                return String.join(",", renameMap);
             } else {
                 return null;
             }
