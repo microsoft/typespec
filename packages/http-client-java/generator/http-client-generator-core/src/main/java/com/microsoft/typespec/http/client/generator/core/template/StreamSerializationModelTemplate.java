@@ -2442,6 +2442,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                 }
 
                 if (!property.isXmlWrapper()) {
+                    // for non-required property, the variable would be initialized to empty List in declaration
                     if (property.isRequired() && settings.isRequiredFieldsAsConstructorArgs()) {
                         deserializationBlock.ifBlock(fieldAccess + " == null", ifStatement -> {
                             if (fromSuper) {
