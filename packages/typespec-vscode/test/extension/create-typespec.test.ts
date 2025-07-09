@@ -6,7 +6,6 @@ import {
   contrastResult,
   createTestFile,
   deleteTestFile,
-  installExtensionForCommand,
   notEmptyFolderContinue,
   preContrastResult,
   selectFolder,
@@ -88,7 +87,7 @@ describe.each(CreateCasesConfigList)("CreateTypespecProject", async (item) => {
       createTestFile(workspacePath);
     }
 
-    await installExtensionForCommand(page, extensionDir);
+    // await installExtensionForCommand(page, extensionDir);
 
     if (triggerType === CreateProjectTriggerType.Command) {
       await startWithCommandPalette(page, {
