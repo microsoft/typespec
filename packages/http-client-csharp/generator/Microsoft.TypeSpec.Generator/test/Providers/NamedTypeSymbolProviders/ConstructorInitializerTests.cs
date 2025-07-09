@@ -12,17 +12,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
 {
     public class ConstructorInitializerTests
     {
-        [SetUp]
-        public void Setup()
-        {
-            MockHelpers.LoadMockGenerator();
-        }
-
         [Test]
         public async Task CustomConstructorWithThisInitializerShouldHaveInitializerPopulated()
         {
             // Arrange
             var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => compilation);
             var testClassSymbol = compilation.GetTypeByMetadataName("Sample.Models.TestClass");
             var provider = new NamedTypeSymbolProvider(testClassSymbol!);
 
@@ -46,6 +41,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
         {
             // Arrange
             var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => compilation);
             var testClassSymbol = compilation.GetTypeByMetadataName("Sample.Models.TestClass");
             var provider = new NamedTypeSymbolProvider(testClassSymbol!);
 
@@ -68,6 +64,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
         {
             // Arrange
             var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => compilation);
             var testClassSymbol = compilation.GetTypeByMetadataName("Sample.Models.TestClass");
             var provider = new NamedTypeSymbolProvider(testClassSymbol!);
 
