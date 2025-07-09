@@ -48,6 +48,8 @@ coverage.xml
 .pytest_cache/
 test-results.xml
 test-results/
+TestResults/
+*.trx
 
 # Translations
 *.mo
