@@ -3,12 +3,12 @@
 
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
-namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
+namespace Microsoft.TypeSpec.Generator.Tests.Providers.ConstructorProviders
 {
     public class ConstructorInitializerTests
     {
@@ -16,13 +16,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
         public async Task CustomConstructorWithThisInitializerShouldHaveInitializerPopulated()
         {
             // Arrange
-            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
-            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => compilation);
-            var testClassSymbol = compilation.GetTypeByMetadataName("Sample.Models.TestClass");
-            var provider = new NamedTypeSymbolProvider(testClassSymbol!);
+            var inputModel = InputFactory.Model("TestClass");
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "TestClass");
 
             // Act
-            var constructors = provider.Constructors;
+            var constructors = modelProvider.CustomCodeView!.Constructors;
 
             // Assert
             Assert.AreEqual(2, constructors.Count);
@@ -40,13 +42,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
         public async Task CustomConstructorWithBaseInitializerShouldHaveInitializerPopulated()
         {
             // Arrange
-            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
-            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => compilation);
-            var testClassSymbol = compilation.GetTypeByMetadataName("Sample.Models.TestClass");
-            var provider = new NamedTypeSymbolProvider(testClassSymbol!);
+            var inputModel = InputFactory.Model("TestClass");
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "TestClass");
 
             // Act
-            var constructors = provider.Constructors;
+            var constructors = modelProvider.CustomCodeView!.Constructors;
 
             // Assert
             Assert.AreEqual(1, constructors.Count);
@@ -63,13 +67,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
         public async Task CustomConstructorWithoutInitializerShouldHaveNullInitializer()
         {
             // Arrange
-            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
-            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => compilation);
-            var testClassSymbol = compilation.GetTypeByMetadataName("Sample.Models.TestClass");
-            var provider = new NamedTypeSymbolProvider(testClassSymbol!);
+            var inputModel = InputFactory.Model("TestClass");
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "TestClass");
 
             // Act
-            var constructors = provider.Constructors;
+            var constructors = modelProvider.CustomCodeView!.Constructors;
 
             // Assert
             Assert.AreEqual(1, constructors.Count);
