@@ -89,6 +89,10 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.service-version-exclude-preview=true"""
     # rename model
     $tspOptions += " --option ""@typespec/http-client-java.rename-model=TopLevelArmResourceListResult:ResourceListResult,CustomTemplateResourcePropertiesAnonymousEmptyModel:AnonymousEmptyModel"""
+    # remove inner
+    $tspOptions += " --option ""@typespec/http-client-java.remove-inner=NginxConfigurationResponse"""
+    # generate async methods
+    $tspOptions += " --option ""@typespec/http-client-java.generate-async-methods=true"""
   } elseif ($tspFile -match "arm-stream-style-serialization.tsp") {
     # for mgmt, do not generate tests due to random mock values
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""

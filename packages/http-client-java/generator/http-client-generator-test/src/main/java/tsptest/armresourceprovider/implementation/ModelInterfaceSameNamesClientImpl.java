@@ -113,7 +113,7 @@ public final class ModelInterfaceSameNamesClientImpl implements ModelInterfaceSa
      * @return a ModelInterfaceDifferentName along with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<ModelInterfaceSameNameInner>> getByResourceGroupWithResponseAsync(String resourceGroupName,
+    public Mono<Response<ModelInterfaceSameNameInner>> getByResourceGroupWithResponseAsync(String resourceGroupName,
         String modelInterfaceDifferentNameName) {
         if (this.client.getEndpoint() == null) {
             return Mono.error(
@@ -149,7 +149,7 @@ public final class ModelInterfaceSameNamesClientImpl implements ModelInterfaceSa
      * @return a ModelInterfaceDifferentName on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<ModelInterfaceSameNameInner> getByResourceGroupAsync(String resourceGroupName,
+    public Mono<ModelInterfaceSameNameInner> getByResourceGroupAsync(String resourceGroupName,
         String modelInterfaceDifferentNameName) {
         return getByResourceGroupWithResponseAsync(resourceGroupName, modelInterfaceDifferentNameName)
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
@@ -223,7 +223,7 @@ public final class ModelInterfaceSameNamesClientImpl implements ModelInterfaceSa
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<Void>> deleteWithResponseAsync(String resourceGroupName,
+    public Mono<Response<Void>> deleteWithResponseAsync(String resourceGroupName,
         String modelInterfaceDifferentNameName, String ifMatch, String ifNoneMatch) {
         if (this.client.getEndpoint() == null) {
             return Mono.error(
@@ -260,7 +260,7 @@ public final class ModelInterfaceSameNamesClientImpl implements ModelInterfaceSa
      * @return A {@link Mono} that completes when a successful response is received.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Void> deleteAsync(String resourceGroupName, String modelInterfaceDifferentNameName) {
+    public Mono<Void> deleteAsync(String resourceGroupName, String modelInterfaceDifferentNameName) {
         final String ifMatch = null;
         final String ifNoneMatch = null;
         return deleteWithResponseAsync(resourceGroupName, modelInterfaceDifferentNameName, ifMatch, ifNoneMatch)
