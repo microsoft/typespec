@@ -1,5 +1,6 @@
 import { createRule, paramMessage } from "@typespec/compiler";
 import { getAllHttpServices } from "../operations.js";
+import { isSharedRoute } from "../route.js";
 import type { HttpOperation } from "../types.js";
 import { parseUriTemplate, type UriTemplateParameter } from "../uri-template.js";
 
@@ -16,7 +17,9 @@ export const conflictingRouteRule = createRule({
       root: (program) => {
         const [services, _] = getAllHttpServices(program);
         for (const service of services) {
-          const conflicts = findConflictingRoutes(service.operations);
+          const conflicts = findConflictingRoutes(
+            service.operations.filter((op) => !isSharedRoute(program, op.operation)),
+          );
 
           for (const conflictingOps of conflicts) {
             // Get the operation names for the error message

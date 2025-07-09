@@ -110,6 +110,20 @@ it("should not flag operations with different literal segments", async () => {
     .toBeValid();
 });
 
+it("should not flag operations with the exact same path if they have @sharedRoute", async () => {
+  await ruleTester
+    .expect(
+      `
+        @sharedRoute
+        @route("/foo/bar") op op1(): void;
+
+        @sharedRoute
+        @route("/foo/bar") op op2(): void;
+      `,
+    )
+    .toBeValid();
+});
+
 it("should not flag operations with different number of segments", async () => {
   await ruleTester
     .expect(
