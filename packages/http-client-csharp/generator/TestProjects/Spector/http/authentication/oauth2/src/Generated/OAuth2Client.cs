@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -11,6 +12,12 @@ namespace Authentication.OAuth2
 {
     public partial class OAuth2Client
     {
+        protected OAuth2Client() => throw null;
+
+        public OAuth2Client(AuthenticationTokenProvider credential) : this(new Uri("http://localhost:3000"), credential, new OAuth2ClientOptions()) => throw null;
+
+        public OAuth2Client(Uri endpoint, AuthenticationTokenProvider credential, OAuth2ClientOptions options) => throw null;
+
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Valid(RequestOptions options) => throw null;
