@@ -496,14 +496,23 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
         String buildMethodName, boolean wrapServiceClient) {
 
         boolean writeInstrumentation = !JavaSettings.getInstance().isAzureV1();
-        function.line("%1$s innerClient = %2$s();", syncClient.getServiceClient().getClassName(), buildMethodName);
-        if (wrapServiceClient) {
-            function.line("return new %1$s(innerClient%2$s);", syncClient.getClassName(),
-                writeInstrumentation ? ", innerClient.getInstrumentation()" : "");
+        if (writeInstrumentation) {
+            function.line("%1$s innerClient = %2$s();", syncClient.getServiceClient().getClassName(), buildMethodName);
+            if (wrapServiceClient) {
+                function.line("return new %1$s(innerClient, innerClient.getInstrumentation());",
+                    syncClient.getClassName());
+            } else {
+                function.line("return new %1$s(innerClient.get%3$s(), innerClient.getInstrumentation());",
+                    syncClient.getClassName(), buildMethodName,
+                    CodeNamer.toPascalCase(syncClient.getMethodGroupClient().getVariableName()));
+            }
         } else {
-            function.line("return new %1$s(innerClient.get%3$s()%4$s);", syncClient.getClassName(), buildMethodName,
-                CodeNamer.toPascalCase(syncClient.getMethodGroupClient().getVariableName()),
-                writeInstrumentation ? ", innerClient.getInstrumentation()" : "");
+            if (wrapServiceClient) {
+                function.line("return new %1$s(%2$s());", syncClient.getClassName(), buildMethodName);
+            } else {
+                function.line("return new %1$s(%2$s().get%3$s());", syncClient.getClassName(), buildMethodName,
+                    CodeNamer.toPascalCase(syncClient.getMethodGroupClient().getVariableName()));
+            }
         }
     }
 
