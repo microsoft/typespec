@@ -187,7 +187,6 @@ try {
         $emitterPackageJsonPath = Join-Path $tempDir "eng/http-client-csharp-emitter-package.json"
         Invoke "tsp-client generate-config-files --package-json `"$TypeSpecSourcePackageJsonPath`" --emitter-package-json-path `"$emitterPackageJsonPath`"" $tempDir
         if ($LASTEXITCODE -ne 0) {
-            Write-Error "tsp-client generate-config-files failed: $tspClientResult"
             throw "Failed to generate emitter-package.json files"
         }
         Write-Host "Successfully generated emitter-package.json files"
