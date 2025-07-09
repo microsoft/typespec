@@ -684,70 +684,82 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
         addServiceMethodAnnotation(typeBlock, ReturnType.SINGLE);
 
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
-            addValidations(function, clientMethod.getRequiredNullableParameterExpressions(),
-                clientMethod.getValidateExpressions(), settings);
-            addOptionalAndConstantVariables(function, clientMethod, restAPIMethod.getParameters(), settings);
-            applyParameterTransformations(function, clientMethod, settings);
-            convertClientTypesToWireTypes(function, clientMethod, restAPIMethod.getParameters());
 
-            boolean requestOptionsLocal = addSpecialHeadersToRequestOptions(function, clientMethod);
+            function.line("// generatePagedSinglePage");
 
-            String serviceMethodCall
-                = checkAndReplaceParamNameCollision(clientMethod, restAPIMethod, requestOptionsLocal, settings);
-            function.line(String.format("%s res = %s;", restAPIMethod.getReturnType(), serviceMethodCall));
-            if (settings.isAzureV1()) {
-                function.line("return new PagedResponseBase<>(");
-                function.line("res.getRequest(),");
-                function.line("res.getStatusCode(),");
-                function.line("res.getHeaders(),");
-                function.line(pageItemsLine(clientMethod));
-                if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
-                    function.line(nextLinkLine(clientMethod));
-                } else {
-                    function.line("null,");
-                }
+            final String requestContextParam = getRequestContentParameterName(clientMethod);
+            final String instrumentText
+                = String.format("return this.instrumentation.instrumentWithResponse(\"%s\", %s, updatedContext -> ",
+                    clientMethod.getOperationInstrumentationInfo().getOperationName(), requestContextParam);
 
-                if (responseTypeHasDeserializedHeaders(clientMethod.getProxyMethod().getReturnType())) {
-                    function.line("res.getDeserializedHeaders());");
-                } else {
-                    function.line("null);");
-                }
-            } else {
-                function.line("return new PagedResponse<>(");
-                function.line("res.getRequest(),");
-                function.line("res.getStatusCode(),");
-                function.line("res.getHeaders(),");
-                function.line(pageItemsLine(clientMethod));
-                // continuation token
-                if (clientMethod.getMethodPageDetails().getContinuationToken() != null) {
-                    MethodPageDetails.ContinuationToken continuationToken
-                        = clientMethod.getMethodPageDetails().getContinuationToken();
-                    if (continuationToken.getResponseHeaderSerializedName() != null) {
-                        function.line("res.getHeaders().getValue(HttpHeaderName.fromString(" + ClassType.STRING
-                            .defaultValueExpression(continuationToken.getResponseHeaderSerializedName()) + ")),");
-                    } else if (continuationToken.getResponsePropertyReference() != null) {
-                        String continuationTokenExpression
-                            = nestedReferenceLineWithNullCheck(continuationToken.getResponsePropertyReference(),
-                                "res.getValue()") + ",";
-                        function.line(continuationTokenExpression);
+            function.block(instrumentText, body -> {
+
+                addValidations(body, clientMethod.getRequiredNullableParameterExpressions(),
+                    clientMethod.getValidateExpressions(), settings);
+                addOptionalAndConstantVariables(body, clientMethod, restAPIMethod.getParameters(), settings);
+                applyParameterTransformations(body, clientMethod, settings);
+                convertClientTypesToWireTypes(body, clientMethod, restAPIMethod.getParameters());
+
+                boolean requestOptionsLocal = addSpecialHeadersToRequestOptions(body, clientMethod);
+
+                String serviceMethodCall
+                    = checkAndReplaceParamNameCollision(clientMethod, restAPIMethod, requestOptionsLocal, settings);
+                body.line(String.format("%s res = %s;", restAPIMethod.getReturnType(), serviceMethodCall));
+                if (settings.isAzureV1()) {
+                    body.line("return new PagedResponseBase<>(");
+                    body.line("res.getRequest(),");
+                    body.line("res.getStatusCode(),");
+                    body.line("res.getHeaders(),");
+                    body.line(pageItemsLine(clientMethod));
+                    if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
+                        body.line(nextLinkLine(clientMethod));
                     } else {
-                        // this should not happen
-                        function.line("null,");
+                        body.line("null,");
+                    }
+
+                    if (responseTypeHasDeserializedHeaders(clientMethod.getProxyMethod().getReturnType())) {
+                        body.line("res.getDeserializedHeaders());");
+                    } else {
+                        body.line("null);");
                     }
                 } else {
-                    function.line("null,");
+                    body.line("return new PagedResponse<>(");
+                    body.line("res.getRequest(),");
+                    body.line("res.getStatusCode(),");
+                    body.line("res.getHeaders(),");
+                    body.line(pageItemsLine(clientMethod));
+                    // continuation token
+                    if (clientMethod.getMethodPageDetails().getContinuationToken() != null) {
+                        MethodPageDetails.ContinuationToken continuationToken
+                            = clientMethod.getMethodPageDetails().getContinuationToken();
+                        if (continuationToken.getResponseHeaderSerializedName() != null) {
+                            body.line("res.getHeaders().getValue(HttpHeaderName.fromString(" + ClassType.STRING
+                                .defaultValueExpression(continuationToken.getResponseHeaderSerializedName()) + ")),");
+                        } else if (continuationToken.getResponsePropertyReference() != null) {
+                            String continuationTokenExpression
+                                = nestedReferenceLineWithNullCheck(continuationToken.getResponsePropertyReference(),
+                                    "res.getValue()") + ",";
+                            body.line(continuationTokenExpression);
+                        } else {
+                            // this should not happen
+                            body.line("null,");
+                        }
+                    } else {
+                        body.line("null,");
+                    }
+                    // next link
+                    if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
+                        String nextLinkLine = nextLinkLine(clientMethod);
+                        nextLinkLine = nextLinkLine.substring(0, nextLinkLine.length() - 1);
+                        body.line(nextLinkLine + ",");
+                    } else {
+                        body.line("null,");
+                    }
+                    // previous link, first link, last link
+                    body.line("null,null,null);");
                 }
-                // next link
-                if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
-                    String nextLinkLine = nextLinkLine(clientMethod);
-                    nextLinkLine = nextLinkLine.substring(0, nextLinkLine.length() - 1);
-                    function.line(nextLinkLine + ",");
-                } else {
-                    function.line("null,");
-                }
-                // previous link, first link, last link
-                function.line("null,null,null);");
-            }
+            });
+            function.line(");");
         });
     }
 
@@ -765,6 +777,7 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
         addServiceMethodAnnotation(typeBlock, ReturnType.COLLECTION);
         if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
             writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
+
                 addOptionalVariables(function, clientMethod);
                 if (clientMethod.getParameters()
                     .stream()
@@ -828,6 +841,8 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
         addServiceMethodAnnotation(typeBlock, ReturnType.SINGLE);
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), (function -> {
             addOptionalVariables(function, clientMethod);
+
+            function.line("// !!! generateSimpleSyncMethod");
 
             String argumentList = clientMethod.getArgumentList();
 
@@ -937,49 +952,56 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
         String effectiveProxyMethodName = clientMethod.getProxyMethod().getName();
         addServiceMethodAnnotation(typeBlock, ReturnType.SINGLE);
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
+            final String requestContextParam = getRequestContentParameterName(clientMethod);
+            final String arguments = getUpdatedArgumentList(clientMethod.getArgumentList(), requestContextParam);
+            final String instrumentText
+                = String.format("return this.instrumentation.instrumentWithResponse(\"%s\", %s, updatedContext -> ",
+                    clientMethod.getOperationInstrumentationInfo().getOperationName(), requestContextParam);
 
-            addValidations(function, clientMethod.getRequiredNullableParameterExpressions(),
-                clientMethod.getValidateExpressions(), settings);
-            addOptionalAndConstantVariables(function, clientMethod, restAPIMethod.getParameters(), settings);
-            applyParameterTransformations(function, clientMethod, settings);
-            convertClientTypesToWireTypes(function, clientMethod, restAPIMethod.getParameters());
+            function.block(instrumentText, body -> {
+                addValidations(body, clientMethod.getRequiredNullableParameterExpressions(),
+                    clientMethod.getValidateExpressions(), settings);
+                addOptionalAndConstantVariables(body, clientMethod, restAPIMethod.getParameters(), settings);
+                applyParameterTransformations(body, clientMethod, settings);
+                convertClientTypesToWireTypes(body, clientMethod, restAPIMethod.getParameters());
 
-            boolean requestContextLocal = false;
+                boolean requestContextLocal = false;
 
-            String serviceMethodCall = checkAndReplaceParamNameCollision(clientMethod, restAPIMethod.toSync(),
-                requestContextLocal, settings);
-            if (clientMethod.getReturnValue().getType() == ClassType.INPUT_STREAM) {
-                function.line(
-                    "Iterator<ByteBufferBackedInputStream> iterator = %s(%s).map(ByteBufferBackedInputStream::new).toStream().iterator();",
-                    effectiveProxyMethodName, clientMethod.getArgumentList());
-                function.anonymousClass("Enumeration<InputStream>", "enumeration", javaBlock -> {
-                    javaBlock.annotation("Override");
-                    javaBlock.publicMethod("boolean hasMoreElements()",
-                        methodBlock -> methodBlock.methodReturn("iterator.hasNext()"));
-                    javaBlock.annotation("Override");
-                    javaBlock.publicMethod("InputStream nextElement()",
-                        methodBlock -> methodBlock.methodReturn("iterator.next()"));
-                });
-                function.methodReturn("new SequenceInputStream(enumeration)");
-            } else if (clientMethod.getReturnValue().getType() != PrimitiveType.VOID) {
-                IType returnType = clientMethod.getReturnValue().getType();
-                if (returnType instanceof PrimitiveType) {
-                    function.line("%s value = %s(%s);", returnType.asNullable(), effectiveProxyMethodName,
-                        clientMethod.getArgumentList());
-                    function.ifBlock("value != null", ifAction -> ifAction.methodReturn("value"))
-                        .elseBlock(elseAction -> {
-                            if (settings.isUseClientLogger()) {
-                                elseAction.line("throw LOGGER.atError().log(new NullPointerException());");
-                            } else {
-                                elseAction.line("throw new NullPointerException();");
-                            }
-                        });
+                String serviceMethodCall = checkAndReplaceParamNameCollision(clientMethod, restAPIMethod.toSync(),
+                    requestContextLocal, settings);
+                if (clientMethod.getReturnValue().getType() == ClassType.INPUT_STREAM) {
+                    body.line(
+                        "Iterator<ByteBufferBackedInputStream> iterator = %s(%s).map(ByteBufferBackedInputStream::new).toStream().iterator();",
+                        effectiveProxyMethodName, arguments);
+                    body.anonymousClass("Enumeration<InputStream>", "enumeration", javaBlock -> {
+                        javaBlock.annotation("Override");
+                        javaBlock.publicMethod("boolean hasMoreElements()",
+                            methodBlock -> methodBlock.methodReturn("iterator.hasNext()"));
+                        javaBlock.annotation("Override");
+                        javaBlock.publicMethod("InputStream nextElement()",
+                            methodBlock -> methodBlock.methodReturn("iterator.next()"));
+                    });
+                    body.methodReturn("new SequenceInputStream(enumeration)");
+                } else if (clientMethod.getReturnValue().getType() != PrimitiveType.VOID) {
+                    IType returnType = clientMethod.getReturnValue().getType();
+                    if (returnType instanceof PrimitiveType) {
+                        body.line("%s value = %s(%s);", returnType.asNullable(), effectiveProxyMethodName, arguments);
+                        body.ifBlock("value != null", ifAction -> ifAction.methodReturn("value"))
+                            .elseBlock(elseAction -> {
+                                if (settings.isUseClientLogger()) {
+                                    elseAction.line("throw LOGGER.atError().log(new NullPointerException());");
+                                } else {
+                                    elseAction.line("throw new NullPointerException();");
+                                }
+                            });
+                    } else {
+                        body.methodReturn(serviceMethodCall);
+                    }
                 } else {
-                    function.methodReturn(serviceMethodCall);
+                    body.line("%s(%s);", effectiveProxyMethodName, arguments);
                 }
-            } else {
-                function.line("%s(%s);", effectiveProxyMethodName, clientMethod.getArgumentList());
-            }
+            });
+            function.line(");");
         });
     }
 
@@ -1316,5 +1338,22 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
     @Override
     protected void addQueryParameterReInjectionLogic(MethodPageDetails.NextLinkReInjection nextLinkReInjection,
         JavaBlock javaBlock) {
+    }
+
+    private String getRequestContentParameterName(ClientMethod clientMethod) {
+        return clientMethod.getMethodParameters()
+            .stream()
+            .filter(p -> p.getClientType() == ClassType.REQUEST_CONTEXT)
+            .map(ClientMethodParameter::getName)
+            .findFirst()
+            .orElse(null);
+    }
+
+    private String getUpdatedArgumentList(String argumentList, String requestContextParam) {
+        if (requestContextParam == null) {
+            return argumentList;
+        }
+
+        return argumentList == null ? null : argumentList.replace(requestContextParam, "updatedContext");
     }
 }
