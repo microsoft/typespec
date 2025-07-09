@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private String namespace;
@@ -236,7 +237,7 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
             } else if ("api-version".equals(fieldName)) {
                 options.apiVersion = emptyToNull(reader.getString());
             } else if ("use-rest-proxy".equals(fieldName)) {
-                options.useRestProxy = reader.getNullable(JsonReader::getBoolean);
+                options.useRestProxy = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("use-default-http-status-code-to-exception-type-mapping".equals(fieldName)) {
                 options.useDefaultHttpStatusCodeToExceptionTypeMapping = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("rename-model".equals(fieldName)) {
@@ -248,7 +249,7 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
             } else if ("preserve-model".equals(fieldName)) {
                 options.preserveModel = reader.getNullable(EmitterOptions::getStringOrList);
             } else if ("generate-async-methods".equals(fieldName)) {
-                options.generateAsyncMethods = reader.getNullable(JsonReader::getBoolean);
+                options.generateAsyncMethods = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("resource-collection-associations".equals(fieldName)) {
                 options.resourceCollectionAssociations = reader.readArray(ResourceCollectionAssociation::fromJson);
             } else {
@@ -287,13 +288,14 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                 return renameMap.entrySet()
                     .stream()
                     .map(e -> e.getKey() + ":" + e.getValue())
-                    .reduce("", (s1, s2) -> s1 + "," + s2);
+                    .collect(Collectors.joining(","));
             } else {
                 return null;
             }
-        } else {
-            return null;
+        } else if (currentToken == JsonToken.START_ARRAY) {
+            jsonReader.skipChildren();
         }
+        throw new IllegalStateException("Unexpected token to begin object deserialization: " + currentToken);
     }
 
     private static String getStringOrList(JsonReader jsonReader) throws IOException {
@@ -301,14 +303,15 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         if (currentToken == JsonToken.STRING) {
             return jsonReader.getString();
         } else if (currentToken == JsonToken.START_ARRAY) {
-            List<String> renameMap = jsonReader.readArray(JsonReader::getString);
-            if (!renameMap.isEmpty()) {
-                return String.join(",", renameMap);
+            List<String> list = jsonReader.readArray(JsonReader::getString);
+            if (!list.isEmpty()) {
+                return String.join(",", list);
             } else {
                 return null;
             }
-        } else {
-            return null;
+        } else if (currentToken == JsonToken.START_OBJECT) {
+            jsonReader.skipChildren();
         }
+        throw new IllegalStateException("Unexpected token to begin object deserialization: " + currentToken);
     }
 }
