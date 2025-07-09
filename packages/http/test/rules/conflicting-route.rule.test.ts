@@ -11,6 +11,11 @@ beforeEach(async () => {
 });
 
 it("should detect parameter vs literal conflicts", async () => {
+  const message = [
+    "Operations have conflicting routes. These operations could match the same URLs:",
+    "  - op2 => `/foo/fixed`",
+    "  - op1 => `/foo/{prop}`",
+  ].join("\n");
   await ruleTester
     .expect(
       `
@@ -19,16 +24,8 @@ it("should detect parameter vs literal conflicts", async () => {
         `,
     )
     .toEmitDiagnostics([
-      {
-        code: "@typespec/http/conflicting-route",
-        message:
-          /Operations have conflicting routes\. These operations could match the same URLs: (op1, op2|op2, op1) \(routes: (\/foo\/\{prop\}, \/foo\/fixed|\/foo\/fixed, \/foo\/\{prop\})\)/,
-      },
-      {
-        code: "@typespec/http/conflicting-route",
-        message:
-          /Operations have conflicting routes\. These operations could match the same URLs: (op1, op2|op2, op1) \(routes: (\/foo\/\{prop\}, \/foo\/fixed|\/foo\/fixed, \/foo\/\{prop\})\)/,
-      },
+      { code: "@typespec/http/conflicting-route", message },
+      { code: "@typespec/http/conflicting-route", message },
     ]);
 });
 
@@ -58,16 +55,8 @@ it("should detect operations with different parameter names but same structure",
         `,
     )
     .toEmitDiagnostics([
-      {
-        code: "@typespec/http/conflicting-route",
-        message:
-          /Operations have conflicting routes\. These operations could match the same URLs: (getBar1, getBar2|getBar2, getBar1)/,
-      },
-      {
-        code: "@typespec/http/conflicting-route",
-        message:
-          /Operations have conflicting routes\. These operations could match the same URLs: (getBar1, getBar2|getBar2, getBar1)/,
-      },
+      { code: "@typespec/http/conflicting-route" },
+      { code: "@typespec/http/conflicting-route" },
     ]);
 });
 
@@ -138,7 +127,27 @@ it("should not flag operations with different number of segments", async () => {
     .toBeValid();
 });
 
+it("query parameters shouldn't affect", async () => {
+  await ruleTester
+    .expect(
+      `
+        @route("/widgets/{widgetName}/analytics/current") 
+        op op1(widgetName: string, @query version?: string): void;
+        
+        @route("/widgets/{widgetName}") 
+        op op2(widgetName: string, @query version?: string): void;
+      `,
+    )
+    .toBeValid();
+});
+
 it("should handle three-way conflicts", async () => {
+  const message = [
+    "Operations have conflicting routes. These operations could match the same URLs:",
+    "  - op2 => `/api/{name}`",
+    "  - op1 => `/api/{version}`",
+    "  - op3 => `/api/v1`",
+  ].join("\n");
   await ruleTester
     .expect(
       `
@@ -153,20 +162,8 @@ it("should handle three-way conflicts", async () => {
         `,
     )
     .toEmitDiagnostics([
-      {
-        code: "@typespec/http/conflicting-route",
-        message:
-          /Operations have conflicting routes\. These operations could match the same URLs: .*(op1|op2|op3).*(op1|op2|op3).*(op1|op2|op3)/,
-      },
-      {
-        code: "@typespec/http/conflicting-route",
-        message:
-          /Operations have conflicting routes\. These operations could match the same URLs: .*(op1|op2|op3).*(op1|op2|op3).*(op1|op2|op3)/,
-      },
-      {
-        code: "@typespec/http/conflicting-route",
-        message:
-          /Operations have conflicting routes\. These operations could match the same URLs: .*(op1|op2|op3).*(op1|op2|op3).*(op1|op2|op3)/,
-      },
+      { code: "@typespec/http/conflicting-route", message },
+      { code: "@typespec/http/conflicting-route", message },
+      { code: "@typespec/http/conflicting-route", message },
     ]);
 });

@@ -10,7 +10,7 @@ export const conflictingRouteRule = createRule({
   description: "Check no 2 operations without @sharedRoute have path that might be ambiguous.",
   url: "https://typespec.io/docs/libraries/http/rules/conflicting-route",
   messages: {
-    default: paramMessage`Operations have conflicting routes. These operations could match the same URLs: ${"operations"} (routes: ${"uriTemplate"})`,
+    default: paramMessage`Operations have conflicting routes. These operations could match the same URLs:\n${"details"}`,
   },
   create(context) {
     return {
@@ -22,20 +22,13 @@ export const conflictingRouteRule = createRule({
           );
 
           for (const conflictingOps of conflicts) {
-            // Get the operation names for the error message
-            const operationNames = conflictingOps.map((op) => op.operation.name).join(", ");
-
-            // Use the actual templates instead of normalized ones to show the real conflict
-            const templates = conflictingOps.map((op) => op.uriTemplate).join(", ");
-
-            // Report diagnostic on each conflicting operation
+            const details = conflictingOps
+              .map((op) => `  - ${op.operation.name} => \`${op.uriTemplate}\``)
+              .join("\n");
             for (const operation of conflictingOps) {
               context.reportDiagnostic({
                 target: operation.operation,
-                format: {
-                  uriTemplate: templates,
-                  operations: operationNames,
-                },
+                format: { details },
               });
             }
           }
@@ -96,6 +89,27 @@ function findConflictingRoutes(operations: HttpOperation[]): HttpOperation[][] {
   return conflicts;
 }
 
+/** Parse all the segments of a uri template
+ * Contains an array of path segments(strings) and parameters (UriTemplateParameter).
+ */
+function parseUriTemplateSegments(uriTemplate: string): Array<string | UriTemplateParameter> {
+  const parsed = parseUriTemplate(uriTemplate);
+  const segments = parsed.segments || [];
+  return segments
+    .filter((segment) => {
+      if (typeof segment === "object") {
+        return segment.operator !== "?" && segment.operator !== "&";
+      }
+      return true;
+    })
+    .flatMap((segment): Array<string | UriTemplateParameter> => {
+      if (typeof segment === "object") {
+        return [segment];
+      }
+      return segment.split("/");
+    });
+}
+
 /**
  * A route tree (trie) that detects conflicting routes as they are added.
  * Each node represents a path segment, and conflicts occur when:
@@ -109,20 +123,20 @@ class RouteTree {
    * Adds a route to the tree and returns any conflicting operations.
    */
   addRoute(operation: HttpOperation): HttpOperation[] {
-    const segments = parseUriTemplate(operation.uriTemplate).segments;
-    return this.root.addOperation(operation, segments || [], 0);
+    const segments = parseUriTemplateSegments(operation.uriTemplate);
+    return this.root.addOperation(operation, segments, 0);
   }
 }
 
 class RouteNode {
-  // Literal children: exact string matches
-  private literalChildren = new Map<string, RouteNode>();
+  /** Literal children: exact string matches */
+  #literalChildren = new Map<string, RouteNode>();
 
-  // Parameter child: matches any segment (only one allowed per node)
-  private parameterChild: RouteNode | null = null;
+  /** Parameter child: matches any segment (only one allowed per node) */
+  #parameterChild: RouteNode | null = null;
 
-  // Operations that terminate at this node
-  private operations: HttpOperation[] = [];
+  /** Operations that terminate at this node */
+  #operations: HttpOperation[] = [];
 
   addOperation(
     operation: HttpOperation,
@@ -131,8 +145,8 @@ class RouteNode {
   ): HttpOperation[] {
     // If we've consumed all segments, this operation ends here
     if (index >= segments.length) {
-      const conflicts = [...this.operations]; // Copy existing operations as they conflict
-      this.operations.push(operation);
+      const conflicts = [...this.#operations]; // Copy existing operations as they conflict
+      this.#operations.push(operation);
       return conflicts;
     }
 
@@ -140,57 +154,42 @@ class RouteNode {
     const conflicts: HttpOperation[] = [];
 
     if (typeof segment === "string") {
-      // String segment - may contain multiple path parts separated by "/"
-      // Split by "/" and process each non-empty part as a literal segment
-      const parts = segment.split("/").filter((part) => part.length > 0);
-
-      if (parts.length === 0) {
+      if (segment.length === 0) {
         // Empty segment, continue to next
         return this.addOperation(operation, segments, index + 1);
       }
 
-      // Process the first part at this level
-      const firstPart = parts[0];
-
       // Check for conflict with parameter child
-      if (this.parameterChild) {
+      if (this.#parameterChild) {
         // Parameter child can match this literal, so there's a conflict
-        conflicts.push(...this.collectAllOperations(this.parameterChild));
+        conflicts.push(...this.#collectAllOperations(this.#parameterChild));
       }
 
       // Get or create literal child
-      let childNode = this.literalChildren.get(firstPart);
+      let childNode = this.#literalChildren.get(segment);
       if (!childNode) {
         childNode = new RouteNode();
-        this.literalChildren.set(firstPart, childNode);
+        this.#literalChildren.set(segment, childNode);
       }
 
-      // If there are more parts, create a new segment array with remaining parts and continue
-      if (parts.length > 1) {
-        const remainingParts = parts.slice(1).join("/");
-        const newSegments = [remainingParts, ...segments.slice(index + 1)];
-        const childConflicts = childNode.addOperation(operation, newSegments, 0);
-        conflicts.push(...childConflicts);
-      } else {
-        // Continue with remaining segments
-        const childConflicts = childNode.addOperation(operation, segments, index + 1);
-        conflicts.push(...childConflicts);
-      }
+      // Continue with remaining segments
+      const childConflicts = childNode.addOperation(operation, segments, index + 1);
+      conflicts.push(...childConflicts);
     } else {
       // Parameter segment
 
       // Check for conflicts with all literal children (parameter can match any literal)
-      for (const literalChild of this.literalChildren.values()) {
-        conflicts.push(...this.collectAllOperations(literalChild));
+      for (const literalChild of this.#literalChildren.values()) {
+        conflicts.push(...this.#collectAllOperations(literalChild));
       }
 
       // Get or create parameter child
-      if (!this.parameterChild) {
-        this.parameterChild = new RouteNode();
+      if (!this.#parameterChild) {
+        this.#parameterChild = new RouteNode();
       }
 
       // Continue with parameter child
-      const childConflicts = this.parameterChild.addOperation(operation, segments, index + 1);
+      const childConflicts = this.#parameterChild.addOperation(operation, segments, index + 1);
       conflicts.push(...childConflicts);
     }
 
@@ -200,17 +199,14 @@ class RouteNode {
   /**
    * Recursively collect all operations from this node and its descendants.
    */
-  private collectAllOperations(node: RouteNode): HttpOperation[] {
-    const operations = [...node.operations];
-
-    // Add operations from literal children
-    for (const child of node.literalChildren.values()) {
-      operations.push(...this.collectAllOperations(child));
+  #collectAllOperations(node: RouteNode): HttpOperation[] {
+    const operations = [...node.#operations];
+    for (const child of node.#literalChildren.values()) {
+      operations.push(...this.#collectAllOperations(child));
     }
 
-    // Add operations from parameter child
-    if (node.parameterChild) {
-      operations.push(...this.collectAllOperations(node.parameterChild));
+    if (node.#parameterChild) {
+      operations.push(...this.#collectAllOperations(node.#parameterChild));
     }
 
     return operations;
