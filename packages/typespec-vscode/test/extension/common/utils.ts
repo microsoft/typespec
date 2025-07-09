@@ -60,7 +60,7 @@ const test = baseTest.extend<{
           "--skip-welcome",
           "--skip-release-notes",
           "--disable-workspace-trust",
-          `--extensions-dir=${path.resolve(projectRoot, "extension")}`,
+          `--extensions-dir=${path.resolve(projectRoot)}`,
           `--user-data-dir=${path.resolve(tempDir, "user-data")}`,
           `--folder-uri=file:${path.resolve(workspacePath)}`,
         ].filter((v): v is string => !!v),
