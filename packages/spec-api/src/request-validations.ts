@@ -21,6 +21,22 @@ export const validateRawBodyEquals = (
     return;
   }
 
+  // For JSON content, perform semantic comparison to handle dictionary key order differences
+  if (typeof actualRawBody === "string" && typeof expectedRawBody === "string") {
+    if (isJsonContent(actualRawBody) && isJsonContent(expectedRawBody)) {
+      try {
+        const actualParsed = JSON.parse(actualRawBody);
+        const expectedParsed = JSON.parse(expectedRawBody);
+        if (!deepEqual(actualParsed, expectedParsed, { strict: true })) {
+          throw new ValidationError(BODY_NOT_EQUAL_ERROR_MESSAGE, expectedRawBody, actualRawBody);
+        }
+        return;
+      } catch {
+        // If JSON parsing fails, fall back to string comparison
+      }
+    }
+  }
+
   if (!deepEqual(actualRawBody, expectedRawBody, { strict: true })) {
     throw new ValidationError(BODY_NOT_EQUAL_ERROR_MESSAGE, expectedRawBody, actualRawBody);
   }
@@ -120,6 +136,18 @@ export const validateBodyNotEmpty = (request: RequestExt): void => {
  */
 const isBodyEmpty = (body: string | Buffer | undefined | null) => {
   return body == null || body === "" || body.length === 0;
+};
+
+/**
+ * Check if the provided string content appears to be JSON.
+ * @param content string content to check.
+ */
+const isJsonContent = (content: string): boolean => {
+  const trimmed = content.trim();
+  return (
+    (trimmed.startsWith("{") && trimmed.endsWith("}")) ||
+    (trimmed.startsWith("[") && trimmed.endsWith("]"))
+  );
 };
 
 /**
