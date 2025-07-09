@@ -12,7 +12,6 @@ const imagesPath = path.resolve(projectRoot, "test/extension/images-linux");
 
 interface Context {
   page: Page;
-  extensionDir: string;
 }
 
 type LaunchFixture = (options: {
@@ -79,7 +78,7 @@ const test = baseTest.extend<{
           ],
         }),
       );
-      return { page, extensionDir: path.join(tempDir, "extensions") };
+      return { page };
     });
 
     for (const teardown of teardowns) await teardown();
