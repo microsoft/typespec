@@ -697,10 +697,8 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
             applyParameterTransformations(function, clientMethod, settings);
             convertClientTypesToWireTypes(function, clientMethod, restAPIMethod.getParameters());
 
-            boolean requestContextLocal = addSpecialHeadersToRequestOptions(function, clientMethod, "updatedContext");
-
-            String serviceMethodCall = checkAndReplaceParamNameCollision(clientMethod, restAPIMethod,
-                requestContextLocal, "updatedContext", settings);
+            String serviceMethodCall
+                = checkAndReplaceParamNameCollision(clientMethod, restAPIMethod, "updatedContext", settings);
             function.line(String.format("%s res = %s;", restAPIMethod.getReturnType(), serviceMethodCall));
             if (settings.isAzureV1()) {
                 function.line("return new PagedResponseBase<>(");
@@ -963,10 +961,8 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
             applyParameterTransformations(function, clientMethod, settings);
             convertClientTypesToWireTypes(function, clientMethod, restAPIMethod.getParameters());
 
-            boolean requestContextLocal = false;
-
-            String serviceMethodCall = checkAndReplaceParamNameCollision(clientMethod, restAPIMethod.toSync(),
-                requestContextLocal, "updatedContext", settings);
+            String serviceMethodCall
+                = checkAndReplaceParamNameCollision(clientMethod, restAPIMethod.toSync(), "updatedContext", settings);
             if (clientMethod.getReturnValue().getType() == ClassType.INPUT_STREAM) {
                 function.line(
                     "Iterator<ByteBufferBackedInputStream> iterator = %s(%s).map(ByteBufferBackedInputStream::new).toStream().iterator();",
@@ -1110,7 +1106,7 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
     }
 
     private static String checkAndReplaceParamNameCollision(ClientMethod clientMethod, ProxyMethod restAPIMethod,
-        boolean useLocalRequestContext, String requestContextParamName, JavaSettings settings) {
+        String requestContextParamName, JavaSettings settings) {
         // Asynchronous methods will use 'FluxUtils.withContext' to infer 'Context' from the Reactor's context.
         // Only replace 'context' with 'Context.NONE' for synchronous methods that don't have a 'Context' parameter.
         boolean isSync = clientMethod.getProxyMethod().isSync();
@@ -1125,7 +1121,7 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
             String parameterName;
             if ("requestContext".equals(proxyMethodArgument)) {
                 // Simple static mapping for RequestOptions when 'useLocalRequestOptions' is true.
-                parameterName = requestContextParamName; // "requestContextLocal";
+                parameterName = requestContextParamName;
             } else {
                 ClientMethodParameter parameter = nameToParameter.get(proxyMethodArgument);
                 if (parameter != null && parametersWithTransformations.contains(proxyMethodArgument)) {
