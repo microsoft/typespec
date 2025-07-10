@@ -11,7 +11,7 @@ import { imagesPath, retry, screenshot, sleep } from "./utils";
  * @param errorMessage Error message when element does not appear
  * @param [count, sleep] count: Retry times, sleep: Sleep time between retries
  */
-async function preContrastResult(
+export async function preContrastResult(
   page: Page,
   text: string,
   errorMessage: string,
@@ -34,7 +34,7 @@ async function preContrastResult(
  * @param res List of expected files
  * @param dir The directory to be compared needs to be converted into an absolute path using path.resolve
  */
-async function contrastResult(page: Page, res: string[], dir: string) {
+export async function contrastResult(page: Page, res: string[], dir: string) {
   let resLength = 0;
   if (fs.existsSync(dir)) {
     resLength = fs.readdirSync(dir).length;
@@ -53,7 +53,7 @@ async function contrastResult(page: Page, res: string[], dir: string) {
  * folderName: The text in the top input box is usually the current open root directory,
  * command: After the top input box pops up, the command to be executed
  */
-async function startWithCommandPalette(
+export async function startWithCommandPalette(
   page: Page,
   { folderName, command }: { folderName: string; command: string },
 ) {
@@ -88,7 +88,7 @@ async function startWithCommandPalette(
  * In this method, select "yes" because selecting "no" does not make sense.
  * @param page vscode object
  */
-async function notEmptyFolderContinue(page: Page) {
+export async function notEmptyFolderContinue(page: Page) {
   let yesBtn: Locator;
   await retry(
     page,
@@ -129,7 +129,7 @@ async function notEmptyFolderContinue(page: Page) {
  * @param page vscode project
  * @param folderName The name of the folder that needs to be selected.
  */
-function createTestFile(folderName: string) {
+export function createTestFile(folderName: string) {
   const filePath = path.join(folderName, "test.txt");
   fs.writeFileSync(filePath, "test");
 }
@@ -138,16 +138,7 @@ function createTestFile(folderName: string) {
  * Placeholder file, need to be deleted
  * @param folderName The name of the folder that needs to be selected.
  */
-function deleteTestFile(folderName: string) {
+export function deleteTestFile(folderName: string) {
   const filePath = path.join(folderName, "test.txt");
   fs.rmSync(filePath);
 }
-
-export {
-  contrastResult,
-  createTestFile,
-  deleteTestFile,
-  notEmptyFolderContinue,
-  preContrastResult,
-  startWithCommandPalette,
-};

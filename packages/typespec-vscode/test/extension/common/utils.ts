@@ -3,11 +3,10 @@ import os from "node:os";
 import path, { resolve } from "node:path";
 import { ElectronApplication, Page, _electron } from "playwright";
 import { test as baseTest, inject } from "vitest";
-import { closeVscode } from "./common-steps";
 
 const __dirname = import.meta.dirname;
-const projectRoot = path.resolve(__dirname, "../../../");
-const imagesPath = path.resolve(projectRoot, "test/extension/images-linux");
+export const projectRoot = path.resolve(__dirname, "../../../");
+export const imagesPath = path.resolve(projectRoot, "test/extension/images-linux");
 
 interface Context {
   page: Page;
@@ -24,7 +23,7 @@ type LaunchFixture = (options: {
  * The core method of the test, this method is encapsulated.
  * With the help of the `_electron` object, you can open a vscode and get the page object
  */
-const test = baseTest.extend<{
+export const test = baseTest.extend<{
   launch: LaunchFixture;
   taskName: string;
   logPath: string;
@@ -85,7 +84,7 @@ const test = baseTest.extend<{
   },
 });
 
-async function sleep(s: number) {
+export async function sleep(s: number) {
   return new Promise((resolve) => setTimeout(resolve, s * 1000));
 }
 
@@ -96,7 +95,7 @@ async function sleep(s: number) {
  * @param gap
  * @returns Retry Interval
  */
-async function retry(
+export async function retry(
   page: Page,
   count: number,
   fn: () => Promise<boolean>,
@@ -111,7 +110,6 @@ async function retry(
     count--;
   }
   await screenshot(page, "linux", "error");
-  await closeVscode(page);
   throw new Error(errMessage);
 }
 
@@ -121,9 +119,7 @@ async function retry(
  * @param os operating system, e.g. "linux"
  * @param name screenshot name, without extension
  */
-async function screenshot(page: Page, os: "linux", name: string) {
+export async function screenshot(page: Page, os: "linux", name: string) {
   const filePath = path.join(imagesPath, `${name}.png`);
   await page.screenshot({ path: filePath });
 }
-
-export { imagesPath, projectRoot, retry, screenshot, sleep, test };
