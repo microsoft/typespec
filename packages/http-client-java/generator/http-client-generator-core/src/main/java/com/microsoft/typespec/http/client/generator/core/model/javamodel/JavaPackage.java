@@ -251,7 +251,7 @@ public class JavaPackage {
             = javaFileFactory.createSampleFile(settings.getPackage("generated"), protocolExample.getFilename());
         Templates.getProtocolSampleTemplate().write(protocolExample, javaFile);
         this.checkDuplicateFile(javaFile.getFilePath());
-        javaFiles.add(javaFile);
+        addJavaFile(javaFile);
     }
 
     public void addClientMethodExamples(ClientMethodExample clientMethodExample) {
@@ -259,14 +259,14 @@ public class JavaPackage {
             = javaFileFactory.createSampleFile(settings.getPackage("generated"), clientMethodExample.getFilename());
         Templates.getClientMethodSampleTemplate().write(clientMethodExample, javaFile);
         this.checkDuplicateFile(javaFile.getFilePath());
-        javaFiles.add(javaFile);
+        addJavaFile(javaFile);
     }
 
     public void addProtocolExamplesBlank() {
         JavaFile javaFile = javaFileFactory.createSampleFile(settings.getPackage(), "ReadmeSamples");
         new ProtocolSampleBlankTemplate().write(null, javaFile);
         this.checkDuplicateFile(javaFile.getFilePath());
-        javaFiles.add(javaFile);
+        addJavaFile(javaFile);
     }
 
     public void addProtocolTestBase(TestContext testContext) {
@@ -274,7 +274,7 @@ public class JavaPackage {
             = javaFileFactory.createTestFile(testContext.getPackageName(), testContext.getTestBaseClassName());
         ProtocolTestBaseTemplate.getInstance().write(testContext, javaFile);
         this.checkDuplicateFile(javaFile.getFilePath());
-        javaFiles.add(javaFile);
+        addJavaFile(javaFile);
     }
 
     public void addProtocolTest(TestContext<ProtocolExample> testContext) {
@@ -282,7 +282,7 @@ public class JavaPackage {
         JavaFile javaFile = javaFileFactory.createTestFile(testContext.getPackageName(), className);
         ProtocolTestTemplate.getInstance().write(testContext, javaFile);
         this.checkDuplicateFile(javaFile.getFilePath());
-        javaFiles.add(javaFile);
+        addJavaFile(javaFile);
     }
 
     public void addClientMethodTest(TestContext<ClientMethodExample> testContext) {
@@ -290,7 +290,7 @@ public class JavaPackage {
         JavaFile javaFile = javaFileFactory.createTestFile(testContext.getPackageName(), className);
         ClientMethodTestTemplate.getInstance().write(testContext, javaFile);
         this.checkDuplicateFile(javaFile.getFilePath());
-        javaFiles.add(javaFile);
+        addJavaFile(javaFile);
     }
 
     public void addModelUnitTest(ClientModel model) {
@@ -307,8 +307,8 @@ public class JavaPackage {
 
             JavaFile javaFile = javaFileFactory.createTestFile(packageName, className);
             ModelTestTemplate.getInstance().write(model, javaFile);
-            if (this.checkDuplicateFile(javaFile.getFilePath())) {
-                javaFiles.add(javaFile);
+            if (!this.checkDuplicateFile(javaFile.getFilePath())) {
+                addJavaFile(javaFile);
             }
         } catch (PossibleCredentialException e) {
             // skip this test file
@@ -367,7 +367,7 @@ public class JavaPackage {
                 ClientModelUtil.JSON_MERGE_PATCH_HELPER_CLASS_NAME);
         Templates.getJsonMergePatchHelperTemplate().write(models, javaFile);
         this.checkDuplicateFile(javaFile.getFilePath());
-        javaFiles.add(javaFile);
+        addJavaFile(javaFile);
     }
 
     public void addTypeSpecMetadata(TypeSpecMetadata typeSpecMetadata) {
@@ -408,6 +408,12 @@ public class JavaPackage {
         }
     }
 
+    /**
+     * Checks whether there is a file with the same name already generated.
+     *
+     * @param filePath the path of the file.
+     * @return true if there is a file with the same name already generated, false otherwise.
+     */
     protected boolean checkDuplicateFile(String filePath) {
         if (filePaths.contains(filePath)) {
             /*

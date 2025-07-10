@@ -4,17 +4,21 @@ function Invoke($command, $executePath=$packageRoot)
 {
     Write-Host "> $command"
     Push-Location $executePath
-    if ($IsLinux -or $IsMacOs)
-    {
-        sh -c "$command 2>&1"
+    try {
+        if ($IsLinux -or $IsMacOs)
+        {
+            sh -c "$command 2>&1"
+        }
+        else
+        {
+            cmd /c "$command 2>&1"
+        }
     }
-    else
-    {
-        cmd /c "$command 2>&1"
+    finally {
+        Pop-Location
     }
-    Pop-Location
 
-    if($LastExitCode -ne 0)
+    if ($LastExitCode -ne 0)
     {
         Write-Error "Command failed to execute: $command"
     }
