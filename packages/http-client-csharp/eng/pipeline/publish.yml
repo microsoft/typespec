@@ -10,7 +10,7 @@ pr: none
 
 parameters:
   - name: CreateAzureSdkForNetPR
-    displayName: Create PR for azure-sdk-for-net (when manually triggered)
+    displayName: Create PR for azure-sdk-for-net
     type: boolean
     default: false
 
