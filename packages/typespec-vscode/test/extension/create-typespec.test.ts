@@ -2,7 +2,6 @@ import { mkdir, rm } from "fs/promises";
 import path from "node:path";
 import { beforeEach, describe } from "vitest";
 import {
-  closeVscode,
   contrastResult,
   createTestFile,
   deleteTestFile,
@@ -115,7 +114,7 @@ describe.each(CreateCasesConfigList)("CreateTypespecProject", async (item) => {
       "Failed to create project Successful",
       [10, 15],
     );
-    await closeVscode(page);
+    app.close();
     await contrastResult(page, expectedResults, workspacePath);
   });
 });

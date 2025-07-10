@@ -124,12 +124,6 @@ async function notEmptyFolderContinue(page: Page) {
   await yesBtn!.click();
 }
 
-async function closeVscode(page: Page) {
-  await page.getByRole("menuitem", { name: "File" }).click();
-  await sleep(2);
-  await page.getByRole("menuitem", { name: "Exit" }).click();
-}
-
 /**
  * If the current scenario is: the folder is not empty, you need to call this method
  * @param page vscode project
@@ -150,7 +144,6 @@ function deleteTestFile(folderName: string) {
 }
 
 export {
-  closeVscode,
   contrastResult,
   createTestFile,
   deleteTestFile,
