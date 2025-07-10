@@ -13,13 +13,12 @@ function Invoke($command, $executePath=$packageRoot)
         {
             cmd /c "$command 2>&1"
         }
-        $commandExitCode = $LASTEXITCODE
     }
     finally {
         Pop-Location
     }
 
-    if ($commandExitCode -ne 0)
+    if ($LastExitCode -ne 0)
     {
         Write-Error "Command failed to execute: $command"
     }
