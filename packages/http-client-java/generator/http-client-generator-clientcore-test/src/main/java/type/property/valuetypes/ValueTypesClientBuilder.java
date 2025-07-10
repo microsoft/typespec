@@ -14,13 +14,17 @@ import io.clientcore.core.http.pipeline.HttpRedirectOptions;
 import io.clientcore.core.http.pipeline.HttpRedirectPolicy;
 import io.clientcore.core.http.pipeline.HttpRetryOptions;
 import io.clientcore.core.http.pipeline.HttpRetryPolicy;
+import io.clientcore.core.instrumentation.Instrumentation;
+import io.clientcore.core.instrumentation.SdkInstrumentationOptions;
 import io.clientcore.core.traits.ConfigurationTrait;
 import io.clientcore.core.traits.EndpointTrait;
 import io.clientcore.core.traits.HttpTrait;
 import io.clientcore.core.traits.ProxyTrait;
+import io.clientcore.core.utils.CoreUtils;
 import io.clientcore.core.utils.configuration.Configuration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import type.property.valuetypes.implementation.ValueTypesClientImpl;
 
@@ -66,6 +70,10 @@ public final class ValueTypesClientBuilder
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES
+        = CoreUtils.getProperties("type-property-valuetypes.properties");
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
@@ -210,7 +218,16 @@ public final class ValueTypesClientBuilder
     private ValueTypesClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        ValueTypesClientImpl client = new ValueTypesClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        ValueTypesClientImpl client = new ValueTypesClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -244,7 +261,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public BooleanOperationClient buildBooleanOperationClient() {
-        return new BooleanOperationClient(buildInnerClient().getBooleanOperations());
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new BooleanOperationClient(innerClient.getBooleanOperations(), innerClient.getInstrumentation());
     }
 
     /**
@@ -254,7 +272,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public StringOperationClient buildStringOperationClient() {
-        return new StringOperationClient(buildInnerClient().getStringOperations());
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new StringOperationClient(innerClient.getStringOperations(), innerClient.getInstrumentation());
     }
 
     /**
@@ -264,7 +283,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public BytesClient buildBytesClient() {
-        return new BytesClient(buildInnerClient().getBytes());
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new BytesClient(innerClient.getBytes(), innerClient.getInstrumentation());
     }
 
     /**
@@ -274,7 +294,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public IntClient buildIntClient() {
-        return new IntClient(buildInnerClient().getInts());
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new IntClient(innerClient.getInts(), innerClient.getInstrumentation());
     }
 
     /**
@@ -284,7 +305,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public FloatOperationClient buildFloatOperationClient() {
-        return new FloatOperationClient(buildInnerClient().getFloatOperations());
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new FloatOperationClient(innerClient.getFloatOperations(), innerClient.getInstrumentation());
     }
 
     /**
@@ -294,7 +316,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public DecimalClient buildDecimalClient() {
-        return new DecimalClient(buildInnerClient().getDecimals());
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new DecimalClient(innerClient.getDecimals(), innerClient.getInstrumentation());
     }
 
     /**
@@ -304,7 +327,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public Decimal128Client buildDecimal128Client() {
-        return new Decimal128Client(buildInnerClient().getDecimal128s());
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new Decimal128Client(innerClient.getDecimal128s(), innerClient.getInstrumentation());
     }
 
     /**
@@ -314,7 +338,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public DatetimeOperationClient buildDatetimeOperationClient() {
-        return new DatetimeOperationClient(buildInnerClient().getDatetimeOperations());
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new DatetimeOperationClient(innerClient.getDatetimeOperations(), innerClient.getInstrumentation());
     }
 
     /**
@@ -324,7 +349,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public DurationOperationClient buildDurationOperationClient() {
-        return new DurationOperationClient(buildInnerClient().getDurationOperations());
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new DurationOperationClient(innerClient.getDurationOperations(), innerClient.getInstrumentation());
     }
 
     /**
@@ -334,7 +360,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public EnumClient buildEnumClient() {
-        return new EnumClient(buildInnerClient().getEnums());
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new EnumClient(innerClient.getEnums(), innerClient.getInstrumentation());
     }
 
     /**
@@ -344,7 +371,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ExtensibleEnumClient buildExtensibleEnumClient() {
-        return new ExtensibleEnumClient(buildInnerClient().getExtensibleEnums());
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new ExtensibleEnumClient(innerClient.getExtensibleEnums(), innerClient.getInstrumentation());
     }
 
     /**
@@ -354,7 +382,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ModelClient buildModelClient() {
-        return new ModelClient(buildInnerClient().getModels());
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new ModelClient(innerClient.getModels(), innerClient.getInstrumentation());
     }
 
     /**
@@ -364,7 +393,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public CollectionsStringClient buildCollectionsStringClient() {
-        return new CollectionsStringClient(buildInnerClient().getCollectionsStrings());
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new CollectionsStringClient(innerClient.getCollectionsStrings(), innerClient.getInstrumentation());
     }
 
     /**
@@ -374,7 +404,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public CollectionsIntClient buildCollectionsIntClient() {
-        return new CollectionsIntClient(buildInnerClient().getCollectionsInts());
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new CollectionsIntClient(innerClient.getCollectionsInts(), innerClient.getInstrumentation());
     }
 
     /**
@@ -384,7 +415,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public CollectionsModelClient buildCollectionsModelClient() {
-        return new CollectionsModelClient(buildInnerClient().getCollectionsModels());
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new CollectionsModelClient(innerClient.getCollectionsModels(), innerClient.getInstrumentation());
     }
 
     /**
@@ -394,7 +426,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public DictionaryStringClient buildDictionaryStringClient() {
-        return new DictionaryStringClient(buildInnerClient().getDictionaryStrings());
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new DictionaryStringClient(innerClient.getDictionaryStrings(), innerClient.getInstrumentation());
     }
 
     /**
@@ -404,7 +437,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public NeverClient buildNeverClient() {
-        return new NeverClient(buildInnerClient().getNevers());
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new NeverClient(innerClient.getNevers(), innerClient.getInstrumentation());
     }
 
     /**
@@ -414,7 +448,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public UnknownStringClient buildUnknownStringClient() {
-        return new UnknownStringClient(buildInnerClient().getUnknownStrings());
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new UnknownStringClient(innerClient.getUnknownStrings(), innerClient.getInstrumentation());
     }
 
     /**
@@ -424,7 +459,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public UnknownIntClient buildUnknownIntClient() {
-        return new UnknownIntClient(buildInnerClient().getUnknownInts());
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new UnknownIntClient(innerClient.getUnknownInts(), innerClient.getInstrumentation());
     }
 
     /**
@@ -434,7 +470,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public UnknownDictClient buildUnknownDictClient() {
-        return new UnknownDictClient(buildInnerClient().getUnknownDicts());
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new UnknownDictClient(innerClient.getUnknownDicts(), innerClient.getInstrumentation());
     }
 
     /**
@@ -444,7 +481,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public UnknownArrayClient buildUnknownArrayClient() {
-        return new UnknownArrayClient(buildInnerClient().getUnknownArrays());
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new UnknownArrayClient(innerClient.getUnknownArrays(), innerClient.getInstrumentation());
     }
 
     /**
@@ -454,7 +492,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public StringLiteralClient buildStringLiteralClient() {
-        return new StringLiteralClient(buildInnerClient().getStringLiterals());
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new StringLiteralClient(innerClient.getStringLiterals(), innerClient.getInstrumentation());
     }
 
     /**
@@ -464,7 +503,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public IntLiteralClient buildIntLiteralClient() {
-        return new IntLiteralClient(buildInnerClient().getIntLiterals());
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new IntLiteralClient(innerClient.getIntLiterals(), innerClient.getInstrumentation());
     }
 
     /**
@@ -474,7 +514,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public FloatLiteralClient buildFloatLiteralClient() {
-        return new FloatLiteralClient(buildInnerClient().getFloatLiterals());
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new FloatLiteralClient(innerClient.getFloatLiterals(), innerClient.getInstrumentation());
     }
 
     /**
@@ -484,7 +525,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public BooleanLiteralClient buildBooleanLiteralClient() {
-        return new BooleanLiteralClient(buildInnerClient().getBooleanLiterals());
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new BooleanLiteralClient(innerClient.getBooleanLiterals(), innerClient.getInstrumentation());
     }
 
     /**
@@ -494,7 +536,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public UnionStringLiteralClient buildUnionStringLiteralClient() {
-        return new UnionStringLiteralClient(buildInnerClient().getUnionStringLiterals());
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new UnionStringLiteralClient(innerClient.getUnionStringLiterals(), innerClient.getInstrumentation());
     }
 
     /**
@@ -504,7 +547,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public UnionIntLiteralClient buildUnionIntLiteralClient() {
-        return new UnionIntLiteralClient(buildInnerClient().getUnionIntLiterals());
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new UnionIntLiteralClient(innerClient.getUnionIntLiterals(), innerClient.getInstrumentation());
     }
 
     /**
@@ -514,7 +558,8 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public UnionFloatLiteralClient buildUnionFloatLiteralClient() {
-        return new UnionFloatLiteralClient(buildInnerClient().getUnionFloatLiterals());
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new UnionFloatLiteralClient(innerClient.getUnionFloatLiterals(), innerClient.getInstrumentation());
     }
 
     /**
@@ -524,6 +569,7 @@ public final class ValueTypesClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public UnionEnumValueClient buildUnionEnumValueClient() {
-        return new UnionEnumValueClient(buildInnerClient().getUnionEnumValues());
+        ValueTypesClientImpl innerClient = buildInnerClient();
+        return new UnionEnumValueClient(innerClient.getUnionEnumValues(), innerClient.getInstrumentation());
     }
 }

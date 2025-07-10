@@ -265,6 +265,11 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
                     .build());
         }
 
+        if (!settings.isAzureV1()) {
+            serviceClientProperties.add(new ServiceClientProperty("The instance of instrumentation to report telemetry",
+                ClassType.INSTRUMENTATION, "instrumentation", true, null));
+        }
+
         builder.properties(serviceClientProperties);
 
         ClientMethodParameter tokenCredentialParameter
@@ -296,6 +301,18 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
                 .finalParameter(false)
                 .wireType(ClassType.SERIALIZER_ADAPTER)
                 .name("serializerAdapter")
+                .required(true)
+                .constant(false)
+                .fromClient(true)
+                .defaultValue(null)
+                .annotations(new ArrayList<>())
+                .build();
+
+        ClientMethodParameter instrumentationParameter
+            = new ClientMethodParameter.Builder().description("The instance of instrumentation to report telemetry")
+                .finalParameter(false)
+                .wireType(ClassType.INSTRUMENTATION)
+                .name("instrumentation")
                 .required(true)
                 .constant(false)
                 .fromClient(true)
@@ -404,7 +421,15 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
         List<Constructor> serviceClientConstructors = new ArrayList<>();
 
         if (!settings.isAzureV1() || settings.isAzureV2()) {
-            serviceClientConstructors.add(new Constructor(Collections.singletonList(httpPipelineParameter)));
+
+            List<ClientMethodParameter> constructorParameters = new ArrayList<>();
+            constructorParameters.add(httpPipelineParameter);
+
+            if (!settings.isAzureV1()) {
+                constructorParameters.add(instrumentationParameter);
+            }
+
+            serviceClientConstructors.add(new Constructor(constructorParameters));
             builder.tokenCredentialParameter(tokenCredentialParameter)
                 .httpPipelineParameter(httpPipelineParameter)
                 .constructors(serviceClientConstructors);

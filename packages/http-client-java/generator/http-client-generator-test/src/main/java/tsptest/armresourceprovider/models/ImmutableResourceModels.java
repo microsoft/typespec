@@ -4,15 +4,36 @@
 
 package tsptest.armresourceprovider.models;
 
+import com.azure.core.util.Context;
+
 /**
  * Resource collection API of ImmutableResourceModels.
  */
 public interface ImmutableResourceModels {
     /**
-     * Begins definition for a new NginxConfigurationResponse resource.
+     * The createOrUpdate operation.
      * 
-     * @param name resource name.
-     * @return the first stage of the new NginxConfigurationResponse definition.
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param configurationName The name of the NginxConfigurationResponse.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return concrete proxy resource types can be created by aliasing this type using a specific property type.
      */
-    NginxConfigurationResponse.DefinitionStages.Blank define(String name);
+    NginxConfigurationResponse createOrUpdate(String resourceGroupName, String configurationName);
+
+    /**
+     * The createOrUpdate operation.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param configurationName The name of the NginxConfigurationResponse.
+     * @param properties The resource properties to be updated.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return concrete proxy resource types can be created by aliasing this type using a specific property type.
+     */
+    NginxConfigurationResponse createOrUpdate(String resourceGroupName, String configurationName,
+        NginxConfigurationRequest properties, Context context);
 }

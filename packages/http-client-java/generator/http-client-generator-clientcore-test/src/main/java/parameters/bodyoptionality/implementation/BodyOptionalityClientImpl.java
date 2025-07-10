@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import parameters.bodyoptionality.BodyModel;
 
@@ -54,6 +55,20 @@ public final class BodyOptionalityClientImpl {
     }
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
      * The OptionalExplicitsImpl object to access its operations.
      */
     private final OptionalExplicitsImpl optionalExplicits;
@@ -71,10 +86,12 @@ public final class BodyOptionalityClientImpl {
      * Initializes an instance of BodyOptionalityClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
      */
-    public BodyOptionalityClientImpl(HttpPipeline httpPipeline, String endpoint) {
+    public BodyOptionalityClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
         this.optionalExplicits = new OptionalExplicitsImpl(this);
         this.service = BodyOptionalityClientService.getNewInstance(this.httpPipeline);
