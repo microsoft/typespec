@@ -7,7 +7,7 @@ import logging
 import json
 from collections import namedtuple
 import re
-from typing import List, Any, Union
+from typing import Any, Union
 from pathlib import Path
 from jinja2 import PackageLoader, Environment, FileSystemLoader, StrictUndefined
 
@@ -90,7 +90,7 @@ class JinjaSerializer(ReaderAndWriter):
         return self.code_model.options["show-operations"] and bool(self.code_model.has_operations)
 
     @property
-    def serialize_loop(self) -> List[AsyncInfo]:
+    def serialize_loop(self) -> list[AsyncInfo]:
         sync_loop = AsyncInfo(async_mode=False, async_path="")
         async_loop = AsyncInfo(async_mode=True, async_path="aio/")
         return [sync_loop, async_loop] if self.has_aio_folder else [sync_loop]
@@ -246,7 +246,7 @@ class JinjaSerializer(ReaderAndWriter):
             )
 
     def _serialize_and_write_models_folder(
-        self, env: Environment, namespace: str, models: List[ModelType], enums: List[EnumType]
+        self, env: Environment, namespace: str, models: list[ModelType], enums: list[EnumType]
     ) -> None:
         # Write the models folder
         models_path = self.exec_path(namespace) / "models"
@@ -289,7 +289,7 @@ class JinjaSerializer(ReaderAndWriter):
         self,
         env: Environment,
         rest_path: Path,
-        request_builders: List[Union[RequestBuilder, OverloadedRequestBuilder]],
+        request_builders: list[Union[RequestBuilder, OverloadedRequestBuilder]],
     ) -> None:
         group_name = request_builders[0].group_name
         output_path = rest_path / Path(group_name) if group_name else rest_path
@@ -314,7 +314,7 @@ class JinjaSerializer(ReaderAndWriter):
         )
 
     def _serialize_and_write_operations_folder(
-        self, operation_groups: List[OperationGroup], env: Environment, namespace: str
+        self, operation_groups: list[OperationGroup], env: Environment, namespace: str
     ) -> None:
         operations_folder_name = self.code_model.operations_folder_name(namespace)
         exec_path = self.exec_path(namespace)
@@ -380,7 +380,7 @@ class JinjaSerializer(ReaderAndWriter):
     def _serialize_client_and_config_files(
         self,
         namespace: str,
-        clients: List[Client],
+        clients: list[Client],
         env: Environment,
     ) -> None:
         exec_path = self.exec_path(namespace)

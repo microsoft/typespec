@@ -4,8 +4,6 @@
 # license information.
 # --------------------------------------------------------------------------
 from typing import (
-    Dict,
-    List,
     Any,
     Optional,
     Union,
@@ -61,14 +59,14 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
 ):
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         client: "Client",
         name: str,
         request_builder: Union[RequestBuilder, OverloadedRequestBuilder],
         parameters: ParameterList,
-        responses: List[ResponseType],
-        exceptions: List[Response],
+        responses: list[ResponseType],
+        exceptions: list[Response],
         *,
         overloads: Optional[Sequence["Operation"]] = None,
     ) -> None:
@@ -205,7 +203,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
         return None if self.code_model.options["models-mode"] == "dpg" else "'object'"
 
     @property
-    def non_default_errors(self) -> List[Response]:
+    def non_default_errors(self) -> list[Response]:
         return [
             e for e in self.exceptions if "default" not in e.status_codes and e.type and isinstance(e.type, ModelType)
         ]
@@ -259,7 +257,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
 
     @staticmethod
     def has_kwargs_to_pop_with_default(
-        kwargs_to_pop: List[
+        kwargs_to_pop: list[
             Union[
                 Parameter,
                 RequestBuilderParameter,
@@ -428,7 +426,6 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
         file_import.add_submodule_import("rest", "HttpRequest", ImportType.SDKCORE)
         file_import.add_submodule_import("typing", "Callable", ImportType.STDLIB, TypingSection.CONDITIONAL)
         file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB, TypingSection.CONDITIONAL)
-        file_import.add_submodule_import("typing", "Dict", ImportType.STDLIB, TypingSection.CONDITIONAL)
         file_import.add_submodule_import("typing", "TypeVar", ImportType.STDLIB, TypingSection.CONDITIONAL)
         if self.code_model.options["tracing"] and self.want_tracing and not async_mode:
             file_import.add_submodule_import(
@@ -480,7 +477,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
             raise ValueError(f"Incorrect status code {status_code}, operation {self.name}") from exc
 
     @property
-    def success_status_codes(self) -> List[Union[int, str, List[int]]]:
+    def success_status_codes(self) -> list[Union[int, str, list[int]]]:
         """The list of all successfull status code."""
         return sorted([code for response in self.responses for code in response.status_codes])
 
@@ -500,13 +497,13 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
         return any(r.is_stream_response for r in self.responses)
 
     @classmethod
-    def get_request_builder(cls, yaml_data: Dict[str, Any], client: "Client"):
+    def get_request_builder(cls, yaml_data: dict[str, Any], client: "Client"):
         return client.lookup_request_builder(id(yaml_data))
 
     @classmethod
     def from_yaml(
         cls,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         client: "Client",
     ):
@@ -549,7 +546,7 @@ class Operation(OperationBase[Response]):
         return file_import
 
 
-def get_operation(yaml_data: Dict[str, Any], code_model: "CodeModel", client: "Client") -> "OperationType":
+def get_operation(yaml_data: dict[str, Any], code_model: "CodeModel", client: "Client") -> "OperationType":
     if yaml_data["discriminator"] == "lropaging":
         from .lro_paging_operation import LROPagingOperation as OperationCls
     elif yaml_data["discriminator"] == "lro":

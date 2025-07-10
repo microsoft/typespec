@@ -4,7 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import logging
-from typing import Dict, Any, Optional, TYPE_CHECKING, Union
+from typing import Any, Optional, TYPE_CHECKING, Union
 from .base import BaseType
 from .imports import FileImport, ImportType, TypingSection
 from .primitive_types import IntegerType, BinaryType, StringType, BooleanType
@@ -28,7 +28,7 @@ class ConstantType(BaseType):
 
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         value_type: BaseType,
         value: Optional[Union[str, int, float]],
@@ -82,7 +82,7 @@ class ConstantType(BaseType):
         return isinstance(self.value_type, (IntegerType, BinaryType, StringType, BooleanType))
 
     @classmethod
-    def from_yaml(cls, yaml_data: Dict[str, Any], code_model: "CodeModel") -> "ConstantType":
+    def from_yaml(cls, yaml_data: dict[str, Any], code_model: "CodeModel") -> "ConstantType":
         """Constructs a ConstantType from yaml data.
 
         :param yaml_data: the yaml data from which we will construct this schema

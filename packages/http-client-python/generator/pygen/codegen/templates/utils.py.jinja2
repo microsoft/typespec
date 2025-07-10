@@ -66,9 +66,9 @@ FileType = Union[
     # file (or bytes)
     FileContent,
     # (filename, file (or bytes))
-    Tuple[Optional[str], FileContent],
+    tuple[Optional[str], FileContent],
     # (filename, file (or bytes), content_type)
-    Tuple[Optional[str], FileContent, Optional[str]],
+    tuple[Optional[str], FileContent, Optional[str]],
 ]
 
 def serialize_multipart_data_entry(data_entry: Any) -> Any:
@@ -77,10 +77,10 @@ def serialize_multipart_data_entry(data_entry: Any) -> Any:
     return data_entry
 
 def prepare_multipart_form_data(
-    body: Mapping[str, Any], multipart_fields: List[str], data_fields: List[str]
-) -> Tuple[List[FileType], Dict[str, Any]]:
-    files: List[FileType] = []
-    data: Dict[str, Any] = {}
+    body: Mapping[str, Any], multipart_fields: list[str], data_fields: list[str]
+) -> tuple[list[FileType], dict[str, Any]]:
+    files: list[FileType] = []
+    data: dict[str, Any] = {}
     for multipart_field in multipart_fields:
         multipart_entry = body.get(multipart_field)
         if isinstance(multipart_entry, list):
