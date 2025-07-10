@@ -1,8 +1,7 @@
-import { execSync } from "child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path, { resolve } from "node:path";
-import { Page, _electron } from "playwright";
+import { ElectronApplication, Page, _electron } from "playwright";
 import { test as baseTest, inject } from "vitest";
 import { closeVscode } from "./common-steps";
 
@@ -12,6 +11,7 @@ const imagesPath = path.resolve(projectRoot, "test/extension/images-linux");
 
 interface Context {
   page: Page;
+  app: ElectronApplication;
 }
 
 type LaunchFixture = (options: {
@@ -78,7 +78,7 @@ const test = baseTest.extend<{
           ],
         }),
       );
-      return { page };
+      return { page, app };
     });
 
     for (const teardown of teardowns) await teardown();
@@ -124,21 +124,6 @@ async function retry(
 async function screenshot(page: Page, os: "linux", name: string) {
   const filePath = path.join(imagesPath, `${name}.png`);
   await page.screenshot({ path: filePath });
-}
-
-/**
- * Simulate global keyboard input
- * @param {string} text The text to input
- */
-export function sendKeys(text: string) {
-  execSync(`xdotool type --delay 100 "${text}"`);
-}
-
-/**
- * Simulate pressing the Enter key
- */
-export function pressEnter() {
-  execSync(`xdotool key Return`);
 }
 
 export { imagesPath, projectRoot, retry, screenshot, sleep, test };

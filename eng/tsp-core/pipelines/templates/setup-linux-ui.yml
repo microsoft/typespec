@@ -3,7 +3,7 @@ steps:
   - script: |
       sudo apt-get update
       sudo apt-get install -y \
-        imagemagick x11-xserver-utils xdotool
+        imagemagick x11-xserver-utils
     displayName: "Install Linux Dependencies"
 
   - script: |

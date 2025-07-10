@@ -2,7 +2,7 @@ import { rm } from "fs/promises";
 import fs from "node:fs";
 import path from "node:path";
 import { Locator, Page } from "playwright";
-import { imagesPath, pressEnter, retry, screenshot, sendKeys, sleep } from "./utils";
+import { imagesPath, retry, screenshot, sleep } from "./utils";
 
 /**
  * Before comparing the results, you need to check whether the conditions for result comparison are met.
@@ -83,20 +83,6 @@ async function startWithCommandPalette(
 }
 
 /**
- * In vscode, when you need to select a folder or a file, call this method
- * @param file When selecting a file, just pass it in. If you need to select a folder, you do not need to pass this parameter in.
- */
-async function selectFolder(page: Page, file: string = "") {
-  await sleep(10);
-  sendKeys(file);
-  await screenshot(page, "linux", "select_folder_text");
-  await sleep(2);
-  pressEnter();
-  await screenshot(page, "linux", "select_folder");
-  await sleep(3);
-}
-
-/**
  * If the current folder is not empty, sometimes a pop-up will appear
  * asking "Do you want to continue selecting the current folder as the root directory?".
  * In this method, select "yes" because selecting "no" does not make sense.
@@ -170,6 +156,5 @@ export {
   deleteTestFile,
   notEmptyFolderContinue,
   preContrastResult,
-  selectFolder,
   startWithCommandPalette,
 };

@@ -8,7 +8,6 @@ import {
   deleteTestFile,
   notEmptyFolderContinue,
   preContrastResult,
-  selectFolder,
   startWithCommandPalette,
 } from "./common/common-steps";
 import {
@@ -17,6 +16,7 @@ import {
   selectTemplate,
   startWithClick,
 } from "./common/create-steps";
+import { mockShowOpenDialog } from "./common/mock-dialogs";
 import { projectRoot, test } from "./common/utils";
 
 const tempDir = path.resolve(projectRoot, "test/extension/temp");
@@ -80,13 +80,13 @@ describe.each(CreateCasesConfigList)("CreateTypespecProject", async (item) => {
 
   test(caseName, async ({ launch }) => {
     const workspacePath = CreateTypespecProjectFolderPath;
-    const { page } = await launch({
+    const { page, app } = await launch({
       workspacePath: triggerType === CreateProjectTriggerType.Command ? workspacePath : "test",
     });
     if (!isEmptyFolder) {
       createTestFile(workspacePath);
     }
-
+    mockShowOpenDialog(app, [workspacePath]);
     if (triggerType === CreateProjectTriggerType.Command) {
       await startWithCommandPalette(page, {
         folderName: path.basename(CreateTypespecProjectFolderPath),
@@ -95,8 +95,6 @@ describe.each(CreateCasesConfigList)("CreateTypespecProject", async (item) => {
     } else {
       await startWithClick(page);
     }
-
-    await selectFolder(page, triggerType === CreateProjectTriggerType.Command ? "" : workspacePath);
 
     if (!isEmptyFolder) {
       await notEmptyFolderContinue(page);
