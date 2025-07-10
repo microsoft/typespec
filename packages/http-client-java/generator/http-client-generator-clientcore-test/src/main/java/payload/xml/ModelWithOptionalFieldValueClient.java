@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import payload.xml.implementation.ModelWithOptionalFieldValuesImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class ModelWithOptionalFieldValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final ModelWithOptionalFieldValuesImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of ModelWithOptionalFieldValueClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    ModelWithOptionalFieldValueClient(ModelWithOptionalFieldValuesImpl serviceClient) {
+    ModelWithOptionalFieldValueClient(ModelWithOptionalFieldValuesImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -40,7 +45,8 @@ public final class ModelWithOptionalFieldValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ModelWithOptionalField> getWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("Payload.Xml.ModelWithOptionalFieldValue.get",
+            requestContext, updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
     /**
@@ -69,7 +75,8 @@ public final class ModelWithOptionalFieldValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(ModelWithOptionalField input, RequestContext requestContext) {
-        return this.serviceClient.putWithResponse(input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Payload.Xml.ModelWithOptionalFieldValue.put",
+            requestContext, updatedContext -> this.serviceClient.putWithResponse(input, updatedContext));
     }
 
     /**

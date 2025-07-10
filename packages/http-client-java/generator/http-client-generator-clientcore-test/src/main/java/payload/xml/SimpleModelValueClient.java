@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import payload.xml.implementation.SimpleModelValuesImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class SimpleModelValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final SimpleModelValuesImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of SimpleModelValueClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    SimpleModelValueClient(SimpleModelValuesImpl serviceClient) {
+    SimpleModelValueClient(SimpleModelValuesImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -40,7 +45,8 @@ public final class SimpleModelValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<SimpleModel> getWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("Payload.Xml.SimpleModelValue.get", requestContext,
+            updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
     /**
@@ -69,7 +75,8 @@ public final class SimpleModelValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(SimpleModel input, RequestContext requestContext) {
-        return this.serviceClient.putWithResponse(input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Payload.Xml.SimpleModelValue.put", requestContext,
+            updatedContext -> this.serviceClient.putWithResponse(input, updatedContext));
     }
 
     /**

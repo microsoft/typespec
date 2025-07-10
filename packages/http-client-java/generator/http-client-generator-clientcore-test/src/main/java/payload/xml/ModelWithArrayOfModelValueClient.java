@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import payload.xml.implementation.ModelWithArrayOfModelValuesImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class ModelWithArrayOfModelValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final ModelWithArrayOfModelValuesImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of ModelWithArrayOfModelValueClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    ModelWithArrayOfModelValueClient(ModelWithArrayOfModelValuesImpl serviceClient) {
+    ModelWithArrayOfModelValueClient(ModelWithArrayOfModelValuesImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -40,7 +45,8 @@ public final class ModelWithArrayOfModelValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ModelWithArrayOfModel> getWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("Payload.Xml.ModelWithArrayOfModelValue.get", requestContext,
+            updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
     /**
@@ -69,7 +75,8 @@ public final class ModelWithArrayOfModelValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(ModelWithArrayOfModel input, RequestContext requestContext) {
-        return this.serviceClient.putWithResponse(input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Payload.Xml.ModelWithArrayOfModelValue.put", requestContext,
+            updatedContext -> this.serviceClient.putWithResponse(input, updatedContext));
     }
 
     /**

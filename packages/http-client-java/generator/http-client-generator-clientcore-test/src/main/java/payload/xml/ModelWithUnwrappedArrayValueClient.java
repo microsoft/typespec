@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import payload.xml.implementation.ModelWithUnwrappedArrayValuesImpl;
 
 /**
@@ -18,14 +19,19 @@ public final class ModelWithUnwrappedArrayValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final ModelWithUnwrappedArrayValuesImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of ModelWithUnwrappedArrayValueClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    ModelWithUnwrappedArrayValueClient(ModelWithUnwrappedArrayValuesImpl serviceClient) {
+    ModelWithUnwrappedArrayValueClient(ModelWithUnwrappedArrayValuesImpl serviceClient,
+        Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -40,7 +46,8 @@ public final class ModelWithUnwrappedArrayValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ModelWithUnwrappedArray> getWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("Payload.Xml.ModelWithUnwrappedArrayValue.get",
+            requestContext, updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
     /**
@@ -69,7 +76,8 @@ public final class ModelWithUnwrappedArrayValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(ModelWithUnwrappedArray input, RequestContext requestContext) {
-        return this.serviceClient.putWithResponse(input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Payload.Xml.ModelWithUnwrappedArrayValue.put",
+            requestContext, updatedContext -> this.serviceClient.putWithResponse(input, updatedContext));
     }
 
     /**

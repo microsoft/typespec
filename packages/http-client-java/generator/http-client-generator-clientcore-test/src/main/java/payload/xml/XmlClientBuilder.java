@@ -14,13 +14,17 @@ import io.clientcore.core.http.pipeline.HttpRedirectOptions;
 import io.clientcore.core.http.pipeline.HttpRedirectPolicy;
 import io.clientcore.core.http.pipeline.HttpRetryOptions;
 import io.clientcore.core.http.pipeline.HttpRetryPolicy;
+import io.clientcore.core.instrumentation.Instrumentation;
+import io.clientcore.core.instrumentation.SdkInstrumentationOptions;
 import io.clientcore.core.traits.ConfigurationTrait;
 import io.clientcore.core.traits.EndpointTrait;
 import io.clientcore.core.traits.HttpTrait;
 import io.clientcore.core.traits.ProxyTrait;
+import io.clientcore.core.utils.CoreUtils;
 import io.clientcore.core.utils.configuration.Configuration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import payload.xml.implementation.XmlClientImpl;
 
@@ -48,6 +52,9 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("payload-xml.properties");
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
@@ -192,7 +199,16 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
     private XmlClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        XmlClientImpl client = new XmlClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        XmlClientImpl client = new XmlClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -226,7 +242,8 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public SimpleModelValueClient buildSimpleModelValueClient() {
-        return new SimpleModelValueClient(buildInnerClient().getSimpleModelValues());
+        XmlClientImpl innerClient = buildInnerClient();
+        return new SimpleModelValueClient(innerClient.getSimpleModelValues(), innerClient.getInstrumentation());
     }
 
     /**
@@ -236,7 +253,9 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ModelWithSimpleArraysValueClient buildModelWithSimpleArraysValueClient() {
-        return new ModelWithSimpleArraysValueClient(buildInnerClient().getModelWithSimpleArraysValues());
+        XmlClientImpl innerClient = buildInnerClient();
+        return new ModelWithSimpleArraysValueClient(innerClient.getModelWithSimpleArraysValues(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -246,7 +265,9 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ModelWithArrayOfModelValueClient buildModelWithArrayOfModelValueClient() {
-        return new ModelWithArrayOfModelValueClient(buildInnerClient().getModelWithArrayOfModelValues());
+        XmlClientImpl innerClient = buildInnerClient();
+        return new ModelWithArrayOfModelValueClient(innerClient.getModelWithArrayOfModelValues(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -256,7 +277,9 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ModelWithOptionalFieldValueClient buildModelWithOptionalFieldValueClient() {
-        return new ModelWithOptionalFieldValueClient(buildInnerClient().getModelWithOptionalFieldValues());
+        XmlClientImpl innerClient = buildInnerClient();
+        return new ModelWithOptionalFieldValueClient(innerClient.getModelWithOptionalFieldValues(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -266,7 +289,9 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ModelWithAttributesValueClient buildModelWithAttributesValueClient() {
-        return new ModelWithAttributesValueClient(buildInnerClient().getModelWithAttributesValues());
+        XmlClientImpl innerClient = buildInnerClient();
+        return new ModelWithAttributesValueClient(innerClient.getModelWithAttributesValues(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -276,7 +301,9 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ModelWithUnwrappedArrayValueClient buildModelWithUnwrappedArrayValueClient() {
-        return new ModelWithUnwrappedArrayValueClient(buildInnerClient().getModelWithUnwrappedArrayValues());
+        XmlClientImpl innerClient = buildInnerClient();
+        return new ModelWithUnwrappedArrayValueClient(innerClient.getModelWithUnwrappedArrayValues(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -286,7 +313,9 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ModelWithRenamedArraysValueClient buildModelWithRenamedArraysValueClient() {
-        return new ModelWithRenamedArraysValueClient(buildInnerClient().getModelWithRenamedArraysValues());
+        XmlClientImpl innerClient = buildInnerClient();
+        return new ModelWithRenamedArraysValueClient(innerClient.getModelWithRenamedArraysValues(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -296,7 +325,9 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ModelWithRenamedFieldsValueClient buildModelWithRenamedFieldsValueClient() {
-        return new ModelWithRenamedFieldsValueClient(buildInnerClient().getModelWithRenamedFieldsValues());
+        XmlClientImpl innerClient = buildInnerClient();
+        return new ModelWithRenamedFieldsValueClient(innerClient.getModelWithRenamedFieldsValues(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -306,7 +337,9 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ModelWithEmptyArrayValueClient buildModelWithEmptyArrayValueClient() {
-        return new ModelWithEmptyArrayValueClient(buildInnerClient().getModelWithEmptyArrayValues());
+        XmlClientImpl innerClient = buildInnerClient();
+        return new ModelWithEmptyArrayValueClient(innerClient.getModelWithEmptyArrayValues(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -316,7 +349,8 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ModelWithTextValueClient buildModelWithTextValueClient() {
-        return new ModelWithTextValueClient(buildInnerClient().getModelWithTextValues());
+        XmlClientImpl innerClient = buildInnerClient();
+        return new ModelWithTextValueClient(innerClient.getModelWithTextValues(), innerClient.getInstrumentation());
     }
 
     /**
@@ -326,7 +360,9 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ModelWithDictionaryValueClient buildModelWithDictionaryValueClient() {
-        return new ModelWithDictionaryValueClient(buildInnerClient().getModelWithDictionaryValues());
+        XmlClientImpl innerClient = buildInnerClient();
+        return new ModelWithDictionaryValueClient(innerClient.getModelWithDictionaryValues(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -336,6 +372,8 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ModelWithEncodedNamesValueClient buildModelWithEncodedNamesValueClient() {
-        return new ModelWithEncodedNamesValueClient(buildInnerClient().getModelWithEncodedNamesValues());
+        XmlClientImpl innerClient = buildInnerClient();
+        return new ModelWithEncodedNamesValueClient(innerClient.getModelWithEncodedNamesValues(),
+            innerClient.getInstrumentation());
     }
 }
