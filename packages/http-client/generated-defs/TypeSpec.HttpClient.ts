@@ -1,4 +1,4 @@
-import type { DecoratorContext, Interface, Namespace } from "@typespec/compiler";
+import type { DecoratorContext, Interface, Namespace, Operation } from "@typespec/compiler";
 
 export interface ClientDecoratorOptions {
   readonly name?: string;
@@ -24,6 +24,13 @@ export type ClientDecorator = (
   options?: ClientDecoratorOptions,
 ) => void;
 
+export type ClientLocationDecorator = (
+  context: DecoratorContext,
+  source: Operation,
+  target: Namespace | Interface,
+) => void;
+
 export type TypeSpecHttpClientDecorators = {
   client: ClientDecorator;
+  clientLocation: ClientLocationDecorator;
 };

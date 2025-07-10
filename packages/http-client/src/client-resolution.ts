@@ -9,12 +9,14 @@ import {
   Program,
 } from "@typespec/compiler";
 import {
+  unsafe_mutateSubgraph,
   unsafe_mutateSubgraphWithNamespace,
   unsafe_Mutator,
 } from "@typespec/compiler/experimental";
 import { ClientDecoratorOptions } from "../generated-defs/TypeSpec.HttpClient.js";
 import { Client, ClientNamePolicy } from "./interfaces.js";
 import { createDiagnostic, createStateSymbol, StateKeys } from "./lib.js";
+import { clientLocationMutator } from "./mutators/client-location.js";
 import { getClientName } from "./utils/get-client-name.js";
 
 export interface ResolveClientsOptions {
@@ -81,9 +83,13 @@ function buildClient(
   }
 
   let effectiveContainer: Namespace | Interface = container;
-  if (container.kind === "Namespace" && options.mutators) {
-    effectiveContainer = unsafe_mutateSubgraphWithNamespace(program, options.mutators, container)
+  const mutators = [...(options.mutators ?? []), clientLocationMutator];
+  if (container.kind === "Namespace") {
+    effectiveContainer = unsafe_mutateSubgraphWithNamespace(program, mutators, container)
       .type as Namespace;
+  } else {
+    // For interfaces, we don't mutate the subgraph, but we still apply the mutators.
+    effectiveContainer = unsafe_mutateSubgraph(program, mutators, container).type as Interface;
   }
 
   const client: Client = {

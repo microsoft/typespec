@@ -24,3 +24,5 @@ model ClientDecoratorOptions {
  * ```
  */
 extern dec client(target: Namespace | Interface, options?: valueof ClientDecoratorOptions);
+
+extern dec clientLocation(source: Operation, target: Namespace | Interface);

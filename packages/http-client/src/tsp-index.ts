@@ -1,4 +1,4 @@
-import { $client } from "./decorators/index.js";
+import { $client, $clientLocation } from "./decorators/index.js";
 
 export { $lib } from "./lib.js";
 
@@ -6,5 +6,6 @@ export { $lib } from "./lib.js";
 export const $decorators = {
   "TypeSpec.HttpClient": {
     client: $client,
+    clientLocation: $clientLocation,
   },
 };

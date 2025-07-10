@@ -1,1 +1,1 @@
-export { $client } from "./client.js";
+export { $client, $clientLocation } from "./client.js";
