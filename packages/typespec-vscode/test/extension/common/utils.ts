@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import os from "node:os";
-import path from "node:path";
+import path, { join } from "node:path";
 import { ElectronApplication, Page, _electron } from "playwright";
 import { test as baseTest, inject } from "vitest";
 
@@ -59,6 +59,11 @@ export const test = baseTest.extend<{
         ].filter((v): v is string => !!v),
       });
       const page = await app.firstWindow();
+      const tracePath = join(projectRoot, "test-results", task.name, "trace.zip");
+      await page.context().tracing.start({ screenshots: true, snapshots: true, title: task.name });
+      teardowns.push(async () => {
+        await page.context().tracing.stop({ path: tracePath });
+      });
       return { page, app };
     });
 
