@@ -49,20 +49,15 @@ export async function contrastResult(page: Page, res: string[], dir: string) {
 /**
  * All cases need to execute the steps. Click the top input box and enter the command
  * @param page vscode object
- * @param {folderName, command}
- * folderName: The text in the top input box is usually the current open root directory,
- * command: After the top input box pops up, the command to be executed
+ * @param command After the top input box pops up, the command to be executed
  */
-export async function startWithCommandPalette(
-  page: Page,
-  { folderName, command }: { folderName: string; command: string },
-) {
+export async function startWithCommandPalette(page: Page, command: string) {
   await sleep(2);
-  await page.locator("li").filter({ hasText: folderName }).first().click();
+  page.keyboard.press("ControlOrMeta+Shift+P");
   await sleep(2);
   await screenshot(page, "linux", "open_top_panel");
   await page
-    .getByRole("textbox", { name: "Search files by name (append" })
+    .getByRole("textbox", { name: "Type the name of a command to run." })
     .first()
     .fill(`>TypeSpec: ${command}`);
   let listForCreate: Locator;

@@ -87,10 +87,7 @@ describe.each(CreateCasesConfigList)("CreateTypespecProject", async (item) => {
     }
     mockShowOpenDialog(app, [workspacePath]);
     if (triggerType === CreateProjectTriggerType.Command) {
-      await startWithCommandPalette(page, {
-        folderName: path.basename(CreateTypespecProjectFolderPath),
-        command: "Create Typespec Project",
-      });
+      await startWithCommandPalette(page, "Create Typespec Project");
     } else {
       await startWithClick(page);
     }
