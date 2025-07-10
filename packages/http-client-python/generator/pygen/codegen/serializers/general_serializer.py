@@ -20,7 +20,7 @@ VERSION_MAP = {
     "msrest": "0.7.1",
     "isodate": "0.6.1",
     "azure-mgmt-core": "1.5.0",
-    "azure-core": "1.30.0",
+    "azure-core": "1.35.0",
     "typing-extensions": "4.6.0",
     "corehttp": "1.0.0b6",
 }
