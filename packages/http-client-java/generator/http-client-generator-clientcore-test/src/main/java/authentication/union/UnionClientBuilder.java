@@ -20,15 +20,19 @@ import io.clientcore.core.http.pipeline.HttpRetryOptions;
 import io.clientcore.core.http.pipeline.HttpRetryPolicy;
 import io.clientcore.core.http.pipeline.KeyCredentialPolicy;
 import io.clientcore.core.http.pipeline.OAuthBearerTokenAuthenticationPolicy;
+import io.clientcore.core.instrumentation.Instrumentation;
+import io.clientcore.core.instrumentation.SdkInstrumentationOptions;
 import io.clientcore.core.traits.ConfigurationTrait;
 import io.clientcore.core.traits.EndpointTrait;
 import io.clientcore.core.traits.HttpTrait;
 import io.clientcore.core.traits.KeyCredentialTrait;
 import io.clientcore.core.traits.OAuthTokenCredentialTrait;
 import io.clientcore.core.traits.ProxyTrait;
+import io.clientcore.core.utils.CoreUtils;
 import io.clientcore.core.utils.configuration.Configuration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -46,6 +50,9 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String[] DEFAULT_SCOPES = new String[] { "https://security.microsoft.com/.default" };
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("authentication-union.properties");
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
@@ -222,7 +229,16 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
     private UnionClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        UnionClientImpl client = new UnionClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        UnionClientImpl client = new UnionClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -264,6 +280,7 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public UnionClient buildClient() {
-        return new UnionClient(buildInnerClient());
+        UnionClientImpl innerClient = buildInnerClient();
+        return new UnionClient(innerClient, innerClient.getInstrumentation());
     }
 }

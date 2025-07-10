@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import versioning.removed.ModelV2;
 import versioning.removed.ModelV3;
@@ -70,14 +71,31 @@ public final class RemovedClientImpl {
     }
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
      * Initializes an instance of RemovedClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
      * @param serviceVersion Service version.
      */
-    public RemovedClientImpl(HttpPipeline httpPipeline, String endpoint, RemovedServiceVersion serviceVersion) {
+    public RemovedClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint,
+        RemovedServiceVersion serviceVersion) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
         this.serviceVersion = serviceVersion;
         this.service = RemovedClientService.getNewInstance(this.httpPipeline);
