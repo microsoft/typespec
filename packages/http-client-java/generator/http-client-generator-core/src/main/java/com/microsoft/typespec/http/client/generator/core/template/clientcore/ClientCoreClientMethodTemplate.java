@@ -837,8 +837,6 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), (function -> {
             addOptionalVariables(function, clientMethod);
 
-            function.line("// !!! generateSimpleSyncMethod");
-
             String argumentList = clientMethod.getArgumentList();
 
             argumentList = argumentList == null || argumentList.isEmpty()
