@@ -68,7 +68,7 @@ class SampleSerializer(BaseSerializer):
 
     def _client_params(self) -> dict[str, Any]:
         # client params
-        special_param = {}
+        special_param: dict[str, str] = {}
         credential_type = getattr(self.code_model.clients[0].credential, "type", None)
         if isinstance(credential_type, TokenCredentialType):
             special_param |= {"credential": "DefaultAzureCredential()"}
