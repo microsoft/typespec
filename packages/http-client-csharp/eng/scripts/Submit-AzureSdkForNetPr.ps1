@@ -26,7 +26,7 @@ param(
   [string]$AuthToken,
 
   [Parameter(Mandatory = $false)]
-  [string]$BranchName = "typespec/update-http-client-$PackageVersion",
+  [string]$BranchName = "typespec/update-http-client-$PackageVersion-$(Get-Date -Format 'yyyyMMdd-HHmmss')",
 
   [Parameter(Mandatory = $false)]
   [string]$TypeSpecSourcePackageJsonPath
@@ -142,50 +142,52 @@ try {
     }
     
     # Only run expensive operations if we actually made updates
-    if ($packageJsonUpdated) {
-        # Run npm install in the http-client-csharp directory
-        Write-Host "Running npm install in eng/packages/http-client-csharp..."
-        $httpClientDir = Join-Path $tempDir "eng/packages/http-client-csharp"
-        Invoke "npm install" $httpClientDir
-        if ($LASTEXITCODE -ne 0) {
-            throw "npm install failed"
-        }
+    # if ($packageJsonUpdated) {
+    #     # Run npm install in the http-client-csharp directory
+    #     Write-Host "Running npm install in eng/packages/http-client-csharp..."
+    #     $httpClientDir = Join-Path $tempDir "eng/packages/http-client-csharp"
+    #     Invoke "npm install" $httpClientDir
+    #     if ($LASTEXITCODE -ne 0) {
+    #         throw "npm install failed"
+    #     }
         
-        # Run npm run build
-        Write-Host "Running npm run build in eng/packages/http-client-csharp..."
-        $shouldRunGenerate = $true
-        $previousErrorAction = $ErrorActionPreference
-        $ErrorActionPreference = "Continue"
-        try {
-            Invoke "npm run build" $httpClientDir
-            if ($LASTEXITCODE -ne 0) {
-                Write-Warning "npm run build failed with exit code $LASTEXITCODE, skipping Generate.ps1"
-                Write-Host "##vso[task.complete result=SucceededWithIssues;]"
-                $shouldRunGenerate = $false
-            }
-        } catch {
-            Write-Warning "npm run build failed: $($_.Exception.Message), skipping Generate.ps1"
-            $shouldRunGenerate = $false
-        } finally {
-            $ErrorActionPreference = $previousErrorAction
-        }
+    #     # Run npm run build
+    #     Write-Host "Running npm run build in eng/packages/http-client-csharp..."
+    #     $shouldRunGenerate = $true
+    #     $previousErrorAction = $ErrorActionPreference
+    #     $ErrorActionPreference = "Continue"
+    #     try {
+    #         Invoke "npm run build" $httpClientDir
+    #         if ($LASTEXITCODE -ne 0) {
+    #             Write-Warning "npm run build failed with exit code $LASTEXITCODE, skipping Generate.ps1"
+    #             Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+    #             $shouldRunGenerate = $false
+    #         }
+    #     } catch {
+    #         Write-Warning "npm run build failed: $($_.Exception.Message), skipping Generate.ps1"
+    #         $shouldRunGenerate = $false
+    #     } finally {
+    #         $ErrorActionPreference = $previousErrorAction
+    #     }
         
-        # Run Generate.ps1 from the package root
-        if ($shouldRunGenerate -eq $true)
-        {
-            Write-Host "Running eng/packages/http-client-csharp/eng/scripts/Generate.ps1..."
-            & (Join-Path $tempDir "eng/packages/http-client-csharp/eng/scripts/Generate.ps1")
-            if ($LASTEXITCODE -ne 0) {
-                throw "Generate.ps1 failed"
-            }
-        }
-    }
+    #     # Run Generate.ps1 from the package root
+    #     if ($shouldRunGenerate -eq $true)
+    #     {
+    #         Write-Host "Running eng/packages/http-client-csharp/eng/scripts/Generate.ps1..."
+    #         & (Join-Path $tempDir "eng/packages/http-client-csharp/eng/scripts/Generate.ps1")
+    #         if ($LASTEXITCODE -ne 0) {
+    #             throw "Generate.ps1 failed"
+    #         }
+    #     }
+    # }
     
     # Generate emitter-package.json files using tsp-client if TypeSpec package.json is provided
     if ($TypeSpecSourcePackageJsonPath -and (Test-Path $TypeSpecSourcePackageJsonPath)) {
         Write-Host "Generating emitter-package.json files using tsp-client..."
-        $emitterPackageJsonPath = Join-Path $tempDir "eng/http-client-csharp-emitter-package.json"
-        Invoke "tsp-client generate-config-files --package-json $TypeSpecSourcePackageJsonPath --emitter-package-json-path $emitterPackageJsonPath" $tempDir
+        $configFilesOutputDir = Join-Path $tempDir "eng"
+        $emitterPackageJsonPath = Join-Path $configFilesOutputDir "http-client-csharp-emitter-package.json"
+
+        Invoke "tsp-client generate-config-files --package-json $TypeSpecSourcePackageJsonPath --emitter-package-json-path $emitterPackageJsonPath --output-dir $configFilesOutputDir" $tempDir
         if ($LASTEXITCODE -ne 0) {
             throw "Failed to generate emitter-package.json files"
         }
@@ -195,56 +197,62 @@ try {
     }
     
     # Check if there are changes to commit
-    $gitStatus = git status --porcelain
-    if (-not $gitStatus) {
-        Write-Warning "No changes detected. Skipping commit and PR creation."
-        return
-    }
+    # $gitStatus = git status --porcelain
+    # if (-not $gitStatus) {
+    #     Write-Warning "No changes detected. Skipping commit and PR creation."
+    #     return
+    # }
+
+    # TEMP print the package.json and lock files
+    Write-Host "Current eng/packages/http-client-csharp/package.json content:"
+    Get-Content (Join-Path $tempDir "eng/http-client-csharp-emitter-package.json") | Out-Host
+    Write-Host "Current eng/packages/http-client-csharp/package-lock.json content:"
+    Get-Content (Join-Path $tempDir "eng/http-client-csharp-emitter-package-lock.json") | Out-Host
 
     # Commit the changes
-    Write-Host "Committing changes..."
-    git add $propsFilePath
-    git add (Join-Path $tempDir "eng/packages/http-client-csharp/package.json")
-    git add (Join-Path $tempDir "eng/packages/http-client-csharp/package-lock.json")
-    git add (Join-Path $tempDir "eng/packages/http-client-csharp/generator/TestProjects/")
-    git add (Join-Path $tempDir "eng/http-client-csharp-emitter-package.json")
-    git add (Join-Path $tempDir "eng/http-client-csharp-emitter-package-lock.json")
+    # Write-Host "Committing changes..."
+    # git add $propsFilePath
+    # git add (Join-Path $tempDir "eng/packages/http-client-csharp/package.json")
+    # git add (Join-Path $tempDir "eng/packages/http-client-csharp/package-lock.json")
+    # git add (Join-Path $tempDir "eng/packages/http-client-csharp/generator/TestProjects/")
+    # git add (Join-Path $tempDir "eng/http-client-csharp-emitter-package.json")
+    # git add (Join-Path $tempDir "eng/http-client-csharp-emitter-package-lock.json")
     
-    if ($LASTEXITCODE -ne 0) {
-        throw "Failed to add changes"
-    }
+    # if ($LASTEXITCODE -ne 0) {
+    #     throw "Failed to add changes"
+    # }
 
-    # Build commit message based on what was updated
-    $commitMessage = "Update UnbrandedGeneratorVersion to $PackageVersion"
+    # # Build commit message based on what was updated
+    # $commitMessage = "Update UnbrandedGeneratorVersion to $PackageVersion"
     
-    git commit -m $commitMessage
-    if ($LASTEXITCODE -ne 0) {
-        throw "Failed to commit changes"
-    }
+    # git commit -m $commitMessage
+    # if ($LASTEXITCODE -ne 0) {
+    #     throw "Failed to commit changes"
+    # }
 
-    # Push the branch
-    Write-Host "Pushing branch to remote..."
-    $remoteUrl = "https://$AuthToken@github.com/$RepoOwner/$RepoName.git"
-    git push $remoteUrl $PRBranch
-    if ($LASTEXITCODE -ne 0) {
-        throw "Failed to push branch"
-    }
+    # # Push the branch
+    # Write-Host "Pushing branch to remote..."
+    # $remoteUrl = "https://$AuthToken@github.com/$RepoOwner/$RepoName.git"
+    # git push $remoteUrl $PRBranch
+    # if ($LASTEXITCODE -ne 0) {
+    #     throw "Failed to push branch"
+    # }
 
-    # Create PR using GitHub CLI
-    Write-Host "Creating PR in $RepoOwner/$RepoName using gh CLI..."
+    # # Create PR using GitHub CLI
+    # Write-Host "Creating PR in $RepoOwner/$RepoName using gh CLI..."
     
-    # Set the authentication token for gh CLI
-    $env:GH_TOKEN = $AuthToken
+    # # Set the authentication token for gh CLI
+    # $env:GH_TOKEN = $AuthToken
     
-    # Create the PR using gh CLI
-    $ghOutput = gh pr create --repo "$RepoOwner/$RepoName" --title $PRTitle --body $PRBody --base $BaseBranch --head $PRBranch 2>&1
+    # # Create the PR using gh CLI
+    # $ghOutput = gh pr create --repo "$RepoOwner/$RepoName" --title $PRTitle --body $PRBody --base $BaseBranch --head $PRBranch 2>&1
     
-    if ($LASTEXITCODE -ne 0) {
-        throw "Failed to create PR using gh CLI: $ghOutput"
-    }
+    # if ($LASTEXITCODE -ne 0) {
+    #     throw "Failed to create PR using gh CLI: $ghOutput"
+    # }
     
-    # Extract PR URL from gh output
-    $prUrl = $ghOutput.Trim()
+    # # Extract PR URL from gh output
+    # $prUrl = $ghOutput.Trim()
     Write-Host "Successfully created PR: $prUrl"
 
 } catch {

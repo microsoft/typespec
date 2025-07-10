@@ -109,7 +109,7 @@ extends:
                   filePath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Update-PackageJson.ps1
                   workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
                   arguments: >
-                    -PackageVersion '$(PackageVersion)'
+                    -PackageVersion '1.0.0-alpha.20250709.5'
                     -PackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
 
               - task: UseDotNet@2
@@ -123,7 +123,7 @@ extends:
                   pwsh: true
                   filePath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Submit-AzureSdkForNetPr.ps1
                   arguments: >
-                    -PackageVersion '$(PackageVersion)'
+                    -PackageVersion '1.0.0-alpha.20250709.5'
                     -TypeSpecCommitUrl '$(TypeSpecCommitUrl)'
                     -AuthToken '$(azuresdk-github-pat)'
                     -TypeSpecSourcePackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
