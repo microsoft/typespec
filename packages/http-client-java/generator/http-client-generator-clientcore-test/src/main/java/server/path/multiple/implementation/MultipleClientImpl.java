@@ -138,7 +138,11 @@ public final class MultipleClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> noOperationParamsWithResponse(RequestContext requestContext) {
-        return service.noOperationParams(this.getEndpoint(), this.getServiceVersion().getVersion(), requestContext);
+        return this.instrumentation.instrumentWithResponse("Server.Path.Multiple.noOperationParams", requestContext,
+            updatedContext -> {
+                return service.noOperationParams(this.getEndpoint(), this.getServiceVersion().getVersion(),
+                    updatedContext);
+            });
     }
 
     /**
@@ -153,7 +157,10 @@ public final class MultipleClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withOperationPathParamWithResponse(String keyword, RequestContext requestContext) {
-        return service.withOperationPathParam(this.getEndpoint(), this.getServiceVersion().getVersion(), keyword,
-            requestContext);
+        return this.instrumentation.instrumentWithResponse("Server.Path.Multiple.withOperationPathParam",
+            requestContext, updatedContext -> {
+                return service.withOperationPathParam(this.getEndpoint(), this.getServiceVersion().getVersion(),
+                    keyword, updatedContext);
+            });
     }
 }

@@ -130,8 +130,11 @@ public final class RecursiveClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(Extension input, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.put(this.getEndpoint(), contentType, input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.Recursive.put", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.put(this.getEndpoint(), contentType, input, updatedContext);
+            });
     }
 
     /**
@@ -145,7 +148,10 @@ public final class RecursiveClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Extension> getWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.get(this.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.Recursive.get", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.get(this.getEndpoint(), accept, updatedContext);
+            });
     }
 }

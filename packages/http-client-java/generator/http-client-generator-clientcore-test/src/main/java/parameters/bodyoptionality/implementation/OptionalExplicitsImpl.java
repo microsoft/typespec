@@ -12,6 +12,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import parameters.bodyoptionality.BodyModel;
 
@@ -30,6 +31,11 @@ public final class OptionalExplicitsImpl {
     private final BodyOptionalityClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of OptionalExplicitsImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -37,6 +43,7 @@ public final class OptionalExplicitsImpl {
     OptionalExplicitsImpl(BodyOptionalityClientImpl client) {
         this.service = OptionalExplicitsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -87,7 +94,10 @@ public final class OptionalExplicitsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> setWithResponse(BodyModel body, RequestContext requestContext) {
-        return service.set(this.client.getEndpoint(), body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Parameters.BodyOptionality.OptionalExplicit.set",
+            requestContext, updatedContext -> {
+                return service.set(this.client.getEndpoint(), body, updatedContext);
+            });
     }
 
     /**
@@ -102,6 +112,9 @@ public final class OptionalExplicitsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> omitWithResponse(BodyModel body, RequestContext requestContext) {
-        return service.omit(this.client.getEndpoint(), body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Parameters.BodyOptionality.OptionalExplicit.omit",
+            requestContext, updatedContext -> {
+                return service.omit(this.client.getEndpoint(), body, updatedContext);
+            });
     }
 }

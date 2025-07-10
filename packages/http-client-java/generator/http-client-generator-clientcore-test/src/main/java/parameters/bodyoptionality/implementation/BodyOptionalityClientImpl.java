@@ -147,8 +147,11 @@ public final class BodyOptionalityClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> requiredExplicitWithResponse(BodyModel body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.requiredExplicit(this.getEndpoint(), contentType, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Parameters.BodyOptionality.requiredExplicit",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                return service.requiredExplicit(this.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -163,8 +166,11 @@ public final class BodyOptionalityClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> requiredImplicitWithResponse(String name, RequestContext requestContext) {
-        final String contentType = "application/json";
-        BodyModel bodyModel = new BodyModel(name);
-        return service.requiredImplicit(this.getEndpoint(), contentType, bodyModel, requestContext);
+        return this.instrumentation.instrumentWithResponse("Parameters.BodyOptionality.requiredImplicit",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                BodyModel bodyModel = new BodyModel(name);
+                return service.requiredImplicit(this.getEndpoint(), contentType, bodyModel, updatedContext);
+            });
     }
 }

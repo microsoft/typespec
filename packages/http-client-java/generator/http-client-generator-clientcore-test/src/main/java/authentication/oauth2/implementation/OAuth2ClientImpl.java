@@ -126,7 +126,10 @@ public final class OAuth2ClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> validWithResponse(RequestContext requestContext) {
-        return service.valid(this.getEndpoint(), requestContext);
+        return this.instrumentation.instrumentWithResponse("Authentication.OAuth2.valid", requestContext,
+            updatedContext -> {
+                return service.valid(this.getEndpoint(), updatedContext);
+            });
     }
 
     /**
@@ -140,7 +143,10 @@ public final class OAuth2ClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> invalidWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.invalid(this.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Authentication.OAuth2.invalid", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.invalid(this.getEndpoint(), accept, updatedContext);
+            });
     }
 }

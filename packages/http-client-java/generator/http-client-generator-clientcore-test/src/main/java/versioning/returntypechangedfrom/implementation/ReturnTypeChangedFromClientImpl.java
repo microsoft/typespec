@@ -139,9 +139,12 @@ public final class ReturnTypeChangedFromClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<String> testWithResponse(String body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.test(this.getEndpoint(), this.getServiceVersion().getVersion(), contentType, accept, body,
-            requestContext);
+        return this.instrumentation.instrumentWithResponse("Versioning.ReturnTypeChangedFrom.test", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.test(this.getEndpoint(), this.getServiceVersion().getVersion(), contentType, accept,
+                    body, updatedContext);
+            });
     }
 }
