@@ -2716,9 +2716,9 @@ export class CodeModelBuilder {
     return objectSchema;
   }
 
-  private processModelProperty(prop: SdkModelPropertyType): Property {
+  private processModelProperty(modelProperty: SdkModelPropertyType): Property {
     let nullable = false;
-    let nonNullType = prop.type;
+    let nonNullType = modelProperty.type;
     if (nonNullType.kind === "nullable") {
       nullable = true;
       nonNullType = nonNullType.type;
@@ -2726,32 +2726,32 @@ export class CodeModelBuilder {
     let schema;
 
     let extensions: Record<string, any> | undefined = undefined;
-    if (this.isSecret(prop)) {
+    if (this.isSecret(modelProperty)) {
       extensions = extensions ?? {};
       extensions["x-ms-secret"] = true;
       // if the property does not return in response, it had to be nullable
       nullable = true;
     }
-    if (prop.kind === "property" && prop.flatten) {
+    if (modelProperty.kind === "property" && modelProperty.flatten) {
       extensions = extensions ?? {};
       extensions["x-ms-client-flatten"] = true;
     }
-    const mutability = this.getMutability(prop);
+    const mutability = this.getMutability(modelProperty);
     if (mutability) {
       extensions = extensions ?? {};
       extensions["x-ms-mutability"] = mutability;
     }
 
-    if (prop.kind === "property" && prop.serializationOptions.multipart) {
-      if (prop.serializationOptions.multipart?.isFilePart) {
-        schema = this.processMultipartFormDataFilePropertySchema(prop);
+    if (modelProperty.kind === "property" && modelProperty.serializationOptions.multipart) {
+      if (modelProperty.serializationOptions.multipart?.isFilePart) {
+        schema = this.processMultipartFormDataFilePropertySchema(modelProperty);
       } else if (
-        prop.type.kind === "model" &&
-        prop.type.properties.some((it) => it.kind === "body")
+        modelProperty.type.kind === "model" &&
+        modelProperty.type.properties.some((it) => it.kind === "body")
       ) {
         // TODO: this is HttpPart of non-File. TCGC should help handle this.
         schema = this.processSchema(
-          prop.type.properties.find((it) => it.kind === "body")!.type,
+          modelProperty.type.properties.find((it) => it.kind === "body")!.type,
           "",
         );
       } else {
@@ -2761,27 +2761,28 @@ export class CodeModelBuilder {
       schema = this.processSchema(nonNullType, "");
     }
 
-    const property = new Property(prop.name, prop.doc ?? "", schema, {
-      summary: prop.summary,
-      required: !prop.optional,
+    const codeModelProperty = new Property(modelProperty.name, modelProperty.doc ?? "", schema, {
+      summary: modelProperty.summary,
+      required: !modelProperty.optional,
       nullable: nullable,
-      readOnly: this.isReadOnly(prop),
-      serializedName: prop.kind === "property" ? getPropertySerializedName(prop) : undefined,
+      readOnly: this.isReadOnly(modelProperty),
+      serializedName:
+        modelProperty.kind === "property" ? getPropertySerializedName(modelProperty) : undefined,
       extensions: extensions,
     });
 
     // xml
-    if (prop.kind === "property" && prop.serializationOptions.xml) {
+    if (modelProperty.kind === "property" && modelProperty.serializationOptions.xml) {
       // property.serializedName is set via getPropertySerializedName
 
       // "serialization" is set to the property in TypeSpec emitter, not in the schema
       // this avoid duplicate schema, when different property has different serialization options, but refers to the same schema
-      const propertyWithSerialization = property as Serializable;
+      const propertyWithSerialization = codeModelProperty as Serializable;
       propertyWithSerialization.serialization = propertyWithSerialization.serialization ?? {};
-      propertyWithSerialization.serialization.xml = getXmlSerializationFormat(prop);
+      propertyWithSerialization.serialization.xml = getXmlSerializationFormat(modelProperty);
     }
 
-    return property;
+    return codeModelProperty;
   }
 
   private processUnionSchema(type: SdkUnionType, name: string): Schema {
