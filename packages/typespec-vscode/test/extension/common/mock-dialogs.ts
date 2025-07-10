@@ -54,12 +54,12 @@ export function stubMultipleDialogs<T extends keyof Dialog>(
 
   // https://github.com/microsoft/playwright/issues/8278#issuecomment-1009957411
   return app.evaluate(({ dialog }, mocks) => {
-    mocks.forEach((mock: DialogMethodStub<keyof Dialog>) => {
+    mocks.forEach((mock) => {
       const thisDialog = dialog[mock.method];
       if (!thisDialog) {
-        throw new Error(`can't find ${mock.method as any} on dialog module.`);
+        throw new Error(`can't find ${mock.method} on dialog module.`);
       }
-      if ((mock.method as any).endsWith("Sync")) {
+      if (mock.method.endsWith("Sync")) {
         dialog[mock.method] = () => {
           return mock.value;
         };
