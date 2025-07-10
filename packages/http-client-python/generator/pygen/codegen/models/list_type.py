@@ -5,7 +5,7 @@
 # --------------------------------------------------------------------------
 from typing import Any, Optional, Union, TYPE_CHECKING
 from .base import BaseType
-from .imports import FileImport, ImportType, TypingSection
+from .imports import FileImport
 
 if TYPE_CHECKING:
     from .code_model import CodeModel

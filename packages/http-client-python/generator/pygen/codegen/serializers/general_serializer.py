@@ -204,39 +204,35 @@ class GeneralSerializer(BaseSerializer):
             f"{model.client_namespace}.models.{model.name}": model.cross_language_definition_id
             for model in self.code_model.public_model_types
         }
-        cross_langauge_def_dict |= ({
+        cross_langauge_def_dict |= {
             f"{self.code_model.namespace}.models.{enum.name}": enum.cross_language_definition_id
             for enum in self.code_model.enums
             if not enum.internal
-        })
-        
+        }
+
         for client in self.code_model.clients:
             for operation_group in client.operation_groups:
                 for operation in operation_group.operations:
                     if operation.name.startswith("_"):
                         continue
-                    cross_langauge_def_dict |= (
-                        {
-                            f"{self.code_model.namespace}."
-                            + (
-                                f"{client.name}."
-                                if operation_group.is_mixin
-                                else f"operations.{operation_group.class_name}."
-                            )
-                            + f"{operation.name}": operation.cross_language_definition_id
-                        }
-                    )
-                    cross_langauge_def_dict |= (
-                        {
-                            f"{self.code_model.namespace}.aio."
-                            + (
-                                f"{client.name}."
-                                if operation_group.is_mixin
-                                else f"operations.{operation_group.class_name}."
-                            )
-                            + f"{operation.name}": operation.cross_language_definition_id
-                        }
-                    )
+                    cross_langauge_def_dict |= {
+                        f"{self.code_model.namespace}."
+                        + (
+                            f"{client.name}."
+                            if operation_group.is_mixin
+                            else f"operations.{operation_group.class_name}."
+                        )
+                        + f"{operation.name}": operation.cross_language_definition_id
+                    }
+                    cross_langauge_def_dict |= {
+                        f"{self.code_model.namespace}.aio."
+                        + (
+                            f"{client.name}."
+                            if operation_group.is_mixin
+                            else f"operations.{operation_group.class_name}."
+                        )
+                        + f"{operation.name}": operation.cross_language_definition_id
+                    }
         return json.dumps(
             {
                 "CrossLanguagePackageId": self.code_model.cross_language_package_id,

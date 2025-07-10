@@ -142,7 +142,7 @@ class Property(BaseModel):  # pylint: disable=too-many-instance-attributes
             retval["readonly"] = True
         if self.constant:
             retval["constant"] = True
-        retval |= (self.type.validation or {})
+        retval |= self.type.validation or {}
         return retval or None
 
     def imports(self, **kwargs) -> FileImport:

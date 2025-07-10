@@ -4,7 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 from .import_serializer import FileImportSerializer
-from ..models import ImportType, FileImport
+from ..models import FileImport
 from .base_serializer import BaseSerializer
 
 
