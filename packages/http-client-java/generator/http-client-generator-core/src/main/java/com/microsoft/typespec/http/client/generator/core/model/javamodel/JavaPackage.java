@@ -307,7 +307,7 @@ public class JavaPackage {
 
             JavaFile javaFile = javaFileFactory.createTestFile(packageName, className);
             ModelTestTemplate.getInstance().write(model, javaFile);
-            if (this.checkDuplicateFile(javaFile.getFilePath())) {
+            if (!this.checkDuplicateFile(javaFile.getFilePath())) {
                 javaFiles.add(javaFile);
             }
         } catch (PossibleCredentialException e) {
@@ -408,6 +408,12 @@ public class JavaPackage {
         }
     }
 
+    /**
+     * Checks whether there is a file with the same name already generated.
+     *
+     * @param filePath the path of the file.
+     * @return true if there is a file with the same name already generated, false otherwise.
+     */
     protected boolean checkDuplicateFile(String filePath) {
         if (filePaths.contains(filePath)) {
             /*
