@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import os from "node:os";
-import path, { resolve } from "node:path";
+import path from "node:path";
 import { ElectronApplication, Page, _electron } from "playwright";
 import { test as baseTest, inject } from "vitest";
 
@@ -25,12 +25,8 @@ type LaunchFixture = (options: {
  */
 export const test = baseTest.extend<{
   launch: LaunchFixture;
-  taskName: string;
-  logPath: string;
 }>({
-  taskName: async ({ task }, use) => use(`${task.name}-${task.id}`),
-  logPath: async ({ taskName }, use) => use(resolve(`./tests-logs-${taskName}.txt`)),
-  launch: async ({ taskName, logPath }, use) => {
+  launch: async ({ task }, use) => {
     const teardowns: (() => Promise<void>)[] = [];
 
     await use(async (options) => {
@@ -48,8 +44,6 @@ export const test = baseTest.extend<{
         env: {
           ...process.env,
           ...envOverrides,
-          VITEST_VSCODE_E2E_LOG_FILE: logPath,
-          VITEST_VSCODE_LOG: "verbose",
         },
         args: [
           "--no-sandbox",
@@ -65,18 +59,6 @@ export const test = baseTest.extend<{
         ].filter((v): v is string => !!v),
       });
       const page = await app.firstWindow();
-      const userSettingsPath = path.join(tempDir, "user-data", "User", "settings.json");
-      fs.writeFileSync(
-        userSettingsPath,
-        JSON.stringify({
-          "typespec.initTemplatesUrls": [
-            {
-              name: "Azure",
-              url: "https://aka.ms/typespec/azure-init",
-            },
-          ],
-        }),
-      );
       return { page, app };
     });
 
