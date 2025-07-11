@@ -6,7 +6,8 @@ import { test as baseTest, inject } from "vitest";
 
 const __dirname = import.meta.dirname;
 export const projectRoot = path.resolve(__dirname, "../../../");
-export const imagesPath = path.resolve(projectRoot, "test/extension/images-linux");
+export const tempDir = path.resolve(projectRoot, "test/extension/temp");
+export const imagesPath = path.resolve(projectRoot, "test/extension/temp/images-linux");
 
 interface Context {
   page: Page;
@@ -60,7 +61,9 @@ export const test = baseTest.extend<{
       });
       const page = await app.firstWindow();
       const tracePath = join(projectRoot, "test-results", task.name, "trace.zip");
+      const artifactsDir = join(tempDir, "playwright-artifacts");
       console.log("Trace path:", tracePath);
+      process.env.TMPDIR = artifactsDir;
       await page.context().tracing.start({ screenshots: true, snapshots: true, title: task.name });
       console.log("Tracing started...");
       teardowns.push(async () => {
