@@ -1,7 +1,7 @@
 import { render } from "@alloy-js/core";
 import { d } from "@alloy-js/core/testing";
 import { SourceFile } from "@alloy-js/typescript";
-import { Namespace } from "@typespec/compiler";
+import type { Namespace } from "@typespec/compiler";
 import { format } from "prettier";
 import { assert, describe, expect, it } from "vitest";
 import { Output } from "../../../src/core/components/output.jsx";

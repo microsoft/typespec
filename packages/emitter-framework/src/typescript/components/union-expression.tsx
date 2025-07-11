@@ -1,7 +1,12 @@
-import * as ay from "@alloy-js/core";
-import { Children } from "@alloy-js/core";
+import { type Children, For, List } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { compilerAssert, Enum, EnumMember, Union, UnionVariant } from "@typespec/compiler";
+import {
+  compilerAssert,
+  type Enum,
+  type EnumMember,
+  type Union,
+  type UnionVariant,
+} from "@typespec/compiler";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { efRefkey } from "../utils/refkey.js";
 import { TypeExpression } from "./type-expression.jsx";
@@ -19,7 +24,7 @@ export function UnionExpression({ type, children }: UnionExpressionProps) {
   >;
 
   const variants = (
-    <ay.For joiner={" | "} each={items}>
+    <For joiner={" | "} each={items}>
       {(_, type) => {
         if ($.enumMember.is(type)) {
           return <ts.ValueExpression jsValue={type.value ?? type.name} />;
@@ -46,7 +51,7 @@ export function UnionExpression({ type, children }: UnionExpressionProps) {
             return <TypeExpression type={type.type} />;
         }
       }}
-    </ay.For>
+    </For>
   );
 
   if (children || (Array.isArray(children) && children.length)) {
@@ -121,7 +126,7 @@ function NoneEnvelope(props: NoneEnvelopeProps) {
   }
 
   return (
-    <ay.List joiner={" & "}>
+    <List joiner={" & "}>
       <ts.ObjectExpression>
         <ts.ObjectProperty
           name={props.discriminatorPropertyName}
@@ -129,6 +134,6 @@ function NoneEnvelope(props: NoneEnvelopeProps) {
         />
       </ts.ObjectExpression>
       <>{efRefkey(props.type.type)}</>
-    </ay.List>
+    </List>
   );
 }

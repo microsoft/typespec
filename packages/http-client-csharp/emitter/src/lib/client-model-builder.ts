@@ -5,8 +5,8 @@ import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { CodeModel } from "../type/code-model.js";
 import { fromSdkClients } from "./client-converter.js";
-import { navigateModels } from "./model.js";
 import { processServiceAuthentication } from "./service-authentication.js";
+import { fromSdkType } from "./type-converter.js";
 import { firstLetterToUpperCase, getClientNamespaceString } from "./utils.js";
 
 /**
@@ -16,20 +16,30 @@ import { firstLetterToUpperCase, getClientNamespaceString } from "./utils.js";
  * @beta
  */
 export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
-  const sdkPackage = sdkContext.sdkPackage;
-
+  // convert all the models and enums in the sdkPackage to the type cache.
   navigateModels(sdkContext);
 
+  const sdkPackage = sdkContext.sdkPackage;
   const sdkApiVersionEnums = sdkPackage.enums.filter((e) => e.usage === UsageFlags.ApiVersionEnum);
-
   const rootClients = sdkPackage.clients;
-
   const rootApiVersions =
     sdkApiVersionEnums.length > 0
       ? sdkApiVersionEnums[0].values.map((v) => v.value as string).flat()
       : (rootClients[0]?.apiVersions ?? []);
 
   const inputClients = fromSdkClients(sdkContext, rootClients, rootApiVersions);
+
+  // TODO -- because of an implementation bug in autorest.csharp,
+  // we have to do this in this way instead the nicer way of
+  // const enums = fromSdkEnums(sdkContext, sdkPackage.enums);
+  // we could change it back once autorest.csharp is deprecated for DPG.
+  const enums = Array.from(sdkContext.__typeCache.enums.values());
+  // TODO -- for models, because we do not have a way to deal with models with the same name in different namespaces,
+  // we collapse all models with the same name into one model.
+  // until we find a solution for that, we would always need this workaround.
+  const models = Array.from(sdkContext.__typeCache.models.values());
+  // TODO -- TCGC now does not have constants field in its sdkPackage, they might add it in the future.
+  const constants = Array.from(sdkContext.__typeCache.constants.values());
 
   // TODO - TCGC has two issues which come from the same root cause: the name determination algorithm based on the typespec node of the constant.
   // typespec itself will always use the same node/Type instance for the same value constant, therefore a lot of names are not correct.
@@ -69,12 +79,21 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
     // if the typespec is changed.
     name: getClientNamespaceString(sdkContext)!,
     apiVersions: rootApiVersions,
-    enums: Array.from(sdkContext.__typeCache.enums.values()),
-    constants: Array.from(sdkContext.__typeCache.constants.values()),
-    models: Array.from(sdkContext.__typeCache.models.values()),
+    enums: enums,
+    constants: constants,
+    models: models,
     clients: inputClients,
     auth: processServiceAuthentication(sdkContext, sdkPackage),
   };
 
   return clientModel;
+}
+
+function navigateModels(sdkContext: CSharpEmitterContext) {
+  for (const m of sdkContext.sdkPackage.models) {
+    fromSdkType(sdkContext, m);
+  }
+  for (const e of sdkContext.sdkPackage.enums) {
+    fromSdkType(sdkContext, e);
+  }
 }

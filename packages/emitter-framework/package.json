@@ -33,29 +33,43 @@
       "import": "./dist/src/testing/index.js"
     }
   },
+  "imports": {
+    "#test/*": "./test/*",
+    "#core/*": {
+      "development": "./src/core/*",
+      "default": "./dist/src/core/*"
+    },
+    "#csharp/*": {
+      "development": "./src/csharp/*",
+      "default": "./dist/src/csharp/*"
+    },
+    "#typescript/*": {
+      "development": "./src/typescript/*",
+      "default": "./dist/src/typescript/*"
+    }
+  },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "description": "",
   "peerDependencies": {
-    "@alloy-js/core": "^0.17.0",
-    "@alloy-js/typescript": "^0.17.0",
-    "@alloy-js/csharp": "^0.17.0",
+    "@alloy-js/core": "^0.18.2",
+    "@alloy-js/typescript": "^0.18.0",
+    "@alloy-js/csharp": "^0.18.0",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
     "@typespec/rest": "workspace:^"
   },
   "devDependencies": {
-    "@alloy-js/cli": "^0.17.0",
+    "@alloy-js/cli": "^0.18.0",
     "@alloy-js/rollup-plugin": "^0.1.0",
-    "@alloy-js/core": "^0.17.0",
-    "@alloy-js/typescript": "^0.17.0",
-    "@types/minimist": "^1.2.5",
+    "@alloy-js/core": "^0.18.2",
+    "@alloy-js/typescript": "^0.18.0",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
     "@typespec/rest": "workspace:^",
     "concurrently": "^9.1.2",
-    "minimist": "^1.2.8",
+    "pathe": "^2.0.3",
     "prettier": "~3.5.3",
     "web-tree-sitter": "^0.25.4",
     "tree-sitter-c-sharp": "^0.23.0",

@@ -1671,7 +1671,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                 "p1",
                                 InputPrimitiveType.String,
                                 location: InputRequestLocation.Body),
-                        ]), false, false);
+                        ]), true, true);
 
                 // Protocol & convenience methods will have different parameters since there is a model body param, so RequestOptions should be optional.
                 yield return new TestCaseData(
@@ -1706,7 +1706,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                 isRequired: true),
                         ]), true, false);
 
-                // Protocol & convenience methods will have different parameters but since the body parameter is optional, the request options should be required in protocol method.
+                // Protocol & convenience methods will have different parameters but since the body parameter is optional,
+                // the body parameter of the protocol method will be made required, and the request options should remain optional.
                 yield return new TestCaseData(
                     InputFactory.BasicServiceMethod(
                         "TestServiceMethod",
@@ -1737,7 +1738,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                 InputFactory.Model("SampleModel"),
                                 location: InputRequestLocation.Body,
                                 isRequired: false),
-                        ]), false, true);
+                        ]), true, true);
 
 
                 // Convenience method has no parameters, RequestOptions should be required in protocol method.

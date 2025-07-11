@@ -389,6 +389,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _arguments = null;
         }
 
+        /// <summary>
+        /// Updates the type provider with new values for its properties, methods, constructors, etc.
+        /// </summary>
+        /// <param name="methods">The new methods.</param>
+        /// <param name="constructors">The new constructors.</param>
+        /// <param name="properties">The new properties.</param>
+        /// <param name="fields">The new fields.</param>
+        /// <param name="serializations">The new serializations.</param>
+        /// <param name="nestedTypes">The new nested types.</param>
+        /// <param name="xmlDocs">The new XML docs.</param>
+        /// <param name="modifiers">The new modifiers.</param>
+        /// <param name="name">The new name.</param>
+        /// <param name="namespace">The new namespace.</param>
+        /// <param name="relativeFilePath">The new relative file path.</param>
+        /// <param name="reset">Whether to reset the type provider before applying the other changes in the update. This is useful
+        /// if you are changing the name as other properties would need to be reset and recomputed based on the new name.</param>
         public void Update(
             IEnumerable<MethodProvider>? methods = null,
             IEnumerable<ConstructorProvider>? constructors = null,
@@ -396,12 +412,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
             IEnumerable<FieldProvider>? fields = null,
             IEnumerable<TypeProvider>? serializations = null,
             IEnumerable<TypeProvider>? nestedTypes = null,
+            IEnumerable<AttributeStatement>? attributes = default,
             XmlDocProvider? xmlDocs = null,
             TypeSignatureModifiers? modifiers = null,
             string? name = null,
             string? @namespace = null,
-            string? relativeFilePath = null)
+            string? relativeFilePath = null,
+            bool reset = false)
         {
+            if (reset)
+            {
+                Reset();
+            }
             if (methods != null)
             {
                 _methods = (methods as IReadOnlyList<MethodProvider>) ?? methods.ToList();
@@ -437,6 +459,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (relativeFilePath != null)
             {
                 _relativeFilePath = relativeFilePath;
+            }
+            if (attributes != null)
+            {
+                _attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [.. attributes];
             }
 
             if (name != null)

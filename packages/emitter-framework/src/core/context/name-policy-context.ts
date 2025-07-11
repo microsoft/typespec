@@ -1,5 +1,5 @@
-import { ComponentContext, createNamedContext, useContext } from "@alloy-js/core";
-import { TransformNamePolicy } from "../transport-name-policy.js";
+import { type ComponentContext, createNamedContext, useContext } from "@alloy-js/core";
+import type { TransformNamePolicy } from "../transport-name-policy.js";
 
 export const TransformNamePolicyContext: ComponentContext<TransformNamePolicy> =
   createNamedContext<TransformNamePolicy>("TransfromNamePolicy", {

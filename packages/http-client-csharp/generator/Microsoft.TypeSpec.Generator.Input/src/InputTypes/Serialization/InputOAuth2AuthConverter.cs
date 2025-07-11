@@ -10,37 +10,33 @@ namespace Microsoft.TypeSpec.Generator.Input
 {
     internal class InputOAuth2AuthConverter : JsonConverter<InputOAuth2Auth>
     {
-        private readonly TypeSpecReferenceHandler _referenceHandler;
-
-        public InputOAuth2AuthConverter(TypeSpecReferenceHandler referenceHandler)
+        public InputOAuth2AuthConverter()
         {
-            _referenceHandler = referenceHandler;
         }
 
         public override InputOAuth2Auth? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            => reader.ReadReferenceAndResolve<InputOAuth2Auth>(_referenceHandler.CurrentResolver) ?? CreateInputOAuth2Auth(ref reader, null, options, _referenceHandler.CurrentResolver);
+            => CreateInputOAuth2Auth(ref reader, options);
 
         public override void Write(Utf8JsonWriter writer, InputOAuth2Auth value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        private static InputOAuth2Auth CreateInputOAuth2Auth(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options, ReferenceResolver resolver)
+        private static InputOAuth2Auth CreateInputOAuth2Auth(ref Utf8JsonReader reader, JsonSerializerOptions options)
         {
-            var isFirstProperty = id == null;
+            if (reader.TokenType == JsonTokenType.StartObject)
+            {
+                reader.Read();
+            }
             IReadOnlyList<string>? scopes = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
-                var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
-                    || reader.TryReadComplexType("scopes", options, ref scopes);
+                var isKnownProperty = reader.TryReadComplexType("scopes", options, ref scopes);
                 if (!isKnownProperty)
                 {
                     reader.SkipProperty();
                 }
             }
             var result = new InputOAuth2Auth(scopes ?? []);
-            if (id != null)
-            {
-                resolver.AddReference(id, result);
-            }
+
             return result;
         }
     }

@@ -16,13 +16,32 @@ export interface OutputViewProps {
    */
   viewers?: ProgramViewer[];
   fileViewers?: FileOutputViewer[];
+  /**
+   * The currently selected viewer key.
+   */
+  selectedViewer?: string;
+  /**
+   * Callback when the selected viewer changes.
+   */
+  onViewerChange?: (viewerKey: string) => void;
+  /**
+   * Current viewer state for viewers that have internal state.
+   */
+  viewerState?: Record<string, any>;
+  /**
+   * Callback when viewer state changes.
+   */
+  onViewerStateChange?: (state: Record<string, any>) => void;
 }
 
 export const OutputView: FunctionComponent<OutputViewProps> = ({
   compilationState,
   viewers,
   fileViewers,
-  editorOptions,
+  selectedViewer,
+  onViewerChange,
+  viewerState,
+  onViewerStateChange,
 }) => {
   const resolvedViewers = useMemo(
     () => resolveViewers(viewers, fileViewers),
@@ -39,7 +58,10 @@ export const OutputView: FunctionComponent<OutputViewProps> = ({
     <OutputViewInternal
       compilationResult={compilationState}
       viewers={resolvedViewers}
-      editorOptions={editorOptions}
+      selectedViewer={selectedViewer}
+      onViewerChange={onViewerChange}
+      viewerState={viewerState}
+      onViewerStateChange={onViewerStateChange}
     />
   );
 };
@@ -69,15 +91,32 @@ interface ResolvedViewers {
 
 const OutputViewInternal: FunctionComponent<{
   compilationResult: CompileResult;
-  editorOptions?: PlaygroundEditorsOptions;
   viewers: ResolvedViewers;
-}> = ({ compilationResult, viewers, editorOptions }) => {
+  selectedViewer?: string;
+  onViewerChange?: (viewerKey: string) => void;
+  viewerState?: Record<string, any>;
+  onViewerStateChange?: (state: Record<string, any>) => void;
+}> = ({
+  compilationResult,
+  viewers,
+  selectedViewer,
+  onViewerChange,
+  viewerState,
+  onViewerStateChange,
+}) => {
   const viewerList = Object.values(viewers.programViewers);
-  const [selected, setSelected] = useState(viewerList[0].key);
+  const [internalSelected, setInternalSelected] = useState(viewerList[0].key);
+
+  // Use controlled or uncontrolled selection
+  const selected = selectedViewer ?? internalSelected;
 
   const onTabSelect = useCallback<SelectTabEventHandler>(
-    (_, data) => setSelected(data.value as any),
-    [setSelected],
+    (_, data) => {
+      const newSelection = data.value as string;
+      setInternalSelected(newSelection);
+      onViewerChange?.(newSelection);
+    },
+    [onViewerChange],
   );
 
   const viewer = useMemo(() => {
@@ -90,6 +129,8 @@ const OutputViewInternal: FunctionComponent<{
           <viewer.render
             program={compilationResult.program}
             outputFiles={compilationResult.outputFiles}
+            viewerState={viewerState}
+            onViewerStateChange={onViewerStateChange}
           />
         </ErrorBoundary>
       </div>

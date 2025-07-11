@@ -565,6 +565,48 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual(Helpers.GetExpectedFromFile(parameters: acceptIsConstant.ToString()), file.Content);
         }
 
+        [Test]
+        public void TestNextLinkReinjectedParametersInCreateRequestMethod()
+        {
+            var p1 = InputFactory.Parameter("p1", InputPrimitiveType.String, location: InputRequestLocation.Query, isRequired: true, nameInRequest: "someOtherName");
+            var p2 = InputFactory.Parameter("p2", InputPrimitiveType.String, location: InputRequestLocation.Query, isRequired: true, delimiter: " ");
+            var p3 = InputFactory.Parameter("p3", InputPrimitiveType.String, location: InputRequestLocation.Header, isRequired: true);
+            List<InputParameter> parameters =
+            [
+                p1,
+                p2,
+                p3,
+                // Accept header should be included for next link requests
+                InputFactory.Parameter("accept", new InputLiteralType("Accept", "ns", InputPrimitiveType.String, "application/json"), kind: InputParameterKind.Constant, location: InputRequestLocation.Header, isRequired: true, nameInRequest: "Accept", defaultValue: new InputConstant("application/json", InputPrimitiveType.String)),
+            ];
+            var inputModel = InputFactory.Model("cat", properties:
+            [
+                InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
+            ]);
+            var pagingMetadata = InputFactory.NextLinkPagingMetadata("cats", "nextCat", InputResponseLocation.Header, [p1, p2, p3]);
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "page",
+                    properties: [InputFactory.Property("cats", InputFactory.Array(inputModel)), InputFactory.Property("nextCat", InputPrimitiveType.Url)]));
+            var operation = InputFactory.Operation("getCats", responses: [response], parameters: parameters);
+            var inputServiceMethod = InputFactory.PagingServiceMethod(
+                "getCats",
+                operation,
+                pagingMetadata: pagingMetadata,
+                parameters: parameters);
+            var client = InputFactory.Client(
+                "TestClient",
+                methods: [inputServiceMethod]);
+
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = new MockClientProvider(client, clientProvider);
+
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
         private static void ValidateResponseClassifier(MethodBodyStatements bodyStatements, string parsedStatusCodes)
         {
             var classifier = $"PipelineMessageClassifier{parsedStatusCodes}";

@@ -452,11 +452,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 name);
         }
 
-        public static InputPagingServiceMetadata NextLinkPagingMetadata(string itemPropertyName, string nextLinkName, InputResponseLocation nextLinkLocation)
+        public static InputPagingServiceMetadata NextLinkPagingMetadata(
+            string itemPropertyName,
+            string nextLinkName,
+            InputResponseLocation nextLinkLocation,
+            IReadOnlyList<InputParameter>? reinjectedParameters = null)
         {
             return PagingMetadata(
                 [itemPropertyName],
-                new InputNextLink(null, [nextLinkName], nextLinkLocation),
+                new InputNextLink(null, [nextLinkName], nextLinkLocation, reinjectedParameters),
                 null);
         }
 

@@ -11,6 +11,8 @@ The URL of the pull request in the TypeSpec repository that triggered this updat
 A GitHub personal access token for authentication.
 .PARAMETER BranchName
 The name of the branch to create in the azure-sdk-for-net repository.
+.PARAMETER TypeSpecSourcePackageJsonPath
+The path to the TypeSpec package.json file to use for generating emitter-package.json files.
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -24,7 +26,10 @@ param(
   [string]$AuthToken,
 
   [Parameter(Mandatory = $false)]
-  [string]$BranchName = "typespec/update-http-client-$PackageVersion"
+  [string]$BranchName = "typespec/update-http-client-$PackageVersion",
+
+  [Parameter(Mandatory = $false)]
+  [string]$TypeSpecSourcePackageJsonPath
 )
 
 # Import the Generation module to use the Invoke helper function
@@ -50,6 +55,7 @@ This PR updates the UnbrandedGeneratorVersion property in eng/Packages.Data.prop
 - Updated eng/packages/http-client-csharp/package.json dependency version
 - Ran npm install to update package-lock.json
 - Ran eng/packages/http-client-csharp/eng/scripts/Generate.ps1 to regenerate test projects
+- Generated emitter-package.json artifacts using tsp-client
 
 This is an automated PR created by the TypeSpec publish pipeline.
 "@
@@ -147,17 +153,47 @@ try {
         
         # Run npm run build
         Write-Host "Running npm run build in eng/packages/http-client-csharp..."
-        Invoke "npm run build" $httpClientDir
-        if ($LASTEXITCODE -ne 0) {
-            throw "npm run build failed"
+        $shouldRunGenerate = $true
+        $previousErrorAction = $ErrorActionPreference
+        $ErrorActionPreference = "Continue"
+        try {
+            Invoke "npm run build" $httpClientDir
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warning "npm run build failed with exit code $LASTEXITCODE, skipping Generate.ps1"
+                Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+                $shouldRunGenerate = $false
+            }
+        } catch {
+            Write-Warning "npm run build failed: $($_.Exception.Message), skipping Generate.ps1"
+            $shouldRunGenerate = $false
+        } finally {
+            $ErrorActionPreference = $previousErrorAction
         }
         
         # Run Generate.ps1 from the package root
-        Write-Host "Running eng/packages/http-client-csharp/eng/scripts/Generate.ps1..."
-        & (Join-Path $tempDir "eng/packages/http-client-csharp/eng/scripts/Generate.ps1")
-        if ($LASTEXITCODE -ne 0) {
-            throw "Generate.ps1 failed"
+        if ($shouldRunGenerate -eq $true)
+        {
+            Write-Host "Running eng/packages/http-client-csharp/eng/scripts/Generate.ps1..."
+            & (Join-Path $tempDir "eng/packages/http-client-csharp/eng/scripts/Generate.ps1")
+            if ($LASTEXITCODE -ne 0) {
+                throw "Generate.ps1 failed"
+            }
         }
+    }
+    
+    # Generate emitter-package.json files using tsp-client if TypeSpec package.json is provided
+    if ($TypeSpecSourcePackageJsonPath -and (Test-Path $TypeSpecSourcePackageJsonPath)) {
+        Write-Host "Generating emitter-package.json files using tsp-client..."
+        $configFilesOutputDir = Join-Path $tempDir "eng"
+        $emitterPackageJsonPath = Join-Path $configFilesOutputDir "http-client-csharp-emitter-package.json"
+
+        Invoke "tsp-client generate-config-files --package-json $TypeSpecSourcePackageJsonPath --emitter-package-json-path $emitterPackageJsonPath --output-dir $configFilesOutputDir" $tempDir
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to generate emitter-package.json files"
+        }
+        Write-Host "Successfully generated emitter-package.json files"
+    } else {
+        Write-Warning "TypeSpecSourcePackageJsonPath not provided or file doesn't exist. Skipping emitter-package.json generation."
     }
     
     # Check if there are changes to commit
@@ -169,10 +205,12 @@ try {
 
     # Commit the changes
     Write-Host "Committing changes..."
-    git add eng/Packages.Data.props
-    git add eng/packages/http-client-csharp/package.json
-    git add eng/packages/http-client-csharp/package-lock.json
-    git add eng/packages/http-client-csharp/generator/TestProjects/
+    git add $propsFilePath
+    git add (Join-Path $tempDir "eng/packages/http-client-csharp/package.json")
+    git add (Join-Path $tempDir "eng/packages/http-client-csharp/package-lock.json")
+    git add (Join-Path $tempDir "eng/packages/http-client-csharp/generator/TestProjects/")
+    git add (Join-Path $tempDir "eng/http-client-csharp-emitter-package.json")
+    git add (Join-Path $tempDir "eng/http-client-csharp-emitter-package-lock.json")
     
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to add changes"

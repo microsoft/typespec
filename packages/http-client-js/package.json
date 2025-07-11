@@ -26,16 +26,13 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/src/index.d.ts",
-      "default": "./dist/src/index.js"
+      "import": "./dist/src/index.js"
     },
     "./testing": {
-      "types": "./dist/src/testing/index.d.ts",
-      "default": "./dist/src/testing/index.js"
+      "import": "./dist/src/testing/index.js"
     },
     "./components": {
-      "types": "./dist/src/components/index.d.ts",
-      "default": "./dist/src/components/index.js"
+      "import": "./dist/src/components/index.js"
     }
   },
   "keywords": [
@@ -55,14 +52,14 @@
     "@typespec/rest": "workspace:^"
   },
   "dependencies": {
-    "@alloy-js/core": "^0.17.0",
-    "@alloy-js/typescript": "^0.17.0",
+    "@alloy-js/core": "^0.18.2",
+    "@alloy-js/typescript": "^0.18.0",
     "@typespec/emitter-framework": "workspace:^",
     "@typespec/http-client": "workspace:^",
     "prettier": "~3.5.3"
   },
   "devDependencies": {
-    "@alloy-js/cli": "^0.17.0",
+    "@alloy-js/cli": "^0.18.0",
     "@alloy-js/rollup-plugin": "^0.1.0",
     "@types/yargs": "~17.0.33",
     "@typespec/http": "workspace:^",

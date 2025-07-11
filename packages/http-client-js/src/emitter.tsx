@@ -1,4 +1,4 @@
-import * as ay from "@alloy-js/core";
+import { SourceDirectory } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { EmitContext } from "@typespec/compiler";
 import { writeOutput } from "@typespec/emitter-framework";
@@ -28,28 +28,28 @@ export async function $onEmit(context: EmitContext<JsClientEmitterOptions>) {
         scripts={{ build: "tsc" }}
         devDependencies={{ "@types/node": "~18.19.75" }}
       >
-        <ay.SourceDirectory path="src">
+        <SourceDirectory path="src">
           <ts.BarrelFile export="." />
           <Client />
-          <ay.SourceDirectory path="models">
+          <SourceDirectory path="models">
             <ts.BarrelFile export="models" />
             <Models />
-            <ay.SourceDirectory path="internal">
+            <SourceDirectory path="internal">
               <ModelSerializers />
-            </ay.SourceDirectory>
-          </ay.SourceDirectory>
-          <ay.SourceDirectory path="api">
+            </SourceDirectory>
+          </SourceDirectory>
+          <SourceDirectory path="api">
             <OperationsDirectory />
-          </ay.SourceDirectory>
-          <ay.SourceDirectory path="helpers">
+          </SourceDirectory>
+          <SourceDirectory path="helpers">
             <PagingHelpers />
             <Interfaces />
             <MultipartHelpers />
             <ts.SourceFile path="error.ts">
               <RestError />
             </ts.SourceFile>
-          </ay.SourceDirectory>
-        </ay.SourceDirectory>
+          </SourceDirectory>
+        </SourceDirectory>
       </ts.PackageDirectory>
     </Output>
   );
