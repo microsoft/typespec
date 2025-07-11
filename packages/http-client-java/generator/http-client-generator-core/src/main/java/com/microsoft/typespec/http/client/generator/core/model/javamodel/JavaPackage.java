@@ -306,7 +306,7 @@ public class JavaPackage {
             }
 
             JavaFile javaFile = javaFileFactory.createTestFile(packageName, className);
-            ModelTestTemplate.getInstance().write(model, javaFile);
+            ModelTestTemplate.getInstance().write(new ModelTestTemplate.ModelUnitTestInfo(className, model), javaFile);
             if (!this.checkDuplicateFile(javaFile.getFilePath())) {
                 addJavaFile(javaFile);
             }
