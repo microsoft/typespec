@@ -42,7 +42,7 @@ jobs:
 
       - task: 1ES.PublishPipelineArtifact@1
         inputs:
-          path: ./packages/typespec-vscode/test/extension/images-linux
+          path: ./packages/typespec-vscode/test/extension/temp/images-linux
           artifact: "screenshots"
         displayName: Publish screenshots
         condition: ne(variables['Agent.OS'], 'Windows_NT')
@@ -51,7 +51,7 @@ jobs:
         inputs:
           path: ./packages/typespec-vscode/test-results
           artifact: "trace-results"
-        displayName: Publish trace-results
+        displayName: Publish trace results
         condition: ne(variables['Agent.OS'], 'Windows_NT')
 
       - script: node eng/common/scripts/check-for-changed-files.js
