@@ -59,23 +59,14 @@ export const test = baseTest.extend<{
       });
       const page = await app.firstWindow();
       const tracePath = join(projectRoot, "test-results", task.name, "trace.zip");
-      console.log("Trace path:", tracePath);
       const artifactsDir = join(tempDir, "playwright-artifacts");
       await fs.promises.mkdir(artifactsDir, { recursive: true }); // make sure the directory exists
       process.env.TMPDIR = artifactsDir;
-      console.log("Artifacts directory set to:", artifactsDir);
-      await page
-        .context()
-        .tracing.start({ screenshots: false, snapshots: false, title: task.name });
-      console.log("Tracing started...");
+      await page.context().tracing.start({ screenshots: false, snapshots: true, title: task.name });
       teardowns.push(async () => {
-        console.log("Stopping tracing...");
         try {
           await page.context().tracing.stop({ path: tracePath });
-        } catch (error) {
-          console.error("Failed to stop tracing:", error);
-        }
-        console.log("Tracing stopped.");
+        } catch (error) {}
       });
       return { page, app };
     });
