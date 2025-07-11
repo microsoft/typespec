@@ -685,7 +685,7 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
 
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
 
-            final String requestContextParam = getRequestContentParameterName(clientMethod);
+            final String requestContextParam = getRequestContextParameterName(clientMethod);
             function.line("return this.instrumentation.instrumentWithResponse(\"%1$s\", %2$s, updatedContext -> {",
                 clientMethod.getOperationInstrumentationInfo().getOperationName(),
                 requestContextParam == null ? "RequestContext.none()" : requestContextParam);
@@ -945,7 +945,7 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
         String effectiveProxyMethodName = clientMethod.getProxyMethod().getName();
         addServiceMethodAnnotation(typeBlock, ReturnType.SINGLE);
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
-            final String requestContextParam = getRequestContentParameterName(clientMethod);
+            final String requestContextParam = getRequestContextParameterName(clientMethod);
             final String arguments = getUpdatedArgumentList(clientMethod.getArgumentList(), requestContextParam);
 
             function.line("return this.instrumentation.instrumentWithResponse(\"%1$s\", %2$s, updatedContext -> {",
@@ -1332,7 +1332,10 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
         JavaBlock javaBlock) {
     }
 
-    private String getRequestContentParameterName(ClientMethod clientMethod) {
+    /**
+     * Get the name of the request context parameter from the client method or null if not present.
+     */
+    private String getRequestContextParameterName(ClientMethod clientMethod) {
         return clientMethod.getMethodParameters()
             .stream()
             .filter(p -> p.getClientType() == ClassType.REQUEST_CONTEXT)
@@ -1341,6 +1344,9 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
             .orElse(null);
     }
 
+    /**
+     * Update the argument list to replace the request context parameter with `updateContext`.
+     */
     private String getUpdatedArgumentList(String argumentList, String requestContextParam) {
         if (requestContextParam == null) {
             return argumentList;
