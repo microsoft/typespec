@@ -29,11 +29,6 @@ public class OperationInstrumentationInfo {
             }
 
             String methodName = getName(operation.getLanguage());
-            if (methodName == null) {
-                // TODO: it's null in pageable next - can we handle it better?
-                methodName = operation.getLanguage().getJava().getName();
-            }
-
             localOperationName
                 = CoreUtils.isNullOrEmpty(clientName) ? methodName : String.format("%s.%s", clientName, methodName);
         }

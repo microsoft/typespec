@@ -176,7 +176,7 @@ public final class ServerDrivenPaginationsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public PagedResponse<Pet> linkNextSinglePage(String nextLink) {
-        return this.instrumentation.instrumentWithResponse("Payload.Pageable.PageableClient.linkNext",
+        return this.instrumentation.instrumentWithResponse("Payload.Pageable.ServerDrivenPagination.link",
             RequestContext.none(), updatedContext -> {
                 final String accept = "application/json";
                 Response<LinkResponse> res
@@ -199,8 +199,8 @@ public final class ServerDrivenPaginationsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public PagedResponse<Pet> linkNextSinglePage(String nextLink, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Payload.Pageable.PageableClient.linkNext", requestContext,
-            updatedContext -> {
+        return this.instrumentation.instrumentWithResponse("Payload.Pageable.ServerDrivenPagination.link",
+            requestContext, updatedContext -> {
                 final String accept = "application/json";
                 Response<LinkResponse> res
                     = service.linkNext(nextLink, this.client.getEndpoint(), accept, updatedContext);

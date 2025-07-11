@@ -362,6 +362,7 @@ public class Transformer {
                 nextOperation.setOperationGroup(operationGroup);
                 nextOperation.set$key(operationName);
                 nextOperation.setLanguage(new Languages());
+                nextOperation.getLanguage().setDefault(operation.getLanguage().getDefault());
                 nextOperation.getLanguage().setJava(new Language());
                 nextOperation.getLanguage().getJava().setName(operationName);
                 nextOperation.getLanguage().getJava().setDescription("Get the next page of items");
