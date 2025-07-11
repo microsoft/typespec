@@ -31,6 +31,7 @@ namespace Microsoft.TypeSpec.Generator
             // The generated attributes need to be added into the workspace before loading the custom code. Otherwise,
             // Roslyn doesn't load the attributes completely and we are unable to get the attribute arguments.
 
+            // Ensure all attribute providers are added before loading custom code
             List<Task> generateAttributeTasks = new();
             foreach (var attributeProvider in CodeModelGenerator.Instance.CustomCodeAttributeProviders)
             {
@@ -39,8 +40,19 @@ namespace Microsoft.TypeSpec.Generator
 
             await Task.WhenAll(generateAttributeTasks);
 
+            // Ensure all required attribute types are present in the compilation
+            var compilation = await customCodeWorkspace.GetCompilationAsync();
+            foreach (var attributeProvider in CodeModelGenerator.Instance.CustomCodeAttributeProviders)
+            {
+                var attributeTypeName = Path.GetFileNameWithoutExtension(attributeProvider.Name);
+                if (compilation.GetTypeByMetadataName(attributeTypeName) == null)
+                {
+                    throw new InvalidOperationException($"Attribute type '{attributeTypeName}' not found in compilation.");
+                }
+            }
+
             CodeModelGenerator.Instance.SourceInputModel = new SourceInputModel(
-                await customCodeWorkspace.GetCompilationAsync(),
+                compilation,
                 await GeneratedCodeWorkspace.LoadBaselineContract());
 
             GeneratedCodeWorkspace generatedCodeWorkspace = await GeneratedCodeWorkspace.Create();
