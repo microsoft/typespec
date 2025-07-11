@@ -59,8 +59,12 @@ export const test = baseTest.extend<{
         ].filter((v): v is string => !!v),
       });
       const page = await app.firstWindow();
+      console.log("Task name:", task.name);
+      console.log("projectRoot:", projectRoot);
       const tracePath = join(projectRoot, "test-results", task.name, "trace.zip");
+      console.log("Trace path:", tracePath);
       await page.context().tracing.start({ screenshots: true, snapshots: true, title: task.name });
+      console.log("Tracing started:", page.context().tracing);
       teardowns.push(async () => {
         await page.context().tracing.stop({ path: tracePath });
       });
