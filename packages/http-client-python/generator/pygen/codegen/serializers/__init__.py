@@ -9,6 +9,7 @@ from collections import namedtuple
 import re
 from typing import List, Any, Union
 from pathlib import Path
+from packaging.version import parse as parse_version
 from jinja2 import PackageLoader, Environment, FileSystemLoader, StrictUndefined
 
 from ... import ReaderAndWriter
@@ -52,12 +53,11 @@ _PACKAGE_FILES = [
     "LICENSE.jinja2",
     "MANIFEST.in.jinja2",
     "README.md.jinja2",
-    "setup.py.jinja2",
+    "pyproject.toml.jinja2",
 ]
 
-_REGENERATE_FILES = {"setup.py", "MANIFEST.in"}
+_REGENERATE_FILES = {"MANIFEST.in", "pyproject.toml"}
 AsyncInfo = namedtuple("AsyncInfo", ["async_mode", "async_path"])
-
 
 # extract sub folders. For example, source_file_path is like:
 # "xxx/resource-manager/Microsoft.XX/stable/2023-04-01/examples/Compute/createOrUpdate/AKSCompute.json",
@@ -106,7 +106,11 @@ class JinjaSerializer(ReaderAndWriter):
             serialized_version = match.group(1) if match else ""
         except (FileNotFoundError, IndexError):
             serialized_version = ""
-        return serialized_version > self.code_model.options.get("package-version", "")
+        try:
+            return parse_version(serialized_version) > parse_version(self.code_model.options.get("package-version", ""))
+        except Exception:  # pylint: disable=broad-except
+            # If parsing the version fails, we assume the version file is not valid and overwrite.
+            return False
 
     def serialize(self) -> None:
         env = Environment(
@@ -122,9 +126,8 @@ class JinjaSerializer(ReaderAndWriter):
         for client_namespace, client_namespace_type in self.code_model.client_namespace_types.items():
             exec_path = self.exec_path(client_namespace)
             if client_namespace == "":
-                # Write the setup file
-                if self.code_model.options["basic-setup-py"]:
-                    self.write_file(exec_path / Path("setup.py"), general_serializer.serialize_setup_file())
+                # remove setup.py file
+                self.remove_file(exec_path / Path("setup.py"))
 
                 # add packaging files in root namespace (e.g. setup.py, README.md, etc.)
                 if self.code_model.options.get("package-mode"):
@@ -231,9 +234,10 @@ class JinjaSerializer(ReaderAndWriter):
                 if self.keep_version_file and file == "setup.py":
                     # don't regenerate setup.py file if the version file is more up to date
                     continue
+                file_path = self.output_folder / Path(output_name)
                 self.write_file(
                     output_name,
-                    serializer.serialize_package_file(template_name, **params),
+                    serializer.serialize_package_file(template_name, file_path, **params),
                 )
 
     def _keep_patch_file(self, path_file: Path, env: Environment):
