@@ -42,16 +42,17 @@ function main() {
   const connection = createConnection(ProposedFeatures.all);
   const documents = new TextDocuments(TextDocument);
 
+  const formatArgs = (...args: any[]) => args.map((arg) => inspect(arg)).join(" ");
   // eslint-disable-next-line no-console
-  console.log = (msg: any) => connection.console.info(inspect(msg));
+  console.log = (...args: any[]) => connection.console.info(formatArgs(...args));
   // eslint-disable-next-line no-console
-  console.info = (msg: any) => connection.console.info(inspect(msg));
+  console.info = (...args: any[]) => connection.console.info(formatArgs(...args));
   // eslint-disable-next-line no-console
-  console.debug = (msg: any) => connection.console.debug(inspect(msg));
+  console.debug = (...args: any[]) => connection.console.debug(formatArgs(...args));
   // eslint-disable-next-line no-console
-  console.warn = (msg: any) => connection.console.warn(inspect(msg));
+  console.warn = (...args: any[]) => connection.console.warn(formatArgs(...args));
   // eslint-disable-next-line no-console
-  console.error = (msg: any) => connection.console.error(inspect(msg));
+  console.error = (...args: any[]) => connection.console.error(formatArgs(...args));
 
   const host: ServerHost = {
     compilerHost: NodeHost,
