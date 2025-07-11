@@ -1,4 +1,5 @@
-import { NodeSystemHost, resolveCompilerOptions } from "@typespec/compiler/internals";
+import { resolveCompilerOptions } from "@typespec/compiler";
+import { NodeSystemHost } from "@typespec/compiler/internals";
 import { createHash } from "crypto";
 import { readFile, writeFile } from "fs/promises";
 import path from "path";
@@ -366,7 +367,7 @@ async function doEmit(
 
   const generations: {
     emitter: Emitter;
-    outputDir: string | undefined;
+    outputDir: string;
     options?: Record<string, string>;
     codeInfo: string;
   }[] = [];
@@ -402,10 +403,16 @@ async function doEmit(
     const newYamlContent = configYaml.toString();
     await writeFile(tspConfigFile, newYamlContent);
 
-    const [tspConfigOptions] = await resolveCompilerOptions(NodeSystemHost, {
+    const [tspConfigOptions, diagnostics] = await resolveCompilerOptions(NodeSystemHost, {
       entrypoint: mainTspFile,
       cwd: baseDir,
     });
+    if (diagnostics.length > 0) {
+      logger.debug(
+        "TypeSpec config diagnostics:",
+        diagnostics.map((d) => d.message),
+      );
+    }
     for (const emitter of emitters) {
       let codeInfoStr: string = "code";
       if (emitter.kind !== EmitterKind.Unknown) {
@@ -419,7 +426,11 @@ async function doEmit(
       if (tspConfigOptions.options) {
         outputDir = tspConfigOptions.options[emitter.package]["emitter-output-dir"];
       }
-      generations.push({ emitter: emitter, outputDir: outputDir, codeInfo: codeInfoStr });
+      generations.push({
+        emitter: emitter,
+        outputDir: outputDir ?? `${baseDir}/tsp-output/${emitter.package}`,
+        codeInfo: codeInfoStr,
+      });
     }
   } catch (error: any) {
     logger.error(error);
