@@ -9,7 +9,6 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
     public class DurationKnownEncodingTests
     {
         [TestCase("duration-constant", DurationKnownEncoding.Constant)]
-        [TestCase("constant", DurationKnownEncoding.Constant)]
         [TestCase("iso8601", DurationKnownEncoding.Iso8601)]
         [TestCase("seconds", DurationKnownEncoding.Seconds)]
         public void TryParseEachEncoding(string encoding, DurationKnownEncoding expectedEncoding)
