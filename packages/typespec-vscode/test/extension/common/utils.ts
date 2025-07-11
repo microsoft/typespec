@@ -59,14 +59,18 @@ export const test = baseTest.extend<{
         ].filter((v): v is string => !!v),
       });
       const page = await app.firstWindow();
-      console.log("Task name:", task.name);
-      console.log("projectRoot:", projectRoot);
       const tracePath = join(projectRoot, "test-results", task.name, "trace.zip");
       console.log("Trace path:", tracePath);
       await page.context().tracing.start({ screenshots: true, snapshots: true, title: task.name });
-      console.log("Tracing started:", page.context().tracing);
+      console.log("Tracing started...");
       teardowns.push(async () => {
-        await page.context().tracing.stop({ path: tracePath });
+        console.log("Stopping tracing...");
+        try {
+          await page.context().tracing.stop({ path: tracePath });
+        } catch (error) {
+          console.error("Failed to stop tracing:", error);
+        }
+        console.log("Tracing stopped.");
       });
       return { page, app };
     });
