@@ -1,5 +1,3 @@
-import fs from "node:fs";
-import os from "node:os";
 import path, { join } from "node:path";
 import { ElectronApplication, Page, _electron } from "playwright";
 import { test as baseTest, inject } from "vitest";
@@ -38,7 +36,7 @@ export const test = baseTest.extend<{
       envOverrides = {
         PATH: `${codePath}${path.delimiter}${process.env.PATH}`,
       };
-      const tempDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), "typespec-automation"));
+      // const tempDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), "typespec-automation"));
 
       const app = await _electron.launch({
         executablePath,
