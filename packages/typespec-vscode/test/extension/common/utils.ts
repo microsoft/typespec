@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import path, { join } from "node:path";
 import { ElectronApplication, Page, _electron } from "playwright";
 import { test as baseTest, inject } from "vitest";
@@ -59,8 +60,9 @@ export const test = baseTest.extend<{
       });
       const page = await app.firstWindow();
       const tracePath = join(projectRoot, "test-results", task.name, "trace.zip");
-      const artifactsDir = join(tempDir, "playwright-artifacts");
       console.log("Trace path:", tracePath);
+      const artifactsDir = join(tempDir, "playwright-artifacts");
+      await fs.promises.mkdir(artifactsDir, { recursive: true }); // make sure the directory exists
       process.env.TMPDIR = artifactsDir;
       await page.context().tracing.start({ screenshots: true, snapshots: true, title: task.name });
       console.log("Tracing started...");
