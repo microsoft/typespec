@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import payload.xml.ModelWithSimpleArrays;
 
@@ -31,6 +32,11 @@ public final class ModelWithSimpleArraysValuesImpl {
     private final XmlClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of ModelWithSimpleArraysValuesImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -38,6 +44,7 @@ public final class ModelWithSimpleArraysValuesImpl {
     ModelWithSimpleArraysValuesImpl(XmlClientImpl client) {
         this.service = ModelWithSimpleArraysValuesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -86,8 +93,11 @@ public final class ModelWithSimpleArraysValuesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ModelWithSimpleArrays> getWithResponse(RequestContext requestContext) {
-        final String accept = "application/xml";
-        return service.get(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Payload.Xml.ModelWithSimpleArraysValue.get", requestContext,
+            updatedContext -> {
+                final String accept = "application/xml";
+                return service.get(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -102,7 +112,10 @@ public final class ModelWithSimpleArraysValuesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(ModelWithSimpleArrays input, RequestContext requestContext) {
-        final String contentType = "application/xml";
-        return service.put(this.client.getEndpoint(), contentType, input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Payload.Xml.ModelWithSimpleArraysValue.put", requestContext,
+            updatedContext -> {
+                final String contentType = "application/xml";
+                return service.put(this.client.getEndpoint(), contentType, input, updatedContext);
+            });
     }
 }

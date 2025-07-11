@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import payload.xml.ModelWithDictionary;
 
@@ -31,6 +32,11 @@ public final class ModelWithDictionaryValuesImpl {
     private final XmlClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of ModelWithDictionaryValuesImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -38,6 +44,7 @@ public final class ModelWithDictionaryValuesImpl {
     ModelWithDictionaryValuesImpl(XmlClientImpl client) {
         this.service = ModelWithDictionaryValuesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -86,8 +93,11 @@ public final class ModelWithDictionaryValuesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ModelWithDictionary> getWithResponse(RequestContext requestContext) {
-        final String accept = "application/xml";
-        return service.get(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Payload.Xml.ModelWithDictionaryValue.get", requestContext,
+            updatedContext -> {
+                final String accept = "application/xml";
+                return service.get(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -102,7 +112,10 @@ public final class ModelWithDictionaryValuesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(ModelWithDictionary input, RequestContext requestContext) {
-        final String contentType = "application/xml";
-        return service.put(this.client.getEndpoint(), contentType, input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Payload.Xml.ModelWithDictionaryValue.put", requestContext,
+            updatedContext -> {
+                final String contentType = "application/xml";
+                return service.put(this.client.getEndpoint(), contentType, input, updatedContext);
+            });
     }
 }
