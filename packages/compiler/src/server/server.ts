@@ -1,4 +1,3 @@
-import { Console } from "console";
 import { mkdir, writeFile } from "fs/promises";
 import inspector from "inspector";
 import { join } from "path";
@@ -33,14 +32,22 @@ try {
 }
 
 function main() {
-  // Redirect all console stdout output to stderr since LSP pipe uses stdout
-  // and writing to stdout for anything other than LSP protocol will break
-  // things badly.
-  global.console = new Console(process.stderr, process.stderr);
-
   let clientHasWorkspaceFolderCapability = false;
   const connection = createConnection(ProposedFeatures.all);
   const documents = new TextDocuments(TextDocument);
+
+  const formatArgs = (...args: any[]) =>
+    args.map((arg) => (typeof arg === "string" ? arg : inspect(arg))).join(" ");
+  // eslint-disable-next-line no-console
+  console.log = (...args: any[]) => connection.console.info(formatArgs(...args));
+  // eslint-disable-next-line no-console
+  console.info = (...args: any[]) => connection.console.info(formatArgs(...args));
+  // eslint-disable-next-line no-console
+  console.debug = (...args: any[]) => connection.console.debug(formatArgs(...args));
+  // eslint-disable-next-line no-console
+  console.warn = (...args: any[]) => connection.console.warn(formatArgs(...args));
+  // eslint-disable-next-line no-console
+  console.error = (...args: any[]) => connection.console.error(formatArgs(...args));
 
   const host: ServerHost = {
     compilerHost: NodeHost,
