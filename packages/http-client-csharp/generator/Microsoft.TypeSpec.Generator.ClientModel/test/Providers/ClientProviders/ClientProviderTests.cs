@@ -76,7 +76,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 () => [_testClient] :
                 null;
             InputApiKeyAuth? apiKeyAuth = _hasKeyAuth ? new InputApiKeyAuth("mock", null) : null;
-            InputOAuth2Auth? oauth2Auth = _hasOAuth2 ? new InputOAuth2Auth(["mock"]) : null;
+            InputOAuth2Auth? oauth2Auth = _hasOAuth2 ? new InputOAuth2Auth([new InputOAuth2Flow(["mock"], null, null, null)]) : null;
             Func<InputAuth>? auth = (_hasSupportedAuth || _hasOnlyUnsupportedAuth)
                 ? () => new InputAuth(apiKeyAuth, oauth2Auth)
                 : null;

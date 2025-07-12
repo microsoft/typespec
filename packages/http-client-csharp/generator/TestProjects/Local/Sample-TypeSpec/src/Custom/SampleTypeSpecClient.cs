@@ -32,7 +32,7 @@ namespace SampleTypeSpec
             var options = new ClientPipelineOptions();
             Pipeline = ClientPipeline.Create(options,
             perCallPolicies: ReadOnlySpan<PipelinePolicy>.Empty,
-            perTryPolicies: [new OAuth2BearerTokenAuthenticationPolicy(authTokenProvider, flows)],
+            perTryPolicies: [new BearerTokenPolicy(authTokenProvider, flows)],
             beforeTransportPolicies: ReadOnlySpan<PipelinePolicy>.Empty);
         }
     }

@@ -78,7 +78,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
 
         public override object Read(string payload, object model, ModelReaderWriterOptions options)
         {
-            return ((IPersistableModel<T>)model).Create(new BinaryData(Encoding.UTF8.GetBytes(payload)), options);
+            return ((IPersistableModel<T>)model).Create(new BinaryData(Encoding.UTF8.GetBytes(payload)), options)!;
         }
     }
 
@@ -94,7 +94,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
 
         public override object Read(string payload, object model, ModelReaderWriterOptions options)
         {
-            return ((IPersistableModel<object>)model).Create(new BinaryData(Encoding.UTF8.GetBytes(payload)), options);
+            return ((IPersistableModel<object>)model).Create(new BinaryData(Encoding.UTF8.GetBytes(payload)), options)!;
         }
     }
 
@@ -110,7 +110,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
 
         public override object Read(string payload, object model, ModelReaderWriterOptions options)
         {
-            return ((IJsonModel<T>)model).Create(new BinaryData(Encoding.UTF8.GetBytes(payload)), options);
+            return ((IJsonModel<T>)model).Create(new BinaryData(Encoding.UTF8.GetBytes(payload)), options)!;
         }
     }
 
@@ -126,7 +126,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
 
         public override object Read(string payload, object model, ModelReaderWriterOptions options)
         {
-            return ((IJsonModel<object>)model).Create(new BinaryData(Encoding.UTF8.GetBytes(payload)), options);
+            return ((IJsonModel<object>)model).Create(new BinaryData(Encoding.UTF8.GetBytes(payload)), options)!;
         }
     }
 
@@ -143,7 +143,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
         public override object Read(string payload, object model, ModelReaderWriterOptions options)
         {
             var reader = new Utf8JsonReader(new BinaryData(Encoding.UTF8.GetBytes(payload)));
-            return ((IJsonModel<T>)model).Create(ref reader, options);
+            return ((IJsonModel<T>)model).Create(ref reader, options)!;
         }
     }
 
@@ -160,7 +160,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
         public override object Read(string payload, object model, ModelReaderWriterOptions options)
         {
             var reader = new Utf8JsonReader(new BinaryData(Encoding.UTF8.GetBytes(payload)));
-            return ((IJsonModel<object>)model).Create(ref reader, options);
+            return ((IJsonModel<object>)model).Create(ref reader, options)!;
         }
     }
 
