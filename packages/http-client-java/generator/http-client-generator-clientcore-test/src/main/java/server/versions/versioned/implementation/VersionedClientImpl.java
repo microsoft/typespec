@@ -160,7 +160,10 @@ public final class VersionedClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withoutApiVersionWithResponse(RequestContext requestContext) {
-        return service.withoutApiVersion(this.getEndpoint(), requestContext);
+        return this.instrumentation.instrumentWithResponse("Server.Versions.Versioned.withoutApiVersion",
+            requestContext, updatedContext -> {
+                return service.withoutApiVersion(this.getEndpoint(), updatedContext);
+            });
     }
 
     /**
@@ -174,7 +177,11 @@ public final class VersionedClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withQueryApiVersionWithResponse(RequestContext requestContext) {
-        return service.withQueryApiVersion(this.getEndpoint(), this.getServiceVersion().getVersion(), requestContext);
+        return this.instrumentation.instrumentWithResponse("Server.Versions.Versioned.withQueryApiVersion",
+            requestContext, updatedContext -> {
+                return service.withQueryApiVersion(this.getEndpoint(), this.getServiceVersion().getVersion(),
+                    updatedContext);
+            });
     }
 
     /**
@@ -188,7 +195,11 @@ public final class VersionedClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withPathApiVersionWithResponse(RequestContext requestContext) {
-        return service.withPathApiVersion(this.getEndpoint(), this.getServiceVersion().getVersion(), requestContext);
+        return this.instrumentation.instrumentWithResponse("Server.Versions.Versioned.withPathApiVersion",
+            requestContext, updatedContext -> {
+                return service.withPathApiVersion(this.getEndpoint(), this.getServiceVersion().getVersion(),
+                    updatedContext);
+            });
     }
 
     /**
@@ -202,7 +213,10 @@ public final class VersionedClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withQueryOldApiVersionWithResponse(RequestContext requestContext) {
-        return service.withQueryOldApiVersion(this.getEndpoint(), this.getServiceVersion().getVersion(),
-            requestContext);
+        return this.instrumentation.instrumentWithResponse("Server.Versions.Versioned.withQueryOldApiVersion",
+            requestContext, updatedContext -> {
+                return service.withQueryOldApiVersion(this.getEndpoint(), this.getServiceVersion().getVersion(),
+                    updatedContext);
+            });
     }
 }

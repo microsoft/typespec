@@ -125,7 +125,9 @@ public final class PathClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> normalWithResponse(String name, RequestContext requestContext) {
-        return service.normal(this.getEndpoint(), name, requestContext);
+        return this.instrumentation.instrumentWithResponse("Parameters.Path.normal", requestContext, updatedContext -> {
+            return service.normal(this.getEndpoint(), name, updatedContext);
+        });
     }
 
     /**
@@ -140,6 +142,9 @@ public final class PathClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> optionalWithResponse(String name, RequestContext requestContext) {
-        return service.optional(this.getEndpoint(), name, requestContext);
+        return this.instrumentation.instrumentWithResponse("Parameters.Path.optional", requestContext,
+            updatedContext -> {
+                return service.optional(this.getEndpoint(), name, updatedContext);
+            });
     }
 }

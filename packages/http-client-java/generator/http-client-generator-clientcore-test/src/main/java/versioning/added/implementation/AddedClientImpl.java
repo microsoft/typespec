@@ -160,10 +160,12 @@ public final class AddedClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ModelV1> v1WithResponse(String headerV2, ModelV1 body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.v1(this.getEndpoint(), this.getServiceVersion().getVersion(), headerV2, contentType, accept,
-            body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Versioning.Added.v1", requestContext, updatedContext -> {
+            final String contentType = "application/json";
+            final String accept = "application/json";
+            return service.v1(this.getEndpoint(), this.getServiceVersion().getVersion(), headerV2, contentType, accept,
+                body, updatedContext);
+        });
     }
 
     /**
@@ -178,9 +180,11 @@ public final class AddedClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ModelV2> v2WithResponse(ModelV2 body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.v2(this.getEndpoint(), this.getServiceVersion().getVersion(), contentType, accept, body,
-            requestContext);
+        return this.instrumentation.instrumentWithResponse("Versioning.Added.v2", requestContext, updatedContext -> {
+            final String contentType = "application/json";
+            final String accept = "application/json";
+            return service.v2(this.getEndpoint(), this.getServiceVersion().getVersion(), contentType, accept, body,
+                updatedContext);
+        });
     }
 }

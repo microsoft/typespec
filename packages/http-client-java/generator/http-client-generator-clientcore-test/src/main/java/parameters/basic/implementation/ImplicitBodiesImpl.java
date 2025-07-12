@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import parameters.basic.implicitbody.implementation.SimpleRequest;
 
@@ -31,6 +32,11 @@ public final class ImplicitBodiesImpl {
     private final BasicClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of ImplicitBodiesImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -38,6 +44,7 @@ public final class ImplicitBodiesImpl {
     ImplicitBodiesImpl(BasicClientImpl client) {
         this.service = ImplicitBodiesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -79,8 +86,11 @@ public final class ImplicitBodiesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> simpleWithResponse(String name, RequestContext requestContext) {
-        final String contentType = "application/json";
-        SimpleRequest simpleRequest = new SimpleRequest(name);
-        return service.simple(this.client.getEndpoint(), contentType, simpleRequest, requestContext);
+        return this.instrumentation.instrumentWithResponse("Parameters.Basic.ImplicitBody.simple", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                SimpleRequest simpleRequest = new SimpleRequest(name);
+                return service.simple(this.client.getEndpoint(), contentType, simpleRequest, updatedContext);
+            });
     }
 }

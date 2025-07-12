@@ -122,7 +122,10 @@ public final class UnionClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> validKeyWithResponse(RequestContext requestContext) {
-        return service.validKey(this.getEndpoint(), requestContext);
+        return this.instrumentation.instrumentWithResponse("Authentication.Union.validKey", requestContext,
+            updatedContext -> {
+                return service.validKey(this.getEndpoint(), updatedContext);
+            });
     }
 
     /**
@@ -136,6 +139,9 @@ public final class UnionClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> validTokenWithResponse(RequestContext requestContext) {
-        return service.validToken(this.getEndpoint(), requestContext);
+        return this.instrumentation.instrumentWithResponse("Authentication.Union.validToken", requestContext,
+            updatedContext -> {
+                return service.validToken(this.getEndpoint(), updatedContext);
+            });
     }
 }

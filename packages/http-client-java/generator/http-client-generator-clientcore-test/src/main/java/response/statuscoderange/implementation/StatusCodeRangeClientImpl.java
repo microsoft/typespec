@@ -237,8 +237,11 @@ public final class StatusCodeRangeClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> errorResponseStatusCodeInRangeWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.errorResponseStatusCodeInRange(this.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Response.StatusCodeRange.errorResponseStatusCodeInRange",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.errorResponseStatusCodeInRange(this.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -252,7 +255,10 @@ public final class StatusCodeRangeClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> errorResponseStatusCode404WithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.errorResponseStatusCode404(this.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Response.StatusCodeRange.errorResponseStatusCode404",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.errorResponseStatusCode404(this.getEndpoint(), accept, updatedContext);
+            });
     }
 }

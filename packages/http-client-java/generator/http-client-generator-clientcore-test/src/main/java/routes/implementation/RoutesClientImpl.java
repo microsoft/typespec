@@ -352,6 +352,8 @@ public final class RoutesClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> fixedWithResponse(RequestContext requestContext) {
-        return service.fixed(this.getEndpoint(), requestContext);
+        return this.instrumentation.instrumentWithResponse("Routes.fixed", requestContext, updatedContext -> {
+            return service.fixed(this.getEndpoint(), updatedContext);
+        });
     }
 }

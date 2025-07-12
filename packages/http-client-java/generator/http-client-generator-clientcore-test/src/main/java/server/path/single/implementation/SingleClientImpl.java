@@ -115,6 +115,9 @@ public final class SingleClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> myOpWithResponse(RequestContext requestContext) {
-        return service.myOp(this.getEndpoint(), requestContext);
+        return this.instrumentation.instrumentWithResponse("Server.Path.Single.myOp", requestContext,
+            updatedContext -> {
+                return service.myOp(this.getEndpoint(), updatedContext);
+            });
     }
 }
