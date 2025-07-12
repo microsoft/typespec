@@ -33,7 +33,7 @@ model HeaderOptions {
  *
  * ```typespec
  * op read(@header accept: string): {@header("ETag") eTag: string};
- * op create(@header({name: "X-Color", format: "csv"}) colors: string[]): void;
+ * op create(@header(#{name: "X-Color"}) colors: string[]): void;
  * ```
  *
  * @example Implicit header name
