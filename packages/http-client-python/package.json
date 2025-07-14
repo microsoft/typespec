@@ -95,6 +95,7 @@
     "@typespec/streams": "~0.71.0",
     "@typespec/xml": "~0.71.0",
     "@typespec/http-specs": "0.1.0-alpha.23",
+    "@typespec/json-schema": "^1.1.0",
     "@types/js-yaml": "~4.0.5",
     "@types/node": "~22.13.14",
     "@types/semver": "7.5.8",
