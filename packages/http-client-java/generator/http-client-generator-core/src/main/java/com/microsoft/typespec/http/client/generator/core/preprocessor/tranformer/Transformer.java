@@ -171,7 +171,11 @@ public class Transformer {
                     request.setParameters(newParameters.collect(Collectors.toList()));
                     Stream<Parameter> newSignatureParameters = Stream
                         .concat(operation.getSignatureParameters().stream(), request.getSignatureParameters().stream());
-                    newSignatureParameters = newSignatureParameters.filter(param -> param.getGroupedBy() == null);
+                    if (!JavaSettings.getInstance().isDataPlaneClient()) {
+                        // For DPG, grouping or flattening has no effect on the protocol method.
+                        // For convenience method, it would be handled in "operation.getConvenienceApi()".
+                        newSignatureParameters = newSignatureParameters.filter(param -> param.getGroupedBy() == null);
+                    }
                     request.setSignatureParameters(newSignatureParameters.collect(Collectors.toList()));
                     for (int i = 0; i < request.getParameters().size(); i++) {
                         Parameter parameter = request.getParameters().get(i);
