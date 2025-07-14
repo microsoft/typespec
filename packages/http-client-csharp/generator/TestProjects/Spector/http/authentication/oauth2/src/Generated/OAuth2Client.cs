@@ -14,9 +14,9 @@ namespace Authentication.OAuth2
     {
         protected OAuth2Client() => throw null;
 
-        public OAuth2Client(AuthenticationTokenProvider credential) : this(new Uri("http://localhost:3000"), credential, new OAuth2ClientOptions()) => throw null;
+        public OAuth2Client(AuthenticationTokenProvider tokenProvider) : this(new Uri("http://localhost:3000"), tokenProvider, new OAuth2ClientOptions()) => throw null;
 
-        public OAuth2Client(Uri endpoint, AuthenticationTokenProvider credential, OAuth2ClientOptions options) => throw null;
+        public OAuth2Client(Uri endpoint, AuthenticationTokenProvider tokenProvider, OAuth2ClientOptions options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

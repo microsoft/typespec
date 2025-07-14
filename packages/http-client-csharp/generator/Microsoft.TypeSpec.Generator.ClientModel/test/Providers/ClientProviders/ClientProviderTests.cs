@@ -168,11 +168,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             }
             if (_hasOAuth2)
             {
-                // oauth2 auth should have the following fields: _flows, _tokenCredential
+                // oauth2 auth should have the following fields: _flows, _tokenProvider
                 AssertHasFields(clientProvider, new List<ExpectedFieldProvider>
                 {
                     new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Dictionary<string, object>[])), "_flows"),
-                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(AuthenticationTokenProvider)), "_tokenCredential"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(AuthenticationTokenProvider)), "_tokenProvider"),
                 });
             }
 
@@ -205,10 +205,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             Assert.IsNotNull(clientProvider);
 
-            // oauth2 auth should have the following fields: _flows, _tokenCredential
+            // oauth2 auth should have the following fields: _flows, _tokenProvider
             AssertHasFields(clientProvider, new List<ExpectedFieldProvider>
             {
-                new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(AuthenticationTokenProvider)), "_tokenCredential"),
+                new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(AuthenticationTokenProvider)), "_tokenProvider"),
                 new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Dictionary<string, object>[])), "_flows"),
             });
 
@@ -306,11 +306,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             }
             if (_hasOAuth2)
             {
-                // oauth2 auth should have the following fields: _flows, _tokenCredential
+                // oauth2 auth should have the following fields: _flows, _tokenProvider
                 AssertHasFields(clientProvider, new List<ExpectedFieldProvider>
                 {
                     new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Dictionary<string, object>[])), "_flows"),
-                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(AuthenticationTokenProvider)), "_tokenCredential"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(AuthenticationTokenProvider)), "_tokenProvider"),
                 });
             }
             if (_hasOAuth2WithOtherCredType)
@@ -391,6 +391,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [TestCaseSource(nameof(BuildConstructorsTestCases))]
         [TestCaseSource(nameof(BuildConstructorsTestCases), Category = KeyAuthCategory)]
         [TestCaseSource(nameof(BuildConstructorsTestCases), Category = OAuth2Category)]
+        [TestCaseSource(nameof(BuildConstructorsTestCases), Category = OAuth2CategoryOtherCredType)]
         [TestCaseSource(nameof(BuildConstructorsTestCases), Category = $"{KeyAuthCategory},{OAuth2Category}")]
         [TestCaseSource(nameof(BuildConstructorsTestCases), Category = OnlyUnsupportedAuthCategory)]
         public void TestBuildConstructors_SecondaryConstructor(List<InputParameter> inputParameters)
@@ -535,7 +536,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 }
                 else if (authParam?.Type.Equals(typeof(AuthenticationTokenProvider)) == true)
                 {
-                    Assert.AreEqual("credential", authParam.Name);
+                    Assert.AreEqual("tokenProvider", authParam.Name);
                 }
                 else
                 {
@@ -569,7 +570,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 // auth should be the only parameter if endpoint is optional when there is auth
                 if (_hasSupportedAuth)
                 {
-                    Assert.AreEqual("credential", ctorParams?[0].Name);
+                    var expectedName = ctorParams?[0].Type?.Equals(ClientPipelineProvider.Instance.TokenCredentialType) == true
+                        ? "tokenProvider"
+                        : "credential";
+                    Assert.AreEqual(expectedName, ctorParams?[0].Name);
                 }
                 else
                 {
@@ -583,7 +587,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 Assert.AreEqual(KnownParameters.Endpoint.Name, ctorParams?[0].Name);
                 if (_hasSupportedAuth)
                 {
-                    Assert.AreEqual("credential", ctorParams?[1].Name);
+                    var expectedName = ctorParams?[1].Type?.Equals(ClientPipelineProvider.Instance.TokenCredentialType) == true
+                        ? "tokenProvider"
+                        : "credential";
+                    Assert.AreEqual(expectedName, ctorParams?[1].Name);
                 }
             }
 

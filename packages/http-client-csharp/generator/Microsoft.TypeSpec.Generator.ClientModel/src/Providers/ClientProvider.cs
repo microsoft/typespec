@@ -32,6 +32,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string ApiKeyCredentialFieldName = "_keyCredential";
         private const string TokenCredentialScopesFieldName = "AuthorizationScopes";
         private const string TokenCredentialFlowsFieldName = "_flows";
+        private const string TokenProviderFieldName = "_tokenProvider";
         private const string TokenCredentialFieldName = "_tokenCredential";
         private const string EndpointFieldName = "_endpoint";
         private const string ClientSuffix = "Client";
@@ -126,12 +127,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var tokenCredentialType = ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.TokenCredentialType;
             if (tokenAuth != null && tokenCredentialType != null)
             {
+                string tokenCredentialFieldName = TokenCredentialFieldName;
+                FormattableString tokenCredentialDescription = $"A credential used to authenticate to the service.";
+                if (tokenCredentialType.Equals(ClientPipelineProvider.Instance.TokenCredentialType))
+                {
+                    tokenCredentialFieldName = TokenProviderFieldName;
+                    tokenCredentialDescription = $"A credential provider used to authenticate to the service.";
+                }
+
                 var tokenCredentialField = new FieldProvider(
                     FieldModifiers.Private | FieldModifiers.ReadOnly,
                     tokenCredentialType,
-                    TokenCredentialFieldName,
+                    tokenCredentialFieldName,
                     this,
-                    description: $"A credential used to authenticate to the service.");
+                    description: tokenCredentialDescription);
 
                 var tokenCredentialScopesField = BuildTokenCredentialScopesField(tokenAuth, tokenCredentialType);
 
@@ -493,10 +502,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
 
-            if (authField is not null)
+            if (authField != null)
             {
                 var authParameter = authField.AsParameter;
-                authParameter.Update(name: "credential");
+                if (authField.Name != TokenProviderFieldName)
+                {
+                    authParameter.Update(name: "credential");
+                }
                 requiredParameters.Add(authParameter);
             }
 
