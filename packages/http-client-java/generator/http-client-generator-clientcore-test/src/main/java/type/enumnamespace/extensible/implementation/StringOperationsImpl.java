@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import type.enumnamespace.extensible.DaysOfWeekExtensibleEnum;
 
@@ -31,6 +32,11 @@ public final class StringOperationsImpl {
     private final ExtensibleClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of StringOperationsImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -38,6 +44,7 @@ public final class StringOperationsImpl {
     StringOperationsImpl(ExtensibleClientImpl client) {
         this.service = StringOperationsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -105,8 +112,11 @@ public final class StringOperationsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<DaysOfWeekExtensibleEnum> getKnownValueWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getKnownValue(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Enum.Extensible.String.getKnownValue", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.getKnownValue(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -120,8 +130,11 @@ public final class StringOperationsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<DaysOfWeekExtensibleEnum> getUnknownValueWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getUnknownValue(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Enum.Extensible.String.getUnknownValue",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getUnknownValue(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -136,8 +149,11 @@ public final class StringOperationsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putKnownValueWithResponse(DaysOfWeekExtensibleEnum body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.putKnownValue(this.client.getEndpoint(), contentType, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Enum.Extensible.String.putKnownValue", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.putKnownValue(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -152,7 +168,10 @@ public final class StringOperationsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putUnknownValueWithResponse(DaysOfWeekExtensibleEnum body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.putUnknownValue(this.client.getEndpoint(), contentType, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Enum.Extensible.String.putUnknownValue",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                return service.putUnknownValue(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 }

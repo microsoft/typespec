@@ -139,8 +139,11 @@ public final class EmptyClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putEmptyWithResponse(EmptyInput input, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.putEmpty(this.getEndpoint(), contentType, input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Empty.putEmpty", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.putEmpty(this.getEndpoint(), contentType, input, updatedContext);
+            });
     }
 
     /**
@@ -154,8 +157,11 @@ public final class EmptyClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<EmptyOutput> getEmptyWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getEmpty(this.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Empty.getEmpty", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.getEmpty(this.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -171,8 +177,11 @@ public final class EmptyClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<EmptyInputOutput> postRoundTripEmptyWithResponse(EmptyInputOutput body,
         RequestContext requestContext) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.postRoundTripEmpty(this.getEndpoint(), contentType, accept, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Empty.postRoundTripEmpty", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.postRoundTripEmpty(this.getEndpoint(), contentType, accept, body, updatedContext);
+            });
     }
 }

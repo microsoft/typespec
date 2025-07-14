@@ -140,9 +140,12 @@ public final class MadeOptionalClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<TestModel> testWithResponse(TestModel body, String param, RequestContext requestContext) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.test(this.getEndpoint(), this.getServiceVersion().getVersion(), param, contentType, accept, body,
-            requestContext);
+        return this.instrumentation.instrumentWithResponse("Versioning.MadeOptional.test", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.test(this.getEndpoint(), this.getServiceVersion().getVersion(), param, contentType,
+                    accept, body, updatedContext);
+            });
     }
 }

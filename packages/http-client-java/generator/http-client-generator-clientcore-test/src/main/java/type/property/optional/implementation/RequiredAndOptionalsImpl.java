@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import type.property.optional.RequiredAndOptionalProperty;
 
@@ -31,6 +32,11 @@ public final class RequiredAndOptionalsImpl {
     private final OptionalClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of RequiredAndOptionalsImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -38,6 +44,7 @@ public final class RequiredAndOptionalsImpl {
     RequiredAndOptionalsImpl(OptionalClientImpl client) {
         this.service = RequiredAndOptionalsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -103,8 +110,11 @@ public final class RequiredAndOptionalsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<RequiredAndOptionalProperty> getAllWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getAll(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.RequiredAndOptional.getAll",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getAll(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -118,8 +128,11 @@ public final class RequiredAndOptionalsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<RequiredAndOptionalProperty> getRequiredOnlyWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getRequiredOnly(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.RequiredAndOptional.getRequiredOnly",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getRequiredOnly(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -134,8 +147,11 @@ public final class RequiredAndOptionalsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putAllWithResponse(RequiredAndOptionalProperty body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.putAll(this.client.getEndpoint(), contentType, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.RequiredAndOptional.putAll",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                return service.putAll(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -150,7 +166,10 @@ public final class RequiredAndOptionalsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putRequiredOnlyWithResponse(RequiredAndOptionalProperty body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.putRequiredOnly(this.client.getEndpoint(), contentType, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.RequiredAndOptional.putRequiredOnly",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                return service.putRequiredOnly(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 }

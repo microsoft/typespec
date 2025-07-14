@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import type.union.GetResponse3;
 import type.union.GetResponseProp2;
@@ -32,6 +33,11 @@ public final class IntsOnliesImpl {
     private final UnionClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of IntsOnliesImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -39,6 +45,7 @@ public final class IntsOnliesImpl {
     IntsOnliesImpl(UnionClientImpl client) {
         this.service = IntsOnliesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -80,8 +87,11 @@ public final class IntsOnliesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<GetResponse3> getWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.get(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Union.IntsOnly.get", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.get(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -96,8 +106,11 @@ public final class IntsOnliesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> sendWithResponse(GetResponseProp2 prop, RequestContext requestContext) {
-        final String contentType = "application/json";
-        SendRequest3 sendRequest3 = new SendRequest3(prop);
-        return service.send(this.client.getEndpoint(), contentType, sendRequest3, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Union.IntsOnly.send", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                SendRequest3 sendRequest3 = new SendRequest3(prop);
+                return service.send(this.client.getEndpoint(), contentType, sendRequest3, updatedContext);
+            });
     }
 }

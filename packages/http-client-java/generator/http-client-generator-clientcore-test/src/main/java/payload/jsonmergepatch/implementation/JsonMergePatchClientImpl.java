@@ -141,9 +141,12 @@ public final class JsonMergePatchClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Resource> createResourceWithResponse(Resource body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.createResource(this.getEndpoint(), contentType, accept, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Payload.JsonMergePatch.createResource", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.createResource(this.getEndpoint(), contentType, accept, body, updatedContext);
+            });
     }
 
     /**
@@ -158,9 +161,12 @@ public final class JsonMergePatchClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Resource> updateResourceWithResponse(ResourcePatch body, RequestContext requestContext) {
-        final String contentType = "application/merge-patch+json";
-        final String accept = "application/json";
-        return service.updateResource(this.getEndpoint(), contentType, accept, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Payload.JsonMergePatch.updateResource", requestContext,
+            updatedContext -> {
+                final String contentType = "application/merge-patch+json";
+                final String accept = "application/json";
+                return service.updateResource(this.getEndpoint(), contentType, accept, body, updatedContext);
+            });
     }
 
     /**
@@ -175,7 +181,10 @@ public final class JsonMergePatchClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Resource> updateOptionalResourceWithResponse(ResourcePatch body, RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.updateOptionalResource(this.getEndpoint(), accept, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Payload.JsonMergePatch.updateOptionalResource",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.updateOptionalResource(this.getEndpoint(), accept, body, updatedContext);
+            });
     }
 }

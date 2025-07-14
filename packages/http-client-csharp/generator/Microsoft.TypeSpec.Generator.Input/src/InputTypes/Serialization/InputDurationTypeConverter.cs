@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
@@ -51,8 +52,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             encode = encode ?? throw new JsonException("Duration type must have encoding");
             wireType = wireType ?? throw new JsonException("Duration type must have wireType");
 
-            var dateTimeType = Enum.TryParse<DurationKnownEncoding>(encode, ignoreCase: true, out var encodeKind)
-                ? new InputDurationType(encodeKind, name, crossLanguageDefinitionId, wireType, baseType) { Decorators = decorators ?? [] }
+            var dateTimeType = DurationKnownEncodingExtensions.TryParse(encode, out var encodeKind)
+                ? new InputDurationType(encodeKind.Value, name, crossLanguageDefinitionId, wireType, baseType) { Decorators = decorators ?? [] }
                 : throw new JsonException($"Encoding of Duration type {encode} is unknown.");
 
             if (id != null)
