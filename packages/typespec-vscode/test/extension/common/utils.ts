@@ -5,8 +5,8 @@ import { test as baseTest, inject } from "vitest";
 
 const __dirname = import.meta.dirname;
 export const projectRoot = path.resolve(__dirname, "../../../");
-export const tempDir = path.resolve(projectRoot, "test/extension/temp");
-export const imagesPath = path.resolve(projectRoot, "test/extension/temp/images-linux");
+export const tempDir = path.resolve(projectRoot, "./temp");
+export const imagesPath = path.resolve(tempDir, "./images-linux");
 
 interface Context {
   page: Page;
