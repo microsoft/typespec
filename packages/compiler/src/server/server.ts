@@ -2,7 +2,7 @@ import { mkdir, writeFile } from "fs/promises";
 import inspector from "inspector";
 import { join } from "path";
 import { fileURLToPath } from "url";
-import { inspect } from "util";
+import { format, inspect } from "util";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
   ApplyWorkspaceEditParams,
@@ -36,18 +36,16 @@ function main() {
   const connection = createConnection(ProposedFeatures.all);
   const documents = new TextDocuments(TextDocument);
 
-  const formatArgs = (...args: any[]) =>
-    args.map((arg) => (typeof arg === "string" ? arg : inspect(arg))).join(" ");
   // eslint-disable-next-line no-console
-  console.log = (...args: any[]) => connection.console.info(formatArgs(...args));
+  console.log = (data: any, ...args: any[]) => connection.console.info(format(data, ...args));
   // eslint-disable-next-line no-console
-  console.info = (...args: any[]) => connection.console.info(formatArgs(...args));
+  console.info = (data: any, ...args: any[]) => connection.console.info(format(data, ...args));
   // eslint-disable-next-line no-console
-  console.debug = (...args: any[]) => connection.console.debug(formatArgs(...args));
+  console.debug = (data: any, ...args: any[]) => connection.console.debug(format(data, ...args));
   // eslint-disable-next-line no-console
-  console.warn = (...args: any[]) => connection.console.warn(formatArgs(...args));
+  console.warn = (data: any, ...args: any[]) => connection.console.warn(format(data, ...args));
   // eslint-disable-next-line no-console
-  console.error = (...args: any[]) => connection.console.error(formatArgs(...args));
+  console.error = (data: any, ...args: any[]) => connection.console.error(format(data, ...args));
 
   const host: ServerHost = {
     compilerHost: NodeHost,
