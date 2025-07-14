@@ -21,16 +21,14 @@ using TypeSpec.Versioning;
 using Azure.ClientGenerator.Core;
 using Azure.Core;
 
-alias MyOAuth2 = OAuth2Auth<
-  [
-    {
-      type: OAuth2FlowType.implicit;
-      authorizationUrl: "https://api.example.com/oauth2/authorize";
-      refreshUrl: "https://api.example.com/oauth2/refresh";
-      scopes: ["baselineScope"]
-    }
-  ],
->;
+alias MyOAuth2 = OAuth2Auth<[
+  {
+    type: OAuth2FlowType.implicit;
+    authorizationUrl: "https://api.example.com/oauth2/authorize";
+    refreshUrl: "https://api.example.com/oauth2/refresh";
+    scopes: ["baselineScope"];
+  }
+]>;
 
 enum Versions {
   `2024-07-16-preview`,
