@@ -19,7 +19,7 @@ const nodeContext = await context({
   target: "node22",
   format: "cjs",
   sourcemap: true,
-  external: ["vscode"],
+  external: ["vscode", "@typespec/compiler", "@typespec/compiler/internals"],
 });
 
 // Build the web extension
