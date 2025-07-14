@@ -14,13 +14,17 @@ import io.clientcore.core.http.pipeline.HttpRedirectOptions;
 import io.clientcore.core.http.pipeline.HttpRedirectPolicy;
 import io.clientcore.core.http.pipeline.HttpRetryOptions;
 import io.clientcore.core.http.pipeline.HttpRetryPolicy;
+import io.clientcore.core.instrumentation.Instrumentation;
+import io.clientcore.core.instrumentation.SdkInstrumentationOptions;
 import io.clientcore.core.traits.ConfigurationTrait;
 import io.clientcore.core.traits.EndpointTrait;
 import io.clientcore.core.traits.HttpTrait;
 import io.clientcore.core.traits.ProxyTrait;
+import io.clientcore.core.utils.CoreUtils;
 import io.clientcore.core.utils.configuration.Configuration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import type.property.optional.implementation.OptionalClientImpl;
 
@@ -52,6 +56,9 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("type-property-optional.properties");
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
@@ -196,7 +203,16 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
     private OptionalClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        OptionalClientImpl client = new OptionalClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        OptionalClientImpl client = new OptionalClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -230,7 +246,8 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public StringOperationClient buildStringOperationClient() {
-        return new StringOperationClient(buildInnerClient().getStringOperations());
+        OptionalClientImpl innerClient = buildInnerClient();
+        return new StringOperationClient(innerClient.getStringOperations(), innerClient.getInstrumentation());
     }
 
     /**
@@ -240,7 +257,8 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public BytesClient buildBytesClient() {
-        return new BytesClient(buildInnerClient().getBytes());
+        OptionalClientImpl innerClient = buildInnerClient();
+        return new BytesClient(innerClient.getBytes(), innerClient.getInstrumentation());
     }
 
     /**
@@ -250,7 +268,8 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public DatetimeOperationClient buildDatetimeOperationClient() {
-        return new DatetimeOperationClient(buildInnerClient().getDatetimeOperations());
+        OptionalClientImpl innerClient = buildInnerClient();
+        return new DatetimeOperationClient(innerClient.getDatetimeOperations(), innerClient.getInstrumentation());
     }
 
     /**
@@ -260,7 +279,8 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public DurationOperationClient buildDurationOperationClient() {
-        return new DurationOperationClient(buildInnerClient().getDurationOperations());
+        OptionalClientImpl innerClient = buildInnerClient();
+        return new DurationOperationClient(innerClient.getDurationOperations(), innerClient.getInstrumentation());
     }
 
     /**
@@ -270,7 +290,8 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public PlainDateClient buildPlainDateClient() {
-        return new PlainDateClient(buildInnerClient().getPlainDates());
+        OptionalClientImpl innerClient = buildInnerClient();
+        return new PlainDateClient(innerClient.getPlainDates(), innerClient.getInstrumentation());
     }
 
     /**
@@ -280,7 +301,8 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public PlainTimeClient buildPlainTimeClient() {
-        return new PlainTimeClient(buildInnerClient().getPlainTimes());
+        OptionalClientImpl innerClient = buildInnerClient();
+        return new PlainTimeClient(innerClient.getPlainTimes(), innerClient.getInstrumentation());
     }
 
     /**
@@ -290,7 +312,8 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public CollectionsByteClient buildCollectionsByteClient() {
-        return new CollectionsByteClient(buildInnerClient().getCollectionsBytes());
+        OptionalClientImpl innerClient = buildInnerClient();
+        return new CollectionsByteClient(innerClient.getCollectionsBytes(), innerClient.getInstrumentation());
     }
 
     /**
@@ -300,7 +323,8 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public CollectionsModelClient buildCollectionsModelClient() {
-        return new CollectionsModelClient(buildInnerClient().getCollectionsModels());
+        OptionalClientImpl innerClient = buildInnerClient();
+        return new CollectionsModelClient(innerClient.getCollectionsModels(), innerClient.getInstrumentation());
     }
 
     /**
@@ -310,7 +334,8 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public StringLiteralClient buildStringLiteralClient() {
-        return new StringLiteralClient(buildInnerClient().getStringLiterals());
+        OptionalClientImpl innerClient = buildInnerClient();
+        return new StringLiteralClient(innerClient.getStringLiterals(), innerClient.getInstrumentation());
     }
 
     /**
@@ -320,7 +345,8 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public IntLiteralClient buildIntLiteralClient() {
-        return new IntLiteralClient(buildInnerClient().getIntLiterals());
+        OptionalClientImpl innerClient = buildInnerClient();
+        return new IntLiteralClient(innerClient.getIntLiterals(), innerClient.getInstrumentation());
     }
 
     /**
@@ -330,7 +356,8 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public FloatLiteralClient buildFloatLiteralClient() {
-        return new FloatLiteralClient(buildInnerClient().getFloatLiterals());
+        OptionalClientImpl innerClient = buildInnerClient();
+        return new FloatLiteralClient(innerClient.getFloatLiterals(), innerClient.getInstrumentation());
     }
 
     /**
@@ -340,7 +367,8 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public BooleanLiteralClient buildBooleanLiteralClient() {
-        return new BooleanLiteralClient(buildInnerClient().getBooleanLiterals());
+        OptionalClientImpl innerClient = buildInnerClient();
+        return new BooleanLiteralClient(innerClient.getBooleanLiterals(), innerClient.getInstrumentation());
     }
 
     /**
@@ -350,7 +378,8 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public UnionStringLiteralClient buildUnionStringLiteralClient() {
-        return new UnionStringLiteralClient(buildInnerClient().getUnionStringLiterals());
+        OptionalClientImpl innerClient = buildInnerClient();
+        return new UnionStringLiteralClient(innerClient.getUnionStringLiterals(), innerClient.getInstrumentation());
     }
 
     /**
@@ -360,7 +389,8 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public UnionIntLiteralClient buildUnionIntLiteralClient() {
-        return new UnionIntLiteralClient(buildInnerClient().getUnionIntLiterals());
+        OptionalClientImpl innerClient = buildInnerClient();
+        return new UnionIntLiteralClient(innerClient.getUnionIntLiterals(), innerClient.getInstrumentation());
     }
 
     /**
@@ -370,7 +400,8 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public UnionFloatLiteralClient buildUnionFloatLiteralClient() {
-        return new UnionFloatLiteralClient(buildInnerClient().getUnionFloatLiterals());
+        OptionalClientImpl innerClient = buildInnerClient();
+        return new UnionFloatLiteralClient(innerClient.getUnionFloatLiterals(), innerClient.getInstrumentation());
     }
 
     /**
@@ -380,6 +411,7 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public RequiredAndOptionalClient buildRequiredAndOptionalClient() {
-        return new RequiredAndOptionalClient(buildInnerClient().getRequiredAndOptionals());
+        OptionalClientImpl innerClient = buildInnerClient();
+        return new RequiredAndOptionalClient(innerClient.getRequiredAndOptionals(), innerClient.getInstrumentation());
     }
 }

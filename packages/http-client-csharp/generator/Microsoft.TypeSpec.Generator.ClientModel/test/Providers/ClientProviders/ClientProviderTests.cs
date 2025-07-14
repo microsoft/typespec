@@ -898,6 +898,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual("/// <summary> client description. </summary>\n", client!.XmlDocs.Summary!.ToDisplayString());
         }
 
+        [Test]
+        public void ClientProviderSummaryIsPopulatedWithDefaultDocs()
+        {
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                clients: () => [new InputClient("testClient", @namespace: "test", string.Empty, null, null, [], [], null, null)]);
+
+            var client = mockGenerator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().SingleOrDefault();
+            Assert.IsNotNull(client);
+
+            Assert.AreEqual("/// <summary> The TestClient. </summary>\n", client!.XmlDocs.Summary!.ToDisplayString());
+        }
+
         [TestCase(true)]
         [TestCase(false)]
         public void AccessibilityOfMethodMatchesInputOperation(bool isPublic)

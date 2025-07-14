@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import versioning.added.AddedServiceVersion;
 import versioning.added.ModelV1;
@@ -70,6 +71,20 @@ public final class AddedClientImpl {
     }
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
      * The InterfaceV2sImpl object to access its operations.
      */
     private final InterfaceV2sImpl interfaceV2s;
@@ -87,11 +102,14 @@ public final class AddedClientImpl {
      * Initializes an instance of AddedClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
      * @param serviceVersion Service version.
      */
-    public AddedClientImpl(HttpPipeline httpPipeline, String endpoint, AddedServiceVersion serviceVersion) {
+    public AddedClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint,
+        AddedServiceVersion serviceVersion) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
         this.serviceVersion = serviceVersion;
         this.interfaceV2s = new InterfaceV2sImpl(this);
@@ -142,10 +160,12 @@ public final class AddedClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ModelV1> v1WithResponse(String headerV2, ModelV1 body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.v1(this.getEndpoint(), this.getServiceVersion().getVersion(), headerV2, contentType, accept,
-            body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Versioning.Added.v1", requestContext, updatedContext -> {
+            final String contentType = "application/json";
+            final String accept = "application/json";
+            return service.v1(this.getEndpoint(), this.getServiceVersion().getVersion(), headerV2, contentType, accept,
+                body, updatedContext);
+        });
     }
 
     /**
@@ -160,9 +180,11 @@ public final class AddedClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ModelV2> v2WithResponse(ModelV2 body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.v2(this.getEndpoint(), this.getServiceVersion().getVersion(), contentType, accept, body,
-            requestContext);
+        return this.instrumentation.instrumentWithResponse("Versioning.Added.v2", requestContext, updatedContext -> {
+            final String contentType = "application/json";
+            final String accept = "application/json";
+            return service.v2(this.getEndpoint(), this.getServiceVersion().getVersion(), contentType, accept, body,
+                updatedContext);
+        });
     }
 }
