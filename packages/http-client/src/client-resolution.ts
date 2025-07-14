@@ -12,6 +12,7 @@ import {
   unsafe_mutateSubgraph,
   unsafe_mutateSubgraphWithNamespace,
   unsafe_Mutator,
+  unsafe_MutatorWithNamespace,
 } from "@typespec/compiler/experimental";
 import { ClientDecoratorOptions } from "../generated-defs/TypeSpec.HttpClient.js";
 import { Client, ClientNamePolicy } from "./interfaces.js";
@@ -21,7 +22,7 @@ import { getClientName } from "./utils/get-client-name.js";
 
 export interface ResolveClientsOptions {
   clientNamePolicy?: ClientNamePolicy;
-  mutators?: unsafe_Mutator[];
+  mutators?: (unsafe_Mutator | unsafe_MutatorWithNamespace)[];
 }
 
 /**
