@@ -2,7 +2,7 @@ import { rm } from "fs/promises";
 import fs from "node:fs";
 import path from "node:path";
 import { Locator, Page } from "playwright";
-import { imagesPath, retry, screenshot, sleep } from "./utils";
+import { imagesPath, retry, screenshot } from "./utils";
 
 /**
  * Before comparing the results, you need to check whether the conditions for result comparison are met.
@@ -52,9 +52,10 @@ export async function contrastResult(page: Page, res: string[], dir: string) {
  * @param command After the top input box pops up, the command to be executed
  */
 export async function startWithCommandPalette(page: Page, command: string) {
-  await sleep(2);
-  page.keyboard.press("ControlOrMeta+Shift+P");
-  await sleep(2);
+  await page.keyboard.press("ControlOrMeta+Shift+P");
+  await page.waitForSelector('input[aria-label="Type the name of a command to run."]', {
+    state: "visible",
+  });
   await screenshot(page, "linux", "open_top_panel");
   await page
     .getByRole("textbox", { name: "Type the name of a command to run." })

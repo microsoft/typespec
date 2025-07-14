@@ -83,7 +83,7 @@ describe.each(CreateCasesConfigList)("CreateTypespecProject", async (item) => {
     if (!isEmptyFolder) {
       createTestFile(workspacePath);
     }
-    mockShowOpenDialog(app, [workspacePath]);
+    await mockShowOpenDialog(app, [workspacePath]);
     if (triggerType === CreateProjectTriggerType.Command) {
       await startWithCommandPalette(page, "Create Typespec Project");
     } else {
