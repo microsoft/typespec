@@ -6,9 +6,10 @@ using Microsoft.TypeSpec.Generator.Statements;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
-    public class XmlDocProvider
+    public abstract class XmlDocProvider
     {
-        public static XmlDocProvider Empty => new XmlDocProvider();
+        public static XmlDocProvider Empty { get; } = new SimpleXmlDocProvider();
+        public static XmlDocProvider InheritDocs { get; } = new SimpleXmlDocProvider { Inherit = new XmlDocInheritStatement() };
 
         public XmlDocProvider(
             XmlDocSummaryStatement? summary = null,
@@ -23,11 +24,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             Returns = returns;
             Inherit = inherit;
         }
-
-        private static XmlDocProvider? _inheritDocs;
-
-        public static XmlDocProvider InheritDocs =>
-            _inheritDocs ??= new XmlDocProvider { Inherit = new XmlDocInheritStatement() };
 
         public XmlDocSummaryStatement? Summary { get; private set; }
         public IReadOnlyList<XmlDocParamStatement> Parameters { get; private set; }
@@ -66,6 +62,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 Inherit = inherit;
             }
+        }
+        private class SimpleXmlDocProvider : XmlDocProvider
+        {
+            public SimpleXmlDocProvider() : base(null, null, null, null, null) { }
         }
     }
 }
