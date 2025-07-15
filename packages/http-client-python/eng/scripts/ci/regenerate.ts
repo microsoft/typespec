@@ -248,7 +248,11 @@ function toPosix(dir: string): string {
 }
 
 function getEmitterOption(spec: string, flavor: string): Record<string, string>[] {
-  const specDir = spec.includes("azure") ? AZURE_HTTP_SPECS : spec.includes("smoke") ? SMOKE : HTTP_SPECS;
+  const specDir = spec.includes("azure")
+    ? AZURE_HTTP_SPECS
+    : spec.includes("smoke")
+      ? SMOKE
+      : HTTP_SPECS;
   const relativeSpec = toPosix(relative(specDir, spec));
   const key = relativeSpec.includes("resiliency/srv-driven/old.tsp")
     ? relativeSpec
@@ -346,7 +350,11 @@ async function getSubdirectories(baseDir: string, flags: RegenerateFlags): Promi
 }
 
 function defaultPackageName(spec: string): string {
-  const specDir = spec.includes("azure") ? AZURE_HTTP_SPECS : spec.includes("smoke") ? SMOKE : HTTP_SPECS;
+  const specDir = spec.includes("azure")
+    ? AZURE_HTTP_SPECS
+    : spec.includes("smoke")
+      ? SMOKE
+      : HTTP_SPECS;
   return toPosix(relative(specDir, dirname(spec)))
     .replace(/\//g, "-")
     .toLowerCase();
