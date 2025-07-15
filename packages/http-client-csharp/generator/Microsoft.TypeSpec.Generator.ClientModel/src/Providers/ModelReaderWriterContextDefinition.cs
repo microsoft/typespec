@@ -130,9 +130,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             // For dependency models (models from other libraries), assume they implement IPersistableModel
-            // if they are not framework types and don't have a model provider in the current library
+            // if they are not framework types, not literals, not enums, and not generic types
             // This handles models that are referenced from dependency libraries
-            return !type.IsFrameworkType && !type.IsLiteral && !type.IsEnum && !type.IsGenericTypeDefinition;
+            return !type.IsFrameworkType && !type.IsLiteral && !type.IsEnum && !type.IsGenericType;
         }
 
         protected override XmlDocProvider BuildXmlDocs()
