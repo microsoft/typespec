@@ -6,10 +6,10 @@ using Microsoft.TypeSpec.Generator.Statements;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
-    public abstract class XmlDocProvider
+    public class XmlDocProvider
     {
-        public static XmlDocProvider Empty { get; } = new SimpleXmlDocProvider();
-        public static XmlDocProvider InheritDocs { get; } = new SimpleXmlDocProvider { Inherit = new XmlDocInheritStatement() };
+        public static XmlDocProvider Empty { get; } = new XmlDocProvider();
+        public static XmlDocProvider InheritDocs { get; } = new XmlDocProvider { Inherit = new XmlDocInheritStatement() };
 
         public XmlDocProvider(
             XmlDocSummaryStatement? summary = null,
