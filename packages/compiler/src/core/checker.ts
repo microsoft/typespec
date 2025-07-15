@@ -4611,7 +4611,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   ): Type | undefined {
     const modelSymId = getNodeSym(model);
     pendingResolutions.start(modelSymId, ResolutionKind.BaseType);
-    let isType;
 
     const targetSym = resolver.getNodeLinks(target).resolvedSymbol;
     if (targetSym && pendingResolutions.has(targetSym, ResolutionKind.BaseType)) {
@@ -4626,11 +4625,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
       return undefined;
     }
-    isType = getTypeForNode(target, mapper);
-
+    const type = getTypeForNode(target, mapper);
     pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
-
-    return isType;
+    return type;
   }
 
   function checkSpreadProperty(
