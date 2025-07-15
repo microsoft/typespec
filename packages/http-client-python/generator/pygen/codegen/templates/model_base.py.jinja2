@@ -607,7 +607,6 @@ class Model(_MyMutableMapping):
                 for k, v in kwargs.items()
                 if v is not None
             }
-            )
         super().__init__(dict_to_pass)
 
     def copy(self) -> "Model":
