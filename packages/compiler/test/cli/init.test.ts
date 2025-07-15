@@ -232,7 +232,9 @@ describe("auto-accept-prompts", () => {
       initTypeSpecProject(compilerHost, "/tmp/test-project", {
         "auto-accept-prompts": true,
       }),
-    ).rejects.toThrowError("A template must be specified when --auto-accept-prompts is used.");
+    ).rejects.toThrowError(
+      `A template must be specified when --auto-accept-prompts is used. Specify one of the following templates via --template: "foo", "withParams"`,
+    );
   });
 
   it("should throw an error if the specified template does not exist", async () => {
