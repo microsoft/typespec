@@ -1,7 +1,7 @@
 {
   "name": "typespec-vs",
   "author": "Microsoft Corporation",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "TypeSpec Language Support for Visual Studio",
   "homepage": "https://typespec.io",
   "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
