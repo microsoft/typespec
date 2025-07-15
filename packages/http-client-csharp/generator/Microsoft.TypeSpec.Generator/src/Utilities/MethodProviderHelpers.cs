@@ -67,12 +67,6 @@ namespace Microsoft.TypeSpec.Generator
 
         public static XmlDocProvider BuildXmlDocs(MethodSignatureBase signature)
         {
-            var parametersList = new List<XmlDocParamStatement>();
-            foreach (var parameter in signature.Parameters)
-            {
-                parametersList.Add(new XmlDocParamStatement(parameter));
-            }
-
             var exceptionHash = new Dictionary<Type, List<ParameterProvider>>();
             if (!ShouldSkipParameterValidation(signature))
             {
@@ -100,7 +94,7 @@ namespace Microsoft.TypeSpec.Generator
 
             var docs = new XmlDocProvider(
                 signature.Description is null ? null : new XmlDocSummaryStatement([signature.Description]),
-                parametersList,
+                new ParametersXmlDocProvider(signature.Parameters),
                 exceptions,
                 returnDescription is null ? null : new XmlDocReturnsStatement(returnDescription));
 

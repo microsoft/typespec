@@ -272,10 +272,7 @@ namespace Microsoft.TypeSpec.Generator
                 docs.Summary.Write(this);
             }
 
-            foreach (var param in docs.Parameters)
-            {
-                param.Write(this);
-            }
+            docs.Parameters?.Write(this);
 
             foreach (var exception in docs.Exceptions)
             {

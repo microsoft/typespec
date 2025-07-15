@@ -13,27 +13,27 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public XmlDocProvider(
             XmlDocSummaryStatement? summary = null,
-            IReadOnlyList<XmlDocParamStatement>? parameters = null,
+            ParametersXmlDocProvider? parameters = null,
             IReadOnlyList<XmlDocExceptionStatement>? exceptions = null,
             XmlDocReturnsStatement? returns = null,
             XmlDocInheritStatement? inherit = null)
         {
             Summary = summary;
-            Parameters = parameters ?? new List<XmlDocParamStatement>();
+            Parameters = parameters;
             Exceptions = exceptions ?? new List<XmlDocExceptionStatement>();
             Returns = returns;
             Inherit = inherit;
         }
 
         public XmlDocSummaryStatement? Summary { get; private set; }
-        public IReadOnlyList<XmlDocParamStatement> Parameters { get; private set; }
+        public ParametersXmlDocProvider? Parameters { get; private set; }
         public XmlDocReturnsStatement? Returns { get; private set; }
         public IReadOnlyList<XmlDocExceptionStatement> Exceptions { get; private set; }
         public XmlDocInheritStatement? Inherit { get; private set; }
 
         public void Update(
             XmlDocSummaryStatement? summary = null,
-            IReadOnlyList<XmlDocParamStatement>? parameters = null,
+            ParametersXmlDocProvider? parameters = null,
             IReadOnlyList<XmlDocExceptionStatement>? exceptions = null,
             XmlDocReturnsStatement? returns = null,
             XmlDocInheritStatement? inherit = null)
@@ -62,10 +62,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 Inherit = inherit;
             }
-        }
-        private class SimpleXmlDocProvider : XmlDocProvider
-        {
-            public SimpleXmlDocProvider() : base(null, null, null, null, null) { }
         }
     }
 }

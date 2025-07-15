@@ -89,15 +89,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     $"A new {modelProvider.Type:C} instance for mocking.",
                     GetParameters(modelProvider, fullConstructor));
 
-                var parameters = new List<XmlDocParamStatement>(signature.Parameters.Count);
-                foreach (var param in signature.Parameters)
-                {
-                    parameters.Add(new XmlDocParamStatement(param));
-                }
-
                 var docs = new XmlDocProvider(
                     modelProvider.XmlDocs.Summary,
-                    parameters,
+                    new ParametersXmlDocProvider(signature.Parameters),
                     returns: new XmlDocReturnsStatement($"A new {modelProvider.Type:C} instance for mocking."));
 
                 MethodBodyStatement statements = ConstructMethodBody(signature, typeToInstantiate);
