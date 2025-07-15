@@ -34,7 +34,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var buildableTypes = CollectBuildableTypes();
             foreach (var type in buildableTypes)
             {
-                attributes.Add(new AttributeStatement(typeof(ModelReaderWriterBuildableAttribute), TypeOf(type)));
+                // Use the full attribute type name to ensure proper compilation
+                var attributeType = new CSharpType(typeof(ModelReaderWriterBuildableAttribute));
+                attributes.Add(new AttributeStatement(attributeType, TypeOf(type)));
             }
 
             return attributes;
