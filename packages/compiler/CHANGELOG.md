@@ -1,5 +1,24 @@
 # Change Log - @typespec/compiler
 
+## 1.2.0
+
+### Features
+
+- [#7576](https://github.com/microsoft/typespec/pull/7576) Allow LSP to configure which emitters to include for live checks
+- [#7151](https://github.com/microsoft/typespec/pull/7151) [API] Addition of a new testing framework. See https://typespec.io/docs/extending-typespec/testing
+
+### Bump dependencies
+
+- [#7674](https://github.com/microsoft/typespec/pull/7674) Upgrade dependencies
+
+### Bug Fixes
+
+- [#7586](https://github.com/microsoft/typespec/pull/7586) Improved the error message for the `@pattern` decorator when applied to a `union` type. The new message is more descriptive and helps users understand how to correctly define string-compatible union types.
+- [#7740](https://github.com/microsoft/typespec/pull/7740) Config interpolation is more flexible in interpolating variables in any order as long as no circular reference occur. For example using `{output-dir}` in parameters.
+- [#7731](https://github.com/microsoft/typespec/pull/7731) Fix literal typekits `$.literal.create`, `$.literal.createString`, etc. use right checker api that include caching
+- [#7906](https://github.com/microsoft/typespec/pull/7906) Corrected some logic around the detection of array types in visibility calculation.
+
+
 ## 1.1.0
 
 ### Features
