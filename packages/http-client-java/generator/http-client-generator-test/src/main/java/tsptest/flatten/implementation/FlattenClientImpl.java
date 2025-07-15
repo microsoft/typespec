@@ -230,6 +230,28 @@ public final class FlattenClientImpl {
             @HeaderParam("content-type") String contentType, @PathParam("id") long id,
             @HeaderParam("Accept") String accept, @BodyParam("application/merge-patch+json") BinaryData updateRequest,
             RequestOptions requestOptions, Context context);
+
+        @Post("/flatten/optional-body")
+        @ExpectedResponses({ 200 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Mono<Response<Void>> sendOptionalBody(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") BinaryData sendOptionalBodyRequest, RequestOptions requestOptions,
+            Context context);
+
+        @Post("/flatten/optional-body")
+        @ExpectedResponses({ 200 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Response<Void> sendOptionalBodySync(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") BinaryData sendOptionalBodyRequest, RequestOptions requestOptions,
+            Context context);
     }
 
     /**
@@ -572,6 +594,62 @@ public final class FlattenClientImpl {
         final String contentType = "application/merge-patch+json";
         final String accept = "application/json";
         return service.updateSync(this.getEndpoint(), contentType, id, accept, updateRequest, requestOptions,
+            Context.NONE);
+    }
+
+    /**
+     * The sendOptionalBody operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     name: String (Optional)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param sendOptionalBodyRequest The sendOptionalBodyRequest parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> sendOptionalBodyWithResponseAsync(BinaryData sendOptionalBodyRequest,
+        RequestOptions requestOptions) {
+        final String contentType = "application/json";
+        return FluxUtil.withContext(context -> service.sendOptionalBody(this.getEndpoint(), contentType,
+            sendOptionalBodyRequest, requestOptions, context));
+    }
+
+    /**
+     * The sendOptionalBody operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     name: String (Optional)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param sendOptionalBodyRequest The sendOptionalBodyRequest parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> sendOptionalBodyWithResponse(BinaryData sendOptionalBodyRequest,
+        RequestOptions requestOptions) {
+        final String contentType = "application/json";
+        return service.sendOptionalBodySync(this.getEndpoint(), contentType, sendOptionalBodyRequest, requestOptions,
             Context.NONE);
     }
 }

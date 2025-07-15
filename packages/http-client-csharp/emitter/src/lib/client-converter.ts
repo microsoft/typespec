@@ -9,7 +9,7 @@ import {
 } from "@azure-tools/typespec-client-generator-core";
 import { NoTarget } from "@typespec/compiler";
 import { CSharpEmitterContext } from "../sdk-context.js";
-import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
+import { InputParameterKind } from "../type/input-parameter-kind.js";
 import { InputParameter } from "../type/input-parameter.js";
 import { InputClient, InputType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
@@ -53,9 +53,9 @@ function fromSdkClient(
     namespace: client.namespace,
     doc: client.doc,
     summary: client.summary,
-    operations: client.methods.map((m) =>
-      fromSdkServiceMethod(sdkContext, m, uri, rootApiVersions),
-    ),
+    methods: client.methods
+      .map((m) => fromSdkServiceMethod(sdkContext, m, uri, rootApiVersions))
+      .filter((m) => m !== undefined),
     parameters: clientParameters,
     decorators: client.decorators,
     crossLanguageDefinitionId: client.crossLanguageDefinitionId,
@@ -108,9 +108,10 @@ function fromSdkClient(
       const isEndpoint = parameter.name === endpointVariableName;
       const parameterType: InputType = isEndpoint
         ? {
-            kind: "url",
-            name: "url",
-            crossLanguageDefinitionId: "TypeSpec.url",
+            kind: parameter.type.kind === "string" ? "string" : "url",
+            name: "endpoint",
+            crossLanguageDefinitionId:
+              parameter.type.kind === "string" ? "TypeSpec.string" : "TypeSpec.url",
           }
         : fromSdkType(sdkContext, parameter.type); // TODO: consolidate with converter.fromSdkEndpointType
       parameters.push({
@@ -126,12 +127,13 @@ function fromSdkClient(
         isEndpoint: isEndpoint,
         skipUrlEncoding: false,
         explode: false,
-        kind: InputOperationParameterKind.Client,
+        kind: InputParameterKind.Client,
         defaultValue: getParameterDefaultValue(
           sdkContext,
           parameter.clientDefaultValue,
           parameterType,
         ),
+        serverUrlTemplate: type.serverUrl,
       });
     }
     return parameters;

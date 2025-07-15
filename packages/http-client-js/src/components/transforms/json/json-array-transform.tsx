@@ -1,25 +1,26 @@
-import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import * as ef from "@typespec/emitter-framework/typescript";
 
-import { Model } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { type Children, type Refkey, code, refkey } from "@alloy-js/core";
+import type { Model } from "@typespec/compiler";
+import { useTsp } from "@typespec/emitter-framework";
 import { JsonTransform } from "./json-transform.jsx";
 
 export interface JsonArrayTransformProps {
-  itemRef: ay.Refkey | ay.Children;
+  itemRef: Refkey | Children;
   type: Model;
   target: "transport" | "application";
 }
 
 export function JsonArrayTransform(props: JsonArrayTransformProps) {
+  const { $ } = useTsp();
   if (!$.array.is(props.type)) {
     return null;
   }
 
   const elementType = $.array.getElementType(props.type);
 
-  return ay.code`
+  return code`
     if(!${props.itemRef}) {
       return ${props.itemRef} as any;
     }
@@ -37,8 +38,8 @@ export function JsonArrayTransform(props: JsonArrayTransformProps) {
 export function getJsonArrayTransformRefkey(
   type: Model,
   target: "transport" | "application",
-): ay.Refkey {
-  return ay.refkey(type, "json_array_transform", target);
+): Refkey {
+  return refkey(type, "json_array_transform", target);
 }
 
 export interface JsonArrayTransformDeclarationProps {
@@ -47,6 +48,7 @@ export interface JsonArrayTransformDeclarationProps {
 }
 
 export function JsonArrayTransformDeclaration(props: JsonArrayTransformDeclarationProps) {
+  const { $ } = useTsp();
   if (!$.array.is(props.type)) {
     return null;
   }
@@ -61,10 +63,10 @@ export function JsonArrayTransformDeclaration(props: JsonArrayTransformDeclarati
     "function",
   );
 
-  const itemType = ay.code`Array<${(<ef.TypeExpression type={elementType} />)}>`;
+  const itemType = code`Array<${(<ef.TypeExpression type={elementType} />)}>`;
   const returnType = props.target === "transport" ? "any" : itemType;
   const inputType = props.target === "transport" ? <>{itemType} | null</> : "any";
-  const inputRef = ay.refkey();
+  const inputRef = refkey();
 
   const parameters: ts.ParameterDescriptor[] = [
     { name: "items_", type: inputType, refkey: inputRef, optional: true },

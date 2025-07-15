@@ -57,7 +57,7 @@ public final class Int32ValuesImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArrayClientInt32Valu")
+    @ServiceInterface(name = "ArrayClientInt32Values")
     public interface Int32ValuesService {
         @Get("/type/array/int32")
         @ExpectedResponses({ 200 })

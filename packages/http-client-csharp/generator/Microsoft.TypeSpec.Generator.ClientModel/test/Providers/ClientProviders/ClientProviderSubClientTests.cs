@@ -4,6 +4,7 @@
 using System.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Tests.Common;
@@ -32,7 +33,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [Test]
         public void ServiceClientWithSubClient()
         {
-            string[] expectedSubClientFactoryMethodNames = [$"Get{_animalClient.Name.ToCleanName()}Client"];
+            string[] expectedSubClientFactoryMethodNames = [$"Get{_animalClient.Name.ToIdentifierName()}Client"];
             var clientProvider = new MockClientProvider(_testClient, expectedSubClientFactoryMethodNames);
             var writer = new TypeProviderWriter(clientProvider);
             var file = writer.Write();
@@ -43,7 +44,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [Test]
         public void SubClientWithSingleSubClient()
         {
-            string[] expectedSubClientFactoryMethodNames = [$"Get{_huskyClient.Name.ToCleanName()}Client"];
+            string[] expectedSubClientFactoryMethodNames = [$"Get{_huskyClient.Name.ToIdentifierName()}Client"];
             var clientProvider = new MockClientProvider(_dogClient, expectedSubClientFactoryMethodNames);
             var writer = new TypeProviderWriter(clientProvider);
             var file = writer.Write();
@@ -56,14 +57,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         {
             string[] expectedSubClientFactoryMethodNames =
             [
-                $"Get{_dogClient.Name.ToCleanName()}Client",
-                $"Get{_catClient.Name.ToCleanName()}Client",
-                $"Get{_hawkClient.Name.ToCleanName()}"
+                $"Get{_dogClient.Name.ToIdentifierName()}Client",
+                $"Get{_catClient.Name.ToIdentifierName()}Client",
+                $"Get{_hawkClient.Name.ToIdentifierName()}"
             ];
             var clientProvider = new MockClientProvider(_animalClient, expectedSubClientFactoryMethodNames);
             var writer = new TypeProviderWriter(clientProvider);
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void SubClientSummaryIsPopulatedWithDefaultDocs()
+        {
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                clients: () => [new InputClient("test", @namespace: "test", string.Empty, null, null, [], [], InputFactory.Client("parentClient"), null)]);
+
+            var client = mockGenerator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().SingleOrDefault();
+            Assert.IsNotNull(client);
+
+            Assert.AreEqual("/// <summary> The Test sub-client. </summary>\n", client!.XmlDocs.Summary!.ToDisplayString());
         }
 
         private class MockClientProvider : ClientProvider
@@ -75,7 +88,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 _expectedSubClientFactoryMethodNames = expectedSubClientFactoryMethodNames;
             }
 
-            protected override MethodProvider[] BuildMethods()
+            protected override ScmMethodProvider[] BuildMethods()
             {
                 return [.. base.BuildMethods().Where(m => _expectedSubClientFactoryMethodNames.Contains(m.Signature?.Name))];
             }

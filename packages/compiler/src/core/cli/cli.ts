@@ -37,9 +37,14 @@ async function main() {
       "greedy-arrays": false,
       "boolean-negation": false,
     })
+    .option("trace", {
+      type: "array",
+      string: true,
+      describe: "List of areas that should have the trace shown. e.g. `import-resolution.*`",
+    })
     .option("debug", {
       type: "boolean",
-      description: "Output debug log messages.",
+      description: `Enable all tracing. Same as --trace='*'`,
       default: false,
     })
     .option("pretty", {
@@ -86,6 +91,11 @@ async function main() {
             default: false,
             describe: "Watch project files for changes and recompile.",
           })
+          .option("stats", {
+            type: "boolean",
+            default: false,
+            describe: "Print statistics about the compilation.",
+          })
           .option("emit", {
             type: "array",
             string: true,
@@ -96,11 +106,7 @@ async function main() {
             default: false,
             describe: "List paths of emitted files.",
           })
-          .option("trace", {
-            type: "array",
-            string: true,
-            describe: "List of areas that should have the trace shown. e.g. `import-resolution.*`",
-          })
+
           .option("config", {
             type: "string",
             describe:

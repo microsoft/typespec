@@ -1,18 +1,22 @@
 package type.union.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
-import io.clientcore.core.http.RestProxy;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
+import java.lang.reflect.InvocationTargetException;
 import type.union.GetResponse3;
+import type.union.GetResponseProp2;
 
 /**
  * An instance of this class provides access to all the operations defined in IntsOnlies.
@@ -29,72 +33,84 @@ public final class IntsOnliesImpl {
     private final UnionClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of IntsOnliesImpl.
      * 
      * @param client the instance of the service client containing this operation class.
      */
     IntsOnliesImpl(UnionClientImpl client) {
-        this.service = RestProxy.create(IntsOnliesService.class, client.getHttpPipeline());
+        this.service = IntsOnliesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
      * The interface defining all the services for UnionClientIntsOnlies to be used by the proxy service to perform REST
      * calls.
      */
-    @ServiceInterface(name = "UnionClientIntsOnlie", host = "{endpoint}")
+    @ServiceInterface(name = "UnionClientIntsOnlies", host = "{endpoint}")
     public interface IntsOnliesService {
+        static IntsOnliesService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("type.union.implementation.IntsOnliesServiceImpl");
+                return (IntsOnliesService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(method = HttpMethod.GET, path = "/type/union/ints-only", expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<GetResponse3> getSync(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestOptions requestOptions);
+        Response<GetResponse3> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
 
         @HttpRequestInformation(method = HttpMethod.POST, path = "/type/union/ints-only", expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> sendSync(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") BinaryData sendRequest3, RequestOptions requestOptions);
+        Response<Void> send(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") SendRequest3 sendRequest3, RequestContext requestContext);
     }
 
     /**
      * The get operation.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     prop: String(1/2/3) (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<GetResponse3> getWithResponse(RequestOptions requestOptions) {
-        final String accept = "application/json";
-        return service.getSync(this.client.getEndpoint(), accept, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<GetResponse3> getWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Type.Union.IntsOnly.get", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.get(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
      * The send operation.
-     * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     prop: String(1/2/3) (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param sendRequest3 The sendRequest3 parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param prop The prop parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> sendWithResponse(BinaryData sendRequest3, RequestOptions requestOptions) {
-        final String contentType = "application/json";
-        return service.sendSync(this.client.getEndpoint(), contentType, sendRequest3, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> sendWithResponse(GetResponseProp2 prop, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Type.Union.IntsOnly.send", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                SendRequest3 sendRequest3 = new SendRequest3(prop);
+                return service.send(this.client.getEndpoint(), contentType, sendRequest3, updatedContext);
+            });
     }
 }

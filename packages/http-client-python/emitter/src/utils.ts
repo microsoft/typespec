@@ -105,11 +105,6 @@ export function camelToSnakeCase(name: string): string {
   return result_final;
 }
 
-export function removeUnderscoresFromNamespace(name?: string): string {
-  // needed because of the _specs_ tests
-  return (name || "").replace(/_/g, "");
-}
-
 export function getImplementation(
   context: PythonSdkContext,
   parameter: SdkParameter | SdkHttpParameter,
@@ -153,6 +148,7 @@ type ParamBase = {
   isApiVersion: boolean;
   type: Record<string, any>;
   isContinuationToken: boolean;
+  apiVersions: string[];
 };
 
 export function getAddedOn<TServiceOperation extends SdkServiceOperation>(
@@ -214,15 +210,26 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
       });
     }
   }
+  let clientName = camelToSnakeCase(parameter.name);
+  if (
+    parameter.kind !== "endpoint" &&
+    parameter.kind !== "credential" &&
+    parameter.kind !== "method" &&
+    parameter.onClient &&
+    parameter.correspondingMethodParams[0]
+  ) {
+    clientName = camelToSnakeCase(parameter.correspondingMethodParams[0].name);
+  }
   return {
     optional: parameter.optional,
     description: (parameter.summary ? parameter.summary : parameter.doc) ?? "",
     addedOn: getAddedOn(context, parameter),
-    clientName: camelToSnakeCase(parameter.name),
+    clientName,
     inOverload: false,
     isApiVersion: parameter.isApiVersionParam,
     isContinuationToken: isContinuationToken(parameter, method),
     type,
+    apiVersions: parameter.apiVersions,
   };
 }
 
@@ -267,7 +274,7 @@ export function getRootNamespace(context: PythonSdkContext): string {
     rootNamespace = context.sdkPackage.namespaces[0].fullName;
   }
 
-  return removeUnderscoresFromNamespace(rootNamespace).toLowerCase();
+  return rootNamespace.toLowerCase();
 }
 
 export function getClientNamespace(context: PythonSdkContext, clientNamespace: string) {
@@ -277,7 +284,7 @@ export function getClientNamespace(context: PythonSdkContext, clientNamespace: s
   ) {
     return getRootNamespace(context);
   }
-  return removeUnderscoresFromNamespace(clientNamespace).toLowerCase();
+  return clientNamespace.toLowerCase();
 }
 
 function parseToken(token: Token): string {

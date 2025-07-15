@@ -15,7 +15,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         public void MultipartShouldUseContentTypeParamInCreateRequestMethod()
         {
             var operation = InputFactory.Operation("MultipartOperation", requestMediaTypes: ["multipart/form-data"], parameters: [InputFactory.ContentTypeParameter("multipart/form-data")]);
-            var inputClient = InputFactory.Client("MultipartClient", operations: [operation]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("Test", operation);
+            var inputClient = InputFactory.Client("MultipartClient", methods: [inputServiceMethod]);
             MockHelpers.LoadMockGenerator(auth: () => new(new InputApiKeyAuth("mock", null), null), clients: () => [inputClient]);
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(client);
@@ -25,7 +26,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.IsNotNull(createMethod);
             var statements = createMethod!.BodyStatements as MethodBodyStatements;
             Assert.IsNotNull(statements);
-            Assert.IsTrue(statements!.Statements.Any(s => s.ToDisplayString() == "request.Headers.Set(\"Content-Type\", contentType);\n"));
+            Assert.IsTrue(statements!.Any(s => s.ToDisplayString() == "request.Headers.Set(\"Content-Type\", contentType);\n"));
         }
     }
 }

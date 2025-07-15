@@ -2,10 +2,6 @@
   "flavor": "generic", 
   "CrossLanguageDefinitionId": {
     "authentication.union.UnionClient": "Authentication.Union",
-    "authentication.union.UnionClient.validKey": "Authentication.Union.validKey",
-    "authentication.union.UnionClient.validKeyWithResponse": "Authentication.Union.validKey",
-    "authentication.union.UnionClient.validToken": "Authentication.Union.validToken",
-    "authentication.union.UnionClient.validTokenWithResponse": "Authentication.Union.validToken",
     "authentication.union.UnionClientBuilder": "Authentication.Union"
   }
 }

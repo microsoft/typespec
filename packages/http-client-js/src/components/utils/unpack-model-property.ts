@@ -1,5 +1,5 @@
 import { isNullType, ModelProperty, Type } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { useTsp } from "@typespec/emitter-framework";
 
 /**
  * Sometimes a model property type would be another ModelProperty in this case we need to keep unpacking until we find a non Model Property
@@ -7,6 +7,7 @@ import { $ } from "@typespec/compiler/experimental/typekit";
  * This also handles an HttpPart which needs to be unpacked as well.
  */
 export function unpackProperty(modelProperty: ModelProperty): Type {
+  const { $ } = useTsp();
   const type = $.httpPart.unpack(modelProperty.type) ?? modelProperty.type;
   if ($.modelProperty.is(type)) {
     return unpackProperty(type);

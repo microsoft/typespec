@@ -29,7 +29,7 @@ describe("Test GetInputType for array", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const inputParamArray = root.clients[0].operations[0].parameters.filter(
+    const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
       (p) => p.name === "input",
     );
     strictEqual(1, inputParamArray.length);
@@ -50,7 +50,7 @@ describe("Test GetInputType for array", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const bodyType = root.clients[0].operations[0].responses[0].bodyType;
+    const bodyType = root.clients[0].methods[0].operation.responses[0].bodyType;
     strictEqual(bodyType?.kind, "array");
     strictEqual(bodyType.crossLanguageDefinitionId, "TypeSpec.Array");
     strictEqual(bodyType.valueType.kind, "string");
@@ -89,7 +89,7 @@ describe("Test GetInputType for enum", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const inputParamArray = root.clients[0].operations[0].parameters.filter(
+    const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
       (p) => p.name === "input",
     );
     strictEqual(1, inputParamArray.length);
@@ -135,7 +135,7 @@ describe("Test GetInputType for enum", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const inputParamArray = root.clients[0].operations[0].parameters.filter(
+    const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
       (p) => p.name === "input",
     );
     strictEqual(1, inputParamArray.length);
@@ -174,7 +174,7 @@ describe("Test GetInputType for enum", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const inputParamArray = root.clients[0].operations[0].parameters.filter(
+    const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
       (p) => p.name === "input",
     );
     strictEqual(1, inputParamArray.length);

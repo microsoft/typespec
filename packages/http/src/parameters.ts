@@ -5,7 +5,14 @@ import {
   Operation,
   Program,
 } from "@typespec/compiler";
-import { getOperationVerb, getPathOptions } from "./decorators.js";
+import {
+  getOperationVerb,
+  getPatchOptions,
+  getPathOptions,
+  getQueryOptions,
+} from "./decorators.js";
+import { isMergePatchBody } from "./experimental/merge-patch/internal.js";
+import { createDiagnostic } from "./lib.js";
 import { resolveRequestVisibility } from "./metadata.js";
 import { HttpPayloadDisposition, resolveHttpPayload } from "./payload.js";
 import {
@@ -69,8 +76,10 @@ function getOperationParametersForVerb(
         param: ModelProperty,
       ): QueryParameterOptions | PathParameterOptions | undefined => {
         const isTopLevel = param.model === operation.parameters;
-        const uriParam =
-          isTopLevel && parsedUriTemplate.parameters.find((x) => x.name === param.name);
+        const pathOptions = getPathOptions(program, param);
+        const queryOptions = getQueryOptions(program, param);
+        const name = pathOptions?.name ?? queryOptions?.name ?? param.name;
+        const uriParam = isTopLevel && parsedUriTemplate.parameters.find((x) => x.name === name);
 
         if (!uriParam) {
           const pathOptions = getPathOptions(program, param);
@@ -114,6 +123,22 @@ function getOperationParametersForVerb(
       },
     }),
   );
+  const implicitOptionality = getPatchOptions(program, operation)?.implicitOptionality;
+  // TODO: remove in 6month after 1.0.0. (November 2025)
+  if (
+    verb === "patch" &&
+    resolvedBody &&
+    implicitOptionality === undefined &&
+    !isMergePatchBody(program, resolvedBody?.type) &&
+    !resolvedBody.contentTypes.includes("application/merge-patch+json") // Above statement doesn't detect Spread merge patch
+  ) {
+    diagnostics.add(
+      createDiagnostic({
+        code: "patch-implicit-optional",
+        target: operation,
+      }),
+    );
+  }
 
   for (const item of metadata) {
     switch (item.kind) {

@@ -1,11 +1,14 @@
 package type.property.optional;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.instrumentation.Instrumentation;
 import type.property.optional.implementation.UnionStringLiteralsImpl;
 
 /**
@@ -13,103 +16,37 @@ import type.property.optional.implementation.UnionStringLiteralsImpl;
  */
 @ServiceClient(builder = OptionalClientBuilder.class)
 public final class UnionStringLiteralClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final UnionStringLiteralsImpl serviceClient;
+
+    private final Instrumentation instrumentation;
 
     /**
      * Initializes an instance of UnionStringLiteralClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
-    @Metadata(generated = true)
-    UnionStringLiteralClient(UnionStringLiteralsImpl serviceClient) {
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    UnionStringLiteralClient(UnionStringLiteralsImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
      * Get models that will return all properties in the model.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     property: String(hello/world) (Optional)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return models that will return all properties in the model.
      */
-    @Metadata(generated = true)
-    public Response<UnionStringLiteralProperty> getAllWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.getAllWithResponse(requestOptions);
-    }
-
-    /**
-     * Get models that will return the default object.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     property: String(hello/world) (Optional)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return models that will return the default object.
-     */
-    @Metadata(generated = true)
-    public Response<UnionStringLiteralProperty> getDefaultWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.getDefaultWithResponse(requestOptions);
-    }
-
-    /**
-     * Put a body with all properties present.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     property: String(hello/world) (Optional)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> putAllWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.putAllWithResponse(body, requestOptions);
-    }
-
-    /**
-     * Put a body with default properties.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     property: String(hello/world) (Optional)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> putDefaultWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.putDefaultWithResponse(body, requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<UnionStringLiteralProperty> getAllWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.UnionStringLiteral.getAll",
+            requestContext, updatedContext -> this.serviceClient.getAllWithResponse(updatedContext));
     }
 
     /**
@@ -119,11 +56,26 @@ public final class UnionStringLiteralClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return models that will return all properties in the model.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public UnionStringLiteralProperty getAll() {
-        // Generated convenience method for getAllWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return getAllWithResponse(requestOptions).getValue();
+        return getAllWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * Get models that will return the default object.
+     * 
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return models that will return the default object.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<UnionStringLiteralProperty> getDefaultWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.UnionStringLiteral.getDefault",
+            requestContext, updatedContext -> this.serviceClient.getDefaultWithResponse(updatedContext));
     }
 
     /**
@@ -133,11 +85,27 @@ public final class UnionStringLiteralClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return models that will return the default object.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public UnionStringLiteralProperty getDefault() {
-        // Generated convenience method for getDefaultWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return getDefaultWithResponse(requestOptions).getValue();
+        return getDefaultWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * Put a body with all properties present.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> putAllWithResponse(UnionStringLiteralProperty body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.UnionStringLiteral.putAll",
+            requestContext, updatedContext -> this.serviceClient.putAllWithResponse(body, updatedContext));
     }
 
     /**
@@ -148,11 +116,27 @@ public final class UnionStringLiteralClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void putAll(UnionStringLiteralProperty body) {
-        // Generated convenience method for putAllWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        putAllWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        putAllWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * Put a body with default properties.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> putDefaultWithResponse(UnionStringLiteralProperty body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.UnionStringLiteral.putDefault",
+            requestContext, updatedContext -> this.serviceClient.putDefaultWithResponse(body, updatedContext));
     }
 
     /**
@@ -163,10 +147,9 @@ public final class UnionStringLiteralClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void putDefault(UnionStringLiteralProperty body) {
-        // Generated convenience method for putDefaultWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        putDefaultWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        putDefaultWithResponse(body, RequestContext.none());
     }
 }

@@ -12,7 +12,6 @@ using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
-using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
@@ -22,6 +21,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 {
     public class ClientProviderTests
     {
+        [TestCase("Foo", "Foo", ExpectedResult = true)]
+        [TestCase("Foo", "Bar", ExpectedResult = false)]
+        [TestCase("Foo", "_Foo", ExpectedResult = false)]
+        [TestCase("_Foo", "Foo", ExpectedResult = false)]
+        [TestCase("Foo", "Bar.Foo", ExpectedResult = true)]
+        [TestCase("Bar.Foo", "Foo", ExpectedResult = true)]
+        [TestCase("Foo", "Bar._Foo", ExpectedResult = false)]
+        [TestCase("Bar._Foo", "Foo", ExpectedResult = false)]
+        [TestCase("Foo", "/Foo", ExpectedResult = false)]
+        [TestCase("/Foo", "Foo", ExpectedResult = false)]
+        [TestCase(".Foo", ".Foo", ExpectedResult = true)]
+        [TestCase("Foo", ".Foo", ExpectedResult = true)]
+        [TestCase(".Foo", "Foo", ExpectedResult = true)]
+        public bool ValidateIsLastNamespaceSegmentTheSame(string left, string right)
+        {
+            return ClientProvider.IsLastNamespaceSegmentTheSame(left, right);
+        }
+
         private const string SubClientsCategory = "WithSubClients";
         private const string KeyAuthCategory = "WithKeyAuth";
         private const string OAuth2Category = "WithOAuth2";
@@ -443,13 +460,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 // when there is any auth, the second should be auth parameter
                 var authParam = primaryCtorParams?[1];
                 Assert.IsNotNull(authParam);
-                if (authParam?.Name == "keyCredential")
+                if (authParam?.Type.Equals(typeof(ApiKeyCredential)) == true)
                 {
-                    Assert.AreEqual(new CSharpType(typeof(ApiKeyCredential)), authParam?.Type);
+                    Assert.AreEqual("credential", authParam.Name);
                 }
-                else if (authParam?.Name == "tokenCredential")
+                else if (authParam?.Type.Equals(typeof(FakeTokenCredential)) == true)
                 {
-                    Assert.AreEqual(new CSharpType(typeof(FakeTokenCredential)), authParam?.Type);
+                    Assert.AreEqual("credential", authParam.Name);
                 }
                 else
                 {
@@ -483,7 +500,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 // auth should be the only parameter if endpoint is optional when there is auth
                 if (_hasSupportedAuth)
                 {
-                    Assert.IsTrue(ctorParams?[0].Name.EndsWith("Credential"));
+                    Assert.AreEqual("credential", ctorParams?[0].Name);
                 }
                 else
                 {
@@ -497,7 +514,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 Assert.AreEqual(KnownParameters.Endpoint.Name, ctorParams?[0].Name);
                 if (_hasSupportedAuth)
                 {
-                    Assert.IsTrue(ctorParams?[1].Name.EndsWith("Credential"));
+                    Assert.AreEqual("credential", ctorParams?[1].Name);
                 }
             }
 
@@ -545,11 +562,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             if (isSubClient)
             {
-                Assert.IsNull(clientProvider.ClientOptions.Value);
+                Assert.IsNull(clientProvider.ClientOptions);
             }
             else
             {
-                Assert.IsNotNull(clientProvider.ClientOptions.Value);
+                Assert.IsNotNull(clientProvider.ClientOptions);
             }
         }
 
@@ -563,6 +580,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             List<MethodProvider> subClientAccessorFactoryMethods = [];
             foreach (var method in methods)
             {
+                Assert.IsInstanceOf<ScmMethodProvider>(method);
                 var methodSignature = method.Signature;
                 if (methodSignature != null &&
                     methodSignature.Name.StartsWith("Get") &&
@@ -596,6 +614,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(GetEnumQueryParamClient());
             Assert.IsNotNull(clientProvider);
             var methods = clientProvider!.Methods;
+            // all methods should be ScmMethodProvider instances
+            Assert.IsTrue(methods.All(m => m is ScmMethodProvider));
             //4 methods, sync / async + protocol / convenience
             Assert.AreEqual(4, methods.Count);
             //two methods need to have the query parameter as an enum
@@ -619,6 +639,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual(Helpers.GetExpectedFromFile(isAsync.ToString()), codeFile.Content);
         }
 
+        [TestCaseSource(nameof(TestNonBodyRequestParametersInBodyTestCases))]
+        public void TestNonBodyRequestParametersInBodyWriterDiff(InputServiceMethod inputServiceMethod)
+        {
+            var inputClient = InputFactory.Client("testClient", methods: [inputServiceMethod]);
+            MockHelpers.LoadMockGenerator(
+                createClientCore: (client) => new TestNonBodyRequestParametersInBodyDiffClientProvider(inputClient));
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(GetEnumQueryParamClient());
+            Assert.IsNotNull(clientProvider);
+
+            TypeProviderWriter writer = new(clientProvider!);
+            var codeFile = writer.Write();
+            var caseName = TestContext.CurrentContext.Test.Properties.Get("caseName");
+            Assert.AreEqual(Helpers.GetExpectedFromFile($"{caseName}"), codeFile.Content);
+        }
+
         // This test validates that no public constructors are generated when the client has only unsupported auth
         [Test]
         public void ValidateConstructorsWhenUnsupportedAuth()
@@ -639,20 +675,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         public void ValidateMethodSignatureUsesIEnumerable()
         {
             MockHelpers.LoadMockGenerator();
-
+            List<InputParameter> parameters = [InputFactory.Parameter("arrayParam", InputFactory.Array(InputPrimitiveType.String))];
             var inputClient = InputFactory.Client(
                 TestClientName,
-                operations:
+                methods:
                 [
-                    InputFactory.Operation(
+                    InputFactory.BasicServiceMethod(
                         "Foo",
-                        parameters:
-                        [
-                            InputFactory.Parameter(
-                                "arrayParam",
-                                InputFactory.Array(
-                                    InputPrimitiveType.String))
-                        ])
+                        InputFactory.Operation(
+                            "Foo",
+                            parameters: parameters),
+                        parameters: parameters)
                 ]);
             var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(clientProvider);
@@ -677,9 +710,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual(2, protocolMethods[1].Signature.Parameters.Count);
 
             Assert.AreEqual(new CSharpType(typeof(BinaryContent)), protocolMethods[0].Signature.Parameters[0].Type);
-            Assert.AreEqual(new CSharpType(typeof(RequestOptions), true), protocolMethods[0].Signature.Parameters[1].Type);
+            Assert.AreEqual(new CSharpType(typeof(RequestOptions)), protocolMethods[0].Signature.Parameters[1].Type);
             Assert.AreEqual(new CSharpType(typeof(BinaryContent)), protocolMethods[1].Signature.Parameters[0].Type);
-            Assert.AreEqual(new CSharpType(typeof(RequestOptions), true), protocolMethods[1].Signature.Parameters[1].Type);
+            Assert.AreEqual(new CSharpType(typeof(RequestOptions)), protocolMethods[1].Signature.Parameters[1].Type);
 
             var convenienceMethods = methods.Where(m => m.Signature.Parameters.Any(p => p.Type.Equals(typeof(string)))).ToList();
             Assert.AreEqual(2, convenienceMethods.Count);
@@ -690,9 +723,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         }
 
         [TestCaseSource(nameof(RequestOptionsParameterInSignatureTestCases))]
-        public void TestRequestOptionsParameterInSignature(InputOperation inputOperation, bool shouldBeOptional, bool hasOptionalParameter)
+        public void TestRequestOptionsParameterInSignature(InputServiceMethod inputServiceMethod, bool shouldBeOptional, bool hasOptionalParameter)
         {
-            var client = InputFactory.Client(TestClientName, operations: [inputOperation]);
+            var client = InputFactory.Client(TestClientName, methods: [inputServiceMethod]);
             var clientProvider = new ClientProvider(client);
             var protocolMethods = clientProvider.Methods.Where(m => m.Signature.Parameters.Any(p => p.Type.Name == "RequestOptions")).ToList();
             var syncMethod = protocolMethods.FirstOrDefault(m => !m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async));
@@ -700,14 +733,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             var requestOptionsParameterInSyncMethod = syncMethod!.Signature.Parameters.FirstOrDefault(p => p.Type.Name == "RequestOptions");
             Assert.IsNotNull(requestOptionsParameterInSyncMethod);
-            Assert.AreEqual(shouldBeOptional, requestOptionsParameterInSyncMethod!.Type.IsNullable);
+            Assert.AreEqual(shouldBeOptional, requestOptionsParameterInSyncMethod!.DefaultValue != null);
 
             var asyncMethod = protocolMethods.FirstOrDefault(m => m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async));
             Assert.IsNotNull(asyncMethod);
 
             var requestOptionsParameterInAsyncMethod = asyncMethod!.Signature.Parameters.FirstOrDefault(p => p.Type.Name == "RequestOptions");
             Assert.IsNotNull(requestOptionsParameterInAsyncMethod);
-            Assert.AreEqual(shouldBeOptional, requestOptionsParameterInAsyncMethod!.Type.IsNullable);
+            Assert.AreEqual(shouldBeOptional, requestOptionsParameterInAsyncMethod!.DefaultValue != null);
 
             // request options should always be last parameter
             Assert.AreEqual("RequestOptions", syncMethod.Signature.Parameters[^1].Type.Name);
@@ -736,17 +769,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         public void TestApiVersionOfClient()
         {
             List<string> apiVersions = ["1.0", "2.0"];
-            var enumValues = apiVersions.Select(a => InputFactory.EnumMember.String(a, a));
-            var inputEnum = InputFactory.Enum("ServiceVersion", InputPrimitiveType.Int64, values: [.. enumValues], usage: InputModelTypeUsage.ApiVersionEnum);
+            var enumValues = apiVersions.Select(a => (a, a));
+            var inputEnum = InputFactory.StringEnum(
+                "ServiceVersion", enumValues, usage: InputModelTypeUsage.ApiVersionEnum);
 
             MockHelpers.LoadMockGenerator(
                 apiVersions: () => apiVersions,
                 inputEnums: () => [inputEnum]);
             var client = InputFactory.Client(TestClientName,
-                operations: [
-                    InputFactory.Operation("OperationWithApiVersion",
-                            parameters: [InputFactory.Parameter("apiVersion", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query, kind: InputOperationParameterKind.Client, isApiVersion: true)])
-                    ]);
+                methods: [
+                    InputFactory.BasicServiceMethod(
+                        "test",
+                        InputFactory.Operation(
+                            "OperationWithApiVersion",
+                            parameters: [InputFactory.Parameter("apiVersion", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query, kind: InputParameterKind.Client, isApiVersion: true)]))
+                ]);
             var clientProvider = new ClientProvider(client);
             Assert.IsNotNull(clientProvider);
 
@@ -775,8 +812,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         public void TestApiVersionPathParameterOfClient(InputClient inputClient)
         {
             List<string> apiVersions = ["value1", "value2"];
-            var enumValues = apiVersions.Select(a => InputFactory.EnumMember.String(a, a));
-            var inputEnum = InputFactory.Enum("ServiceVersion", InputPrimitiveType.Int64, values: [.. enumValues], usage: InputModelTypeUsage.ApiVersionEnum);
+            var enumValues = apiVersions.Select(a => (a, a));
+            var inputEnum = InputFactory.StringEnum("ServiceVersion", enumValues, usage: InputModelTypeUsage.ApiVersionEnum);
+
             MockHelpers.LoadMockGenerator(
                 apiVersions: () => apiVersions,
                 inputEnums: () => [inputEnum]);
@@ -805,6 +843,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(method);
             /* verify that the method does not have apiVersion parameter */
             Assert.IsNull(method?.Signature.Parameters.FirstOrDefault(p => p.Name.Equals("apiVersion")));
+        }
+
+        [Test]
+        public void SubClientFieldsAreStoredOnRootClient()
+        {
+            var rootClient = InputFactory.Client(
+                "RootClient");
+            var subClient = InputFactory.Client(
+                "SubClient",
+                parent: rootClient,
+                parameters:
+                [
+                    InputFactory.Parameter("apiVersion", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Path, kind: InputParameterKind.Client, isApiVersion: true),
+                    InputFactory.Parameter("someOtherParameter", InputPrimitiveType.Url, isRequired: true, kind: InputParameterKind.Client)
+                ]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [rootClient]);
+
+            var rootClientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(rootClient);
+            Assert.IsNotNull(rootClientProvider);
+            Assert.IsTrue(rootClientProvider!.Fields.Any(f => f.Name.Equals("_apiVersion")));
+            Assert.IsTrue(rootClientProvider.Fields.Any(f => f.Name.Equals("_someOtherParameter")));
         }
 
         [TestCase]
@@ -838,31 +898,229 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual("/// <summary> client description. </summary>\n", client!.XmlDocs.Summary!.ToDisplayString());
         }
 
-        private static InputClient GetEnumQueryParamClient()
-            => InputFactory.Client(
+        [Test]
+        public void ClientProviderSummaryIsPopulatedWithDefaultDocs()
+        {
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                clients: () => [new InputClient("testClient", @namespace: "test", string.Empty, null, null, [], [], null, null)]);
+
+            var client = mockGenerator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().SingleOrDefault();
+            Assert.IsNotNull(client);
+
+            Assert.AreEqual("/// <summary> The TestClient. </summary>\n", client!.XmlDocs.Summary!.ToDisplayString());
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void AccessibilityOfMethodMatchesInputOperation(bool isPublic)
+        {
+            MockHelpers.LoadMockGenerator();
+            var access = isPublic ? "public" : "internal";
+            var inputClient = InputFactory.Client(
                 TestClientName,
-                operations:
+                methods:
                 [
-                    InputFactory.Operation(
-                        "Operation",
+                    InputFactory.BasicServiceMethod(
+                        "Foo",
+                        InputFactory.Operation(
+                            "Foo",
+                            access: access),
+                        access: access)
+                ]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            Assert.IsNotNull(clientProvider);
+            var convenienceMethod = clientProvider!.Methods.FirstOrDefault(
+                m => m.Signature.Name == "Foo" &&
+                     !m.Signature.Parameters.Any(p => p.Type.Equals(typeof(RequestOptions))));
+            Assert.IsNotNull(convenienceMethod);
+
+            var protocolMethod = clientProvider.Methods.FirstOrDefault(
+                m => m.Signature.Name == "Foo" &&
+                     m.Signature.Parameters.Any(p => p.Type.Equals(typeof(RequestOptions))));
+            Assert.IsNotNull(protocolMethod);
+
+            if (isPublic)
+            {
+                Assert.IsTrue(convenienceMethod!.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+                Assert.IsTrue(protocolMethod!.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            }
+            else
+            {
+                Assert.IsFalse(convenienceMethod!.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+                Assert.IsFalse(protocolMethod!.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            }
+        }
+
+        [Test]
+        public void XmlDocsAreWritten()
+        {
+            MockHelpers.LoadMockGenerator(includeXmlDocs: true);
+            var client = InputFactory.Client(
+                TestClientName,
+                methods:
+                [
+                    InputFactory.BasicServiceMethod(
+                        "Foo",
+                        InputFactory.Operation(
+                            name: "Foo",
+                            parameters:
+                            [
+                                InputFactory.Parameter(
+                                    "queryParam",
+                                    InputPrimitiveType.String,
+                                    isRequired: true,
+                                    location: InputRequestLocation.Query,
+                                    kind: InputParameterKind.Client)
+                            ]),
                         parameters:
                         [
                             InputFactory.Parameter(
                                 "queryParam",
-                                InputFactory.Enum(
-                                    "InputEnum",
-                                    InputPrimitiveType.String,
-                                    usage: InputModelTypeUsage.Input,
-                                    isExtensible: true,
-                                    values:
-                                    [
-                                        InputFactory.EnumMember.String("value1", "value1"),
-                                        InputFactory.EnumMember.String("value2", "value2")
-                                    ]),
+                                InputPrimitiveType.String,
                                 isRequired: true,
-                                location: InputRequestLocation.Query)
+                                location: InputRequestLocation.Query,
+                                kind: InputParameterKind.Client)
                         ])
                 ]);
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            var writer = new TypeProviderWriter(clientProvider!);
+            var file = writer.Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void EndpointFieldAssignedFromUriParameter()
+        {
+            MockHelpers.LoadMockGenerator();
+            var client = InputFactory.Client(
+                TestClientName,
+                parameters: [InputFactory.Parameter(
+                    "endpoint",
+                    InputPrimitiveType.Url,
+                    isRequired: true,
+                    kind: InputParameterKind.Client,
+                    isEndpoint: true)]);
+            var clientProvider = new ClientProvider(client);
+            var constructor = clientProvider.Constructors.FirstOrDefault(
+                c => c.Signature.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
+
+            StringAssert.Contains("_endpoint = endpoint;", constructor?.BodyStatements?.ToDisplayString());
+        }
+
+        [TestCase("{endpoint}", "endpoint")]
+        [TestCase("https://{hostName}", "hostName")]
+        public void EndpointFieldAssignedFromStringParameter(string serverTemplate, string parameterName)
+        {
+            MockHelpers.LoadMockGenerator();
+            var client = InputFactory.Client(
+                TestClientName,
+                parameters: [InputFactory.Parameter(
+                    parameterName,
+                    InputPrimitiveType.String,
+                    isRequired: true,
+                    kind: InputParameterKind.Client,
+                    serverUrlTemplate: serverTemplate,
+                    isEndpoint: true)]);
+            var clientProvider = new ClientProvider(client);
+            var constructor = clientProvider.Constructors.FirstOrDefault(
+                c => c.Signature.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
+
+            StringAssert.Contains($"_endpoint = new global::System.Uri($\"{serverTemplate}\");", constructor?.BodyStatements?.ToDisplayString());
+        }
+
+        [TestCase("{endpoint}", "endpoint")]
+        [TestCase("http://{hostName}", "hostName")]
+        [TestCase("https://{hostName}", "hostName")]
+        public void EndpointAppliedInCreateMethodRequest(string serverTemplate, string parameterName)
+        {
+            MockHelpers.LoadMockGenerator();
+            var client = InputFactory.Client(
+                TestClientName,
+                methods: [InputFactory.BasicServiceMethod("Foo", InputFactory.Operation("bar", uri: $"{serverTemplate}/foo"))],
+                parameters: [InputFactory.Parameter(
+                    parameterName,
+                    InputPrimitiveType.String,
+                    isRequired: true,
+                    kind: InputParameterKind.Client,
+                    serverUrlTemplate: serverTemplate,
+                    isEndpoint: true)]);
+            var clientProvider = new ClientProvider(client);
+            var createMethod = clientProvider.RestClient.Methods.FirstOrDefault();
+            StringAssert.Contains($"uri.Reset(_endpoint);", createMethod?.BodyStatements?.ToDisplayString());
+        }
+
+        [Test]
+        public void ListMethodsAreRenamedToGet()
+        {
+            MockHelpers.LoadMockGenerator();
+
+            var inputOperation = InputFactory.Operation(
+                "ListCats");
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod("ListCats", inputOperation);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            foreach (var method in client!.Methods)
+            {
+                Assert.IsTrue(method.Signature.Name.StartsWith("Get", StringComparison.OrdinalIgnoreCase));
+            }
+
+            foreach (var method in client.RestClient.Methods)
+            {
+                Assert.IsTrue(method.Signature.Name.StartsWith("CreateGet", StringComparison.OrdinalIgnoreCase));
+            }
+        }
+
+        private static InputClient GetEnumQueryParamClient()
+        {
+            return InputFactory.Client(
+                        TestClientName,
+                        methods:
+                        [
+                            InputFactory.BasicServiceMethod(
+                        "test",
+                        InputFactory.Operation(
+                            "Operation",
+                            parameters:
+                            [
+                                InputFactory.Parameter(
+                                    "queryParam",
+                                    InputFactory.StringEnum(
+                                        "InputEnum",
+                                        [
+                                            ("value1", "value1"),
+                                            ("value2", "value2")
+                                        ],
+                                        usage: InputModelTypeUsage.Input,
+                                        isExtensible: true),
+                                    isRequired: true,
+                                    location: InputRequestLocation.Query)
+                            ]),
+                    parameters:
+                    [
+                        InputFactory.Parameter(
+                            "queryParam",
+                            InputFactory.StringEnum(
+                                "InputEnum",
+                                [
+                                    ("value1", "value1"),
+                                    ("value2", "value2")
+                                ],
+                                usage: InputModelTypeUsage.Input,
+                                isExtensible: true),
+                            isRequired: true,
+                            location: InputRequestLocation.Query)
+                    ])
+                        ]);
+        }
 
         private class ValidateQueryParamDiffClientProvider : ClientProvider
         {
@@ -874,7 +1132,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 _isAsync = isAsync;
             }
 
-            protected override MethodProvider[] BuildMethods()
+            protected override ScmMethodProvider[] BuildMethods()
             {
                 var method = base.BuildMethods().First(m => m.Signature.Parameters.Any(p =>
                     p is { Name: "queryParam", Type.Name: "InputEnum" } &&
@@ -888,12 +1146,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             protected override PropertyProvider[] BuildProperties() => [];
         }
 
+        // This custom client provider is used to validate operations where non-body request parameters are declared within a request body model.
+        private class TestNonBodyRequestParametersInBodyDiffClientProvider : ClientProvider
+        {
+            public TestNonBodyRequestParametersInBodyDiffClientProvider(InputClient client) : base(client) { }
+
+            protected override ScmMethodProvider[] BuildMethods()
+            {
+                var method = base.BuildMethods().First(m => m.Signature.Parameters.Any(p =>
+                    p is { Name: "body" } && m.Signature.Name.EndsWith("Async")));
+                method.Update(xmlDocProvider: new XmlDocProvider());
+                return [method];
+            }
+
+            protected override FieldProvider[] BuildFields() => [];
+            protected override ConstructorProvider[] BuildConstructors() => [];
+            protected override PropertyProvider[] BuildProperties() => [];
+        }
+
         private class UnsupportedAuthClientProvider : ClientProvider
         {
             public UnsupportedAuthClientProvider(InputClient client)
                 : base(client) { }
 
-            protected override MethodProvider[] BuildMethods() => [];
+            protected override ScmMethodProvider[] BuildMethods() => [];
 
             protected override FieldProvider[] BuildFields() => [];
             protected override PropertyProvider[] BuildProperties() => [];
@@ -909,12 +1185,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                         "optionalParam",
                         InputPrimitiveType.String,
                         location: InputRequestLocation.None,
-                        kind: InputOperationParameterKind.Client),
+                        kind: InputParameterKind.Client),
                     InputFactory.Parameter(
                         KnownParameters.Endpoint.Name,
                         InputPrimitiveType.String,
                         location:InputRequestLocation.None,
-                        kind: InputOperationParameterKind.Client,
+                        kind: InputParameterKind.Client,
                         isEndpoint: true)
                 });
                 yield return new TestCaseData(new List<InputParameter>
@@ -925,28 +1201,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                         InputPrimitiveType.String,
                         location: InputRequestLocation.None,
                         defaultValue: InputFactory.Constant.String("someValue"),
-                        kind: InputOperationParameterKind.Client,
+                        kind: InputParameterKind.Client,
                         isRequired: false),
                     InputFactory.Parameter(
                         "requiredParam2",
                         InputPrimitiveType.String,
                         location: InputRequestLocation.None,
                         defaultValue: InputFactory.Constant.String("someValue"),
-                        kind: InputOperationParameterKind.Client,
+                        kind: InputParameterKind.Client,
                         isRequired: true),
                     InputFactory.Parameter(
                         "requiredParam3",
                         InputPrimitiveType.Int64,
                         location: InputRequestLocation.None,
                         defaultValue: InputFactory.Constant.Int64(2),
-                        kind: InputOperationParameterKind.Client,
+                        kind: InputParameterKind.Client,
                         isRequired: true),
                     InputFactory.Parameter(
                         KnownParameters.Endpoint.Name,
                         InputPrimitiveType.String,
                         location: InputRequestLocation.None,
                         defaultValue: null,
-                        kind: InputOperationParameterKind.Client,
+                        kind: InputParameterKind.Client,
                         isEndpoint: true)
                 });
             }
@@ -962,12 +1238,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                         "optionalParam",
                         InputPrimitiveType.String,
                         location: InputRequestLocation.None,
-                        kind: InputOperationParameterKind.Client),
+                        kind: InputParameterKind.Client),
                     InputFactory.Parameter(
                         KnownParameters.Endpoint.Name,
                         InputPrimitiveType.String,
                         location:InputRequestLocation.None,
-                        kind: InputOperationParameterKind.Client,
+                        kind: InputParameterKind.Client,
                         isEndpoint: true)
                 },
                 new List<ExpectedFieldProvider>
@@ -984,28 +1260,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                         InputPrimitiveType.String,
                         location: InputRequestLocation.None,
                         defaultValue: InputFactory.Constant.String("someValue"),
-                        kind: InputOperationParameterKind.Client,
+                        kind: InputParameterKind.Client,
                         isRequired: false),
                     InputFactory.Parameter(
                         "requiredParam2",
                         InputPrimitiveType.String,
                         location: InputRequestLocation.None,
                         defaultValue: InputFactory.Constant.String("someValue"),
-                        kind: InputOperationParameterKind.Client,
+                        kind: InputParameterKind.Client,
                         isRequired: true),
                     InputFactory.Parameter(
                         "requiredParam3",
                         InputPrimitiveType.Int64,
                         location: InputRequestLocation.None,
                         defaultValue: InputFactory.Constant.Int64(2),
-                        kind: InputOperationParameterKind.Client,
+                        kind: InputParameterKind.Client,
                         isRequired: true),
                     InputFactory.Parameter(
                         KnownParameters.Endpoint.Name,
                         InputPrimitiveType.String,
                         location: InputRequestLocation.None,
                         defaultValue: null,
-                        kind: InputOperationParameterKind.Client,
+                        kind: InputParameterKind.Client,
                         isEndpoint: true)
                 },
                 new List<ExpectedFieldProvider>
@@ -1068,19 +1344,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             {
                 yield return new TestCaseData(InputFactory.Client(
                     TestClientName,
-                    operations:
+                    methods:
                     [
-                        InputFactory.Operation(
-                        "CreateMessage",
-                        parameters:
-                        [
-                            InputFactory.Parameter(
-                                "spread",
-                                _spreadModel,
-                                location: InputRequestLocation.Body,
-                                isRequired: true,
-                                kind: InputOperationParameterKind.Spread),
-                        ])
+                        InputFactory.BasicServiceMethod("test",
+                            InputFactory.Operation(
+                            "CreateMessage",
+                            parameters:
+                            [
+                                InputFactory.Parameter(
+                                    "spread",
+                                    _spreadModel,
+                                    location: InputRequestLocation.Body,
+                                    isRequired: true,
+                                    kind: InputParameterKind.Spread),
+                            ]),
+                            parameters:  [InputFactory.Parameter("p1", InputPrimitiveType.String, kind: InputParameterKind.Spread, isRequired: true)])
                     ]));
             }
         }
@@ -1106,13 +1384,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                         "optionalParam",
                         InputPrimitiveType.String,
                         location: InputRequestLocation.None,
-                        kind: InputOperationParameterKind.Client),
+                        kind: InputParameterKind.Client),
                     InputFactory.Parameter(
                         KnownParameters.Endpoint.Name,
                         InputPrimitiveType.String,
                         location: InputRequestLocation.None,
                         defaultValue: InputFactory.Constant.String("someValue"),
-                        kind: InputOperationParameterKind.Client,
+                        kind: InputParameterKind.Client,
                         isEndpoint: true)
                 }).SetProperty("caseName", "WithDefault");
                 // scenario where endpoint is required
@@ -1122,15 +1400,162 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                         KnownParameters.Endpoint.Name,
                         InputPrimitiveType.String,
                         location: InputRequestLocation.None,
-                        kind: InputOperationParameterKind.Client,
+                        kind: InputParameterKind.Client,
                         isRequired: true,
                         isEndpoint: true),
                     InputFactory.Parameter(
                         "optionalParam",
                         InputPrimitiveType.String,
                         location: InputRequestLocation.None,
-                        kind: InputOperationParameterKind.Client)
+                        kind: InputParameterKind.Client)
                 }).SetProperty("caseName", "WithRequired");
+            }
+        }
+
+        public static IEnumerable<TestCaseData> TestNonBodyRequestParametersInBodyTestCases
+        {
+            get
+            {
+                // header parameter in body
+                yield return new TestCaseData(InputFactory.BasicServiceMethod(
+                    "TestServiceMethod",
+                    InputFactory.Operation(
+                        "TestOperation",
+                        parameters:
+                        [
+                            InputFactory.Parameter(
+                                "body",
+                                InputFactory.Model(
+                                    "ModelWithHeader",
+                                    properties:
+                                    [
+                                        InputFactory.HeaderParameter("foo", InputPrimitiveType.String, isRequired: true),
+                                        InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
+                                    ]),
+                                location: InputRequestLocation.Body,
+                                isRequired: true),
+                            InputFactory.Parameter("foo", InputPrimitiveType.String, location: InputRequestLocation.Header, isRequired: true),
+                        ]),
+                    parameters:
+                    [
+                        InputFactory.Parameter(
+                            "body",
+                            InputFactory.Model(
+                                "ModelWithHeader",
+                                properties:
+                                [
+                                    InputFactory.HeaderParameter("foo", InputPrimitiveType.String, isRequired: true),
+                                    InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
+                                ]),
+                            location: InputRequestLocation.Body, isRequired: true)]
+                    )).SetProperty("caseName", "WithHeaderInRequestBody");
+
+                // query parameter in body
+                yield return new TestCaseData(InputFactory.BasicServiceMethod(
+                    "TestServiceMethod",
+                    InputFactory.Operation(
+                        "TestOperation",
+                        parameters:
+                        [
+                            InputFactory.Parameter(
+                                "body",
+                                InputFactory.Model(
+                                    "ModelWithQuery",
+                                    properties:
+                                    [
+                                        InputFactory.QueryParameter("foo", InputPrimitiveType.String, isRequired: true),
+                                        InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
+                                    ]),
+                                location: InputRequestLocation.Body,
+                                isRequired: true),
+                            InputFactory.Parameter("foo", InputPrimitiveType.String, location: InputRequestLocation.Query, isRequired: true),
+                        ]),
+                    parameters:
+                    [
+                        InputFactory.Parameter(
+                            "body",
+                            InputFactory.Model(
+                                "ModelWithQuery",
+                                properties:
+                                [
+                                    InputFactory.QueryParameter("foo", InputPrimitiveType.String, isRequired: true),
+                                    InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
+                                ]),
+                            location: InputRequestLocation.Body, isRequired: true)]
+                    )).SetProperty("caseName", "WithQueryInRequestBody");
+
+                // path parameter in body
+                yield return new TestCaseData(InputFactory.BasicServiceMethod(
+                    "TestServiceMethod",
+                    InputFactory.Operation(
+                        "TestOperation",
+                        parameters:
+                        [
+                            InputFactory.Parameter(
+                                "body",
+                                InputFactory.Model(
+                                    "ModelWithPathParam",
+                                    properties:
+                                    [
+                                        InputFactory.QueryParameter("foo", InputPrimitiveType.String, isRequired: true),
+                                        InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
+                                    ]),
+                                location: InputRequestLocation.Body,
+                                isRequired: true),
+                            InputFactory.Parameter("foo", InputPrimitiveType.String, location: InputRequestLocation.Path, isRequired: true),
+                        ]),
+                    parameters:
+                    [
+                        InputFactory.Parameter(
+                            "body",
+                            InputFactory.Model(
+                                "ModelWithPathParam",
+                                properties:
+                                [
+                                    InputFactory.QueryParameter("foo", InputPrimitiveType.String, isRequired: true),
+                                    InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
+                                ]),
+                            location: InputRequestLocation.Body, isRequired: true)]
+                    )).SetProperty("caseName", "WithPathInRequestBody");
+
+                // mixed parameters in body
+                yield return new TestCaseData(InputFactory.BasicServiceMethod(
+                    "TestServiceMethod",
+                    InputFactory.Operation(
+                        "TestOperation",
+                        parameters:
+                        [
+                            InputFactory.Parameter(
+                                "body",
+                                InputFactory.Model(
+                                    "ModelWithMixedParams",
+                                    properties:
+                                    [
+                                        InputFactory.PathParameter("cat", InputPrimitiveType.String, isRequired: true),
+                                        InputFactory.QueryParameter("dog", InputPrimitiveType.String, isRequired: true),
+                                        InputFactory.HeaderParameter("bird", InputPrimitiveType.String, isRequired: true),
+                                        InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
+                                    ]),
+                                location: InputRequestLocation.Body,
+                                isRequired: true),
+                            InputFactory.Parameter("cat", InputPrimitiveType.String, location: InputRequestLocation.Path, isRequired: true),
+                            InputFactory.Parameter("dog", InputPrimitiveType.String, location: InputRequestLocation.Query, isRequired: true),
+                            InputFactory.Parameter("bird", InputPrimitiveType.String, location: InputRequestLocation.Header, isRequired: true),
+                        ]),
+                    parameters:
+                    [
+                        InputFactory.Parameter(
+                            "body",
+                            InputFactory.Model(
+                                "ModelWithPathParam",
+                                properties:
+                                [
+                                    InputFactory.PathParameter("cat", InputPrimitiveType.String, isRequired: true),
+                                    InputFactory.QueryParameter("dog", InputPrimitiveType.String, isRequired: true),
+                                    InputFactory.HeaderParameter("bird", InputPrimitiveType.String, isRequired: true),
+                                ]),
+                            location: InputRequestLocation.Body, isRequired: true)]
+                    )).SetProperty("caseName", "WithMixedParametersInRequestBody");
             }
         }
 
@@ -1140,11 +1565,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             {
                 // Protocol & convenience methods will have the same parameters, so RequestOptions should be required.
                 yield return new TestCaseData(
+                InputFactory.BasicServiceMethod(
+                    "TestServiceMethod",
                     InputFactory.Operation(
                         "TestOperation",
                         parameters:
                         [
                             InputFactory.Parameter(
+                                    "p1",
+                                    InputPrimitiveType.String,
+                                    location: InputRequestLocation.None,
+                                    isRequired: true),
+                                InputFactory.Parameter(
+                                    "p2",
+                                    InputPrimitiveType.Int64,
+                                    location: InputRequestLocation.None,
+                                    isRequired: true),
+                        ]),
+                    parameters:
+                    [
+                        InputFactory.Parameter(
                                 "p1",
                                 InputPrimitiveType.String,
                                 location: InputRequestLocation.None,
@@ -1154,13 +1594,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                 InputPrimitiveType.Int64,
                                 location: InputRequestLocation.None,
                                 isRequired: true),
-                        ]), false, false);
+                    ]), false, false);
 
                 // Protocol & convenience methods will have the same parameters.
                 // One of the parameter is optional, so it should be made required in the protocol method.
                 yield return new TestCaseData(
-                    InputFactory.Operation(
-                        "TestOperation",
+                     InputFactory.BasicServiceMethod(
+                        "TestServiceMethod2",
+                        InputFactory.Operation(
+                            "TestOperation2",
+                            parameters:
+                            [
+                                InputFactory.Parameter(
+                                    "p1",
+                                    InputPrimitiveType.String,
+                                    location: InputRequestLocation.None,
+                                    isRequired: false),
+                                InputFactory.Parameter(
+                                    "p2",
+                                    InputPrimitiveType.Int64,
+                                    location: InputRequestLocation.None,
+                                    isRequired: true),
+                            ]),
                         parameters:
                         [
                             InputFactory.Parameter(
@@ -1178,9 +1633,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 // Protocol & convenience methods will have the same parameters.
                 // One of the parameter is optional value type, so it should be made nullable required in the protocol method, and RequestOptions can be optional.
                 yield return new TestCaseData(
-                    InputFactory.Operation(
-                        "TestOperation",
-                        parameters:
+                     InputFactory.BasicServiceMethod(
+                        "TestServiceMethod3",
+                        InputFactory.Operation(
+                            "TestOperation3",
+                            parameters:
+                            [
+                                InputFactory.Parameter(
+                                    "p1",
+                                    InputPrimitiveType.Int32,
+                                    location: InputRequestLocation.None,
+                                    isRequired: false),
+                                InputFactory.Parameter(
+                                    "p2",
+                                    InputPrimitiveType.Int64,
+                                    location: InputRequestLocation.None,
+                                    isRequired: true),
+                            ]),
+                         parameters:
                         [
                             InputFactory.Parameter(
                                 "p1",
@@ -1194,22 +1664,46 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                 isRequired: true),
                         ]), false, true);
 
-                // convenience method only has a body param, so RequestOptions should be optional in protocol method.
+                // convenience method only has a body param, but it is optional, so RequestOptions should be optional in protocol method.
                 yield return new TestCaseData(
-                    InputFactory.Operation(
-                        "TestOperation",
+                     InputFactory.BasicServiceMethod(
+                        "TestServiceMethod",
+                        InputFactory.Operation(
+                            "TestOperation",
+                             parameters:
+                             [
+                                 InputFactory.Parameter(
+                                     "p1",
+                                     InputPrimitiveType.String,
+                                     location: InputRequestLocation.Body),
+                             ]),
                         parameters:
                         [
-                             InputFactory.Parameter(
+                            InputFactory.Parameter(
                                 "p1",
                                 InputPrimitiveType.String,
                                 location: InputRequestLocation.Body),
-                        ]), true, false);
+                        ]), true, true);
 
                 // Protocol & convenience methods will have different parameters since there is a model body param, so RequestOptions should be optional.
                 yield return new TestCaseData(
-                    InputFactory.Operation(
-                        "TestOperation",
+                    InputFactory.BasicServiceMethod(
+                        "TestServiceMethod",
+                        InputFactory.Operation(
+                            "TestOperation",
+                           parameters:
+                           [
+                                InputFactory.Parameter(
+                                    "p1",
+                                    InputPrimitiveType.String,
+                                    location: InputRequestLocation.None,
+                                    isRequired: true),
+                                InputFactory.Parameter(
+                                    "p2",
+                                    InputFactory.Model("SampleModel"),
+                                    location: InputRequestLocation.Body,
+                                    isRequired: true),
+                           ]),
                         parameters:
                         [
                             InputFactory.Parameter(
@@ -1224,11 +1718,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                 isRequired: true),
                         ]), true, false);
 
-                // Protocol & convenience methods will have different parameters since there is a model body param, so RequestOptions should be optional.
-                // One parameter is optional
+                // Protocol & convenience methods will have different parameters but since the body parameter is optional,
+                // the body parameter of the protocol method will be made required, and the request options should remain optional.
                 yield return new TestCaseData(
-                    InputFactory.Operation(
-                        "TestOperation",
+                    InputFactory.BasicServiceMethod(
+                        "TestServiceMethod",
+                        InputFactory.Operation(
+                            "TestOperation",
+                            parameters:
+                            [
+                                InputFactory.Parameter(
+                                    "p1",
+                                    InputPrimitiveType.String,
+                                    location: InputRequestLocation.None,
+                                    isRequired: true),
+                                InputFactory.Parameter(
+                                    "p2",
+                                    InputFactory.Model("SampleModel"),
+                                    location: InputRequestLocation.Body,
+                                    isRequired: false),
+                            ]),
                         parameters:
                         [
                             InputFactory.Parameter(
@@ -1243,13 +1752,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                 isRequired: false),
                         ]), true, true);
 
+
                 // Convenience method has no parameters, RequestOptions should be required in protocol method.
                 yield return new TestCaseData(
-                    InputFactory.Operation(
-                        "TestOperation",
-                        responses: [InputFactory.OperationResponse([201], InputFactory.Model("testModel"))],
-                        parameters: []),
-                    false, false);
+                     InputFactory.BasicServiceMethod(
+                        "TestServiceMethod",
+                        InputFactory.Operation(
+                            "TestOperation",
+                            responses: [InputFactory.OperationResponse([201], InputFactory.Model("testModel"))],
+                            parameters: [])),
+                     false, false);
             }
         }
 
@@ -1263,7 +1775,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                         "param",
                         InputPrimitiveType.String,
                         location: InputRequestLocation.None,
-                        kind: InputOperationParameterKind.Client,
+                        kind: InputParameterKind.Client,
                         isEndpoint: true,
                         defaultValue: InputFactory.Constant.String("mockValue")),
                     New.Instance(KnownParameters.Endpoint.Type, Literal("mockvalue")));
@@ -1279,7 +1791,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                     InputPrimitiveType.String,
                     location: InputRequestLocation.Uri,
                     isRequired: true,
-                    kind: InputOperationParameterKind.Client,
+                    kind: InputParameterKind.Client,
                     isEndpoint: true,
                     isApiVersion: false);
 
@@ -1288,53 +1800,47 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                     InputPrimitiveType.String,
                     location: InputRequestLocation.Uri,
                     isRequired: true,
-                    kind: InputOperationParameterKind.Client,
+                    kind: InputParameterKind.Client,
                     isApiVersion: true);
 
                 InputParameter enumApiVersionParameter = InputFactory.Parameter(
                     "apiVersion",
-                    InputFactory.Enum(
+                    InputFactory.StringEnum(
                         "InputEnum",
-                        InputPrimitiveType.String,
-                        usage: InputModelTypeUsage.Input,
-                        isExtensible: true,
-                        values:
                         [
-                            InputFactory.EnumMember.String("value1", "value1"),
-                        InputFactory.EnumMember.String("value2", "value2")
-                        ]),
+                            ("value1", "value1"),
+                            ("value2", "value2")
+                        ],
+                        usage: InputModelTypeUsage.Input,
+                        isExtensible: true),
                     location: InputRequestLocation.Uri,
                     isRequired: true,
-                    kind: InputOperationParameterKind.Client,
+                    kind: InputParameterKind.Client,
                     isApiVersion: true);
 
                 yield return new TestCaseData(
                     InputFactory.Client(
                         "TestClient",
-                        operations:
+                        methods:
                         [
-                            InputFactory.Operation(
-                            "TestOperation",
-                            uri: "{endpoint}/{apiVersion}")
+                            InputFactory.BasicServiceMethod(
+                                "test",
+                                InputFactory.Operation("TestOperation", uri: "{endpoint}/{apiVersion}"))
                         ],
-                        parameters: [
-                            endpointParameter,
-                        stringApiVersionParameter
-                        ]));
+                        parameters: [endpointParameter, stringApiVersionParameter]));
 
                 yield return new TestCaseData(
                     InputFactory.Client(
                         "TestClient",
-                        operations:
-                        [
-                            InputFactory.Operation(
-                        "TestOperation",
-                        uri: "{endpoint}/{apiVersion}")
-                        ],
-                        parameters: [
-                            endpointParameter,
-                        enumApiVersionParameter
-                        ]));
+                         methods:
+                         [
+                            InputFactory.BasicServiceMethod(
+                                "test",
+                                InputFactory.Operation(
+                                    "TestOperation",
+                                    uri: "{endpoint}/{apiVersion}"))
+                         ],
+                         parameters: [endpointParameter, enumApiVersionParameter]));
             }
         }
 

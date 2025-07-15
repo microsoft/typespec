@@ -28,6 +28,7 @@ import {
   isTemplateInstance,
   isTypeSpecValueTypeOf,
 } from "@typespec/compiler";
+import { XmlSerializationFormat } from "./common/formats/xml.js";
 import { DurationSchema } from "./common/schemas/time.js";
 import { SchemaContext } from "./common/schemas/usage.js";
 import { getNamespace } from "./utils.js";
@@ -345,14 +346,53 @@ export function isArmCommonType(entity: Type): boolean {
   return false;
 }
 
+/**
+ * Get the serialized name of a property, based on either JSON, or XML, or Multipart.
+ *
+ * @param property the model property.
+ * @returns the serialized name of the property.
+ */
 export function getPropertySerializedName(property: SdkBodyModelPropertyType): string {
   // still fallback to "property.name", as for orphan model, serializationOptions.json is undefined
   return (
     property.serializationOptions.json?.name ??
+    property.serializationOptions.xml?.name ??
     property.serializationOptions.multipart?.name ??
     property.__raw?.name ??
     property.name
   );
+}
+
+/**
+ * Get the XML serialization format for a type or property.
+ *
+ * @param type the type or model property.
+ * @returns the XML serialization format, or undefined if not applicable.
+ */
+export function getXmlSerializationFormat(
+  type: SdkModelType | SdkBodyModelPropertyType,
+): XmlSerializationFormat | undefined {
+  if (!type.serializationOptions.xml) {
+    return undefined;
+  }
+  // "unwrapped" from xml lib can be applied to both array and string
+  let propertyTypeIsArray = false;
+  let propertyTypeIsText = false;
+  if (type.kind === "property") {
+    propertyTypeIsArray = type.type.kind === "array";
+    propertyTypeIsText =
+      type.type.kind !== "array" && type.type.kind !== "dict" && type.type.kind !== "model";
+  }
+  // name, namespace and prefix on type and property
+  // attribute, wrapped, text on property
+  return {
+    name: type.serializationOptions.xml.name ?? undefined,
+    namespace: type.serializationOptions.xml.ns?.namespace ?? undefined,
+    prefix: type.serializationOptions.xml.ns?.prefix ?? undefined,
+    attribute: type.serializationOptions.xml.attribute ?? false,
+    wrapped: propertyTypeIsArray ? !(type.serializationOptions.xml.unwrapped ?? true) : false,
+    text: propertyTypeIsText ? (type.serializationOptions.xml.unwrapped ?? false) : false,
+  };
 }
 
 function getDecoratorScopedValue<T>(
@@ -360,30 +400,35 @@ function getDecoratorScopedValue<T>(
   decorator: string,
   mapFunc: (d: DecoratorApplication) => T,
 ): T | undefined {
+  // check for decorator that contains "java" scope, e.g. "java" or "python,java"
   let value = type.decorators
     .filter(
       (it) =>
         it.decorator.name === decorator &&
         it.args.length === 2 &&
-        (it.args[1].value as StringLiteral).value === "java",
+        scopeExplicitlyIncludeJava((it.args[1].value as StringLiteral).value),
     )
     .map((it) => mapFunc(it))
     .find(() => true);
   if (value) {
     return value;
   }
+
+  // check for decorator that contains negative non-"java" scope, e.g. "!python"
   value = type.decorators
     .filter(
       (it) =>
         it.decorator.name === decorator &&
         it.args.length === 2 &&
-        (it.args[1].value as StringLiteral).value === "client",
+        scopeImplicitlyIncludeJava((it.args[1].value as StringLiteral).value),
     )
     .map((it) => mapFunc(it))
     .find(() => true);
   if (value) {
     return value;
   }
+
+  // check for decorator that does not have scope
   value = type.decorators
     .filter((it) => it.decorator.name === decorator && it.args.length === 1)
     .map((it) => mapFunc(it))
@@ -392,4 +437,47 @@ function getDecoratorScopedValue<T>(
     return value;
   }
   return undefined;
+}
+
+/**
+ * Tests that the scope explicitly includes "java". This is of higher priority than scope with negation.
+ *
+ * @param scope the scope.
+ * @returns scope explicitly includes "java".
+ */
+export function scopeExplicitlyIncludeJava(scope: string): boolean {
+  if (scopeIsNegationOfMultiple(scope)) {
+    return false;
+  }
+  return scope
+    .split(",")
+    .map((s) => s.trim())
+    .includes("java");
+}
+
+/**
+ * Tests that the scope implicitly includes "java" by having a negation of other languages.
+ * E.g. "!python" or "!(python,csharp)".
+ *
+ * @param scope the scope.
+ * @returns scope implicitly includes "java".
+ */
+export function scopeImplicitlyIncludeJava(scope: string): boolean {
+  if (scopeIsNegationOfMultiple(scope)) {
+    const scopeInNegation = scope.trim().slice(2, -1).trim(); // remove "!(" and ")"
+    return !scopeInNegation
+      .split(",")
+      .map((s) => s.trim())
+      .includes("java");
+  } else {
+    return scope
+      .split(",")
+      .map((s) => s.trim())
+      .some((s) => s.startsWith("!") && s !== "!java");
+  }
+}
+
+function scopeIsNegationOfMultiple(scope: string): boolean {
+  const trimmedScope = scope.trim();
+  return trimmedScope.startsWith("!(") && trimmedScope.endsWith(")");
 }

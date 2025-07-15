@@ -29,14 +29,28 @@ describe("Test encode duration", () => {
       `,
       runner,
     );
+    // validate method parameter
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const inputParamArray = root.clients[0].operations[0].parameters.filter(
+    const methodParamArray = root.clients[0].methods[0].parameters;
+    strictEqual(1, methodParamArray.length);
+    let type = methodParamArray[0].type;
+    strictEqual(type.kind, "duration");
+    strictEqual(type.name, "duration");
+    strictEqual(type.crossLanguageDefinitionId, "TypeSpec.duration");
+    strictEqual(type.encode, "ISO8601");
+    strictEqual(type.wireType.kind, "string");
+    strictEqual(type.wireType.name, "string");
+    strictEqual(type.wireType.crossLanguageDefinitionId, "TypeSpec.string");
+    strictEqual(type.baseType, undefined);
+
+    // validate operation parameter
+    const inputOperationParamArray = root.clients[0].methods[0].operation.parameters.filter(
       (p) => p.name === "input",
     );
-    strictEqual(1, inputParamArray.length);
-    const type = inputParamArray[0].type;
+    strictEqual(1, inputOperationParamArray.length);
+    type = inputOperationParamArray[0].type;
     strictEqual(type.kind, "duration");
     strictEqual(type.name, "duration");
     strictEqual(type.crossLanguageDefinitionId, "TypeSpec.duration");
@@ -61,11 +75,25 @@ describe("Test encode duration", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const inputParamArray = root.clients[0].operations[0].parameters.filter(
+    // validate method parameter
+    const methodParamArray = root.clients[0].methods[0].parameters;
+    strictEqual(1, methodParamArray.length);
+    let type = methodParamArray[0].type;
+    strictEqual(type.kind, "duration");
+    strictEqual(type.name, "duration");
+    strictEqual(type.crossLanguageDefinitionId, "TypeSpec.duration");
+    strictEqual(type.encode, "seconds");
+    strictEqual(type.wireType.kind, "int32");
+    strictEqual(type.wireType.name, "int32");
+    strictEqual(type.wireType.crossLanguageDefinitionId, "TypeSpec.int32");
+    strictEqual(type.baseType, undefined);
+
+    // validate operation parameter
+    const inputOperationParamArray = root.clients[0].methods[0].operation.parameters.filter(
       (p) => p.name === "input",
     );
-    strictEqual(1, inputParamArray.length);
-    const type = inputParamArray[0].type;
+    strictEqual(1, inputOperationParamArray.length);
+    type = inputOperationParamArray[0].type;
     strictEqual(type.kind, "duration");
     strictEqual(type.name, "duration");
     strictEqual(type.crossLanguageDefinitionId, "TypeSpec.duration");
@@ -90,11 +118,24 @@ describe("Test encode duration", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const inputParamArray = root.clients[0].operations[0].parameters.filter(
+    // validate method parameter
+    const methodParamArray = root.clients[0].methods[0].parameters;
+    strictEqual(1, methodParamArray.length);
+    let type = methodParamArray[0].type;
+    strictEqual(type.kind, "duration");
+    strictEqual(type.name, "duration");
+    strictEqual(type.crossLanguageDefinitionId, "TypeSpec.duration");
+    strictEqual(type.encode, "seconds");
+    strictEqual(type.wireType.kind, "float32");
+    strictEqual(type.wireType.name, "float32");
+    strictEqual(type.wireType.crossLanguageDefinitionId, "TypeSpec.float32");
+    strictEqual(type.baseType, undefined);
+    // validate operation parameter
+    const inputOperationParamArray = root.clients[0].methods[0].operation.parameters.filter(
       (p) => p.name === "input",
     );
-    strictEqual(1, inputParamArray.length);
-    const type = inputParamArray[0].type;
+    strictEqual(1, inputOperationParamArray.length);
+    type = inputOperationParamArray[0].type;
     strictEqual(type.kind, "duration");
     strictEqual(type.name, "duration");
     strictEqual(type.crossLanguageDefinitionId, "TypeSpec.duration");

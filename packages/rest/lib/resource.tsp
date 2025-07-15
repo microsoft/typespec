@@ -132,6 +132,7 @@ interface ResourceCreateOrUpdate<Resource extends {}, Error> {
   @autoRoute
   @doc("Creates or update an instance of the resource.")
   @createsOrUpdatesResource(Resource)
+  @patch(#{ implicitOptionality: true }) // for legacy behavior
   createOrUpdate(
     ...ResourceParameters<Resource>,
     @bodyRoot resource: ResourceCreateOrUpdateModel<Resource>,
@@ -187,6 +188,7 @@ interface ResourceUpdate<Resource extends {}, Error> {
   @autoRoute
   @doc("Updates an existing instance of the resource.")
   @updatesResource(Resource)
+  @patch(#{ implicitOptionality: true }) // for legacy behavior
   update(
     ...ResourceParameters<Resource>,
     @bodyRoot properties: ResourceCreateOrUpdateModel<Resource>,
@@ -337,6 +339,7 @@ interface SingletonResourceUpdate<Singleton extends {}, Resource extends {}, Err
   @doc("Updates the singleton resource.")
   @segmentOf(Singleton)
   @updatesResource(Singleton)
+  @patch(#{ implicitOptionality: true }) // for legacy behavior
   update(
     ...ResourceParameters<Resource>,
 
@@ -395,6 +398,7 @@ interface ExtensionResourceCreateOrUpdate<Extension extends {}, Resource extends
   @autoRoute
   @doc("Creates or update an instance of the extension resource.")
   @createsOrUpdatesResource(Extension)
+  @patch(#{ implicitOptionality: true }) // for legacy behavior
   createOrUpdate(
     ...ResourceParameters<Resource>,
     ...ResourceParameters<Extension>,
@@ -442,6 +446,7 @@ interface ExtensionResourceUpdate<Extension extends {}, Resource extends {}, Err
   @autoRoute
   @doc("Updates an existing instance of the extension resource.")
   @updatesResource(Extension)
+  @patch(#{ implicitOptionality: true }) // for legacy behavior
   update(
     ...ResourceParameters<Resource>,
     ...ResourceParameters<Extension>,

@@ -1,22 +1,15 @@
-import { Model, Operation } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
-import { BasicTestRunner } from "@typespec/compiler/testing";
-import { beforeEach, describe, expect, it } from "vitest";
-import { createHttpTestRunner } from "./../../test-host.js";
+import { t } from "@typespec/compiler/testing";
+import { $ } from "@typespec/compiler/typekit";
+import { describe, expect, it } from "vitest";
+import { Tester } from "./../../test-host.js";
 
 // Activate  Http TypeKit augmentation
 import "../../../src/experimental/typekit/index.js";
 
-let runner: BasicTestRunner;
-
-beforeEach(async () => {
-  runner = await createHttpTestRunner();
-});
-
 describe("HttpRequest Body Parameters", () => {
   it("should get the body parameters model when spread", async () => {
-    const { createFoo } = (await runner.compile(`
-      @test model Foo {
+    const { createFoo, program } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
          id: int32;
          age: int32;
          name: string;
@@ -24,34 +17,36 @@ describe("HttpRequest Body Parameters", () => {
 
       @route("/foo")
       @post
-      @test op createFoo(...Foo): void;
-    `)) as { createFoo: Operation; Foo: Model };
+      op ${t.op("createFoo")}(...Foo): void;
+    `);
+    const tk = $(program);
 
-    const httpOperation = $.httpOperation.get(createFoo);
-    const body = $.httpRequest.getBodyParameters(httpOperation)!;
+    const httpOperation = tk.httpOperation.get(createFoo);
+    const body = tk.httpRequest.getBodyParameters(httpOperation)!;
     expect(body).toBeDefined();
-    expect($.model.is(body)).toBe(true);
-    expect((body as Model).properties.size).toBe(3);
+    expect(tk.model.is(body)).toBe(true);
+    expect((body as any).properties.size).toBe(3);
   });
 
   it("should get the body model params when body is defined explicitly as a property", async () => {
-    const { createFoo } = (await runner.compile(`
+    const { createFoo, program } = await Tester.compile(t.code`
       @route("/foo")
       @post
-      @test op createFoo(@body foo: int32): void;
-    `)) as { createFoo: Operation; Foo: Model };
+      op ${t.op("createFoo")}(@body foo: int32): void;
+    `);
+    const tk = $(program);
 
-    const httpOperation = $.httpOperation.get(createFoo);
-    const body = $.httpRequest.getBodyParameters(httpOperation)!;
+    const httpOperation = tk.httpOperation.get(createFoo);
+    const body = tk.httpRequest.getBodyParameters(httpOperation)!;
     expect(body).toBeDefined();
-    expect($.model.is(body)).toBe(true);
+    expect(tk.model.is(body)).toBe(true);
     expect(body.properties.size).toBe(1);
     expect(body.properties.get("foo")!.name).toBe("foo");
   });
 
   it("should get the body when spread and nested", async () => {
-    const { createFoo } = (await runner.compile(`
-      @test model Foo {
+    const { createFoo, program } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
          @path id: int32;
          age: int32;
          name: string;
@@ -63,21 +58,22 @@ describe("HttpRequest Body Parameters", () => {
 
       @route("/foo")
       @post
-      @test op createFoo(...Foo): void;
-    `)) as { createFoo: Operation; Foo: Model };
+      op ${t.op("createFoo")}(...Foo): void;
+    `);
+    const tk = $(program);
 
-    const httpOperation = $.httpOperation.get(createFoo);
-    const body = $.httpRequest.getBodyParameters(httpOperation)!;
+    const httpOperation = tk.httpOperation.get(createFoo);
+    const body = tk.httpRequest.getBodyParameters(httpOperation)!;
     expect(body).toBeDefined();
-    expect((body as Model).properties.size).toBe(3);
+    expect((body as any).properties.size).toBe(3);
     const properties = Array.from(body.properties.values())
-      .map((p) => p.name)
+      .map((p: any) => p.name)
       .join(",");
     expect(properties).toBe("age,name,options");
 
-    const optionsParam = (body as Model).properties.get("options")!.type as Model;
+    const optionsParam = (body as any).properties.get("options").type;
     const optionsProps = Array.from(optionsParam.properties.values())
-      .map((p) => p.name)
+      .map((p: any) => p.name)
       .join(",");
 
     // TODO: Why do we get the path property token here?
@@ -85,8 +81,8 @@ describe("HttpRequest Body Parameters", () => {
   });
 
   it("should get the body when named body model", async () => {
-    const { createFoo } = (await runner.compile(`
-      @test model Foo {
+    const { createFoo, program } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
          id: int32;
          age: int32;
          name: string;
@@ -94,21 +90,22 @@ describe("HttpRequest Body Parameters", () => {
 
       @route("/foo")
       @post
-      @test op createFoo(@body foo: Foo): void;
-    `)) as { createFoo: Operation; Foo: Model };
+      op ${t.op("createFoo")}(@body foo: Foo): void;
+    `);
+    const tk = $(program);
 
-    const httpOperation = $.httpOperation.get(createFoo);
-    const body = $.httpRequest.getBodyParameters(httpOperation)!;
+    const httpOperation = tk.httpOperation.get(createFoo);
+    const body = tk.httpRequest.getBodyParameters(httpOperation)!;
     expect(body).toBeDefined();
-    expect($.model.is(body)).toBe(true);
+    expect(tk.model.is(body)).toBe(true);
     // Should have a single property called foo
     expect(body.properties.size).toBe(1);
-    expect((body.properties.get("foo")?.type as Model).name).toBe("Foo");
+    expect((body.properties.get("foo")?.type as any).name).toBe("Foo");
   });
 
   it("should get the named body body when combined", async () => {
-    const { createFoo } = (await runner.compile(`
-      @test model Foo {
+    const { createFoo, program } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
          @path id: int32;
          age: int32;
          name: string;
@@ -116,22 +113,23 @@ describe("HttpRequest Body Parameters", () => {
 
       @route("/foo")
       @post
-      @test op createFoo(foo: Foo): void;
-    `)) as { createFoo: Operation; Foo: Model };
+      op ${t.op("createFoo")}(foo: Foo): void;
+    `);
+    const tk = $(program);
 
-    const httpOperation = $.httpOperation.get(createFoo);
-    const body = $.httpRequest.getBodyParameters(httpOperation)!;
+    const httpOperation = tk.httpOperation.get(createFoo);
+    const body = tk.httpRequest.getBodyParameters(httpOperation)!;
     expect(body).toBeDefined();
-    expect($.model.is(body)).toBe(true);
-    expect((body as Model).properties.size).toBe(1);
-    expect(((body as Model).properties.get("foo")?.type as any).name).toBe("Foo");
+    expect(tk.model.is(body)).toBe(true);
+    expect((body as any).properties.size).toBe(1);
+    expect(((body as any).properties.get("foo")?.type as any).name).toBe("Foo");
   });
 });
 
 describe("HttpRequest Get Parameters", () => {
   it("should only have body parameters", async () => {
-    const { createFoo } = (await runner.compile(`
-      @test model Foo {
+    const { createFoo, program } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
          id: int32;
          age: int32;
          name: string;
@@ -139,14 +137,15 @@ describe("HttpRequest Get Parameters", () => {
 
       @route("/foo")
       @post
-      @test op createFoo(...Foo): void;
-    `)) as { createFoo: Operation; Foo: Model };
+      op ${t.op("createFoo")}(...Foo): void;
+    `);
+    const tk = $(program);
 
-    const httpOperation = $.httpOperation.get(createFoo);
-    const body = $.httpRequest.getBodyParameters(httpOperation)!;
-    const headers = $.httpRequest.getParameters(httpOperation, "header");
-    const path = $.httpRequest.getParameters(httpOperation, "path");
-    const query = $.httpRequest.getParameters(httpOperation, "query");
+    const httpOperation = tk.httpOperation.get(createFoo);
+    const body = tk.httpRequest.getBodyParameters(httpOperation)!;
+    const headers = tk.httpRequest.getParameters(httpOperation, "header");
+    const path = tk.httpRequest.getParameters(httpOperation, "path");
+    const query = tk.httpRequest.getParameters(httpOperation, "query");
     expect(body).toBeDefined();
     expect(headers).toBeUndefined();
     expect(path).toBeUndefined();
@@ -154,8 +153,8 @@ describe("HttpRequest Get Parameters", () => {
   });
 
   it("should be able to get parameter options", async () => {
-    const { createFoo } = (await runner.compile(`
-      @test model Foo {
+    const { createFoo, program } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
         @path(#{allowReserved: true}) id: string;
         # suppress "deprecated" "Test"
         @header(#{explode: true}) requestId: string[];
@@ -164,25 +163,26 @@ describe("HttpRequest Get Parameters", () => {
 
       @route("/foo")
       @post
-      @test op createFoo(...Foo): void;
-    `)) as { createFoo: Operation; Foo: Model };
+      op ${t.op("createFoo")}(...Foo): void;
+    `);
+    const tk = $(program);
 
-    const httpOperation = $.httpOperation.get(createFoo);
-    const headers = $.httpRequest.getParameters(httpOperation, "header");
-    const path = $.httpRequest.getParameters(httpOperation, "path");
-    const query = $.httpRequest.getParameters(httpOperation, "query");
+    const httpOperation = tk.httpOperation.get(createFoo);
+    const headers = tk.httpRequest.getParameters(httpOperation, "header");
+    const path = tk.httpRequest.getParameters(httpOperation, "path");
+    const query = tk.httpRequest.getParameters(httpOperation, "query");
 
     const requestIdProperty = headers!.properties.get("requestId");
     const idProperty = path!.properties.get("id");
     const dataProperty = query!.properties.get("data");
 
-    expect($.modelProperty.getHttpHeaderOptions(requestIdProperty!)).toStrictEqual({
+    expect(tk.modelProperty.getHttpHeaderOptions(requestIdProperty!)).toStrictEqual({
       explode: true,
       name: "request-id",
       type: "header",
     });
 
-    expect($.modelProperty.getHttpPathOptions(idProperty!)).toStrictEqual({
+    expect(tk.modelProperty.getHttpPathOptions(idProperty!)).toStrictEqual({
       allowReserved: true,
       explode: false,
       name: "id",
@@ -190,7 +190,7 @@ describe("HttpRequest Get Parameters", () => {
       type: "path",
     });
 
-    expect($.modelProperty.getHttpQueryOptions(dataProperty!)).toStrictEqual({
+    expect(tk.modelProperty.getHttpQueryOptions(dataProperty!)).toStrictEqual({
       explode: true,
       name: "data",
       type: "query",
@@ -198,8 +198,8 @@ describe("HttpRequest Get Parameters", () => {
   });
 
   it("should only have header parameters", async () => {
-    const { createFoo } = (await runner.compile(`
-      @test model Foo {
+    const { createFoo, program } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
          @path id: int32;
          age: int32;
          name: string;
@@ -207,14 +207,15 @@ describe("HttpRequest Get Parameters", () => {
 
       @route("/foo")
       @post
-      @test op createFoo(...Foo): void;
-    `)) as { createFoo: Operation; Foo: Model };
+      op ${t.op("createFoo")}(...Foo): void;
+    `);
+    const tk = $(program);
 
-    const httpOperation = $.httpOperation.get(createFoo);
-    const body = $.httpRequest.getBodyParameters(httpOperation)! as Model;
-    const headers = $.httpRequest.getParameters(httpOperation, "header");
-    const path = $.httpRequest.getParameters(httpOperation, "path")!;
-    const query = $.httpRequest.getParameters(httpOperation, "query");
+    const httpOperation = tk.httpOperation.get(createFoo);
+    const body = tk.httpRequest.getBodyParameters(httpOperation)! as any;
+    const headers = tk.httpRequest.getParameters(httpOperation, "header");
+    const path = tk.httpRequest.getParameters(httpOperation, "path")!;
+    const query = tk.httpRequest.getParameters(httpOperation, "query");
     expect(body).toBeDefined();
     expect(body.properties.size).toBe(2);
     expect(path).toBeDefined();
@@ -225,8 +226,8 @@ describe("HttpRequest Get Parameters", () => {
   });
 
   it("should only have path parameters", async () => {
-    const { createFoo } = (await runner.compile(`
-      @test model Foo {
+    const { createFoo, program } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
          @header id: int32;
          @header age: int32;
          name: string;
@@ -234,14 +235,15 @@ describe("HttpRequest Get Parameters", () => {
 
       @route("/foo")
       @post
-      @test op createFoo(...Foo): void;
-    `)) as { createFoo: Operation; Foo: Model };
+      op ${t.op("createFoo")}(...Foo): void;
+    `);
+    const tk = $(program);
 
-    const httpOperation = $.httpOperation.get(createFoo);
-    const body = $.httpRequest.getBodyParameters(httpOperation)! as Model;
-    const headers = $.httpRequest.getParameters(httpOperation, "header")!;
-    const path = $.httpRequest.getParameters(httpOperation, "path");
-    const query = $.httpRequest.getParameters(httpOperation, "query");
+    const httpOperation = tk.httpOperation.get(createFoo);
+    const body = tk.httpRequest.getBodyParameters(httpOperation)! as any;
+    const headers = tk.httpRequest.getParameters(httpOperation, "header")!;
+    const path = tk.httpRequest.getParameters(httpOperation, "path");
+    const query = tk.httpRequest.getParameters(httpOperation, "query");
     expect(body).toBeDefined();
     expect(body.properties.size).toBe(1);
     expect(headers).toBeDefined();
@@ -253,8 +255,8 @@ describe("HttpRequest Get Parameters", () => {
   });
 
   it("should only have query parameters", async () => {
-    const { createFoo } = (await runner.compile(`
-      @test model Foo {
+    const { createFoo, program } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
          @query id: int32;
          @query age: int32;
          name: string;
@@ -262,14 +264,15 @@ describe("HttpRequest Get Parameters", () => {
 
       @route("/foo")
       @post
-      @test op createFoo(...Foo): void;
-    `)) as { createFoo: Operation; Foo: Model };
+      op ${t.op("createFoo")}(...Foo): void;
+    `);
+    const tk = $(program);
 
-    const httpOperation = $.httpOperation.get(createFoo);
-    const body = $.httpRequest.getBodyParameters(httpOperation)! as Model;
-    const headers = $.httpRequest.getParameters(httpOperation, "header");
-    const path = $.httpRequest.getParameters(httpOperation, "path");
-    const query = $.httpRequest.getParameters(httpOperation, "query")!;
+    const httpOperation = tk.httpOperation.get(createFoo);
+    const body = tk.httpRequest.getBodyParameters(httpOperation)! as any;
+    const headers = tk.httpRequest.getParameters(httpOperation, "header");
+    const path = tk.httpRequest.getParameters(httpOperation, "path");
+    const query = tk.httpRequest.getParameters(httpOperation, "query")!;
     expect(body).toBeDefined();
     expect(body.properties.size).toBe(1);
     expect(query).toBeDefined();
@@ -281,8 +284,8 @@ describe("HttpRequest Get Parameters", () => {
   });
 
   it("should  have query and header parameters", async () => {
-    const { createFoo } = (await runner.compile(`
-      @test model Foo {
+    const { createFoo, program } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
          @query id: int32;
          @header age: int32;
          name: string;
@@ -290,11 +293,12 @@ describe("HttpRequest Get Parameters", () => {
 
       @route("/foo")
       @post
-      @test op createFoo(...Foo): void;
-    `)) as { createFoo: Operation; Foo: Model };
+      op ${t.op("createFoo")}(...Foo): void;
+    `);
+    const tk = $(program);
 
-    const httpOperation = $.httpOperation.get(createFoo);
-    const headerAndQuery = $.httpRequest.getParameters(httpOperation, ["header", "query"]);
+    const httpOperation = tk.httpOperation.get(createFoo);
+    const headerAndQuery = tk.httpRequest.getParameters(httpOperation, ["header", "query"]);
     expect(headerAndQuery).toBeDefined();
     expect(headerAndQuery!.properties.size).toBe(2);
     expect(headerAndQuery!.properties.get("id")?.name).toBe("id");

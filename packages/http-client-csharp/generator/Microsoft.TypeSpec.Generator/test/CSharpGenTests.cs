@@ -29,7 +29,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var csharpGen = new CSharpGen();
 
             Assert.DoesNotThrowAsync(async () => await csharpGen.ExecuteAsync());
-            mockVisitor.Verify(m => m.Visit(mockGenerator.Object.OutputLibrary), Times.Once);
+            mockVisitor.Verify(m => m.VisitLibrary(mockGenerator.Object.OutputLibrary), Times.Once);
         }
     }
 }

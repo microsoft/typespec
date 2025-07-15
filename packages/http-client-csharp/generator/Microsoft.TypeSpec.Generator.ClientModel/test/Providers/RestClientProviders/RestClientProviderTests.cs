@@ -13,6 +13,7 @@ using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientProviders
 {
@@ -34,18 +35,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         }
 
         [TestCaseSource(nameof(DefaultCSharpMethodCollectionTestCases))]
-        public void TestRestClientMethods(InputOperation inputOperation)
+        public void TestRestClientMethods(InputServiceMethod inputServiceMethod)
         {
-            var restClientProvider = new ClientProvider(SingleOpInputClient).RestClient;
+            var restClientProvider = new ClientProvider(SingleServiceMethodInputClient).RestClient;
 
             var methods = restClientProvider.Methods;
+            var inputOperation = inputServiceMethod.Operation;
             Assert.IsNotNull(methods, "Methods should not be null.");
             Assert.AreEqual(1, methods.Count);
 
             var method = restClientProvider.Methods![0];
             var signature = method.Signature;
             Assert.IsNotNull(signature);
-            Assert.AreEqual($"Create{inputOperation.Name.ToCleanName()}Request", signature.Name);
+            Assert.AreEqual($"Create{inputOperation.Name.ToIdentifierName()}Request", signature.Name);
 
             var parameters = signature.Parameters;
             Assert.IsNotNull(parameters);
@@ -63,7 +65,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         [Test]
         public void ValidateFields()
         {
-            var restClient = new ClientProvider(SingleOpInputClient).RestClient;
+            var restClient = new ClientProvider(SingleServiceMethodInputClient).RestClient;
             Dictionary<string, FieldProvider> fieldHash = restClient.Fields.ToDictionary(f => f.Name);
 
             //validate _pipelineMessageClassifier200
@@ -82,7 +84,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         [Test]
         public void ValidateProperties()
         {
-            var restClient = new ClientProvider(SingleOpInputClient).RestClient;
+            var restClient = new ClientProvider(SingleServiceMethodInputClient).RestClient;
             Dictionary<string, PropertyProvider> propertyHash = restClient.Properties.ToDictionary(p => p.Name);
 
             //validate _pipelineMessageClassifier200
@@ -100,13 +102,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         }
 
         [TestCaseSource(nameof(GetMethodParametersTestCases))]
-        public void TestGetMethodParameters(InputOperation inputOperation)
+        public void TestGetMethodParameters(InputServiceMethod inputServiceMethod)
         {
-            var methodParameters = RestClientProvider.GetMethodParameters(inputOperation, RestClientProvider.MethodType.Convenience);
+            var methodParameters = RestClientProvider.GetMethodParameters(inputServiceMethod, RestClientProvider.MethodType.Convenience);
 
             Assert.IsTrue(methodParameters.Count > 0);
 
-            if (inputOperation.Parameters.Any(p => p.Location == InputRequestLocation.Header))
+            if (inputServiceMethod.Parameters.Any(p => p.Location == InputRequestLocation.Header))
             {
                 // validate no special header parameters are in the method parameters
                 Assert.IsFalse(methodParameters.Any(p =>
@@ -114,12 +116,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     p.Name.Equals("repeatabilityRequestId", StringComparison.OrdinalIgnoreCase)));
             }
 
-            var spreadInputParameter = inputOperation.Parameters.FirstOrDefault(p => p.Kind == InputOperationParameterKind.Spread);
+            var spreadInputParameter = inputServiceMethod.Parameters.FirstOrDefault(p => p.Kind == InputParameterKind.Spread);
             if (spreadInputParameter != null)
             {
                 Assert.AreEqual(_spreadModel.Properties.Count + 1, methodParameters.Count);
                 // validate path parameter
-                Assert.AreEqual(inputOperation.Parameters[1].Name, methodParameters[0].Name);
+                Assert.AreEqual(inputServiceMethod.Parameters[1].Name, methodParameters[0].Name);
                 // validate spread parameters
                 Assert.AreEqual(_spreadModel.Properties[0].Name, methodParameters[1].Name);
                 Assert.IsNull(methodParameters[1].DefaultValue);
@@ -137,9 +139,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         [TestCase]
         public void TestGetMethodParameters_ProperOrdering()
         {
-            var methodParameters = RestClientProvider.GetMethodParameters(OperationWithMixedParamOrdering, RestClientProvider.MethodType.Convenience);
+            var methodParameters = RestClientProvider.GetMethodParameters(ServiceMethodWithMixedParamOrdering, RestClientProvider.MethodType.Convenience);
 
-            Assert.AreEqual(OperationWithMixedParamOrdering.Parameters.Count, methodParameters.Count);
+            Assert.AreEqual(ServiceMethodWithMixedParamOrdering.Parameters.Count, methodParameters.Count);
 
             // validate ordering
             Assert.AreEqual("requiredPath", methodParameters[0].Name);
@@ -150,8 +152,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual("optionalHeader", methodParameters[5].Name);
             Assert.AreEqual("optionalContentType", methodParameters[6].Name);
 
-            var orderedPathParams = RestClientProvider.GetMethodParameters(OperationWithOnlyPathParams, RestClientProvider.MethodType.Convenience);
-            Assert.AreEqual(OperationWithOnlyPathParams.Parameters.Count, orderedPathParams.Count);
+            var orderedPathParams = RestClientProvider.GetMethodParameters(ServiceMethodWithOnlyPathParams, RestClientProvider.MethodType.Convenience);
+            Assert.AreEqual(ServiceMethodWithOnlyPathParams.Parameters.Count, orderedPathParams.Count);
             Assert.AreEqual("c", orderedPathParams[0].Name);
             Assert.AreEqual("a", orderedPathParams[1].Name);
             Assert.AreEqual("b", orderedPathParams[2].Name);
@@ -163,12 +165,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         [TestCase(false, false)]
         public void HeaderParameterOptionality(bool isRequired, bool isValueType)
         {
-            var testOperation = InputFactory.Operation("TestOperation",
+            var testServiceMethod = InputFactory.BasicServiceMethod(
+                "TestServiceMethod",
+                InputFactory.Operation("TestOperation"),
                 parameters:
                 [
                     InputFactory.Parameter(
                         "header",
-                        isValueType ? InputFactory.Enum("header", InputPrimitiveType.String) : InputPrimitiveType.String,
+                        isValueType ? InputFactory.StringEnum("header", [("value", "value")]) : InputPrimitiveType.String,
                         location: InputRequestLocation.Header,
                         isRequired: isRequired),
                     InputFactory.Parameter(
@@ -179,9 +183,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 ]);
             var client = InputFactory.Client(
                 "TestClient",
-                operations: [testOperation]);
+                methods: [testServiceMethod]);
             var clientProvider = new ClientProvider(client);
-            var parameters = RestClientProvider.GetMethodParameters(testOperation, RestClientProvider.MethodType.Convenience);
+            var parameters = RestClientProvider.GetMethodParameters(testServiceMethod, RestClientProvider.MethodType.Convenience);
             Assert.IsNotNull(parameters);
 
             if (isRequired)
@@ -197,7 +201,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         [TestCaseSource(nameof(GetSpreadParameterModelTestCases))]
         public void TestGetSpreadParameterModel(InputParameter inputParameter)
         {
-            if (inputParameter.Kind == InputOperationParameterKind.Spread)
+            if (inputParameter.Kind == InputParameterKind.Spread)
             {
                 var model = RestClientProvider.GetSpreadParameterModel(inputParameter);
                 Assert.AreEqual(_spreadModel, model);
@@ -212,8 +216,103 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         [Test]
         public void ValidateClientWithSpecialHeaders()
         {
-            var clientProvider = new ClientProvider(SingleOpInputClient);
-            var restClientProvider = new MockClientProvider(SingleOpInputClient, clientProvider);
+            var clientProvider = new ClientProvider(SingleServiceMethodInputClient);
+            var restClientProvider = new MockClientProvider(SingleServiceMethodInputClient, clientProvider);
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void ValidateClientWithAcceptHeader_NoValuesDefined()
+        {
+            var inputServiceMethod = InputFactory.BasicServiceMethod("SingleServiceMethodInputClient",
+                InputFactory.Operation("SingleServiceMethodInputClientOperation",
+                    parameters:
+                    [
+                        InputFactory.Parameter("accept", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Header)
+                    ],
+                    responses:
+                    [
+                        InputFactory.OperationResponse([200])
+                    ]));
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var clientProvider = new ClientProvider(inputClient);
+            var restClientProvider = new MockClientProvider(inputClient, clientProvider);
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void ValidateClientWithAcceptHeader_ValuesDefinedInResponse()
+        {
+            var inputServiceMethod = InputFactory.BasicServiceMethod("SingleServiceMethodInputClient",
+                InputFactory.Operation("SingleServiceMethodInputClientOperation",
+                    parameters:
+                    [
+                        InputFactory.Parameter("accept", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Header)
+                    ],
+                    responses:
+                    [
+                        InputFactory.OperationResponse([200], contentTypes: ["image/png", "image/jpeg", "image/jpeg"])
+                    ]));
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var clientProvider = new ClientProvider(inputClient);
+            var restClientProvider = new MockClientProvider(inputClient, clientProvider);
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void ValidateClientWithAcceptHeader_ValuesDefinedAsEnum()
+        {
+            var acceptParameter = InputFactory.Parameter(
+                "accept",
+                InputFactory.StringEnum("acceptEnum", [("image/png", "image/png"), ("image/jpeg", "image/jpeg")]),
+                isRequired: true,
+                location: InputRequestLocation.Header);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("SingleServiceMethodInputClient",
+                InputFactory.Operation("SingleServiceMethodInputClientOperation",
+                    parameters:
+                    [
+                        acceptParameter
+                    ],
+                    responses:
+                    [
+                        InputFactory.OperationResponse([200])
+                    ]));
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var clientProvider = new ClientProvider(inputClient);
+            var restClientProvider = new MockClientProvider(inputClient, clientProvider);
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void ValidateClientWithAcceptHeader_ValueDefinedAsConstant()
+        {
+            var acceptParameter = InputFactory.Parameter(
+                "accept",
+                InputFactory.Literal.String("image/png"),
+                isRequired: true,
+                kind: InputParameterKind.Constant,
+                location: InputRequestLocation.Header);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("SingleServiceMethodInputClient",
+                InputFactory.Operation("SingleServiceMethodInputClientOperation",
+                    parameters:
+                    [
+                        acceptParameter
+                    ],
+                    responses:
+                    [
+                        InputFactory.OperationResponse([200])
+                    ]));
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var clientProvider = new ClientProvider(inputClient);
+            var restClientProvider = new MockClientProvider(inputClient, clientProvider);
             var writer = new TypeProviderWriter(restClientProvider);
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
@@ -222,11 +321,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         [Test]
         public void ValidateClientWithApiVersion()
         {
-            var client = InputFactory.Client("TestClient",
-                operations: [
-                    InputFactory.Operation("OperationWithApiVersion",
-                            parameters: [InputFactory.Parameter("apiVersion", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query, kind: InputOperationParameterKind.Client)])
-                    ]);
+            var client = InputFactory.Client(
+                "TestClient",
+                methods: [
+                    InputFactory.BasicServiceMethod(
+                    "TestServiceMethod",
+                    InputFactory.Operation(
+                        "OperationWithApiVersion",
+                        parameters: [InputFactory.Parameter("apiVersion", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query, kind: InputParameterKind.Client)]
+                ))]);
             var clientProvider = new ClientProvider(client);
             var restClientProvider = new MockClientProvider(client, clientProvider);
             var method = restClientProvider.Methods.FirstOrDefault(m => m.Signature.Name == "CreateOperationWithApiVersionRequest");
@@ -236,7 +339,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             var bodyStatements = method?.BodyStatements as MethodBodyStatements;
             Assert.IsNotNull(bodyStatements);
             /* verify that it will use client _apiVersion field to append query parameter. */
-            Assert.IsTrue(bodyStatements!.Statements.Any(s => s.ToDisplayString() == "uri.AppendQuery(\"apiVersion\", _apiVersion, true);\n"));
+            Assert.IsTrue(bodyStatements!.Any(s => s.ToDisplayString() == "uri.AppendQuery(\"apiVersion\", _apiVersion, true);\n"));
         }
 
         [TestCaseSource(nameof(ValidateApiVersionPathParameterTestCases))]
@@ -251,7 +354,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             var bodyStatements = method?.BodyStatements as MethodBodyStatements;
             Assert.IsNotNull(bodyStatements);
             /* verify that it will use client _apiVersion field to append query parameter. */
-            Assert.IsTrue(bodyStatements!.Statements.Any(s => s.ToDisplayString() == "uri.AppendPath(_apiVersion, true);\n"));
+            Assert.IsTrue(bodyStatements!.Any(s => s.ToDisplayString() == "uri.AppendPath(_apiVersion, true);\n"));
         }
 
         [TestCaseSource(nameof(ValidateClientResponseClassifiersTestCases))]
@@ -261,8 +364,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Dictionary<string, FieldProvider> fieldHash = restClientProvider.Fields.ToDictionary(f => f.Name);
             Dictionary<string, PropertyProvider> propertyHash = restClientProvider.Properties.ToDictionary(p => p.Name);
 
-            foreach (var inputOperation in inputClient.Operations)
+            foreach (var inputMethod in inputClient.Methods)
             {
+                InputOperation inputOperation = inputMethod.Operation;
                 List<int> expectedStatusCodes = [];
                 foreach (var response in inputOperation.Responses)
                 {
@@ -298,17 +402,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         {
             var inputClient = InputFactory.Client(
                 "TestClient",
-                operations:
+                methods:
                 [
-                    OperationWith204Resp,
-                    OperationWith205Resp,
-                    OperationWith206Resp,
-                    OperationWith200Resp,
-                    OperationWith202Resp,
-                    OperationWith201Resp,
-                    OperationWith203Resp,
-                    OperationWith200201202Resp,
-                    OperationWith200201202Resp_Duplicate
+                    InputFactory.BasicServiceMethod("204Test", OperationWith204Resp),
+                    InputFactory.BasicServiceMethod("205Test", OperationWith205Resp),
+                    InputFactory.BasicServiceMethod("206Test", OperationWith206Resp),
+                    InputFactory.BasicServiceMethod("200Test", OperationWith200Resp),
+                    InputFactory.BasicServiceMethod("202Test", OperationWith202Resp),
+                    InputFactory.BasicServiceMethod("201Test", OperationWith201Resp),
+                    InputFactory.BasicServiceMethod("203Test", OperationWith203Resp),
+                    InputFactory.BasicServiceMethod("2000201202Test", OperationWith200201202Resp),
+                    InputFactory.BasicServiceMethod("200201202DupTest", OperationWith200201202Resp_Duplicate)
                 ]);
             var restClientProvider = new ClientProvider(inputClient).RestClient;
             var writer = new TypeProviderWriter(restClientProvider);
@@ -347,7 +451,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 responses: [InputFactory.OperationResponse([500])]);
             var inputClient = InputFactory.Client(
                 "TestClient",
-                operations: [inputOp]);
+                methods: [InputFactory.BasicServiceMethod("Test", inputOp)]);
             Assert.IsNotNull(inputClient);
 
             var restClientProvider = new ClientProvider(inputClient).RestClient;
@@ -385,7 +489,115 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
 
             var client = InputFactory.Client(
                 "TestClient",
-                operations: [operation]);
+                methods: [InputFactory.BasicServiceMethod("Test", operation)]);
+
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = new MockClientProvider(client, clientProvider);
+
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestBuildCreateRequestMethodWithPathParameters()
+        {
+            List<InputParameter> parameters =
+            [
+                InputFactory.Parameter("p1", InputPrimitiveType.String, location: InputRequestLocation.Path, isRequired: true, nameInRequest: "someOtherName"),
+                InputFactory.Parameter("p2", InputFactory.Array(InputPrimitiveType.Int32), location: InputRequestLocation.Path, isRequired: true, delimiter: " "),
+                InputFactory.Parameter("p3", InputFactory.Dictionary(InputPrimitiveType.Int32), location: InputRequestLocation.Path, isRequired: true),
+            ];
+            var operation = InputFactory.Operation(
+                "sampleOp",
+                parameters: parameters,
+                uri: "/{someOtherName}/{p2}/{p3}");
+
+            var client = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("Test", operation)]);
+
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = new MockClientProvider(client, clientProvider);
+
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void TestBuildCreateRequestMethodWithPaging(bool acceptIsConstant)
+        {
+            List<InputParameter> parameters =
+            [
+                InputFactory.Parameter("p1", InputPrimitiveType.String, location: InputRequestLocation.Query, isRequired: true, nameInRequest: "someOtherName"),
+                InputFactory.Parameter("p2", InputFactory.Array(InputPrimitiveType.Int32), location: InputRequestLocation.Query, isRequired: true, delimiter: " "),
+                InputFactory.Parameter("p3", InputFactory.Dictionary(InputPrimitiveType.Int32), location: InputRequestLocation.Header, isRequired: true),
+                // Accept header should be included for next link requests
+                InputFactory.Parameter("accept", acceptIsConstant ? new InputLiteralType("Accept", "ns", InputPrimitiveType.String, "application/json") : InputPrimitiveType.String, kind: acceptIsConstant ? InputParameterKind.Constant : InputParameterKind.Method, location: InputRequestLocation.Header, isRequired: true, nameInRequest: "Accept", defaultValue: new InputConstant("application/json", InputPrimitiveType.String)),
+            ];
+            var inputModel = InputFactory.Model("cat", properties:
+            [
+                InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
+            ]);
+            var pagingMetadata = InputFactory.NextLinkPagingMetadata("cats", "nextCat", InputResponseLocation.Header);
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "page",
+                    properties: [InputFactory.Property("cats", InputFactory.Array(inputModel)), InputFactory.Property("nextCat", InputPrimitiveType.Url)]));
+            var operation = InputFactory.Operation("getCats", responses: [response], parameters: parameters);
+            var inputServiceMethod = InputFactory.PagingServiceMethod(
+                "getCats",
+                operation,
+                pagingMetadata: pagingMetadata,
+                parameters: parameters);
+            var client = InputFactory.Client(
+                "TestClient",
+                methods: [inputServiceMethod]);
+
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = new MockClientProvider(client, clientProvider);
+
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(parameters: acceptIsConstant.ToString()), file.Content);
+        }
+
+        [Test]
+        public void TestNextLinkReinjectedParametersInCreateRequestMethod()
+        {
+            var p1 = InputFactory.Parameter("p1", InputPrimitiveType.String, location: InputRequestLocation.Query, isRequired: true, nameInRequest: "someOtherName");
+            var p2 = InputFactory.Parameter("p2", InputPrimitiveType.String, location: InputRequestLocation.Query, isRequired: true, delimiter: " ");
+            var p3 = InputFactory.Parameter("p3", InputPrimitiveType.String, location: InputRequestLocation.Header, isRequired: true);
+            List<InputParameter> parameters =
+            [
+                p1,
+                p2,
+                p3,
+                // Accept header should be included for next link requests
+                InputFactory.Parameter("accept", new InputLiteralType("Accept", "ns", InputPrimitiveType.String, "application/json"), kind: InputParameterKind.Constant, location: InputRequestLocation.Header, isRequired: true, nameInRequest: "Accept", defaultValue: new InputConstant("application/json", InputPrimitiveType.String)),
+            ];
+            var inputModel = InputFactory.Model("cat", properties:
+            [
+                InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
+            ]);
+            var pagingMetadata = InputFactory.NextLinkPagingMetadata("cats", "nextCat", InputResponseLocation.Header, [p1, p2, p3]);
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "page",
+                    properties: [InputFactory.Property("cats", InputFactory.Array(inputModel)), InputFactory.Property("nextCat", InputPrimitiveType.Url)]));
+            var operation = InputFactory.Operation("getCats", responses: [response], parameters: parameters);
+            var inputServiceMethod = InputFactory.PagingServiceMethod(
+                "getCats",
+                operation,
+                pagingMetadata: pagingMetadata,
+                parameters: parameters);
+            var client = InputFactory.Client(
+                "TestClient",
+                methods: [inputServiceMethod]);
 
             var clientProvider = new ClientProvider(client);
             var restClientProvider = new MockClientProvider(client, clientProvider);
@@ -403,8 +615,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.IsTrue(bodyStatements.Statements.Any(s => s.ToDisplayString() == classifierStatement));
         }
 
-        private readonly static InputOperation BasicOperation = InputFactory.Operation(
+        private readonly static InputServiceMethod BasicServiceMethod = InputFactory.BasicServiceMethod(
             "CreateMessage",
+            InputFactory.Operation(
+                "CreateMessage",
+                parameters:
+                [
+                    InputFactory.Parameter(
+                        "repeatabilityFirstSent",
+                        new InputDateTimeType(DateTimeKnownEncoding.Rfc7231, "utcDateTime", "TypeSpec.utcDateTime", InputPrimitiveType.String),
+                        nameInRequest: "repeatability-first-sent",
+                        location: InputRequestLocation.Header,
+                        isRequired: false),
+                    InputFactory.Parameter(
+                        "repeatabilityRequestId",
+                        InputPrimitiveType.String,
+                        nameInRequest: "repeatability-request-ID",
+                        location: InputRequestLocation.Header,
+                        isRequired: false),
+                    InputFactory.Parameter("message", InputPrimitiveType.Boolean, isRequired: true)
+                ]),
             parameters:
             [
                 InputFactory.Parameter(
@@ -492,26 +722,35 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             ],
             responses: [InputFactory.OperationResponse([206])]);
 
-        private readonly static InputOperation OperationWithSpreadParam = InputFactory.Operation(
+        private readonly static InputServiceMethod ServiceMethodWithSpreadParam = InputFactory.BasicServiceMethod(
             "CreateMessageWithSpread",
+            InputFactory.Operation(
+                "CreateMessageWithSpread",
+                parameters:
+                [
+                    InputFactory.Parameter(
+                        "spread",
+                        _spreadModel,
+                        location: InputRequestLocation.Body,
+                        isRequired: true,
+                        kind: InputParameterKind.Spread),
+                    InputFactory.Parameter(
+                        "p2",
+                        InputPrimitiveType.Boolean,
+                        location: InputRequestLocation.Path,
+                        isRequired: true,
+                        kind: InputParameterKind.Method)
+                ]),
             parameters:
             [
-                InputFactory.Parameter(
-                    "spread",
-                    _spreadModel,
-                    location: InputRequestLocation.Body,
-                    isRequired: true,
-                    kind: InputOperationParameterKind.Spread),
-                InputFactory.Parameter(
-                    "p2",
-                    InputPrimitiveType.Boolean,
-                    location: InputRequestLocation.Path,
-                    isRequired: true,
-                    kind: InputOperationParameterKind.Method)
+                InputFactory.Parameter("p1", InputPrimitiveType.String, isRequired: true),
+                InputFactory.Parameter("optionalProp1", InputPrimitiveType.String, isRequired: false),
+                InputFactory.Parameter("optionalProp2", InputFactory.Array(InputPrimitiveType.String), isRequired: false)
             ]);
 
-        private static readonly InputOperation OperationWithMixedParamOrdering = InputFactory.Operation(
-            "CreateMessage",
+        private static readonly InputServiceMethod ServiceMethodWithMixedParamOrdering = InputFactory.BasicServiceMethod(
+            "TestServiceMethod",
+            InputFactory.Operation("TestOperation"),
             parameters:
             [
                 // require query param
@@ -520,53 +759,54 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     InputPrimitiveType.String,
                     location: InputRequestLocation.Query,
                     isRequired: true,
-                    kind: InputOperationParameterKind.Method),
+                    kind: InputParameterKind.Method),
                 // optional query param
                 InputFactory.Parameter(
                     "optionalQuery",
                     InputPrimitiveType.String,
                     location: InputRequestLocation.Query,
                     isRequired: false,
-                    kind: InputOperationParameterKind.Method),
+                    kind: InputParameterKind.Method),
                 // required path param
                 InputFactory.Parameter(
                     "requiredPath",
                     InputPrimitiveType.String,
                     location: InputRequestLocation.Path,
                     isRequired: true,
-                    kind: InputOperationParameterKind.Method),
+                    kind: InputParameterKind.Method),
                 // required header param
                 InputFactory.Parameter(
                     "requiredHeader",
                     InputPrimitiveType.String,
                     location: InputRequestLocation.Header,
                     isRequired: true,
-                    kind: InputOperationParameterKind.Method),
+                    kind: InputParameterKind.Method),
                 // optional header param
                 InputFactory.Parameter(
                     "optionalHeader",
                     InputPrimitiveType.String,
                     location: InputRequestLocation.Header,
                     isRequired: false,
-                    kind: InputOperationParameterKind.Method),
+                    kind: InputParameterKind.Method),
                 // content type param
                 InputFactory.Parameter(
                     "optionalContentType",
                     InputPrimitiveType.String,
                     location: InputRequestLocation.Header,
                     isContentType: true,
-                    kind: InputOperationParameterKind.Method),
+                    kind: InputParameterKind.Method),
                 // body param
                 InputFactory.Parameter(
                     "body",
                     InputPrimitiveType.String,
                     location: InputRequestLocation.Body,
                     isRequired: true,
-                    kind: InputOperationParameterKind.Method)
+                    kind: InputParameterKind.Method)
             ]);
 
-        private static readonly InputOperation OperationWithOnlyPathParams = InputFactory.Operation(
-            "CreateMessage",
+        private static readonly InputServiceMethod ServiceMethodWithOnlyPathParams = InputFactory.BasicServiceMethod(
+            "TestServiceMethod",
+            InputFactory.Operation("TestOperation"),
             parameters:
             [
                 InputFactory.Parameter(
@@ -574,83 +814,90 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     InputPrimitiveType.String,
                     location: InputRequestLocation.Path,
                     isRequired: true,
-                    kind: InputOperationParameterKind.Method),
+                    kind: InputParameterKind.Method),
                 InputFactory.Parameter(
                     "a",
                     InputPrimitiveType.String,
                     location: InputRequestLocation.Path,
                     isRequired: true,
-                    kind: InputOperationParameterKind.Method),
+                    kind: InputParameterKind.Method),
                 InputFactory.Parameter(
                     "b",
                     InputPrimitiveType.String,
                     location: InputRequestLocation.Path,
                     isRequired: true,
-                    kind: InputOperationParameterKind.Method)
+                    kind: InputParameterKind.Method)
             ]);
 
-        private readonly static InputClient SingleOpInputClient = InputFactory.Client("TestClient", operations: [BasicOperation]);
+        private readonly static InputClient SingleServiceMethodInputClient = InputFactory.Client("TestClient", methods: [BasicServiceMethod]);
 
         private static IEnumerable<TestCaseData> DefaultCSharpMethodCollectionTestCases =>
         [
-            new TestCaseData(BasicOperation)
+            new TestCaseData(BasicServiceMethod)
         ];
 
         private static IEnumerable<TestCaseData> GetMethodParametersTestCases =>
         [
-            new TestCaseData(OperationWithSpreadParam),
-            new TestCaseData(BasicOperation),
-            new TestCaseData(OperationWithMixedParamOrdering)
+            new TestCaseData(ServiceMethodWithSpreadParam),
+            new TestCaseData(BasicServiceMethod),
+            new TestCaseData(ServiceMethodWithMixedParamOrdering)
         ];
 
         private static IEnumerable<TestCaseData> ValidateClientResponseClassifiersTestCases =>
         [
-            new TestCaseData(InputFactory.Client("TestClient", operations: [OperationWith200Resp])),
-            new TestCaseData(InputFactory.Client("TestClient", operations: [OperationWith200201202Resp])),
-            new TestCaseData(InputFactory.Client("TestClient", operations: [OperationWith201Resp])),
-            new TestCaseData(InputFactory.Client("TestClient", operations: [OperationWith202Resp])),
-            new TestCaseData(InputFactory.Client("TestClient", operations: [OperationWith203Resp])),
-            new TestCaseData(InputFactory.Client("TestClient", operations: [OperationWith204Resp])),
-            new TestCaseData(InputFactory.Client("TestClient", operations: [OperationWith205Resp])),
-            new TestCaseData(InputFactory.Client("TestClient", operations: [OperationWith206Resp])),
-            new TestCaseData(InputFactory.Client("TestClient", operations: [OperationWith203Resp, OperationWith200Resp, OperationWith202Resp])),
+            new TestCaseData(InputFactory.Client("TestClient", methods :[InputFactory.BasicServiceMethod("Test", OperationWith200Resp)])),
+            new TestCaseData(InputFactory.Client("TestClient", methods :[InputFactory.BasicServiceMethod("Test", OperationWith200201202Resp)])),
+            new TestCaseData(InputFactory.Client("TestClient", methods :[InputFactory.BasicServiceMethod("Test", OperationWith201Resp)])),
+            new TestCaseData(InputFactory.Client("TestClient", methods :[InputFactory.BasicServiceMethod("Test", OperationWith202Resp)])),
+            new TestCaseData(InputFactory.Client("TestClient", methods :[InputFactory.BasicServiceMethod("Test", OperationWith203Resp)])),
+            new TestCaseData(InputFactory.Client("TestClient", methods :[InputFactory.BasicServiceMethod("Test", OperationWith204Resp)])),
+            new TestCaseData(InputFactory.Client("TestClient", methods :[InputFactory.BasicServiceMethod("Test", OperationWith205Resp)])),
+            new TestCaseData(InputFactory.Client("TestClient", methods :[InputFactory.BasicServiceMethod("Test", OperationWith206Resp)])),
+            new TestCaseData(InputFactory.Client(
+                "TestClient",
+                methods:
+                [
+                    InputFactory.BasicServiceMethod("Test203", OperationWith203Resp),
+                    InputFactory.BasicServiceMethod("Test200", OperationWith200Resp),
+                    InputFactory.BasicServiceMethod("Test202", OperationWith202Resp)
+                ]))
         ];
 
         private static IEnumerable<TestCaseData> TestResponseClassifiersDuplicationTestCases =>
         [
-            new TestCaseData(InputFactory.Client("TestClient", operations:
+            new TestCaseData(InputFactory.Client("TestClient", methods:
             [
                 // _pipelineMessageClassifier200
-                InputFactory.Operation("TestOperation200",
-                    responses: [InputFactory.OperationResponse([200])]),
-                InputFactory.Operation("TestOperation200_1",
-                    responses: [InputFactory.OperationResponse([200])]),
+                InputFactory.BasicServiceMethod("Test200", InputFactory.Operation("TestOperation200",
+                    responses: [InputFactory.OperationResponse([200])])),
+                InputFactory.BasicServiceMethod("Test200_1", InputFactory.Operation("TestOperation200_1",
+                    responses: [InputFactory.OperationResponse([200])])),
                 // _pipelineMessageClassifier201202
-                InputFactory.Operation("TestOperation202201",
-                    responses: [InputFactory.OperationResponse([201, 202])]),
-                InputFactory.Operation("TestOperation202201_1",
-                    responses: [InputFactory.OperationResponse([201, 202])]),
-                InputFactory.Operation("TestOperation202_201",
-                    responses: [InputFactory.OperationResponse([202]), InputFactory.OperationResponse([201])]),
-                InputFactory.Operation("TestOperation202_201_1",
-                    responses: [InputFactory.OperationResponse([202]), InputFactory.OperationResponse([201])]),
+                InputFactory.BasicServiceMethod("Test202201",  InputFactory.Operation("TestOperation202201",
+                    responses: [InputFactory.OperationResponse([201, 202])])),
+                InputFactory.BasicServiceMethod("Test202201_1", InputFactory.Operation("TestOperation202201_1",
+                    responses: [InputFactory.OperationResponse([201, 202])])),
+                InputFactory.BasicServiceMethod("Test202_201", InputFactory.Operation("TestOperation202_201",
+                    responses: [InputFactory.OperationResponse([202]), InputFactory.OperationResponse([201])])),
+                InputFactory.BasicServiceMethod("Test202_201_1", InputFactory.Operation("TestOperation202_201_1",
+                    responses: [InputFactory.OperationResponse([202]), InputFactory.OperationResponse([201])])),
                 // _pipelineMessageClassifier201204
-                InputFactory.Operation("TestOperation204_201",
-                    responses: [InputFactory.OperationResponse([204]), InputFactory.OperationResponse([201])]),
-                InputFactory.Operation("TestOperation204_201_1",
-                    responses: [InputFactory.OperationResponse([201]), InputFactory.OperationResponse([204])]),
+                InputFactory.BasicServiceMethod("Test204_201", InputFactory.Operation("TestOperation204_201",
+                    responses: [InputFactory.OperationResponse([204]), InputFactory.OperationResponse([201])])),
+                InputFactory.BasicServiceMethod("Test204_201_1", InputFactory.Operation("TestOperation204_201_1",
+                    responses: [InputFactory.OperationResponse([201]), InputFactory.OperationResponse([204])])),
                 // _pipelineMessageClassifier200202204
-                InputFactory.Operation("TestOperation200_201_204",
-                    responses: [InputFactory.OperationResponse([204]), InputFactory.OperationResponse([201]), InputFactory.OperationResponse([200])]),
+                InputFactory.BasicServiceMethod("Test200_201_204", InputFactory.Operation("TestOperation200_201_204",
+                    responses: [InputFactory.OperationResponse([204]), InputFactory.OperationResponse([201]), InputFactory.OperationResponse([200])])),
             ]))
         ];
 
         private static IEnumerable<TestCaseData> GetSpreadParameterModelTestCases =>
         [
             // spread param
-            new TestCaseData(InputFactory.Parameter("spread", _spreadModel, location: InputRequestLocation.Body, kind: InputOperationParameterKind.Spread, isRequired: true)),
+            new TestCaseData(InputFactory.Parameter("spread", _spreadModel, location: InputRequestLocation.Body, kind: InputParameterKind.Spread, isRequired: true)),
             // non spread param
-            new TestCaseData(InputFactory.Parameter("p1", InputPrimitiveType.Boolean, location: InputRequestLocation.Path, isRequired: true, kind: InputOperationParameterKind.Method))
+            new TestCaseData(InputFactory.Parameter("p1", InputPrimitiveType.Boolean, location: InputRequestLocation.Path, isRequired: true, kind: InputParameterKind.Method))
 
         ];
 
@@ -658,7 +905,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         {
             public MockClientProvider(InputClient inputClient, ClientProvider clientProvider) : base(inputClient, clientProvider) { }
 
-            protected override MethodProvider[] BuildMethods()
+            protected override ScmMethodProvider[] BuildMethods()
             {
                 return [.. base.BuildMethods()];
             }
@@ -677,7 +924,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 InputPrimitiveType.String,
                 location: InputRequestLocation.Uri,
                 isRequired: true,
-                kind: InputOperationParameterKind.Client,
+                kind: InputParameterKind.Client,
                 isEndpoint: true,
                 isApiVersion: false);
 
@@ -686,53 +933,49 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 InputPrimitiveType.String,
                 location: InputRequestLocation.Uri,
                 isRequired: true,
-                kind: InputOperationParameterKind.Client,
+                kind: InputParameterKind.Client,
                 isApiVersion: true);
 
             InputParameter enumApiVersionParameter = InputFactory.Parameter(
                 "apiVersion",
-                InputFactory.Enum(
+                InputFactory.StringEnum(
                     "InputEnum",
-                    InputPrimitiveType.String,
-                    usage: InputModelTypeUsage.Input,
-                    isExtensible: true,
-                    values:
                     [
-                        InputFactory.EnumMember.String("value1", "value1"),
-                        InputFactory.EnumMember.String("value2", "value2")
-                    ]),
+                        ("value1", "value1"),
+                        ("value2", "value2")
+                    ],
+                    usage: InputModelTypeUsage.Input,
+                    isExtensible: true),
                 location: InputRequestLocation.Uri,
                 isRequired: true,
-                kind: InputOperationParameterKind.Client,
+                kind: InputParameterKind.Client,
                 isApiVersion: true);
 
             yield return new TestCaseData(
                 InputFactory.Client(
                     "TestClient",
-                    operations:
+                    methods:
                     [
-                        InputFactory.Operation(
-                            "TestOperation",
-                            uri: "{endpoint}/{apiVersion}")
+                        InputFactory.BasicServiceMethod(
+                            "TestServiceMethod",
+                            InputFactory.Operation(
+                                "TestOperation",
+                                uri: "{endpoint}/{apiVersion}"))
                     ],
-                    parameters: [
-                        endpointParameter,
-                        stringApiVersionParameter
-                    ]));
+                    parameters: [endpointParameter, stringApiVersionParameter]));
 
             yield return new TestCaseData(
                 InputFactory.Client(
                     "TestClient",
-                    operations:
+                    methods:
                     [
-                        InputFactory.Operation(
-                        "TestOperation",
-                        uri: "{endpoint}/{apiVersion}")
+                        InputFactory.BasicServiceMethod(
+                            "TestServiceMethod",
+                             InputFactory.Operation(
+                                "TestOperation",
+                                uri: "{endpoint}/{apiVersion}"))
                     ],
-                    parameters: [
-                        endpointParameter,
-                        enumApiVersionParameter
-                    ]));
+                    parameters: [endpointParameter, enumApiVersionParameter]));
         }
     }
 }

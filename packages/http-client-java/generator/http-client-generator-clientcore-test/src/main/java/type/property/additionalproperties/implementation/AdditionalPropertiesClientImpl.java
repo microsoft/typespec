@@ -1,6 +1,7 @@
 package type.property.additionalproperties.implementation;
 
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 
 /**
  * Initializes a new instance of the AdditionalPropertiesClient type.
@@ -32,6 +33,20 @@ public final class AdditionalPropertiesClientImpl {
      */
     public HttpPipeline getHttpPipeline() {
         return this.httpPipeline;
+    }
+
+    /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
     }
 
     /**
@@ -472,10 +487,12 @@ public final class AdditionalPropertiesClientImpl {
      * Initializes an instance of AdditionalPropertiesClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
      */
-    public AdditionalPropertiesClientImpl(HttpPipeline httpPipeline, String endpoint) {
+    public AdditionalPropertiesClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
         this.extendsUnknowns = new ExtendsUnknownsImpl(this);
         this.extendsUnknownDeriveds = new ExtendsUnknownDerivedsImpl(this);

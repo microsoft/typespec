@@ -21,7 +21,7 @@ final class ResponseTypeFactory {
     }
 
     /**
-     * Create a response type client model representing async method return value.
+     * Create a response type client model representing return value of '[Operation]WithResponseAsync' async methods.
      *
      * @param operation the operation.
      * @param bodyType the type of the response body.
@@ -57,26 +57,29 @@ final class ResponseTypeFactory {
 
             final boolean typedHeadersDisallowed = ignoreTypedHeaders || settings.isDisableTypedHeadersMethods();
             if (typedHeadersDisallowed) {
-                return isByteStream(bodyType) ? mono(ClassType.STREAM_RESPONSE) : mono(GenericType.Response(bodyType));
+                return isByteStream(bodyType, settings)
+                    ? mono(binaryResponse(settings))
+                    : mono(GenericType.Response(bodyType));
             }
 
             final ObjectSchema headersSchema = ClientMapper.parseHeader(operation, settings);
             final IType headersType = Mappers.getSchemaMapper().map(headersSchema);
-            // If the responseBodyType is InputStream it needs to be converted to Flux<ByteBuffer> so
-            // that it is a valid return type for async method.
-            final IType bType = (bodyType == ClassType.INPUT_STREAM) ? GenericType.FLUX_BYTE_BUFFER : bodyType;
+            // If the responseBodyType is InputStream it needs to be converted to proper binary return type so
+            // that it is valid for async method.
+            final IType bType = (bodyType == ClassType.INPUT_STREAM) ? binaryResponseBodyType(settings) : bodyType;
+            // Mono<ResponseBase<H, T>>
             return mono(GenericType.RestResponse(headersType, bType));
         }
 
         if (bodyType.equals(ClassType.INPUT_STREAM)) {
-            return mono(ClassType.STREAM_RESPONSE);
+            return mono(binaryResponse(settings));
         }
 
         if (bodyType.equals(ClassType.BINARY_DATA)) {
             final boolean useInputStream
                 = settings.isInputStreamForBinary() && !settings.isDataPlaneClient() && !settings.isSyncStackEnabled();
             if (useInputStream) {
-                return mono(ClassType.STREAM_RESPONSE);
+                return mono(binaryResponse(settings));
             }
         }
 
@@ -88,7 +91,7 @@ final class ResponseTypeFactory {
     }
 
     /**
-     * Create a response type client model representing 'WithResponse' sync method return value.
+     * Create a response type client model representing '[Operation]WithResponse' sync method return value.
      *
      * @param operation the operation.
      * @param syncReturnType the return type.
@@ -135,7 +138,17 @@ final class ResponseTypeFactory {
             || operation.getExtensions().getXmsPageable().getNextOperation() != operation;
     }
 
-    private static boolean isByteStream(IType type) {
-        return (type == ClassType.INPUT_STREAM) || (type == GenericType.FLUX_BYTE_BUFFER);
+    private static IType binaryResponseBodyType(JavaSettings settings) {
+        // Not touching vanilla for now. Storage is still using Flux<ByteBuffer>.
+        return settings.isVanilla() ? GenericType.FLUX_BYTE_BUFFER : ClassType.BINARY_DATA;
+    }
+
+    private static IType binaryResponse(JavaSettings settings) {
+        // Not touching vanilla for now. Storage is still using StreamResponse.
+        return settings.isVanilla() ? ClassType.STREAM_RESPONSE : GenericType.Response(ClassType.BINARY_DATA);
+    }
+
+    private static boolean isByteStream(IType type, JavaSettings settings) {
+        return type == ClassType.INPUT_STREAM || type == binaryResponseBodyType(settings);
     }
 }

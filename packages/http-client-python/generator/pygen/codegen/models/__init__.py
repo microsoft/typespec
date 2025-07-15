@@ -165,7 +165,7 @@ def build_type(yaml_data: Dict[str, Any], code_model: CodeModel) -> BaseType:
     response: Optional[BaseType] = None
     if yaml_data["type"] == "model":
         # need to special case model to avoid recursion
-        if yaml_data["base"] == "json" or not code_model.options["models_mode"]:
+        if yaml_data["base"] == "json" or not code_model.options["models-mode"]:
             model_type = JSONModelType
         elif yaml_data["base"] == "dpg":
             model_type = DPGModelType  # type: ignore

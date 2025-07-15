@@ -10,12 +10,16 @@ npm install @typespec/http-client-csharp
 
 ## Usage
 
-# Prerequisite
+### Prerequisite
 
 - Install [Node.js](https://nodejs.org/download/) 20 or above. (Verify by running `node --version`)
 - Install [**.NET 8.0 SDK**](https://dotnet.microsoft.com/download/dotnet/8.0) for your specific platform. (or a higher version)
 
-## Usage
+### Customizing Generated Code
+
+For detailed instructions on how to customize the generated C# code, see the [Customization Guide](https://github.com/microsoft/typespec/blob/main/packages/http-client-csharp/.tspd/docs/customization.md).
+
+## Emitter usage
 
 1. Via the command line
 
@@ -42,6 +46,13 @@ options:
 
 ## Emitter options
 
+### `emitter-output-dir`
+
+**Type:** `absolutePath`
+
+Defines the emitter output directory. Defaults to `{output-dir}/@typespec/http-client-csharp`
+See [Configuring output directory for more info](https://typespec.io/docs/handbook/configuration/configuration/#configuring-output-directory)
+
 ### `api-version`
 
 **Type:** `string`
@@ -52,9 +63,13 @@ For TypeSpec files using the [`@versioned`](https://typespec.io/docs/libraries/v
 
 **Type:** `boolean`
 
+Set to `false` to skip generation of protocol methods. The default value is `true`.
+
 ### `generate-convenience-methods`
 
 **Type:** `boolean`
+
+Set to `false` to skip generation of convenience methods. The default value is `true`.
 
 ### `unreferenced-types-handling`
 
@@ -67,12 +82,6 @@ Defines the strategy on how to handle unreferenced types. The default value is `
 **Type:** `boolean`
 
 Set to `true` to overwrite the csproj if it already exists. The default value is `false`.
-
-### `clear-output-folder`
-
-**Type:** `boolean`
-
-Indicates if you want to clear the output folder before generating. The default value is `true`.
 
 ### `save-inputs`
 
@@ -96,7 +105,7 @@ Set to `true` to automatically attempt to attach to a debugger when executing th
 
 **Type:** `"info" | "debug" | "verbose"`
 
-Set the log level. The default value is `info`.
+Set the log level for which to collect traces. The default value is `info`.
 
 ### `disable-xml-docs`
 

@@ -31,11 +31,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import tsptest.armresourceprovider.fluent.ArmResourceProviderClient;
-import tsptest.armresourceprovider.implementation.ArmResourceProviderClientBuilder;
+import tsptest.armresourceprovider.fluent.ArmClient;
+import tsptest.armresourceprovider.implementation.ArmClientBuilder;
 import tsptest.armresourceprovider.implementation.ChildExtensionResourceInterfacesImpl;
 import tsptest.armresourceprovider.implementation.ChildResourcesInterfacesImpl;
 import tsptest.armresourceprovider.implementation.CustomTemplateResourceInterfacesImpl;
+import tsptest.armresourceprovider.implementation.ImmutableResourceModelsImpl;
 import tsptest.armresourceprovider.implementation.ManagedMaintenanceWindowStatusOperationsImpl;
 import tsptest.armresourceprovider.implementation.ModelInterfaceSameNamesImpl;
 import tsptest.armresourceprovider.implementation.OperationsImpl;
@@ -43,6 +44,7 @@ import tsptest.armresourceprovider.implementation.TopLevelArmResourceInterfacesI
 import tsptest.armresourceprovider.models.ChildExtensionResourceInterfaces;
 import tsptest.armresourceprovider.models.ChildResourcesInterfaces;
 import tsptest.armresourceprovider.models.CustomTemplateResourceInterfaces;
+import tsptest.armresourceprovider.models.ImmutableResourceModels;
 import tsptest.armresourceprovider.models.ManagedMaintenanceWindowStatusOperations;
 import tsptest.armresourceprovider.models.ModelInterfaceSameNames;
 import tsptest.armresourceprovider.models.Operations;
@@ -67,12 +69,14 @@ public final class ArmResourceProviderManager {
 
     private ModelInterfaceSameNames modelInterfaceSameNames;
 
-    private final ArmResourceProviderClient clientObject;
+    private ImmutableResourceModels immutableResourceModels;
+
+    private final ArmClient clientObject;
 
     private ArmResourceProviderManager(HttpPipeline httpPipeline, AzureProfile profile, Duration defaultPollInterval) {
         Objects.requireNonNull(httpPipeline, "'httpPipeline' cannot be null.");
         Objects.requireNonNull(profile, "'profile' cannot be null.");
-        this.clientObject = new ArmResourceProviderClientBuilder().pipeline(httpPipeline)
+        this.clientObject = new ArmClientBuilder().pipeline(httpPipeline)
             .endpoint(profile.getEnvironment().getResourceManagerEndpoint())
             .subscriptionId(profile.getSubscriptionId())
             .defaultPollInterval(defaultPollInterval)
@@ -80,11 +84,11 @@ public final class ArmResourceProviderManager {
     }
 
     /**
-     * Creates an instance of ArmResourceProvider service API entry point.
+     * Creates an instance of Arm Resource Provider service API entry point.
      * 
      * @param credential the credential to use.
      * @param profile the Azure profile for client.
-     * @return the ArmResourceProvider service API instance.
+     * @return the Arm Resource Provider service API instance.
      */
     public static ArmResourceProviderManager authenticate(TokenCredential credential, AzureProfile profile) {
         Objects.requireNonNull(credential, "'credential' cannot be null.");
@@ -93,11 +97,11 @@ public final class ArmResourceProviderManager {
     }
 
     /**
-     * Creates an instance of ArmResourceProvider service API entry point.
+     * Creates an instance of Arm Resource Provider service API entry point.
      * 
      * @param httpPipeline the {@link HttpPipeline} configured with Azure authentication credential.
      * @param profile the Azure profile for client.
-     * @return the ArmResourceProvider service API instance.
+     * @return the Arm Resource Provider service API instance.
      */
     public static ArmResourceProviderManager authenticate(HttpPipeline httpPipeline, AzureProfile profile) {
         Objects.requireNonNull(httpPipeline, "'httpPipeline' cannot be null.");
@@ -219,11 +223,11 @@ public final class ArmResourceProviderManager {
         }
 
         /**
-         * Creates an instance of ArmResourceProvider service API entry point.
+         * Creates an instance of Arm Resource Provider service API entry point.
          *
          * @param credential the credential to use.
          * @param profile the Azure profile for client.
-         * @return the ArmResourceProvider service API instance.
+         * @return the Arm Resource Provider service API instance.
          */
         public ArmResourceProviderManager authenticate(TokenCredential credential, AzureProfile profile) {
             Objects.requireNonNull(credential, "'credential' cannot be null.");
@@ -373,12 +377,25 @@ public final class ArmResourceProviderManager {
     }
 
     /**
-     * Gets wrapped service client ArmResourceProviderClient providing direct access to the underlying auto-generated
-     * API implementation, based on Azure REST API.
+     * Gets the resource collection API of ImmutableResourceModels.
      * 
-     * @return Wrapped service client ArmResourceProviderClient.
+     * @return Resource collection API of ImmutableResourceModels.
      */
-    public ArmResourceProviderClient serviceClient() {
+    public ImmutableResourceModels immutableResourceModels() {
+        if (this.immutableResourceModels == null) {
+            this.immutableResourceModels
+                = new ImmutableResourceModelsImpl(clientObject.getImmutableResourceModels(), this);
+        }
+        return immutableResourceModels;
+    }
+
+    /**
+     * Gets wrapped service client ArmClient providing direct access to the underlying auto-generated API
+     * implementation, based on Azure REST API.
+     * 
+     * @return Wrapped service client ArmClient.
+     */
+    public ArmClient serviceClient() {
         return this.clientObject;
     }
 }

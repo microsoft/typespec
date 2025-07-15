@@ -1,7 +1,7 @@
 package versioning.renamedfrom;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.models.binarydata.BinaryData;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
@@ -12,24 +12,24 @@ import java.io.IOException;
 /**
  * The NewModel model.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class NewModel implements JsonSerializable<NewModel> {
     /*
      * The newProp property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final String newProp;
 
     /*
      * The enumProp property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final NewEnum enumProp;
 
     /*
      * The unionProp property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final BinaryData unionProp;
 
     /**
@@ -39,7 +39,7 @@ public final class NewModel implements JsonSerializable<NewModel> {
      * @param enumProp the enumProp value to set.
      * @param unionProp the unionProp value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public NewModel(String newProp, NewEnum enumProp, BinaryData unionProp) {
         this.newProp = newProp;
         this.enumProp = enumProp;
@@ -51,7 +51,7 @@ public final class NewModel implements JsonSerializable<NewModel> {
      * 
      * @return the newProp value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getNewProp() {
         return this.newProp;
     }
@@ -61,7 +61,7 @@ public final class NewModel implements JsonSerializable<NewModel> {
      * 
      * @return the enumProp value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public NewEnum getEnumProp() {
         return this.enumProp;
     }
@@ -71,7 +71,7 @@ public final class NewModel implements JsonSerializable<NewModel> {
      * 
      * @return the unionProp value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public BinaryData getUnionProp() {
         return this.unionProp;
     }
@@ -79,7 +79,7 @@ public final class NewModel implements JsonSerializable<NewModel> {
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -99,7 +99,7 @@ public final class NewModel implements JsonSerializable<NewModel> {
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the NewModel.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static NewModel fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             String newProp = null;

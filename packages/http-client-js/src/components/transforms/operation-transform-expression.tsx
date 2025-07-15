@@ -1,7 +1,6 @@
 import * as ts from "@alloy-js/typescript";
-import { Type } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
-import { HasName, TransformNamePolicyContext } from "@typespec/emitter-framework";
+import type { Type } from "@typespec/compiler";
+import { HasName, TransformNamePolicyContext, useTsp } from "@typespec/emitter-framework";
 import { HttpOperation } from "@typespec/http";
 import { reportDiagnostic } from "../../lib.js";
 import { ContentTypeEncodingProvider } from "./content-type-encoding-provider.jsx";
@@ -45,6 +44,7 @@ export function OperationTransformExpression(props: OperationTransformToTranspor
 }
 
 function payloadApplicationNameGetter(type: HasName<Type>) {
+  const { $ } = useTsp();
   if (typeof type.name !== "string") {
     reportDiagnostic($.program, { code: "symbol-name-not-supported", target: type });
     return "";

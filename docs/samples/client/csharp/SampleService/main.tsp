@@ -10,7 +10,7 @@ import "@azure-tools/typespec-azure-core";
   "{sampleTypeSpecUrl}",
   "Endpoint Service",
   {
-    sampleTypeSpecUrl: string,
+    sampleTypeSpecUrl: url,
   }
 )
 @useAuth(ApiKeyAuth<ApiKeyLocation.header, "my-api-key">)
@@ -162,6 +162,27 @@ model NotFriend {
 model ModelWithClientName {
   @doc("name of the ModelWithClientName")
   name: string;
+}
+
+model ModelWithEmbeddedNonBodyParameters {
+  @doc("name of the ModelWithEmbeddedNonBodyParameters")
+  name: string;
+
+  @doc("required header parameter")
+  @header
+  requiredHeader: string;
+
+  @doc("optional header parameter")
+  @header
+  optionalHeader?: string;
+
+  @doc("required query parameter")
+  @query
+  requiredQuery: string;
+
+  @doc("optional query parameter")
+  @query
+  optionalQuery?: string;
 }
 
 @doc("this is a roundtrip model")
@@ -420,3 +441,8 @@ model Page<T> {
 @convenientAPI(true)
 @list
 op ListWithPaging(): Page<Thing>;
+
+@route("embeddedParameters")
+@doc("An operation with embedded parameters within the body")
+@post
+op EmbeddedParameters(@bodyRoot body: ModelWithEmbeddedNonBodyParameters): void;

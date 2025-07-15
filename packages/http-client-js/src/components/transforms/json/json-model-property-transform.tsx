@@ -1,19 +1,20 @@
-import * as ay from "@alloy-js/core";
+import { Children, code, NamePolicyContext, Refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { ModelProperty } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { useTsp } from "@typespec/emitter-framework";
 import { unpackProperty } from "../../utils/unpack-model-property.js";
 import { ScalarDataTransform } from "../data-transform.jsx";
 import { useTransformNamePolicy } from "../transform-name-policy.js";
 import { JsonTransform } from "./json-transform.jsx";
 
 export interface JsonModelPropertyTransformProps {
-  itemRef: ay.Refkey | ay.Children;
+  itemRef: Refkey | Children;
   type: ModelProperty;
   target: "transport" | "application";
 }
 
 export function JsonModelPropertyTransform(props: JsonModelPropertyTransformProps) {
+  const { $ } = useTsp();
   const transformNamer = useTransformNamePolicy();
   const propertyValueType = unpackProperty(props.type);
 
@@ -22,8 +23,8 @@ export function JsonModelPropertyTransform(props: JsonModelPropertyTransformProp
   const targetName = props.target === "transport" ? transportName : applicationName;
   const sourceName = props.target === "transport" ? applicationName : transportName;
 
-  const propertyValueRef = props.itemRef ? ay.code`${props.itemRef}.${sourceName}` : sourceName;
-  let propertyValue: ay.Children;
+  const propertyValueRef = props.itemRef ? code`${props.itemRef}.${sourceName}` : sourceName;
+  let propertyValue: Children;
 
   if ($.scalar.is(propertyValueType)) {
     propertyValue = (
@@ -37,9 +38,9 @@ export function JsonModelPropertyTransform(props: JsonModelPropertyTransformProp
 
   if (props.target === "transport") {
     return (
-      <ay.NamePolicyContext.Provider value={{ getName: (n) => n }}>
+      <NamePolicyContext.Provider value={{ getName: (n) => n }}>
         <ts.ObjectProperty name={targetName} value={propertyValue} />
-      </ay.NamePolicyContext.Provider>
+      </NamePolicyContext.Provider>
     );
   }
 

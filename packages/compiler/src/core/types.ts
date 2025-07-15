@@ -56,6 +56,7 @@ export interface DecoratorFunction {
 export interface BaseType {
   readonly entityKind: "Type";
   kind: string;
+  /** Node used to construct this type. If the node is undefined it means the type was dynamically built. With typekit for example. */
   node?: Node;
   instantiationParameters?: Type[];
 
@@ -294,7 +295,7 @@ export interface SourceModel {
 
 export interface ModelProperty extends BaseType, DecoratedType {
   kind: "ModelProperty";
-  node: ModelPropertyNode | ModelSpreadPropertyNode | ObjectLiteralPropertyNode;
+  node?: ModelPropertyNode | ModelSpreadPropertyNode | ObjectLiteralPropertyNode;
   name: string;
   type: Type;
   // when spread or intersection operators make new property types,
@@ -316,6 +317,9 @@ export type Value =
   | EnumValue
   | NullValue;
 
+/** @internal */
+export type ValueWithTemplate = Value | TemplateValue;
+
 interface BaseValue {
   readonly entityKind: "Value";
   readonly valueKind: string;
@@ -333,19 +337,19 @@ interface BaseValue {
 
 export interface ObjectValue extends BaseValue {
   valueKind: "ObjectValue";
-  node: ObjectLiteralNode;
+  node?: ObjectLiteralNode;
   properties: Map<string, ObjectValuePropertyDescriptor>;
 }
 
 export interface ObjectValuePropertyDescriptor {
-  node: ObjectLiteralPropertyNode;
+  node?: ObjectLiteralPropertyNode;
   name: string;
   value: Value;
 }
 
 export interface ArrayValue extends BaseValue {
   valueKind: "ArrayValue";
-  node: ArrayLiteralNode;
+  node?: ArrayLiteralNode;
   values: Value[];
 }
 
@@ -379,12 +383,21 @@ export interface NullValue extends BaseValue {
   value: null;
 }
 
+/**
+ * This is an internal type that represent a value while in a template declaration.
+ * This type should currently never be exposed on the type graph(unlike TemplateParameter).
+ * @internal
+ */
+export interface TemplateValue extends BaseValue {
+  valueKind: "TemplateValue";
+}
+
 //#endregion Values
 
 export interface Scalar extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Scalar";
   name: string;
-  node: ScalarStatementNode;
+  node?: ScalarStatementNode;
   /**
    * Namespace the scalar was defined in.
    */
@@ -410,7 +423,7 @@ export interface Scalar extends BaseType, DecoratedType, TemplatedTypeBase {
 
 export interface ScalarConstructor extends BaseType {
   kind: "ScalarConstructor";
-  node: ScalarConstructorNode;
+  node?: ScalarConstructorNode;
   name: string;
   scalar: Scalar;
   parameters: SignatureFunctionParameter[];
@@ -419,7 +432,7 @@ export interface ScalarConstructor extends BaseType {
 export interface Interface extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Interface";
   name: string;
-  node: InterfaceStatementNode;
+  node?: InterfaceStatementNode;
   namespace?: Namespace;
 
   /**
@@ -451,7 +464,7 @@ export interface Interface extends BaseType, DecoratedType, TemplatedTypeBase {
 export interface Enum extends BaseType, DecoratedType {
   kind: "Enum";
   name: string;
-  node: EnumStatementNode;
+  node?: EnumStatementNode;
   namespace?: Namespace;
 
   /**
@@ -473,7 +486,7 @@ export interface EnumMember extends BaseType, DecoratedType {
   kind: "EnumMember";
   name: string;
   enum: Enum;
-  node: EnumMemberNode;
+  node?: EnumMemberNode;
   value?: string | number;
   /**
    * when spread operators make new enum members,
@@ -484,7 +497,7 @@ export interface EnumMember extends BaseType, DecoratedType {
 
 export interface Operation extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Operation";
-  node: OperationStatementNode;
+  node?: OperationStatementNode;
   name: string;
   namespace?: Namespace;
   interface?: Interface;
@@ -501,7 +514,7 @@ export interface Namespace extends BaseType, DecoratedType {
   kind: "Namespace";
   name: string;
   namespace?: Namespace;
-  node: NamespaceStatementNode | JsNamespaceDeclarationNode;
+  node?: NamespaceStatementNode | JsNamespaceDeclarationNode;
 
   /**
    * The models in the namespace.
@@ -586,7 +599,7 @@ export interface StringTemplate extends BaseType {
   kind: "StringTemplate";
   /** If the template can be render as as string this is the string value */
   stringValue?: string;
-  node: StringTemplateExpressionNode;
+  node?: StringTemplateExpressionNode;
   spans: StringTemplateSpan[];
 }
 
@@ -594,28 +607,28 @@ export type StringTemplateSpan = StringTemplateSpanLiteral | StringTemplateSpanV
 
 export interface StringTemplateSpanLiteral extends BaseType {
   kind: "StringTemplateSpan";
-  node: StringTemplateHeadNode | StringTemplateMiddleNode | StringTemplateTailNode;
+  node?: StringTemplateHeadNode | StringTemplateMiddleNode | StringTemplateTailNode;
   isInterpolated: false;
   type: StringLiteral;
 }
 
 export interface StringTemplateSpanValue extends BaseType {
   kind: "StringTemplateSpan";
-  node: Expression;
+  node?: Expression;
   isInterpolated: true;
   type: Type;
 }
 
 export interface Tuple extends BaseType {
   kind: "Tuple";
-  node: TupleExpressionNode | ArrayLiteralNode;
+  node?: TupleExpressionNode | ArrayLiteralNode;
   values: Type[];
 }
 
 export interface Union extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Union";
   name?: string;
-  node: UnionExpressionNode | UnionStatementNode;
+  node?: UnionExpressionNode | UnionStatementNode;
   namespace?: Namespace;
 
   /**
@@ -637,21 +650,31 @@ export interface Union extends BaseType, DecoratedType, TemplatedTypeBase {
 export interface UnionVariant extends BaseType, DecoratedType {
   kind: "UnionVariant";
   name: string | symbol;
-  node: UnionVariantNode | undefined;
+  node?: UnionVariantNode | undefined;
   type: Type;
   union: Union;
 }
 
+/**
+ * This is a type you should never see in the program.
+ * If you do you might be missing a `isTemplateDeclaration` check to exclude that type.
+ * Working with template declaration is not something that is currently supported.
+ *
+ * @experimental
+ */
 export interface TemplateParameter extends BaseType {
   kind: "TemplateParameter";
+  /** @internal */
   node: TemplateParameterDeclarationNode;
+  /** @internal */
   constraint?: MixedParameterConstraint;
+  /** @internal */
   default?: Type | Value | IndeterminateEntity;
 }
 
 export interface Decorator extends BaseType {
   kind: "Decorator";
-  node: DecoratorDeclarationStatementNode;
+  node?: DecoratorDeclarationStatementNode;
   name: `@${string}`;
   namespace: Namespace;
   target: MixedFunctionParameter;
@@ -661,7 +684,7 @@ export interface Decorator extends BaseType {
 
 export interface FunctionParameterBase extends BaseType {
   kind: "FunctionParameter";
-  node: FunctionParameterNode;
+  node?: FunctionParameterNode;
   name: string;
   optional: boolean;
   rest: boolean;

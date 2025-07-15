@@ -1,6 +1,7 @@
 package type.property.valuetypes;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -25,13 +26,13 @@ public final class InnerEnum implements ExpandableEnum<String>, JsonSerializable
     /**
      * First value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static final InnerEnum VALUE_ONE = fromValue("ValueOne");
 
     /**
      * Second value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static final InnerEnum VALUE_TWO = fromValue("ValueTwo");
 
     private final String value;
@@ -47,7 +48,7 @@ public final class InnerEnum implements ExpandableEnum<String>, JsonSerializable
      * @return the corresponding InnerEnum.
      * @throws IllegalArgumentException if value is null.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static InnerEnum fromValue(String value) {
         if (value == null) {
             throw new IllegalArgumentException("'value' cannot be null.");
@@ -60,7 +61,7 @@ public final class InnerEnum implements ExpandableEnum<String>, JsonSerializable
      * 
      * @return Known InnerEnum values.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static Collection<InnerEnum> values() {
         return new ArrayList<>(VALUES.values());
     }
@@ -70,7 +71,7 @@ public final class InnerEnum implements ExpandableEnum<String>, JsonSerializable
      * 
      * @return the value of the InnerEnum instance.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public String getValue() {
         return this.value;
@@ -79,7 +80,7 @@ public final class InnerEnum implements ExpandableEnum<String>, JsonSerializable
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         return jsonWriter.writeString(getValue());
@@ -94,7 +95,7 @@ public final class InnerEnum implements ExpandableEnum<String>, JsonSerializable
      * @throws IOException If an error occurs while reading the InnerEnum.
      * @throws IllegalStateException If unexpected JSON token is found.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static InnerEnum fromJson(JsonReader jsonReader) throws IOException {
         JsonToken nextToken = jsonReader.nextToken();
         if (nextToken == JsonToken.NULL) {
@@ -107,19 +108,19 @@ public final class InnerEnum implements ExpandableEnum<String>, JsonSerializable
         return InnerEnum.fromValue(jsonReader.getString());
     }
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public String toString() {
         return Objects.toString(this.value);
     }
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public boolean equals(Object obj) {
         return this == obj;
     }
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public int hashCode() {
         return Objects.hashCode(this.value);

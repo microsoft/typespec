@@ -5,11 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
+using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
@@ -51,9 +52,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly IReadOnlyList<InputParameter> _allClientParameters;
         private Lazy<IReadOnlyList<FieldProvider>> _additionalClientFields;
 
-        private Lazy<ParameterProvider?> ClientOptionsParameter { get; }
+        private Dictionary<InputOperation, ScmMethodProviderCollection>? _methodCache;
+        private Dictionary<InputOperation, ScmMethodProviderCollection> MethodCache => _methodCache ??= [];
 
-        protected override FormattableString Description { get; }
+        public ParameterProvider? ClientOptionsParameter { get; }
+
+        protected override FormattableString BuildDescription()
+        {
+            var description = DocHelpers.GetFormattableDescription(_inputClient.Summary, _inputClient.Doc);
+            if (description != null)
+            {
+                return description;
+            }
+
+            if (_inputClient.Parent is null)
+            {
+                // Clients will always have the Client suffix appended.
+                return $"The {Name}.";
+            }
+
+            return $"The {Name} sub-client.";
+        }
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -64,13 +83,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public ClientProvider(InputClient inputClient)
         {
+            CleanOperationNames(inputClient);
+
             _inputClient = inputClient;
             _inputAuth = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Auth;
             _endpointParameter = BuildClientEndpointParameter();
             _publicCtorDescription = $"Initializes a new instance of {Name}.";
-            ClientOptions = new Lazy<ClientOptionsProvider?>(() => _inputClient.Parent is null ? new ClientOptionsProvider(_inputClient, this) : null);
-            ClientOptionsParameter = new Lazy<ParameterProvider?>(() => ClientOptions.Value != null ? ScmKnownParameters.ClientOptions(ClientOptions.Value.Type) : null);
-            Description = DocHelpers.GetFormattableDescription(_inputClient.Summary, _inputClient.Doc) ?? FormattableStringHelpers.Empty;
+            ClientOptions = _inputClient.Parent is null ? new ClientOptionsProvider(_inputClient, this) : null;
+            ClientOptionsParameter = ClientOptions != null ? ScmKnownParameters.ClientOptions(ClientOptions.Type) : null;
 
             var apiKey = _inputAuth?.ApiKey;
             var keyCredentialType = ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.KeyCredentialType;
@@ -97,7 +117,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         initializationValue: Literal(apiKey.Prefix)) :
                     null;
                 // skip auth fields for sub-clients
-                _apiKeyAuthFields = ClientOptions.Value is null ? null : new(apiKeyAuthField, authorizationHeaderField, authorizationApiKeyPrefixField);
+                _apiKeyAuthFields = ClientOptions is null ? null : new(apiKeyAuthField, authorizationHeaderField, authorizationApiKeyPrefixField);
             }
             // in this generator, the type of TokenCredential is null therefore these code will never be executed, but it should be invoked in other generators that could support it.
             var tokenAuth = _inputAuth?.OAuth2;
@@ -117,7 +137,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     this,
                     initializationValue: New.Array(typeof(string), tokenAuth.Scopes.Select(Literal).ToArray()));
                 // skip auth fields for sub-clients
-                _oauth2Fields = ClientOptions.Value is null ? null : new(tokenCredentialField, tokenCredentialScopesField);
+                _oauth2Fields = ClientOptions is null ? null : new(tokenCredentialField, tokenCredentialScopesField);
             }
             EndpointField = new(
                 FieldModifiers.Private | FieldModifiers.ReadOnly,
@@ -145,13 +165,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             _endpointParameterName = new(GetEndpointParameterName);
             _additionalClientFields = new(BuildAdditionalClientFields);
-            _allClientParameters = _inputClient.Parameters.Concat(_inputClient.Operations.SelectMany(op => op.Parameters).Where(p => p.Kind == InputOperationParameterKind.Client)).DistinctBy(p => p.Name).ToArray();
             _subClientInternalConstructorParams = new(GetSubClientInternalConstructorParameters);
             _clientParameters = new(GetClientParameters);
             _subClients = new(GetSubClients);
+            _allClientParameters = GetAllClientParameters();
         }
 
-        private const string namespaceConflictCode = "client-namespace-conflict";
+        private static void CleanOperationNames(InputClient inputClient)
+        {
+            foreach (var serviceMethod in inputClient.Methods)
+            {
+                var updatedOperationName = GetCleanOperationName(serviceMethod);
+                serviceMethod.Update(name: updatedOperationName);
+                serviceMethod.Operation.Update(name: updatedOperationName);
+            }
+        }
+
+        private static string GetCleanOperationName(InputServiceMethod serviceMethod)
+        {
+            var operationName = serviceMethod.Operation.Name.ToIdentifierName();
+            // Replace List with Get as .NET convention is to use Get for list operations.
+            if (operationName.StartsWith("List", StringComparison.Ordinal))
+            {
+                operationName = $"Get{operationName.Substring(4)}";
+            }
+            return operationName;
+        }
 
         private string? _namespace;
         // This `BuildNamespace` method has been called twice - one when building the `Type`, the other is trying to find the CustomCodeView, both of them are required.
@@ -168,11 +207,56 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var ns = ScmCodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(_inputClient.Namespace);
 
             // figure out if this namespace has been changed for this client
-            if (!StringExtensions.IsLastNamespaceSegmentTheSame(ns, _inputClient.Namespace))
+            if (!IsLastNamespaceSegmentTheSame(ns, _inputClient.Namespace))
             {
-                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(namespaceConflictCode, $"namespace {_inputClient.Namespace} conflicts with client {_inputClient.Name}, please use `@clientName` to specify a different name for the client.", _inputClient.CrossLanguageDefinitionId);
+                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(DiagnosticCodes.ClientNamespaceConflict, $"namespace {_inputClient.Namespace} conflicts with client {_inputClient.Name}, please use `@clientName` to specify a different name for the client.", _inputClient.CrossLanguageDefinitionId);
             }
             return ns;
+        }
+
+        /// <summary>
+        /// Checks if two namespaces share the same last segment
+        /// </summary>
+        /// <param name="left">the first namespace</param>
+        /// <param name="right">the second namespace</param>
+        /// <returns></returns>
+        internal static bool IsLastNamespaceSegmentTheSame(string left, string right)
+        {
+            // finish this via Span API
+            var leftSpan = left.AsSpan();
+            var rightSpan = right.AsSpan();
+            // swap if left is longer, we ensure left is the shorter one
+            if (leftSpan.Length > rightSpan.Length)
+            {
+                var temp = leftSpan;
+                leftSpan = rightSpan;
+                rightSpan = temp;
+            }
+            for (int i = 1; i <= leftSpan.Length; i++)
+            {
+                var lc = leftSpan[^i];
+                var rc = rightSpan[^i];
+                // check if each char is the same from the right-most side
+                // if both of them are dot, we finished scanning the last segment - and if we could be here, meaning all of them are the same, return true.
+                if (lc == '.' && rc == '.')
+                {
+                    return true;
+                }
+                // if these are different - there is one different character, return false.
+                if (lc != rc)
+                {
+                    return false;
+                }
+            }
+
+            // we come here because we run out of characters in left - which means left does not have a dot.
+            // if they have the same length, they are identical, return true
+            if (leftSpan.Length == rightSpan.Length)
+            {
+                return true;
+            }
+            // otherwise, right is longer, we check its next character, if it is the dot, return true, otherwise return false.
+            return rightSpan[^(leftSpan.Length + 1)] == '.';
         }
 
         private IReadOnlyList<ParameterProvider> GetSubClientInternalConstructorParameters()
@@ -209,6 +293,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         private Lazy<string?> _endpointParameterName;
+        private InputParameter? _inputEndpointParam;
         internal string? EndpointParameterName => _endpointParameterName.Value;
 
         private string? GetEndpointParameterName()
@@ -228,14 +313,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// Gets the corresponding <see cref="RestClientProvider"/> for this client.
         /// </summary>
         public RestClientProvider RestClient => _restClient ??= new RestClientProvider(_inputClient, this);
-        internal Lazy<ClientOptionsProvider?> ClientOptions { get; }
+        public ClientOptionsProvider? ClientOptions { get; }
 
         public PropertyProvider PipelineProperty { get; }
         public FieldProvider EndpointField { get; }
 
+        public IReadOnlyList<ClientProvider> SubClients => _subClients.Value;
+
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
-        protected override string BuildName() => _inputClient.Name.ToCleanName();
+        protected override string BuildName() => _inputClient.Name.ToIdentifierName();
 
         protected override FieldProvider[] BuildFields()
         {
@@ -317,7 +404,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var mockingConstructor = ConstructorProviderHelper.BuildMockingConstructor(this);
             // handle sub-client constructors
-            if (ClientOptionsParameter.Value is null)
+            if (ClientOptionsParameter is null)
             {
                 List<MethodBodyStatement> body = new(3) { EndpointField.Assign(_endpointParameter).Terminate() };
                 foreach (var p in _subClientInternalConstructorParams.Value)
@@ -371,7 +458,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 bool onlyContainsUnsupportedAuth = false)
             {
                 var requiredParameters = GetRequiredParameters(authFields?.AuthField);
-                ParameterProvider[] primaryConstructorParameters = [_endpointParameter, .. requiredParameters, ClientOptionsParameter.Value];
+                ParameterProvider[] primaryConstructorParameters = [_endpointParameter, .. requiredParameters, ClientOptionsParameter];
                 // If auth exists but it's not supported, we will make the constructor internal.
                 var constructorModifier = onlyContainsUnsupportedAuth ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
                 var primaryConstructor = new ConstructorProvider(
@@ -395,41 +482,61 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             List<ParameterProvider> requiredParameters = [];
 
-            ParameterProvider? currentParam = null;
             foreach (var parameter in _allClientParameters)
             {
-                currentParam = null;
                 if (parameter.IsRequired && !parameter.IsEndpoint && !parameter.IsApiVersion)
                 {
-                    currentParam = CreateParameter(parameter);
-                    requiredParameters.Add(currentParam);
+                    ParameterProvider? currentParam = CreateParameter(parameter);
+                    if (currentParam != null)
+                    {
+                        requiredParameters.Add(currentParam);
+                    }
                 }
             }
 
             if (authField is not null)
-                requiredParameters.Add(authField.AsParameter);
+            {
+                var authParameter = authField.AsParameter;
+                authParameter.Update(name: "credential");
+                requiredParameters.Add(authParameter);
+            }
 
             return requiredParameters;
         }
 
-        private ParameterProvider CreateParameter(InputParameter parameter)
+        private ParameterProvider? CreateParameter(InputParameter parameter)
         {
             var param = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(parameter);
-            param.Field = Fields.FirstOrDefault(f => f.Name == "_" + parameter.Name);
+            if (param != null)
+            {
+                param.Field = Fields.FirstOrDefault(f => f.Name == "_" + parameter.Name);
+            }
+
             return param;
         }
 
         private MethodBodyStatement[] BuildPrimaryConstructorBody(IReadOnlyList<ParameterProvider> primaryConstructorParameters, AuthFields? authFields)
         {
-            if (ClientOptions.Value is null || ClientOptionsParameter.Value is null)
+            if (ClientOptions is null || ClientOptionsParameter is null)
             {
                 return [MethodBodyStatement.Empty];
             }
-
+            AssignmentExpression endpointAssignment;
+            if (_endpointParameter.Type.Equals(typeof(string)))
+            {
+                var serverTemplate = _inputEndpointParam!.ServerUrlTemplate;
+                endpointAssignment = EndpointField.Assign(
+                    New.Instance(typeof(Uri),
+                        new FormattableStringExpression(serverTemplate!, [_endpointParameter])));
+            }
+            else
+            {
+                endpointAssignment = EndpointField.Assign(_endpointParameter);
+            }
             List<MethodBodyStatement> body = [
-                ClientOptionsParameter.Value.Assign(ClientOptionsParameter.Value.InitializationValue!, nullCoalesce: true).Terminate(),
+                ClientOptionsParameter.Assign(ClientOptionsParameter.InitializationValue!, nullCoalesce: true).Terminate(),
                 MethodBodyStatement.EmptyLine,
-                EndpointField.Assign(_endpointParameter).Terminate()
+                endpointAssignment.Terminate()
             ];
 
             // add other parameter assignments to their corresponding fields
@@ -457,18 +564,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     break;
             }
 
-            body.Add(PipelineProperty.Assign(This.ToApi<ClientPipelineApi>().Create(ClientOptionsParameter.Value, perRetryPolicies)).Terminate());
+            body.Add(PipelineProperty.Assign(This.ToApi<ClientPipelineApi>().Create(ClientOptionsParameter, perRetryPolicies)).Terminate());
 
-            var clientOptionsPropertyDict = ClientOptions.Value.Properties.ToDictionary(p => p.Name.ToCleanName());
+            var clientOptionsPropertyDict = ClientOptions.Properties.ToDictionary(p => p.Name.ToIdentifierName());
             foreach (var f in Fields)
             {
-                if (f == _apiVersionField && ClientOptions.Value.VersionProperty != null)
+                if (f == _apiVersionField && ClientOptions.VersionProperty != null)
                 {
-                    body.Add(f.Assign(ClientOptionsParameter.Value.Property(ClientOptions.Value.VersionProperty.Name)).Terminate());
+                    body.Add(f.Assign(ClientOptionsParameter.Property(ClientOptions.VersionProperty.Name)).Terminate());
                 }
-                else if (clientOptionsPropertyDict.TryGetValue(f.Name.ToCleanName(), out var optionsProperty))
+                else if (clientOptionsPropertyDict.TryGetValue(f.Name.ToIdentifierName(), out var optionsProperty))
                 {
-                    clientOptionsPropertyDict.TryGetValue(f.Name.ToCleanName(), out optionsProperty);
+                    clientOptionsPropertyDict.TryGetValue(f.Name.ToIdentifierName(), out optionsProperty);
                 }
             }
 
@@ -503,18 +610,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 this);
         }
 
-        protected override MethodProvider[] BuildMethods()
+        public ScmMethodProviderCollection GetMethodCollectionByOperation(InputOperation operation)
+        {
+            _ = Methods; // Ensure methods are built
+            return MethodCache[operation];
+        }
+
+        protected override ScmMethodProvider[] BuildMethods()
         {
             var subClients = _subClients.Value;
             var subClientCount = subClients.Count;
-            List<MethodProvider> methods = new List<MethodProvider>((_inputClient.Operations.Count * 4) + subClientCount);
+            List<ScmMethodProvider> methods = new List<ScmMethodProvider>((_inputClient.Methods.Count * 4) + subClientCount);
 
-            // Build methods for all the operations
-            foreach (var operation in _inputClient.Operations)
+            foreach (var serviceMethod in _inputClient.Methods)
             {
-                var clientMethods = ScmCodeModelGenerator.Instance.TypeFactory.CreateMethods(operation, this);
+                var clientMethods = ScmCodeModelGenerator.Instance.TypeFactory.CreateMethods(serviceMethod, this);
                 if (clientMethods != null)
                 {
+                    MethodCache[serviceMethod.Operation] = clientMethods;
                     methods.AddRange(clientMethods);
                 }
             }
@@ -559,7 +672,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     ? $"Get{subClient.Name}"
                     : $"Get{subClient.Name}{ClientSuffix}";
 
-                var factoryMethod = new MethodProvider(
+                var factoryMethod = new ScmMethodProvider(
                     new(
                         factoryMethodName,
                         $"Initializes a new instance of {subClient.Type.Name}",
@@ -580,14 +693,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private ParameterProvider BuildClientEndpointParameter()
         {
-            var endpointParam = _inputClient.Parameters.FirstOrDefault(p => p.IsEndpoint);
-            if (endpointParam == null)
+            _inputEndpointParam = _inputClient.Parameters.FirstOrDefault(p => p.IsEndpoint);
+            if (_inputEndpointParam == null)
+            {
                 return KnownParameters.Endpoint;
+            }
 
-            ValueExpression? initializationValue = endpointParam.DefaultValue != null
-                ? New.Instance(KnownParameters.Endpoint.Type, Literal(endpointParam.DefaultValue.Value))
+            var endpointParamType = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(_inputEndpointParam.Type);
+            if (endpointParamType == null)
+            {
+                return KnownParameters.Endpoint;
+            }
+
+            ValueExpression? initializationValue = _inputEndpointParam.DefaultValue != null
+                ? New.Instance(endpointParamType, Literal(_inputEndpointParam.DefaultValue.Value))
                 : null;
 
+            if (endpointParamType.Equals(typeof(string)) && _inputEndpointParam.ServerUrlTemplate != null)
+            {
+                return new(_inputEndpointParam);
+            }
+
+            // Must be a URI endpoint parameter
             return new(
                 KnownParameters.Endpoint.Name,
                 KnownParameters.Endpoint.Description,
@@ -612,6 +739,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return subClients;
+        }
+
+        private IReadOnlyList<InputParameter> GetAllClientParameters()
+        {
+            // Get all parameters from the client and its methods
+            var parameters = _inputClient.Parameters.Concat(
+                _inputClient.Methods.SelectMany(m => m.Operation.Parameters)
+                    .Where(p => p.Kind == InputParameterKind.Client)).DistinctBy(p => p.Name).ToArray();
+
+            foreach (var subClient in _subClients.Value)
+            {
+                // Add parameters from sub-clients
+                parameters = parameters.Concat(subClient.GetAllClientParameters()).DistinctBy(p => p.Name).ToArray();
+            }
+
+            return parameters;
         }
     }
 }

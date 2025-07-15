@@ -1,11 +1,14 @@
 package versioning.renamedfrom;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.instrumentation.Instrumentation;
 import versioning.renamedfrom.implementation.NewInterfacesImpl;
 
 /**
@@ -13,53 +16,38 @@ import versioning.renamedfrom.implementation.NewInterfacesImpl;
  */
 @ServiceClient(builder = RenamedFromClientBuilder.class)
 public final class NewInterfaceClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final NewInterfacesImpl serviceClient;
+
+    private final Instrumentation instrumentation;
 
     /**
      * Initializes an instance of NewInterfaceClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
-    @Metadata(generated = true)
-    NewInterfaceClient(NewInterfacesImpl serviceClient) {
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    NewInterfaceClient(NewInterfacesImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
      * The newOpInNewInterface operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     newProp: String (Required)
-     *     enumProp: String(newEnumMember) (Required)
-     *     unionProp: BinaryData (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     newProp: String (Required)
-     *     enumProp: String(newEnumMember) (Required)
-     *     unionProp: BinaryData (Required)
-     * }
-     * }
-     * </pre>
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
-    public Response<NewModel> newOpInNewInterfaceWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.newOpInNewInterfaceWithResponse(body, requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<NewModel> newOpInNewInterfaceWithResponse(NewModel body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Versioning.RenamedFrom.NewInterface.newOpInNewInterface",
+            requestContext, updatedContext -> this.serviceClient.newOpInNewInterfaceWithResponse(body, updatedContext));
     }
 
     /**
@@ -71,10 +59,9 @@ public final class NewInterfaceClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public NewModel newOpInNewInterface(NewModel body) {
-        // Generated convenience method for newOpInNewInterfaceWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return newOpInNewInterfaceWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        return newOpInNewInterfaceWithResponse(body, RequestContext.none()).getValue();
     }
 }

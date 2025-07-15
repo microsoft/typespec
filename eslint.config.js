@@ -120,7 +120,8 @@ const testFilesConfig = tsEslint.config({
 const jsxFilesConfig = tsEslint.config({
   files: ["**/*.tsx"],
   plugins: { "react-hooks": reactHooks },
-  ignores: ["**/packages/http-client-js/**/*"],
+  // Exclude need **/ to make sure this can be reused in typespec-azure
+  ignores: ["**/packages/emitter-framework/src/**/*", "**/packages/http-client-js/**/*"],
   rules: {
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
@@ -143,6 +144,8 @@ export default tsEslint.config(
       "**/.temp/**/*",
       "**/temp/**/*",
       "**/generated-defs/*",
+      "**/__snapshots__/*",
+      "**/.astro/*",
       "**/website/build/**/*",
       "**/.astro/**/*",
       "**/.docusaurus/**/*",

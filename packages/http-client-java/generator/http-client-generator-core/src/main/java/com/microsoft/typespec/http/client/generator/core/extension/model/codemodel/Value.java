@@ -3,10 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -167,6 +163,15 @@ public class Value extends Metadata {
     }
 
     /**
+     * Checks if the value is a constant.
+     *
+     * @return true if the value is a constant, false otherwise.
+     */
+    public boolean isConstant() {
+        return schema instanceof ConstantSchema;
+    }
+
+    /**
      * Sets the schema of the value. (Required)
      *
      * @param schema The schema of the value.
@@ -220,76 +225,5 @@ public class Value extends Metadata {
      */
     public void setNullable(boolean nullable) {
         this.nullable = nullable;
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return writeParentProperties(jsonWriter.writeStartObject()).writeEndObject();
-    }
-
-    JsonWriter writeParentProperties(JsonWriter jsonWriter) throws IOException {
-        return super.writeParentProperties(jsonWriter).writeJsonField("schema", schema)
-            .writeBooleanField("required", required)
-            .writeBooleanField("nullable", nullable)
-            .writeStringField("$key", $key)
-            .writeStringField("description", description)
-            .writeStringField("uid", uid)
-            .writeStringField("summary", summary)
-            .writeArrayField("apiVersions", apiVersions, JsonWriter::writeJson)
-            .writeJsonField("deprecated", deprecated)
-            .writeJsonField("externalDocs", externalDocs);
-    }
-
-    /**
-     * Deserializes a Value instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return A Value instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static Value fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, Value::new, (value, fieldName, reader) -> {
-            if (!value.tryConsumeParentProperties(value, fieldName, reader)) {
-                reader.skipChildren();
-            }
-        });
-    }
-
-    boolean tryConsumeParentProperties(Value value, String fieldName, JsonReader reader) throws IOException {
-        if (super.tryConsumeParentProperties(value, fieldName, reader)) {
-            return true;
-        } else if ("schema".equals(fieldName)) {
-            value.schema = Schema.fromJson(reader);
-            return true;
-        } else if ("required".equals(fieldName)) {
-            value.required = reader.getBoolean();
-            return true;
-        } else if ("nullable".equals(fieldName)) {
-            value.nullable = reader.getBoolean();
-            return true;
-        } else if ("$key".equals(fieldName)) {
-            value.$key = reader.getString();
-            return true;
-        } else if ("description".equals(fieldName)) {
-            value.description = reader.getString();
-            return true;
-        } else if ("uid".equals(fieldName)) {
-            value.uid = reader.getString();
-            return true;
-        } else if ("summary".equals(fieldName)) {
-            value.summary = reader.getString();
-            return true;
-        } else if ("apiVersions".equals(fieldName)) {
-            value.apiVersions = reader.readArray(ApiVersion::fromJson);
-            return true;
-        } else if ("deprecated".equals(fieldName)) {
-            value.deprecated = Deprecation.fromJson(reader);
-            return true;
-        } else if ("externalDocs".equals(fieldName)) {
-            value.externalDocs = ExternalDocumentation.fromJson(reader);
-            return true;
-        }
-
-        return false;
     }
 }

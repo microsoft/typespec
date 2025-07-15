@@ -1,6 +1,6 @@
 # @typespec/openapi3
 
-TypeSpec library for emitting OpenAPI 3.0 from the TypeSpec REST protocol binding and converting OpenAPI3 to TypeSpec
+TypeSpec library for emitting OpenAPI 3.0 and OpenAPI 3.1 from the TypeSpec REST protocol binding and converting OpenAPI3 to TypeSpec
 
 ## Install
 
@@ -8,7 +8,7 @@ TypeSpec library for emitting OpenAPI 3.0 from the TypeSpec REST protocol bindin
 npm install @typespec/openapi3
 ```
 
-## Usage
+## Emitter usage
 
 1. Via the command line
 
@@ -34,6 +34,13 @@ options:
 ```
 
 ## Emitter options
+
+### `emitter-output-dir`
+
+**Type:** `absolutePath`
+
+Defines the emitter output directory. Defaults to `{output-dir}/@typespec/openapi3`
+See [Configuring output directory for more info](https://typespec.io/docs/handbook/configuration/configuration/#configuring-output-directory)
 
 ### `file-type`
 
@@ -117,6 +124,15 @@ Default: `int64`
 If true, then for models emitted as object schemas we default `additionalProperties` to false for
 OpenAPI 3.0, and `unevaluatedProperties` to false for OpenAPI 3.1, if not explicitly specified elsewhere.
 Default: `false`
+
+### `experimental-parameter-examples`
+
+**Type:** `"data" | "serialized"`
+
+Determines how to emit examples on parameters.
+Note: This is an experimental feature and may change in future versions.
+See https://spec.openapis.org/oas/v3.0.4.html#style-examples for parameter example serialization rules
+See https://github.com/OAI/OpenAPI-Specification/discussions/4622 for discussion on handling parameter examples.
 
 ## Decorators
 

@@ -11,6 +11,8 @@ namespace SpecialWords._Models
 {
     public partial class Await : IJsonModel<Await>
     {
+        internal Await() => throw null;
+
         void IJsonModel<Await>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -30,7 +32,5 @@ namespace SpecialWords._Models
         string IPersistableModel<Await>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(Await @await) => throw null;
-
-        public static explicit operator Await(ClientResult result) => throw null;
     }
 }

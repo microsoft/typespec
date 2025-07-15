@@ -19,17 +19,17 @@ stages:
         - name: typespec-http-client-csharp
           file: typespec-http-client-csharp-*.tgz
           type: npm
-        - name: Microsoft.Generator.CSharp
-          file: Microsoft.Generator.CSharp.*.nupkg
+        - name: Microsoft.TypeSpec.Generator
+          file: Microsoft.TypeSpec.Generator.*.nupkg
           type: nuget
-        - name: Microsoft.Generator.CSharp.ClientModel
-          file: Microsoft.Generator.CSharp.ClientModel.*.nupkg
+        - name: Microsoft.TypeSpec.Generator.ClientModel
+          file: Microsoft.TypeSpec.Generator.ClientModel.*.nupkg
           type: nuget
-        - name: Microsoft.Generator.CSharp.Input
-          file: Microsoft.Generator.CSharp.Input.*.nupkg
+        - name: Microsoft.TypeSpec.Generator.Input
+          file: Microsoft.TypeSpec.Generator.Input.*.nupkg
           type: nuget
-        - name: Microsoft.Generator.CSharp.Customization
-          file: Microsoft.Generator.CSharp.Customization.*.nupkg
+        - name: Microsoft.TypeSpec.Generator.Customization
+          file: Microsoft.TypeSpec.Generator.Customization.*.nupkg
           type: nuget
       UnitTestArgs: -UnitTests
       TestMatrix:
@@ -38,3 +38,17 @@ stages:
       Condition: ${{ parameters.Condition }}
       DependsOn: ${{ parameters.DependsOn }}
       LanguageShortName: "csharp"
+      AdditionalInitializeSteps:
+        - task: UseDotNet@2
+          inputs:
+            displayName: "Install .NET 8"
+            performMultiLevelLookup: true
+            useGlobalJson: false
+            version: 8.x
+            workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+        - task: UseDotNet@2
+          inputs:
+            displayName: "Install .NET 9"
+            performMultiLevelLookup: true
+            useGlobalJson: true
+            workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp

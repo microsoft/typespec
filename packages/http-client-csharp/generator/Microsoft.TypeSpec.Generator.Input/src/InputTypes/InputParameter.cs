@@ -17,7 +17,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputType type,
             InputRequestLocation location,
             InputConstant? defaultValue,
-            InputOperationParameterKind kind,
+            InputParameterKind kind,
             bool isRequired,
             bool isApiVersion,
             bool isContentType,
@@ -25,7 +25,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             bool skipUrlEncoding,
             bool explode,
             string? arraySerializationDelimiter,
-            string? headerCollectionPrefix)
+            string? headerCollectionPrefix,
+            string? serverUrlTemplate)
         {
             Name = name;
             NameInRequest = nameInRequest;
@@ -43,6 +44,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             Explode = explode;
             ArraySerializationDelimiter = arraySerializationDelimiter;
             HeaderCollectionPrefix = headerCollectionPrefix;
+            ServerUrlTemplate = serverUrlTemplate;
         }
 
         public string Name { get; }
@@ -52,7 +54,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public InputType Type { get; }
         public InputRequestLocation Location { get; }
         public InputConstant? DefaultValue { get; }
-        public InputOperationParameterKind Kind { get; }
+        public InputParameterKind Kind { get; private set; }
         public bool IsRequired { get; }
         public bool IsApiVersion => _isApiVersion || Type is InputEnumType enumType && enumType.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum);
         public bool IsContentType { get; }
@@ -62,5 +64,15 @@ namespace Microsoft.TypeSpec.Generator.Input
         public string? ArraySerializationDelimiter { get; }
         public string? HeaderCollectionPrefix { get; }
         public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; } = new List<InputDecoratorInfo>();
+        public string? ServerUrlTemplate { get; }
+
+        /// <summary>
+        /// Update the instance with given parameters.
+        /// </summary>
+        /// <param name="kind">The kind of the <see cref="InputParameter"/></param>
+        public void Update(InputParameterKind kind)
+        {
+            Kind = kind;
+        }
     }
 }

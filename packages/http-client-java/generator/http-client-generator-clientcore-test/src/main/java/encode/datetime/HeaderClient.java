@@ -2,10 +2,14 @@ package encode.datetime;
 
 import encode.datetime.implementation.HeadersImpl;
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -14,82 +18,38 @@ import java.util.List;
  */
 @ServiceClient(builder = DatetimeClientBuilder.class)
 public final class HeaderClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final HeadersImpl serviceClient;
+
+    private final Instrumentation instrumentation;
 
     /**
      * Initializes an instance of HeaderClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
-    @Metadata(generated = true)
-    HeaderClient(HeadersImpl serviceClient) {
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    HeaderClient(HeadersImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
      * The defaultMethod operation.
      * 
      * @param value The value parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
-    public Response<Void> defaultMethodWithResponse(OffsetDateTime value, RequestOptions requestOptions) {
-        return this.serviceClient.defaultMethodWithResponse(value, requestOptions);
-    }
-
-    /**
-     * The rfc3339 operation.
-     * 
-     * @param value The value parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> rfc3339WithResponse(OffsetDateTime value, RequestOptions requestOptions) {
-        return this.serviceClient.rfc3339WithResponse(value, requestOptions);
-    }
-
-    /**
-     * The rfc7231 operation.
-     * 
-     * @param value The value parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> rfc7231WithResponse(OffsetDateTime value, RequestOptions requestOptions) {
-        return this.serviceClient.rfc7231WithResponse(value, requestOptions);
-    }
-
-    /**
-     * The unixTimestamp operation.
-     * 
-     * @param value The value parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> unixTimestampWithResponse(OffsetDateTime value, RequestOptions requestOptions) {
-        return this.serviceClient.unixTimestampWithResponse(value, requestOptions);
-    }
-
-    /**
-     * The unixTimestampArray operation.
-     * 
-     * @param value The value parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> unixTimestampArrayWithResponse(List<OffsetDateTime> value, RequestOptions requestOptions) {
-        return this.serviceClient.unixTimestampArrayWithResponse(value, requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> defaultMethodWithResponse(OffsetDateTime value, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.Header.default", requestContext,
+            updatedContext -> this.serviceClient.defaultMethodWithResponse(value, updatedContext));
     }
 
     /**
@@ -100,11 +60,27 @@ public final class HeaderClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void defaultMethod(OffsetDateTime value) {
-        // Generated convenience method for defaultMethodWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        defaultMethodWithResponse(value, requestOptions).getValue();
+        defaultMethodWithResponse(value, RequestContext.none());
+    }
+
+    /**
+     * The rfc3339 operation.
+     * 
+     * @param value The value parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> rfc3339WithResponse(OffsetDateTime value, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.Header.rfc3339", requestContext,
+            updatedContext -> this.serviceClient.rfc3339WithResponse(value, updatedContext));
     }
 
     /**
@@ -115,11 +91,27 @@ public final class HeaderClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void rfc3339(OffsetDateTime value) {
-        // Generated convenience method for rfc3339WithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        rfc3339WithResponse(value, requestOptions).getValue();
+        rfc3339WithResponse(value, RequestContext.none());
+    }
+
+    /**
+     * The rfc7231 operation.
+     * 
+     * @param value The value parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> rfc7231WithResponse(OffsetDateTime value, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.Header.rfc7231", requestContext,
+            updatedContext -> this.serviceClient.rfc7231WithResponse(value, updatedContext));
     }
 
     /**
@@ -130,11 +122,27 @@ public final class HeaderClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void rfc7231(OffsetDateTime value) {
-        // Generated convenience method for rfc7231WithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        rfc7231WithResponse(value, requestOptions).getValue();
+        rfc7231WithResponse(value, RequestContext.none());
+    }
+
+    /**
+     * The unixTimestamp operation.
+     * 
+     * @param value The value parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> unixTimestampWithResponse(OffsetDateTime value, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.Header.unixTimestamp", requestContext,
+            updatedContext -> this.serviceClient.unixTimestampWithResponse(value, updatedContext));
     }
 
     /**
@@ -145,11 +153,27 @@ public final class HeaderClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void unixTimestamp(OffsetDateTime value) {
-        // Generated convenience method for unixTimestampWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        unixTimestampWithResponse(value, requestOptions).getValue();
+        unixTimestampWithResponse(value, RequestContext.none());
+    }
+
+    /**
+     * The unixTimestampArray operation.
+     * 
+     * @param value The value parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> unixTimestampArrayWithResponse(List<OffsetDateTime> value, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.Header.unixTimestampArray", requestContext,
+            updatedContext -> this.serviceClient.unixTimestampArrayWithResponse(value, updatedContext));
     }
 
     /**
@@ -160,10 +184,9 @@ public final class HeaderClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void unixTimestampArray(List<OffsetDateTime> value) {
-        // Generated convenience method for unixTimestampArrayWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        unixTimestampArrayWithResponse(value, requestOptions).getValue();
+        unixTimestampArrayWithResponse(value, RequestContext.none());
     }
 }

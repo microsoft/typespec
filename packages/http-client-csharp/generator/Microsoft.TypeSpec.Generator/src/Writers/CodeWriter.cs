@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Expressions;
@@ -12,6 +13,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator
@@ -182,6 +184,14 @@ namespace Microsoft.TypeSpec.Generator
 
             using (WriteXmlDocs(method.XmlDocs))
             {
+                if (method.Attributes.Count > 0)
+                {
+                    foreach (var attr in method.Attributes)
+                    {
+                        attr.Write(this);
+                    }
+                }
+
                 if (method.BodyStatements is { } body)
                 {
                     using (WriteMethodDeclaration(method.Signature))
@@ -207,6 +217,14 @@ namespace Microsoft.TypeSpec.Generator
 
             using (WriteXmlDocs(ctor.XmlDocs))
             {
+                if (ctor.Attributes.Count > 0)
+                {
+                    foreach (var attr in ctor.Attributes)
+                    {
+                        attr.Write(this);
+                    }
+                }
+
                 if (ctor.BodyStatements is { } body)
                 {
                     using (WriteMethodDeclaration(ctor.Signature))
@@ -254,7 +272,7 @@ namespace Microsoft.TypeSpec.Generator
                 docs.Summary.Write(this);
             }
 
-            foreach (var param in docs.Params)
+            foreach (var param in docs.Parameters)
             {
                 param.Write(this);
             }
@@ -273,6 +291,14 @@ namespace Microsoft.TypeSpec.Generator
         public void WriteProperty(PropertyProvider property)
         {
             WriteXmlDocsNoScope(property.XmlDocs);
+
+            if (property.Attributes.Count > 0)
+            {
+                foreach (var attr in property.Attributes)
+                {
+                    attr.Write(this);
+                }
+            }
 
             CodeScope? indexerScope = null;
 
@@ -432,6 +458,14 @@ namespace Microsoft.TypeSpec.Generator
         public CodeWriter WriteField(FieldProvider field)
         {
             WriteXmlDocsNoScope(field.XmlDocs);
+
+            if (field.Attributes.Count > 0)
+            {
+                foreach (var attr in field.Attributes)
+                {
+                    attr.Write(this);
+                }
+            }
 
             var modifiers = field.Modifiers;
 
@@ -751,7 +785,8 @@ namespace Microsoft.TypeSpec.Generator
                     .AppendRawIf("new ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.New))
                     .AppendRawIf("async ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Async));
 
-                var isImplicitOrExplicit = methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Implicit) || methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);
+                var isImplicit = methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Implicit);
+                var isImplicitOrExplicit = isImplicit || methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);
                 if (!isImplicitOrExplicit)
                 {
                     if (method.ReturnType != null)
@@ -768,17 +803,21 @@ namespace Microsoft.TypeSpec.Generator
                     .AppendRawIf("explicit ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Explicit))
                     .AppendRawIf("operator ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Operator));
 
-                if (isImplicitOrExplicit)
-                {
-                    AppendIf($"{method.ReturnType}", method.ReturnType is not null);
-                }
-
                 if (method.ExplicitInterface is not null)
                 {
                     Append($"{method.ExplicitInterface}.");
                 }
 
-                Append($"{methodBase.Name}");
+                if (isImplicit)
+                {
+                    // Implicit operator method name is just the return type.
+                    // But we need to include the actual CSharpType so that the correct namespace using gets written.
+                    AppendIf($"{method.ReturnType}", method.ReturnType is not null);
+                }
+                else
+                {
+                    Append($"{methodBase.Name}");
+                }
 
                 if (method?.GenericArguments != null)
                 {
@@ -818,10 +857,14 @@ namespace Microsoft.TypeSpec.Generator
             {
                 using (ScopeRaw(string.Empty, string.Empty, false))
                 {
-                    foreach (var constraint in constraints)
+                    for (int i = 0; i < constraints.Count; i++)
                     {
+                        var constraint = constraints[i];
                         constraint.Write(this);
-                        AppendRaw(" ");
+                        if (i < constraints.Count - 1)
+                        {
+                            AppendRaw(" ");
+                        }
                     }
                 }
             }

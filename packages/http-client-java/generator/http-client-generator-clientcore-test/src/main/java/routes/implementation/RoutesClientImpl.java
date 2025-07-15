@@ -1,15 +1,18 @@
 package routes.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
-import io.clientcore.core.http.RestProxy;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Initializes a new instance of the RoutesClient type.
@@ -46,6 +49,20 @@ public final class RoutesClientImpl {
      */
     public HttpPipeline getHttpPipeline() {
         return this.httpPipeline;
+    }
+
+    /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
     }
 
     /**
@@ -276,10 +293,12 @@ public final class RoutesClientImpl {
      * Initializes an instance of RoutesClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
      */
-    public RoutesClientImpl(HttpPipeline httpPipeline, String endpoint) {
+    public RoutesClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
         this.pathParameters = new PathParametersImpl(this);
         this.pathParametersReservedExpansions = new PathParametersReservedExpansionsImpl(this);
@@ -297,7 +316,7 @@ public final class RoutesClientImpl {
         this.queryParametersQueryContinuationStandards = new QueryParametersQueryContinuationStandardsImpl(this);
         this.queryParametersQueryContinuationExplodes = new QueryParametersQueryContinuationExplodesImpl(this);
         this.inInterfaces = new InInterfacesImpl(this);
-        this.service = RestProxy.create(RoutesClientService.class, this.httpPipeline);
+        this.service = RoutesClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -305,19 +324,36 @@ public final class RoutesClientImpl {
      */
     @ServiceInterface(name = "RoutesClient", host = "{endpoint}")
     public interface RoutesClientService {
+        static RoutesClientService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("routes.implementation.RoutesClientServiceImpl");
+                return (RoutesClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(method = HttpMethod.GET, path = "/routes/fixed", expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> fixedSync(@HostParam("endpoint") String endpoint, RequestOptions requestOptions);
+        Response<Void> fixed(@HostParam("endpoint") String endpoint, RequestContext requestContext);
     }
 
     /**
      * The fixed operation.
      * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> fixedWithResponse(RequestOptions requestOptions) {
-        return service.fixedSync(this.getEndpoint(), requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> fixedWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Routes.fixed", requestContext, updatedContext -> {
+            return service.fixed(this.getEndpoint(), updatedContext);
+        });
     }
 }

@@ -11,6 +11,8 @@ namespace SpecialWords._Models
 {
     public partial class Assert : IJsonModel<Assert>
     {
+        internal Assert() => throw null;
+
         void IJsonModel<Assert>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -30,7 +32,5 @@ namespace SpecialWords._Models
         string IPersistableModel<Assert>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(Assert assert) => throw null;
-
-        public static explicit operator Assert(ClientResult result) => throw null;
     }
 }

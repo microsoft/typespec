@@ -1,10 +1,14 @@
 package payload.contentnegotiation;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.models.binarydata.BinaryData;
 import payload.contentnegotiation.differentbody.PngImageAsJson;
 import payload.contentnegotiation.implementation.DifferentBodiesImpl;
@@ -14,57 +18,37 @@ import payload.contentnegotiation.implementation.DifferentBodiesImpl;
  */
 @ServiceClient(builder = ContentNegotiationClientBuilder.class)
 public final class DifferentBodyClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final DifferentBodiesImpl serviceClient;
+
+    private final Instrumentation instrumentation;
 
     /**
      * Initializes an instance of DifferentBodyClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
-    @Metadata(generated = true)
-    DifferentBodyClient(DifferentBodiesImpl serviceClient) {
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    DifferentBodyClient(DifferentBodiesImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
      * The getAvatarAsPng operation.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * BinaryData
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
-    public Response<BinaryData> getAvatarAsPngWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.getAvatarAsPngWithResponse(requestOptions);
-    }
-
-    /**
-     * The getAvatarAsJson operation.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     content: byte[] (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<PngImageAsJson> getAvatarAsJsonWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.getAvatarAsJsonWithResponse(requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> getAvatarAsPngWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Payload.ContentNegotiation.DifferentBody.getAvatarAsPng",
+            requestContext, updatedContext -> this.serviceClient.getAvatarAsPngWithResponse(updatedContext));
     }
 
     /**
@@ -74,11 +58,26 @@ public final class DifferentBodyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public BinaryData getAvatarAsPng() {
-        // Generated convenience method for getAvatarAsPngWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return getAvatarAsPngWithResponse(requestOptions).getValue();
+        return getAvatarAsPngWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The getAvatarAsJson operation.
+     * 
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<PngImageAsJson> getAvatarAsJsonWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Payload.ContentNegotiation.DifferentBody.getAvatarAsJson",
+            requestContext, updatedContext -> this.serviceClient.getAvatarAsJsonWithResponse(updatedContext));
     }
 
     /**
@@ -88,10 +87,9 @@ public final class DifferentBodyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public PngImageAsJson getAvatarAsJson() {
-        // Generated convenience method for getAvatarAsJsonWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return getAvatarAsJsonWithResponse(requestOptions).getValue();
+        return getAvatarAsJsonWithResponse(RequestContext.none()).getValue();
     }
 }

@@ -9,9 +9,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 {
     public abstract class ScmLibraryVisitor : LibraryVisitor
     {
-        protected internal virtual MethodProviderCollection? Visit(InputOperation operation,
-            TypeProvider enclosingType,
-            MethodProviderCollection? methodProviderCollection)
+        protected internal virtual ScmMethodProviderCollection? Visit(
+            InputServiceMethod serviceMethod,
+            ClientProvider enclosingType,
+            ScmMethodProviderCollection? methodProviderCollection)
         {
             return methodProviderCollection;
         }
@@ -19,6 +20,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         protected internal virtual ClientProvider? Visit(InputClient client, ClientProvider? clientProvider)
         {
             return clientProvider;
+        }
+
+        protected override MethodProvider? VisitMethod(MethodProvider method)
+        {
+            if (method is ScmMethodProvider scmMethod)
+            {
+                return VisitMethod(scmMethod);
+            }
+
+            return base.VisitMethod(method);
+        }
+
+        protected internal virtual ScmMethodProvider? VisitMethod(ScmMethodProvider method)
+        {
+            return method;
         }
     }
 }

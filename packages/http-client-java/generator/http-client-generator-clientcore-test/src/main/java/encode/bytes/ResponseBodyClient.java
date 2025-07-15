@@ -2,10 +2,14 @@ package encode.bytes;
 
 import encode.bytes.implementation.ResponseBodiesImpl;
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.models.binarydata.BinaryData;
 
 /**
@@ -13,112 +17,37 @@ import io.clientcore.core.models.binarydata.BinaryData;
  */
 @ServiceClient(builder = BytesClientBuilder.class)
 public final class ResponseBodyClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final ResponseBodiesImpl serviceClient;
+
+    private final Instrumentation instrumentation;
 
     /**
      * Initializes an instance of ResponseBodyClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
-    @Metadata(generated = true)
-    ResponseBodyClient(ResponseBodiesImpl serviceClient) {
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    ResponseBodyClient(ResponseBodiesImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
      * The defaultMethod operation.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * BinaryData
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
-    public Response<BinaryData> defaultMethodWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.defaultMethodWithResponse(requestOptions);
-    }
-
-    /**
-     * The octetStream operation.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * BinaryData
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<BinaryData> octetStreamWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.octetStreamWithResponse(requestOptions);
-    }
-
-    /**
-     * The customContentType operation.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * BinaryData
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<BinaryData> customContentTypeWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.customContentTypeWithResponse(requestOptions);
-    }
-
-    /**
-     * The base64 operation.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * byte[]
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return represent a byte array.
-     */
-    @Metadata(generated = true)
-    public Response<byte[]> base64WithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.base64WithResponse(requestOptions);
-    }
-
-    /**
-     * The base64url operation.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * Base64Uri
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<byte[]> base64urlWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.base64urlWithResponse(requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> defaultMethodWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.ResponseBody.default", requestContext,
+            updatedContext -> this.serviceClient.defaultMethodWithResponse(updatedContext));
     }
 
     /**
@@ -128,11 +57,26 @@ public final class ResponseBodyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public BinaryData defaultMethod() {
-        // Generated convenience method for defaultMethodWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return defaultMethodWithResponse(requestOptions).getValue();
+        return defaultMethodWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The octetStream operation.
+     * 
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> octetStreamWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.ResponseBody.octetStream", requestContext,
+            updatedContext -> this.serviceClient.octetStreamWithResponse(updatedContext));
     }
 
     /**
@@ -142,11 +86,26 @@ public final class ResponseBodyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public BinaryData octetStream() {
-        // Generated convenience method for octetStreamWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return octetStreamWithResponse(requestOptions).getValue();
+        return octetStreamWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The customContentType operation.
+     * 
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> customContentTypeWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.ResponseBody.customContentType",
+            requestContext, updatedContext -> this.serviceClient.customContentTypeWithResponse(updatedContext));
     }
 
     /**
@@ -156,11 +115,26 @@ public final class ResponseBodyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public BinaryData customContentType() {
-        // Generated convenience method for customContentTypeWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return customContentTypeWithResponse(requestOptions).getValue();
+        return customContentTypeWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The base64 operation.
+     * 
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return represent a byte array.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<byte[]> base64WithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.ResponseBody.base64", requestContext,
+            updatedContext -> this.serviceClient.base64WithResponse(updatedContext));
     }
 
     /**
@@ -170,11 +144,26 @@ public final class ResponseBodyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return represent a byte array.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public byte[] base64() {
-        // Generated convenience method for base64WithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return base64WithResponse(requestOptions).getValue();
+        return base64WithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The base64url operation.
+     * 
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<byte[]> base64urlWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.ResponseBody.base64url", requestContext,
+            updatedContext -> this.serviceClient.base64urlWithResponse(updatedContext));
     }
 
     /**
@@ -184,10 +173,9 @@ public final class ResponseBodyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public byte[] base64url() {
-        // Generated convenience method for base64urlWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return base64urlWithResponse(requestOptions).getValue();
+        return base64urlWithResponse(RequestContext.none()).getValue();
     }
 }

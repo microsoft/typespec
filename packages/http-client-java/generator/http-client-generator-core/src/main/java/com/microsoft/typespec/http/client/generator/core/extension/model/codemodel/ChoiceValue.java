@@ -3,17 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonSerializable;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
 import java.util.Objects;
 
 /**
  * Represents a choice value.
  */
-public class ChoiceValue implements JsonSerializable<ChoiceValue> {
+public class ChoiceValue {
     private Languages language;
     private String value;
     private DictionaryAny extensions;
@@ -102,35 +97,5 @@ public class ChoiceValue implements JsonSerializable<ChoiceValue> {
 
         ChoiceValue rhs = ((ChoiceValue) other);
         return Objects.equals(this.value, rhs.value);
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject()
-            .writeJsonField("language", language)
-            .writeStringField("value", value)
-            .writeJsonField("extensions", extensions)
-            .writeEndObject();
-    }
-
-    /**
-     * Deserializes a ChoiceValue instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return A ChoiceValue instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static ChoiceValue fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, ChoiceValue::new, (value, fieldName, reader) -> {
-            if ("language".equals(fieldName)) {
-                value.language = Languages.fromJson(reader);
-            } else if ("value".equals(fieldName)) {
-                value.value = reader.getString();
-            } else if ("extensions".equals(fieldName)) {
-                value.extensions = DictionaryAny.fromJson(reader);
-            } else {
-                reader.skipChildren();
-            }
-        });
     }
 }

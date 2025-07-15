@@ -7,7 +7,6 @@ using System.ClientModel.Primitives;
 
 namespace Sample
 {
-    /// <summary></summary>
     public partial class TestClient
     {
         private static global::System.ClientModel.Primitives.PipelineMessageClassifier _pipelineMessageClassifier200;

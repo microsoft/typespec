@@ -394,6 +394,56 @@ describe("compiler: server: on hover", () => {
         },
       });
     });
+
+    it("model with extends and is (full definition expected)", async () => {
+      const hover = await getHoverAtCursor(
+        `
+          namespace TestNs;
+          
+          model Do┆g is Animal<string, DogProperties> {
+              barkVolume: int32;
+          }
+
+          model Animal<T, P> extends AnimalBase<P>{
+              name: string;
+              age: int16;
+              tTag: T;
+          }
+
+          model AnimalBase<P> {
+              id: string;
+              properties: P;
+          }
+
+
+          model DogProperties {
+              breed: string;
+              color: string;
+          }
+        `,
+      );
+      deepStrictEqual(hover, {
+        contents: {
+          kind: MarkupKind.Markdown,
+          value: `\`\`\`typespec
+model TestNs.Dog
+\`\`\`
+
+*Full Definition:*
+
+\`\`\`typespec
+model TestNs.Dog{
+  name: string;
+  age: int16;
+  tTag: string;
+  barkVolume: int32;
+  id: string;
+  properties: TestNs.DogProperties;
+}
+\`\`\``,
+        },
+      });
+    });
   });
 
   describe("interface", () => {
@@ -446,6 +496,39 @@ describe("compiler: server: on hover", () => {
         contents: {
           kind: MarkupKind.Markdown,
           value: "```typespec\n" + "interface TestNs.IActions\n" + "```",
+        },
+      });
+    });
+
+    it("interface with extends", async () => {
+      const hover = await getHoverAtCursor(
+        `
+          namespace TestNs;
+          
+          interface IActions{
+            fly(): void;
+          }
+
+          interface Bi┆rd extends IActions {
+            eat(): void;
+          }
+        `,
+      );
+      deepStrictEqual(hover, {
+        contents: {
+          kind: MarkupKind.Markdown,
+          value: `\`\`\`typespec
+interface TestNs.Bird
+\`\`\`
+
+*Full Definition:*
+
+\`\`\`typespec
+interface TestNs.Bird {
+  op fly(): void;
+  op eat(): void;
+}
+\`\`\``,
         },
       });
     });

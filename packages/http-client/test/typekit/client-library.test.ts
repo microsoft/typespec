@@ -1,6 +1,6 @@
-import { Namespace } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
-import { BasicTestRunner } from "@typespec/compiler/testing";
+import type { Namespace } from "@typespec/compiler";
+import type { BasicTestRunner } from "@typespec/compiler/testing";
+import { $ } from "@typespec/compiler/typekit";
 import { beforeEach, describe, expect, it } from "vitest";
 import "../../src/typekit/index.js";
 import { createTypespecHttpClientLibraryTestRunner } from "../test-host.js";
@@ -19,8 +19,10 @@ describe("listNamespaces", () => {
       })
         namespace DemoService;
       `);
-    expect($.clientLibrary.listNamespaces()).toHaveLength(1);
-    expect($.clientLibrary.listNamespaces()[0].name).toEqual("DemoService");
+    const tk = $(runner.program);
+
+    expect(tk.clientLibrary.listNamespaces()).toHaveLength(1);
+    expect(tk.clientLibrary.listNamespaces()[0].name).toEqual("DemoService");
   });
 
   it("nested", async () => {
@@ -36,14 +38,16 @@ describe("listNamespaces", () => {
         }
       }
     `);
-    expect($.clientLibrary.listNamespaces()).toHaveLength(1);
-    expect($.clientLibrary.listNamespaces()[0].name).toEqual("DemoService");
+    const tk = $(runner.program);
 
-    const subNamespaces = $.clientLibrary.listNamespaces($.clientLibrary.listNamespaces()[0]);
+    expect(tk.clientLibrary.listNamespaces()).toHaveLength(1);
+    expect(tk.clientLibrary.listNamespaces()[0].name).toEqual("DemoService");
+
+    const subNamespaces = tk.clientLibrary.listNamespaces(tk.clientLibrary.listNamespaces()[0]);
     expect(subNamespaces).toHaveLength(1);
     expect(subNamespaces[0].name).toEqual("NestedService");
 
-    const subSubNamespaces = $.clientLibrary.listNamespaces(subNamespaces[0]);
+    const subSubNamespaces = tk.clientLibrary.listNamespaces(subNamespaces[0]);
     expect(subSubNamespaces).toHaveLength(1);
     expect(subSubNamespaces[0].name).toEqual("NestedNestedService");
   });
@@ -54,11 +58,12 @@ describe("listClients", () => {
     await runner.compile(`
            op foo(): void;
           `);
+    const tk = $(runner.program);
 
-    const namespace = $.program.getGlobalNamespaceType();
-    const client = $.client.getClient(namespace);
+    const namespace = tk.program.getGlobalNamespaceType();
+    const client = tk.client.getClient(namespace);
 
-    const clients = $.clientLibrary.listClients(client);
+    const clients = tk.clientLibrary.listClients(client);
 
     expect(clients).toHaveLength(0);
   });
@@ -70,8 +75,9 @@ describe("listClients", () => {
       })
       @test namespace DemoService;
       `)) as { DemoService: Namespace };
+    const tk = $(runner.program);
 
-    const responses = $.clientLibrary.listClients(DemoService);
+    const responses = tk.clientLibrary.listClients(DemoService);
     expect(responses).toHaveLength(1);
     expect(responses[0].name).toEqual("DemoServiceClient");
   });
@@ -84,12 +90,13 @@ describe("listClients", () => {
         namespace NestedService {};
       }
       `)) as { DemoService: Namespace };
+    const tk = $(runner.program);
 
-    const responses = $.clientLibrary.listClients(DemoService);
+    const responses = tk.clientLibrary.listClients(DemoService);
     expect(responses).toHaveLength(1);
     expect(responses[0].name).toEqual("DemoServiceClient");
 
-    const subClients = $.clientLibrary.listClients(responses[0]);
+    const subClients = tk.clientLibrary.listClients(responses[0]);
     expect(subClients).toHaveLength(1);
     expect(subClients[0].name).toEqual("NestedServiceClient");
   });

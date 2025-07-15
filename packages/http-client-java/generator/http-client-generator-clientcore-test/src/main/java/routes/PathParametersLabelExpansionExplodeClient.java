@@ -1,10 +1,14 @@
 package routes;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.util.List;
 import java.util.Map;
 import routes.implementation.PathParametersLabelExpansionExplodesImpl;
@@ -14,56 +18,39 @@ import routes.implementation.PathParametersLabelExpansionExplodesImpl;
  */
 @ServiceClient(builder = RoutesClientBuilder.class)
 public final class PathParametersLabelExpansionExplodeClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final PathParametersLabelExpansionExplodesImpl serviceClient;
+
+    private final Instrumentation instrumentation;
 
     /**
      * Initializes an instance of PathParametersLabelExpansionExplodeClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
-    @Metadata(generated = true)
-    PathParametersLabelExpansionExplodeClient(PathParametersLabelExpansionExplodesImpl serviceClient) {
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    PathParametersLabelExpansionExplodeClient(PathParametersLabelExpansionExplodesImpl serviceClient,
+        Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
      * The primitive operation.
      * 
      * @param param The param parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
-    public Response<Void> primitiveWithResponse(String param, RequestOptions requestOptions) {
-        return this.serviceClient.primitiveWithResponse(param, requestOptions);
-    }
-
-    /**
-     * The array operation.
-     * 
-     * @param param The param parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> arrayWithResponse(List<String> param, RequestOptions requestOptions) {
-        return this.serviceClient.arrayWithResponse(param, requestOptions);
-    }
-
-    /**
-     * The record operation.
-     * 
-     * @param param The param parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> recordWithResponse(Map<String, Integer> param, RequestOptions requestOptions) {
-        return this.serviceClient.recordWithResponse(param, requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> primitiveWithResponse(String param, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Routes.PathParameters.LabelExpansion.Explode.primitive",
+            requestContext, updatedContext -> this.serviceClient.primitiveWithResponse(param, updatedContext));
     }
 
     /**
@@ -74,11 +61,27 @@ public final class PathParametersLabelExpansionExplodeClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void primitive(String param) {
-        // Generated convenience method for primitiveWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        primitiveWithResponse(param, requestOptions).getValue();
+        primitiveWithResponse(param, RequestContext.none());
+    }
+
+    /**
+     * The array operation.
+     * 
+     * @param param The param parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> arrayWithResponse(List<String> param, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Routes.PathParameters.LabelExpansion.Explode.array",
+            requestContext, updatedContext -> this.serviceClient.arrayWithResponse(param, updatedContext));
     }
 
     /**
@@ -89,11 +92,27 @@ public final class PathParametersLabelExpansionExplodeClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void array(List<String> param) {
-        // Generated convenience method for arrayWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        arrayWithResponse(param, requestOptions).getValue();
+        arrayWithResponse(param, RequestContext.none());
+    }
+
+    /**
+     * The record operation.
+     * 
+     * @param param The param parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> recordWithResponse(Map<String, Integer> param, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Routes.PathParameters.LabelExpansion.Explode.record",
+            requestContext, updatedContext -> this.serviceClient.recordWithResponse(param, updatedContext));
     }
 
     /**
@@ -104,10 +123,9 @@ public final class PathParametersLabelExpansionExplodeClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void record(Map<String, Integer> param) {
-        // Generated convenience method for recordWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        recordWithResponse(param, requestOptions).getValue();
+        recordWithResponse(param, RequestContext.none());
     }
 }

@@ -13,13 +13,16 @@ using System.Text.Json;
 
 namespace SampleTypeSpec
 {
-    /// <summary></summary>
+    /// <summary> The ListWithContinuationTokenHeaderResponseResponse. </summary>
     internal partial class ListWithContinuationTokenHeaderResponseResponse : IJsonModel<ListWithContinuationTokenHeaderResponseResponse>
     {
+        /// <summary> Initializes a new instance of <see cref="ListWithContinuationTokenHeaderResponseResponse"/> for deserialization. </summary>
         internal ListWithContinuationTokenHeaderResponseResponse()
         {
         }
 
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<ListWithContinuationTokenHeaderResponseResponse>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
             writer.WriteStartObject();
@@ -60,6 +63,8 @@ namespace SampleTypeSpec
             }
         }
 
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         ListWithContinuationTokenHeaderResponseResponse IJsonModel<ListWithContinuationTokenHeaderResponseResponse>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
 
         /// <param name="reader"> The JSON reader. </param>
@@ -75,6 +80,8 @@ namespace SampleTypeSpec
             return DeserializeListWithContinuationTokenHeaderResponseResponse(document.RootElement, options);
         }
 
+        /// <param name="element"> The JSON element to deserialize. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         internal static ListWithContinuationTokenHeaderResponseResponse DeserializeListWithContinuationTokenHeaderResponseResponse(JsonElement element, ModelReaderWriterOptions options)
         {
             if (element.ValueKind == JsonValueKind.Null)
@@ -103,6 +110,7 @@ namespace SampleTypeSpec
             return new ListWithContinuationTokenHeaderResponseResponse(things, additionalBinaryDataProperties);
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         BinaryData IPersistableModel<ListWithContinuationTokenHeaderResponseResponse>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
@@ -112,12 +120,14 @@ namespace SampleTypeSpec
             switch (format)
             {
                 case "J":
-                    return ModelReaderWriter.Write(this, options);
+                    return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
                 default:
                     throw new FormatException($"The model {nameof(ListWithContinuationTokenHeaderResponseResponse)} does not support writing '{options.Format}' format.");
             }
         }
 
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         ListWithContinuationTokenHeaderResponseResponse IPersistableModel<ListWithContinuationTokenHeaderResponseResponse>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
 
         /// <param name="data"> The data to parse. </param>
@@ -137,17 +147,8 @@ namespace SampleTypeSpec
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         string IPersistableModel<ListWithContinuationTokenHeaderResponseResponse>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="listWithContinuationTokenHeaderResponseResponse"> The <see cref="ListWithContinuationTokenHeaderResponseResponse"/> to serialize into <see cref="BinaryContent"/>. </param>
-        public static implicit operator BinaryContent(ListWithContinuationTokenHeaderResponseResponse listWithContinuationTokenHeaderResponseResponse)
-        {
-            if (listWithContinuationTokenHeaderResponseResponse == null)
-            {
-                return null;
-            }
-            return BinaryContent.Create(listWithContinuationTokenHeaderResponseResponse, ModelSerializationExtensions.WireOptions);
-        }
 
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ListWithContinuationTokenHeaderResponseResponse"/> from. </param>
         public static explicit operator ListWithContinuationTokenHeaderResponseResponse(ClientResult result)

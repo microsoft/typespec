@@ -37,14 +37,56 @@ interface TspCommand {
 }
 
 const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, string>[]> = {
-  "azure/example/basic": {
-    namespace: "specs.azure.example.basic",
-  },
   "azure/client-generator-core/access": {
     namespace: "specs.azure.clientgenerator.core.access",
   },
+  "azure/client-generator-core/api-version": {
+    namespace: "specs.azure.clientgenerator.core.apiversion",
+  },
+  "azure/client-generator-core/client-initialization": {
+    namespace: "specs.azure.clientgenerator.core.clientinitialization",
+  },
+  "azure/client-generator-core/client-location": {
+    namespace: "specs.azure.clientgenerator.core.clientlocation",
+  },
+  "azure/client-generator-core/deserialize-empty-string-as-null": {
+    namespace: "specs.azure.clientgenerator.core.emptystring",
+  },
+  "azure/client-generator-core/flatten-property": {
+    namespace: "specs.azure.clientgenerator.core.flattenproperty",
+  },
   "azure/client-generator-core/usage": {
     namespace: "specs.azure.clientgenerator.core.usage",
+  },
+  "azure/core/basic": {
+    namespace: "specs.azure.core.basic",
+  },
+  "azure/core/lro/rpc": {
+    namespace: "specs.azure.core.lro.rpc",
+  },
+  "azure/core/lro/standard": {
+    namespace: "specs.azure.core.lro.standard",
+  },
+  "azure/core/model": {
+    namespace: "specs.azure.core.model",
+  },
+  "azure/core/page": {
+    namespace: "specs.azure.core.page",
+  },
+  "azure/core/scalar": {
+    namespace: "specs.azure.core.scalar",
+  },
+  "azure/core/traits": {
+    namespace: "specs.azure.core.traits",
+  },
+  "azure/encode/duration": {
+    namespace: "specs.azure.encode.duration",
+  },
+  "azure/example/basic": {
+    namespace: "specs.azure.example.basic",
+  },
+  "azure/payload/pageable": {
+    namespace: "specs.azure.payload.pageable",
   },
   "client/structure/default": {
     namespace: "client.structure.service",
@@ -217,16 +259,13 @@ function getEmitterOption(spec: string, flavor: string): Record<string, string>[
 
 // Function to execute CLI commands asynchronously
 async function executeCommand(tspCommand: TspCommand): Promise<void> {
-  try {
-    rmSync(tspCommand.outputDir, { recursive: true, force: true });
-  } catch (error) {
-    console.error(chalk.red(`rm error: ${error}`));
-  }
   const execFileAsync = promisify(execFile);
   try {
+    console.log(chalk.green(`start tsp ${tspCommand.command.join(" ")}`));
     await execFileAsync("tsp", tspCommand.command, { shell: true });
     console.log(chalk.green(`tsp ${tspCommand.command.join(" ")} succeeded`));
   } catch (err) {
+    rmSync(tspCommand.outputDir, { recursive: true, force: true });
     console.error(chalk.red(`exec error: ${err}`));
     throw err;
   }
@@ -365,16 +404,20 @@ function _getCmdList(spec: string, flags: RegenerateFlags): TspCommand[] {
 }
 
 async function runTaskPool(tasks: Array<() => Promise<void>>, poolLimit: number): Promise<void> {
-  let currentIndex = 0;
-
-  async function worker() {
-    while (currentIndex < tasks.length) {
-      const index = currentIndex++;
-      await tasks[index]();
+  async function worker(start: number, end: number) {
+    while (start < end) {
+      await tasks[start]();
+      start++;
     }
   }
 
-  const workers = new Array(Math.min(poolLimit, tasks.length)).fill(null).map(() => worker());
+  const workers = [];
+  let start = 0;
+  while (start < tasks.length) {
+    const end = Math.min(start + poolLimit, tasks.length);
+    workers.push((async () => await worker(start, end))());
+    start = end;
+  }
   await Promise.all(workers);
 }
 

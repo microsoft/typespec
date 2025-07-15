@@ -1,7 +1,7 @@
-import { relative } from "path/posix";
 import pc from "picocolors";
 import { getSourceLocation } from "../diagnostics.js";
 import { typeReferenceToString } from "../helpers/syntax-utils.js";
+import { getRelativePathFromDirectory } from "../path-utils.js";
 import { SyntaxKind, type Node } from "../types.js";
 
 /** @internal */
@@ -10,7 +10,7 @@ export function inspectNode(node: Node): string {
   const pos = loc.file.getLineAndCharacterOfPosition(loc.pos);
   const kind = pc.yellow(`[${SyntaxKind[node.kind]}]`);
   const locString = pc.cyan(
-    `${relative(process.cwd(), loc.file.path)}:${pos.line + 1}:${pos.character + 1}`,
+    `${getRelativePathFromDirectory(process.cwd(), loc.file.path, false)}:${pos.line + 1}:${pos.character + 1}`,
   );
   return `${kind} ${printNodeInfoInternal(node)} ${locString}`;
 }

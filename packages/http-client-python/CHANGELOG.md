@@ -1,5 +1,127 @@
 # Change Log - @typespec/http-client-python
 
+## 0.13.0
+
+### Features
+
+- [#7817](https://github.com/microsoft/typespec/pull/7817) Make mixin operations classes private to remove from documentation
+
+
+## 0.12.5
+
+### Bug Fixes
+
+- [#7760](https://github.com/microsoft/typespec/pull/7760) [http-client-python] Add support for uv package manager alongside pip
+
+
+## 0.12.4
+
+### Bump dependencies
+
+- [#7735](https://github.com/microsoft/typespec/pull/7735) bump TCGC 0.57.2
+
+### Bug Fixes
+
+- [#7713](https://github.com/microsoft/typespec/pull/7713) Allow discriminators in derived classes that are from a fixed enum class
+
+
+## 0.12.3
+
+### Bug Fixes
+
+- [#7705](https://github.com/microsoft/typespec/pull/7705) Validate api versions by looking at ordering of api versions from spec
+- [#7696](https://github.com/microsoft/typespec/pull/7696) Add support for `validate-versioning` flag, so users can toggle whether they get api versioning validation
+
+
+## 0.12.2
+
+### Bump dependencies
+
+- [#7667](https://github.com/microsoft/typespec/pull/7667) bump typespec
+
+
+## 0.12.1
+
+### Bump dependencies
+
+- [#7613](https://github.com/microsoft/typespec/pull/7613) bump typespec
+
+
+## 0.12.0
+
+### Features
+
+- [#7359](https://github.com/microsoft/typespec/pull/7359) store apiVersion info in `_metadata.json`
+
+### Bug Fixes
+
+- [#7325](https://github.com/microsoft/typespec/pull/7325) Fix response type of paging operations from `Iterable` to `ItemPaged`
+- [#7348](https://github.com/microsoft/typespec/pull/7348) Reallow models-only packages
+
+
+## 0.11.3
+
+### Bump dependencies
+
+- [e56daba](https://github.com/microsoft/typespec/commit/e56daba78a00ce5cec79ded770a512d4dc8df66c) Bump typespec 1.0.0
+
+### Bug Fixes
+
+- [#7119](https://github.com/microsoft/typespec/pull/7119) Fix typing for generic `PipelineClient`
+- [#7152](https://github.com/microsoft/typespec/pull/7152) Add support for legacy parameterized next links
+
+
+## 0.11.2
+
+### Other Changes
+
+- Bump typespec and typespec-azure to latest version
+
+
+## 0.11.1
+
+### Bug Fixes
+
+- [#6646](https://github.com/microsoft/typespec/pull/6646) Reorder generated `_vendor` file into a `_utils_` folder
+- [#7062](https://github.com/microsoft/typespec/pull/7062) Remove warnings thrown if no `package-name` is specified, since this is the default behavior we want
+
+
+## 0.11.0
+
+### Features
+
+- [#6968](https://github.com/microsoft/typespec/pull/6968) Support parameter promoting to client level and add tests.
+- [#6955](https://github.com/microsoft/typespec/pull/6955) Support optional path parameter.
+
+### Bug Fixes
+
+- [#6979](https://github.com/microsoft/typespec/pull/6979) Improve emitter performance by updating black plugin implementation.
+- [#7048](https://github.com/microsoft/typespec/pull/7048) Align key in apiview mapping with apiview structure
+
+
+## 0.10.0
+
+### Features
+
+- [#5925](https://github.com/microsoft/typespec/pull/5925) Improve user experience in multi clouds scenario
+
+### Bug Fixes
+
+- [#7005](https://github.com/microsoft/typespec/pull/7005) Fix docstring type for multi namespaces
+- [#7007](https://github.com/microsoft/typespec/pull/7007) Fix for setup.py
+- [#6977](https://github.com/microsoft/typespec/pull/6977) add more hooks into setup.py template for users with custom templates
+
+
+## 0.9.2
+
+### Bug Fixes
+
+- [#6974](https://github.com/microsoft/typespec/pull/6974) Allow `_` in namespaces
+
+### Other Changes
+
+- Drop support for python3.8
+
 ## 0.9.1
 
 ### Bug Fixes

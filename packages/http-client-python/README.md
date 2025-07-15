@@ -35,6 +35,25 @@ options:
 
 ## Emitter options
 
+### `emitter-output-dir`
+
+**Type:** `absolutePath`
+
+Defines the emitter output directory. Defaults to `{output-dir}/@typespec/http-client-python`
+See [Configuring output directory for more info](https://typespec.io/docs/handbook/configuration/configuration/#configuring-output-directory)
+
+### `api-version`
+
+**Type:** `string`
+
+Use this flag if you would like to generate the sdk only for a specific version. Default value is the latest version. Also accepts values `latest` and `all`.
+
+### `license`
+
+**Type:** `object`
+
+License information for the generated client code.
+
 ### `package-version`
 
 **Type:** `string`
@@ -83,38 +102,8 @@ Whether to return responses from HEAD requests as boolean. Defaults to `true`.
 
 Whether to generate using `pyodide` instead of `python`. If there is no python installed on your device, we will default to using pyodide to generate the code.
 
-### `generate-protocol-methods`
+### `validate-versioning`
 
 **Type:** `boolean`
 
-When set to `true`, the emitter will generate low-level protocol methods for each service operation if `@protocolAPI` is not set for an operation. Default value is `true`.
-
-### `generate-convenience-methods`
-
-**Type:** `boolean`
-
-When set to `true`, the emitter will generate low-level protocol methods for each service operation if `@convenientAPI` is not set for an operation. Default value is `true`.
-
-### `examples-dir`
-
-**Type:** `string`
-
-Specifies the directory where the emitter will look for example files. If the flag isn’t set, the emitter defaults to using an `examples` directory located at the project root.
-
-### `namespace`
-
-**Type:** `string`
-
-Specifies the namespace you want to override for namespaces set in the spec. With this config, all namespace for the spec types will default to it.
-
-### `api-version`
-
-**Type:** `string`
-
-Use this flag if you would like to generate the sdk only for a specific version. Default value is the latest version. Also accepts values `latest` and `all`.
-
-### `license`
-
-**Type:** `object`
-
-License information for the generated client code.
+Whether to validate the versioning of the package. Defaults to `true`. If set to `false`, we will not validate the versioning of the package.

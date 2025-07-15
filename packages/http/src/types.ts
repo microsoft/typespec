@@ -483,25 +483,33 @@ export interface HttpOperationBody extends HttpOperationBodyBase, HttpBody {
 }
 
 /** Body marked with `@multipartBody` */
-export interface HttpOperationMultipartBody extends HttpOperationBodyBase {
+export type HttpOperationMultipartBody =
+  | HttpOperationMultipartBodyModel
+  | HttpOperationMultipartBodyTuple;
+
+export interface HttpOperationMultipartBodyCommon extends HttpOperationBodyBase {
   readonly bodyKind: "multipart";
-  readonly type: Model | Tuple;
   /** Property annotated with `@multipartBody` */
   readonly property: ModelProperty;
   readonly parts: HttpOperationPart[];
 }
 
+export interface HttpOperationMultipartBodyModel extends HttpOperationMultipartBodyCommon {
+  readonly multipartKind: "model";
+  readonly type: Model;
+  readonly parts: HttpOperationModelPart[];
+}
+
+export interface HttpOperationMultipartBodyTuple extends HttpOperationMultipartBodyCommon {
+  readonly multipartKind: "tuple";
+  readonly type: Tuple;
+  readonly parts: HttpOperationTuplePart[];
+}
+
 /** The possible bodies of a multipart part. */
 export type HttpOperationMultipartPartBody = HttpOperationBody | HttpOperationFileBody;
 
-/** Represent an part in a multipart body. */
-export interface HttpOperationPart {
-  /** Property that defined the part if the model form is used. */
-  readonly property?: ModelProperty;
-  /** Part name */
-  readonly name?: string;
-  /** If the part is optional */
-  readonly optional: boolean;
+export interface HttpOperationPartCommon {
   /** Part body */
   readonly body: HttpOperationMultipartPartBody;
   /** If the Part is an HttpFile this is the property defining the filename */
@@ -510,6 +518,28 @@ export interface HttpOperationPart {
   readonly headers: HeaderProperty[];
   /** If there can be multiple of that part */
   readonly multi: boolean;
+  /** The part name, if any. */
+  readonly name?: string;
+  /** If the part is optional */
+  readonly optional: boolean;
+}
+
+export type HttpOperationPart = HttpOperationModelPart | HttpOperationTuplePart;
+
+/** Represents a part in a multipart body that comes from a model property. */
+export interface HttpOperationModelPart extends HttpOperationPartCommon {
+  readonly partKind: "model";
+  /** Property that defined the part if the model form is used. */
+  readonly property: ModelProperty;
+  /** Part name */
+  readonly name: string;
+}
+
+/** Represents a part in a multipart body that comes from a tuple entry. */
+export interface HttpOperationTuplePart extends HttpOperationPartCommon {
+  readonly partKind: "tuple";
+  /** Property that defined the part -- always undefined for tuple entry parts. */
+  readonly property?: undefined;
 }
 
 /**

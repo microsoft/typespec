@@ -1,7 +1,7 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
 import { describe, expect, it } from "vitest";
-import { createOpenAPITestRunner } from "./test-host.js";
+import { SimpleTester } from "./test-host.js";
 import { worksFor } from "./works-for.js";
 
 worksFor(["3.0.0", "3.1.0"], ({ emitOpenApiWithDiagnostics, oapiForModel }) => {
@@ -229,8 +229,7 @@ worksFor(["3.0.0", "3.1.0"], ({ emitOpenApiWithDiagnostics, oapiForModel }) => {
 
   describe("@unwrapped", () => {
     it("warning if unwrapped not array", async () => {
-      const runner = await createOpenAPITestRunner();
-      const diagnostics = await runner.diagnose(
+      const diagnostics = await SimpleTester.diagnose(
         `model Book {
           @unwrapped
           id: string;
@@ -467,7 +466,7 @@ worksFor(["3.0.0", "3.1.0"], ({ emitOpenApiWithDiagnostics, oapiForModel }) => {
             tags: {
               type: "array",
               items: {
-                type: `${type}`,
+                allOf: [{ $ref: "#/components/schemas/tag" }],
                 xml: { name: "tags" },
               },
             },
@@ -516,10 +515,7 @@ worksFor(["3.0.0", "3.1.0"], ({ emitOpenApiWithDiagnostics, oapiForModel }) => {
                 wrapped: true,
               },
               items: {
-                type: `${type}`,
-                xml: {
-                  name: "ItemsName",
-                },
+                allOf: [{ $ref: "#/components/schemas/tag" }],
               },
             },
           },
@@ -1150,6 +1146,52 @@ worksFor(["3.0.0", "3.1.0"], ({ emitOpenApiWithDiagnostics, oapiForModel }) => {
           },
         },
       ],
+      [
+        "scalar deeply, is arrays: true",
+        "model Book { author: AuthorScalar[]; }",
+        `scalar AuthorScalar extends Author; @name("XmlAuthor") scalar Author extends string;`,
+        {
+          Book: {
+            type: "object",
+            properties: {
+              author: {
+                items: {
+                  allOf: [{ $ref: "#/components/schemas/AuthorScalar" }],
+                  xml: { name: "AuthorScalar" },
+                },
+                type: "array",
+                xml: { wrapped: true },
+              },
+            },
+            required: ["author"],
+          },
+          AuthorScalar: {
+            type: "string",
+            xml: { name: "XmlAuthor" },
+          },
+        },
+      ],
+      [
+        "scalar deeply, is arrays: false",
+        "model Book { author: AuthorScalar; }",
+        `scalar AuthorScalar extends Author; @name("XmlAuthor") scalar Author extends string;`,
+        {
+          Book: {
+            type: "object",
+            properties: {
+              author: {
+                allOf: [{ $ref: "#/components/schemas/AuthorScalar" }],
+                xml: { name: "author" },
+              },
+            },
+            required: ["author"],
+          },
+          AuthorScalar: {
+            type: "string",
+            xml: { name: "XmlAuthor" },
+          },
+        },
+      ],
     ];
     it.each(testCases)("%s", async (_, mainModel, refModel, expected) => {
       const res = await oapiForModel(
@@ -1162,29 +1204,36 @@ worksFor(["3.0.0", "3.1.0"], ({ emitOpenApiWithDiagnostics, oapiForModel }) => {
     });
   });
 
-  it("test.", async () => {
+  it("set xml.name and attribute for Enum schema", async () => {
     const res = await oapiForModel(
-      "Author",
+      "Book",
       `
-      model Book {
-        author: Author[];
-      }
-
-      model Author {
-      book?: Book[];
-    }`,
+      model Book {       
+        @attribute
+        @name("xmlStatus")
+        status: EnumStatus;
+      };
+      enum EnumStatus {
+        Active,
+        Inactive,
+      };`,
     );
 
-    deepStrictEqual(res.schemas.Author, {
-      properties: {
-        book: {
-          items: {
-            $ref: "#/components/schemas/Book",
+    deepStrictEqual(res.schemas, {
+      Book: {
+        properties: {
+          status: {
+            allOf: [{ $ref: "#/components/schemas/EnumStatus" }],
+            xml: { attribute: true, name: "xmlStatus" },
           },
-          type: "array",
         },
+        required: ["status"],
+        type: "object",
       },
-      type: "object",
+      EnumStatus: {
+        enum: ["Active", "Inactive"],
+        type: "string",
+      },
     });
   });
 });

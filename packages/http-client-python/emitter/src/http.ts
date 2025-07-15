@@ -208,6 +208,18 @@ function addPagingInformation(
   base.responses.forEach((resp: Record<string, any>) => {
     resp.type = itemType;
   });
+  const nextLinkReInjectedParameters: Record<string, any>[] = [];
+  for (const segList of method.pagingMetadata.nextLinkReInjectedParametersSegments ?? []) {
+    for (const param of segList) {
+      if (param.kind === "method") {
+        for (const parameter of method.operation.parameters) {
+          if (parameter.kind === "query" && parameter.correspondingMethodParams.includes(param)) {
+            nextLinkReInjectedParameters.push(emitHttpQueryParameter(context, parameter, method));
+          }
+        }
+      }
+    }
+  }
   return {
     ...base,
     name: camelToSnakeCase(method.name),
@@ -215,6 +227,7 @@ function addPagingInformation(
     exposeStreamKeyword: false,
     itemName,
     nextLinkName,
+    nextLinkReInjectedParameters,
     itemType,
     description: method.doc ?? "",
     summary: method.summary,
@@ -280,7 +293,7 @@ function emitHttpOperation(
     discriminator: "basic",
     isOverload: false,
     overloads: [],
-    apiVersions: [],
+    apiVersions: method.apiVersions,
     wantTracing: true,
     exposeStreamKeyword: true,
     crossLanguageDefinitionId: method?.crossLanguageDefinitionId,
@@ -339,8 +352,18 @@ function emitFlattenedParameter(
   };
 }
 
-function emitHttpPathParameter(context: PythonSdkContext, parameter: SdkPathParameter) {
+function emitHttpPathParameter(
+  context: PythonSdkContext,
+  parameter: SdkPathParameter,
+  operation: SdkHttpOperation,
+): Record<string, any> {
   const base = emitParamBase(context, parameter);
+  if (parameter.optional && operation.path.includes(`/{${parameter.serializedName}}`)) {
+    operation.path = operation.path.replace(
+      `/{${parameter.serializedName}}`,
+      `{${parameter.serializedName}}`,
+    );
+  }
   return {
     ...base,
     wireName: parameter.serializedName,
@@ -410,7 +433,7 @@ function emitHttpParameters(
         parameters.push(emitHttpQueryParameter(context, parameter, method));
         break;
       case "path":
-        parameters.push(emitHttpPathParameter(context, parameter));
+        parameters.push(emitHttpPathParameter(context, parameter, operation));
         break;
     }
   }

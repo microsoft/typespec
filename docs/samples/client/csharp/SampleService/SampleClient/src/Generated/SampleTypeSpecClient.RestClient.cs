@@ -403,5 +403,31 @@ namespace SampleTypeSpec
             message.Apply(options);
             return message;
         }
+
+        internal PipelineMessage CreateEmbeddedParametersRequest(string requiredHeader, string requiredQuery, BinaryContent content, string optionalHeader, string optionalQuery, RequestOptions options)
+        {
+            PipelineMessage message = Pipeline.CreateMessage();
+            message.ResponseClassifier = PipelineMessageClassifier204;
+            PipelineRequest request = message.Request;
+            request.Method = "POST";
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/embeddedParameters", false);
+            uri.AppendQuery("requiredQuery", requiredQuery, true);
+            if (optionalQuery != null)
+            {
+                uri.AppendQuery("optionalQuery", optionalQuery, true);
+            }
+            request.Uri = uri.ToUri();
+            request.Headers.Set("required-header", requiredHeader);
+            if (optionalHeader != null)
+            {
+                request.Headers.Set("optional-header", optionalHeader);
+            }
+            request.Headers.Set("Content-Type", "application/json");
+            request.Content = content;
+            message.Apply(options);
+            return message;
+        }
     }
 }

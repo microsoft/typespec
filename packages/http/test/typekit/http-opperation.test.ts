@@ -1,20 +1,13 @@
-import { Model, Operation } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
-import { BasicTestRunner } from "@typespec/compiler/testing";
-import { beforeEach, describe, expect, it } from "vitest";
+import { t } from "@typespec/compiler/testing";
+import { $ } from "@typespec/compiler/typekit";
+import { describe, expect, it } from "vitest";
 import "../../src/experimental/typekit/index.js";
-import { createHttpTestRunner } from "./../test-host.js";
-
-let runner: BasicTestRunner;
-
-beforeEach(async () => {
-  runner = await createHttpTestRunner();
-});
+import { Tester } from "./../test-host.js";
 
 describe("httpOperation:getResponses", () => {
   it("should get responses", async () => {
-    const { getFoo } = (await runner.compile(`
-      @test model Foo {
+    const { getFoo, program } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
         @visibility(Lifecycle.Create)
          id: int32;
          age: int32;
@@ -22,18 +15,19 @@ describe("httpOperation:getResponses", () => {
       }
 
       @error
-      @test model Error {
+      model ${t.model("Error")} {
         message: string;
         code: int32
       }
 
       @route("/foo")
       @get
-      @test op getFoo(): Foo | Error;
-    `)) as { getFoo: Operation; Foo: Model; Error: Model };
+      op ${t.op("getFoo")}(): Foo | Error;
+    `);
+    const tk = $(program);
 
-    const httpOperation = $.httpOperation.get(getFoo);
-    const responses = $.httpOperation.flattenResponses(httpOperation);
+    const httpOperation = tk.httpOperation.get(getFoo);
+    const responses = tk.httpOperation.flattenResponses(httpOperation);
     expect(responses).toHaveLength(2);
     expect(responses[0].statusCode).toBe(200);
     expect(responses[0].contentType).toBe("application/json");
@@ -42,8 +36,8 @@ describe("httpOperation:getResponses", () => {
   });
 
   it("should get responses with multiple status codes", async () => {
-    const { getFoo } = (await runner.compile(`
-      @test model Foo {
+    const { getFoo, program } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
         @visibility(Lifecycle.Create)
          id: int32;
          age: int32;
@@ -52,11 +46,12 @@ describe("httpOperation:getResponses", () => {
 
       @route("/foo")
       @get
-      @test op getFoo(): Foo | void;
-    `)) as { getFoo: Operation; Foo: Model; Error: Model };
+      op ${t.op("getFoo")}(): Foo | void;
+    `);
+    const tk = $(program);
 
-    const httpOperation = $.httpOperation.get(getFoo);
-    const responses = $.httpOperation.flattenResponses(httpOperation);
+    const httpOperation = tk.httpOperation.get(getFoo);
+    const responses = tk.httpOperation.flattenResponses(httpOperation);
     expect(responses).toHaveLength(2);
     expect(responses[0].statusCode).toBe(200);
     expect(responses[0].contentType).toBe("application/json");
@@ -65,8 +60,8 @@ describe("httpOperation:getResponses", () => {
   });
 
   it("should get responses with multiple status codes and contentTypes", async () => {
-    const { getFoo } = (await runner.compile(`
-      @test model Foo {
+    const { getFoo, program } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
         @visibility(Lifecycle.Create)
          id: int32;
          age: int32;
@@ -74,18 +69,19 @@ describe("httpOperation:getResponses", () => {
       }
 
       @error
-      @test model Error {
+      model ${t.model("Error")} {
         message: string;
         code: int32
       }
 
       @route("/foo")
       @get
-      @test op getFoo(): Foo | {...Foo, @header contentType: "text/plain"} | Error;
-    `)) as { getFoo: Operation; Foo: Model; Error: Model };
+      op ${t.op("getFoo")}(): Foo | {...Foo, @header contentType: "text/plain"} | Error;
+    `);
+    const tk = $(program);
 
-    const httpOperation = $.httpOperation.get(getFoo);
-    const responses = $.httpOperation.flattenResponses(httpOperation);
+    const httpOperation = tk.httpOperation.get(getFoo);
+    const responses = tk.httpOperation.flattenResponses(httpOperation);
     expect(responses).toHaveLength(3);
     expect(responses[0].statusCode).toBe(200);
     expect(responses[0].contentType).toBe("application/json");

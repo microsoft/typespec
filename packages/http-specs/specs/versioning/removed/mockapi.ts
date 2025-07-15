@@ -20,7 +20,7 @@ Scenarios.Versioning_Removed_v2 = passOnSuccess({
 });
 
 Scenarios.Versioning_Removed_modelV3 = passOnSuccess({
-  uri: `/versioning/removed/api-version[:]v1/v3`,
+  uri: `/versioning/removed/api-version\\:v1/v3`,
   method: "post",
   request: {
     body: json({
@@ -36,7 +36,7 @@ Scenarios.Versioning_Removed_modelV3 = passOnSuccess({
 });
 
 Scenarios.Versioning_Removed_modelV3_V2 = passOnSuccess({
-  uri: `/versioning/removed/api-version[:]v2/v3`,
+  uri: `/versioning/removed/api-version\\:v2/v3`,
   method: "post",
   request: {
     body: json({
@@ -52,7 +52,7 @@ Scenarios.Versioning_Removed_modelV3_V2 = passOnSuccess({
 });
 
 Scenarios.Versioning_Removed_modelV3_V2preview = passOnSuccess({
-  uri: `/versioning/removed/api-version[:]v2preview/v3`,
+  uri: `/versioning/removed/api-version\\:v2preview/v3`,
   method: "post",
   request: {
     body: json({

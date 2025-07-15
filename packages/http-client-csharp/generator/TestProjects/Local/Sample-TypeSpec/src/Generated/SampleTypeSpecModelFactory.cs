@@ -32,7 +32,7 @@ namespace SampleTypeSpec
         /// <param name="requiredNullableList"> required nullable collection. </param>
         /// <param name="rename"></param>
         /// <returns> A new <see cref="SampleTypeSpec.Thing"/> instance for mocking. </returns>
-        public static Thing Thing(BinaryData requiredUnion = default, ThingRequiredLiteralString requiredLiteralString = default, string requiredNullableString = default, string optionalNullableString = default, ThingRequiredLiteralInt requiredLiteralInt = default, ThingRequiredLiteralFloat requiredLiteralFloat = default, bool requiredLiteralBool = default, ThingOptionalLiteralString? optionalLiteralString = default, ThingOptionalLiteralInt? optionalLiteralInt = default, ThingOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, string requiredBadDescription = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default, string rename = default)
+        public static Thing Thing(BinaryData requiredUnion = default, string requiredLiteralString = default, string requiredNullableString = default, string optionalNullableString = default, int requiredLiteralInt = default, float requiredLiteralFloat = default, bool requiredLiteralBool = default, string optionalLiteralString = default, int? optionalLiteralInt = default, float? optionalLiteralFloat = default, bool? optionalLiteralBool = default, string requiredBadDescription = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default, string rename = default)
         {
             optionalNullableList ??= new ChangeTrackingList<int>();
             requiredNullableList ??= new ChangeTrackingList<int>();
@@ -130,7 +130,6 @@ namespace SampleTypeSpec
         /// <returns> A new <see cref="SampleTypeSpec.ModelWithRequiredNullableProperties"/> instance for mocking. </returns>
         public static ModelWithRequiredNullableProperties ModelWithRequiredNullableProperties(int? requiredNullablePrimitive = default, StringExtensibleEnum? requiredExtensibleEnum = default, StringFixedEnum? requiredFixedEnum = default)
         {
-
             return new ModelWithRequiredNullableProperties(requiredNullablePrimitive, requiredExtensibleEnum, requiredFixedEnum, additionalBinaryDataProperties: null);
         }
 
@@ -139,7 +138,6 @@ namespace SampleTypeSpec
         /// <returns> A new <see cref="Models.Custom.Friend"/> instance for mocking. </returns>
         public static Friend Friend(string name = default)
         {
-
             return new Friend(name, additionalBinaryDataProperties: null);
         }
 
@@ -148,7 +146,6 @@ namespace SampleTypeSpec
         /// <returns> A new <see cref="SampleTypeSpec.RenamedModelCustom"/> instance for mocking. </returns>
         public static RenamedModelCustom RenamedModelCustom(string name = default)
         {
-
             return new RenamedModelCustom(name, additionalBinaryDataProperties: null);
         }
 
@@ -156,8 +153,25 @@ namespace SampleTypeSpec
         /// <returns> A new <see cref="SampleTypeSpec.ReturnsAnonymousModelResponse"/> instance for mocking. </returns>
         public static ReturnsAnonymousModelResponse ReturnsAnonymousModelResponse()
         {
-
             return new ReturnsAnonymousModelResponse(additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The ModelWithEmbeddedNonBodyParameters. </summary>
+        /// <param name="name"> name of the ModelWithEmbeddedNonBodyParameters. </param>
+        /// <param name="requiredHeader"> required header parameter. </param>
+        /// <param name="optionalHeader"> optional header parameter. </param>
+        /// <param name="requiredQuery"> required query parameter. </param>
+        /// <param name="optionalQuery"> optional query parameter. </param>
+        /// <returns> A new <see cref="SampleTypeSpec.ModelWithEmbeddedNonBodyParameters"/> instance for mocking. </returns>
+        public static ModelWithEmbeddedNonBodyParameters ModelWithEmbeddedNonBodyParameters(string name = default, string requiredHeader = default, string optionalHeader = default, string requiredQuery = default, string optionalQuery = default)
+        {
+            return new ModelWithEmbeddedNonBodyParameters(
+                name,
+                requiredHeader,
+                optionalHeader,
+                requiredQuery,
+                optionalQuery,
+                additionalBinaryDataProperties: null);
         }
     }
 }

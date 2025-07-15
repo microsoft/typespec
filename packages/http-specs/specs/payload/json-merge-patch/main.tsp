@@ -58,7 +58,7 @@ model InnerModel {
       }
     ],
     "intValue": 1,
-    "floatValue": 1.1,
+    "floatValue": 1.25,
     "innerModel": {
       "name": "InnerMadge",
       "description": "innerDesc"
@@ -85,7 +85,7 @@ model InnerModel {
       }
     ],
     "intValue": 1,
-    "floatValue": 1.1,
+    "floatValue": 1.25,
     "innerModel": {
       "name": "InnerMadge",
       "description": "innerDesc"

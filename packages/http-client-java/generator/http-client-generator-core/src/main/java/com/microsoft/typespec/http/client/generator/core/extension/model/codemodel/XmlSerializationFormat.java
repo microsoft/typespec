@@ -3,10 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -163,47 +159,5 @@ public class XmlSerializationFormat extends SerializationFormat {
             && wrapped == rhs.wrapped
             && Objects.equals(prefix, rhs.prefix)
             && text == rhs.text;
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject()
-            .writeJsonField("extensions", getExtensions())
-            .writeStringField("name", name)
-            .writeStringField("namespace", namespace)
-            .writeStringField("prefix", prefix)
-            .writeBooleanField("attribute", attribute)
-            .writeBooleanField("wrapped", wrapped)
-            .writeBooleanField("text", text)
-            .writeEndObject();
-    }
-
-    /**
-     * Deserializes a XmlSerializationFormat instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return A XmlSerializationFormat instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static XmlSerializationFormat fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, XmlSerializationFormat::new, (format, fieldName, reader) -> {
-            if ("extensions".equals(fieldName)) {
-                format.setExtensions(DictionaryAny.fromJson(reader));
-            } else if ("name".equals(fieldName)) {
-                format.name = reader.getString();
-            } else if ("namespace".equals(fieldName)) {
-                format.namespace = reader.getString();
-            } else if ("prefix".equals(fieldName)) {
-                format.prefix = reader.getString();
-            } else if ("attribute".equals(fieldName)) {
-                format.attribute = reader.getBoolean();
-            } else if ("wrapped".equals(fieldName)) {
-                format.wrapped = reader.getBoolean();
-            } else if ("text".equals(fieldName)) {
-                format.text = reader.getBoolean();
-            } else {
-                reader.skipChildren();
-            }
-        });
     }
 }

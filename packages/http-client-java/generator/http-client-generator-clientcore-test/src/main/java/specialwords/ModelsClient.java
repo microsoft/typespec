@@ -1,11 +1,14 @@
 package specialwords;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.instrumentation.Instrumentation;
 import specialwords.implementation.ModelsImpl;
 import specialwords.models.And;
 import specialwords.models.As;
@@ -46,743 +49,38 @@ import specialwords.models.Yield;
  */
 @ServiceClient(builder = SpecialWordsClientBuilder.class)
 public final class ModelsClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final ModelsImpl serviceClient;
+
+    private final Instrumentation instrumentation;
 
     /**
      * Initializes an instance of ModelsClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
-    @Metadata(generated = true)
-    ModelsClient(ModelsImpl serviceClient) {
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    ModelsClient(ModelsImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
      * The withAnd operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
-    public Response<Void> withAndWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withAndWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The withAs operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withAsWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withAsWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The withAssert operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withAssertWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withAssertWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The withAsync operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withAsyncWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withAsyncWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The withAwait operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withAwaitWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withAwaitWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The withBreak operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withBreakWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withBreakWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The withClass operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withClassWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withClassWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The withConstructor operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withConstructorWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withConstructorWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The withContinue operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withContinueWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withContinueWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The withDef operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withDefWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withDefWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The withDel operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withDelWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withDelWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The withElif operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withElifWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withElifWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The withElse operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withElseWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withElseWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The withExcept operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withExceptWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withExceptWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The withExec operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withExecWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withExecWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The withFinally operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withFinallyWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withFinallyWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The withFor operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withForWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withForWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The withFrom operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withFromWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withFromWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The withGlobal operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withGlobalWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withGlobalWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The withIf operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withIfWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withIfWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The withImport operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withImportWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withImportWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The withIn operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withInWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withInWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The withIs operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withIsWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withIsWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The withLambda operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withLambdaWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withLambdaWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The withNot operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withNotWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withNotWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The withOr operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withOrWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withOrWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The withPass operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withPassWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withPassWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The withRaise operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withRaiseWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withRaiseWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The withReturn operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withReturnWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withReturnWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The withTry operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withTryWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withTryWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The withWhile operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withWhileWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withWhileWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The withWith operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withWithWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withWithWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The withYield operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withYieldWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.withYieldWithResponse(body, requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withAndWithResponse(And body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withAnd", requestContext,
+            updatedContext -> this.serviceClient.withAndWithResponse(body, updatedContext));
     }
 
     /**
@@ -793,11 +91,27 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withAnd(And body) {
-        // Generated convenience method for withAndWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withAndWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withAndWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withAs operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withAsWithResponse(As body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withAs", requestContext,
+            updatedContext -> this.serviceClient.withAsWithResponse(body, updatedContext));
     }
 
     /**
@@ -808,11 +122,27 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withAs(As body) {
-        // Generated convenience method for withAsWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withAsWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withAsWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withAssert operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withAssertWithResponse(Assert body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withAssert", requestContext,
+            updatedContext -> this.serviceClient.withAssertWithResponse(body, updatedContext));
     }
 
     /**
@@ -823,11 +153,27 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withAssert(Assert body) {
-        // Generated convenience method for withAssertWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withAssertWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withAssertWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withAsync operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withAsyncWithResponse(Async body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withAsync", requestContext,
+            updatedContext -> this.serviceClient.withAsyncWithResponse(body, updatedContext));
     }
 
     /**
@@ -838,11 +184,27 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withAsync(Async body) {
-        // Generated convenience method for withAsyncWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withAsyncWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withAsyncWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withAwait operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withAwaitWithResponse(Await body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withAwait", requestContext,
+            updatedContext -> this.serviceClient.withAwaitWithResponse(body, updatedContext));
     }
 
     /**
@@ -853,11 +215,27 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withAwait(Await body) {
-        // Generated convenience method for withAwaitWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withAwaitWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withAwaitWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withBreak operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withBreakWithResponse(Break body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withBreak", requestContext,
+            updatedContext -> this.serviceClient.withBreakWithResponse(body, updatedContext));
     }
 
     /**
@@ -868,11 +246,27 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withBreak(Break body) {
-        // Generated convenience method for withBreakWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withBreakWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withBreakWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withClass operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withClassWithResponse(ClassModel body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withClass", requestContext,
+            updatedContext -> this.serviceClient.withClassWithResponse(body, updatedContext));
     }
 
     /**
@@ -883,11 +277,27 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withClass(ClassModel body) {
-        // Generated convenience method for withClassWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withClassWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withClassWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withConstructor operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withConstructorWithResponse(Constructor body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withConstructor", requestContext,
+            updatedContext -> this.serviceClient.withConstructorWithResponse(body, updatedContext));
     }
 
     /**
@@ -898,11 +308,27 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withConstructor(Constructor body) {
-        // Generated convenience method for withConstructorWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withConstructorWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withConstructorWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withContinue operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withContinueWithResponse(Continue body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withContinue", requestContext,
+            updatedContext -> this.serviceClient.withContinueWithResponse(body, updatedContext));
     }
 
     /**
@@ -913,11 +339,27 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withContinue(Continue body) {
-        // Generated convenience method for withContinueWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withContinueWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withContinueWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withDef operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withDefWithResponse(Def body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withDef", requestContext,
+            updatedContext -> this.serviceClient.withDefWithResponse(body, updatedContext));
     }
 
     /**
@@ -928,11 +370,27 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withDef(Def body) {
-        // Generated convenience method for withDefWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withDefWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withDefWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withDel operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withDelWithResponse(Del body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withDel", requestContext,
+            updatedContext -> this.serviceClient.withDelWithResponse(body, updatedContext));
     }
 
     /**
@@ -943,11 +401,27 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withDel(Del body) {
-        // Generated convenience method for withDelWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withDelWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withDelWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withElif operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withElifWithResponse(Elif body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withElif", requestContext,
+            updatedContext -> this.serviceClient.withElifWithResponse(body, updatedContext));
     }
 
     /**
@@ -958,11 +432,27 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withElif(Elif body) {
-        // Generated convenience method for withElifWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withElifWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withElifWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withElse operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withElseWithResponse(Else body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withElse", requestContext,
+            updatedContext -> this.serviceClient.withElseWithResponse(body, updatedContext));
     }
 
     /**
@@ -973,11 +463,27 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withElse(Else body) {
-        // Generated convenience method for withElseWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withElseWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withElseWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withExcept operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withExceptWithResponse(Except body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withExcept", requestContext,
+            updatedContext -> this.serviceClient.withExceptWithResponse(body, updatedContext));
     }
 
     /**
@@ -988,11 +494,27 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withExcept(Except body) {
-        // Generated convenience method for withExceptWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withExceptWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withExceptWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withExec operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withExecWithResponse(Exec body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withExec", requestContext,
+            updatedContext -> this.serviceClient.withExecWithResponse(body, updatedContext));
     }
 
     /**
@@ -1003,11 +525,27 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withExec(Exec body) {
-        // Generated convenience method for withExecWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withExecWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withExecWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withFinally operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withFinallyWithResponse(Finally body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withFinally", requestContext,
+            updatedContext -> this.serviceClient.withFinallyWithResponse(body, updatedContext));
     }
 
     /**
@@ -1018,11 +556,27 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withFinally(Finally body) {
-        // Generated convenience method for withFinallyWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withFinallyWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withFinallyWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withFor operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withForWithResponse(For body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withFor", requestContext,
+            updatedContext -> this.serviceClient.withForWithResponse(body, updatedContext));
     }
 
     /**
@@ -1033,11 +587,27 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withFor(For body) {
-        // Generated convenience method for withForWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withForWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withForWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withFrom operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withFromWithResponse(From body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withFrom", requestContext,
+            updatedContext -> this.serviceClient.withFromWithResponse(body, updatedContext));
     }
 
     /**
@@ -1048,11 +618,27 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withFrom(From body) {
-        // Generated convenience method for withFromWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withFromWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withFromWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withGlobal operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withGlobalWithResponse(Global body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withGlobal", requestContext,
+            updatedContext -> this.serviceClient.withGlobalWithResponse(body, updatedContext));
     }
 
     /**
@@ -1063,11 +649,27 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withGlobal(Global body) {
-        // Generated convenience method for withGlobalWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withGlobalWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withGlobalWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withIf operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withIfWithResponse(If body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withIf", requestContext,
+            updatedContext -> this.serviceClient.withIfWithResponse(body, updatedContext));
     }
 
     /**
@@ -1078,11 +680,27 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withIf(If body) {
-        // Generated convenience method for withIfWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withIfWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withIfWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withImport operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withImportWithResponse(Import body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withImport", requestContext,
+            updatedContext -> this.serviceClient.withImportWithResponse(body, updatedContext));
     }
 
     /**
@@ -1093,11 +711,27 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withImport(Import body) {
-        // Generated convenience method for withImportWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withImportWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withImportWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withIn operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withInWithResponse(In body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withIn", requestContext,
+            updatedContext -> this.serviceClient.withInWithResponse(body, updatedContext));
     }
 
     /**
@@ -1108,11 +742,27 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withIn(In body) {
-        // Generated convenience method for withInWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withInWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withInWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withIs operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withIsWithResponse(Is body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withIs", requestContext,
+            updatedContext -> this.serviceClient.withIsWithResponse(body, updatedContext));
     }
 
     /**
@@ -1123,11 +773,27 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withIs(Is body) {
-        // Generated convenience method for withIsWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withIsWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withIsWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withLambda operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withLambdaWithResponse(Lambda body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withLambda", requestContext,
+            updatedContext -> this.serviceClient.withLambdaWithResponse(body, updatedContext));
     }
 
     /**
@@ -1138,11 +804,27 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withLambda(Lambda body) {
-        // Generated convenience method for withLambdaWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withLambdaWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withLambdaWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withNot operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withNotWithResponse(Not body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withNot", requestContext,
+            updatedContext -> this.serviceClient.withNotWithResponse(body, updatedContext));
     }
 
     /**
@@ -1153,11 +835,27 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withNot(Not body) {
-        // Generated convenience method for withNotWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withNotWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withNotWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withOr operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withOrWithResponse(Or body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withOr", requestContext,
+            updatedContext -> this.serviceClient.withOrWithResponse(body, updatedContext));
     }
 
     /**
@@ -1168,11 +866,27 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withOr(Or body) {
-        // Generated convenience method for withOrWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withOrWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withOrWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withPass operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withPassWithResponse(Pass body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withPass", requestContext,
+            updatedContext -> this.serviceClient.withPassWithResponse(body, updatedContext));
     }
 
     /**
@@ -1183,11 +897,27 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withPass(Pass body) {
-        // Generated convenience method for withPassWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withPassWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withPassWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withRaise operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withRaiseWithResponse(Raise body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withRaise", requestContext,
+            updatedContext -> this.serviceClient.withRaiseWithResponse(body, updatedContext));
     }
 
     /**
@@ -1198,11 +928,27 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withRaise(Raise body) {
-        // Generated convenience method for withRaiseWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withRaiseWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withRaiseWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withReturn operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withReturnWithResponse(Return body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withReturn", requestContext,
+            updatedContext -> this.serviceClient.withReturnWithResponse(body, updatedContext));
     }
 
     /**
@@ -1213,11 +959,27 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withReturn(Return body) {
-        // Generated convenience method for withReturnWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withReturnWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withReturnWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withTry operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withTryWithResponse(Try body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withTry", requestContext,
+            updatedContext -> this.serviceClient.withTryWithResponse(body, updatedContext));
     }
 
     /**
@@ -1228,11 +990,27 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withTry(Try body) {
-        // Generated convenience method for withTryWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withTryWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withTryWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withWhile operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withWhileWithResponse(While body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withWhile", requestContext,
+            updatedContext -> this.serviceClient.withWhileWithResponse(body, updatedContext));
     }
 
     /**
@@ -1243,11 +1021,27 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withWhile(While body) {
-        // Generated convenience method for withWhileWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withWhileWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withWhileWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withWith operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withWithWithResponse(With body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withWith", requestContext,
+            updatedContext -> this.serviceClient.withWithWithResponse(body, updatedContext));
     }
 
     /**
@@ -1258,11 +1052,27 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withWith(With body) {
-        // Generated convenience method for withWithWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withWithWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withWithWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withYield operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withYieldWithResponse(Yield body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withYield", requestContext,
+            updatedContext -> this.serviceClient.withYieldWithResponse(body, updatedContext));
     }
 
     /**
@@ -1273,10 +1083,9 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withYield(Yield body) {
-        // Generated convenience method for withYieldWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withYieldWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        withYieldWithResponse(body, RequestContext.none());
     }
 }

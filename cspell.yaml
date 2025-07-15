@@ -6,6 +6,7 @@ dictionaries:
   - typescript
 words:
   - Adoptium
+  - agentic
   - aiohttp
   - alzimmer
   - amqp
@@ -22,6 +23,8 @@ words:
   - azsdkengsys
   - azurecr
   - azuresdk
+  - azurev
+  - azurevnext
   - bifilter
   - blib
   - blockful
@@ -58,6 +61,8 @@ words:
   - Dosgi
   - dotenv
   - Dskip
+  - duplicative
+  - Dyns
   - eastus
   - ecmarkup
   - elif
@@ -73,6 +78,7 @@ words:
   - fastify
   - fluentui
   - français
+  - freadme
   - fslib
   - genproto
   - getpgid
@@ -146,6 +152,7 @@ words:
   - nanos
   - nexted
   - nihao
+  - nint
   - NODEFS
   - noformat
   - noopener
@@ -156,6 +163,7 @@ words:
   - npath
   - npmjs
   - nspkg
+  - nuint
   - nupkg
   - oapi
   - ODATA
@@ -170,6 +178,7 @@ words:
   - Packument
   - Perfolizer
   - picocolors
+  - pnpx
   - posargs
   - primitivea
   - prismjs
@@ -179,6 +188,7 @@ words:
   - psscriptanalyzer
   - ptvsd
   - pwsh
+  - pycache
   - pyexpat
   - pygen
   - pyimport
@@ -196,6 +206,7 @@ words:
   - recorda
   - regen
   - rehype
+  - reinjected
   - repr
   - respecify
   - rjust
@@ -221,6 +232,7 @@ words:
   - swaggerui
   - syncpack
   - TCGC
+  - terlson
   - timegm
   - tomli
   - triaging
@@ -253,6 +265,7 @@ words:
   - venvtools
   - VITE
   - vitest
+  - VNEXT
   - vsix
   - VSSDK
   - Vsts
@@ -265,6 +278,7 @@ words:
   - xiangyan
   - xiaofei
   - xlarge
+  - Xlint
   - xmsclientrequestid
   - xors
   - xplat
@@ -282,6 +296,7 @@ ignorePaths:
   - common/scripts/*
   - "**/ThirdPartyNotices.txt"
   - packages/compiler/test/formatter/scenarios/**
+  - packages/http-client-java/generator/http-client-generator/src/main/resources/PerfAutomation.jfc
   - packages/http-client-java/generator/http-client-generator-test/**
   - packages/http-client-java/generator/http-client-generator-clientcore-test/**
   - packages/http-client-js/test/e2e/**

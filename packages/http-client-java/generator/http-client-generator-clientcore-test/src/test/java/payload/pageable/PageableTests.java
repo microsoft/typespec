@@ -3,8 +3,8 @@
 
 package payload.pageable;
 
-import io.clientcore.core.http.models.PagedIterable;
-import io.clientcore.core.http.models.PagingOptions;
+import io.clientcore.core.http.paging.PagedIterable;
+import io.clientcore.core.http.paging.PagingOptions;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;

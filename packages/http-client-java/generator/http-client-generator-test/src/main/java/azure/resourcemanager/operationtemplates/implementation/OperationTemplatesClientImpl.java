@@ -8,6 +8,7 @@ import azure.resourcemanager.operationtemplates.fluent.CheckNameAvailabilitiesCl
 import azure.resourcemanager.operationtemplates.fluent.LroesClient;
 import azure.resourcemanager.operationtemplates.fluent.OperationTemplatesClient;
 import azure.resourcemanager.operationtemplates.fluent.OperationsClient;
+import azure.resourcemanager.operationtemplates.fluent.OptionalBodiesClient;
 import com.azure.core.annotation.ServiceClient;
 import com.azure.core.http.HttpHeaderName;
 import com.azure.core.http.HttpHeaders;
@@ -19,12 +20,15 @@ import com.azure.core.management.exception.ManagementError;
 import com.azure.core.management.exception.ManagementException;
 import com.azure.core.management.polling.PollResult;
 import com.azure.core.management.polling.PollerFactory;
+import com.azure.core.management.polling.SyncPollerFactory;
+import com.azure.core.util.BinaryData;
 import com.azure.core.util.Context;
 import com.azure.core.util.CoreUtils;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.core.util.polling.AsyncPollResponse;
 import com.azure.core.util.polling.LongRunningOperationStatus;
 import com.azure.core.util.polling.PollerFlux;
+import com.azure.core.util.polling.SyncPoller;
 import com.azure.core.util.serializer.SerializerAdapter;
 import com.azure.core.util.serializer.SerializerEncoding;
 import java.io.IOException;
@@ -168,6 +172,20 @@ public final class OperationTemplatesClientImpl implements OperationTemplatesCli
     }
 
     /**
+     * The OptionalBodiesClient object to access its operations.
+     */
+    private final OptionalBodiesClient optionalBodies;
+
+    /**
+     * Gets the OptionalBodiesClient object to access its operations.
+     * 
+     * @return the OptionalBodiesClient object.
+     */
+    public OptionalBodiesClient getOptionalBodies() {
+        return this.optionalBodies;
+    }
+
+    /**
      * Initializes an instance of OperationTemplatesClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
@@ -188,6 +206,7 @@ public final class OperationTemplatesClientImpl implements OperationTemplatesCli
         this.operations = new OperationsClientImpl(this);
         this.checkNameAvailabilities = new CheckNameAvailabilitiesClientImpl(this);
         this.lroes = new LroesClientImpl(this);
+        this.optionalBodies = new OptionalBodiesClientImpl(this);
     }
 
     /**
@@ -225,6 +244,23 @@ public final class OperationTemplatesClientImpl implements OperationTemplatesCli
         HttpPipeline httpPipeline, Type pollResultType, Type finalResultType, Context context) {
         return PollerFactory.create(serializerAdapter, httpPipeline, pollResultType, finalResultType,
             defaultPollInterval, activationResponse, context);
+    }
+
+    /**
+     * Gets long running operation result.
+     * 
+     * @param activationResponse the response of activation operation.
+     * @param pollResultType type of poll result.
+     * @param finalResultType type of final result.
+     * @param context the context shared by all requests.
+     * @param <T> type of poll result.
+     * @param <U> type of final result.
+     * @return SyncPoller for poll result and final result.
+     */
+    public <T, U> SyncPoller<PollResult<T>, U> getLroResult(Response<BinaryData> activationResponse,
+        Type pollResultType, Type finalResultType, Context context) {
+        return SyncPollerFactory.create(serializerAdapter, httpPipeline, pollResultType, finalResultType,
+            defaultPollInterval, () -> activationResponse, context);
     }
 
     /**

@@ -1,4 +1,4 @@
-import { babel } from "@rollup/plugin-babel";
+import alloyPlugin from "@alloy-js/rollup-plugin";
 import { defineConfig, mergeConfig } from "vitest/config";
 import { defaultTypeSpecVitestConfig } from "../../vitest.workspace.js";
 
@@ -6,20 +6,14 @@ export default mergeConfig(
   defaultTypeSpecVitestConfig,
   defineConfig({
     test: {
-      include: ["test/**/*.test.ts", "test/**/*.test.tsx"],
+      include: ["src/**/*.test.ts", "src/**/*.test.tsx", "test/**/*.test.ts", "test/**/*.test.tsx"],
       passWithNoTests: true,
+      setupFiles: ["./test/vitest.setup.ts"],
     },
     esbuild: {
       jsx: "preserve",
       sourcemap: "both",
     },
-    plugins: [
-      babel({
-        sourceMaps: true,
-        babelHelpers: "bundled",
-        extensions: [".ts", ".tsx"],
-        presets: ["@babel/preset-typescript", "@alloy-js/babel-preset"],
-      }),
-    ],
+    plugins: [alloyPlugin()],
   }),
 );

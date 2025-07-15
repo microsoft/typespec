@@ -14,15 +14,20 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.AsyncSyncClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientException;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvenienceMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.TypeSpecMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaPackage;
 import com.microsoft.typespec.http.client.generator.core.preprocessor.Preprocessor;
 import com.microsoft.typespec.http.client.generator.core.preprocessor.tranformer.Transformer;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+import com.microsoft.typespec.http.client.generator.mapper.TypeSpecAzureVNextMapperFactory;
+import com.microsoft.typespec.http.client.generator.mapper.TypeSpecClientCoreMapperFactory;
 import com.microsoft.typespec.http.client.generator.mapper.TypeSpecMapperFactory;
 import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import com.microsoft.typespec.http.client.generator.util.FileUtil;
+import com.microsoft.typespec.http.client.generator.util.MetadataUtil;
 import com.microsoft.typespec.http.client.generator.util.ModelUtil;
 import java.io.File;
 import java.io.OutputStream;
@@ -41,87 +46,39 @@ public class TypeSpecPlugin extends Javagen {
 
     private final EmitterOptions emitterOptions;
 
-    private final Map<String, String> crossLanguageDefinitionsMap = new TreeMap<>();
-
     public Client processClient(CodeModel codeModel) {
         // transform code model
         codeModel = new Transformer().transform(Preprocessor.convertOptionalConstantsToEnum(codeModel));
 
         // map to client model
-        Client client = Mappers.getClientMapper().map(codeModel);
-
-        client.getAsyncClients()
-            .forEach(asyncClient -> crossLanguageDefinitionsMap.put(
-                asyncClient.getPackageName() + "." + asyncClient.getClassName(),
-                asyncClient.getCrossLanguageDefinitionId()));
-
-        client.getSyncClients()
-            .forEach(syncClient -> crossLanguageDefinitionsMap.put(
-                syncClient.getPackageName() + "." + syncClient.getClassName(),
-                syncClient.getCrossLanguageDefinitionId()));
-
-        client.getClientBuilders()
-            .forEach(clientBuilder -> crossLanguageDefinitionsMap.put(
-                clientBuilder.getPackageName() + "." + clientBuilder.getClassName(),
-                clientBuilder.getCrossLanguageDefinitionId()));
-
-        for (AsyncSyncClient asyncClient : client.getAsyncClients()) {
-            List<ConvenienceMethod> convenienceMethods = asyncClient.getConvenienceMethods();
-            for (ConvenienceMethod convenienceMethod : convenienceMethods) {
-                convenienceMethod.getConvenienceMethods()
-                    .stream()
-                    .filter(method -> !method.getName().endsWith("Async"))
-                    .forEach(method -> crossLanguageDefinitionsMap.put(
-                        asyncClient.getPackageName() + "." + asyncClient.getClassName() + "." + method.getName(),
-                        method.getCrossLanguageDefinitionId()));
-                if (!convenienceMethod.getProtocolMethod().getName().endsWith("Async")) {
-                    crossLanguageDefinitionsMap.put(
-                        asyncClient.getPackageName() + "." + asyncClient.getClassName() + "."
-                            + convenienceMethod.getProtocolMethod().getName(),
-                        convenienceMethod.getProtocolMethod().getCrossLanguageDefinitionId());
-                }
-            }
-        }
-
-        for (AsyncSyncClient syncClient : client.getSyncClients()) {
-            List<ConvenienceMethod> convenienceMethods = syncClient.getConvenienceMethods();
-            for (ConvenienceMethod convenienceMethod : convenienceMethods) {
-                convenienceMethod.getConvenienceMethods()
-                    .stream()
-                    .filter(method -> !method.getName().endsWith("Async"))
-                    .forEach(method -> crossLanguageDefinitionsMap.put(
-                        syncClient.getPackageName() + "." + syncClient.getClassName() + "." + method.getName(),
-                        method.getCrossLanguageDefinitionId()));
-
-                if (!convenienceMethod.getProtocolMethod().getName().endsWith("Async")) {
-                    crossLanguageDefinitionsMap.put(
-                        syncClient.getPackageName() + "." + syncClient.getClassName() + "."
-                            + convenienceMethod.getProtocolMethod().getName(),
-                        convenienceMethod.getProtocolMethod().getCrossLanguageDefinitionId());
-                }
-
-            }
-        }
-        return client;
+        return Mappers.getClientMapper().map(codeModel);
     }
 
     public JavaPackage processTemplates(CodeModel codeModel, Client client, JavaSettings settings) {
-        return super.writeToTemplates(codeModel, client, settings, false);
+        JavaPackage javaPackage = super.writeToTemplates(codeModel, client, settings, false);
+
+        if (emitterOptions.getIncludeApiViewProperties() == Boolean.TRUE) {
+            TypeSpecMetadata metadata
+                = new TypeSpecMetadata(ClientModelUtil.getArtifactId(), emitterOptions.getFlavor(),
+                    emitterOptions.getApiVersion() == null
+                        ? MetadataUtil.getLatestApiVersionFromClient(codeModel)
+                        : emitterOptions.getApiVersion(),
+                    collectCrossLanguageDefinitions(client));
+            javaPackage.addTypeSpecMetadata(metadata);
+        }
+
+        return javaPackage;
     }
 
     @Override
     protected void writeClientModels(Client client, JavaPackage javaPackage, JavaSettings settings) {
         // Client model
         client.getModels().stream().filter(ModelUtil::isGeneratingModel).forEach(model -> {
-            crossLanguageDefinitionsMap.put(model.getPackage() + "." + model.getName(),
-                model.getCrossLanguageDefinitionId());
             javaPackage.addModel(model.getPackage(), model.getName(), model);
         });
 
         // Enum
         client.getEnums().stream().filter(ModelUtil::isGeneratingModel).forEach(model -> {
-            crossLanguageDefinitionsMap.put(model.getPackage() + "." + model.getName(),
-                model.getCrossLanguageDefinitionId());
             javaPackage.addEnum(model.getPackage(), model.getName(), model);
         });
 
@@ -130,6 +87,11 @@ public class TypeSpecPlugin extends Javagen {
             .stream()
             .filter(ModelUtil::isGeneratingModel)
             .forEach(model -> javaPackage.addClientResponse(model.getPackage(), model.getName(), model));
+
+        // Exception
+        for (ClientException exception : client.getExceptions()) {
+            javaPackage.addException(exception.getPackage(), exception.getName(), exception);
+        }
 
         // Union
         client.getUnionModels().stream().filter(ModelUtil::isGeneratingModel).forEach(javaPackage::addUnionModel);
@@ -154,7 +116,7 @@ public class TypeSpecPlugin extends Javagen {
             .filter(ModelUtil::isGeneratingModel)
             .anyMatch(ClientModelUtil::isMultipartModel);
         if (generateMultipartFormDataHelper) {
-            if (JavaSettings.getInstance().isBranded()) {
+            if (JavaSettings.getInstance().isAzureV1()) {
                 javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
                     ClientModelUtil.MULTI_PART_FORM_DATA_HELPER_CLASS_NAME);
             } else {
@@ -166,12 +128,21 @@ public class TypeSpecPlugin extends Javagen {
 
         // OperationLocationPollingStrategy
         if (ClientModelUtil.requireOperationLocationPollingStrategy(codeModel)) {
-            javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
-                ClientModelUtil.OPERATION_LOCATION_POLLING_STRATEGY);
-            javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
-                ClientModelUtil.SYNC_OPERATION_LOCATION_POLLING_STRATEGY);
-            javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
-                ClientModelUtil.POLLING_UTILS);
+            if (JavaSettings.getInstance().isAzureV2()) {
+                javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
+                    ClientModelUtil.CLIENT_CORE_OPERATION_LOCATION_POLLING_STRATEGY,
+                    ClientModelUtil.OPERATION_LOCATION_POLLING_STRATEGY);
+                javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
+                    ClientModelUtil.CLIENT_CORE_POLLING_UTILS, ClientModelUtil.POLLING_UTILS);
+            } else {
+                javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
+                    ClientModelUtil.OPERATION_LOCATION_POLLING_STRATEGY);
+                javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
+                    ClientModelUtil.SYNC_OPERATION_LOCATION_POLLING_STRATEGY);
+                javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
+                    ClientModelUtil.POLLING_UTILS);
+            }
+
         }
     }
 
@@ -198,7 +169,6 @@ public class TypeSpecPlugin extends Javagen {
         SETTINGS_MAP.put("enable-sync-stack", true);
         SETTINGS_MAP.put("enable-page-size", true);
 
-        SETTINGS_MAP.put("use-default-http-status-code-to-exception-type-mapping", true);
         SETTINGS_MAP.put("polling", new HashMap<String, Object>());
 
         SETTINGS_MAP.put("client-logger", true);
@@ -210,10 +180,7 @@ public class TypeSpecPlugin extends Javagen {
         SETTINGS_MAP.put("disable-required-property-annotation", true);
         // Defaulting to KeyCredential and not providing TypeSpec services to generate with AzureKeyCredential.
         SETTINGS_MAP.put("use-key-credential", true);
-    }
-
-    public Map<String, String> getCrossLanguageDefinitionMap() {
-        return this.crossLanguageDefinitionsMap;
+        SETTINGS_MAP.put("use-rest-proxy", false);
     }
 
     public static class MockConnection extends Connection {
@@ -260,6 +227,9 @@ public class TypeSpecPlugin extends Javagen {
         if (options.getUseObjectForUnknown()) {
             SETTINGS_MAP.put("use-object-for-unknown", emitterOptions.getUseObjectForUnknown());
         }
+        if (options.getUseRestProxy() != null) {
+            SETTINGS_MAP.put("use-rest-proxy", emitterOptions.getUseRestProxy());
+        }
 
         SETTINGS_MAP.put("sdk-integration", sdkIntegration);
         SETTINGS_MAP.put("regenerate-pom", sdkIntegration);
@@ -281,8 +251,13 @@ public class TypeSpecPlugin extends Javagen {
                 Paths.get(options.getOutputDir()).resolve(options.getCustomizationClass()).toAbsolutePath().toString());
         }
 
-        if (emitterOptions.getPolling() != null) {
+        if (options.getPolling() != null) {
             SETTINGS_MAP.put("polling", options.getPolling());
+        }
+
+        if (options.getUseDefaultHttpStatusCodeToExceptionTypeMapping() != null) {
+            SETTINGS_MAP.put("use-default-http-status-code-to-exception-type-mapping",
+                options.getUseDefaultHttpStatusCodeToExceptionTypeMapping());
         }
 
         if (options.getFlavor() != null) {
@@ -290,7 +265,7 @@ public class TypeSpecPlugin extends Javagen {
         }
 
         if (options.getFlavor() != null && !"azure".equalsIgnoreCase(options.getFlavor())) {
-            SETTINGS_MAP.put("sdk-integration", false);
+            SETTINGS_MAP.put("data-plane", false);
 
             SETTINGS_MAP.put("sync-methods", "sync-only");
             SETTINGS_MAP.put("enable-page-size", false);
@@ -303,13 +278,32 @@ public class TypeSpecPlugin extends Javagen {
             } else {
                 SETTINGS_MAP.remove("license-header");
             }
+            SETTINGS_MAP.put("disable-typed-headers-methods", true);
+        }
+
+        if (options.getFlavor() != null && "azurev2".equalsIgnoreCase(options.getFlavor())) {
+            SETTINGS_MAP.put("data-plane", false);
+            SETTINGS_MAP.put("sdk-integration", false);
+            SETTINGS_MAP.put("license-header", "MICROSOFT_MIT_SMALL_TYPESPEC");
+            SETTINGS_MAP.put("use-default-http-status-code-to-exception-type-mapping", false);
+
+            SETTINGS_MAP.put("sync-methods", "sync-only");
+            SETTINGS_MAP.put("generate-samples", false);
+            SETTINGS_MAP.put("generate-tests", false);
+            SETTINGS_MAP.put("disable-typed-headers-methods", true);
         }
 
         JavaSettingsAccessor.setHost(this);
         LOGGER.info("Output folder: {}", options.getOutputDir());
         LOGGER.info("Namespace: {}", JavaSettings.getInstance().getPackage());
 
-        Mappers.setFactory(new TypeSpecMapperFactory());
+        if (options.getFlavor() != null && options.getFlavor().equalsIgnoreCase("azure")) {
+            Mappers.setFactory(new TypeSpecMapperFactory());
+        } else if (options.getFlavor() != null && options.getFlavor().equalsIgnoreCase("azurev2")) {
+            Mappers.setFactory(new TypeSpecAzureVNextMapperFactory());
+        } else {
+            Mappers.setFactory(new TypeSpecClientCoreMapperFactory());
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -349,5 +343,78 @@ public class TypeSpecPlugin extends Javagen {
                 LOGGER.info(log);
                 break;
         }
+    }
+
+    private Map<String, String> collectCrossLanguageDefinitions(Client client) {
+        final Map<String, String> crossLanguageDefinitionsMap = new TreeMap<>();
+
+        // Client
+        client.getAsyncClients()
+            .forEach(asyncClient -> crossLanguageDefinitionsMap.put(
+                asyncClient.getPackageName() + "." + asyncClient.getClassName(),
+                asyncClient.getCrossLanguageDefinitionId()));
+
+        client.getSyncClients()
+            .forEach(syncClient -> crossLanguageDefinitionsMap.put(
+                syncClient.getPackageName() + "." + syncClient.getClassName(),
+                syncClient.getCrossLanguageDefinitionId()));
+
+        client.getClientBuilders()
+            .forEach(clientBuilder -> crossLanguageDefinitionsMap.put(
+                clientBuilder.getPackageName() + "." + clientBuilder.getClassName(),
+                clientBuilder.getCrossLanguageDefinitionId()));
+
+        // Method
+        for (AsyncSyncClient asyncClient : client.getAsyncClients()) {
+            List<ConvenienceMethod> convenienceMethods = asyncClient.getConvenienceMethods();
+            for (ConvenienceMethod convenienceMethod : convenienceMethods) {
+                convenienceMethod.getConvenienceMethods()
+                    .stream()
+                    .filter(method -> !method.getName().endsWith("Async"))
+                    .forEach(method -> crossLanguageDefinitionsMap.put(
+                        asyncClient.getPackageName() + "." + asyncClient.getClassName() + "." + method.getName(),
+                        method.getCrossLanguageDefinitionId()));
+
+                if (!convenienceMethod.getProtocolMethod().getName().endsWith("Async")) {
+                    crossLanguageDefinitionsMap.put(
+                        asyncClient.getPackageName() + "." + asyncClient.getClassName() + "."
+                            + convenienceMethod.getProtocolMethod().getName(),
+                        convenienceMethod.getProtocolMethod().getCrossLanguageDefinitionId());
+                }
+            }
+        }
+
+        for (AsyncSyncClient syncClient : client.getSyncClients()) {
+            List<ConvenienceMethod> convenienceMethods = syncClient.getConvenienceMethods();
+            for (ConvenienceMethod convenienceMethod : convenienceMethods) {
+                convenienceMethod.getConvenienceMethods()
+                    .stream()
+                    .filter(method -> !method.getName().endsWith("Async"))
+                    .forEach(method -> crossLanguageDefinitionsMap.put(
+                        syncClient.getPackageName() + "." + syncClient.getClassName() + "." + method.getName(),
+                        method.getCrossLanguageDefinitionId()));
+
+                if (!convenienceMethod.getProtocolMethod().getName().endsWith("Async")) {
+                    crossLanguageDefinitionsMap.put(
+                        syncClient.getPackageName() + "." + syncClient.getClassName() + "."
+                            + convenienceMethod.getProtocolMethod().getName(),
+                        convenienceMethod.getProtocolMethod().getCrossLanguageDefinitionId());
+                }
+            }
+        }
+
+        // Client model
+        client.getModels().stream().filter(ModelUtil::isGeneratingModel).forEach(model -> {
+            crossLanguageDefinitionsMap.put(model.getPackage() + "." + model.getName(),
+                model.getCrossLanguageDefinitionId());
+        });
+
+        // Enum
+        client.getEnums().stream().filter(ModelUtil::isGeneratingModel).forEach(model -> {
+            crossLanguageDefinitionsMap.put(model.getPackage() + "." + model.getName(),
+                model.getCrossLanguageDefinitionId());
+        });
+
+        return crossLanguageDefinitionsMap;
     }
 }

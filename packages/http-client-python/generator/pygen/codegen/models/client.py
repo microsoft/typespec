@@ -15,7 +15,7 @@ from .request_builder import (
     OverloadedRequestBuilder,
     get_request_builder,
 )
-from .parameter import Parameter, ParameterMethodLocation
+from .parameter import Parameter, ParameterMethodLocation, ParameterLocation
 from .lro_operation import LROOperation
 from .lro_paging_operation import LROPagingOperation
 from ...utils import extract_original_name, NAME_LENGTH_LIMIT
@@ -54,7 +54,7 @@ class _ClientConfigBase(Generic[ParameterListType], BaseModel):
         return self.yaml_data["name"]
 
 
-class Client(_ClientConfigBase[ClientGlobalParameterList]):
+class Client(_ClientConfigBase[ClientGlobalParameterList]):  # pylint: disable=too-many-public-methods
     """Model representing our service client"""
 
     def __init__(
@@ -70,7 +70,7 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
         self.config = Config.from_yaml(yaml_data, self.code_model)
         self.is_subclient = is_subclient
         self.request_builders = self._build_request_builders()
-        if self.code_model.options["show_operations"]:
+        if self.code_model.options["show-operations"]:
             self.operation_groups = [
                 OperationGroup.from_yaml(op_group, code_model, self)
                 for op_group in self.yaml_data.get("operationGroups", [])
@@ -78,6 +78,27 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
             self.link_lro_initial_operations()
         self.request_id_header_name = self.yaml_data.get("requestIdHeaderName", None)
         self.has_etag: bool = yaml_data.get("hasEtag", False)
+
+        # update the host parameter value. In later logic, SDK will overwrite it
+        # with value from cloud_setting if users don't provide it.
+        if self.need_cloud_setting:
+            for p in self.parameters.parameters:
+                if p.location == ParameterLocation.ENDPOINT_PATH:
+                    p.client_default_value = None
+                    p.optional = True
+                    break
+
+    @property
+    def need_cloud_setting(self) -> bool:
+        return bool(
+            self.code_model.options.get("azure-arm", False)
+            and self.credential_scopes is not None
+            and self.endpoint_parameter is not None
+        )
+
+    @property
+    def endpoint_parameter(self) -> Optional[Parameter]:
+        return next((p for p in self.parameters.parameters if p.location == ParameterLocation.ENDPOINT_PATH), None)
 
     def _build_request_builders(
         self,
@@ -123,7 +144,7 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
         return request_builders
 
     def pipeline_class(self, async_mode: bool) -> str:
-        if self.code_model.options["azure_arm"]:
+        if self.code_model.options["azure-arm"]:
             if async_mode:
                 return "AsyncARMPipelineClient"
             return "ARMPipelineClient"
@@ -139,7 +160,7 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
     @property
     def send_request_name(self) -> str:
         """Name of the send request function"""
-        return "send_request" if self.code_model.options["show_send_request"] else "_send_request"
+        return "send_request" if self.code_model.options["show-send-request"] else "_send_request"
 
     @property
     def has_parameterized_host(self) -> bool:
@@ -152,6 +173,7 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
             p
             for p in self.parameters.parameters
             if p.is_api_version
+            and p.client_name == "api_version"
             and p.method_location in [ParameterMethodLocation.KEYWORD_ONLY, ParameterMethodLocation.KWARG]
         ):
             retval = add_to_pylint_disable(retval, "client-accepts-api-version-keyword")
@@ -164,7 +186,7 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
     @property
     def filename(self) -> str:
         """Name of the file for the client"""
-        if self.code_model.options["version_tolerant"] or self.code_model.options["low_level_client"]:
+        if self.code_model.options["version-tolerant"] or self.code_model.options["low-level-client"]:
             return "_client"
         return f"_{self.legacy_filename}"
 
@@ -184,7 +206,7 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
     def _imports_shared(self, async_mode: bool, **kwargs) -> FileImport:
         file_import = FileImport(self.code_model)
         file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, TypingSection.CONDITIONAL)
-        if self.code_model.options["azure_arm"]:
+        if self.code_model.options["azure-arm"]:
             file_import.add_submodule_import("azure.mgmt.core", self.pipeline_class(async_mode), ImportType.SDKCORE)
         else:
             file_import.add_submodule_import(
@@ -219,7 +241,7 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
             "policies",
             ImportType.SDKCORE,
         )
-        if self.code_model.options["azure_arm"]:
+        if self.code_model.options["azure-arm"]:
             async_prefix = "Async" if async_mode else ""
             file_import.add_submodule_import(
                 "azure.mgmt.core.policies",
@@ -233,6 +255,10 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
             "Self",
             ImportType.STDLIB,
         )
+        if self.need_cloud_setting:
+            file_import.add_submodule_import("typing", "cast", ImportType.STDLIB)
+            file_import.add_submodule_import("azure.core.settings", "settings", ImportType.SDKCORE)
+            file_import.add_submodule_import("azure.mgmt.core.tools", "get_arm_endpoints", ImportType.SDKCORE)
         return file_import
 
     @property
@@ -296,19 +322,21 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
         )
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         for og in self.operation_groups:
+            suffix = f".{og.filename}" if (not self.code_model.options["multiapi"]) and og.is_mixin else ""
             file_import.add_submodule_import(
                 self.code_model.get_relative_import_path(
                     serialize_namespace,
                     self.code_model.get_imported_namespace_for_operation(og.client_namespace, async_mode),
-                ),
+                )
+                + suffix,
                 og.class_name,
                 ImportType.LOCAL,
             )
 
-        if self.code_model.model_types and self.code_model.options["models_mode"] == "msrest":
+        if self.code_model.model_types and self.code_model.options["models-mode"] == "msrest":
             path_to_models = ".." if async_mode else "."
             file_import.add_submodule_import(path_to_models, "models", ImportType.LOCAL, alias="_models")
-        elif self.code_model.options["models_mode"] == "msrest":
+        elif self.code_model.options["models-mode"] == "msrest":
             # in this case, we have client_models = {} in the service client, which needs a type annotation
             # this import will always be commented, so will always add it to the typing section
             file_import.add_submodule_import("typing", "Dict", ImportType.STDLIB)
@@ -331,6 +359,18 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
             import_type=ImportType.SDKCORE,
         )
         return file_import
+
+    @property
+    def credential_scopes(self) -> Optional[List[str]]:
+        """Credential scopes for this client"""
+
+        if self.credential:
+            if hasattr(getattr(self.credential.type, "policy", None), "credential_scopes"):
+                return self.credential.type.policy.credential_scopes  # type: ignore
+            for t in getattr(self.credential.type, "types", []):
+                if hasattr(getattr(t, "policy", None), "credential_scopes"):
+                    return t.policy.credential_scopes
+        return None
 
     @classmethod
     def from_yaml(
@@ -366,7 +406,7 @@ class Config(_ClientConfigBase[ConfigGlobalParameterList]):
 
     @property
     def sdk_moniker(self) -> str:
-        package_name = self.code_model.options["package_name"]
+        package_name = self.code_model.options.get("package-name")
         if package_name and package_name.startswith("azure-"):
             package_name = package_name[len("azure-") :]
         return package_name if package_name else self.yaml_data["name"].lower()
@@ -383,14 +423,14 @@ class Config(_ClientConfigBase[ConfigGlobalParameterList]):
             ImportType.SDKCORE,
         )
         file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, TypingSection.CONDITIONAL)
-        if self.code_model.options["package_version"]:
+        if self.code_model.options.get("package-version"):
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             file_import.add_submodule_import(
                 self.code_model.get_relative_import_path(serialize_namespace, module_name="_version"),
                 "VERSION",
                 ImportType.LOCAL,
             )
-        if self.code_model.options["azure_arm"]:
+        if self.code_model.options["azure-arm"]:
             policy = "AsyncARMChallengeAuthenticationPolicy" if async_mode else "ARMChallengeAuthenticationPolicy"
             file_import.add_submodule_import("azure.mgmt.core.policies", "ARMHttpLoggingPolicy", ImportType.SDKCORE)
             file_import.add_submodule_import("azure.mgmt.core.policies", policy, ImportType.SDKCORE)

@@ -1,11 +1,14 @@
 package type.model.inheritance.nesteddiscriminator;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.instrumentation.Instrumentation;
 import type.model.inheritance.nesteddiscriminator.implementation.NestedDiscriminatorClientImpl;
 
 /**
@@ -13,151 +16,37 @@ import type.model.inheritance.nesteddiscriminator.implementation.NestedDiscrimin
  */
 @ServiceClient(builder = NestedDiscriminatorClientBuilder.class)
 public final class NestedDiscriminatorClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final NestedDiscriminatorClientImpl serviceClient;
+
+    private final Instrumentation instrumentation;
 
     /**
      * Initializes an instance of NestedDiscriminatorClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
-    @Metadata(generated = true)
-    NestedDiscriminatorClient(NestedDiscriminatorClientImpl serviceClient) {
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    NestedDiscriminatorClient(NestedDiscriminatorClientImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
      * The getModel operation.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String (Required)
-     *     age: int (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic multiple levels inheritance with a discriminator.
      */
-    @Metadata(generated = true)
-    public Response<Fish> getModelWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.getModelWithResponse(requestOptions);
-    }
-
-    /**
-     * The putModel operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String (Required)
-     *     age: int (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param input The input parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> putModelWithResponse(BinaryData input, RequestOptions requestOptions) {
-        return this.serviceClient.putModelWithResponse(input, requestOptions);
-    }
-
-    /**
-     * The getRecursiveModel operation.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String (Required)
-     *     age: int (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return this is base model for polymorphic multiple levels inheritance with a discriminator.
-     */
-    @Metadata(generated = true)
-    public Response<Fish> getRecursiveModelWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.getRecursiveModelWithResponse(requestOptions);
-    }
-
-    /**
-     * The putRecursiveModel operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String (Required)
-     *     age: int (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param input The input parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> putRecursiveModelWithResponse(BinaryData input, RequestOptions requestOptions) {
-        return this.serviceClient.putRecursiveModelWithResponse(input, requestOptions);
-    }
-
-    /**
-     * The getMissingDiscriminator operation.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String (Required)
-     *     age: int (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return this is base model for polymorphic multiple levels inheritance with a discriminator.
-     */
-    @Metadata(generated = true)
-    public Response<Fish> getMissingDiscriminatorWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.getMissingDiscriminatorWithResponse(requestOptions);
-    }
-
-    /**
-     * The getWrongDiscriminator operation.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String (Required)
-     *     age: int (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return this is base model for polymorphic multiple levels inheritance with a discriminator.
-     */
-    @Metadata(generated = true)
-    public Response<Fish> getWrongDiscriminatorWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.getWrongDiscriminatorWithResponse(requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Fish> getModelWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.NestedDiscriminator.getModel",
+            requestContext, updatedContext -> this.serviceClient.getModelWithResponse(updatedContext));
     }
 
     /**
@@ -167,11 +56,27 @@ public final class NestedDiscriminatorClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic multiple levels inheritance with a discriminator.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public Fish getModel() {
-        // Generated convenience method for getModelWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return getModelWithResponse(requestOptions).getValue();
+        return getModelWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The putModel operation.
+     * 
+     * @param input The input parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> putModelWithResponse(Fish input, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.NestedDiscriminator.putModel",
+            requestContext, updatedContext -> this.serviceClient.putModelWithResponse(input, updatedContext));
     }
 
     /**
@@ -182,11 +87,27 @@ public final class NestedDiscriminatorClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void putModel(Fish input) {
-        // Generated convenience method for putModelWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        putModelWithResponse(BinaryData.fromObject(input), requestOptions).getValue();
+        putModelWithResponse(input, RequestContext.none());
+    }
+
+    /**
+     * The getRecursiveModel operation.
+     * 
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return this is base model for polymorphic multiple levels inheritance with a discriminator.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Fish> getRecursiveModelWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.NestedDiscriminator.getRecursiveModel", requestContext,
+            updatedContext -> this.serviceClient.getRecursiveModelWithResponse(updatedContext));
     }
 
     /**
@@ -196,11 +117,28 @@ public final class NestedDiscriminatorClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic multiple levels inheritance with a discriminator.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public Fish getRecursiveModel() {
-        // Generated convenience method for getRecursiveModelWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return getRecursiveModelWithResponse(requestOptions).getValue();
+        return getRecursiveModelWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The putRecursiveModel operation.
+     * 
+     * @param input The input parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> putRecursiveModelWithResponse(Fish input, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.NestedDiscriminator.putRecursiveModel", requestContext,
+            updatedContext -> this.serviceClient.putRecursiveModelWithResponse(input, updatedContext));
     }
 
     /**
@@ -211,11 +149,27 @@ public final class NestedDiscriminatorClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void putRecursiveModel(Fish input) {
-        // Generated convenience method for putRecursiveModelWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        putRecursiveModelWithResponse(BinaryData.fromObject(input), requestOptions).getValue();
+        putRecursiveModelWithResponse(input, RequestContext.none());
+    }
+
+    /**
+     * The getMissingDiscriminator operation.
+     * 
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return this is base model for polymorphic multiple levels inheritance with a discriminator.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Fish> getMissingDiscriminatorWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.NestedDiscriminator.getMissingDiscriminator", requestContext,
+            updatedContext -> this.serviceClient.getMissingDiscriminatorWithResponse(updatedContext));
     }
 
     /**
@@ -225,11 +179,27 @@ public final class NestedDiscriminatorClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic multiple levels inheritance with a discriminator.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public Fish getMissingDiscriminator() {
-        // Generated convenience method for getMissingDiscriminatorWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return getMissingDiscriminatorWithResponse(requestOptions).getValue();
+        return getMissingDiscriminatorWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The getWrongDiscriminator operation.
+     * 
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return this is base model for polymorphic multiple levels inheritance with a discriminator.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Fish> getWrongDiscriminatorWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.NestedDiscriminator.getWrongDiscriminator", requestContext,
+            updatedContext -> this.serviceClient.getWrongDiscriminatorWithResponse(updatedContext));
     }
 
     /**
@@ -239,10 +209,9 @@ public final class NestedDiscriminatorClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic multiple levels inheritance with a discriminator.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public Fish getWrongDiscriminator() {
-        // Generated convenience method for getWrongDiscriminatorWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return getWrongDiscriminatorWithResponse(requestOptions).getValue();
+        return getWrongDiscriminatorWithResponse(RequestContext.none()).getValue();
     }
 }

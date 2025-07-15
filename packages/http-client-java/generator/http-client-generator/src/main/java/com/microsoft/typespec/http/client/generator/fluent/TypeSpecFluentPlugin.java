@@ -13,16 +13,22 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.TypeSpecMetadata;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
+import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentGen;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.mapper.FluentMapper;
 import com.microsoft.typespec.http.client.generator.mgmt.model.javamodel.FluentJavaPackage;
+import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import com.microsoft.typespec.http.client.generator.util.FileUtil;
+import com.microsoft.typespec.http.client.generator.util.MetadataUtil;
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,6 +67,26 @@ public class TypeSpecFluentPlugin extends FluentGen {
         SETTINGS_MAP.put("stream-style-serialization", emitterOptions.getStreamStyleSerialization());
         SETTINGS_MAP.put("use-object-for-unknown", emitterOptions.getUseObjectForUnknown());
 
+        // mgmt
+        if (emitterOptions.getRenameModel() != null) {
+            SETTINGS_MAP.put("rename-model", emitterOptions.getRenameModel());
+        }
+        if (emitterOptions.getAddInner() != null) {
+            SETTINGS_MAP.put("add-inner", emitterOptions.getAddInner());
+        }
+        if (emitterOptions.getRemoveInner() != null) {
+            SETTINGS_MAP.put("remove-inner", emitterOptions.getRemoveInner());
+        }
+        if (emitterOptions.getPreserveModel() != null) {
+            SETTINGS_MAP.put("preserve-model", emitterOptions.getPreserveModel());
+        }
+        if (emitterOptions.getGenerateAsyncMethods() != null) {
+            SETTINGS_MAP.put("generate-async-methods", emitterOptions.getGenerateAsyncMethods());
+        }
+        if (emitterOptions.getResourceCollectionAssociations() != null) {
+            SETTINGS_MAP.put("resource-collection-associations", emitterOptions.getResourceCollectionAssociations());
+        }
+
         JavaSettingsAccessor.setHost(this);
         LOGGER.info("Output folder: {}", emitterOptions.getOutputDir());
         LOGGER.info("Namespace: {}", JavaSettings.getInstance().getPackage());
@@ -73,15 +99,24 @@ public class TypeSpecFluentPlugin extends FluentGen {
     }
 
     public Client processClient(CodeModel codeModel) {
-
         // call FluentGen.handleMap
-
         return handleMap(codeModel);
     }
 
     public FluentJavaPackage processTemplates(CodeModel codeModel, Client client) {
+        final String apiVersion = emitterOptions.getApiVersion() == null
+            ? MetadataUtil.getLatestApiVersionFromClient(codeModel)
+            : emitterOptions.getApiVersion();
+
         FluentJavaPackage javaPackage = handleTemplate(client);
-        handleFluentLite(codeModel, client, javaPackage);
+        handleFluentLite(codeModel, client, javaPackage, apiVersion);
+
+        if (emitterOptions.getIncludeApiViewProperties() == Boolean.TRUE) {
+            TypeSpecMetadata metadata = new TypeSpecMetadata(FluentUtils.getArtifactId(), emitterOptions.getFlavor(),
+                apiVersion, collectCrossLanguageDefinitions(client));
+            javaPackage.addTypeSpecMetadata(metadata);
+        }
+
         return javaPackage;
     }
 
@@ -177,5 +212,55 @@ public class TypeSpecFluentPlugin extends FluentGen {
                 LOGGER.info(log);
                 break;
         }
+    }
+
+    private Map<String, String> collectCrossLanguageDefinitions(Client client) {
+        if (!JavaSettings.getInstance().isFluentLite()) {
+            return null;
+        }
+
+        final Map<String, String> crossLanguageDefinitionsMap = new TreeMap<>();
+
+        String interfacePackage = ClientModelUtil.getServiceClientInterfacePackageName();
+
+        // Client interface
+        crossLanguageDefinitionsMap.put(interfacePackage + "." + client.getServiceClient().getInterfaceName(),
+            client.getServiceClient().getCrossLanguageDefinitionId());
+
+        client.getServiceClient()
+            .getMethodGroupClients()
+            .forEach(methodGroupClient -> crossLanguageDefinitionsMap.put(
+                interfacePackage + "." + methodGroupClient.getInterfaceName(),
+                methodGroupClient.getCrossLanguageDefinitionId()));
+
+        client.getClientBuilders()
+            .forEach(clientBuilder -> crossLanguageDefinitionsMap.put(
+                clientBuilder.getPackageName() + "." + clientBuilder.getClassName(),
+                clientBuilder.getCrossLanguageDefinitionId()));
+
+        // Methods
+        client.getServiceClient()
+            .getMethodGroupClients()
+            .forEach(methodGroupClient -> methodGroupClient.getClientMethods().forEach(method -> {
+                if (method.getMethodVisibility() == JavaVisibility.Public) {
+                    crossLanguageDefinitionsMap.put(
+                        interfacePackage + "." + methodGroupClient.getInterfaceName() + "." + method.getName(),
+                        method.getCrossLanguageDefinitionId());
+                }
+            }));
+
+        // Client model
+        client.getModels().forEach(model -> {
+            crossLanguageDefinitionsMap.put(model.getPackage() + "." + model.getName(),
+                model.getCrossLanguageDefinitionId());
+        });
+
+        // Enum
+        client.getEnums().forEach(model -> {
+            crossLanguageDefinitionsMap.put(model.getPackage() + "." + model.getName(),
+                model.getCrossLanguageDefinitionId());
+        });
+
+        return crossLanguageDefinitionsMap;
     }
 }

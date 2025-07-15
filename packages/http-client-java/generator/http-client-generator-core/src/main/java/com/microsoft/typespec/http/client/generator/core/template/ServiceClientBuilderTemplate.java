@@ -8,7 +8,6 @@ import com.azure.core.http.policy.AddDatePolicy;
 import com.azure.core.http.policy.AddHeadersFromContextPolicy;
 import com.azure.core.http.policy.AddHeadersPolicy;
 import com.azure.core.http.policy.AzureKeyCredentialPolicy;
-import com.azure.core.http.policy.BearerTokenAuthenticationPolicy;
 import com.azure.core.http.policy.HttpPolicyProviders;
 import com.azure.core.http.policy.RequestIdPolicy;
 import com.azure.core.util.CoreUtils;
@@ -35,10 +34,12 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVis
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
+import io.clientcore.core.traits.EndpointTrait;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -92,6 +93,12 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
             ClassType.CLIENT_LOGGER.addImportsTo(imports, false);
         }
         Annotation.SERVICE_CLIENT_BUILDER.addImportsTo(imports);
+
+        if (!settings.isAzureV1()) {
+            ClassType.INSTRUMENTATION.addImportsTo(imports, false);
+            ClassType.SDK_INSTRUMENTATION_OPTIONS.addImportsTo(imports, false);
+        }
+
         addHttpPolicyImports(imports);
         addImportForCoreUtils(imports);
         addSerializerImport(imports, settings);
@@ -146,7 +153,7 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
         javaFile.annotation(String.format("ServiceClientBuilder(serviceClients = %1$s)", builderTypes));
         String classDefinition = serviceClientBuilderName;
 
-        if (!settings.isAzureOrFluent() && !CoreUtils.isNullOrEmpty(clientBuilder.getBuilderTraits())) {
+        if (!settings.isFluent() && !CoreUtils.isNullOrEmpty(clientBuilder.getBuilderTraits())) {
             String serviceClientBuilderGeneric = "<" + serviceClientBuilderName + ">";
 
             String interfaces = clientBuilder.getBuilderTraits()
@@ -158,7 +165,7 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
         }
 
         javaFile.publicFinalClass(classDefinition, classBlock -> {
-            if (!settings.isAzureOrFluent()) {
+            if (!settings.isFluent()) {
                 // sdk name
                 addGeneratedAnnotation(classBlock);
                 classBlock.privateStaticFinalVariable("String SDK_NAME = \"name\"");
@@ -176,41 +183,29 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
                         String.format("String[] DEFAULT_SCOPES = new String[] {%s}", String.join(", ", scopes)));
                 }
 
-                if (settings.isBranded()) {
-                    // properties for sdk name and version
-                    String propertiesValue = "new HashMap<>()";
-                    String artifactId = ClientModelUtil.getArtifactId();
-                    if (!CoreUtils.isNullOrEmpty(artifactId)) {
-                        propertiesValue = "CoreUtils.getProperties" + "(\"" + artifactId + ".properties\")";
-                    }
-                    addGeneratedAnnotation(classBlock);
-                    classBlock.privateStaticFinalVariable(
-                        String.format("Map<String, String> PROPERTIES = %s", propertiesValue));
-
-                    addGeneratedAnnotation(classBlock);
-                    classBlock.privateFinalMemberVariable("List<HttpPipelinePolicy>", "pipelinePolicies");
-
-                    // constructor
-                    classBlock.javadocComment(String.format("Create an instance of the %s.", serviceClientBuilderName));
-                    addGeneratedAnnotation(classBlock);
-                    classBlock.publicConstructor(String.format("%1$s()", serviceClientBuilderName), javaBlock -> {
-                        javaBlock.line("this.pipelinePolicies = new ArrayList<>();");
-                    });
-                } else {
-                    addGeneratedAnnotation(classBlock);
-                    classBlock.privateFinalMemberVariable("List<HttpPipelinePolicy>", "pipelinePolicies");
-
-                    classBlock.javadocComment(String.format("Create an instance of the %s.", serviceClientBuilderName));
-                    addGeneratedAnnotation(classBlock);
-                    classBlock.publicConstructor(String.format("%1$s()", serviceClientBuilderName), javaBlock -> {
-                        javaBlock.line("this.pipelinePolicies = new ArrayList<>();");
-                    });
+                // properties for sdk name and version
+                String propertiesValue = "new HashMap<>()";
+                String artifactId = ClientModelUtil.getArtifactId();
+                if (!CoreUtils.isNullOrEmpty(artifactId)) {
+                    propertiesValue = "CoreUtils.getProperties" + "(\"" + artifactId + ".properties\")";
                 }
+                addGeneratedAnnotation(classBlock);
+                classBlock
+                    .privateStaticFinalVariable(String.format("Map<String, String> PROPERTIES = %s", propertiesValue));
+
+                addGeneratedAnnotation(classBlock);
+                classBlock.privateFinalMemberVariable("List<HttpPipelinePolicy>", "pipelinePolicies");
+
+                classBlock.javadocComment(String.format("Create an instance of the %s.", serviceClientBuilderName));
+                addGeneratedAnnotation(classBlock);
+                classBlock.publicConstructor(String.format("%1$s()", serviceClientBuilderName), javaBlock -> {
+                    javaBlock.line("this.pipelinePolicies = new ArrayList<>();");
+                });
             }
 
             Stream<ServiceClientProperty> serviceClientPropertyStream
                 = serviceClient.getProperties().stream().filter(p -> !p.isReadOnly());
-            if (!settings.isAzureOrFluent()) {
+            if (!settings.isFluent()) {
                 addTraitMethods(clientBuilder, settings, serviceClientBuilderName, classBlock);
                 serviceClientPropertyStream
                     = serviceClientPropertyStream.filter(property -> !(clientBuilder.getBuilderTraits()
@@ -272,12 +267,12 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
             addGeneratedAnnotation(classBlock);
             classBlock.method(visibility, null, String.format("%1$s %2$s()", buildReturnType, buildMethodName),
                 function -> {
-                    if (!settings.isAzureOrFluent()) {
+                    if (!settings.isFluent()) {
                         function.line("this.validateClient();");
                     }
 
                     List<ServiceClientProperty> allProperties = mergeClientPropertiesWithTraits(clientProperties,
-                        settings.isAzureOrFluent() ? null : clientBuilder.getBuilderTraits());
+                        settings.isFluent() ? null : clientBuilder.getBuilderTraits());
 
                     for (ServiceClientProperty serviceClientProperty : allProperties) {
                         if (serviceClientProperty.getDefaultValueExpression() != null
@@ -288,6 +283,28 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
                                 serviceClientProperty.getName(), serviceClientProperty.getName(),
                                 serviceClientProperty.getDefaultValueExpression()));
                         }
+                    }
+
+                    boolean writeInstrumentation = !JavaSettings.getInstance().isAzureV1();
+                    if (writeInstrumentation) {
+                        function.line(
+                            "HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null ? new HttpInstrumentationOptions() : this.httpInstrumentationOptions;");
+
+                        Optional<ServiceClientProperty> endpointProperty = clientBuilder.getBuilderTraits()
+                            .stream()
+                            .filter(trait -> trait.getTraitInterfaceName().equals(EndpointTrait.class.getSimpleName()))
+                            .flatMap(trait -> trait.getTraitMethods().stream())
+                            .map(ClientBuilderTraitMethod::getProperty)
+                            .filter(p -> p.getName().equals("endpoint"))
+                            .findFirst();
+
+                        function.line(
+                            "SdkInstrumentationOptions sdkInstrumentationOptions = new SdkInstrumentationOptions(%1$s).setSdkVersion(%2$s).setEndpoint(%3$s);",
+                            "PROPERTIES.getOrDefault(SDK_NAME, \"UnknownName\")", "PROPERTIES.get(SDK_VERSION)",
+                            endpointProperty.map(this::getClientConstructorArgName).orElse("null"));
+
+                        function.line(
+                            "Instrumentation instrumentation = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);");
                     }
 
                     // additional service client properties in constructor arguments
@@ -307,11 +324,11 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
                         serializerExpression = getLocalBuildVariableName(getSerializerMemberName());
                     }
 
-                    if (!settings.isBranded()) {
+                    if (!settings.isAzureV1() || settings.isAzureV2()) {
                         if (constructorArgs != null && !constructorArgs.isEmpty()) {
-                            function.line(String.format("%1$s client = new %2$s(%3$s%4$s);",
-                                serviceClient.getClassName(), serviceClient.getClassName(),
-                                getLocalBuildVariableName("pipeline"), constructorArgs));
+                            function.line(String.format("%1$s client = new %2$s(%3$s%4$s%5$s);",
+                                serviceClient.getClassName(), serviceClient.getClassName(), "createHttpPipeline()",
+                                writeInstrumentation ? ", instrumentation" : "", constructorArgs));
                         } else {
                             function.line(String.format("%1$s client = new %1$s(%2$s);", serviceClient.getClassName(),
                                 getLocalBuildVariableName("pipeline")));
@@ -330,7 +347,7 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
                     function.line("return client;");
                 });
 
-            if (!settings.isAzureOrFluent()) {
+            if (!settings.isFluent()) {
                 List<ServiceClientProperty> allProperties
                     = mergeClientPropertiesWithTraits(clientProperties, clientBuilder.getBuilderTraits());
                 addValidateClientMethod(classBlock, allProperties);
@@ -477,11 +494,25 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
 
     protected void writeSyncClientBuildMethodFromInnerClient(AsyncSyncClient syncClient, JavaBlock function,
         String buildMethodName, boolean wrapServiceClient) {
-        if (wrapServiceClient) {
-            function.line("return new %1$s(%2$s());", syncClient.getClassName(), buildMethodName);
+
+        boolean writeInstrumentation = !JavaSettings.getInstance().isAzureV1();
+        if (writeInstrumentation) {
+            function.line("%1$s innerClient = %2$s();", syncClient.getServiceClient().getClassName(), buildMethodName);
+            if (wrapServiceClient) {
+                function.line("return new %1$s(innerClient, innerClient.getInstrumentation());",
+                    syncClient.getClassName());
+            } else {
+                function.line("return new %1$s(innerClient.get%3$s(), innerClient.getInstrumentation());",
+                    syncClient.getClassName(), buildMethodName,
+                    CodeNamer.toPascalCase(syncClient.getMethodGroupClient().getVariableName()));
+            }
         } else {
-            function.line("return new %1$s(%2$s().get%3$s());", syncClient.getClassName(), buildMethodName,
-                CodeNamer.toPascalCase(syncClient.getMethodGroupClient().getVariableName()));
+            if (wrapServiceClient) {
+                function.line("return new %1$s(%2$s());", syncClient.getClassName(), buildMethodName);
+            } else {
+                function.line("return new %1$s(%2$s().get%3$s());", syncClient.getClassName(), buildMethodName,
+                    CodeNamer.toPascalCase(syncClient.getMethodGroupClient().getVariableName()));
+            }
         }
     }
 
@@ -497,23 +528,23 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
         }
     }
 
-    private String getSerializerMemberName() {
+    protected String getSerializerMemberName() {
         return "serializerAdapter";
     }
 
-    private void addSerializerImport(Set<String> imports, JavaSettings settings) {
+    protected void addSerializerImport(Set<String> imports, JavaSettings settings) {
         imports.add(settings.isFluent()
             ? "com.azure.core.management.serializer.SerializerFactory"
             : "com.azure.core.util.serializer.JacksonAdapter");
     }
 
-    private void addImportForCoreUtils(Set<String> imports) {
+    protected void addImportForCoreUtils(Set<String> imports) {
         ClassType.CORE_UTILS.addImportsTo(imports, false);
         imports.add("com.azure.core.util.builder.ClientBuilderUtil");
     }
 
-    private void addHttpPolicyImports(Set<String> imports) {
-        imports.add(BearerTokenAuthenticationPolicy.class.getName());
+    protected void addHttpPolicyImports(Set<String> imports) {
+        ClassType.BEARER_TOKEN_POLICY.addImportsTo(imports, false);
 
         // one of the key credential policy imports will be removed by the formatter depending
         // on which one is used
@@ -523,6 +554,8 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
         imports.add(HttpPolicyProviders.class.getName());
         ClassType.HTTP_PIPELINE_POLICY.addImportsTo(imports, false);
         ClassType.HTTP_LOGGING_POLICY.addImportsTo(imports, false);
+        ClassType.USER_AGENT_POLICY.addImportsTo(imports, false);
+        ClassType.USER_AGENT_OPTIONS.addImportsTo(imports, false);
         imports.add(AddHeadersPolicy.class.getName());
         imports.add(RequestIdPolicy.class.getName());
         imports.add(AddHeadersFromContextPolicy.class.getName());
@@ -533,11 +566,15 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
         ClassType.REDIRECT_POLICY.addImportsTo(imports, false);
     }
 
-    private void addTraitsImports(ClientBuilder clientBuilder, Set<String> imports) {
+    protected void addTraitsImports(ClientBuilder clientBuilder, Set<String> imports) {
         clientBuilder.getBuilderTraits().stream().forEach(trait -> imports.addAll(trait.getImportPackages()));
     }
 
-    private void addCreateHttpPipelineMethod(JavaSettings settings, JavaClass classBlock,
+    protected void addServiceClientBuilderAnnotationImport(Set<String> imports) {
+        Annotation.SERVICE_CLIENT_BUILDER.addImportsTo(imports);
+    }
+
+    protected void addCreateHttpPipelineMethod(JavaSettings settings, JavaClass classBlock,
         String defaultCredentialScopes, SecurityInfo securityInfo, PipelinePolicyDetails pipelinePolicyDetails) {
         addGeneratedAnnotation(classBlock);
         classBlock.privateMethod("HttpPipeline createHttpPipeline()", function -> {
@@ -562,10 +599,10 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
         });
     }
 
-    private ArrayList<ServiceClientProperty> addCommonClientProperties(JavaSettings settings,
+    protected ArrayList<ServiceClientProperty> addCommonClientProperties(JavaSettings settings,
         SecurityInfo securityInfo) {
         ArrayList<ServiceClientProperty> commonProperties = new ArrayList<ServiceClientProperty>();
-        if (settings.isAzureOrFluent()) {
+        if (settings.isFluent()) {
             commonProperties.add(new ServiceClientProperty("The environment to connect to", ClassType.AZURE_ENVIRONMENT,
                 "environment", false, "AzureEnvironment.AZURE"));
             commonProperties.add(new ServiceClientProperty("The HTTP pipeline to send requests through",
@@ -577,8 +614,7 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
                 ClassType.DURATION, "defaultPollInterval", false, "Duration.ofSeconds(30)"));
         }
 
-        // Low-level client does not need serializer. It returns BinaryData.
-        if (!settings.isDataPlaneClient()) {
+        if (settings.isAzureV1() && !settings.isDataPlaneClient()) {
             commonProperties.add(new ServiceClientProperty("The serializer to serialize an object into a string",
                 ClassType.SERIALIZER_ADAPTER, getSerializerMemberName(), false,
                 settings.isFluent()
@@ -586,7 +622,7 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
                     : JACKSON_SERIALIZER));
         }
 
-        if (!settings.isAzureOrFluent() && settings.isBranded()) {
+        if (!settings.isFluent() && settings.isAzureV1()) {
             commonProperties.add(new ServiceClientProperty(
                 "The retry policy that will attempt to retry failed " + "requests, if applicable.",
                 ClassType.RETRY_POLICY, "retryPolicy", false, null));
@@ -604,18 +640,19 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
     }
 
     protected void addGeneratedImport(Set<String> imports) {
-        if (JavaSettings.getInstance().isBranded()) {
+        if (JavaSettings.getInstance().isAzureV1()) {
             Annotation.GENERATED.addImportsTo(imports);
         } else {
             Annotation.METADATA.addImportsTo(imports);
+            Annotation.METADATA_PROPERTIES.addImportsTo(imports);
         }
     }
 
     protected void addGeneratedAnnotation(JavaContext classBlock) {
-        if (JavaSettings.getInstance().isBranded()) {
+        if (JavaSettings.getInstance().isAzureV1()) {
             classBlock.annotation(Annotation.GENERATED.getName());
         } else {
-            classBlock.annotation(Annotation.METADATA.getName() + "(generated = true)");
+            classBlock.annotation(Annotation.METADATA.getName() + "(properties = {MetadataProperties.GENERATED})");
         }
     }
 

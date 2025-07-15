@@ -57,7 +57,7 @@ public final class StringLiteralsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "OptionalClientString")
+    @ServiceInterface(name = "OptionalClientStringLiterals")
     public interface StringLiteralsService {
         @Get("/type/property/optional/string/literal/all")
         @ExpectedResponses({ 200 })

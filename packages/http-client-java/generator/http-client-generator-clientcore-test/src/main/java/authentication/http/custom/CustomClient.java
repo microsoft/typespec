@@ -2,51 +2,51 @@ package authentication.http.custom;
 
 import authentication.http.custom.implementation.CustomClientImpl;
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 
 /**
  * Initializes a new instance of the synchronous CustomClient type.
  */
 @ServiceClient(builder = CustomClientBuilder.class)
 public final class CustomClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final CustomClientImpl serviceClient;
+
+    private final Instrumentation instrumentation;
 
     /**
      * Initializes an instance of CustomClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
-    @Metadata(generated = true)
-    CustomClient(CustomClientImpl serviceClient) {
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    CustomClient(CustomClientImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
      * Check whether client is authenticated.
      * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
-    public Response<Void> validWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.validWithResponse(requestOptions);
-    }
-
-    /**
-     * Check whether client is authenticated.
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> invalidWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.invalidWithResponse(requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> validWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Authentication.Http.Custom.valid", requestContext,
+            updatedContext -> this.serviceClient.validWithResponse(updatedContext));
     }
 
     /**
@@ -55,11 +55,26 @@ public final class CustomClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void valid() {
-        // Generated convenience method for validWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        validWithResponse(requestOptions).getValue();
+        validWithResponse(RequestContext.none());
+    }
+
+    /**
+     * Check whether client is authenticated.
+     * 
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> invalidWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Authentication.Http.Custom.invalid", requestContext,
+            updatedContext -> this.serviceClient.invalidWithResponse(updatedContext));
     }
 
     /**
@@ -68,10 +83,9 @@ public final class CustomClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void invalid() {
-        // Generated convenience method for invalidWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        invalidWithResponse(requestOptions).getValue();
+        invalidWithResponse(RequestContext.none());
     }
 }

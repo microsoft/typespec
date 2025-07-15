@@ -42,7 +42,7 @@ export function* emitDeclaration(
       break;
     }
     case "Scalar": {
-      yield emitScalar(ctx, type, module);
+      yield* emitScalar(ctx, type, module);
       break;
     }
     default: {

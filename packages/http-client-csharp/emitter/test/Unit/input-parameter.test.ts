@@ -4,6 +4,7 @@ import { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
+import { InputParameterKind } from "../../src/type/input-parameter-kind.js";
 import { RequestLocation } from "../../src/type/request-location.js";
 import {
   createCSharpSdkContext,
@@ -36,10 +37,10 @@ describe("Test Parameter Explode", () => {
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
-        const inputParamArray = root.clients[0].operations[0].parameters.filter(
+        const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
-        const route = root.clients[0].operations[0].path;
+        const route = root.clients[0].methods[0].operation.path;
 
         strictEqual(route, "/primitive{param}");
         strictEqual(1, inputParamArray.length);
@@ -67,10 +68,10 @@ describe("Test Parameter Explode", () => {
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
-        const inputParamArray = root.clients[0].operations[0].parameters.filter(
+        const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
-        const route = root.clients[0].operations[0].path;
+        const route = root.clients[0].methods[0].operation.path;
 
         strictEqual(route, "/array{param}");
         strictEqual(1, inputParamArray.length);
@@ -98,10 +99,10 @@ describe("Test Parameter Explode", () => {
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
-        const inputParamArray = root.clients[0].operations[0].parameters.filter(
+        const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
-        const route = root.clients[0].operations[0].path;
+        const route = root.clients[0].methods[0].operation.path;
 
         strictEqual(route, "/record{param}");
         strictEqual(1, inputParamArray.length);
@@ -131,10 +132,10 @@ describe("Test Parameter Explode", () => {
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
-        const inputParamArray = root.clients[0].operations[0].parameters.filter(
+        const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
-        const route = root.clients[0].operations[0].path;
+        const route = root.clients[0].methods[0].operation.path;
 
         strictEqual(route, "/primitive{param}");
         strictEqual(1, inputParamArray.length);
@@ -162,10 +163,10 @@ describe("Test Parameter Explode", () => {
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
-        const inputParamArray = root.clients[0].operations[0].parameters.filter(
+        const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
-        const route = root.clients[0].operations[0].path;
+        const route = root.clients[0].methods[0].operation.path;
 
         strictEqual(route, "/array{param}");
         strictEqual(1, inputParamArray.length);
@@ -193,10 +194,10 @@ describe("Test Parameter Explode", () => {
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
-        const inputParamArray = root.clients[0].operations[0].parameters.filter(
+        const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
-        const route = root.clients[0].operations[0].path;
+        const route = root.clients[0].methods[0].operation.path;
 
         strictEqual(route, "/record{param}");
         strictEqual(1, inputParamArray.length);
@@ -226,10 +227,10 @@ describe("Test Parameter Explode", () => {
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
-        const inputParamArray = root.clients[0].operations[0].parameters.filter(
+        const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
-        const route = root.clients[0].operations[0].path;
+        const route = root.clients[0].methods[0].operation.path;
 
         strictEqual(route, "/primitive{param}");
         strictEqual(1, inputParamArray.length);
@@ -257,10 +258,10 @@ describe("Test Parameter Explode", () => {
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
-        const inputParamArray = root.clients[0].operations[0].parameters.filter(
+        const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
-        const route = root.clients[0].operations[0].path;
+        const route = root.clients[0].methods[0].operation.path;
 
         strictEqual(route, "/array{param}");
         strictEqual(1, inputParamArray.length);
@@ -288,10 +289,10 @@ describe("Test Parameter Explode", () => {
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
-        const inputParamArray = root.clients[0].operations[0].parameters.filter(
+        const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
-        const route = root.clients[0].operations[0].path;
+        const route = root.clients[0].methods[0].operation.path;
 
         strictEqual(route, "/record{param}");
         strictEqual(1, inputParamArray.length);
@@ -321,10 +322,10 @@ describe("Test Parameter Explode", () => {
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
-        const inputParamArray = root.clients[0].operations[0].parameters.filter(
+        const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
-        const route = root.clients[0].operations[0].path;
+        const route = root.clients[0].methods[0].operation.path;
 
         strictEqual(route, "/primitive{param}");
         strictEqual(1, inputParamArray.length);
@@ -352,10 +353,10 @@ describe("Test Parameter Explode", () => {
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
-        const inputParamArray = root.clients[0].operations[0].parameters.filter(
+        const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
-        const route = root.clients[0].operations[0].path;
+        const route = root.clients[0].methods[0].operation.path;
 
         strictEqual(route, "/array{param}");
         strictEqual(1, inputParamArray.length);
@@ -383,10 +384,10 @@ describe("Test Parameter Explode", () => {
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
-        const inputParamArray = root.clients[0].operations[0].parameters.filter(
+        const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
-        const route = root.clients[0].operations[0].path;
+        const route = root.clients[0].methods[0].operation.path;
 
         strictEqual(route, "/record{param}");
         strictEqual(1, inputParamArray.length);
@@ -418,10 +419,10 @@ describe("Test Parameter Explode", () => {
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
-        const inputParamArray = root.clients[0].operations[0].parameters.filter(
+        const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
-        const route = root.clients[0].operations[0].path;
+        const route = root.clients[0].methods[0].operation.path;
 
         strictEqual(route, "/primitive");
         strictEqual(1, inputParamArray.length);
@@ -449,10 +450,10 @@ describe("Test Parameter Explode", () => {
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
-        const inputParamArray = root.clients[0].operations[0].parameters.filter(
+        const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
-        const route = root.clients[0].operations[0].path;
+        const route = root.clients[0].methods[0].operation.path;
 
         strictEqual(route, "/array");
         strictEqual(1, inputParamArray.length);
@@ -480,10 +481,10 @@ describe("Test Parameter Explode", () => {
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
-        const inputParamArray = root.clients[0].operations[0].parameters.filter(
+        const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
-        const route = root.clients[0].operations[0].path;
+        const route = root.clients[0].methods[0].operation.path;
 
         strictEqual(route, "/record");
         strictEqual(1, inputParamArray.length);
@@ -513,10 +514,10 @@ describe("Test Parameter Explode", () => {
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
-        const inputParamArray = root.clients[0].operations[0].parameters.filter(
+        const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
-        const route = root.clients[0].operations[0].path;
+        const route = root.clients[0].methods[0].operation.path;
 
         strictEqual(route, "/primitive?fixed=true");
         strictEqual(1, inputParamArray.length);
@@ -544,10 +545,10 @@ describe("Test Parameter Explode", () => {
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
-        const inputParamArray = root.clients[0].operations[0].parameters.filter(
+        const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
-        const route = root.clients[0].operations[0].path;
+        const route = root.clients[0].methods[0].operation.path;
 
         strictEqual(route, "/array?fixed=true");
         strictEqual(1, inputParamArray.length);
@@ -575,10 +576,10 @@ describe("Test Parameter Explode", () => {
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
-        const inputParamArray = root.clients[0].operations[0].parameters.filter(
+        const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
-        const route = root.clients[0].operations[0].path;
+        const route = root.clients[0].methods[0].operation.path;
 
         strictEqual(route, "/record?fixed=true");
         strictEqual(1, inputParamArray.length);
@@ -591,77 +592,242 @@ describe("Test Parameter Explode", () => {
         strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
     });
+  });
+});
 
-    describe("Cookie parameter not supported", () => {
-      let runner: TestHost;
+describe("Test Cookie Parameters", () => {
+  let runner: TestHost;
 
-      beforeEach(async () => {
-        runner = await createEmitterTestHost();
-      });
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
 
-      it("cookie parameter is not supported", async () => {
-        const program = await typeSpecCompile(
-          `
-                @route("test")
-                op test(@cookie cookie: string): NoContentResponse;
-          `,
-          runner,
-        );
-        const context = createEmitterContext(program);
-        const sdkContext = await createCSharpSdkContext(context);
-        const diagnostics = context.program.diagnostics;
-        createModel(sdkContext);
+  describe("Cookie parameter not supported", () => {
+    it("cookie parameter is not supported", async () => {
+      const program = await typeSpecCompile(
+        `
+              @route("test")
+              op test(@cookie cookie: string): NoContentResponse;
+        `,
+        runner,
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const diagnostics = context.program.diagnostics;
+      createModel(sdkContext);
 
-        const unsupportedCookie = diagnostics.find(
-          (d) => d.code === "@typespec/http-client-csharp/unsupported-cookie-parameter",
-        );
-        ok(unsupportedCookie);
-        strictEqual(
-          unsupportedCookie.message,
-          "Cookie parameter is not supported: cookie, found in operation /test",
-        );
-      });
+      const unsupportedCookie = diagnostics.find(
+        (d) => d.code === "@typespec/http-client-csharp/unsupported-cookie-parameter",
+      );
+      ok(unsupportedCookie);
+      strictEqual(
+        unsupportedCookie.message,
+        "Cookie parameter is not supported: cookie, found in operation /test",
+      );
     });
+  });
+});
 
-    describe("Unsupported endpoint url", () => {
-      let runner: TestHost;
+describe("Endpoint parameters", () => {
+  let runner: TestHost;
 
-      beforeEach(async () => {
-        runner = await createEmitterTestHost();
-      });
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
 
-      it("cookie parameter is not supported", async () => {
-        const program = await typeSpecCompile(
-          `
-                @service(#{
-                  title: "Azure Csharp emitter Testing",
-                })
-                @server(
-                "https://{param1}{param2}/",
-                "Test endpoint",
-                {
-                  param1: string,
-                  param2: string
-                })
-                namespace Test;
-          `,
-          runner,
-          { IsNamespaceNeeded: false },
-        );
-        const context = createEmitterContext(program);
-        const sdkContext = await createCSharpSdkContext(context);
-        const diagnostics = context.program.diagnostics;
-        createModel(sdkContext);
+  it("Multiple parameters are not supported", async () => {
+    const program = await typeSpecCompile(
+      `
+              @service(#{
+                title: "Azure Csharp emitter Testing",
+              })
+              @server(
+              "https://{param1}{param2}/",
+              "Test endpoint",
+              {
+                param1: string,
+                param2: string
+              })
+              namespace Test;
 
-        const unsupportedCookie = diagnostics.find(
-          (d) => d.code === "@typespec/http-client-csharp/unsupported-endpoint-url",
-        );
-        ok(unsupportedCookie);
-        strictEqual(
-          unsupportedCookie.message,
-          "Unsupported server endpoint URL: https://{param1}{param2}/",
-        );
-      });
-    });
+              op test() : void;
+        `,
+      runner,
+      { IsNamespaceNeeded: false },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const diagnostics = context.program.diagnostics;
+    createModel(sdkContext);
+
+    const unsupportedCookie = diagnostics.find(
+      (d) => d.code === "@typespec/http-client-csharp/unsupported-endpoint-url",
+    );
+    ok(unsupportedCookie);
+    strictEqual(
+      unsupportedCookie.message,
+      "Unsupported server endpoint URL: https://{param1}{param2}/",
+    );
+  });
+  it("String endpoint parameter has correct type", async () => {
+    const program = await typeSpecCompile(
+      `
+              @service(#{
+                title: "Azure Csharp emitter Testing",
+              })
+              @server(
+              "https://{param1}",
+              "Test endpoint",
+              {
+                param1: string,
+              })
+              namespace Test;
+
+              op test() : void;
+        `,
+      runner,
+      { IsNamespaceNeeded: false },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const codeModel = createModel(sdkContext);
+    const client = codeModel.clients[0];
+    ok(client);
+    ok(client.parameters);
+    const endpointParameter = client.parameters.find((p) => p.isEndpoint);
+    ok(endpointParameter);
+    strictEqual(endpointParameter.type.kind, "string");
+    strictEqual(endpointParameter.type.crossLanguageDefinitionId, "TypeSpec.string");
+    strictEqual(endpointParameter.serverUrlTemplate, "https://{param1}");
+  });
+
+  it("URL endpoint parameter has correct type", async () => {
+    const program = await typeSpecCompile(
+      `
+              @service(#{
+                title: "Azure Csharp emitter Testing",
+              })
+              @server(
+              "{param1}",
+              "Test endpoint",
+              {
+                param1: url,
+              })
+              namespace Test;
+
+              op test() : void;
+        `,
+      runner,
+      { IsNamespaceNeeded: false },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const codeModel = createModel(sdkContext);
+    const client = codeModel.clients[0];
+    ok(client);
+    ok(client.parameters);
+    const endpointParameter = client.parameters.find((p) => p.isEndpoint);
+    ok(endpointParameter);
+    strictEqual(endpointParameter.type.kind, "url");
+    strictEqual(endpointParameter.type.crossLanguageDefinitionId, "TypeSpec.url");
+    strictEqual(endpointParameter.serverUrlTemplate, "{param1}");
+  });
+});
+
+describe("Test Spread Parameters", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("Spread parameters are present in service method", async () => {
+    const program = await typeSpecCompile(
+      `
+        model Test {
+          foo: string;
+          bar: int32;
+        }
+
+        op test(...Test): void;
+        `,
+      runner,
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    ok(root);
+
+    // validate service method
+    const serviceMethod = root.clients[0].methods[0];
+    ok(serviceMethod);
+    strictEqual(serviceMethod.parameters.length, 3);
+
+    const fooParam = serviceMethod.parameters.find((p) => p.name === "foo");
+    ok(fooParam);
+    strictEqual(fooParam.location, RequestLocation.Body);
+
+    const barParam = serviceMethod.parameters.find((p) => p.name === "bar");
+    ok(barParam);
+    strictEqual(barParam.location, RequestLocation.Body);
+
+    // validate operation
+    const operation = serviceMethod.operation;
+    ok(operation);
+
+    strictEqual(operation.parameters.length, 2);
+    const contentTypeParam = operation.parameters.find((p) => p.name === "contentType");
+    ok(contentTypeParam);
+
+    const testParam = operation.parameters.find((p) => p.name === "test");
+    ok(testParam);
+    strictEqual(testParam.type.kind, "model");
+    strictEqual(testParam.kind, InputParameterKind.Spread);
+  });
+
+  it("Parameters that are constants", async () => {
+    const program = await typeSpecCompile(
+      `
+        model Animal {
+          name: string;
+          kind: "cat";
+      }
+        op anonymousBody(...Animal): void;
+        `,
+      runner,
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    ok(root);
+
+    // validate service method
+    const serviceMethod = root.clients[0].methods[0];
+    ok(serviceMethod);
+    strictEqual(serviceMethod.parameters.length, 3);
+
+    const kindParam = serviceMethod.parameters.find((p) => p.name === "kind");
+    ok(kindParam);
+    strictEqual(kindParam.location, RequestLocation.Body);
+    strictEqual(kindParam.type.kind, "constant");
+    strictEqual(kindParam.type.valueType.kind, "string");
+
+    const nameParam = serviceMethod.parameters.find((p) => p.name === "name");
+    ok(nameParam);
+    strictEqual(nameParam.location, RequestLocation.Body);
+    strictEqual(nameParam.type.kind, "string");
+
+    // validate operation
+    const operation = serviceMethod.operation;
+    ok(operation);
+
+    strictEqual(operation.parameters.length, 2);
+    const contentTypeParam = operation.parameters.find((p) => p.name === "contentType");
+    ok(contentTypeParam);
+
+    const testParam = operation.parameters.find((p) => p.name === "animal");
+    ok(testParam);
+    strictEqual(testParam.type.kind, "model");
+    strictEqual(testParam.kind, InputParameterKind.Spread);
   });
 });

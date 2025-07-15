@@ -1,7 +1,7 @@
 package type.model.visibility;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -13,24 +13,24 @@ import java.util.Map;
 /**
  * RoundTrip model with readonly optional properties.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ReadOnlyModel implements JsonSerializable<ReadOnlyModel> {
     /*
      * Optional readonly nullable int list.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private List<Integer> optionalNullableIntList;
 
     /*
      * Optional readonly string dictionary.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private Map<String, String> optionalStringRecord;
 
     /**
      * Creates an instance of ReadOnlyModel class.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public ReadOnlyModel() {
     }
 
@@ -39,7 +39,7 @@ public final class ReadOnlyModel implements JsonSerializable<ReadOnlyModel> {
      * 
      * @return the optionalNullableIntList value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public List<Integer> getOptionalNullableIntList() {
         return this.optionalNullableIntList;
     }
@@ -49,7 +49,7 @@ public final class ReadOnlyModel implements JsonSerializable<ReadOnlyModel> {
      * 
      * @return the optionalStringRecord value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public Map<String, String> getOptionalStringRecord() {
         return this.optionalStringRecord;
     }
@@ -57,7 +57,7 @@ public final class ReadOnlyModel implements JsonSerializable<ReadOnlyModel> {
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -72,7 +72,7 @@ public final class ReadOnlyModel implements JsonSerializable<ReadOnlyModel> {
      * pointing to JSON null.
      * @throws IOException If an error occurs while reading the ReadOnlyModel.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static ReadOnlyModel fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             ReadOnlyModel deserializedReadOnlyModel = new ReadOnlyModel();

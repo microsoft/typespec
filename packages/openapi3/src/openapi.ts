@@ -10,7 +10,6 @@ import {
   getAllTags,
   getAnyExtensionFromPath,
   getDoc,
-  getEncode,
   getFormat,
   getMaxItems,
   getMaxLength,
@@ -46,6 +45,7 @@ import {
   unsafe_mutateSubgraphWithNamespace,
   unsafe_MutatorWithNamespace,
 } from "@typespec/compiler/experimental";
+import { $ } from "@typespec/compiler/typekit";
 import {
   AuthenticationOptionReference,
   AuthenticationReference,
@@ -87,6 +87,7 @@ import { getExampleOrExamples, OperationExamples, resolveOperationExamples } fro
 import { JsonSchemaModule, resolveJsonSchemaModule } from "./json-schema.js";
 import { createDiagnostic, FileType, OpenAPI3EmitterOptions, OpenAPIVersion } from "./lib.js";
 import { getOpenApiSpecProps } from "./openapi-spec-mappings.js";
+import { getParameterStyle } from "./parameters.js";
 import { getOpenAPI3StatusCodes } from "./status-codes.js";
 import {
   OpenAPI3Encoding,
@@ -114,6 +115,7 @@ import {
   deepEquals,
   ensureValidComponentFixedFieldKey,
   getDefaultValue,
+  HttpParameterProperties,
   isBytesKeptRaw,
   isSharedHttpOperation,
   SharedHttpOperation,
@@ -140,11 +142,6 @@ export async function $onEmit(context: EmitContext<OpenAPI3EmitterOptions>) {
 }
 
 type IrrelevantOpenAPI3EmitterOptionsForObject = "file-type" | "output-file" | "new-line";
-
-type HttpParameterProperties = Extract<
-  HttpProperty,
-  { kind: "header" | "query" | "path" | "cookie" }
->;
 
 /**
  * Get the OpenAPI 3 document records from the given program. The documents are
@@ -214,6 +211,7 @@ export function resolveOptions(
     outputFile: resolvePath(context.emitterOutputDir, specDir, outputFile),
     openapiVersions,
     sealObjectSchemas: resolvedOptions["seal-object-schemas"],
+    parameterExamplesStrategy: resolvedOptions["experimental-parameter-examples"],
   };
 }
 
@@ -226,6 +224,7 @@ export interface ResolvedOpenAPI3EmitterOptions {
   includeXTypeSpecName: "inline-only" | "never";
   safeintStrategy: "double-int" | "int64";
   sealObjectSchemas: boolean;
+  parameterExamplesStrategy?: "data" | "serialized";
 }
 
 function createOAPIEmitter(
@@ -379,13 +378,12 @@ function createOAPIEmitter(
   }
 
   function isValidServerVariableType(program: Program, type: Type): boolean {
+    const tk = $(program);
     switch (type.kind) {
       case "String":
       case "Union":
       case "Scalar":
-        return ignoreDiagnostics(
-          program.checker.isTypeAssignableTo(type, program.checker.getStdType("string"), type),
-        );
+        return tk.type.isAssignableTo(type, tk.builtin.string, type);
       case "Enum":
         for (const member of type.members.values()) {
           if (member.value && typeof member.value !== "string") {
@@ -736,7 +734,9 @@ function createOAPIEmitter(
     const operations = shared.operations;
     const verb = operations[0].verb;
     const path = operations[0].path;
-    const examples = resolveOperationExamples(program, shared);
+    const examples = resolveOperationExamples(program, shared, {
+      parameterExamplesStrategy: options.parameterExamplesStrategy,
+    });
     const oai3Operation: OpenAPI3Operation = {
       operationId: computeSharedOperationId(shared),
       parameters: [],
@@ -787,6 +787,7 @@ function createOAPIEmitter(
     oai3Operation.parameters = getEndpointParameters(
       resolveSharedRouteParameters(operations),
       visibility,
+      examples,
     );
 
     const bodies = [
@@ -813,12 +814,14 @@ function createOAPIEmitter(
       return undefined;
     }
     const visibility = resolveRequestVisibility(program, operation.operation, verb);
-    const examples = resolveOperationExamples(program, operation);
+    const examples = resolveOperationExamples(program, operation, {
+      parameterExamplesStrategy: options.parameterExamplesStrategy,
+    });
     const oai3Operation: OpenAPI3Operation = {
       operationId: resolveOperationId(program, operation.operation),
       summary: getSummary(program, operation.operation),
       description: getDoc(program, operation.operation),
-      parameters: getEndpointParameters(parameters.properties, visibility),
+      parameters: getEndpointParameters(parameters.properties, visibility, examples),
       responses: getResponses(operation, operation.responses, examples),
     };
     const currentTags = getAllTags(program, op);
@@ -1281,6 +1284,7 @@ function createOAPIEmitter(
   function getParameter(
     httpProperty: HttpParameterProperties,
     visibility: Visibility,
+    examples: [Example, Type][],
   ): OpenAPI3Parameter {
     const param: OpenAPI3Parameter = {
       name: httpProperty.options.name,
@@ -1301,12 +1305,16 @@ function createOAPIEmitter(
       param.deprecated = true;
     }
 
+    const paramExamples = getExampleOrExamples(program, examples);
+    Object.assign(param, paramExamples);
+
     return param;
   }
 
   function getEndpointParameters(
     properties: HttpProperty[],
     visibility: Visibility,
+    examples: OperationExamples,
   ): Refable<OpenAPI3Parameter>[] {
     const result: Refable<OpenAPI3Parameter>[] = [];
     for (const httpProp of properties) {
@@ -1317,7 +1325,11 @@ function createOAPIEmitter(
       if (!isHttpParameterProperty(httpProp)) {
         continue;
       }
-      const param = getParameterOrRef(httpProp, visibility);
+      const param = getParameterOrRef(
+        httpProp,
+        visibility,
+        examples.parameters[httpProp.options.name] ?? [],
+      );
       if (param) {
         const existing = result.find(
           (x) => !("$ref" in param) && !("$ref" in x) && x.name === param.name && x.in === param.in,
@@ -1386,6 +1398,7 @@ function createOAPIEmitter(
   function getParameterOrRef(
     httpProperty: HttpParameterProperties,
     visibility: Visibility,
+    examples: [Example, Type][],
   ): Refable<OpenAPI3Parameter> | undefined {
     if (isNeverType(httpProperty.property.type)) {
       return undefined;
@@ -1415,7 +1428,7 @@ function createOAPIEmitter(
       return params.get(property);
     }
 
-    const param = getParameter(httpProperty, visibility);
+    const param = getParameter(httpProperty, visibility, examples);
 
     // only parameters inherited by spreading from non-inlined type are shared in #/components/parameters
     if (spreadParam && property.model && !shouldInline(program, property.model)) {
@@ -1546,24 +1559,12 @@ function createOAPIEmitter(
       // For query parameters(style: form) the default is explode: true https://spec.openapis.org/oas/v3.0.2#fixed-fields-9
       attributes.explode = false;
     }
-    const style = getParameterStyle(httpProperty.property);
+    const style = getParameterStyle(program, httpProperty.property);
     if (style) {
       attributes.style = style;
     }
 
     return attributes;
-  }
-
-  function getParameterStyle(type: ModelProperty): string | undefined {
-    const encode = getEncode(program, type);
-    if (!encode) return;
-
-    if (encode.encoding === "ArrayEncoding.pipeDelimited") {
-      return "pipeDelimited";
-    } else if (encode.encoding === "ArrayEncoding.spaceDelimited") {
-      return "spaceDelimited";
-    }
-    return;
   }
 
   function getHeaderParameterAttributes(httpProperty: HttpProperty & { kind: "header" }) {

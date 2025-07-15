@@ -1,6 +1,6 @@
 import { Children, Refkey } from "@alloy-js/core";
 import { EncodeData, ModelProperty, Scalar } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { useTsp } from "@typespec/emitter-framework";
 import { reportDiagnostic } from "../../lib.js";
 import { unpackProperty } from "../utils/unpack-model-property.js";
 import { getScalarTransformer } from "./scalar-transform.jsx";
@@ -12,6 +12,7 @@ export interface ScalarDataTransformProps {
 }
 
 export function ScalarDataTransform(props: ScalarDataTransformProps) {
+  const { $ } = useTsp();
   let scalar: Scalar;
   let encoding: EncodeData | undefined;
   if ($.modelProperty.is(props.type)) {

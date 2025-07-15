@@ -14,7 +14,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Class
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
@@ -65,11 +65,12 @@ public class ModelExampleUtil {
     @SuppressWarnings("unchecked")
     public static ExampleNode parseNode(IType type, IType wireType, Object objectValue) {
         ExampleNode node;
-        if (type instanceof ListType) {
-            IType elementType = ((ListType) type).getElementType();
-            if (objectValue instanceof List) {
-                ListNode listNode = new ListNode(elementType, objectValue);
-                node = listNode;
+        if (type instanceof IterableType) {
+            IType elementType = ((IterableType) type).getElementType();
+            if (objectValue == null) {
+                node = new ListNode(elementType, null);
+            } else if (objectValue instanceof List) {
+                node = new ListNode(elementType, objectValue);
 
                 List<Object> elements = (List<Object>) objectValue;
                 for (Object childObjectValue : elements) {
@@ -77,12 +78,13 @@ public class ModelExampleUtil {
                     node.getChildNodes().add(childNode);
                 }
             } else {
-                LOGGER.error("Example value is not List type: {}", objectValue);
-                node = new ListNode(elementType, null);
+                throw new IllegalStateException("Example value is not List type: " + objectValue);
             }
         } else if (type instanceof MapType) {
             IType elementType = ((MapType) type).getValueType();
-            if (objectValue instanceof Map) {
+            if (objectValue == null) {
+                node = new MapNode(elementType, null);
+            } else if (objectValue instanceof Map) {
                 MapNode mapNode = new MapNode(elementType, objectValue);
                 node = mapNode;
 
@@ -101,8 +103,7 @@ public class ModelExampleUtil {
                     mapNode.getKeys().add(entry.getKey());
                 }
             } else {
-                LOGGER.error("Example value is not Map type: {}", objectValue);
-                node = new MapNode(elementType, null);
+                throw new IllegalStateException("Example value is not Map type: " + objectValue);
             }
         } else if (type == ClassType.OBJECT) {
             node = new ObjectNode(type, objectValue);
@@ -363,11 +364,11 @@ public class ModelExampleUtil {
         IType type = methodParameter.getClientMethodParameter().getClientType();
         IType wireType = methodParameter.getClientMethodParameter().getWireType();
         if (methodParameter.getProxyMethodParameter().getCollectionFormat() != null
-            && type instanceof ListType
+            && type instanceof IterableType
             && objectValue instanceof String) {
             // handle parameter style
 
-            IType elementType = ((ListType) type).getElementType();
+            IType elementType = ((IterableType) type).getElementType();
             ListNode listNode = new ListNode(elementType, objectValue);
             String value = (String) objectValue;
 

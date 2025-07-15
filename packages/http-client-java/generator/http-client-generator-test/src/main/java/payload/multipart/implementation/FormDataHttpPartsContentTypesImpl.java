@@ -56,7 +56,7 @@ public final class FormDataHttpPartsContentTypesImpl {
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "MultiPartClientFormD")
+    @ServiceInterface(name = "MultiPartClientFormDataHttpPartsContentTypes")
     public interface FormDataHttpPartsContentTypesService {
         // @Multipart not supported by RestProxy
         @Post("/multipart/form-data/check-filename-and-specific-content-type-with-httppart")

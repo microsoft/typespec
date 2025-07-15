@@ -25,6 +25,7 @@ import {
   PublishDiagnosticsParams,
   Range,
   ReferenceParams,
+  RenameFilesParams,
   RenameParams,
   SemanticTokens,
   SemanticTokensParams,
@@ -39,7 +40,14 @@ import {
 import type { TextDocument, TextEdit } from "vscode-languageserver-textdocument";
 import type { CompilerOptions } from "../core/options.js";
 import type { Program } from "../core/program.js";
-import type { CompilerHost, SourceFile, TypeSpecScriptNode } from "../core/types.js";
+import type {
+  CompilerHost,
+  Diagnostic,
+  NoTarget,
+  SourceFile,
+  SourceLocation,
+  TypeSpecScriptNode,
+} from "../core/types.js";
 import { LoadedCoreTemplates } from "../init/core-templates.js";
 import { EmitterTemplate, InitTemplate, InitTemplateLibrarySpec } from "../init/init-template.js";
 import { ScaffoldingConfig } from "../init/scaffold.js";
@@ -64,9 +72,20 @@ export interface ServerHost {
 
 export interface CompileResult {
   readonly program: Program;
-  readonly document: TextDocument;
+  readonly document: TextDocument | undefined;
   readonly script: TypeSpecScriptNode;
   readonly optionsFromConfig: CompilerOptions;
+}
+
+export interface ServerDiagnostic extends Diagnostic {
+  target: (SourceLocation & { position?: { line: number; column: number } }) | typeof NoTarget;
+}
+
+export interface InternalCompileResult {
+  readonly hasError: boolean;
+  readonly diagnostics: ServerDiagnostic[];
+  readonly entrypoint?: string;
+  readonly options?: CompilerOptions;
 }
 
 export interface Server {
@@ -84,6 +103,7 @@ export interface Server {
   findDocumentHighlight(params: DocumentHighlightParams): Promise<DocumentHighlight[]>;
   prepareRename(params: PrepareRenameParams): Promise<Range | undefined>;
   rename(params: RenameParams): Promise<WorkspaceEdit>;
+  renameFiles(params: RenameFilesParams): Promise<void>;
   getSemanticTokens(params: SemanticTokensParams): Promise<SemanticToken[]>;
   buildSemanticTokens(params: SemanticTokensParams): Promise<SemanticTokens>;
   checkChange(change: TextDocumentChangeEvent<TextDocument>): Promise<void>;
@@ -104,6 +124,10 @@ export interface Server {
   getInitProjectContext(): Promise<InitProjectContext>;
   validateInitProjectTemplate(param: { template: InitTemplate }): Promise<boolean>;
   initProject(param: { config: InitProjectConfig }): Promise<boolean>;
+  internalCompile(param: {
+    doc: TextDocumentIdentifier;
+    options: CompilerOptions;
+  }): Promise<InternalCompileResult>;
 }
 
 export interface ServerSourceFile extends SourceFile {
@@ -154,11 +178,13 @@ export interface SemanticToken {
 export type CustomRequestName =
   | "typespec/getInitProjectContext"
   | "typespec/initProject"
-  | "typespec/validateInitProjectTemplate";
+  | "typespec/validateInitProjectTemplate"
+  | "typespec/internalCompile";
 export interface ServerCustomCapacities {
   getInitProjectContext?: boolean;
   validateInitProjectTemplate?: boolean;
   initProject?: boolean;
+  internalCompile?: boolean;
 }
 
 export interface ServerInitializeResult extends InitializeResult {

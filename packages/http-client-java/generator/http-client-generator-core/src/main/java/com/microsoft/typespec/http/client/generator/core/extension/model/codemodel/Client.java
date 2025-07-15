@@ -3,10 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -171,76 +167,5 @@ public class Client extends Metadata {
 
     public void setParentAccessorPublic(boolean parentAccessorPublic) {
         this.parentAccessorPublic = parentAccessorPublic;
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return writeParentProperties(jsonWriter.writeStartObject()).writeEndObject();
-    }
-
-    JsonWriter writeParentProperties(JsonWriter jsonWriter) throws IOException {
-        return super.writeParentProperties(jsonWriter).writeStringField("summary", summary)
-            .writeArrayField("operationGroups", operationGroups, JsonWriter::writeJson)
-            .writeArrayField("globalParameters", globalParameters, JsonWriter::writeJson)
-            .writeJsonField("security", security)
-            .writeArrayField("apiVersions", apiVersions, JsonWriter::writeJson)
-            .writeJsonField("serviceVersion", serviceVersion)
-            .writeJsonField("parent", parent)
-            .writeArrayField("subClients", subClients, JsonWriter::writeJson)
-            .writeBooleanField("buildMethodPublic", buildMethodPublic)
-            .writeBooleanField("parentAccessorPublic", parentAccessorPublic);
-    }
-
-    /**
-     * Deserializes a Client instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return A Client instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static Client fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, Client::new, (client, fieldName, reader) -> {
-            if (!client.tryConsumeParentProperties(client, fieldName, reader)) {
-                reader.skipChildren();
-            }
-        });
-    }
-
-    boolean tryConsumeParentProperties(Client client, String fieldName, JsonReader reader) throws IOException {
-        if (super.tryConsumeParentProperties(client, fieldName, reader)) {
-            return true;
-        } else if ("summary".equals(fieldName)) {
-            client.summary = reader.getString();
-            return true;
-        } else if ("operationGroups".equals(fieldName)) {
-            client.operationGroups = reader.readArray(OperationGroup::fromJson);
-            return true;
-        } else if ("globalParameters".equals(fieldName)) {
-            client.globalParameters = reader.readArray(Parameter::fromJson);
-            return true;
-        } else if ("security".equals(fieldName)) {
-            client.security = Security.fromJson(reader);
-            return true;
-        } else if ("apiVersions".equals(fieldName)) {
-            client.apiVersions = reader.readArray(ApiVersion::fromJson);
-            return true;
-        } else if ("serviceVersion".equals(fieldName)) {
-            client.serviceVersion = ServiceVersion.fromJson(reader);
-            return true;
-        } else if ("parent".equals(fieldName)) {
-            client.parent = Client.fromJson(reader);
-            return true;
-        } else if ("subClients".equals(fieldName)) {
-            client.subClients = reader.readArray(Client::fromJson);
-            return true;
-        } else if ("buildMethodPublic".equals(fieldName)) {
-            client.buildMethodPublic = reader.getBoolean();
-            return true;
-        } else if ("parentAccessorPublic".equals(fieldName)) {
-            client.parentAccessorPublic = reader.getBoolean();
-            return true;
-        }
-
-        return false;
     }
 }

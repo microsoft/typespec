@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import com.azure.core.http.HttpHeader;
 import com.azure.core.util.CoreUtils;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.core.util.serializer.JacksonAdapter;
@@ -21,7 +20,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Gener
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ImplementationDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
@@ -430,13 +428,13 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         // Add HttpHeaders as an import when strongly-typed HTTP header objects use that as a constructor parameter.
         if (model.isStronglyTypedHeader()) {
             ClassType.HTTP_HEADERS.addImportsTo(imports, false);
+            ClassType.HTTP_HEADER.addImportsTo(imports, false);
             ClassType.HTTP_HEADER_NAME.addImportsTo(imports, false);
 
             // Also add any potential imports needed to convert the header to the strong type.
             // If the import isn't used it will be removed later on.
             imports.add(Base64.class.getName());
             imports.add(LinkedHashMap.class.getName());
-            imports.add(HttpHeader.class.getName());
             imports.add(UUID.class.getName());
             imports.add(URL.class.getName());
             imports.add(IOException.class.getName());
@@ -465,6 +463,11 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         }
 
         addGeneratedImport(imports);
+
+        if (model.isUsedInXml()) {
+            // Used in XML getter of unwrapped arrays
+            imports.add(Collections.class.getName());
+        }
 
         model.addImportsTo(imports, settings);
 
@@ -552,7 +555,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
             && Stream.concat(model.getProperties().stream(), propertyReferences.stream())
                 .anyMatch(p -> ClientModelUtil.needsPublicSetter(p, settings));
 
-        if (JavaSettings.getInstance().isBranded()) {
+        if (JavaSettings.getInstance().isAzureV1()) {
             if (fluent) {
                 javaFile.annotation("Fluent");
             } else {
@@ -560,9 +563,9 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
             }
         } else {
             if (fluent) {
-                javaFile.annotation("Metadata(conditions = {TypeConditions.FLUENT})");
+                javaFile.annotation("Metadata(properties = {MetadataProperties.FLUENT})");
             } else {
-                javaFile.annotation("Metadata(conditions = {TypeConditions.IMMUTABLE})");
+                javaFile.annotation("Metadata(properties = {MetadataProperties.IMMUTABLE})");
             }
         }
     }
@@ -619,8 +622,13 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                 } else {
                     fieldSignature = propertyType + " " + propertyName;
                 }
-            } else if (propertyType instanceof ListType) {
-                fieldSignature = propertyType + " " + propertyName + " = new ArrayList<>()";
+            } else if (propertyType instanceof IterableType) {
+                if (property.isRequired() && settings.isRequiredFieldsAsConstructorArgs()) {
+                    // required property is initialized via constructor
+                    fieldSignature = propertyType + " " + propertyName;
+                } else {
+                    fieldSignature = propertyType + " " + propertyName + " = new ArrayList<>()";
+                }
             } else {
                 // handle x-ms-client-default
                 // Only set the property to a default value if the property isn't included in the constructor.
@@ -664,7 +672,10 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         addGeneratedAnnotation(classBlock);
         addFieldAnnotations(model, property, classBlock, settings);
 
-        if (ClientModelUtil.includePropertyInConstructor(property, settings) || property.isConstant()) {
+        if (model.isStronglyTypedHeader() && ClientModelUtil.isImmutableOutputModel(model, settings)) {
+            // a shortcut for Headers class
+            classBlock.privateFinalMemberVariable(fieldSignature);
+        } else if (ClientModelUtil.includePropertyInConstructor(property, settings) || property.isConstant()) {
             classBlock.privateFinalMemberVariable(fieldSignature);
         } else {
             classBlock.privateMemberVariable(fieldSignature);
@@ -762,7 +773,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                 classBlock.annotation("JacksonXmlText");
             } else if (property.isAdditionalProperties()) {
                 classBlock.annotation("JsonIgnore");
-            } else if (treatAsXml && property.getWireType() instanceof ListType && !property.isXmlWrapper()) {
+            } else if (treatAsXml && property.getWireType() instanceof IterableType && !property.isXmlWrapper()) {
                 classBlock.annotation("JsonProperty(\"" + property.getXmlListElementName() + "\")");
             } else if (!CoreUtils.isNullOrEmpty(property.getAnnotationArguments())) {
                 classBlock.annotation("JsonProperty(" + property.getAnnotationArguments() + ")");
@@ -1053,18 +1064,32 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         }
 
         if (sourceTypeName.equals(targetTypeName)) {
-            if (treatAsXml && property.isXmlWrapper() && (property.getWireType() instanceof IterableType)) {
-                String thisGetName = "this." + property.getName();
+            if (settings.isAzureV1()
+                && treatAsXml
+                && property.isXmlWrapper()
+                && (property.getWireType() instanceof IterableType)) {
+                // this logic only apply to azure v1, for backward-compatibility
                 if (settings.isStreamStyleSerialization()) {
-                    methodBlock.ifBlock(thisGetName + " == null",
-                        ifBlock -> ifBlock.line(thisGetName + " = new ArrayList<>();"));
-                    methodBlock.methodReturn("this." + property.getName());
+                    // this always returns a List
+                    if (property.isRequired() && settings.isRequiredFieldsAsConstructorArgs()) {
+                        // the property is "final" and cannot be changed in setter
+                        // hence, return "Collections.emptyList()" (but no change to the property), if it is null
+                        methodBlock.ifBlock(expression + " == null",
+                            ifBlock -> ifBlock.methodReturn("Collections.emptyList()"));
+                        methodBlock.methodReturn(expression);
+                    } else {
+                        // assign a new ArrayList to the property, if it is null
+                        final String assignNewArrayListExpression = expression + " = new ArrayList<>();";
+                        methodBlock.ifBlock(expression + " == null",
+                            ifBlock -> ifBlock.line(assignNewArrayListExpression));
+                        methodBlock.methodReturn(expression);
+                    }
                 } else {
-                    methodBlock.ifBlock(thisGetName + " == null",
+                    methodBlock.ifBlock(expression + " == null",
                         ifBlock -> ifBlock.line("this.%s = new %s(new ArrayList<%s>());", property.getName(),
                             getPropertyXmlWrapperClassName(property),
                             ((GenericType) property.getWireType()).getTypeArguments()[0]));
-                    methodBlock.methodReturn(thisGetName + ".items");
+                    methodBlock.methodReturn(expression + ".items");
                 }
             } else {
                 methodBlock.methodReturn(expression);
@@ -1327,22 +1352,19 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
     }
 
     protected void addGeneratedImport(Set<String> imports) {
-        if (JavaSettings.getInstance().isDataPlaneClient()) {
-            if (JavaSettings.getInstance().isBranded()) {
-                Annotation.GENERATED.addImportsTo(imports);
-            } else {
-                Annotation.METADATA.addImportsTo(imports);
-            }
+        if (JavaSettings.getInstance().isAzureV1()) {
+            Annotation.GENERATED.addImportsTo(imports);
+        } else {
+            Annotation.METADATA.addImportsTo(imports);
+            Annotation.METADATA_PROPERTIES.addImportsTo(imports);
         }
     }
 
     protected void addGeneratedAnnotation(JavaContext classBlock) {
-        if (JavaSettings.getInstance().isDataPlaneClient()) {
-            if (JavaSettings.getInstance().isBranded()) {
-                classBlock.annotation(Annotation.GENERATED.getName());
-            } else {
-                classBlock.annotation(Annotation.METADATA.getName() + "(generated = true)");
-            }
+        if (JavaSettings.getInstance().isAzureV1()) {
+            classBlock.annotation(Annotation.GENERATED.getName());
+        } else {
+            classBlock.annotation(Annotation.METADATA.getName() + "(properties = {MetadataProperties.GENERATED})");
         }
     }
 

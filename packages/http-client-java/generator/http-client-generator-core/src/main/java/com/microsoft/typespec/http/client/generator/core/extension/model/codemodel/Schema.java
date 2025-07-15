@@ -3,13 +3,8 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -272,90 +267,8 @@ public class Schema extends Metadata {
         this.usage = usage;
     }
 
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return writeParentProperties(jsonWriter.writeStartObject()).writeEndObject();
-    }
-
-    JsonWriter writeParentProperties(JsonWriter jsonWriter) throws IOException {
-        return super.writeParentProperties(jsonWriter).writeStringField("type", type == null ? null : type.toString())
-            .writeStringField("summary", summary)
-            .writeUntypedField("example", example)
-            .writeUntypedField("defaultValue", defaultValue)
-            .writeJsonField("serialization", serialization)
-            .writeArrayField("serializationFormats", serializationFormats, JsonWriter::writeString)
-            .writeArrayField("usage", usage,
-                (writer, element) -> writer.writeString(element == null ? null : element.toString()))
-            .writeStringField("uid", uid)
-            .writeStringField("$key", $key)
-            .writeStringField("description", description)
-            .writeArrayField("apiVersions", apiVersions, JsonWriter::writeJson)
-            .writeJsonField("deprecated", deprecated)
-            .writeJsonField("externalDocs", externalDocs);
-    }
-
-    /**
-     * Deserializes a Schema instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return A Schema instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static Schema fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, Schema::new, (schema, fieldName, reader) -> {
-            if (!schema.tryConsumeParentProperties(schema, fieldName, reader)) {
-                reader.skipChildren();
-            }
-        });
-    }
-
-    boolean tryConsumeParentProperties(Schema schema, String fieldName, JsonReader reader) throws IOException {
-        if (super.tryConsumeParentProperties(schema, fieldName, reader)) {
-            return true;
-        } else if ("type".equals(fieldName)) {
-            schema.type = Schema.AllSchemaTypes.fromValue(reader.getString());
-            return true;
-        } else if ("summary".equals(fieldName)) {
-            schema.summary = reader.getString();
-            return true;
-        } else if ("example".equals(fieldName)) {
-            schema.example = reader.readUntyped();
-            return true;
-        } else if ("defaultValue".equals(fieldName)) {
-            schema.defaultValue = reader.readUntyped();
-            return true;
-        } else if ("serialization".equals(fieldName)) {
-            schema.serialization = SerializationFormats.fromJson(reader);
-            return true;
-        } else if ("serializationFormats".equals(fieldName)) {
-            List<String> formats = reader.readArray(JsonReader::getString);
-            schema.serializationFormats = formats == null ? null : new HashSet<>(formats);
-            return true;
-        } else if ("usage".equals(fieldName)) {
-            List<SchemaContext> usage = reader.readArray(element -> SchemaContext.fromValue(element.getString()));
-            schema.usage = usage == null ? null : new HashSet<>(usage);
-            return true;
-        } else if ("uid".equals(fieldName)) {
-            schema.uid = reader.getString();
-            return true;
-        } else if ("$key".equals(fieldName)) {
-            schema.$key = reader.getString();
-            return true;
-        } else if ("description".equals(fieldName)) {
-            schema.description = reader.getString();
-            return true;
-        } else if ("apiVersions".equals(fieldName)) {
-            schema.apiVersions = reader.readArray(ApiVersion::fromJson);
-            return true;
-        } else if ("deprecated".equals(fieldName)) {
-            schema.deprecated = Deprecation.fromJson(reader);
-            return true;
-        } else if ("externalDocs".equals(fieldName)) {
-            schema.externalDocs = ExternalDocumentation.fromJson(reader);
-            return true;
-        }
-
-        return false;
+    public boolean isXmlWrapped() {
+        return serialization != null && serialization.getXml() != null && serialization.getXml().isWrapped();
     }
 
     /**

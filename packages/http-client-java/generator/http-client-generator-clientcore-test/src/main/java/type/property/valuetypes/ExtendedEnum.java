@@ -1,6 +1,7 @@
 package type.property.valuetypes;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -25,7 +26,7 @@ public final class ExtendedEnum implements ExpandableEnum<String>, JsonSerializa
     /**
      * Static value value2 for ExtendedEnum.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static final ExtendedEnum ENUM_VALUE2 = fromValue("value2");
 
     private final String value;
@@ -41,7 +42,7 @@ public final class ExtendedEnum implements ExpandableEnum<String>, JsonSerializa
      * @return the corresponding ExtendedEnum.
      * @throws IllegalArgumentException if value is null.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static ExtendedEnum fromValue(String value) {
         if (value == null) {
             throw new IllegalArgumentException("'value' cannot be null.");
@@ -54,7 +55,7 @@ public final class ExtendedEnum implements ExpandableEnum<String>, JsonSerializa
      * 
      * @return Known ExtendedEnum values.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static Collection<ExtendedEnum> values() {
         return new ArrayList<>(VALUES.values());
     }
@@ -64,7 +65,7 @@ public final class ExtendedEnum implements ExpandableEnum<String>, JsonSerializa
      * 
      * @return the value of the ExtendedEnum instance.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public String getValue() {
         return this.value;
@@ -73,7 +74,7 @@ public final class ExtendedEnum implements ExpandableEnum<String>, JsonSerializa
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         return jsonWriter.writeString(getValue());
@@ -88,7 +89,7 @@ public final class ExtendedEnum implements ExpandableEnum<String>, JsonSerializa
      * @throws IOException If an error occurs while reading the ExtendedEnum.
      * @throws IllegalStateException If unexpected JSON token is found.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static ExtendedEnum fromJson(JsonReader jsonReader) throws IOException {
         JsonToken nextToken = jsonReader.nextToken();
         if (nextToken == JsonToken.NULL) {
@@ -101,19 +102,19 @@ public final class ExtendedEnum implements ExpandableEnum<String>, JsonSerializa
         return ExtendedEnum.fromValue(jsonReader.getString());
     }
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public String toString() {
         return Objects.toString(this.value);
     }
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public boolean equals(Object obj) {
         return this == obj;
     }
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public int hashCode() {
         return Objects.hashCode(this.value);

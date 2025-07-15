@@ -7,7 +7,6 @@
     "versioning.returntypechangedfrom.ReturnTypeChangedFromClient": "Versioning.ReturnTypeChangedFrom",
     "versioning.returntypechangedfrom.ReturnTypeChangedFromClient.test": "Versioning.ReturnTypeChangedFrom.test",
     "versioning.returntypechangedfrom.ReturnTypeChangedFromClient.testWithResponse": "Versioning.ReturnTypeChangedFrom.test",
-    "versioning.returntypechangedfrom.ReturnTypeChangedFromClientBuilder": "Versioning.ReturnTypeChangedFrom",
-    "versioning.returntypechangedfrom.models.Versions": "Versioning.ReturnTypeChangedFrom.Versions"
+    "versioning.returntypechangedfrom.ReturnTypeChangedFromClientBuilder": "Versioning.ReturnTypeChangedFrom"
   }
 }

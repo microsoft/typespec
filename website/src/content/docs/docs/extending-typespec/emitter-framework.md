@@ -69,6 +69,13 @@ export async function $onEmit(context: EmitContext) {
 
 If you run this emitter, you will see a `src` directory and a `README.md` file in your `tsp-output` directory.
 
+## Core Emitter Framework Components
+
+The emitter framework provides two components to allow easy access to typekits from within components:
+
+- `<Output program={Program}>` - wrapper around the core alloy `Output` component that additionally takes a TypeSpec `Program` to allow use of the `useTsp()` hook for easy access to typekits and the program in any child component.
+- `<TspContext.Provider value={Program}>` - accepts a TypeSpec `Program` to allow use of the `useTsp()` hook for easy access to typekits and the program in any child component. This is used internally by `<Output>`.
+
 ## TypeScript Emitter Framework Components
 
 The TypeScript emitter framework wraps components from the Alloy TypeScript component library by adding a `type` prop that accepts a TypeSpec type, allowing for easy translation of TypeSpec to TypeScript:
@@ -93,16 +100,16 @@ There are also some additional components handy for emitting TypeScript from Typ
 This example emitter will emit TypeScript types for some TypeSpec types.
 
 ```tsx
-import { For, Output, SourceDirectory, SourceFile } from "@alloy-js/core";
+import { For, SourceDirectory, SourceFile } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import type { EmitContext } from "@typespec/compiler";
-import { writeOutput } from "@typespec/emitter-framework";
+import { Output, writeOutput } from "@typespec/emitter-framework";
 
 export async function $onEmit(context: EmitContext) {
   // get some models from the type graph
   const types = getInterestingTypes();
   await writeOutput(
-    <Output>
+    <Output program={context.program}>
       <SourceDirectory path="src">
         <ts.SourceFile path="index.ts">
           <For each={types}>{(type) => <ts.TypeDeclaration type={type} />}</For>
@@ -139,14 +146,31 @@ import "@typespec/http/experimental/typekit";
 Import `$` in any source files you need to use compiler APIs:
 
 ```ts
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { $ } from "@typespec/compiler/typekit";
+```
+
+When inside an alloy component, you can alternatively import the `useTsp` hook:
+
+```ts
+import { useTsp } from "@typespec/emitter-framework";
 ```
 
 Any extensions you've imported will be available on the `$` object.
 
 #### 3. Use typekits
 
+Typekits need to know what TypeSpec `Program` to run on before they can be used:
+
 ```ts
+if ($(program).scalar.extendsString(maybeString)) {
+  console.log("Have a string scalar!");
+}
+```
+
+When using `useTsp`, the program is already available to typekits and does not need to be passed:
+
+```ts
+const { $ } = useTsp();
 if ($.scalar.extendsString(maybeString)) {
   console.log("Have a string scalar!");
 }
@@ -158,13 +182,17 @@ The typekits that are always available are the following:
 
 - **array**: reflect on and create array types
 - **builtin**: references to all built-in types like scalars
+- **entity**: resolve and check assignability of types and values
 - **enum**: reflect on and create enum types
 - **enumMember**: reflect on and create enum members
+- **intrinsic**: references to all intrinsic types
 - **literal**: reflect on and create literal types
 - **model**: reflect on and create model types
 - **modelProperty**: reflect on and create model properties
 - **operation**: reflect on and create operation types
 - **record**: reflect on and create record types
+- **scalar**: reflect on scalar types
+- **tuple**: reflect on and create tuple types
 - **type**: generic type utilities and query metadata applicable to multiple types (e.g. docs and built-in constraints)
 - **union**: reflect on and create union types
 - **unionVariant**: reflect on and create union variants

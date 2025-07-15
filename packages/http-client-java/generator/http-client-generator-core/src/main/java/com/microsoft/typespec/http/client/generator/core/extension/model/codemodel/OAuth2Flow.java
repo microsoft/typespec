@@ -3,16 +3,11 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonSerializable;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
 import java.util.List;
 
-public final class OAuth2Flow implements JsonSerializable<OAuth2Flow> {
+public final class OAuth2Flow {
 
-    public static final class OAuth2Scope implements JsonSerializable<OAuth2Scope> {
+    public static final class OAuth2Scope {
         private String value;
         private String description;
 
@@ -30,26 +25,6 @@ public final class OAuth2Flow implements JsonSerializable<OAuth2Flow> {
 
         public void setDescription(String description) {
             this.description = description;
-        }
-
-        @Override
-        public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-            return jsonWriter.writeStartObject()
-                .writeStringField("value", value)
-                .writeStringField("description", description)
-                .writeEndObject();
-        }
-
-        public static OAuth2Scope fromJson(JsonReader jsonReader) throws IOException {
-            return JsonUtils.readObject(jsonReader, OAuth2Scope::new, (scheme, fieldName, reader) -> {
-                if ("value".equals(fieldName)) {
-                    scheme.value = reader.getString();
-                } else if ("description".equals(fieldName)) {
-                    scheme.description = reader.getString();
-                } else {
-                    reader.skipChildren();
-                }
-            });
         }
     }
 
@@ -97,34 +72,5 @@ public final class OAuth2Flow implements JsonSerializable<OAuth2Flow> {
 
     public void setScopes(List<OAuth2Scope> scopes) {
         this.scopes = scopes;
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject()
-            .writeStringField("type", type)
-            .writeStringField("authorizationUrl", authorizationUrl)
-            .writeStringField("tokenUrl", tokenUrl)
-            .writeStringField("refreshUrl", refreshUrl)
-            .writeArrayField("scopes", scopes, JsonWriter::writeJson)
-            .writeEndObject();
-    }
-
-    public static OAuth2Flow fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, OAuth2Flow::new, (scheme, fieldName, reader) -> {
-            if ("type".equals(fieldName)) {
-                scheme.type = reader.getString();
-            } else if ("authorizationUrl".equals(fieldName)) {
-                scheme.authorizationUrl = reader.getString();
-            } else if ("tokenUrl".equals(fieldName)) {
-                scheme.tokenUrl = reader.getString();
-            } else if ("refreshUrl".equals(fieldName)) {
-                scheme.refreshUrl = reader.getString();
-            } else if ("scopes".equals(fieldName)) {
-                scheme.scopes = reader.readArray(OAuth2Scope::fromJson);
-            } else {
-                reader.skipChildren();
-            }
-        });
     }
 }

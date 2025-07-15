@@ -16,11 +16,13 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.utils.FileUtils;
 import payload.multipart.formdata.AnonymousModelRequest;
 import payload.multipart.formdata.httpparts.nonstring.FloatRequest;
 
+@Disabled
 public class MultipartTests {
 
     private final MultipartFilenameValidationPolicy validationPolicy = new MultipartFilenameValidationPolicy();

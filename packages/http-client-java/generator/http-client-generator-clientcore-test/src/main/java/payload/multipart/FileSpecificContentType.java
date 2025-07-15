@@ -1,30 +1,30 @@
 package payload.multipart;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.models.binarydata.BinaryData;
 
 /**
  * The file details for the "profileImage" field.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class FileSpecificContentType {
     /*
      * The content of the file.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final BinaryData content;
 
     /*
      * The filename of the file.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final String filename;
 
     /*
      * The content-type of the file.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final String contentType = "image/jpg";
 
     /**
@@ -33,7 +33,7 @@ public final class FileSpecificContentType {
      * @param content the content value to set.
      * @param filename the filename value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public FileSpecificContentType(BinaryData content, String filename) {
         this.content = content;
         this.filename = filename;
@@ -44,7 +44,7 @@ public final class FileSpecificContentType {
      * 
      * @return the content value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public BinaryData getContent() {
         return this.content;
     }
@@ -54,7 +54,7 @@ public final class FileSpecificContentType {
      * 
      * @return the filename value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getFilename() {
         return this.filename;
     }
@@ -64,7 +64,7 @@ public final class FileSpecificContentType {
      * 
      * @return the contentType value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getContentType() {
         return this.contentType;
     }

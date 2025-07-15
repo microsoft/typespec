@@ -25,9 +25,11 @@ import { doIO, loadFile } from "../utils/io.js";
 import { resolveTspMain } from "../utils/misc.js";
 import { getLocationInYamlScript } from "../yaml/diagnostics.js";
 import { parseYaml } from "../yaml/parser.js";
+import { ClientConfigProvider } from "./client-config-provider.js";
 import { serverOptions } from "./constants.js";
 import { FileService } from "./file-service.js";
 import { FileSystemCache } from "./file-system-cache.js";
+import { trackActionFunc } from "./server-track-action-task.js";
 import { CompileResult, ServerHost, ServerLog } from "./types.js";
 import { UpdateManger } from "./update-manager.js";
 
@@ -44,7 +46,14 @@ export interface CompileService {
    * @param document The document to compile. This is not necessarily the entrypoint, compile will try to guess which entrypoint to compile to include this one.
    * @returns the compiled result or undefined if compilation was aborted.
    */
-  compile(document: TextDocument | TextDocumentIdentifier): Promise<CompileResult | undefined>;
+  compile(
+    document: TextDocument | TextDocumentIdentifier,
+    additionalOptions?: CompilerOptions,
+    compileOptions?: {
+      bypassCache?: boolean;
+      trackAction?: boolean;
+    },
+  ): Promise<CompileResult | undefined>;
 
   /**
    * Load the AST for the given document.
@@ -60,6 +69,8 @@ export interface CompileService {
   notifyChange(document: TextDocument): void;
 
   on(event: "compileEnd", listener: (result: CompileResult) => void): void;
+
+  getMainFileForDocument(path: string): Promise<string>;
 }
 
 export interface CompileServiceOptions {
@@ -68,6 +79,7 @@ export interface CompileServiceOptions {
   readonly serverHost: ServerHost;
   readonly compilerHost: CompilerHost;
   readonly log: (log: ServerLog) => void;
+  readonly clientConfigsProvider?: ClientConfigProvider;
 }
 
 export function createCompileService({
@@ -76,13 +88,14 @@ export function createCompileService({
   fileService,
   fileSystemCache,
   log,
+  clientConfigsProvider,
 }: CompileServiceOptions): CompileService {
   const oldPrograms = new Map<string, Program>();
   const eventListeners = new Map<string, (...args: unknown[]) => void>();
   const updated = new UpdateManger((document) => compile(document));
   let configFilePath: string | undefined;
 
-  return { compile, getScript, on, notifyChange };
+  return { compile, getScript, on, notifyChange, getMainFileForDocument };
 
   function on(event: string, listener: (...args: any[]) => void) {
     eventListeners.set(event, listener);
@@ -99,20 +112,46 @@ export function createCompileService({
     updated.scheduleUpdate(document);
   }
 
+  /**
+   * Compile the given document.
+   * First, the main.tsp file will be obtained for compilation.
+   * If the current document is not the main.tsp file or not included in the compilation starting from the main file found,
+   * the current document will be recompiled and returned as part of the result.
+   * Otherwise, the compilation of main.tsp will be returned as part of the result.
+   * @param document The document to compile. tsp file that is open or not opened in workspace.
+   * @returns see {@link CompileResult} for more details.
+   */
   async function compile(
     document: TextDocument | TextDocumentIdentifier,
+    additionalOptions?: CompilerOptions,
+    runOptions?: {
+      bypassCache?: boolean;
+      trackAction?: boolean;
+    },
   ): Promise<CompileResult | undefined> {
     const path = await fileService.getPath(document);
     const mainFile = await getMainFileForDocument(path);
     const config = await getConfig(mainFile);
     configFilePath = config.filename;
     log({ level: "debug", message: `config resolved`, detail: config });
-
-    const [optionsFromConfig, _] = resolveOptionsFromConfig(config, { cwd: path });
+    const [optionsFromConfig, _] = resolveOptionsFromConfig(config, {
+      cwd: getDirectoryPath(path),
+    });
     const options: CompilerOptions = {
       ...optionsFromConfig,
       ...serverOptions,
+      ...(additionalOptions ?? {}),
     };
+
+    // If emit is set in additionalOptions, use this setting first
+    // otherwise, obtain the `typespec.lsp.emit` configuration from clientConfigsProvider
+    if (additionalOptions?.emit === undefined) {
+      const configEmits = clientConfigsProvider?.config?.lsp?.emit;
+      if (configEmits) {
+        options.emit = configEmits;
+      }
+    }
+
     // add linter rule for unused using if user didn't configure it explicitly
     const unusedUsingRule = `${builtInLinterLibraryName}/${builtInLinterRule_UnusedUsing}`;
     if (
@@ -143,7 +182,22 @@ export function createCompileService({
 
     let program: Program;
     try {
-      program = await compileProgram(compilerHost, mainFile, options, oldPrograms.get(mainFile));
+      program = await compileProgram(
+        runOptions?.trackAction
+          ? {
+              ...compilerHost,
+              logSink: {
+                log: compilerHost.logSink.log,
+                getPath: compilerHost.logSink.getPath,
+                trackAction: (message, finalMessage, action) =>
+                  trackActionFunc(serverHost.log, message, finalMessage, action),
+              },
+            }
+          : compilerHost,
+        mainFile,
+        options,
+        runOptions?.bypassCache ? undefined : oldPrograms.get(mainFile),
+      );
       oldPrograms.set(mainFile, program);
       if (!fileService.upToDate(document)) {
         return undefined;
@@ -165,9 +219,7 @@ export function createCompileService({
       }
 
       const doc = "version" in document ? document : serverHost.getOpenDocumentByURL(document.uri);
-      compilerAssert(doc, "Failed to get document.");
-      const resolvedPath = await fileService.getPath(doc);
-      const script = program.sourceFiles.get(resolvedPath);
+      const script = program.sourceFiles.get(path);
       compilerAssert(script, "Failed to get script.");
 
       const result: CompileResult = { program, document: doc, script, optionsFromConfig };

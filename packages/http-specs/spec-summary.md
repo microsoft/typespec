@@ -892,6 +892,49 @@ This test is testing sending a pipes collection format array query parameters
 
 This test is testing sending a ssv collection format array query parameters
 
+### Parameters_Path_normal
+
+- Endpoint: `get /parameters/path/normal/{name}`
+
+Test case for normal path parameter.
+
+Should generate an operation like below:
+
+```
+normal(name: string)
+```
+
+Expected request path:
+
+```
+/normal/foo
+```
+
+### Parameters_Path_optional
+
+- Endpoint: `get /parameters/path/optional{/name}`
+
+Test case for optional path parameter.
+
+Should generate an operation like below:
+
+```
+optional(name?: string)
+```
+
+Expected two request:
+First request path:
+
+```
+/optional
+```
+
+Second request path:
+
+```
+/optional/foo
+```
+
 ### Parameters_Spread_Alias_spreadAsRequestBody
 
 - Endpoint: `put /parameters/spread/alias/request-body`
@@ -1157,7 +1200,7 @@ Expected input body:
     }
   ],
   "intValue": 1,
-  "floatValue": 1.1,
+  "floatValue": 1.25,
   "innerModel": {
     "name": "InnerMadge",
     "description": "innerDesc"
@@ -1185,7 +1228,7 @@ Expected response body:
     }
   ],
   "intValue": 1,
-  "floatValue": 1.1,
+  "floatValue": 1.25,
   "innerModel": {
     "name": "InnerMadge",
     "description": "innerDesc"
@@ -1653,6 +1696,56 @@ Content-Type: application/octet-stream
 --abcde12345--
 ```
 
+### Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeaderNestedResponseBody
+
+- Endpoint: `get /payload/pageable/server-driven-pagination/continuationtoken/request-header-nested-response-body`
+
+Test case for using continuation token as pagination with nested response structure. Continuation token is passed in the request header and nested within response body.
+
+Two requests need to be tested.
+
+1. Initial request:
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-nested-response-body?bar=bar
+
+Expected request header:
+foo=foo
+
+Expected response body:
+
+```json
+{
+  "nestedItems": {
+    "pets": [
+      { "id": "1", "name": "dog" },
+      { "id": "2", "name": "cat" }
+    ]
+  },
+  "next": {
+    "nextToken": "page2"
+  }
+}
+```
+
+2. Next page request:
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-nested-response-body?bar=bar
+
+Expected request header:
+token=page2
+foo=foo
+
+Expected response body:
+
+```json
+{
+  "nestedItems": {
+    "pets": [
+      { "id": "3", "name": "bird" },
+      { "id": "4", "name": "fish" }
+    ]
+  }
+}
+```
+
 ### Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeaderResponseBody
 
 - Endpoint: `get /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body`
@@ -1740,6 +1833,55 @@ Expected response body:
     { "id": "3", "name": "bird" },
     { "id": "4", "name": "fish" }
   ]
+}
+```
+
+### Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestQueryNestedResponseBody
+
+- Endpoint: `get /payload/pageable/server-driven-pagination/continuationtoken/request-query-nested-response-body`
+
+Test case for using continuation token as pagination with nested response structure. Continuation token is passed in the request query and nested within response body.
+
+Two requests need to be tested.
+
+1. Initial request:
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-nested-response-body?bar=bar
+
+Expected request header:
+foo=foo
+
+Expected response body:
+
+```json
+{
+  "nestedItems": {
+    "pets": [
+      { "id": "1", "name": "dog" },
+      { "id": "2", "name": "cat" }
+    ]
+  },
+  "nestedNext": {
+    "nextToken": "page2"
+  }
+}
+```
+
+2. Next page request:
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-nested-response-body?bar=bar&token=page2
+
+Expected request header:
+foo=foo
+
+Expected response body:
+
+```json
+{
+  "nestedItems": {
+    "pets": [
+      { "id": "3", "name": "bird" },
+      { "id": "4", "name": "fish" }
+    ]
+  }
 }
 ```
 
@@ -1863,6 +2005,47 @@ Two requests need to be tested.
     { "id": "3", "name": "bird" },
     { "id": "4", "name": "fish" }
   ]
+}
+```
+
+### Payload_Pageable_ServerDrivenPagination_nestedLink
+
+- Endpoint: `get /payload/pageable/server-driven-pagination/nested-link`
+
+Test case for using link as pagination with nested structure.
+
+Two requests need to be tested.
+
+1. Initial request:
+   Expected route: /payload/pageable/server-driven-pagination/nested-link
+   Expected response body:
+
+```json
+{
+  "nestedItems": {
+    "pets": [
+      { "id": "1", "name": "dog" },
+      { "id": "2", "name": "cat" }
+    ]
+  },
+  "nestedNext": {
+    "next": "http://[host]:[port]/payload/pageable/server-driven-pagination/nested-link/nextPage"
+  }
+}
+```
+
+2. Next page request:
+   Expected route: /payload/pageable/server-driven-pagination/nested-link/nextPage
+   Expected response body:
+
+```json
+{
+  "nestedItems": {
+    "pets": [
+      { "id": "3", "name": "bird" },
+      { "id": "4", "name": "fish" }
+    ]
+  }
 }
 ```
 
@@ -7084,6 +7267,178 @@ Expect to handle a unknown type value. Mock api will return 'test'
 
 Expect to send a string value. Mock api expect to receive 'test'
 
+### Type_Union_Discriminated_Envelope_Object_CustomProperties_get
+
+- Endpoint: `get /type/union/discriminated/envelope/object/custom-properties`
+
+Test discriminated union with custom property names.
+When value of query parameter "petType" is "cat" or no query parameter input, the expected response is:
+
+```json
+{
+  "petType": "cat",
+  "petData": {
+    "name": "Whiskers",
+    "meow": true
+  }
+}
+```
+
+When it is "dog", expected response is:
+
+```json
+{
+  "petType": "dog",
+  "petData": {
+    "name": "Rex",
+    "bark": false
+  }
+}
+```
+
+### Type_Union_Discriminated_Envelope_Object_CustomProperties_put
+
+- Endpoint: `put /type/union/discriminated/envelope/object/custom-properties`
+
+Test discriminated union with custom property names.
+Send the union as:
+
+```json
+{
+  "petType": "cat",
+  "petData": {
+    "name": "Whiskers",
+    "meow": true
+  }
+}
+```
+
+### Type_Union_Discriminated_Envelope_Object_Default_get
+
+- Endpoint: `get /type/union/discriminated/envelope/object/default`
+
+Test discriminated union with envelope serialization.
+When value of query parameter "kind" is "cat" or no query parameter input, the expected response is:
+
+```json
+{
+  "kind": "cat",
+  "value": {
+    "name": "Whiskers",
+    "meow": true
+  }
+}
+```
+
+When it is "dog", expected response is:
+
+```json
+{
+  "kind": "dog",
+  "value": {
+    "name": "Rex",
+    "bark": false
+  }
+}
+```
+
+### Type_Union_Discriminated_Envelope_Object_Default_put
+
+- Endpoint: `put /type/union/discriminated/envelope/object/default`
+
+Test discriminated union with envelope serialization.
+Send the union as:
+
+```json
+{
+  "kind": "cat",
+  "value": {
+    "name": "Whiskers",
+    "meow": true
+  }
+}
+```
+
+### Type_Union_Discriminated_NoEnvelope_CustomDiscriminator_get
+
+- Endpoint: `get /type/union/discriminated/no-envelope/custom-discriminator`
+
+Test discriminated union with inline discriminator and custom discriminator property name.
+When value of query parameter "type" is "cat" or no query parameter input, the expected response is:
+
+```json
+{
+  "type": "cat",
+  "name": "Whiskers",
+  "meow": true
+}
+```
+
+When it is "dog", expected response is:
+
+```json
+{
+  "type": "dog",
+  "name": "Rex",
+  "bark": false
+}
+```
+
+### Type_Union_Discriminated_NoEnvelope_CustomDiscriminator_put
+
+- Endpoint: `put /type/union/discriminated/no-envelope/custom-discriminator`
+
+Test discriminated union with inline discriminator and custom discriminator property name.
+Send the union as:
+
+```json
+{
+  "type": "cat",
+  "name": "Whiskers",
+  "meow": true
+}
+```
+
+### Type_Union_Discriminated_NoEnvelope_Default_get
+
+- Endpoint: `get /type/union/discriminated/no-envelope/default`
+
+Test discriminated union with inline discriminator.
+When value of query parameter "kind" is "cat" or no query parameter input, the expected response is:
+
+```json
+{
+  "kind": "cat",
+  "name": "Whiskers",
+  "meow": true
+}
+```
+
+When it is "dog", expected response is:
+
+```json
+{
+  "kind": "dog",
+  "name": "Rex",
+  "bark": false
+}
+```
+
+### Type_Union_Discriminated_NoEnvelope_Default_put
+
+- Endpoint: `put /type/union/discriminated/no-envelope/default`
+
+Test discriminated union with inline discriminator.
+Send the union as:
+
+```json
+{
+  "kind": "cat",
+  "name": "Whiskers",
+  "meow": true
+}
+```
+
 ### Type_Union_EnumsOnly_get
 
 - Endpoint: `get /type/union/enums-only`
@@ -7535,7 +7890,7 @@ Expected request body:
 
 - Endpoint: `post /versioning/removed/api-version:{version}/v3`
 
-path: "/versioning/removed/api-version[:]v1/v3"
+path: "/versioning/removed/api-version:v1/v3"
 Expected request body:
 
 ```json
@@ -7548,7 +7903,7 @@ Expected response body:
 { "id": "123", "enumProp": "enumMemberV1" }
 ```
 
-path: "/versioning/removed/api-version[:]v2preview/v3"
+path: "/versioning/removed/api-version:v2preview/v3"
 Expected request body:
 
 ```json
@@ -7561,7 +7916,7 @@ Expected response body:
 { "id": "123" }
 ```
 
-path: "/versioning/removed/api-version[:]v2/v3"
+path: "/versioning/removed/api-version:v2/v3"
 Expected request body:
 
 ```json

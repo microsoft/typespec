@@ -39,7 +39,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
 
             var param = InputFactory.Parameter("param", InputFactory.Literal.String("bar"), location: InputRequestLocation.Header, isRequired: true);
             var inputOperation = InputFactory.Operation("testOperation", parameters: [param], responses: [InputFactory.OperationResponse(bodytype: InputPrimitiveType.Any)]);
-            var inputClient = InputFactory.Client("fooClient", operations: [inputOperation], parameters: [param]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
+            var inputClient = InputFactory.Client("fooClient", methods: [inputServiceMethod], parameters: [param]);
             _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace(
                 "Sample",
                 models: [inputModel],
@@ -48,7 +49,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             var mockClientProvider = new Mock<ClientProvider>(inputClient) { CallBase = true };
             _ = mockClientProvider.Object.Methods;
 
-            _mockVisitor.Protected().Verify<MethodProviderCollection>("Visit", Times.Once(), inputOperation, ItExpr.IsAny<TypeProvider>(), ItExpr.IsAny<MethodProviderCollection>());
+            _mockVisitor.Protected().Verify<ScmMethodProviderCollection>("Visit", Times.Once(), inputServiceMethod, ItExpr.IsAny<ClientProvider>(), ItExpr.IsAny<ScmMethodProviderCollection>());
         }
 
         [Test]

@@ -1,7 +1,8 @@
 import { compilerAssert } from "../core/diagnostics.js";
 import { Program } from "../core/program.js";
 import { Type } from "../core/types.js";
-import { createTypekit, Typekit } from "./typekit/index.js";
+import type { Typekit } from "../typekit/index.js";
+import { createTypekit } from "./typekit/index.js";
 
 /**
  * A Realm's view of a Program's state map for a given state key.
@@ -55,7 +56,7 @@ class StateMapRealmView<V> implements Map<Type, V> {
     this.#realmState.clear();
   }
 
-  *entries(): IterableIterator<[Type, V]> {
+  *entries(): MapIterator<[Type, V]> {
     for (const item of this.#realmState) {
       yield item;
     }
@@ -67,7 +68,7 @@ class StateMapRealmView<V> implements Map<Type, V> {
     return undefined;
   }
 
-  *values(): IterableIterator<V> {
+  *values(): MapIterator<V> {
     for (const item of this.entries()) {
       yield item[1];
     }
@@ -75,7 +76,7 @@ class StateMapRealmView<V> implements Map<Type, V> {
     return undefined;
   }
 
-  *keys(): IterableIterator<Type> {
+  *keys(): MapIterator<Type> {
     for (const item of this.entries()) {
       yield item[0];
     }
@@ -234,5 +235,20 @@ export class Realm {
     return this.#types;
   }
 
-  static realmForType = new WeakMap<Type, Realm>();
+  static realmForType = singleton("Realm.realmForType", () => new WeakMap<Type, Realm>());
+}
+
+/**
+ * Create a singleton instance that is shared across the process.
+ * This is to have a true singleton even if multiple instance of the compiler/library are loaded.
+ * @param key - The key to use for the singleton.
+ * @param init - The function to call to create the singleton.
+ */
+function singleton<T>(key: string, init: () => T): T {
+  const sym = Symbol.for(key);
+  if (!(globalThis as any)[sym]) {
+    (globalThis as any)[sym] = init();
+  }
+
+  return (globalThis as any)[sym];
 }

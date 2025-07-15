@@ -11,6 +11,8 @@ namespace SpecialWords._Models
 {
     public partial class Constructor : IJsonModel<Constructor>
     {
+        internal Constructor() => throw null;
+
         void IJsonModel<Constructor>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -30,7 +32,5 @@ namespace SpecialWords._Models
         string IPersistableModel<Constructor>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(Constructor constructor) => throw null;
-
-        public static explicit operator Constructor(ClientResult result) => throw null;
     }
 }

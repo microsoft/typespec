@@ -6,11 +6,13 @@ import {
   type Namespace,
   type Program,
   type Scalar,
+  serializeValueAsJson,
   setTypeSpecNamespace,
   type Tuple,
   type Type,
   typespecTypeToJson,
   type Union,
+  type Value,
 } from "@typespec/compiler";
 import { useStateMap, useStateSet } from "@typespec/compiler/utils";
 import type { ValidatesRawJsonDecorator } from "../generated-defs/TypeSpec.JsonSchema.Private.js";
@@ -106,7 +108,30 @@ export function isJsonSchemaDeclaration(program: Program, target: JsonSchemaDecl
  * @param program TypeSpec program
  */
 export function getJsonSchemaTypes(program: Program): (Namespace | Model)[] {
-  return [...(program.stateSet(JsonSchemaStateKeys.JsonSchema) || [])] as (Namespace | Model)[];
+  const types: (Model | Namespace)[] = [];
+
+  function visitNamespace(ns: Namespace) {
+    if (getJsonSchema(program, ns)) {
+      types.push(ns);
+    }
+
+    for (const member of ns.models.values()) {
+      visitModel(member);
+    }
+    for (const member of ns.namespaces.values()) {
+      visitNamespace(member);
+    }
+  }
+
+  function visitModel(model: Model) {
+    if (isJsonSchemaDeclaration(program, model)) {
+      types.push(model);
+    }
+  }
+
+  visitNamespace(program.getGlobalNamespaceType());
+
+  return types;
 }
 
 export const [
@@ -257,8 +282,52 @@ export const $extension: ExtensionDecorator = (
   key: string,
   value: unknown,
 ) => {
+  if (!isTypeLike(value)) {
+    value = convertRemainingValuesToExtensions(context.program, value);
+  }
   setExtension(context.program, target, key, value);
 };
+
+// Workaround until we have a way to disable arg marshalling and just call serializeValueAsJson
+// https://github.com/microsoft/typespec/issues/3570
+function convertRemainingValuesToExtensions(program: Program, value: unknown): unknown {
+  switch (typeof value) {
+    case "string":
+    case "number":
+    case "boolean":
+      return value;
+    case "object":
+      if (value === null) {
+        return null;
+      }
+      if (Array.isArray(value)) {
+        return value.map((x) => convertRemainingValuesToExtensions(program, x));
+      }
+
+      if (isTypeSpecValue(value)) {
+        return serializeValueAsJson(program, value, value.type);
+      } else {
+        const result: Record<string, unknown> = {};
+        for (const [key, val] of Object.entries(value)) {
+          if (val === undefined) {
+            continue;
+          }
+          result[key] = convertRemainingValuesToExtensions(program, val);
+        }
+        return result;
+      }
+    default:
+      return value;
+  }
+}
+
+function isTypeLike(value: any): value is Type {
+  return typeof value === "object" && value !== null && isType(value);
+}
+
+function isTypeSpecValue(value: object): value is Value {
+  return "entityKind" in value && value.entityKind === "Value";
+}
 
 /**
  * Get extensions set via the `@extension` decorator on the given type

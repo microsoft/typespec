@@ -104,5 +104,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
+
+        // This test validates that non-body properties are not included in the body serialization of the model
+        [Test]
+        public void NonBodyPropertyKindsInModel()
+        {
+            var inputModel = InputFactory.Model(
+               "ModelWithNonBodyParameters",
+               properties:
+               [
+                    InputFactory.HeaderParameter("foo", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.QueryParameter("cat", InputPrimitiveType.String, serializedName: "x-cat", isRequired: true),
+                    InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
+               ]);
+
+            var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
+            var writer = new TypeProviderWriter(mrwProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
     }
 }

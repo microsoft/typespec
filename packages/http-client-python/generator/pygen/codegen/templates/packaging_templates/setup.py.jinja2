@@ -1,20 +1,22 @@
 # coding=utf-8
+{% set min_version = MIN_PYTHON_VERSION.split('.')[1] | int %}
+{% set max_version = MAX_PYTHON_VERSION.split('.')[1] | int %}
 {% if code_model.license_header %}
 {{ code_model.license_header }}
 {% endif %}
 
-{% if package_mode %}
+{% if options["package-mode"] %}
 
 import os
 import re
 {% endif %}
 from setuptools import setup, find_packages
 
-{% set package_name = package_name or code_model.clients[0].name %}
+{% set package_name = options["package-name"] or code_model.clients[0].name %}
 
 PACKAGE_NAME = "{{ package_name|lower }}"
-{% if package_mode %}
-PACKAGE_PPRINT_NAME = "{{ package_pprint_name }}"
+{% if options["package-mode"] %}
+PACKAGE_PPRINT_NAME = "{{ options["package-pprint-name"] }}"
 {% if code_model.is_tsp %}
 PACKAGE_NAMESPACE = "{{ code_model.namespace|lower }}"
 
@@ -38,7 +40,7 @@ if not version:
 {% set author_email = "azpysdkhelp@microsoft.com" %}
 {% set url = "https://github.com/Azure/azure-sdk-for-python/tree/main/sdk" %}
 {% else %}
-version = "{{ package_version }}"
+version = "{{ options.get("package-version", "unknown") }}"
 {% set description = "\"%s\""|format(package_name) %}
 {% set long_description = code_model.description %}
 {% set author_email = "" %}
@@ -50,7 +52,7 @@ setup(
     name=PACKAGE_NAME,
     version=version,
     description={{ description }},
-    {% if package_mode %}
+    {% if options["package-mode"] %}
     long_description=open("README.md", "r").read(),
     long_description_content_type="text/markdown",
     license="MIT License",
@@ -61,16 +63,15 @@ setup(
     url="{{ url }}",
     keywords="azure, azure sdk",
     {% endif %}
-    {% if package_mode %}
+    {% if options["package-mode"] %}
     classifiers=[
         "Development Status :: {{ dev_status }}",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
-        "Programming Language :: Python :: 3.12",
+        {% for version in range(min_version, max_version + 1)  %}
+        "Programming Language :: Python :: 3.{{ version }}",
+        {% endfor %}
         "License :: OSI Approved :: MIT License",
     ],
     zip_safe=False,
@@ -95,21 +96,21 @@ setup(
     {% endif %}
     install_requires=[
         {% if code_model.is_legacy %}
-        "msrest>=0.7.1",
+        "msrest>={{ VERSION_MAP["msrest"] }}",
         {% else %}
-        "isodate>=0.6.1",
+        "isodate>={{ VERSION_MAP["isodate"] }}",
         {% endif %}
-        {% if azure_arm %}
-        "azure-mgmt-core>=1.3.2",
+        {% if code_model.options["azure-arm"] %}
+        "azure-mgmt-core>={{ VERSION_MAP["azure-mgmt-core"] }}",
         {% elif code_model.is_azure_flavor %}
-        "azure-core>=1.30.0",
+        "azure-core>={{ VERSION_MAP["azure-core"] }}",
         {% else %}
-        "corehttp[requests]",
+        "corehttp[requests]>={{ VERSION_MAP["corehttp"] }}",
         {% endif %}
-        "typing-extensions>=4.6.0",
+        "typing-extensions>={{ VERSION_MAP['typing-extensions'] }}",
     ],
-    {% if package_mode %}
-    python_requires=">=3.9",
+    {% if options["package-mode"] %}
+    python_requires=">={{  MIN_PYTHON_VERSION }}",
     {% else %}
     long_description="""\
     {{ code_model.description }}

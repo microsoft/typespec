@@ -20,6 +20,7 @@ import reactor.core.publisher.Mono;
 import tsptest.flatten.implementation.FlattenClientImpl;
 import tsptest.flatten.implementation.JsonMergePatchHelper;
 import tsptest.flatten.implementation.models.SendLongRequest;
+import tsptest.flatten.implementation.models.SendOptionalBodyRequest;
 import tsptest.flatten.implementation.models.SendProjectedNameRequest;
 import tsptest.flatten.implementation.models.SendRequest;
 import tsptest.flatten.models.SendLongOptions;
@@ -212,6 +213,33 @@ public final class FlattenAsyncClient {
     }
 
     /**
+     * The sendOptionalBody operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     name: String (Optional)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param sendOptionalBodyRequest The sendOptionalBodyRequest parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> sendOptionalBodyWithResponse(BinaryData sendOptionalBodyRequest,
+        RequestOptions requestOptions) {
+        return this.serviceClient.sendOptionalBodyWithResponseAsync(sendOptionalBodyRequest, requestOptions);
+    }
+
+    /**
      * The send operation.
      * 
      * @param id The id parameter.
@@ -348,5 +376,47 @@ public final class FlattenAsyncClient {
         JsonMergePatchHelper.getUpdatePatchRequestAccessor().prepareModelForJsonMergePatch(updateRequest, false);
         return updateWithResponse(id, updateRequestInBinaryData, requestOptions).flatMap(FluxUtil::toMono)
             .map(protocolMethodData -> protocolMethodData.toObject(TodoItem.class));
+    }
+
+    /**
+     * The sendOptionalBody operation.
+     * 
+     * @param name The name parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> sendOptionalBody(String name) {
+        // Generated convenience method for sendOptionalBodyWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        SendOptionalBodyRequest sendOptionalBodyRequestObj = new SendOptionalBodyRequest().setName(name);
+        BinaryData sendOptionalBodyRequest = BinaryData.fromObject(sendOptionalBodyRequestObj);
+        return sendOptionalBodyWithResponse(sendOptionalBodyRequest, requestOptions).flatMap(FluxUtil::toMono);
+    }
+
+    /**
+     * The sendOptionalBody operation.
+     * 
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> sendOptionalBody() {
+        // Generated convenience method for sendOptionalBodyWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        SendOptionalBodyRequest sendOptionalBodyRequestObj = new SendOptionalBodyRequest();
+        BinaryData sendOptionalBodyRequest = BinaryData.fromObject(sendOptionalBodyRequestObj);
+        return sendOptionalBodyWithResponse(sendOptionalBodyRequest, requestOptions).flatMap(FluxUtil::toMono);
     }
 }

@@ -11,6 +11,7 @@ import {
   Diagnostic,
   EmptyVisibilityProvider,
   Enum,
+  getFriendlyName,
   getLifecycleVisibilityEnum,
   getParameterVisibilityFilter,
   getVisibilityForClass,
@@ -963,6 +964,223 @@ describe("compiler: visibility core", () => {
 
       strictEqual(idRead.type, idReadCreate.type);
     });
+  });
+
+  it("deeply renames types using the name template", async () => {
+    const { DataA, DataB } = (await runner.compile(`
+      enum Example {
+        A,
+        B,
+      }
+
+      model Data {
+        @visibility(Example.A)
+        data_a: Foo;
+
+        @visibility(Example.B)
+        data_b: Foo;
+      }
+        
+      model Foo {
+        @visibility(Example.B)
+        foo_b: string;
+        @visibility(Example.A)
+        foo_a: string;
+      }
+
+      @withVisibilityFilter(#{ any: #[Example.A] }, "{name}A")
+      @test model DataA {
+        ...Data
+      }
+
+      @withVisibilityFilter(#{ any: #[Example.B] }, "{name}B")
+      @test model DataB {
+        ...Data
+      }
+    `)) as { DataA: Model; DataB: Model };
+
+    ok(DataA);
+    ok(DataB);
+
+    ok(DataA.properties.has("data_a"));
+    ok(!DataA.properties.has("data_b"));
+    ok(DataB.properties.has("data_b"));
+    ok(!DataB.properties.has("data_a"));
+
+    const dataA = DataA.properties.get("data_a")!;
+    const dataB = DataB.properties.get("data_b")!;
+
+    ok(dataA.type.kind === "Model");
+    ok(dataB.type.kind === "Model");
+
+    const FooA = dataA.type as Model;
+    const FooB = dataB.type as Model;
+
+    ok(FooA.name === "FooA");
+    ok(FooB.name === "FooB");
+
+    ok(FooA.properties.has("foo_a"));
+    ok(!FooA.properties.has("foo_b"));
+    ok(FooB.properties.has("foo_b"));
+    ok(!FooB.properties.has("foo_a"));
+  });
+
+  it("correctly caches and deduplicates transformed instances", async () => {
+    const { Out } = (await runner.compile(`
+      model A {
+        @visibility(Lifecycle.Read)
+        a: string;
+
+        @visibility(Lifecycle.Create)
+        invisible: string;
+
+        c: C;
+      }
+
+      model B {
+        @visibility(Lifecycle.Read)
+        b: string;
+
+        @visibility(Lifecycle.Create)
+        invisible: string;
+
+        c: C;
+      }
+
+      model C {
+        @visibility(Lifecycle.Create)
+        invisible: string;
+
+        @visibility(Lifecycle.Read)
+        c: string;
+      }
+
+      @test model Out {
+        a: Read<A>;
+        b: Read<B>;
+      }
+    `)) as { Out: Model };
+
+    ok(Out);
+
+    const a = Out.properties.get("a");
+    const b = Out.properties.get("b");
+
+    ok(a);
+    ok(b);
+
+    ok(a.type.kind === "Model");
+    ok(b.type.kind === "Model");
+
+    const A = a.type as Model;
+    const B = b.type as Model;
+
+    ok(getFriendlyName(runner.program, A) === "ReadA");
+    ok(getFriendlyName(runner.program, B) === "ReadB");
+
+    ok(A.properties.has("a"));
+    ok(!A.properties.has("invisible"));
+
+    ok(B.properties.has("b"));
+    ok(!B.properties.has("invisible"));
+
+    const aC = A.properties.get("c");
+    const bC = B.properties.get("c");
+
+    ok(aC);
+    ok(bC);
+
+    ok(aC.type === bC.type);
+
+    let C = aC.type as Model;
+
+    ok(C.kind === "Model");
+    ok(C.name === "ReadC");
+
+    ok(!C.properties.has("invisible"));
+    ok(C.properties.has("c"));
+
+    C = bC.type as Model;
+
+    ok(C.kind === "Model");
+    ok(C.name === "ReadC");
+
+    ok(!C.properties.has("invisible"));
+    ok(C.properties.has("c"));
+  });
+
+  it("correctly caches and deduplicates instances that are not transformed", async () => {
+    const { example, B } = (await runner.compile(`
+      @test op example(): Read<A>;
+
+      model A {
+        b: B;
+      }
+      
+      @test
+      model B {
+        c: string;
+      }
+    `)) as { example: Operation; B: Model };
+
+    ok(example);
+    strictEqual(example.kind, "Operation");
+
+    const ReadA = example.returnType as Model;
+
+    strictEqual(ReadA.kind, "Model");
+
+    const aB = ReadA.properties.get("b")!.type as Model;
+
+    strictEqual(aB.kind, "Model");
+
+    ok(aB === B);
+  });
+
+  it("correctly transforms arrays and records", async () => {
+    const { Result } = (await runner.compile(`
+      model A {
+        @visibility(Lifecycle.Read)
+        a: string;
+
+        @visibility(Lifecycle.Create)
+        invisible: string;
+      }
+
+      @withVisibilityFilter(#{ any: #[Lifecycle.Read] }, "{name}Transform")
+      @test model Result {
+        array: A[];
+        record: Record<A>;
+      }
+    `)) as { Result: Model };
+
+    ok(Result);
+
+    const array = Result.properties.get("array");
+    const record = Result.properties.get("record");
+
+    ok(array);
+    ok(record);
+
+    const arrayType = array.type;
+    const recordType = record.type;
+
+    ok(arrayType.kind === "Model");
+    ok(recordType.kind === "Model");
+
+    const arrayA = (arrayType as Model).indexer!.value as Model;
+    const recordA = (recordType as Model).indexer!.value as Model;
+
+    ok(arrayA.kind === "Model");
+    ok(recordA.kind === "Model");
+
+    ok(arrayA.name === "ATransform");
+    ok(recordA.name === "ATransform");
+
+    ok(arrayA === recordA);
+
+    ok(arrayA.properties.has("a"));
+    ok(!arrayA.properties.has("invisible"));
   });
 });
 

@@ -3,7 +3,7 @@
 
 import { DecoratorInfo } from "@azure-tools/typespec-client-generator-core";
 import { InputConstant } from "./input-constant.js";
-import { InputOperationParameterKind } from "./input-operation-parameter-kind.js";
+import { InputParameterKind } from "./input-parameter-kind.js";
 import { InputType } from "./input-type.js";
 import { RequestLocation } from "./request-location.js";
 
@@ -16,7 +16,7 @@ export interface InputParameter {
   location: RequestLocation;
   defaultValue?: InputConstant;
   groupedBy?: InputParameter;
-  kind: InputOperationParameterKind;
+  kind: InputParameterKind;
   isRequired: boolean;
   isApiVersion: boolean;
   isContentType: boolean;
@@ -26,4 +26,5 @@ export interface InputParameter {
   arraySerializationDelimiter?: string;
   headerCollectionPrefix?: string;
   decorators?: DecoratorInfo[];
+  serverUrlTemplate?: string;
 }

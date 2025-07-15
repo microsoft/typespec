@@ -1,7 +1,7 @@
-import * as ay from "@alloy-js/core";
+import { Children, code, refkey, Refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Union } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import type { Union } from "@typespec/compiler";
+import { useTsp } from "@typespec/emitter-framework";
 import {
   getJsonTransformDiscriminatorRefkey,
   JsonTransformDiscriminatorDeclaration,
@@ -9,14 +9,15 @@ import {
 import { JsonTransform } from "./json-transform.jsx";
 
 export interface JsonUnionTransformProps {
-  itemRef: ay.Refkey | ay.Children;
+  itemRef: Refkey | Children;
   type: Union;
   target: "transport" | "application";
 }
 
 export function JsonUnionTransform(props: JsonUnionTransformProps) {
-  const discriminator = $.type.getDiscriminator(props.type);
-  if (discriminator) {
+  const { $ } = useTsp();
+  const discriminator = $.union.getDiscriminatedUnion(props.type);
+  if (discriminator?.options.discriminatorPropertyName) {
     // return <JsonTransformDiscriminator {...props} discriminator={discriminator}/>;
     return (
       <>
@@ -38,8 +39,8 @@ export function JsonUnionTransform(props: JsonUnionTransformProps) {
 export function getJsonUnionTransformRefkey(
   type: Union,
   target: "transport" | "application",
-): ay.Refkey {
-  return ay.refkey(type, "json_union_transform", target);
+): Refkey {
+  return refkey(type, "json_union_transform", target);
 }
 export interface JsonUnionTransformDeclarationProps {
   type: Union;
@@ -53,10 +54,10 @@ export function JsonUnionTransformDeclaration(props: JsonUnionTransformDeclarati
     "function",
   );
 
-  const typeRef = ay.refkey(props.type);
+  const typeRef = refkey(props.type);
   const returnType = props.target === "transport" ? "any" : typeRef;
   const inputType = props.target === "transport" ? <>{typeRef} | null</> : "any";
-  const inputRef = ay.refkey();
+  const inputRef = refkey();
 
   const parameters: ts.ParameterDescriptor[] = [
     { name: "input_", type: inputType, refkey: inputRef, optional: true },
@@ -73,7 +74,7 @@ export function JsonUnionTransformDeclaration(props: JsonUnionTransformDeclarati
         parameters={parameters}
         refkey={declarationRefkey}
       >
-        {ay.code`
+        {code`
     if(!${inputRef}) {
       return ${inputRef} as any;
     }

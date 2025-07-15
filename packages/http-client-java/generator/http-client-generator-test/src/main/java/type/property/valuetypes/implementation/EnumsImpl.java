@@ -56,7 +56,7 @@ public final class EnumsImpl {
      * calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ValueTypesClientEnum")
+    @ServiceInterface(name = "ValueTypesClientEnums")
     public interface EnumsService {
         @Get("/type/property/value-types/enum")
         @ExpectedResponses({ 200 })

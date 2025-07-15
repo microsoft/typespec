@@ -8,228 +8,53 @@ import encode.duration.property.FloatSecondsDurationProperty;
 import encode.duration.property.ISO8601DurationProperty;
 import encode.duration.property.Int32SecondsDurationProperty;
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.instrumentation.Instrumentation;
 
 /**
  * Initializes a new instance of the synchronous DurationClient type.
  */
 @ServiceClient(builder = DurationClientBuilder.class)
 public final class PropertyClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final PropertiesImpl serviceClient;
+
+    private final Instrumentation instrumentation;
 
     /**
      * Initializes an instance of PropertyClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
-    @Metadata(generated = true)
-    PropertyClient(PropertiesImpl serviceClient) {
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    PropertyClient(PropertiesImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
      * The defaultMethod operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     value: Duration (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     value: Duration (Required)
-     * }
-     * }
-     * </pre>
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
-    public Response<DefaultDurationProperty> defaultMethodWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.defaultMethodWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The iso8601 operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     value: Duration (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     value: Duration (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<ISO8601DurationProperty> iso8601WithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.iso8601WithResponse(body, requestOptions);
-    }
-
-    /**
-     * The int32Seconds operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     value: long (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     value: long (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Int32SecondsDurationProperty> int32SecondsWithResponse(BinaryData body,
-        RequestOptions requestOptions) {
-        return this.serviceClient.int32SecondsWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The floatSeconds operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     value: double (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     value: double (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<FloatSecondsDurationProperty> floatSecondsWithResponse(BinaryData body,
-        RequestOptions requestOptions) {
-        return this.serviceClient.floatSecondsWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The float64Seconds operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     value: double (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     value: double (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Float64SecondsDurationProperty> float64SecondsWithResponse(BinaryData body,
-        RequestOptions requestOptions) {
-        return this.serviceClient.float64SecondsWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The floatSecondsArray operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     value (Required): [
-     *         double (Required)
-     *     ]
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     value (Required): [
-     *         double (Required)
-     *     ]
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<FloatSecondsDurationArrayProperty> floatSecondsArrayWithResponse(BinaryData body,
-        RequestOptions requestOptions) {
-        return this.serviceClient.floatSecondsArrayWithResponse(body, requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<DefaultDurationProperty> defaultMethodWithResponse(DefaultDurationProperty body,
+        RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Property.default", requestContext,
+            updatedContext -> this.serviceClient.defaultMethodWithResponse(body, updatedContext));
     }
 
     /**
@@ -241,11 +66,28 @@ public final class PropertyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public DefaultDurationProperty defaultMethod(DefaultDurationProperty body) {
-        // Generated convenience method for defaultMethodWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return defaultMethodWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        return defaultMethodWithResponse(body, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The iso8601 operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<ISO8601DurationProperty> iso8601WithResponse(ISO8601DurationProperty body,
+        RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Property.iso8601", requestContext,
+            updatedContext -> this.serviceClient.iso8601WithResponse(body, updatedContext));
     }
 
     /**
@@ -257,11 +99,28 @@ public final class PropertyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public ISO8601DurationProperty iso8601(ISO8601DurationProperty body) {
-        // Generated convenience method for iso8601WithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return iso8601WithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        return iso8601WithResponse(body, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The int32Seconds operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Int32SecondsDurationProperty> int32SecondsWithResponse(Int32SecondsDurationProperty body,
+        RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Property.int32Seconds", requestContext,
+            updatedContext -> this.serviceClient.int32SecondsWithResponse(body, updatedContext));
     }
 
     /**
@@ -273,11 +132,28 @@ public final class PropertyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public Int32SecondsDurationProperty int32Seconds(Int32SecondsDurationProperty body) {
-        // Generated convenience method for int32SecondsWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return int32SecondsWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        return int32SecondsWithResponse(body, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The floatSeconds operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<FloatSecondsDurationProperty> floatSecondsWithResponse(FloatSecondsDurationProperty body,
+        RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Property.floatSeconds", requestContext,
+            updatedContext -> this.serviceClient.floatSecondsWithResponse(body, updatedContext));
     }
 
     /**
@@ -289,11 +165,28 @@ public final class PropertyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public FloatSecondsDurationProperty floatSeconds(FloatSecondsDurationProperty body) {
-        // Generated convenience method for floatSecondsWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return floatSecondsWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        return floatSecondsWithResponse(body, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The float64Seconds operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Float64SecondsDurationProperty> float64SecondsWithResponse(Float64SecondsDurationProperty body,
+        RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Property.float64Seconds", requestContext,
+            updatedContext -> this.serviceClient.float64SecondsWithResponse(body, updatedContext));
     }
 
     /**
@@ -305,11 +198,28 @@ public final class PropertyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public Float64SecondsDurationProperty float64Seconds(Float64SecondsDurationProperty body) {
-        // Generated convenience method for float64SecondsWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return float64SecondsWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        return float64SecondsWithResponse(body, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The floatSecondsArray operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<FloatSecondsDurationArrayProperty>
+        floatSecondsArrayWithResponse(FloatSecondsDurationArrayProperty body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Property.floatSecondsArray", requestContext,
+            updatedContext -> this.serviceClient.floatSecondsArrayWithResponse(body, updatedContext));
     }
 
     /**
@@ -321,10 +231,9 @@ public final class PropertyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public FloatSecondsDurationArrayProperty floatSecondsArray(FloatSecondsDurationArrayProperty body) {
-        // Generated convenience method for floatSecondsArrayWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return floatSecondsArrayWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        return floatSecondsArrayWithResponse(body, RequestContext.none()).getValue();
     }
 }

@@ -31,16 +31,14 @@ namespace Microsoft.TypeSpec.Generator
 
         private Configuration(
             string outputPath,
-            Dictionary<string, BinaryData> additionalConfigOptions,
-            bool clearOutputFolder,
+            Dictionary<string, BinaryData> additionalConfigurationOptions,
             string packageName,
             bool disableXmlDocs,
             UnreferencedTypesHandlingOption unreferencedTypesHandling,
             LicenseInfo? licenseInfo)
         {
             OutputDirectory = outputPath;
-            AdditionalConfigOptions = additionalConfigOptions;
-            ClearOutputFolder = clearOutputFolder;
+            AdditionalConfigurationOptions = additionalConfigurationOptions;
             PackageName = packageName;
             DisableXmlDocs = disableXmlDocs;
             UnreferencedTypesHandling = unreferencedTypesHandling;
@@ -52,7 +50,6 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         private static class Options
         {
-            public const string ClearOutputFolder = "clear-output-folder";
             public const string PackageName = "package-name";
             public const string DisableXmlDocs = "disable-xml-docs";
             public const string UnreferencedTypesHandling = "unreferenced-types-handling";
@@ -87,12 +84,7 @@ namespace Microsoft.TypeSpec.Generator
         private string? _testGeneratedDirectory;
         internal string TestGeneratedDirectory => _testGeneratedDirectory ??= Path.Combine(TestProjectDirectory, GeneratedFolderName);
 
-        internal string PackageName { get; }
-
-        /// <summary>
-        /// True if the output folder should be cleared before generating the code.
-        /// </summary>
-        internal bool ClearOutputFolder { get; private set; }
+        public string PackageName { get; }
 
         /// <summary>
         /// True if a sample project should be generated.
@@ -104,8 +96,10 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         internal bool GenerateTestProject { get; private set; }
 
-        // The additional configuration options read from the input configuration file.
-        public Dictionary<string, BinaryData> AdditionalConfigOptions { get; }
+        /// <summary>
+        /// Additional configuration options read from the input configuration file.
+        /// </summary>
+        public virtual IReadOnlyDictionary<string, BinaryData> AdditionalConfigurationOptions { get; }
 
         /// <summary>
         /// Initializes the configuration from the given path to the configuration file.
@@ -126,7 +120,6 @@ namespace Microsoft.TypeSpec.Generator
             return new Configuration(
                 Path.GetFullPath(outputPath),
                 ParseAdditionalConfigOptions(root),
-                ReadOption(root, Options.ClearOutputFolder),
                 ReadRequiredStringOption(root, Options.PackageName),
                 ReadOption(root, Options.DisableXmlDocs),
                 ReadEnumOption<UnreferencedTypesHandlingOption>(root, Options.UnreferencedTypesHandling),
@@ -160,7 +153,6 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         private static readonly Dictionary<string, bool> _defaultBoolOptionValues = new()
         {
-            { Options.ClearOutputFolder, true },
             { Options.DisableXmlDocs, false },
         };
 
@@ -169,7 +161,6 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         private static readonly HashSet<string> _knownOptions = new()
         {
-            Options.ClearOutputFolder,
             Options.PackageName,
             Options.DisableXmlDocs,
             Options.UnreferencedTypesHandling,

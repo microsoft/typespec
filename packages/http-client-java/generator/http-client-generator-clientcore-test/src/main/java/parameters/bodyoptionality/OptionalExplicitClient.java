@@ -1,11 +1,14 @@
 package parameters.bodyoptionality;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.instrumentation.Instrumentation;
 import parameters.bodyoptionality.implementation.OptionalExplicitsImpl;
 
 /**
@@ -13,75 +16,38 @@ import parameters.bodyoptionality.implementation.OptionalExplicitsImpl;
  */
 @ServiceClient(builder = BodyOptionalityClientBuilder.class)
 public final class OptionalExplicitClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final OptionalExplicitsImpl serviceClient;
+
+    private final Instrumentation instrumentation;
 
     /**
      * Initializes an instance of OptionalExplicitClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
-    @Metadata(generated = true)
-    OptionalExplicitClient(OptionalExplicitsImpl serviceClient) {
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    OptionalExplicitClient(OptionalExplicitsImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
      * The set operation.
-     * <p><strong>Header Parameters</strong></p>
-     * <table border="1">
-     * <caption>Header Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>Content-Type</td><td>String</td><td>No</td><td>The content type. Allowed values:
-     * "application/json".</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addHeader}
-     * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
-    public Response<Void> setWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.setWithResponse(requestOptions);
-    }
-
-    /**
-     * The omit operation.
-     * <p><strong>Header Parameters</strong></p>
-     * <table border="1">
-     * <caption>Header Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>Content-Type</td><td>String</td><td>No</td><td>The content type. Allowed values:
-     * "application/json".</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addHeader}
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> omitWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.omitWithResponse(requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> setWithResponse(BodyModel body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Parameters.BodyOptionality.OptionalExplicit.set",
+            requestContext, updatedContext -> this.serviceClient.setWithResponse(body, updatedContext));
     }
 
     /**
@@ -92,14 +58,10 @@ public final class OptionalExplicitClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void set(BodyModel body) {
-        // Generated convenience method for setWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        if (body != null) {
-            requestOptions.setBody(BinaryData.fromObject(body));
-        }
-        setWithResponse(requestOptions).getValue();
+        setWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -108,11 +70,28 @@ public final class OptionalExplicitClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void set() {
-        // Generated convenience method for setWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        setWithResponse(requestOptions).getValue();
+        final BodyModel body = null;
+        setWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The omit operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> omitWithResponse(BodyModel body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Parameters.BodyOptionality.OptionalExplicit.omit",
+            requestContext, updatedContext -> this.serviceClient.omitWithResponse(body, updatedContext));
     }
 
     /**
@@ -123,14 +102,10 @@ public final class OptionalExplicitClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void omit(BodyModel body) {
-        // Generated convenience method for omitWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        if (body != null) {
-            requestOptions.setBody(BinaryData.fromObject(body));
-        }
-        omitWithResponse(requestOptions).getValue();
+        omitWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -139,10 +114,10 @@ public final class OptionalExplicitClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void omit() {
-        // Generated convenience method for omitWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        omitWithResponse(requestOptions).getValue();
+        final BodyModel body = null;
+        omitWithResponse(body, RequestContext.none());
     }
 }

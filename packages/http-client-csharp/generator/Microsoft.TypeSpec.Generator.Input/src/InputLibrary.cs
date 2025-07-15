@@ -47,9 +47,9 @@ namespace Microsoft.TypeSpec.Generator.Input
         {
             foreach (var client in InputNamespace.Clients)
             {
-                foreach (var operation in client.Operations)
+                foreach (var inputServiceMethod in client.Methods)
                 {
-                    if (operation.IsMultipartFormData)
+                    if (inputServiceMethod.Operation.IsMultipartFormData)
                     {
                         return true;
                     }

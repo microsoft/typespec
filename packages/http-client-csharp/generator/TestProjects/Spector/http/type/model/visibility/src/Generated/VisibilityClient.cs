@@ -22,17 +22,17 @@ namespace _Type.Model.Visibility
 
         public virtual Task<ClientResult> GetModelAsync(int queryProp, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<VisibilityModel> GetModel(int queryProp, VisibilityModel input, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<VisibilityModel> GetModel(VisibilityModel input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<VisibilityModel>> GetModelAsync(int queryProp, VisibilityModel input, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<VisibilityModel>> GetModelAsync(VisibilityModel input, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult HeadModel(int queryProp, BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual Task<ClientResult> HeadModelAsync(int queryProp, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult HeadModel(int queryProp, VisibilityModel input, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult HeadModel(VisibilityModel input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> HeadModelAsync(int queryProp, VisibilityModel input, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> HeadModelAsync(VisibilityModel input, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult PutModel(BinaryContent content, RequestOptions options = null) => throw null;
 

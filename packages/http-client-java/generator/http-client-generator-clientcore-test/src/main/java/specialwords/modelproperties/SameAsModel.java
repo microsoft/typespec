@@ -1,7 +1,7 @@
 package specialwords.modelproperties;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -11,12 +11,12 @@ import java.io.IOException;
 /**
  * The SameAsModel model.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class SameAsModel implements JsonSerializable<SameAsModel> {
     /*
      * The SameAsModel property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final String sameAsModel;
 
     /**
@@ -24,7 +24,7 @@ public final class SameAsModel implements JsonSerializable<SameAsModel> {
      * 
      * @param sameAsModel the sameAsModel value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public SameAsModel(String sameAsModel) {
         this.sameAsModel = sameAsModel;
     }
@@ -34,7 +34,7 @@ public final class SameAsModel implements JsonSerializable<SameAsModel> {
      * 
      * @return the sameAsModel value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getSameAsModel() {
         return this.sameAsModel;
     }
@@ -42,7 +42,7 @@ public final class SameAsModel implements JsonSerializable<SameAsModel> {
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -59,7 +59,7 @@ public final class SameAsModel implements JsonSerializable<SameAsModel> {
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the SameAsModel.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static SameAsModel fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             String sameAsModel = null;

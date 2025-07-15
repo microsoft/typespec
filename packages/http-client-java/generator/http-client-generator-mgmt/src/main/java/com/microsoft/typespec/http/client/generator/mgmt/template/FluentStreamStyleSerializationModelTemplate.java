@@ -7,10 +7,12 @@ import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelPropertyReference;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaContext;
 import com.microsoft.typespec.http.client.generator.core.template.StreamSerializationModelTemplate;
 import com.microsoft.typespec.http.client.generator.mgmt.model.arm.ErrorClientModel;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import java.util.List;
+import java.util.Set;
 
 public class FluentStreamStyleSerializationModelTemplate extends StreamSerializationModelTemplate {
     private static final FluentModelTemplate FLUENT_MODEL_TEMPLATE = FluentModelTemplate.getInstance();
@@ -50,5 +52,13 @@ public class FluentStreamStyleSerializationModelTemplate extends StreamSerializa
     @Override
     protected List<ClientModelPropertyReference> getClientModelPropertyReferences(ClientModel model) {
         return FLUENT_MODEL_TEMPLATE.getClientModelPropertyReferences(model);
+    }
+
+    @Override
+    protected void addGeneratedImport(Set<String> imports) {
+    }
+
+    @Override
+    protected void addGeneratedAnnotation(JavaContext classBlock) {
     }
 }

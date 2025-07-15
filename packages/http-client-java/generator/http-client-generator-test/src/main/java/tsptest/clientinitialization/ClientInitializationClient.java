@@ -30,7 +30,7 @@ public final class ClientInitializationClient {
      * Gets an instance of SubClient class.
      * 
      * @param name The name parameter.
-     * @return an instance of SubClientclass.
+     * @return an instance of SubClient class.
      */
     public SubClient getSubClient(String name) {
         return new SubClient(serviceClient.getSubClient(name));

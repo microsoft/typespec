@@ -11,6 +11,8 @@ namespace SpecialWords._Models
 {
     public partial class Or : IJsonModel<Or>
     {
+        internal Or() => throw null;
+
         void IJsonModel<Or>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -30,7 +32,5 @@ namespace SpecialWords._Models
         string IPersistableModel<Or>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(Or @or) => throw null;
-
-        public static explicit operator Or(ClientResult result) => throw null;
     }
 }

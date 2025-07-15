@@ -15,6 +15,8 @@ import com.azure.json.JsonWriter;
 import java.io.IOException;
 
 /**
+ * REST API Operation
+ * 
  * Details of a REST API operation, returned from the Resource Provider Operations API.
  */
 @Immutable

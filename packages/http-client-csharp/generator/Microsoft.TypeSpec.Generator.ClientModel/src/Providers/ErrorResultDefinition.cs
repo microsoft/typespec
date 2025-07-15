@@ -73,7 +73,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 _response.Assign(response).Terminate(),
                 _exception.Assign(exception).Terminate(),
-            }, this);
+            }, this, XmlDocProvider.Empty);
         }
 
         protected override PropertyProvider[] BuildProperties()

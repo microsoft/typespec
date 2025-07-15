@@ -1,4 +1,4 @@
-import * as ay from "@alloy-js/core";
+import { SourceDirectory } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { EmitContext } from "@typespec/compiler";
 import { writeOutput } from "@typespec/emitter-framework";
@@ -20,7 +20,7 @@ import { JsClientEmitterOptions } from "./lib.js";
 export async function $onEmit(context: EmitContext<JsClientEmitterOptions>) {
   const packageName = context.options["package-name"] ?? "test-package";
   const output = (
-    <Output>
+    <Output program={context.program}>
       <ts.PackageDirectory
         name={packageName}
         version="1.0.0"
@@ -28,31 +28,31 @@ export async function $onEmit(context: EmitContext<JsClientEmitterOptions>) {
         scripts={{ build: "tsc" }}
         devDependencies={{ "@types/node": "~18.19.75" }}
       >
-        <ay.SourceDirectory path="src">
+        <SourceDirectory path="src">
           <ts.BarrelFile export="." />
           <Client />
-          <ay.SourceDirectory path="models">
+          <SourceDirectory path="models">
             <ts.BarrelFile export="models" />
             <Models />
-            <ay.SourceDirectory path="internal">
+            <SourceDirectory path="internal">
               <ModelSerializers />
-            </ay.SourceDirectory>
-          </ay.SourceDirectory>
-          <ay.SourceDirectory path="api">
+            </SourceDirectory>
+          </SourceDirectory>
+          <SourceDirectory path="api">
             <OperationsDirectory />
-          </ay.SourceDirectory>
-          <ay.SourceDirectory path="helpers">
+          </SourceDirectory>
+          <SourceDirectory path="helpers">
             <PagingHelpers />
             <Interfaces />
             <MultipartHelpers />
             <ts.SourceFile path="error.ts">
               <RestError />
             </ts.SourceFile>
-          </ay.SourceDirectory>
-        </ay.SourceDirectory>
+          </SourceDirectory>
+        </SourceDirectory>
       </ts.PackageDirectory>
     </Output>
   );
 
-  await writeOutput(output, context.emitterOutputDir);
+  await writeOutput(context.program, output, context.emitterOutputDir);
 }

@@ -10,7 +10,7 @@ import {
   Type,
   Union,
 } from "@typespec/compiler";
-import { $, defineKit } from "@typespec/compiler/experimental/typekit";
+import { defineKit, type Typekit } from "@typespec/compiler/typekit";
 import { HttpOperation, isHttpFile } from "@typespec/http";
 import { InternalClient } from "../../interfaces.js";
 
@@ -53,7 +53,7 @@ interface TypekitExtension {
   clientLibrary: ClientLibraryKit;
 }
 
-declare module "@typespec/compiler/experimental/typekit" {
+declare module "@typespec/compiler/typekit" {
   interface Typekit extends TypekitExtension {}
 }
 
@@ -127,7 +127,7 @@ defineKit<TypekitExtension>({
       return [...namespace.enums.values()];
     },
     listDataTypes(client: InternalClient) {
-      return collectTypes(client, { includeTemplateDeclaration: false }).dataTypes;
+      return collectTypes(this, client, { includeTemplateDeclaration: false }).dataTypes;
     },
   },
 });
@@ -137,7 +137,11 @@ export interface TypeCollectorOptions {
   includeTypeSpecTypes?: boolean;
 }
 
-export function collectTypes(client: InternalClient, options: TypeCollectorOptions = {}) {
+export function collectTypes(
+  $: Typekit,
+  client: InternalClient,
+  options: TypeCollectorOptions = {},
+) {
   const dataTypes = new Set<Model | Enum | Union>();
   const operations: HttpOperation[] = [];
   $.client.flat(client).forEach((c) => {
@@ -156,83 +160,90 @@ export function collectTypes(client: InternalClient, options: TypeCollectorOptio
     dataTypes: [...dataTypes],
     operations: [...operations],
   };
-}
 
-function collectDataType(type: Type, dataTypes: Set<DataType>, options: TypeCollectorOptions = {}) {
-  navigateType(
-    type,
-    {
-      model(m) {
-        trackType(dataTypes, m);
-        m.derivedModels
-          .filter((dm) => !dataTypes.has(dm))
-          .forEach((dm) => collectDataType(dm, dataTypes, options));
-      },
-      modelProperty(p) {
-        trackType(dataTypes, p.type);
-      },
-      scalar(s) {
-        if (s.namespace?.name !== "TypeSpec") {
-          return;
-        }
+  function collectDataType(
+    type: Type,
+    dataTypes: Set<DataType>,
+    options: TypeCollectorOptions = {},
+  ) {
+    navigateType(
+      type,
+      {
+        model(m) {
+          trackType(dataTypes, m);
+          m.derivedModels
+            .filter((dm) => !dataTypes.has(dm))
+            .forEach((dm) => collectDataType(dm, dataTypes, options));
+        },
+        modelProperty(p) {
+          trackType(dataTypes, p.type);
+        },
+        scalar(s) {
+          if (s.namespace?.name !== "TypeSpec") {
+            return;
+          }
 
-        trackType(dataTypes, s);
+          trackType(dataTypes, s);
+        },
+        enum(e) {
+          trackType(dataTypes, e);
+        },
+        union(u) {
+          trackType(dataTypes, u);
+        },
+        unionVariant(v) {
+          trackType(dataTypes, v.type);
+        },
       },
-      enum(e) {
-        trackType(dataTypes, e);
-      },
-      union(u) {
-        trackType(dataTypes, u);
-      },
-      unionVariant(v) {
-        trackType(dataTypes, v.type);
-      },
-    },
-    { includeTemplateDeclaration: options.includeTemplateDeclaration },
-  );
-}
+      { includeTemplateDeclaration: options.includeTemplateDeclaration },
+    );
+  }
 
-type DataType = Model | Union | Enum | Scalar;
+  type DataType = Model | Union | Enum | Scalar;
 
-function isDataType(type: Type): type is DataType {
-  return (
-    type.kind === "Model" || type.kind === "Union" || type.kind === "Enum" || type.kind === "Scalar"
-  );
-}
+  function isDataType(type: Type): type is DataType {
+    return (
+      type.kind === "Model" ||
+      type.kind === "Union" ||
+      type.kind === "Enum" ||
+      type.kind === "Scalar"
+    );
+  }
 
-function isDeclaredType(type: Type): boolean {
-  if (isHttpFile($.program, type)) {
+  function isDeclaredType(type: Type): boolean {
+    if (isHttpFile($.program, type)) {
+      return true;
+    }
+
+    if ("namespace" in type && type.namespace?.name === "TypeSpec") {
+      return false;
+    }
+
+    if (!isDataType(type)) {
+      return false;
+    }
+
+    if (type.name === undefined || type.name === "") {
+      return false;
+    }
+
     return true;
   }
 
-  if ("namespace" in type && type.namespace?.name === "TypeSpec") {
-    return false;
+  function trackType(types: Set<DataType>, type: Type) {
+    if ($.httpPart.is(type)) {
+      collectDataType($.httpPart.unpack(type), types);
+      return;
+    }
+
+    if (!isDataType(type)) {
+      return;
+    }
+
+    if (!isDeclaredType(type)) {
+      return;
+    }
+
+    types.add(type);
   }
-
-  if (!isDataType(type)) {
-    return false;
-  }
-
-  if (type.name === undefined || type.name === "") {
-    return false;
-  }
-
-  return true;
-}
-
-function trackType(types: Set<DataType>, type: Type) {
-  if ($.httpPart.is(type)) {
-    collectDataType($.httpPart.unpack(type), types);
-    return;
-  }
-
-  if (!isDataType(type)) {
-    return;
-  }
-
-  if (!isDeclaredType(type)) {
-    return;
-  }
-
-  types.add(type);
 }

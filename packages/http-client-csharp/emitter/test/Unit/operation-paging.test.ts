@@ -41,13 +41,76 @@ describe("Next link operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.clients[0].operations[0].paging;
+    const method = root.clients[0].methods[0];
+    strictEqual(method.kind, "paging");
+
+    const paging = method.pagingMetadata;
     ok(paging);
     ok(paging.itemPropertySegments);
     strictEqual(paging.itemPropertySegments[0], "items");
     strictEqual(paging.nextLink?.responseLocation, ResponseLocation.Body);
     strictEqual(paging.nextLink?.responseSegments.length, 1);
     strictEqual(paging.nextLink?.responseSegments[0], "next");
+  });
+
+  it("parameterized next link", async () => {
+    const program = await typeSpecCompile(
+      `
+        @route("foo")
+        op link(...RequestOptions): LinkResult;
+
+        @pagedResult
+        model LinkResult {
+          @items
+          items: Foo[];
+
+          @nextLink
+          next?: global.Azure.Core.Legacy.parameterizedNextLink<[RequestOptions.includePending, RequestOptions.includeExpired, RequestOptions.etagHeader]>;
+        }
+  
+        model RequestOptions {
+          @query
+          includePending?: boolean;
+
+          @query
+          includeExpired?: boolean;
+
+          @header("ETag")
+          etagHeader?: string;
+        }
+
+        model Foo {
+          bar: string;
+          baz: int32;
+        };
+      `,
+      runner,
+      { IsNamespaceNeeded: true, IsAzureCoreNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const method = root.clients[0].methods[0];
+    strictEqual(method.kind, "paging");
+
+    const paging = method.pagingMetadata;
+    ok(paging);
+    ok(paging.itemPropertySegments);
+
+    strictEqual(paging.itemPropertySegments[0], "items");
+    strictEqual(paging.nextLink?.responseLocation, ResponseLocation.Body);
+    strictEqual(paging.nextLink?.responseSegments.length, 1);
+    strictEqual(paging.nextLink?.responseSegments[0], "next");
+
+    const parameterizedNextLink = paging.nextLink?.reInjectedParameters;
+    ok(parameterizedNextLink);
+    strictEqual(parameterizedNextLink.length, 3);
+    strictEqual(parameterizedNextLink[0].name, "includePending");
+    strictEqual(parameterizedNextLink[0].location, RequestLocation.Query);
+    strictEqual(parameterizedNextLink[1].name, "includeExpired");
+    strictEqual(parameterizedNextLink[1].location, RequestLocation.Query);
+    strictEqual(parameterizedNextLink[2].name, "etagHeader");
+    strictEqual(parameterizedNextLink[2].location, RequestLocation.Header);
   });
 
   // skipped until https://github.com/Azure/typespec-azure/issues/2341 is fixed
@@ -72,7 +135,10 @@ describe("Next link operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.clients[0].operations[0].paging;
+    const method = root.clients[0].methods[0];
+    strictEqual(method.kind, "paging");
+
+    const paging = method.pagingMetadata;
     ok(paging);
     ok(paging.itemPropertySegments);
     strictEqual(paging.itemPropertySegments[0], "items");
@@ -105,7 +171,10 @@ describe("Next link operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.clients[0].operations[0].paging;
+    const method = root.clients[0].methods[0];
+    strictEqual(method.kind, "paging");
+
+    const paging = method.pagingMetadata;
     ok(paging);
     ok(paging.itemPropertySegments);
     strictEqual(paging.itemPropertySegments[0], "items");
@@ -136,7 +205,10 @@ describe("Next link operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.clients[0].operations[0].paging;
+    const method = root.clients[0].methods[0];
+    strictEqual(method.kind, "paging");
+
+    const paging = method.pagingMetadata;
     ok(paging);
     ok(paging.itemPropertySegments);
     strictEqual(paging.itemPropertySegments[0], "items");
@@ -151,7 +223,7 @@ describe("Next link operations", () => {
     );
     strictEqual(
       program.diagnostics[0].message,
-      `Unsupported continuation location for operation ${root.clients[0].operations[0].crossLanguageDefinitionId}.`,
+      `Unsupported continuation location for operation ${root.clients[0].methods[0].operation.crossLanguageDefinitionId}.`,
     );
   });
 });
@@ -181,7 +253,10 @@ describe("Continuation token operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.clients[0].operations[0].paging;
+    const method = root.clients[0].methods[0];
+    strictEqual(method.kind, "paging");
+
+    const paging = method.pagingMetadata;
     ok(paging);
     ok(paging.itemPropertySegments);
     strictEqual(paging.itemPropertySegments[0], "items");
@@ -213,7 +288,10 @@ describe("Continuation token operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.clients[0].operations[0].paging;
+    const method = root.clients[0].methods[0];
+    strictEqual(method.kind, "paging");
+
+    const paging = method.pagingMetadata;
     ok(paging);
     ok(paging.itemPropertySegments);
     strictEqual(paging.itemPropertySegments[0], "items");
@@ -246,7 +324,10 @@ describe("Continuation token operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.clients[0].operations[0].paging;
+    const method = root.clients[0].methods[0];
+    strictEqual(method.kind, "paging");
+
+    const paging = method.pagingMetadata;
     ok(paging);
     ok(paging.itemPropertySegments);
     strictEqual(paging.itemPropertySegments[0], "items");
@@ -279,7 +360,10 @@ describe("Continuation token operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.clients[0].operations[0].paging;
+    const method = root.clients[0].methods[0];
+    strictEqual(method.kind, "paging");
+
+    const paging = method.pagingMetadata;
     ok(paging);
     ok(paging.itemPropertySegments);
     strictEqual(paging.itemPropertySegments[0], "items");
@@ -312,7 +396,10 @@ describe("Continuation token operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.clients[0].operations[0].paging;
+    const method = root.clients[0].methods[0];
+    strictEqual(method.kind, "paging");
+
+    const paging = method.pagingMetadata;
     ok(paging);
     ok(paging.itemPropertySegments);
     strictEqual(paging.itemPropertySegments[0], "items");
@@ -331,7 +418,7 @@ describe("Continuation token operations", () => {
     );
     strictEqual(
       program.diagnostics[0].message,
-      `Unsupported continuation location for operation ${root.clients[0].operations[0].crossLanguageDefinitionId}.`,
+      `Unsupported continuation location for operation ${root.clients[0].methods[0].operation.crossLanguageDefinitionId}.`,
     );
   });
 });

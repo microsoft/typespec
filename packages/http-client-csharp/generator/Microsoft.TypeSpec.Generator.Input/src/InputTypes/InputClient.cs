@@ -11,27 +11,36 @@ namespace Microsoft.TypeSpec.Generator.Input
         private readonly string? _key;
         private IReadOnlyDictionary<string, InputClientExample>? _examples;
 
-        public InputClient(string name, string @namespace, string crossLanguageDefinitionId, string? summary, string? doc, IReadOnlyList<InputOperation> operations, IReadOnlyList<InputParameter> parameters, InputClient? parent, IReadOnlyList<InputClient>? children)
+        public InputClient(
+            string name,
+            string @namespace,
+            string crossLanguageDefinitionId,
+            string? summary,
+            string? doc,
+            IReadOnlyList<InputServiceMethod> methods,
+            IReadOnlyList<InputParameter> parameters,
+            InputClient? parent,
+            IReadOnlyList<InputClient>? children)
         {
             Name = name;
             Namespace = @namespace;
             CrossLanguageDefinitionId = crossLanguageDefinitionId;
             Summary = summary;
             Doc = doc;
-            Operations = operations;
+            Methods = methods;
             Parameters = parameters;
             Parent = parent;
             Children = children ?? [];
         }
 
-        public InputClient() : this(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, Array.Empty<InputOperation>(), Array.Empty<InputParameter>(), null, null) { }
+        public InputClient() : this(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, Array.Empty<InputServiceMethod>(), Array.Empty<InputParameter>(), null, null) { }
 
         public string Name { get; internal set; }
         public string Namespace { get; internal set; }
         public string CrossLanguageDefinitionId { get; internal set; }
         public string? Summary { get; internal set; }
         public string? Doc { get; internal set; }
-        public IReadOnlyList<InputOperation> Operations { get; internal set; }
+        public IReadOnlyList<InputServiceMethod> Methods { get; internal set; }
         public IReadOnlyList<InputParameter> Parameters { get; internal set; }
         public InputClient? Parent { get; internal set; }
         public IReadOnlyList<InputClient> Children { get; internal set; }

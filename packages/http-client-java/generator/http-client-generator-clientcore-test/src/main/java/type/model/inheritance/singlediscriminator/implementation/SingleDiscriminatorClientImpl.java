@@ -1,18 +1,20 @@
 package type.model.inheritance.singlediscriminator.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
-import io.clientcore.core.http.RestProxy;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
-import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.instrumentation.Instrumentation;
+import java.lang.reflect.InvocationTargetException;
 import type.model.inheritance.singlediscriminator.Bird;
 import type.model.inheritance.singlediscriminator.Dinosaur;
 
@@ -54,235 +56,235 @@ public final class SingleDiscriminatorClientImpl {
     }
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
      * Initializes an instance of SingleDiscriminatorClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
      */
-    public SingleDiscriminatorClientImpl(HttpPipeline httpPipeline, String endpoint) {
+    public SingleDiscriminatorClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
-        this.service = RestProxy.create(SingleDiscriminatorClientService.class, this.httpPipeline);
+        this.service = SingleDiscriminatorClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
      * The interface defining all the services for SingleDiscriminatorClient to be used by the proxy service to perform
      * REST calls.
      */
-    @ServiceInterface(name = "SingleDiscriminatorC", host = "{endpoint}")
+    @ServiceInterface(name = "SingleDiscriminatorClient", host = "{endpoint}")
     public interface SingleDiscriminatorClientService {
+        static SingleDiscriminatorClientService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName(
+                    "type.model.inheritance.singlediscriminator.implementation.SingleDiscriminatorClientServiceImpl");
+                return (SingleDiscriminatorClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/type/model/inheritance/single-discriminator/model",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<Bird> getModelSync(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestOptions requestOptions);
+        Response<Bird> getModel(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.PUT,
             path = "/type/model/inheritance/single-discriminator/model",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> putModelSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData input,
-            RequestOptions requestOptions);
+        Response<Void> putModel(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") Bird input, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/type/model/inheritance/single-discriminator/recursivemodel",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<Bird> getRecursiveModelSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestOptions requestOptions);
+        Response<Bird> getRecursiveModel(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.PUT,
             path = "/type/model/inheritance/single-discriminator/recursivemodel",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> putRecursiveModelSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData input,
-            RequestOptions requestOptions);
+        Response<Void> putRecursiveModel(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") Bird input,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/type/model/inheritance/single-discriminator/missingdiscriminator",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<Bird> getMissingDiscriminatorSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestOptions requestOptions);
+        Response<Bird> getMissingDiscriminator(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/type/model/inheritance/single-discriminator/wrongdiscriminator",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<Bird> getWrongDiscriminatorSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestOptions requestOptions);
+        Response<Bird> getWrongDiscriminator(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/type/model/inheritance/single-discriminator/legacy-model",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<Dinosaur> getLegacyModelSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestOptions requestOptions);
+        Response<Dinosaur> getLegacyModel(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
     }
 
     /**
      * The getModel operation.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String (Required)
-     *     wingspan: int (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic single level inheritance with a discriminator.
      */
-    public Response<Bird> getModelWithResponse(RequestOptions requestOptions) {
-        final String accept = "application/json";
-        return service.getModelSync(this.getEndpoint(), accept, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Bird> getModelWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.SingleDiscriminator.getModel",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getModel(this.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
      * The putModel operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String (Required)
-     *     wingspan: int (Required)
-     * }
-     * }
-     * </pre>
      * 
      * @param input The input parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> putModelWithResponse(BinaryData input, RequestOptions requestOptions) {
-        final String contentType = "application/json";
-        return service.putModelSync(this.getEndpoint(), contentType, input, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> putModelWithResponse(Bird input, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.SingleDiscriminator.putModel",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                return service.putModel(this.getEndpoint(), contentType, input, updatedContext);
+            });
     }
 
     /**
      * The getRecursiveModel operation.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String (Required)
-     *     wingspan: int (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic single level inheritance with a discriminator.
      */
-    public Response<Bird> getRecursiveModelWithResponse(RequestOptions requestOptions) {
-        final String accept = "application/json";
-        return service.getRecursiveModelSync(this.getEndpoint(), accept, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Bird> getRecursiveModelWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.SingleDiscriminator.getRecursiveModel", requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getRecursiveModel(this.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
      * The putRecursiveModel operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String (Required)
-     *     wingspan: int (Required)
-     * }
-     * }
-     * </pre>
      * 
      * @param input The input parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> putRecursiveModelWithResponse(BinaryData input, RequestOptions requestOptions) {
-        final String contentType = "application/json";
-        return service.putRecursiveModelSync(this.getEndpoint(), contentType, input, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> putRecursiveModelWithResponse(Bird input, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.SingleDiscriminator.putRecursiveModel", requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                return service.putRecursiveModel(this.getEndpoint(), contentType, input, updatedContext);
+            });
     }
 
     /**
      * The getMissingDiscriminator operation.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String (Required)
-     *     wingspan: int (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic single level inheritance with a discriminator.
      */
-    public Response<Bird> getMissingDiscriminatorWithResponse(RequestOptions requestOptions) {
-        final String accept = "application/json";
-        return service.getMissingDiscriminatorSync(this.getEndpoint(), accept, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Bird> getMissingDiscriminatorWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.SingleDiscriminator.getMissingDiscriminator", requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getMissingDiscriminator(this.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
      * The getWrongDiscriminator operation.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String (Required)
-     *     wingspan: int (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic single level inheritance with a discriminator.
      */
-    public Response<Bird> getWrongDiscriminatorWithResponse(RequestOptions requestOptions) {
-        final String accept = "application/json";
-        return service.getWrongDiscriminatorSync(this.getEndpoint(), accept, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Bird> getWrongDiscriminatorWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.SingleDiscriminator.getWrongDiscriminator", requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getWrongDiscriminator(this.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
      * The getLegacyModel operation.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String (Required)
-     *     size: int (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return define a base class in the legacy way.
      */
-    public Response<Dinosaur> getLegacyModelWithResponse(RequestOptions requestOptions) {
-        final String accept = "application/json";
-        return service.getLegacyModelSync(this.getEndpoint(), accept, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Dinosaur> getLegacyModelWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.SingleDiscriminator.getLegacyModel",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getLegacyModel(this.getEndpoint(), accept, updatedContext);
+            });
     }
 }

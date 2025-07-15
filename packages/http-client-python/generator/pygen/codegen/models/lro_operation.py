@@ -125,7 +125,7 @@ class LROOperationBase(OperationBase[LROResponseType]):
                 ImportType.SDKCORE,
             )
         if (
-            self.code_model.options["models_mode"] == "dpg"
+            self.code_model.options["models-mode"] == "dpg"
             and self.lro_response
             and self.lro_response.type
             and self.lro_response.type.type == "model"
@@ -134,7 +134,7 @@ class LROOperationBase(OperationBase[LROResponseType]):
             # but final call returns a model
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             file_import.add_submodule_import(
-                self.code_model.get_relative_import_path(serialize_namespace, module_name="_model_base"),
+                self.code_model.get_relative_import_path(serialize_namespace, module_name="_utils.model_base"),
                 "_deserialize",
                 ImportType.LOCAL,
             )

@@ -6,8 +6,10 @@ using System.Collections.Generic;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
+using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Providers
 {
@@ -38,7 +40,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         {
             MockHelpers.LoadMockGenerator();
 
-            var param = InputFactory.Parameter("name", InputPrimitiveType.String, kind: InputOperationParameterKind.Spread);
+            var param = InputFactory.Parameter("name", InputPrimitiveType.String, kind: InputParameterKind.Spread);
             var paramProvider1 = CodeModelGenerator.Instance.TypeFactory.CreateParameter(param);
             var paramProvider2 = CodeModelGenerator.Instance.TypeFactory.CreateParameter(param);
             Assert.IsFalse(ReferenceEquals(paramProvider1, paramProvider2));
@@ -50,7 +52,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             MockHelpers.LoadMockGenerator();
             var inputType = InputFactory.Parameter("testParam", paramType, isRequired: true);
             var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(inputType);
-            Assert.AreEqual(ParameterValidationType.None, parameter.Validation);
+            Assert.IsNotNull(parameter);
+            Assert.AreEqual(ParameterValidationType.None, parameter!.Validation);
         }
 
         [Test]
@@ -59,7 +62,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             MockHelpers.LoadMockGenerator();
             var inputType = InputFactory.Parameter("testParam", InputFactory.Array(InputPrimitiveType.String), isRequired: true);
             var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(inputType);
-            Assert.IsTrue(parameter.Type.Equals(typeof(IList<string>)));
+            Assert.IsNotNull(parameter);
+            Assert.IsTrue(parameter!.Type.Equals(typeof(IList<string>)));
             Assert.IsTrue(parameter.ToPublicInputParameter().Type.Equals(typeof(IEnumerable<string>)));
         }
 
@@ -67,7 +71,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         {
             yield return InputPrimitiveType.Int32;
             yield return InputPrimitiveType.Float32;
-            yield return InputFactory.Enum("inputEnum", InputPrimitiveType.Int32, isExtensible: true, values: [InputFactory.EnumMember.Int32("foo", 1)]);
+            yield return InputFactory.Int32Enum("inputEnum", [("foo", 1)], isExtensible: true);
         }
 
         private static IEnumerable<TestCaseData> NotEqualsTestCases()
@@ -100,7 +104,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             MockHelpers.LoadMockGenerator();
             var inputType = InputFactory.Parameter("testParam", InputPrimitiveType.Int32, isRequired: true);
             var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(inputType);
-            var publicParameter = parameter.ToPublicInputParameter();
+            Assert.IsNotNull(parameter);
+            var publicParameter = parameter!.ToPublicInputParameter();
 
             Assert.AreEqual(parameter, publicParameter);
             Assert.AreEqual(parameter.Attributes, publicParameter.Attributes);
@@ -126,7 +131,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             MockHelpers.LoadMockGenerator();
             var inputType = InputFactory.Parameter("testParam", InputPrimitiveType.Int32, isRequired: true);
             var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(inputType);
-            var refParemeter = parameter.WithRef();
+            Assert.IsNotNull(parameter);
+            var refParemeter = parameter!.WithRef();
 
             Assert.AreEqual(parameter, refParemeter);
             Assert.AreEqual(parameter.Attributes, refParemeter.Attributes);
@@ -143,6 +149,35 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             Assert.AreEqual(false, refParemeter.IsOut);
             Assert.AreEqual(true, refParemeter.IsRef);
+        }
+
+        [Test]
+        public void CanCallInvokeWithTypeArgs()
+        {
+            var expression = new ParameterProvider("someParam", $"", typeof(object));
+            var invokeExpression = expression.Invoke("SomeMethod", [Int(1)], [typeof(string)]);
+
+            Assert.IsNotNull(invokeExpression.TypeArguments);
+            Assert.IsTrue(invokeExpression.TypeArguments![0].Equals(typeof(string)));
+        }
+
+        [TestCase(InputPrimitiveTypeKind.String, true, ParameterValidationType.AssertNotNullOrEmpty)]
+        [TestCase(InputPrimitiveTypeKind.String, false, ParameterValidationType.None)]
+        [TestCase(InputPrimitiveTypeKind.Int32, true, ParameterValidationType.None)]
+        [TestCase(InputPrimitiveTypeKind.Int32, false, ParameterValidationType.None)]
+        [TestCase(InputPrimitiveTypeKind.Url, true, ParameterValidationType.AssertNotNull)]
+        [TestCase(InputPrimitiveTypeKind.Url, false, ParameterValidationType.None)]
+        public void CorrectValidationIsAppliedToParameter(
+            InputPrimitiveTypeKind primitiveType,
+            bool isRequired,
+            ParameterValidationType expectedValidation)
+        {
+            MockHelpers.LoadMockGenerator();
+            var inputTypeInstance = InputFactory.Parameter("testParam", new InputPrimitiveType(primitiveType, "foo", "bar"), isRequired: isRequired);
+            var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(inputTypeInstance);
+
+            Assert.IsNotNull(parameter);
+            Assert.AreEqual(expectedValidation, parameter!.Validation);
         }
     }
 }

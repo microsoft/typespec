@@ -15,6 +15,8 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVis
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ModelNamer;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
+import io.clientcore.core.serialization.ObjectSerializer;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,7 +47,10 @@ public class MethodGroupTemplate implements IJavaTemplate<MethodGroupClient, Jav
         String serviceClientPackageName
             = ClientModelUtil.getServiceClientPackageName(methodGroupClient.getServiceClientName());
         imports.add(String.format("%1$s.%2$s", serviceClientPackageName, methodGroupClient.getServiceClientName()));
-
+        imports.add(InvocationTargetException.class.getName());
+        imports.add(ObjectSerializer.class.getName());
+        ClassType.INSTRUMENTATION.addImportsTo(imports, false);
+        ClassType.HTTP_PIPELINE.addImportsTo(imports, false);
         javaFile.declareImport(imports);
 
         List<String> interfaces
@@ -75,6 +80,12 @@ public class MethodGroupTemplate implements IJavaTemplate<MethodGroupClient, Jav
                 classBlock.javadocComment("The service client containing this operation class.");
                 classBlock.privateFinalMemberVariable(methodGroupClient.getServiceClientName(), "client");
 
+                boolean writeInstrumentation = !settings.isAzureV1();
+                if (writeInstrumentation) {
+                    classBlock.javadocComment("The instance of instrumentation to report telemetry.");
+                    classBlock.privateFinalMemberVariable(ClassType.INSTRUMENTATION.getName(), "instrumentation");
+                }
+
                 classBlock.javadocComment(comment -> {
                     comment.description(
                         String.format("Initializes an instance of %1$s.", methodGroupClient.getClassName()));
@@ -86,6 +97,10 @@ public class MethodGroupTemplate implements IJavaTemplate<MethodGroupClient, Jav
                             writeServiceProxyConstruction(constructor, methodGroupClient);
                         }
                         constructor.line("this.client = client;");
+
+                        if (writeInstrumentation) {
+                            constructor.line("this.instrumentation = client.getInstrumentation();");
+                        }
                     });
 
                 if (!CoreUtils.isNullOrEmpty(methodGroupClient.getProperties())) {
@@ -114,9 +129,9 @@ public class MethodGroupTemplate implements IJavaTemplate<MethodGroupClient, Jav
             });
     }
 
-    private void writeServiceProxyConstruction(JavaBlock constructor, MethodGroupClient methodGroupClient) {
+    protected void writeServiceProxyConstruction(JavaBlock constructor, MethodGroupClient methodGroupClient) {
         ClassType proxyType = ClassType.REST_PROXY;
-        if (JavaSettings.getInstance().isBranded()) {
+        if (JavaSettings.getInstance().isAzureV1()) {
             constructor.line(String.format(
                 "this.service = %1$s.create(%2$s.class, client.getHttpPipeline(), client.getSerializerAdapter());",
                 proxyType.getName(), methodGroupClient.getProxy().getName()));

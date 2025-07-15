@@ -11,6 +11,8 @@ namespace SpecialWords._Models
 {
     public partial class Pass : IJsonModel<Pass>
     {
+        internal Pass() => throw null;
+
         void IJsonModel<Pass>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -30,7 +32,5 @@ namespace SpecialWords._Models
         string IPersistableModel<Pass>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(Pass pass) => throw null;
-
-        public static explicit operator Pass(ClientResult result) => throw null;
     }
 }

@@ -14,6 +14,16 @@ to `true`, the emitter will only emit those types that are reachable from an HTT
   "omit-unreachable-types": boolean;
   /** If set to `true`, the emitter will not format the generated code using Prettier. */
   "no-format": boolean;
+
+  /**
+   * The type of datetime models to use for TypeSpecs DateTime and Duration types.
+   *
+   * Options:
+   * - `temporal-polyfill`: (Default) Uses the Temporal API from the `temporal-polyfill` package.
+   * - `temporal`: Uses the native Temporal API, requires that your target environment supports it. This will become the default setting in the future.
+   * - `date-duration`: Uses the built-in `Date` and a custom `Duration` type. Not recommended.
+   */
+  datetime?: "temporal-polyfill" | "temporal" | "date-duration";
 }
 
 const EmitterOptionsSchema: JSONSchemaType<JsEmitterOptions> = {
@@ -26,6 +36,13 @@ const EmitterOptionsSchema: JSONSchemaType<JsEmitterOptions> = {
       default: false,
       description:
         "If set to `true`, the emitter will generate a router that exposes an Express.js middleware function in addition to the ordinary Node.js HTTP server router.\n\nIf this option is not set to `true`, the `expressMiddleware` property will not be present on the generated router.",
+    },
+    datetime: {
+      type: "string",
+      enum: ["temporal-polyfill", "temporal", "date-duration"],
+      default: "temporal-polyfill",
+      nullable: true,
+      description: "The type of datetime models to use for TypeSpecs DateTime and Duration types.",
     },
     "omit-unreachable-types": {
       type: "boolean",
@@ -157,6 +174,6 @@ export const $lib = createTypeSpecLibrary({
   },
 });
 
-const { reportDiagnostic } = $lib;
+const { reportDiagnostic, createStateSymbol } = $lib;
 
-export { reportDiagnostic };
+export { createStateSymbol, reportDiagnostic };

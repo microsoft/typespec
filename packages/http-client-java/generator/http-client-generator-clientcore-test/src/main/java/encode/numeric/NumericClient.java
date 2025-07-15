@@ -5,126 +5,53 @@ import encode.numeric.property.SafeintAsStringProperty;
 import encode.numeric.property.Uint32AsStringProperty;
 import encode.numeric.property.Uint8AsStringProperty;
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.instrumentation.Instrumentation;
 
 /**
  * Initializes a new instance of the synchronous NumericClient type.
  */
 @ServiceClient(builder = NumericClientBuilder.class)
 public final class NumericClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final PropertiesImpl serviceClient;
+
+    private final Instrumentation instrumentation;
 
     /**
      * Initializes an instance of NumericClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
-    @Metadata(generated = true)
-    NumericClient(PropertiesImpl serviceClient) {
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    NumericClient(PropertiesImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
      * The safeintAsString operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     value: long (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     value: long (Required)
-     * }
-     * }
-     * </pre>
      * 
      * @param value The value parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
-    public Response<SafeintAsStringProperty> safeintAsStringWithResponse(BinaryData value,
-        RequestOptions requestOptions) {
-        return this.serviceClient.safeintAsStringWithResponse(value, requestOptions);
-    }
-
-    /**
-     * The uint32AsStringOptional operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     value: Integer (Optional)
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     value: Integer (Optional)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param value The value parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Uint32AsStringProperty> uint32AsStringOptionalWithResponse(BinaryData value,
-        RequestOptions requestOptions) {
-        return this.serviceClient.uint32AsStringOptionalWithResponse(value, requestOptions);
-    }
-
-    /**
-     * The uint8AsString operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     value: int (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     value: int (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param value The value parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Uint8AsStringProperty> uint8AsStringWithResponse(BinaryData value, RequestOptions requestOptions) {
-        return this.serviceClient.uint8AsStringWithResponse(value, requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<SafeintAsStringProperty> safeintAsStringWithResponse(SafeintAsStringProperty value,
+        RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Numeric.Property.safeintAsString", requestContext,
+            updatedContext -> this.serviceClient.safeintAsStringWithResponse(value, updatedContext));
     }
 
     /**
@@ -136,11 +63,29 @@ public final class NumericClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public SafeintAsStringProperty safeintAsString(SafeintAsStringProperty value) {
-        // Generated convenience method for safeintAsStringWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return safeintAsStringWithResponse(BinaryData.fromObject(value), requestOptions).getValue();
+        return safeintAsStringWithResponse(value, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The uint32AsStringOptional operation.
+     * 
+     * @param value The value parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Uint32AsStringProperty> uint32AsStringOptionalWithResponse(Uint32AsStringProperty value,
+        RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Numeric.Property.uint32AsStringOptional",
+            requestContext,
+            updatedContext -> this.serviceClient.uint32AsStringOptionalWithResponse(value, updatedContext));
     }
 
     /**
@@ -152,11 +97,28 @@ public final class NumericClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public Uint32AsStringProperty uint32AsStringOptional(Uint32AsStringProperty value) {
-        // Generated convenience method for uint32AsStringOptionalWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return uint32AsStringOptionalWithResponse(BinaryData.fromObject(value), requestOptions).getValue();
+        return uint32AsStringOptionalWithResponse(value, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The uint8AsString operation.
+     * 
+     * @param value The value parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Uint8AsStringProperty> uint8AsStringWithResponse(Uint8AsStringProperty value,
+        RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Numeric.Property.uint8AsString", requestContext,
+            updatedContext -> this.serviceClient.uint8AsStringWithResponse(value, updatedContext));
     }
 
     /**
@@ -168,10 +130,9 @@ public final class NumericClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public Uint8AsStringProperty uint8AsString(Uint8AsStringProperty value) {
-        // Generated convenience method for uint8AsStringWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return uint8AsStringWithResponse(BinaryData.fromObject(value), requestOptions).getValue();
+        return uint8AsStringWithResponse(value, RequestContext.none()).getValue();
     }
 }

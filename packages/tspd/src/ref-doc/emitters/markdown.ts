@@ -375,7 +375,7 @@ export class MarkdownRenderer {
     }
 
     return [
-      section("Usage", [
+      section("Emitter usage", [
         "1. Via the command line",
         codeblock(`tsp compile . --emit=${refDoc.name}`, "bash"),
         "2. Via the config",
@@ -392,12 +392,22 @@ export class MarkdownRenderer {
 
   emitterOptions(options: EmitterOptionRefDoc[]) {
     const content = [];
+    content.push(
+      section(`${inlinecode("emitter-output-dir")}`, [
+        `**Type:** ${inlinecode("absolutePath")}`,
+        "",
+        `Defines the emitter output directory. Defaults to \`{output-dir}/${this.refDoc.name}\``,
+        `See [Configuring output directory for more info](https://typespec.io/docs/handbook/configuration/configuration/#configuring-output-directory)`,
+      ]),
+    );
     for (const option of options) {
       content.push(
-        section(`${inlinecode(option.name)}`, [`**Type:** ${inlinecode(option.type)}`, ""]),
+        section(`${inlinecode(option.name)}`, [
+          `**Type:** ${inlinecode(option.type)}`,
+          "",
+          option.doc,
+        ]),
       );
-
-      content.push(option.doc);
     }
     return section("Emitter options", content);
   }

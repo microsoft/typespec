@@ -1,6 +1,6 @@
-import * as ay from "@alloy-js/core";
+import { Children, For, List, refkey, Refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { useTsp } from "@typespec/emitter-framework";
 import { FunctionDeclaration } from "@typespec/emitter-framework/typescript";
 import { HttpAuth, type OAuth2Flow } from "@typespec/http";
 import * as cl from "@typespec/http-client";
@@ -16,19 +16,20 @@ export interface ClientContextFactoryProps {
 }
 
 export function getClientContextFactoryRef(client: cl.Client) {
-  return ay.refkey(client, "contextFactory");
+  return refkey(client, "contextFactory");
 }
 
 export function ClientContextFactoryDeclaration(props: ClientContextFactoryProps) {
+  const { $ } = useTsp();
   const ref = getClientContextFactoryRef(props.client);
   const contextDeclarationRef = getClientcontextDeclarationRef(props.client);
   const namePolicy = ts.useTSNamePolicy();
   const factoryFunctionName = namePolicy.getName(`create_${props.client.name}Context`, "function");
 
   const clientConstructor = $.client.getConstructor(props.client);
-  const parameters = buildClientParameters(props.client);
+  const parameters = buildClientParameters(props.client, refkey());
   const urlTemplate = $.client.getUrlTemplate(props.client);
-  const endpointRef = ay.refkey();
+  const endpointRef = refkey();
   const resolvedEndpoint = (
     <ParametrizedEndpoint
       refkey={endpointRef}
@@ -69,7 +70,7 @@ export function ClientContextFactoryDeclaration(props: ClientContextFactoryProps
 
 interface ClientFactoryArgumentsProps {
   client: cl.Client;
-  endpointRef: ay.Refkey;
+  endpointRef: Refkey;
   credentialsRef?: string;
 }
 
@@ -99,44 +100,47 @@ interface AuthSchemeProps {
 }
 
 function AuthScheme(props: AuthSchemeProps) {
+  const { $ } = useTsp();
   switch (props.scheme.type) {
     case "http":
       return (
         <ts.ObjectExpression>
-          <ay.List comma>
+          <List comma>
             <ts.ObjectProperty name="kind" jsValue="http" />
             <ts.ObjectProperty name="scheme" jsValue={props.scheme.scheme.toLowerCase()} />
-          </ay.List>
+          </List>
         </ts.ObjectExpression>
       );
     case "apiKey":
       if (props.scheme.in !== "header") {
-        reportDiagnostic($.program, { code: "non-model-parts", target: props.client.service });
-        return null;
+        reportDiagnostic($.program, {
+          code: "key-credential-non-header-not-implemented",
+          target: props.client.service,
+        });
       }
 
       return (
         <ts.ObjectExpression>
-          <ay.List comma>
+          <List comma>
             <ts.ObjectProperty name="kind" jsValue="apiKey" />
             <ts.ObjectProperty name="apiKeyLocation" jsValue={props.scheme.in} />
             <ts.ObjectProperty name="name" jsValue={props.scheme.name} />
-          </ay.List>
+          </List>
         </ts.ObjectExpression>
       );
     case "oauth2":
       return (
         <ts.ObjectExpression>
-          <ay.List comma>
+          <List comma>
             <ts.ObjectProperty name="kind" jsValue="oauth2" />
             <ts.ObjectProperty name="flows">
               [
-              <ay.For each={props.scheme.flows} comma line>
+              <For each={props.scheme.flows} comma line>
                 {(flow) => <OAuth2Flow flow={flow} />}
-              </ay.For>
+              </For>
               ]
             </ts.ObjectProperty>
-          </ay.List>
+          </List>
         </ts.ObjectExpression>
       );
     default:
@@ -161,6 +165,7 @@ function OAuth2Flow(props: OAuth2FlowProps) {
 }
 
 function AuthSchemeOptions(props: AuthSchemeOptionsProps) {
+  const { $ } = useTsp();
   const clientCredential = $.client.getAuth(props.client);
 
   if (clientCredential.schemes.length === 0) {
@@ -176,20 +181,20 @@ function AuthSchemeOptions(props: AuthSchemeOptionsProps) {
   return (
     <ts.ObjectProperty name="authSchemes">
       [
-      <ay.For each={supportedSchemes} comma line>
+      <For each={supportedSchemes} comma line>
         {(scheme) => <AuthScheme scheme={scheme} client={props.client} />}
-      </ay.For>
+      </For>
       ]
     </ts.ObjectProperty>
   );
 }
 
 interface ClientOptionsExpressionProps {
-  children?: ay.Children;
+  children?: Children;
 }
 
 function ClientOptionsExpression(props: ClientOptionsExpressionProps) {
-  const options: ay.Children = ["...options"];
+  const options: Children = ["...options"];
 
   // Conditionally add test options
   // based on the environment variable TYPESPEC_JS_EMITTER_TESTING
@@ -203,9 +208,9 @@ function ClientOptionsExpression(props: ClientOptionsExpressionProps) {
 
   return (
     <ts.ObjectExpression>
-      <ay.For each={options} joiner="," line>
+      <For each={options} joiner="," line>
         {(child) => child}
-      </ay.For>
+      </For>
     </ts.ObjectExpression>
   );
 }

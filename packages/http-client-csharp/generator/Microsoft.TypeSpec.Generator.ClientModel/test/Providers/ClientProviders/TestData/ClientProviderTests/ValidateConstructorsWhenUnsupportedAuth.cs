@@ -7,7 +7,6 @@ using System.ClientModel.Primitives;
 
 namespace Sample
 {
-    /// <summary> TestClient description. </summary>
     public partial class TestClient
     {
         internal TestClient(global::System.Uri endpoint) : this(endpoint, new global::Sample.TestClientOptions())

@@ -8,8 +8,8 @@ import {
   createDiagnosticCollector,
   getMaxValue,
   getMinValue,
-  ignoreDiagnostics,
 } from "@typespec/compiler";
+import { $ } from "@typespec/compiler/typekit";
 import { createDiagnostic } from "./lib.js";
 import { HttpStatusCodeRange, HttpStatusCodes } from "./types.js";
 
@@ -116,7 +116,6 @@ function getStatusCodesRange(
 }
 
 function isInt32(program: Program, type: Type) {
-  return ignoreDiagnostics(
-    program.checker.isTypeAssignableTo(type, program.checker.getStdType("int32"), type),
-  );
+  const tk = $(program);
+  return tk.type.isAssignableTo(type, tk.builtin.int32, type);
 }

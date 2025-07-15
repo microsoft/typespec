@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -20,13 +21,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private const string AdditionalBinaryDataPropsFieldDescription = "Keeps track of any properties unknown to the library.";
         private readonly InputModelType _inputModel;
 
-        protected override FormattableString Description => _description ??= BuildDescription();
-
-        private FormattableString? _description;
-
         // Note the description cannot be built from the constructor as it would lead to a circular dependency between the base
         // and derived models resulting in a stack overflow.
-        private FormattableString BuildDescription()
+        protected override FormattableString BuildDescription()
         {
             var description = DocHelpers.GetFormattableDescription(_inputModel.Summary, _inputModel.Doc) ??
                               $"The {Name}.";
@@ -138,7 +135,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
-        protected override string BuildName() => _inputModel.Name.ToCleanName();
+        protected override string BuildName() => _inputModel.Name.ToIdentifierName();
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
         {
@@ -208,13 +205,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             foreach (var property in _inputModel.Properties)
             {
-                if (property.IsDiscriminator)
+                if (IsDiscriminator(property))
                     continue;
 
                 var derivedProperty = InputDerivedProperties.FirstOrDefault(p => p.Value.ContainsKey(property.Name)).Value?[property.Name];
                 if (derivedProperty is not null)
                 {
-                    if (!derivedProperty.Type.Equals(property.Type) || !DomainEqual(property, derivedProperty))
+                    if (!DomainEqual(property, derivedProperty))
                     {
                         fields.Add(new FieldProvider(
                             FieldModifiers.Private | FieldModifiers.Protected,
@@ -225,6 +222,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
             return [.. fields];
+        }
+
+        private static bool IsDiscriminator(InputProperty property)
+        {
+            return property is InputModelProperty modelProperty && modelProperty.IsDiscriminator;
         }
 
         private List<FieldProvider> BuildAdditionalPropertyFields()
@@ -289,7 +291,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     null,
                     MethodSignatureModifiers.Public,
                     propertyType,
-                    i == 0 ? AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName : field.Name.ToCleanName(),
+                    i == 0 ? AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName : field.Name.ToIdentifierName(),
                     assignment,
                     this)
                 {
@@ -320,7 +322,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 var name = !containsAdditionalTypeProperties
                     ? AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName
-                    : RawDataField.Name.ToCleanName();
+                    : RawDataField.Name.ToIdentifierName();
                 var type = !_inputModel.Usage.HasFlag(InputModelTypeUsage.Input)
                     ? additionalPropsType.OutputType
                     : additionalPropsType;
@@ -344,13 +346,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return properties;
         }
 
-        private Dictionary<InputModelType, Dictionary<string, InputModelProperty>>? _inputDerivedProperties;
-        private Dictionary<InputModelType, Dictionary<string, InputModelProperty>> InputDerivedProperties => _inputDerivedProperties ??= BuildDerivedProperties();
+        private Dictionary<InputModelType, Dictionary<string, InputProperty>>? _inputDerivedProperties;
+        private Dictionary<InputModelType, Dictionary<string, InputProperty>> InputDerivedProperties => _inputDerivedProperties ??= BuildDerivedProperties();
 
-        private Dictionary<InputModelType, Dictionary<string, InputModelProperty>> BuildDerivedProperties()
+        private Dictionary<InputModelType, Dictionary<string, InputProperty>> BuildDerivedProperties()
         {
-            Dictionary<InputModelType, Dictionary<string, InputModelProperty>> derivedProperties = [];
-            foreach (var derivedModel in _inputModel.DerivedModels)
+            Dictionary<InputModelType, Dictionary<string, InputProperty>> derivedProperties = [];
+            var derivedModels = new List<InputModelType>();
+            EnumerateDerivedModels(_inputModel, derivedModels);
+            foreach (var derivedModel in derivedModels)
             {
                 var derivedModelProperties = derivedModel.Properties;
                 if (derivedModelProperties.Count > 0)
@@ -361,30 +365,39 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return derivedProperties;
         }
 
+        private void EnumerateDerivedModels(InputModelType inputModel, List<InputModelType> derivedModels)
+        {
+            foreach (var derivedModel in inputModel.DerivedModels)
+            {
+                derivedModels.Add(derivedModel);
+                EnumerateDerivedModels(derivedModel, derivedModels);
+            }
+        }
+
         protected override PropertyProvider[] BuildProperties()
         {
             var propertiesCount = _inputModel.Properties.Count;
             var properties = new List<PropertyProvider>(propertiesCount + 1);
-
-            Dictionary<string, InputModelProperty> baseProperties = _inputModel.BaseModel?.Properties.ToDictionary(p => p.Name) ?? [];
+            Dictionary<string, InputProperty> baseProperties = EnumerateBaseModels().SelectMany(m => m.Properties).GroupBy(x => x.Name).Select(g => g.First()).ToDictionary(p => p.Name) ?? [];
             var baseModelDiscriminator = _inputModel.BaseModel?.DiscriminatorProperty;
             for (int i = 0; i < propertiesCount; i++)
             {
                 var property = _inputModel.Properties[i];
+                var isDiscriminator = IsDiscriminator(property);
 
-                if (property.IsDiscriminator && property.Name == baseModelDiscriminator?.Name)
+                if (isDiscriminator && property.Name == baseModelDiscriminator?.Name)
                     continue;
 
                 var outputProperty = CodeModelGenerator.Instance.TypeFactory.CreateProperty(property, this);
                 if (outputProperty is null)
                     continue;
 
-                if (!property.IsDiscriminator)
+                if (!isDiscriminator)
                 {
                     var derivedProperty = InputDerivedProperties.FirstOrDefault(p => p.Value.ContainsKey(property.Name)).Value?[property.Name];
                     if (derivedProperty is not null)
                     {
-                        if (derivedProperty.Type.Equals(property.Type) && DomainEqual(property, derivedProperty))
+                        if (DomainEqual(property, derivedProperty))
                         {
                             outputProperty.Modifiers |= MethodSignatureModifiers.Virtual;
                         }
@@ -392,7 +405,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     var baseProperty = baseProperties.GetValueOrDefault(property.Name);
                     if (baseProperty is not null)
                     {
-                        if (baseProperty.Type.Equals(property.Type) && DomainEqual(baseProperty, property))
+                        if (DomainEqual(baseProperty, property))
                         {
                             outputProperty.Modifiers |= MethodSignatureModifiers.Override;
                         }
@@ -419,8 +432,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [.. properties];
         }
 
-        private static bool DomainEqual(InputModelProperty baseProperty, InputModelProperty derivedProperty)
+        private IEnumerable<InputModelType> EnumerateBaseModels()
         {
+            var model = _inputModel;
+            while (model.BaseModel != null)
+            {
+                yield return model.BaseModel;
+                model = model.BaseModel;
+            }
+        }
+
+        private static bool DomainEqual(InputProperty baseProperty, InputProperty derivedProperty)
+        {
+            if (baseProperty.Type.Name != derivedProperty.Type.Name)
+                return false;
             if (baseProperty.IsRequired != derivedProperty.IsRequired)
                 return false;
             var baseNullable = baseProperty.Type is InputNullableType;
@@ -915,7 +940,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 name += additionalPropertiesValueType.Name;
             }
 
-            return $"_additional{name.ToCleanName()}Properties";
+            return $"_additional{name.ToIdentifierName()}Properties";
         }
     }
 }

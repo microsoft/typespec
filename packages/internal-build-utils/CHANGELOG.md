@@ -1,5 +1,23 @@
 # Change Log - @typespec/internal-build-utils
 
+## 0.71.0
+
+### Bump dependencies
+
+- [#7323](https://github.com/microsoft/typespec/pull/7323) Upgrade dependencies
+
+
+## 0.70.0
+
+No changes, version bump only.
+
+## 0.69.0
+
+### Bug Fixes
+
+- [#6676](https://github.com/microsoft/typespec/pull/6676) Fix third party resolution getting duplicate entries
+
+
 ## 0.68.0
 
 ### Bump dependencies

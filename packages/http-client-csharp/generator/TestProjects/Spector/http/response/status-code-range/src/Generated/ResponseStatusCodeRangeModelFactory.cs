@@ -8,10 +8,6 @@ namespace Response.StatusCodeRange
     {
         public static ErrorInRange ErrorInRange(string code = default, string message = default) => throw null;
 
-        public static DefaultError DefaultError(string code = default) => throw null;
-
         public static NotFoundError NotFoundError(string code = default, string resourceId = default) => throw null;
-
-        public static Standard4XXError Standard4XXError(string code = default) => throw null;
     }
 }

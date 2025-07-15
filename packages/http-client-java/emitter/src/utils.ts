@@ -5,10 +5,6 @@ export function trace(program: Program, msg: string) {
   program.trace("http-client-java", msg);
 }
 
-export function isStableApiVersion(version: string): boolean {
-  return !version.toLowerCase().includes("preview");
-}
-
 export function pascalCase(name: string): string {
   if (name.length > 0) {
     return name[0].toUpperCase() + name.slice(1);
@@ -130,6 +126,27 @@ export async function spawnAsync(
       }
     });
   });
+}
+
+/**
+ * Converts the value of an option to a boolean.
+ *
+ * The function is useful when the option is provided in typespec command line, and the option is not explicitly documented in the EmitterOptionsSchema.
+ *
+ * @param option The option flag.
+ * @returns the boolean value of the option. `undefined` if the option is not set
+ */
+export function optionBoolean(option: boolean | string | undefined): boolean | undefined {
+  if (typeof option === "boolean") {
+    return option;
+  } else if (typeof option === "string") {
+    if (option.toLowerCase() === "true") {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  return undefined;
 }
 
 export function escapeJavaKeywords(name: string, suffix: string): string {

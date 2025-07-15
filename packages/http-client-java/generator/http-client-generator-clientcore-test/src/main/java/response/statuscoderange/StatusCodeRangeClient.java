@@ -1,10 +1,14 @@
 package response.statuscoderange;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import response.statuscoderange.implementation.StatusCodeRangeClientImpl;
 
 /**
@@ -12,41 +16,38 @@ import response.statuscoderange.implementation.StatusCodeRangeClientImpl;
  */
 @ServiceClient(builder = StatusCodeRangeClientBuilder.class)
 public final class StatusCodeRangeClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final StatusCodeRangeClientImpl serviceClient;
+
+    private final Instrumentation instrumentation;
 
     /**
      * Initializes an instance of StatusCodeRangeClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
-    @Metadata(generated = true)
-    StatusCodeRangeClient(StatusCodeRangeClientImpl serviceClient) {
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    StatusCodeRangeClient(StatusCodeRangeClientImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
      * The errorResponseStatusCodeInRange operation.
      * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
-    public Response<Void> errorResponseStatusCodeInRangeWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.errorResponseStatusCodeInRangeWithResponse(requestOptions);
-    }
-
-    /**
-     * The errorResponseStatusCode404 operation.
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> errorResponseStatusCode404WithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.errorResponseStatusCode404WithResponse(requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> errorResponseStatusCodeInRangeWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Response.StatusCodeRange.errorResponseStatusCodeInRange",
+            requestContext,
+            updatedContext -> this.serviceClient.errorResponseStatusCodeInRangeWithResponse(updatedContext));
     }
 
     /**
@@ -55,11 +56,27 @@ public final class StatusCodeRangeClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void errorResponseStatusCodeInRange() {
-        // Generated convenience method for errorResponseStatusCodeInRangeWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        errorResponseStatusCodeInRangeWithResponse(requestOptions).getValue();
+        errorResponseStatusCodeInRangeWithResponse(RequestContext.none());
+    }
+
+    /**
+     * The errorResponseStatusCode404 operation.
+     * 
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> errorResponseStatusCode404WithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Response.StatusCodeRange.errorResponseStatusCode404",
+            requestContext,
+            updatedContext -> this.serviceClient.errorResponseStatusCode404WithResponse(updatedContext));
     }
 
     /**
@@ -68,10 +85,9 @@ public final class StatusCodeRangeClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void errorResponseStatusCode404() {
-        // Generated convenience method for errorResponseStatusCode404WithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        errorResponseStatusCode404WithResponse(requestOptions).getValue();
+        errorResponseStatusCode404WithResponse(RequestContext.none());
     }
 }

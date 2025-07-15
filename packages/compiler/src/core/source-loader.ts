@@ -383,8 +383,11 @@ export async function loadJsFile(
 export function moduleResolutionErrorToDiagnostic(
   e: ResolveModuleError,
   specifier: string,
-  target: DiagnosticTarget | typeof NoTarget,
+  sourceTarget: DiagnosticTarget | typeof NoTarget,
 ): Diagnostic {
+  const target: DiagnosticTarget | typeof NoTarget = e.pkgJson
+    ? { file: createSourceFile(e.pkgJson.file.text, e.pkgJson.file.path), pos: 0, end: 0 }
+    : sourceTarget;
   switch (e.code) {
     case "MODULE_NOT_FOUND":
       return createDiagnostic({ code: "import-not-found", format: { path: specifier }, target });

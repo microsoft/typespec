@@ -27,6 +27,10 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             IReadOnlyList<AttributeStatement> attributes,
             CSharpType? returnType)
         {
+            if (modifiers.HasFlag(MethodSignatureModifiers.Implicit) && returnType == null)
+            {
+                throw new ArgumentNullException(nameof(returnType), "Implicit operator must specify a return type.");
+            }
             Name = name;
             Attributes = attributes;
             Parameters = parameters;

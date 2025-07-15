@@ -11,6 +11,8 @@ namespace _Type.Union
 {
     public partial class GetResponse1 : IJsonModel<GetResponse1>
     {
+        internal GetResponse1() => throw null;
+
         void IJsonModel<GetResponse1>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -28,8 +30,6 @@ namespace _Type.Union
         protected virtual GetResponse1 PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<GetResponse1>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(GetResponse1 getResponse1) => throw null;
 
         public static explicit operator GetResponse1(ClientResult result) => throw null;
     }

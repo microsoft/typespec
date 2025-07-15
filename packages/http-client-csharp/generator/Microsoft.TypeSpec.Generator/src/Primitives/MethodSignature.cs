@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -37,5 +38,52 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         public FormattableString GetCRef() => $"{Name}({Parameters.GetTypesFormattable()})";
 
         internal string FullMethodName => ExplicitInterface != null ? $"{ExplicitInterface}.{Name}" : Name;
+        internal static IEqualityComparer<MethodSignature> MethodSignatureComparer = new MethodSignatureEqualityComparer();
+
+        private class MethodSignatureEqualityComparer : IEqualityComparer<MethodSignature>
+        {
+            public bool Equals(MethodSignature? x, MethodSignature? y)
+            {
+                if (ReferenceEquals(x, y))
+                {
+                    return true;
+                }
+
+                if (x is null || y is null)
+                {
+                    return false;
+                }
+
+                if (x.Parameters.Count != y.Parameters.Count || x.FullMethodName != y.FullMethodName)
+                {
+                    return false;
+                }
+
+                if (x.ReturnType == null && y.ReturnType != null)
+                {
+                    return false;
+                }
+
+                if (x.ReturnType != null && y.ReturnType != null && !x.ReturnType.AreNamesEqual(y.ReturnType))
+                {
+                    return false;
+                }
+
+                for (int i = 0; i < x.Parameters.Count; i++)
+                {
+                    if (!x.Parameters[i].Type.AreNamesEqual(y.Parameters[i].Type))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            public int GetHashCode([DisallowNull] MethodSignature obj)
+            {
+                return HashCode.Combine(obj.Name, obj.ReturnType);
+            }
+        }
     }
 }

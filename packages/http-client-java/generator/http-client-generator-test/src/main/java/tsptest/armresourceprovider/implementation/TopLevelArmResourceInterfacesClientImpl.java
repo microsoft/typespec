@@ -41,7 +41,7 @@ import reactor.core.publisher.Mono;
 import tsptest.armresourceprovider.fluent.TopLevelArmResourceInterfacesClient;
 import tsptest.armresourceprovider.fluent.models.ResultInner;
 import tsptest.armresourceprovider.fluent.models.TopLevelArmResourceInner;
-import tsptest.armresourceprovider.implementation.models.TopLevelArmResourceListResult;
+import tsptest.armresourceprovider.implementation.models.ResourceListResult;
 import tsptest.armresourceprovider.models.TopLevelArmResourceUpdate;
 
 /**
@@ -56,25 +56,25 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
     /**
      * The service client containing this operation class.
      */
-    private final ArmResourceProviderClientImpl client;
+    private final ArmClientImpl client;
 
     /**
      * Initializes an instance of TopLevelArmResourceInterfacesClientImpl.
      * 
      * @param client the instance of the service client containing this operation class.
      */
-    TopLevelArmResourceInterfacesClientImpl(ArmResourceProviderClientImpl client) {
+    TopLevelArmResourceInterfacesClientImpl(ArmClientImpl client) {
         this.service = RestProxy.create(TopLevelArmResourceInterfacesService.class, client.getHttpPipeline(),
             client.getSerializerAdapter());
         this.client = client;
     }
 
     /**
-     * The interface defining all the services for ArmResourceProviderClientTopLevelArmResourceInterfaces to be used by
-     * the proxy service to perform REST calls.
+     * The interface defining all the services for ArmClientTopLevelArmResourceInterfaces to be used by the proxy
+     * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArmResourceProviderC")
+    @ServiceInterface(name = "ArmClientTopLevelArmResourceInterfaces")
     public interface TopLevelArmResourceInterfacesService {
         @Headers({ "Content-Type: application/json" })
         @Get("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}")
@@ -160,7 +160,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
         @Get("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/topLevelArmResources")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
-        Mono<Response<TopLevelArmResourceListResult>> listByResourceGroup(@HostParam("endpoint") String endpoint,
+        Mono<Response<ResourceListResult>> listByResourceGroup(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("resourceGroupName") String resourceGroupName, @HeaderParam("Accept") String accept,
             Context context);
@@ -169,7 +169,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
         @Get("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/topLevelArmResources")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
-        Response<TopLevelArmResourceListResult> listByResourceGroupSync(@HostParam("endpoint") String endpoint,
+        Response<ResourceListResult> listByResourceGroupSync(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("resourceGroupName") String resourceGroupName, @HeaderParam("Accept") String accept,
             Context context);
@@ -178,7 +178,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
         @Get("/subscriptions/{subscriptionId}/providers/TspTest.ArmResourceProvider/topLevelArmResources")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
-        Mono<Response<TopLevelArmResourceListResult>> list(@HostParam("endpoint") String endpoint,
+        Mono<Response<ResourceListResult>> list(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @HeaderParam("Accept") String accept, Context context);
 
@@ -186,7 +186,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
         @Get("/subscriptions/{subscriptionId}/providers/TspTest.ArmResourceProvider/topLevelArmResources")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
-        Response<TopLevelArmResourceListResult> listSync(@HostParam("endpoint") String endpoint,
+        Response<ResourceListResult> listSync(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @HeaderParam("Accept") String accept, Context context);
 
@@ -214,7 +214,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
         @Get("{nextLink}")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
-        Mono<Response<TopLevelArmResourceListResult>> listByResourceGroupNext(
+        Mono<Response<ResourceListResult>> listByResourceGroupNext(
             @PathParam(value = "nextLink", encoded = true) String nextLink, @HostParam("endpoint") String endpoint,
             @HeaderParam("Accept") String accept, Context context);
 
@@ -222,7 +222,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
         @Get("{nextLink}")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
-        Response<TopLevelArmResourceListResult> listByResourceGroupNextSync(
+        Response<ResourceListResult> listByResourceGroupNextSync(
             @PathParam(value = "nextLink", encoded = true) String nextLink, @HostParam("endpoint") String endpoint,
             @HeaderParam("Accept") String accept, Context context);
 
@@ -230,7 +230,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
         @Get("{nextLink}")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
-        Mono<Response<TopLevelArmResourceListResult>> listBySubscriptionNext(
+        Mono<Response<ResourceListResult>> listBySubscriptionNext(
             @PathParam(value = "nextLink", encoded = true) String nextLink, @HostParam("endpoint") String endpoint,
             @HeaderParam("Accept") String accept, Context context);
 
@@ -238,7 +238,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
         @Get("{nextLink}")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
-        Response<TopLevelArmResourceListResult> listBySubscriptionNextSync(
+        Response<ResourceListResult> listBySubscriptionNextSync(
             @PathParam(value = "nextLink", encoded = true) String nextLink, @HostParam("endpoint") String endpoint,
             @HeaderParam("Accept") String accept, Context context);
     }
@@ -254,7 +254,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      * @return a TopLevelArmResource along with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<TopLevelArmResourceInner>> getByResourceGroupWithResponseAsync(String resourceGroupName,
+    public Mono<Response<TopLevelArmResourceInner>> getByResourceGroupWithResponseAsync(String resourceGroupName,
         String topLevelArmResourceName) {
         if (this.client.getEndpoint() == null) {
             return Mono.error(
@@ -290,7 +290,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      * @return a TopLevelArmResource on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<TopLevelArmResourceInner> getByResourceGroupAsync(String resourceGroupName,
+    public Mono<TopLevelArmResourceInner> getByResourceGroupAsync(String resourceGroupName,
         String topLevelArmResourceName) {
         return getByResourceGroupWithResponseAsync(resourceGroupName, topLevelArmResourceName)
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
@@ -361,7 +361,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      * with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<Flux<ByteBuffer>>> createOrUpdateWithResponseAsync(String resourceGroupName,
+    public Mono<Response<Flux<ByteBuffer>>> createOrUpdateWithResponseAsync(String resourceGroupName,
         String topLevelArmResourceName, TopLevelArmResourceInner resource) {
         if (this.client.getEndpoint() == null) {
             return Mono.error(
@@ -499,7 +499,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      * type using a specific property type.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    private PollerFlux<PollResult<TopLevelArmResourceInner>, TopLevelArmResourceInner> beginCreateOrUpdateAsync(
+    public PollerFlux<PollResult<TopLevelArmResourceInner>, TopLevelArmResourceInner> beginCreateOrUpdateAsync(
         String resourceGroupName, String topLevelArmResourceName, TopLevelArmResourceInner resource) {
         Mono<Response<Flux<ByteBuffer>>> mono
             = createOrUpdateWithResponseAsync(resourceGroupName, topLevelArmResourceName, resource);
@@ -564,7 +564,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      * successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<TopLevelArmResourceInner> createOrUpdateAsync(String resourceGroupName, String topLevelArmResourceName,
+    public Mono<TopLevelArmResourceInner> createOrUpdateAsync(String resourceGroupName, String topLevelArmResourceName,
         TopLevelArmResourceInner resource) {
         return beginCreateOrUpdateAsync(resourceGroupName, topLevelArmResourceName, resource).last()
             .flatMap(this.client::getLroFinalResultOrError);
@@ -618,7 +618,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      * with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<TopLevelArmResourceInner>> updateWithResponseAsync(String resourceGroupName,
+    public Mono<Response<TopLevelArmResourceInner>> updateWithResponseAsync(String resourceGroupName,
         String topLevelArmResourceName, TopLevelArmResourceUpdate properties) {
         if (this.client.getEndpoint() == null) {
             return Mono.error(
@@ -663,7 +663,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      * successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<TopLevelArmResourceInner> updateAsync(String resourceGroupName, String topLevelArmResourceName,
+    public Mono<TopLevelArmResourceInner> updateAsync(String resourceGroupName, String topLevelArmResourceName,
         TopLevelArmResourceUpdate properties) {
         return updateWithResponseAsync(resourceGroupName, topLevelArmResourceName, properties)
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
@@ -744,7 +744,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<Flux<ByteBuffer>>> deleteWithResponseAsync(String resourceGroupName,
+    public Mono<Response<Flux<ByteBuffer>>> deleteWithResponseAsync(String resourceGroupName,
         String topLevelArmResourceName) {
         if (this.client.getEndpoint() == null) {
             return Mono.error(
@@ -852,7 +852,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      * @return the {@link PollerFlux} for polling of long-running operation.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    private PollerFlux<PollResult<Void>, Void> beginDeleteAsync(String resourceGroupName,
+    public PollerFlux<PollResult<Void>, Void> beginDeleteAsync(String resourceGroupName,
         String topLevelArmResourceName) {
         Mono<Response<Flux<ByteBuffer>>> mono = deleteWithResponseAsync(resourceGroupName, topLevelArmResourceName);
         return this.client.<Void, Void>getLroResult(mono, this.client.getHttpPipeline(), Void.class, Void.class,
@@ -904,7 +904,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      * @return A {@link Mono} that completes when a successful response is received.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Void> deleteAsync(String resourceGroupName, String topLevelArmResourceName) {
+    public Mono<Void> deleteAsync(String resourceGroupName, String topLevelArmResourceName) {
         return beginDeleteAsync(resourceGroupName, topLevelArmResourceName).last()
             .flatMap(this.client::getLroFinalResultOrError);
     }
@@ -981,7 +981,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      * @return the response of a TopLevelArmResource list operation as paginated response with {@link PagedFlux}.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    private PagedFlux<TopLevelArmResourceInner> listByResourceGroupAsync(String resourceGroupName) {
+    public PagedFlux<TopLevelArmResourceInner> listByResourceGroupAsync(String resourceGroupName) {
         return new PagedFlux<>(() -> listByResourceGroupSinglePageAsync(resourceGroupName),
             nextLink -> listByResourceGroupNextSinglePageAsync(nextLink));
     }
@@ -1012,7 +1012,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
                 .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         final String accept = "application/json";
-        Response<TopLevelArmResourceListResult> res = service.listByResourceGroupSync(this.client.getEndpoint(),
+        Response<ResourceListResult> res = service.listByResourceGroupSync(this.client.getEndpoint(),
             this.client.getApiVersion(), this.client.getSubscriptionId(), resourceGroupName, accept, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
             res.getValue().nextLink(), null);
@@ -1046,7 +1046,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
                 .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         final String accept = "application/json";
-        Response<TopLevelArmResourceListResult> res = service.listByResourceGroupSync(this.client.getEndpoint(),
+        Response<ResourceListResult> res = service.listByResourceGroupSync(this.client.getEndpoint(),
             this.client.getApiVersion(), this.client.getSubscriptionId(), resourceGroupName, accept, context);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
             res.getValue().nextLink(), null);
@@ -1118,7 +1118,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      * @return the response of a TopLevelArmResource list operation as paginated response with {@link PagedFlux}.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    private PagedFlux<TopLevelArmResourceInner> listAsync() {
+    public PagedFlux<TopLevelArmResourceInner> listAsync() {
         return new PagedFlux<>(() -> listSinglePageAsync(),
             nextLink -> listBySubscriptionNextSinglePageAsync(nextLink));
     }
@@ -1143,8 +1143,8 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
                     "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         final String accept = "application/json";
-        Response<TopLevelArmResourceListResult> res = service.listSync(this.client.getEndpoint(),
-            this.client.getApiVersion(), this.client.getSubscriptionId(), accept, Context.NONE);
+        Response<ResourceListResult> res = service.listSync(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), accept, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
             res.getValue().nextLink(), null);
     }
@@ -1171,8 +1171,8 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
                     "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         final String accept = "application/json";
-        Response<TopLevelArmResourceListResult> res = service.listSync(this.client.getEndpoint(),
-            this.client.getApiVersion(), this.client.getSubscriptionId(), accept, context);
+        Response<ResourceListResult> res = service.listSync(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), accept, context);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
             res.getValue().nextLink(), null);
     }
@@ -1215,7 +1215,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      * @return the response body along with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<Flux<ByteBuffer>>> actionWithResponseAsync(String resourceGroupName,
+    public Mono<Response<Flux<ByteBuffer>>> actionWithResponseAsync(String resourceGroupName,
         String topLevelArmResourceName) {
         if (this.client.getEndpoint() == null) {
             return Mono.error(
@@ -1323,7 +1323,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      * @return the {@link PollerFlux} for polling of long-running operation.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    private PollerFlux<PollResult<ResultInner>, ResultInner> beginActionAsync(String resourceGroupName,
+    public PollerFlux<PollResult<ResultInner>, ResultInner> beginActionAsync(String resourceGroupName,
         String topLevelArmResourceName) {
         Mono<Response<Flux<ByteBuffer>>> mono = actionWithResponseAsync(resourceGroupName, topLevelArmResourceName);
         return this.client.<ResultInner, ResultInner>getLroResult(mono, this.client.getHttpPipeline(),
@@ -1378,7 +1378,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      * @return the response body on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<ResultInner> actionAsync(String resourceGroupName, String topLevelArmResourceName) {
+    public Mono<ResultInner> actionAsync(String resourceGroupName, String topLevelArmResourceName) {
         return beginActionAsync(resourceGroupName, topLevelArmResourceName).last()
             .flatMap(this.client::getLroFinalResultOrError);
     }
@@ -1463,7 +1463,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
                     "Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         final String accept = "application/json";
-        Response<TopLevelArmResourceListResult> res
+        Response<ResourceListResult> res
             = service.listByResourceGroupNextSync(nextLink, this.client.getEndpoint(), accept, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
             res.getValue().nextLink(), null);
@@ -1492,7 +1492,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
                     "Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         final String accept = "application/json";
-        Response<TopLevelArmResourceListResult> res
+        Response<ResourceListResult> res
             = service.listByResourceGroupNextSync(nextLink, this.client.getEndpoint(), accept, context);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
             res.getValue().nextLink(), null);
@@ -1547,7 +1547,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
                     "Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         final String accept = "application/json";
-        Response<TopLevelArmResourceListResult> res
+        Response<ResourceListResult> res
             = service.listBySubscriptionNextSync(nextLink, this.client.getEndpoint(), accept, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
             res.getValue().nextLink(), null);
@@ -1575,7 +1575,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
                     "Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         final String accept = "application/json";
-        Response<TopLevelArmResourceListResult> res
+        Response<ResourceListResult> res
             = service.listBySubscriptionNextSync(nextLink, this.client.getEndpoint(), accept, context);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
             res.getValue().nextLink(), null);

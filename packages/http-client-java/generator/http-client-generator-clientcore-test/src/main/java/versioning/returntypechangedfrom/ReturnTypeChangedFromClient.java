@@ -1,11 +1,14 @@
 package versioning.returntypechangedfrom;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.instrumentation.Instrumentation;
 import versioning.returntypechangedfrom.implementation.ReturnTypeChangedFromClientImpl;
 
 /**
@@ -13,45 +16,38 @@ import versioning.returntypechangedfrom.implementation.ReturnTypeChangedFromClie
  */
 @ServiceClient(builder = ReturnTypeChangedFromClientBuilder.class)
 public final class ReturnTypeChangedFromClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final ReturnTypeChangedFromClientImpl serviceClient;
+
+    private final Instrumentation instrumentation;
 
     /**
      * Initializes an instance of ReturnTypeChangedFromClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
-    @Metadata(generated = true)
-    ReturnTypeChangedFromClient(ReturnTypeChangedFromClientImpl serviceClient) {
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    ReturnTypeChangedFromClient(ReturnTypeChangedFromClientImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
      * The test operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * String
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * String
-     * }
-     * </pre>
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a sequence of textual characters.
      */
-    @Metadata(generated = true)
-    public Response<String> testWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.testWithResponse(body, requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<String> testWithResponse(String body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Versioning.ReturnTypeChangedFrom.test", requestContext,
+            updatedContext -> this.serviceClient.testWithResponse(body, updatedContext));
     }
 
     /**
@@ -63,10 +59,9 @@ public final class ReturnTypeChangedFromClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a sequence of textual characters.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public String test(String body) {
-        // Generated convenience method for testWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return testWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        return testWithResponse(body, RequestContext.none()).getValue();
     }
 }

@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Utilities;
@@ -14,13 +15,13 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    internal class ClientOptionsProvider : TypeProvider
+    public class ClientOptionsProvider : TypeProvider
     {
         private const string LatestVersionFieldName = "LatestVersion";
         private const string VersionPropertyName = "Version";
         private readonly InputClient _inputClient;
         private readonly ClientProvider _clientProvider;
-        private readonly Lazy<TypeProvider?>? _serviceVersionEnum;
+        private readonly TypeProvider? _serviceVersionEnum;
         private readonly PropertyProvider? _versionProperty;
         private FieldProvider? _latestVersionField;
 
@@ -32,7 +33,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     .FirstOrDefault(e => e.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum));
             if (inputEnumType != null)
             {
-                _serviceVersionEnum = new(() => ScmCodeModelGenerator.Instance.TypeFactory.CreateEnum(inputEnumType, this));
+                _serviceVersionEnum = ScmCodeModelGenerator.Instance.TypeFactory.CreateEnum(inputEnumType, this);
+                // Ensure the service version enum uses the same namespace as the options class since it is nested.
+                _serviceVersionEnum?.Update(@namespace: Type.Namespace);
                 _versionProperty = new(
                     null,
                     MethodSignatureModifiers.Internal,
@@ -44,26 +47,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         internal PropertyProvider? VersionProperty => _versionProperty;
-        private TypeProvider? ServiceVersionEnum => _serviceVersionEnum?.Value;
         private FieldProvider? LatestVersionField => _latestVersionField ??= BuildLatestVersionField();
 
         private FieldProvider? BuildLatestVersionField()
         {
-            if (ServiceVersionEnum == null)
+            if (_serviceVersionEnum == null)
                 return null;
 
             return new(
                 modifiers: FieldModifiers.Private | FieldModifiers.Const,
-                type: ServiceVersionEnum.Type,
+                type: _serviceVersionEnum.Type,
                 name: LatestVersionFieldName,
                 enclosingType: this,
-                initializationValue: Static(ServiceVersionEnum.Type).Property(ServiceVersionEnum.EnumValues[^1].Name));
+                initializationValue: Static(_serviceVersionEnum.Type).Property(_serviceVersionEnum.EnumValues[^1].Name));
         }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
         protected override string BuildName() => $"{_clientProvider.Name}Options";
         protected override string BuildNamespace() => _clientProvider.Type.Namespace;
-        protected override FormattableString Description => $"Client options for {_clientProvider.Type:C}.";
+        protected override FormattableString BuildDescription() => $"Client options for {_clientProvider.Type:C}.";
 
         protected override CSharpType[] BuildImplements()
         {
@@ -80,31 +82,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override TypeProvider[] BuildNestedTypes()
         {
-            if (ServiceVersionEnum == null)
+            if (_serviceVersionEnum == null)
                 return [];
 
-            return [ServiceVersionEnum];
+            return [_serviceVersionEnum];
         }
 
         protected override ConstructorProvider[] BuildConstructors()
         {
-            if (ServiceVersionEnum == null || LatestVersionField == null)
+            if (_serviceVersionEnum == null || LatestVersionField == null)
                 return [];
 
             var versionParam = new ParameterProvider(
                 "version",
                 $"The service version",
-                ServiceVersionEnum.Type,
+                _serviceVersionEnum.Type,
                 defaultValue: LatestVersionField);
-            var serviceVersionsCount = ServiceVersionEnum.EnumValues.Count;
+            var serviceVersionsCount = _serviceVersionEnum.EnumValues.Count;
             List<SwitchCaseExpression> switchCases = new(serviceVersionsCount + 1);
 
             for (int i = 0; i < serviceVersionsCount; i++)
             {
-                var serviceVersionMember = ServiceVersionEnum.EnumValues[i];
+                var serviceVersionMember = _serviceVersionEnum.EnumValues[i];
                 // ServiceVersion.Version => "version"
                 switchCases.Add(new(
-                    Static(ServiceVersionEnum.Type).Property(serviceVersionMember.Name),
+                    Static(_serviceVersionEnum.Type).Property(serviceVersionMember.Name),
                     new LiteralExpression(serviceVersionMember.Value)));
             }
 
@@ -139,7 +141,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             description,
                             MethodSignatureModifiers.Public,
                             type,
-                            p.Name.ToCleanName(),
+                            p.Name.ToIdentifierName(),
                             new AutoPropertyBody(true),
                             this));
                     }

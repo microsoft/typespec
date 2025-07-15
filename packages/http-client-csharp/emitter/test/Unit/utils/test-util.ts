@@ -42,6 +42,7 @@ export interface TypeSpecCompileOptions {
   IsXmlNeeded?: boolean;
   AuthDecorator?: string;
   NoEmit?: boolean;
+  IsVersionNeeded?: boolean;
 }
 
 export async function typeSpecCompile(
@@ -53,10 +54,15 @@ export async function typeSpecCompile(
   const needAzureCore = options?.IsAzureCoreNeeded ?? false;
   const needTCGC = options?.IsTCGCNeeded ?? false;
   const needXml = options?.IsXmlNeeded ?? false;
+  const needVersion = options?.IsVersionNeeded ?? true;
   const authDecorator =
     options?.AuthDecorator ?? `@useAuth(ApiKeyAuth<ApiKeyLocation.header, "api-key">)`;
+  const versions = `enum Versions {
+    ${needAzureCore ? "@useDependency(Azure.Core.Versions.v1_0_Preview_1)" : ""}
+    "2023-01-01-preview"
+    }`;
   const namespace = `
-    @versioned(Versions)
+    ${needVersion ? `@versioned(Versions)` : ""}
     ${authDecorator}
     @service(#{
       title: "Azure Csharp emitter Testing",
@@ -64,10 +70,7 @@ export async function typeSpecCompile(
 
     namespace Azure.Csharp.Testing;
 
-    enum Versions {
-    ${needAzureCore ? "@useDependency(Azure.Core.Versions.v1_0_Preview_1)" : ""}
-    "2023-01-01-preview"
-    }
+    ${needVersion ? versions : ""}
     
     `;
   const fileContent = `
@@ -102,7 +105,6 @@ export function createEmitterContext(
 ): EmitContext<CSharpEmitterOptions> {
   return {
     program: program,
-    emitterOutputDir: "./",
     options: options ?? {
       "new-project": false,
       "clear-output-folder": false,

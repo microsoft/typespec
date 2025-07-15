@@ -1,24 +1,35 @@
-import { For, refkey } from "@alloy-js/core";
+import { For } from "@alloy-js/core";
 import { Reference, ValueExpression } from "@alloy-js/typescript";
-import { IntrinsicType, Model, Scalar, Type } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import type { IntrinsicType, Model, Scalar, Type } from "@typespec/compiler";
+import type { Typekit } from "@typespec/compiler/typekit";
 import "@typespec/http/experimental/typekit";
+import { useTsp } from "../../core/context/tsp-context.js";
 import { reportTypescriptDiagnostic } from "../../typescript/lib.js";
+import { efRefkey } from "../utils/refkey.js";
 import { ArrayExpression } from "./array-expression.js";
+import { FunctionType } from "./function-type.js";
 import { InterfaceExpression } from "./interface-declaration.js";
 import { RecordExpression } from "./record-expression.js";
 import { UnionExpression } from "./union-expression.js";
 
 export interface TypeExpressionProps {
   type: Type;
+
+  /**
+   * Whether to disallow references. Setting this will force the type to be
+   * emitted inline, even if it is a declaration that would otherwise be
+   * referenced.
+   */
+  noReference?: boolean;
 }
 
 export function TypeExpression(props: TypeExpressionProps) {
+  const { $ } = useTsp();
   const type = $.httpPart.unpack(props.type);
-  if (isDeclaration(type)) {
+  if (!props.noReference && isDeclaration($, type)) {
     // todo: probably need abstraction around deciding what's a declaration in the output
     // (it may not correspond to things which are declarations in TypeSpec?)
-    return <Reference refkey={refkey(type)} />;
+    return <Reference refkey={efRefkey(type)} />;
     //throw new Error("Reference not implemented");
   }
 
@@ -26,7 +37,7 @@ export function TypeExpression(props: TypeExpressionProps) {
   switch (type.kind) {
     case "Scalar":
     case "Intrinsic":
-      return <>{getScalarIntrinsicExpression(type)}</>;
+      return <>{getScalarIntrinsicExpression($, type)}</>;
     case "Boolean":
     case "Number":
     case "String":
@@ -64,7 +75,8 @@ export function TypeExpression(props: TypeExpressionProps) {
       }
 
       return <InterfaceExpression type={type} />;
-
+    case "Operation":
+      return <FunctionType type={type} />;
     default:
       reportTypescriptDiagnostic($.program, { code: "typescript-unsupported-type", target: type });
       return "any";
@@ -110,7 +122,7 @@ const intrinsicNameToTSType = new Map<string, string | null>([
   ["url", "string"], // Matches TypeScript's `string`
 ]);
 
-function getScalarIntrinsicExpression(type: Scalar | IntrinsicType): string | null {
+function getScalarIntrinsicExpression($: Typekit, type: Scalar | IntrinsicType): string | null {
   let intrinsicName: string;
   if ($.scalar.is(type)) {
     if ($.scalar.isUtcDateTime(type) || $.scalar.extendsUtcDateTime(type)) {
@@ -143,7 +155,7 @@ function getScalarIntrinsicExpression(type: Scalar | IntrinsicType): string | nu
   return tsType;
 }
 
-function isDeclaration(type: Type): boolean {
+function isDeclaration($: Typekit, type: Type): boolean {
   switch (type.kind) {
     case "Namespace":
     case "Interface":

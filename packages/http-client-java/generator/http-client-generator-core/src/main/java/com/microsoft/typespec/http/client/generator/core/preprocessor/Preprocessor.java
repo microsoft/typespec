@@ -3,8 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.preprocessor;
 
-import com.azure.json.JsonProviders;
-import com.azure.json.JsonReader;
 import com.azure.json.ReadValueCallback;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.FileUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.jsonrpc.Connection;
@@ -87,14 +85,8 @@ public class Preprocessor extends NewPlugin {
 
         CodeModel codeModel;
         try {
-            if (!file.startsWith("{")) {
-                // YAML
-                codeModel = yamlMapper.loadAs(file, CodeModel.class);
-            } else {
-                try (JsonReader jsonReader = JsonProviders.createReader(file)) {
-                    codeModel = CodeModel.fromJson(jsonReader);
-                }
-            }
+            // YAML
+            codeModel = yamlMapper.loadAs(file, CodeModel.class);
         } catch (Exception e) {
             System.err.println("Got an error " + e.getMessage());
             connection.sendError(1, 500, "Cannot parse input into code model: " + e.getMessage());

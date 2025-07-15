@@ -4,7 +4,6 @@ import "@azure-tools/typespec-azure-core";
 import "@azure-tools/typespec-client-generator-core";
 
 using TypeSpec.Http;
-using Azure.Core;
 using Azure.ClientGenerator.Core;
 
 @service(#{ title: "Internal" })
@@ -44,7 +43,7 @@ model StandAloneData {
 }
 
 // StandAloneDataInner will be generated as intput + output
-@usage(Usage.input | Usage.output)
+@usage(Usage.input | Usage.output, "!python")
 model StandAloneDataInner {
   name: string;
 }
@@ -91,14 +90,14 @@ model ProtocolInternalModel {
 @route("/internal")
 interface InternalOp {
   // test ApiRequest with Access.public
-  @access(Access.public, "python")
-  @access(Access.internal, "client")
+  @access(Access.public, "!python")
+  @access(Access.internal, "java")
   @post
   postInternal(@body body: ApiRequest): ResponseInternal;
 
   // test ApiResponse with Access.public
   @get
-  @access(Access.internal, "java")
+  @access(Access.internal, "python, java")
   getInternal(): ApiResponse;
 
   @route("/protocal-internal")

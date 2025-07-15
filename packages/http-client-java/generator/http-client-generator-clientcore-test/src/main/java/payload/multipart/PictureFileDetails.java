@@ -1,30 +1,30 @@
 package payload.multipart;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.models.binarydata.BinaryData;
 
 /**
  * The file details for the "picture" field.
  */
-@Metadata(conditions = { TypeConditions.FLUENT })
+@Metadata(properties = { MetadataProperties.FLUENT })
 public final class PictureFileDetails {
     /*
      * The content of the file.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final BinaryData content;
 
     /*
      * The filename of the file.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private String filename;
 
     /*
      * The content-type of the file.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private String contentType = "application/octet-stream";
 
     /**
@@ -32,7 +32,7 @@ public final class PictureFileDetails {
      * 
      * @param content the content value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public PictureFileDetails(BinaryData content) {
         this.content = content;
     }
@@ -42,7 +42,7 @@ public final class PictureFileDetails {
      * 
      * @return the content value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public BinaryData getContent() {
         return this.content;
     }
@@ -52,7 +52,7 @@ public final class PictureFileDetails {
      * 
      * @return the filename value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getFilename() {
         return this.filename;
     }
@@ -63,7 +63,7 @@ public final class PictureFileDetails {
      * @param filename the filename value to set.
      * @return the PictureFileDetails object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public PictureFileDetails setFilename(String filename) {
         this.filename = filename;
         return this;
@@ -74,7 +74,7 @@ public final class PictureFileDetails {
      * 
      * @return the contentType value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getContentType() {
         return this.contentType;
     }
@@ -85,7 +85,7 @@ public final class PictureFileDetails {
      * @param contentType the contentType value to set.
      * @return the PictureFileDetails object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public PictureFileDetails setContentType(String contentType) {
         this.contentType = contentType;
         return this;
