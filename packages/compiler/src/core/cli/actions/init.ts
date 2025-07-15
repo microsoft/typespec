@@ -5,6 +5,10 @@ import { CliCompilerHost } from "../types.js";
 export interface InitArgs {
   templatesUrl?: string;
   template?: string;
+  "auto-accept-prompts"?: boolean;
+  args?: string[];
+  "project-name"?: string;
+  emitters?: string[];
 }
 
 export async function initAction(

@@ -193,3 +193,17 @@ export function handleInternalCompilerError(error: unknown): never {
 function color(text: string, color: Colors) {
   return pc[color](text);
 }
+
+export function parseCliArgsArg(args: string[] = []): Record<string, string> {
+  const map: Record<string, string> = {};
+  for (const arg of args) {
+    const optionParts = arg.split("=");
+    if (optionParts.length !== 2) {
+      throw new Error(`The --arg parameter value "${arg}" must be in the format: arg-name=value`);
+    }
+
+    map[optionParts[0]] = optionParts[1];
+  }
+
+  return map;
+}

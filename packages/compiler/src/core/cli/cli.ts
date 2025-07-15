@@ -217,8 +217,33 @@ async function main() {
           .option("template", {
             type: "string",
             description: "Name of the template to use",
+          })
+          .option("y", {
+            description:
+              "Automatically accept all prompts unless a prompt is required and doesn't have a default value.",
+            type: "boolean",
+            default: false,
+            alias: "auto-accept-prompts",
+          })
+          .option("project-name", {
+            description: "Name of the project",
+            type: "string",
+          })
+          .option("arg", {
+            type: "array",
+            alias: "args",
+            string: true,
+            describe: "Key/value of arguments that are used in the configuration.",
+          })
+          .option("template-emitters", {
+            description:
+              "Emitters to include in the project. Emitters not specified by the template will be ignored. Default emitters are always included.",
+            type: "array",
+            string: true,
           }),
-      withCliHostAndDiagnostics((host, args) => initAction(host, args)),
+      withCliHostAndDiagnostics((host, args) =>
+        initAction(host, { ...args, emitters: args["template-emitters"] }),
+      ),
     )
     .command(
       "install",
