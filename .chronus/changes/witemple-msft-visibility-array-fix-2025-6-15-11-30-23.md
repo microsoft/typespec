@@ -4,4 +4,4 @@ packages:
   - "@typespec/json-schema"
 ---
 
-Added a regression test against incorrect visibility array calcualtion.
+Added a regression test against incorrect visibility array calculation.
