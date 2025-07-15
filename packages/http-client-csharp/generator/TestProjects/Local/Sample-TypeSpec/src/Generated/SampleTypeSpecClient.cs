@@ -30,7 +30,7 @@ namespace SampleTypeSpec
         {
             new Dictionary<string, object>
             {
-                { GetTokenOptions.ScopesPropertyName, new string[] { "baselineScope" } },
+                { GetTokenOptions.ScopesPropertyName, new string[] { "read" } },
                 { GetTokenOptions.AuthorizationUrlPropertyName, "https://api.example.com/oauth2/authorize" },
                 { GetTokenOptions.RefreshUrlPropertyName, "https://api.example.com/oauth2/refresh" }
             }

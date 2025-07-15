@@ -6569,7 +6569,7 @@
       "flows": [
         {
           "scopes": [
-            "baselineScope"
+            "read"
           ],
           "refreshUrl": "https://api.example.com/oauth2/refresh",
           "authorizationUrl": "https://api.example.com/oauth2/authorize"

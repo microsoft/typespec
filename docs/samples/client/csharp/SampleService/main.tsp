@@ -13,7 +13,7 @@ import "@azure-tools/typespec-azure-core";
     sampleTypeSpecUrl: url,
   }
 )
-@useAuth(ApiKeyAuth<ApiKeyLocation.header, "my-api-key"> | MyOAuth2)
+@useAuth(ApiKeyAuth<ApiKeyLocation.header, "my-api-key"> | SampleOAuth2)
 namespace SampleTypeSpec;
 
 using TypeSpec.Http;
@@ -21,12 +21,12 @@ using TypeSpec.Versioning;
 using Azure.ClientGenerator.Core;
 using Azure.Core;
 
-alias MyOAuth2 = OAuth2Auth<[
+alias SampleOAuth2 = OAuth2Auth<[
   {
     type: OAuth2FlowType.implicit;
     authorizationUrl: "https://api.example.com/oauth2/authorize";
     refreshUrl: "https://api.example.com/oauth2/refresh";
-    scopes: ["baselineScope"];
+    scopes: ["read"];
   }
 ]>;
 
