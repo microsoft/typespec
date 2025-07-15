@@ -218,12 +218,12 @@ async function main() {
             type: "string",
             description: "Name of the template to use",
           })
-          .option("y", {
+          .option("no-prompt", {
             description:
               "Automatically accept all prompts unless a prompt is required and doesn't have a default value.",
             type: "boolean",
             default: false,
-            alias: "auto-accept-prompts",
+            alias: "y",
           })
           .option("project-name", {
             description: "Name of the project",
@@ -242,7 +242,10 @@ async function main() {
             string: true,
           }),
       withCliHostAndDiagnostics((host, args) =>
-        initAction(host, { ...args, emitters: args["template-emitters"] }),
+        initAction(host, {
+          ...args,
+          emitters: args["template-emitters"],
+        }),
       ),
     )
     .command(

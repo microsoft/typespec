@@ -5,7 +5,7 @@ import { CliCompilerHost } from "../types.js";
 export interface InitArgs {
   templatesUrl?: string;
   template?: string;
-  "auto-accept-prompts"?: boolean;
+  "no-prompt"?: boolean;
   args?: string[];
   "project-name"?: string;
   emitters?: string[];

@@ -121,7 +121,7 @@ function parseYaml(host: CliCompilerHost, path: string): Promise<Record<string, 
   return host.readFile(path).then((f) => coreParseYaml(f.text)[0].value as any);
 }
 
-describe("auto-accept-prompts", () => {
+describe("no-prompt", () => {
   const consoleMock = vi.spyOn(console, "log").mockImplementation(() => {});
   afterAll(() => {
     consoleMock.mockRestore();
@@ -132,7 +132,7 @@ describe("auto-accept-prompts", () => {
 
     await initTypeSpecProject(compilerHost, "/tmp/test-project", {
       template: "foo",
-      "auto-accept-prompts": true,
+      "no-prompt": true,
     });
 
     const packageJson = await parseJson(compilerHost, "/tmp/test-project/package.json");
@@ -148,7 +148,7 @@ describe("auto-accept-prompts", () => {
 
     await initTypeSpecProject(compilerHost, "/tmp/test-project", {
       template: "foo",
-      "auto-accept-prompts": true,
+      "no-prompt": true,
     });
     const packageJson = await parseJson(compilerHost, "/tmp/test-project/package.json");
     expect(packageJson.name).toBe("test-project");
@@ -159,7 +159,7 @@ describe("auto-accept-prompts", () => {
 
     await initTypeSpecProject(compilerHost, "/tmp/test-project", {
       template: "foo",
-      "auto-accept-prompts": true,
+      "no-prompt": true,
       "project-name": "custom-project-name",
     });
 
@@ -172,7 +172,7 @@ describe("auto-accept-prompts", () => {
 
     await initTypeSpecProject(compilerHost, "/tmp/test-project", {
       template: "foo",
-      "auto-accept-prompts": true,
+      "no-prompt": true,
       emitters: ["@typespec/openapi3", "@typespec/http-client-csharp"],
     });
 
@@ -184,7 +184,7 @@ describe("auto-accept-prompts", () => {
     const { compilerHost } = await createTestFSWithCliCompilerHost();
     await initTypeSpecProject(compilerHost, "/tmp/test-project", {
       template: "withParams",
-      "auto-accept-prompts": true,
+      "no-prompt": true,
       args: ["param1=value1"],
     });
 
@@ -200,7 +200,7 @@ describe("auto-accept-prompts", () => {
     const { compilerHost } = await createTestFSWithCliCompilerHost();
     await initTypeSpecProject(compilerHost, "/tmp/test-project", {
       template: "withParams",
-      "auto-accept-prompts": true,
+      "no-prompt": true,
       args: ["param1=value1", "param2=value2", "param3=value3"],
     });
 
@@ -217,7 +217,7 @@ describe("auto-accept-prompts", () => {
 
     await initTypeSpecProject(compilerHost, "/tmp/test-project", {
       template: "foo",
-      "auto-accept-prompts": true,
+      "no-prompt": true,
       emitters: ["@typespec/openapi3", "@typespec/http-client-csharp", "my-fake-emitter"],
     });
 
@@ -225,15 +225,15 @@ describe("auto-accept-prompts", () => {
     expect(tspConfig.emit).toEqual(["@typespec/openapi3", "@typespec/http-client-csharp"]);
   });
 
-  it("should throw an error if no template is specified with auto-accept-prompts", async () => {
+  it("should throw an error if no template is specified with no-prompt", async () => {
     const { compilerHost } = await createTestFSWithCliCompilerHost();
 
     await expect(
       initTypeSpecProject(compilerHost, "/tmp/test-project", {
-        "auto-accept-prompts": true,
+        "no-prompt": true,
       }),
     ).rejects.toThrowError(
-      `A template must be specified when --auto-accept-prompts is used. Specify one of the following templates via --template: "foo", "withParams"`,
+      `A template must be specified when --no-prompt is used. Specify one of the following templates via --template: "foo", "withParams"`,
     );
   });
 
@@ -243,7 +243,7 @@ describe("auto-accept-prompts", () => {
     await expect(
       initTypeSpecProject(compilerHost, "/tmp/test-project", {
         template: "non-existent-template",
-        "auto-accept-prompts": true,
+        "no-prompt": true,
       }),
     ).rejects.toThrowError("Unexpected error: Cannot find template non-existent-template");
   });
@@ -254,7 +254,7 @@ describe("auto-accept-prompts", () => {
     await expect(
       initTypeSpecProject(compilerHost, "/tmp/test-project", {
         template: "withParams",
-        "auto-accept-prompts": true,
+        "no-prompt": true,
       }),
     ).rejects.toThrowError(
       `Missing value for parameter "param1". Provide it using --args param1=value`,

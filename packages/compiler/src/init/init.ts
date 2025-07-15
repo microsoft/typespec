@@ -19,7 +19,7 @@ import { isFileSkipGeneration, makeScaffoldingConfig, scaffoldNewProject } from 
 export interface InitTypeSpecProjectOptions {
   readonly templatesUrl?: string;
   readonly template?: string;
-  readonly "auto-accept-prompts"?: boolean;
+  readonly "no-prompt"?: boolean;
   readonly args?: string[];
   readonly "project-name"?: string;
   readonly emitters?: string[];
@@ -46,7 +46,7 @@ export async function initTypeSpecProjectWorker(
   directory: string,
   options: InitTypeSpecProjectOptions = {},
 ) {
-  const skipPrompts = options["auto-accept-prompts"] ?? false;
+  const skipPrompts = options["no-prompt"] ?? false;
   whiteline();
 
   if (!skipPrompts && !(await confirmDirectoryEmpty(directory))) {
@@ -65,7 +65,7 @@ export async function initTypeSpecProjectWorker(
   if (skipPrompts && !options.template) {
     // A template has to be defined if we're skipping prompts
     throw new Error(
-      `A template must be specified when --auto-accept-prompts is used. Specify one of the following templates via --template: ${Object.keys(
+      `A template must be specified when --no-prompt is used. Specify one of the following templates via --template: ${Object.keys(
         result.templates,
       )
         .map((t) => `"${t}"`)
@@ -156,7 +156,7 @@ async function resolveProjectName(
 ): Promise<string> {
   defaultName = options["project-name"] ?? defaultName;
 
-  if (options["auto-accept-prompts"]) return defaultName;
+  if (options["no-prompt"]) return defaultName;
   return input({
     message: `Enter a project name:`,
     default: defaultName,
@@ -171,7 +171,7 @@ async function promptCustomParameters(
     return {};
   }
 
-  const skipPrompts = options["auto-accept-prompts"] ?? false;
+  const skipPrompts = options["no-prompt"] ?? false;
 
   const results: Record<string, string> = {};
 
@@ -197,7 +197,7 @@ async function resolveCustomParameter(
   const suppliedArgs = parseCliArgsArg(options.args);
   const defaultValue = suppliedArgs[name] ?? templateInput.initialValue;
 
-  if (options["auto-accept-prompts"]) {
+  if (options["no-prompt"]) {
     return defaultValue;
   }
 
@@ -381,7 +381,7 @@ async function selectEmitters(
   const suppliedEmitters = options.emitters ?? [];
 
   let emitters: string[] = [];
-  if (options["auto-accept-prompts"]) {
+  if (options["no-prompt"]) {
     emitters = emittersList
       .filter(([name, emitter]) => emitter.selected || suppliedEmitters.includes(name))
       .map(([name]) => name);
