@@ -44,7 +44,7 @@ export function link(
   }
   return buildPagedAsyncIterator<Pet, LinkPageResponse, LinkPageSettings>({
     getElements,
-    getPagedResponse,
+    getPagedResponse: getPagedResponse as any,
   });
 }
 ```
@@ -166,7 +166,7 @@ export function link(
   }
   return buildPagedAsyncIterator<Pet, LinkPageResponse, LinkPageSettings>({
     getElements,
-    getPagedResponse,
+    getPagedResponse: getPagedResponse as any,
   });
 }
 ```

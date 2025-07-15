@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import type.property.additionalproperties.DifferentSpreadStringDerived;
 
@@ -31,6 +32,11 @@ public final class ExtendsDifferentSpreadStringsImpl {
     private final AdditionalPropertiesClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of ExtendsDifferentSpreadStringsImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -38,6 +44,7 @@ public final class ExtendsDifferentSpreadStringsImpl {
     ExtendsDifferentSpreadStringsImpl(AdditionalPropertiesClientImpl client) {
         this.service = ExtendsDifferentSpreadStringsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -87,8 +94,11 @@ public final class ExtendsDifferentSpreadStringsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<DifferentSpreadStringDerived> getWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.get(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Property.AdditionalProperties.ExtendsDifferentSpreadString.get", requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.get(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -103,7 +113,10 @@ public final class ExtendsDifferentSpreadStringsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(DifferentSpreadStringDerived body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.put(this.client.getEndpoint(), contentType, body, requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Property.AdditionalProperties.ExtendsDifferentSpreadString.put", requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                return service.put(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 }

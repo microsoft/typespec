@@ -159,7 +159,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             _underlyingType = underlyingEnumType;
         }
 
-        public string Namespace { get; private set; }
+        public string Namespace { get; internal set; }
 
         /// <summary>
         /// Gets or sets the name of the type.

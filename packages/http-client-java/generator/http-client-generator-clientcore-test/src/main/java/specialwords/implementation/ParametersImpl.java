@@ -12,6 +12,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -29,6 +30,11 @@ public final class ParametersImpl {
     private final SpecialWordsClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of ParametersImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -36,6 +42,7 @@ public final class ParametersImpl {
     ParametersImpl(SpecialWordsClientImpl client) {
         this.service = ParametersService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -340,7 +347,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withAndWithResponse(String and, RequestContext requestContext) {
-        return service.withAnd(this.client.getEndpoint(), and, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withAnd", requestContext,
+            updatedContext -> {
+                return service.withAnd(this.client.getEndpoint(), and, updatedContext);
+            });
     }
 
     /**
@@ -355,7 +365,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withAsWithResponse(String as, RequestContext requestContext) {
-        return service.withAs(this.client.getEndpoint(), as, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withAs", requestContext,
+            updatedContext -> {
+                return service.withAs(this.client.getEndpoint(), as, updatedContext);
+            });
     }
 
     /**
@@ -370,7 +383,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withAssertWithResponse(String assertParameter, RequestContext requestContext) {
-        return service.withAssert(this.client.getEndpoint(), assertParameter, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withAssert", requestContext,
+            updatedContext -> {
+                return service.withAssert(this.client.getEndpoint(), assertParameter, updatedContext);
+            });
     }
 
     /**
@@ -385,7 +401,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withAsyncWithResponse(String async, RequestContext requestContext) {
-        return service.withAsync(this.client.getEndpoint(), async, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withAsync", requestContext,
+            updatedContext -> {
+                return service.withAsync(this.client.getEndpoint(), async, updatedContext);
+            });
     }
 
     /**
@@ -400,7 +419,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withAwaitWithResponse(String await, RequestContext requestContext) {
-        return service.withAwait(this.client.getEndpoint(), await, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withAwait", requestContext,
+            updatedContext -> {
+                return service.withAwait(this.client.getEndpoint(), await, updatedContext);
+            });
     }
 
     /**
@@ -415,7 +437,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withBreakWithResponse(String breakParameter, RequestContext requestContext) {
-        return service.withBreak(this.client.getEndpoint(), breakParameter, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withBreak", requestContext,
+            updatedContext -> {
+                return service.withBreak(this.client.getEndpoint(), breakParameter, updatedContext);
+            });
     }
 
     /**
@@ -430,7 +455,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withClassWithResponse(String classParameter, RequestContext requestContext) {
-        return service.withClass(this.client.getEndpoint(), classParameter, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withClass", requestContext,
+            updatedContext -> {
+                return service.withClass(this.client.getEndpoint(), classParameter, updatedContext);
+            });
     }
 
     /**
@@ -445,7 +473,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withConstructorWithResponse(String constructor, RequestContext requestContext) {
-        return service.withConstructor(this.client.getEndpoint(), constructor, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withConstructor", requestContext,
+            updatedContext -> {
+                return service.withConstructor(this.client.getEndpoint(), constructor, updatedContext);
+            });
     }
 
     /**
@@ -460,7 +491,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withContinueWithResponse(String continueParameter, RequestContext requestContext) {
-        return service.withContinue(this.client.getEndpoint(), continueParameter, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withContinue", requestContext,
+            updatedContext -> {
+                return service.withContinue(this.client.getEndpoint(), continueParameter, updatedContext);
+            });
     }
 
     /**
@@ -475,7 +509,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withDefWithResponse(String def, RequestContext requestContext) {
-        return service.withDef(this.client.getEndpoint(), def, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withDef", requestContext,
+            updatedContext -> {
+                return service.withDef(this.client.getEndpoint(), def, updatedContext);
+            });
     }
 
     /**
@@ -490,7 +527,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withDelWithResponse(String del, RequestContext requestContext) {
-        return service.withDel(this.client.getEndpoint(), del, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withDel", requestContext,
+            updatedContext -> {
+                return service.withDel(this.client.getEndpoint(), del, updatedContext);
+            });
     }
 
     /**
@@ -505,7 +545,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withElifWithResponse(String elif, RequestContext requestContext) {
-        return service.withElif(this.client.getEndpoint(), elif, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withElif", requestContext,
+            updatedContext -> {
+                return service.withElif(this.client.getEndpoint(), elif, updatedContext);
+            });
     }
 
     /**
@@ -520,7 +563,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withElseWithResponse(String elseParameter, RequestContext requestContext) {
-        return service.withElse(this.client.getEndpoint(), elseParameter, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withElse", requestContext,
+            updatedContext -> {
+                return service.withElse(this.client.getEndpoint(), elseParameter, updatedContext);
+            });
     }
 
     /**
@@ -535,7 +581,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withExceptWithResponse(String except, RequestContext requestContext) {
-        return service.withExcept(this.client.getEndpoint(), except, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withExcept", requestContext,
+            updatedContext -> {
+                return service.withExcept(this.client.getEndpoint(), except, updatedContext);
+            });
     }
 
     /**
@@ -550,7 +599,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withExecWithResponse(String exec, RequestContext requestContext) {
-        return service.withExec(this.client.getEndpoint(), exec, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withExec", requestContext,
+            updatedContext -> {
+                return service.withExec(this.client.getEndpoint(), exec, updatedContext);
+            });
     }
 
     /**
@@ -565,7 +617,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withFinallyWithResponse(String finallyParameter, RequestContext requestContext) {
-        return service.withFinally(this.client.getEndpoint(), finallyParameter, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withFinally", requestContext,
+            updatedContext -> {
+                return service.withFinally(this.client.getEndpoint(), finallyParameter, updatedContext);
+            });
     }
 
     /**
@@ -580,7 +635,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withForWithResponse(String forParameter, RequestContext requestContext) {
-        return service.withFor(this.client.getEndpoint(), forParameter, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withFor", requestContext,
+            updatedContext -> {
+                return service.withFor(this.client.getEndpoint(), forParameter, updatedContext);
+            });
     }
 
     /**
@@ -595,7 +653,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withFromWithResponse(String from, RequestContext requestContext) {
-        return service.withFrom(this.client.getEndpoint(), from, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withFrom", requestContext,
+            updatedContext -> {
+                return service.withFrom(this.client.getEndpoint(), from, updatedContext);
+            });
     }
 
     /**
@@ -610,7 +671,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withGlobalWithResponse(String global, RequestContext requestContext) {
-        return service.withGlobal(this.client.getEndpoint(), global, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withGlobal", requestContext,
+            updatedContext -> {
+                return service.withGlobal(this.client.getEndpoint(), global, updatedContext);
+            });
     }
 
     /**
@@ -625,7 +689,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withIfWithResponse(String ifParameter, RequestContext requestContext) {
-        return service.withIf(this.client.getEndpoint(), ifParameter, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withIf", requestContext,
+            updatedContext -> {
+                return service.withIf(this.client.getEndpoint(), ifParameter, updatedContext);
+            });
     }
 
     /**
@@ -640,7 +707,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withImportWithResponse(String importParameter, RequestContext requestContext) {
-        return service.withImport(this.client.getEndpoint(), importParameter, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withImport", requestContext,
+            updatedContext -> {
+                return service.withImport(this.client.getEndpoint(), importParameter, updatedContext);
+            });
     }
 
     /**
@@ -655,7 +725,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withInWithResponse(String in, RequestContext requestContext) {
-        return service.withIn(this.client.getEndpoint(), in, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withIn", requestContext,
+            updatedContext -> {
+                return service.withIn(this.client.getEndpoint(), in, updatedContext);
+            });
     }
 
     /**
@@ -670,7 +743,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withIsWithResponse(String is, RequestContext requestContext) {
-        return service.withIs(this.client.getEndpoint(), is, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withIs", requestContext,
+            updatedContext -> {
+                return service.withIs(this.client.getEndpoint(), is, updatedContext);
+            });
     }
 
     /**
@@ -685,7 +761,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withLambdaWithResponse(String lambda, RequestContext requestContext) {
-        return service.withLambda(this.client.getEndpoint(), lambda, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withLambda", requestContext,
+            updatedContext -> {
+                return service.withLambda(this.client.getEndpoint(), lambda, updatedContext);
+            });
     }
 
     /**
@@ -700,7 +779,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withNotWithResponse(String not, RequestContext requestContext) {
-        return service.withNot(this.client.getEndpoint(), not, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withNot", requestContext,
+            updatedContext -> {
+                return service.withNot(this.client.getEndpoint(), not, updatedContext);
+            });
     }
 
     /**
@@ -715,7 +797,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withOrWithResponse(String or, RequestContext requestContext) {
-        return service.withOr(this.client.getEndpoint(), or, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withOr", requestContext,
+            updatedContext -> {
+                return service.withOr(this.client.getEndpoint(), or, updatedContext);
+            });
     }
 
     /**
@@ -730,7 +815,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withPassWithResponse(String pass, RequestContext requestContext) {
-        return service.withPass(this.client.getEndpoint(), pass, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withPass", requestContext,
+            updatedContext -> {
+                return service.withPass(this.client.getEndpoint(), pass, updatedContext);
+            });
     }
 
     /**
@@ -745,7 +833,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withRaiseWithResponse(String raise, RequestContext requestContext) {
-        return service.withRaise(this.client.getEndpoint(), raise, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withRaise", requestContext,
+            updatedContext -> {
+                return service.withRaise(this.client.getEndpoint(), raise, updatedContext);
+            });
     }
 
     /**
@@ -760,7 +851,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withReturnWithResponse(String returnParameter, RequestContext requestContext) {
-        return service.withReturn(this.client.getEndpoint(), returnParameter, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withReturn", requestContext,
+            updatedContext -> {
+                return service.withReturn(this.client.getEndpoint(), returnParameter, updatedContext);
+            });
     }
 
     /**
@@ -775,7 +869,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withTryWithResponse(String tryParameter, RequestContext requestContext) {
-        return service.withTry(this.client.getEndpoint(), tryParameter, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withTry", requestContext,
+            updatedContext -> {
+                return service.withTry(this.client.getEndpoint(), tryParameter, updatedContext);
+            });
     }
 
     /**
@@ -790,7 +887,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withWhileWithResponse(String whileParameter, RequestContext requestContext) {
-        return service.withWhile(this.client.getEndpoint(), whileParameter, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withWhile", requestContext,
+            updatedContext -> {
+                return service.withWhile(this.client.getEndpoint(), whileParameter, updatedContext);
+            });
     }
 
     /**
@@ -805,7 +905,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withWithWithResponse(String with, RequestContext requestContext) {
-        return service.withWith(this.client.getEndpoint(), with, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withWith", requestContext,
+            updatedContext -> {
+                return service.withWith(this.client.getEndpoint(), with, updatedContext);
+            });
     }
 
     /**
@@ -820,7 +923,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withYieldWithResponse(String yield, RequestContext requestContext) {
-        return service.withYield(this.client.getEndpoint(), yield, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withYield", requestContext,
+            updatedContext -> {
+                return service.withYield(this.client.getEndpoint(), yield, updatedContext);
+            });
     }
 
     /**
@@ -835,6 +941,9 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withCancellationTokenWithResponse(String cancellationToken, RequestContext requestContext) {
-        return service.withCancellationToken(this.client.getEndpoint(), cancellationToken, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withCancellationToken",
+            requestContext, updatedContext -> {
+                return service.withCancellationToken(this.client.getEndpoint(), cancellationToken, updatedContext);
+            });
     }
 }

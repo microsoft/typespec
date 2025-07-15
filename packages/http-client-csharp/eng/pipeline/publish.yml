@@ -8,6 +8,12 @@ trigger:
 
 pr: none
 
+parameters:
+  - name: CreateAzureSdkForNetPR
+    displayName: Create PR for azure-sdk-for-net
+    type: boolean
+    default: false
+
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
 
@@ -62,7 +68,7 @@ extends:
         dependsOn:
           - CSharp_Publish
           - CSharp_Build
-        condition: and(succeeded(), and(ne(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranchName'], 'main')))
+        condition: and(succeeded(), or(eq(variables['Build.SourceBranchName'], 'main'), and(eq(variables['Build.Reason'], 'Manual'), ${{ parameters.CreateAzureSdkForNetPR }})))
         variables:
           PackageVersion: $[ stageDependencies.CSharp_Build.Build_linux_20.outputs['ci_build.emitterVersion'] ]
         pool:
