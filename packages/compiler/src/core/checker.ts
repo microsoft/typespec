@@ -888,6 +888,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function getNodeSym(
     node:
       | ModelStatementNode
+      | ModelExpressionNode
       | ScalarStatementNode
       | AliasStatementNode
       | ConstStatementNode
@@ -3643,23 +3644,21 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return links.declaredType as any;
     }
 
-    const properties = createRekeyableMap<string, ModelProperty>();
-    const type: Model = createType({
-      kind: "Model",
-      name: "",
-      node: node,
-      properties,
-      indexer: undefined,
-      namespace: getParentNamespaceType(node),
-      decorators: [],
-      derivedModels: [],
-      sourceModels: [],
-    });
+    const type = initModel(node);
+    const properties = type.properties;
     linkType(links, type, mapper);
-
     linkMapper(type, mapper);
-    checkModelProperties(node, properties, type, mapper);
-    return finalizeType(finishType(type));
+
+    ensureResolved(
+      node.properties
+        .filter((x) => x.kind === SyntaxKind.ModelSpreadProperty)
+        .map((x) => checkSpreadTarget(node, x.target, mapper)),
+      () => {
+        checkModelProperties(node, properties, type, mapper);
+        finalizeType(finishType(type));
+      },
+    );
+    return type;
   }
 
   /** Find the indexer that applies to this model. Either defined on itself or from a base model */
@@ -4604,8 +4603,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return isType;
   }
 
+  /** Get the type for the spread target */
   function checkSpreadTarget(
-    model: ModelStatementNode,
+    model: ModelStatementNode | ModelExpressionNode,
     target: TypeReferenceNode,
     mapper: TypeMapper | undefined,
   ): Type | undefined {
@@ -5835,6 +5835,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return finalizeType(finishType(typeDef as any) as any);
   }
 
+  /** Initialize model type for the given node */
   function initModel(node: ModelStatementNode | ModelExpressionNode | IntersectionExpressionNode) {
     return createType({
       kind: "Model",

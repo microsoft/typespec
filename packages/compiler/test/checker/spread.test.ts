@@ -83,34 +83,6 @@ it("emits duplicate diagnostic at correct location", async () => {
 });
 
 describe("circular reference", () => {
-  // https://github.com/microsoft/typespec/issues/2826
-  describe("ensure the target model is completely resolved before spreading ", () => {
-    it("declared before", async () => {
-      const { B } = await Tester.compile(t.code`
-      model ${t.model("B")} {  ...A }
-      model A {
-        b: B;
-        prop: string;
-      }
-    
-    `);
-      expect(B.properties.has("b")).toBe(true);
-      expect(B.properties.has("prop")).toBe(true);
-    });
-
-    it("declared after", async () => {
-      const { B } = await Tester.compile(t.code`
-      model A {
-        b: B;
-        prop: string;
-      }
-      model ${t.model("B")} {  ...A }
-    `);
-      expect(B.properties.has("b")).toBe(true);
-      expect(B.properties.has("prop")).toBe(true);
-    });
-  });
-
   it("emit diagnostic if model spreads itself", async () => {
     const diagnostics = await Tester.diagnose(`
       model Foo {
@@ -149,6 +121,65 @@ describe("circular reference", () => {
     expectDiagnostics(diagnostics, {
       code: "spread-model",
       message: "Cannot spread type within its own declaration.",
+    });
+  });
+});
+
+// https://github.com/microsoft/typespec/issues/2826
+describe("ensure the target model is completely resolved before spreading", () => {
+  describe("spread in model statement", () => {
+    it("declared before", async () => {
+      const { B } = await Tester.compile(t.code`
+      model ${t.model("B")} {  ...A }
+      model A {
+        b: B;
+        prop: string;
+      }
+    
+    `);
+      expect(B.properties.has("b")).toBe(true);
+      expect(B.properties.has("prop")).toBe(true);
+    });
+
+    it("declared after", async () => {
+      const { B } = await Tester.compile(t.code`
+      model A {
+        b: B;
+        prop: string;
+      }
+      model ${t.model("B")} {  ...A }
+    `);
+      expect(B.properties.has("b")).toBe(true);
+      expect(B.properties.has("prop")).toBe(true);
+    });
+  });
+
+  describe("spread in model expression", () => {
+    it("declared before", async () => {
+      const { B } = await Tester.compile(t.code`
+      model ${t.model("B")} {  ...Alias }
+      alias Alias =  { ...A };
+      model A {
+        b: B;
+        prop: string;
+      }
+    
+    `);
+      expect(B.properties.has("b")).toBe(true);
+      expect(B.properties.has("prop")).toBe(true);
+    });
+
+    it("declared after", async () => {
+      const { B } = await Tester.compile(t.code`
+      model A {
+        b: B;
+        prop: string;
+      }
+      alias Alias =  { ...A };
+      model ${t.model("B")} {  ...Alias }
+    `);
+      expect(B.properties.has("b")).toBe(true);
+      expect(B.properties.has("prop")).toBe(true);
     });
   });
 });
