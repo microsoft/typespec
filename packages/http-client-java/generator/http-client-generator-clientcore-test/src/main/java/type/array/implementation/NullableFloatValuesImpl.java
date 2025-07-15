@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
@@ -31,6 +32,11 @@ public final class NullableFloatValuesImpl {
     private final ArrayClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of NullableFloatValuesImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -38,6 +44,7 @@ public final class NullableFloatValuesImpl {
     NullableFloatValuesImpl(ArrayClientImpl client) {
         this.service = NullableFloatValuesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -86,8 +93,11 @@ public final class NullableFloatValuesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<List<Double>> getWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.get(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Array.NullableFloatValue.get", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.get(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -102,7 +112,10 @@ public final class NullableFloatValuesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(List<Double> body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.put(this.client.getEndpoint(), contentType, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Array.NullableFloatValue.put", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.put(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 }

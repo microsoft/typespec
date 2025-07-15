@@ -116,6 +116,9 @@ public final class NotDefinedClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> validWithResponse(RequestContext requestContext) {
-        return service.valid(this.getEndpoint(), requestContext);
+        return this.instrumentation.instrumentWithResponse("Server.Endpoint.NotDefined.valid", requestContext,
+            updatedContext -> {
+                return service.valid(this.getEndpoint(), updatedContext);
+            });
     }
 }

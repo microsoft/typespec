@@ -155,9 +155,12 @@ public final class RenamedFromClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<NewModel> newOpWithResponse(String newQuery, NewModel body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.newOp(this.getEndpoint(), this.getServiceVersion().getVersion(), newQuery, contentType, accept,
-            body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Versioning.RenamedFrom.newOp", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.newOp(this.getEndpoint(), this.getServiceVersion().getVersion(), newQuery, contentType,
+                    accept, body, updatedContext);
+            });
     }
 }

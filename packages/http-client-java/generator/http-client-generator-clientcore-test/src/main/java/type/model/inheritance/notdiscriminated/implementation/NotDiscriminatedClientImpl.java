@@ -140,8 +140,11 @@ public final class NotDiscriminatedClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> postValidWithResponse(Siamese input, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.postValid(this.getEndpoint(), contentType, input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.NotDiscriminated.postValid",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                return service.postValid(this.getEndpoint(), contentType, input, updatedContext);
+            });
     }
 
     /**
@@ -155,8 +158,11 @@ public final class NotDiscriminatedClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Siamese> getValidWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getValid(this.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.NotDiscriminated.getValid",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getValid(this.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -171,8 +177,11 @@ public final class NotDiscriminatedClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Siamese> putValidWithResponse(Siamese input, RequestContext requestContext) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.putValid(this.getEndpoint(), contentType, accept, input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.NotDiscriminated.putValid",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.putValid(this.getEndpoint(), contentType, accept, input, updatedContext);
+            });
     }
 }

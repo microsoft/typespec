@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import payload.multipart.ComplexHttpPartsModelRequest;
 
@@ -31,6 +32,11 @@ public final class FormDataHttpPartsImpl {
     private final MultiPartClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of FormDataHttpPartsImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -38,6 +44,7 @@ public final class FormDataHttpPartsImpl {
     FormDataHttpPartsImpl(MultiPartClientImpl client) {
         this.service = FormDataHttpPartsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -82,7 +89,10 @@ public final class FormDataHttpPartsImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> jsonArrayAndFileArrayWithResponse(ComplexHttpPartsModelRequest body,
         RequestContext requestContext) {
-        final String contentType = "multipart/form-data";
-        return service.jsonArrayAndFileArray(this.client.getEndpoint(), contentType, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.FormData.HttpParts.jsonArrayAndFileArray",
+            requestContext, updatedContext -> {
+                final String contentType = "multipart/form-data";
+                return service.jsonArrayAndFileArray(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 }

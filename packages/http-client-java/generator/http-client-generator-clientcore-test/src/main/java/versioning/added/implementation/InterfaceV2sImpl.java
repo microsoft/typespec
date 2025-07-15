@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import versioning.added.AddedServiceVersion;
 import versioning.added.ModelV2;
@@ -32,6 +33,11 @@ public final class InterfaceV2sImpl {
     private final AddedClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of InterfaceV2sImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -39,6 +45,7 @@ public final class InterfaceV2sImpl {
     InterfaceV2sImpl(AddedClientImpl client) {
         this.service = InterfaceV2sService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -87,9 +94,12 @@ public final class InterfaceV2sImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ModelV2> v2InInterfaceWithResponse(ModelV2 body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.v2InInterface(this.client.getEndpoint(), this.client.getServiceVersion().getVersion(),
-            contentType, accept, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Versioning.Added.InterfaceV2.v2InInterface", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.v2InInterface(this.client.getEndpoint(), this.client.getServiceVersion().getVersion(),
+                    contentType, accept, body, updatedContext);
+            });
     }
 }

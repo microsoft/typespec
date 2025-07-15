@@ -57,7 +57,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public ParameterProvider? ClientOptionsParameter { get; }
 
-        protected override FormattableString BuildDescription() => DocHelpers.GetFormattableDescription(_inputClient.Summary, _inputClient.Doc) ?? FormattableStringHelpers.Empty;
+        protected override FormattableString BuildDescription()
+        {
+            var description = DocHelpers.GetFormattableDescription(_inputClient.Summary, _inputClient.Doc);
+            if (description != null)
+            {
+                return description;
+            }
+
+            if (_inputClient.Parent is null)
+            {
+                // Clients will always have the Client suffix appended.
+                return $"The {Name}.";
+            }
+
+            return $"The {Name} sub-client.";
+        }
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

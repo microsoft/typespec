@@ -162,8 +162,11 @@ public final class NestedDiscriminatorClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Fish> getModelWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getModel(this.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.NestedDiscriminator.getModel",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getModel(this.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -178,8 +181,11 @@ public final class NestedDiscriminatorClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putModelWithResponse(Fish input, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.putModel(this.getEndpoint(), contentType, input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.NestedDiscriminator.putModel",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                return service.putModel(this.getEndpoint(), contentType, input, updatedContext);
+            });
     }
 
     /**
@@ -193,8 +199,11 @@ public final class NestedDiscriminatorClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Fish> getRecursiveModelWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getRecursiveModel(this.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.NestedDiscriminator.getRecursiveModel", requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getRecursiveModel(this.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -209,8 +218,11 @@ public final class NestedDiscriminatorClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putRecursiveModelWithResponse(Fish input, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.putRecursiveModel(this.getEndpoint(), contentType, input, requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.NestedDiscriminator.putRecursiveModel", requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                return service.putRecursiveModel(this.getEndpoint(), contentType, input, updatedContext);
+            });
     }
 
     /**
@@ -224,8 +236,11 @@ public final class NestedDiscriminatorClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Fish> getMissingDiscriminatorWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getMissingDiscriminator(this.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.NestedDiscriminator.getMissingDiscriminator", requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getMissingDiscriminator(this.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -239,7 +254,10 @@ public final class NestedDiscriminatorClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Fish> getWrongDiscriminatorWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getWrongDiscriminator(this.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.NestedDiscriminator.getWrongDiscriminator", requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getWrongDiscriminator(this.getEndpoint(), accept, updatedContext);
+            });
     }
 }
