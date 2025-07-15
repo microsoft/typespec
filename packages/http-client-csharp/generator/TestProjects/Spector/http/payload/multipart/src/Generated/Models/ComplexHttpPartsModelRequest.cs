@@ -24,10 +24,9 @@ namespace Payload.MultiPart.Models
 
             Id = id;
             Address = address;
-            ProfileImage = new(profileImagePath)
+            ProfileImage = new(profileImagePath, profileImageContentType)
             {
                 Filename = profileImageFilename,
-                ContentType = profileImageContentType
             };
             PreviousAddresses = previousAddresses.ToList();
             Pictures = pictures.ToList();
@@ -45,10 +44,9 @@ namespace Payload.MultiPart.Models
 
             Id = id;
             Address = address;
-            ProfileImage = new(profileImage)
+            ProfileImage = new(profileImage, profileImageContentType)
             {
                 Filename = profileImageFilename,
-                ContentType = profileImageContentType
             };
             PreviousAddresses = previousAddresses.ToList();
             Pictures = pictures.ToList();
@@ -66,10 +64,9 @@ namespace Payload.MultiPart.Models
 
             Id = id;
             Address = address;
-            ProfileImage = new(profileImage)
+            ProfileImage = new(profileImage, profileImageContentType)
             {
                 Filename = profileImageFilename,
-                ContentType = profileImageContentType
             };
             PreviousAddresses = previousAddresses.ToList();
             Pictures = pictures.ToList();

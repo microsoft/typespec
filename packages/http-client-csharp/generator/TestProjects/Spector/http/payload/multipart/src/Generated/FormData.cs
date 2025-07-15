@@ -58,8 +58,8 @@ namespace Payload.MultiPart._FormData
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using BinaryContent content = body.ToMultipartContent();
-            return Basic(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+            return Basic(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
 
         // CUSTOM: Convenience method
@@ -67,8 +67,8 @@ namespace Payload.MultiPart._FormData
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using BinaryContent content = body.ToMultipartContent();
-            return await BasicAsync(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+            return await BasicAsync(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
         }
 
         public virtual ClientResult FileArrayAndBasic(BinaryContent content, string contentType, RequestOptions options = null)
@@ -96,8 +96,8 @@ namespace Payload.MultiPart._FormData
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using BinaryContent content = body.ToMultipartContent();
-            return FileArrayAndBasic(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+            return FileArrayAndBasic(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
 
         // CUSTOM: Convenience method
@@ -105,8 +105,8 @@ namespace Payload.MultiPart._FormData
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using BinaryContent content = body.ToMultipartContent();
-            return await FileArrayAndBasicAsync(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+            return await FileArrayAndBasicAsync(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
 
         public virtual ClientResult JsonPart(BinaryContent content, string contentType, RequestOptions options = null)
@@ -134,8 +134,8 @@ namespace Payload.MultiPart._FormData
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using BinaryContent content = body.ToMultipartContent();
-            ClientResult result = await JsonPartAsync(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+            ClientResult result = await JsonPartAsync(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
             return result;
         }
 
@@ -144,8 +144,8 @@ namespace Payload.MultiPart._FormData
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using BinaryContent content = body.ToMultipartContent();
-            ClientResult result = JsonPart(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+            ClientResult result = JsonPart(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             return result;
         }
 
@@ -174,8 +174,8 @@ namespace Payload.MultiPart._FormData
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using BinaryContent content = body.ToMultipartContent();
-            ClientResult result = await BinaryArrayPartsAsync(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+            ClientResult result = await BinaryArrayPartsAsync(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
             return result;
         }
 
@@ -184,8 +184,8 @@ namespace Payload.MultiPart._FormData
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using BinaryContent content = body.ToMultipartContent();
-            ClientResult result = BinaryArrayParts(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+            ClientResult result = BinaryArrayParts(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             return result;
         }
 
@@ -214,8 +214,8 @@ namespace Payload.MultiPart._FormData
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using BinaryContent content = body.ToMultipartContent();
-            ClientResult result = await MultiBinaryPartsAsync(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+            ClientResult result = await MultiBinaryPartsAsync(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
             return result;
         }
 
@@ -224,8 +224,8 @@ namespace Payload.MultiPart._FormData
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using BinaryContent content = body.ToMultipartContent();
-            ClientResult result = MultiBinaryParts(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+            ClientResult result = MultiBinaryParts(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             return result;
         }
 
@@ -254,8 +254,8 @@ namespace Payload.MultiPart._FormData
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using BinaryContent content = body.ToMultipartContent();
-            ClientResult result = await CheckFileNameAndContentTypeAsync(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+            ClientResult result = await CheckFileNameAndContentTypeAsync(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
             return result;
         }
 
@@ -264,8 +264,8 @@ namespace Payload.MultiPart._FormData
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using BinaryContent content = body.ToMultipartContent();
-            ClientResult result = CheckFileNameAndContentType(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+            ClientResult result = CheckFileNameAndContentType(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             return result;
         }
 
@@ -294,8 +294,8 @@ namespace Payload.MultiPart._FormData
         {
             Argument.AssertNotNull(profileImage, nameof(profileImage));
 
-            using BinaryContent content = profileImage.ToMultipartContent();
-            ClientResult result = await AnonymousModelAsync(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            using MultiPartFormDataBinaryContent content = profileImage.ToMultipartContent();
+            ClientResult result = await AnonymousModelAsync(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
             return result;
         }
 
@@ -304,8 +304,8 @@ namespace Payload.MultiPart._FormData
         {
             Argument.AssertNotNull(profileImage, nameof(profileImage));
 
-            using BinaryContent content = profileImage.ToMultipartContent();
-            ClientResult result = AnonymousModel(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            using MultiPartFormDataBinaryContent content = profileImage.ToMultipartContent();
+            ClientResult result = AnonymousModel(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             return result;
         }
 

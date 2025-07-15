@@ -15,10 +15,9 @@ namespace Payload.MultiPart.Models
             Argument.AssertNotNullOrEmpty(profileImageFilename, nameof(profileImageFilename));
             Argument.AssertNotNullOrEmpty(profileImagePath, nameof(profileImagePath));
 
-            ProfileImage = new(profileImagePath)
+            ProfileImage = new(profileImagePath, "image/jpg")
             {
                 Filename = profileImageFilename,
-                ContentType = "image/jpg"
             };
         }
 
@@ -27,10 +26,9 @@ namespace Payload.MultiPart.Models
             Argument.AssertNotNullOrEmpty(profileImageFilename, nameof(profileImageFilename));
             Argument.AssertNotNull(profileImage, nameof(profileImage));
 
-            ProfileImage = new(profileImage)
+            ProfileImage = new(profileImage, "image/jpg")
             {
                 Filename = profileImageFilename,
-                ContentType = "image/jpg"
             };
         }
 
@@ -39,10 +37,9 @@ namespace Payload.MultiPart.Models
             Argument.AssertNotNullOrEmpty(profileImageFilename, nameof(profileImageFilename));
             Argument.AssertNotNull(profileImage, nameof(profileImage));
 
-            ProfileImage = new(profileImage)
+            ProfileImage = new(profileImage, "image/jpg")
             {
                 Filename = profileImageFilename,
-                ContentType = "image/jpg"
             };
         }
 

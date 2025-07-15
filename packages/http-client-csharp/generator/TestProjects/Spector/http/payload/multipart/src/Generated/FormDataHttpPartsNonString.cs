@@ -55,8 +55,8 @@ namespace Payload.MultiPart._FormData.HttpParts.NonString
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using BinaryContent content = body.ToMultipartContent();
-            return Float(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+            return Float(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
 
         // CUSTOM: Convenience method
@@ -64,8 +64,8 @@ namespace Payload.MultiPart._FormData.HttpParts.NonString
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using BinaryContent content = body.ToMultipartContent();
-            return await FloatAsync(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+            return await FloatAsync(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
     }
 }

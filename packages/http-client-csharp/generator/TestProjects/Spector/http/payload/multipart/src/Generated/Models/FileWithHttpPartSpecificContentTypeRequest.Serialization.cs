@@ -10,74 +10,18 @@ using System.IO;
 
 namespace Payload.MultiPart.Models
 {
-    public partial class FileWithHttpPartSpecificContentTypeRequest : IPersistableModel<FileWithHttpPartSpecificContentTypeRequest>
+    public partial class FileWithHttpPartSpecificContentTypeRequest
     {
         internal FileWithHttpPartSpecificContentTypeRequest()
         {
         }
 
-        BinaryData IPersistableModel<FileWithHttpPartSpecificContentTypeRequest>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        internal virtual MultiPartFormDataBinaryContent ToMultipartContent()
         {
-            string format = options.Format == "W" ? ((IPersistableModel<FileWithHttpPartSpecificContentTypeRequest>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "MPFD":
-                    return SerializeMultipart();
-                default:
-                    throw new FormatException($"The model {nameof(FileWithHttpPartSpecificContentTypeRequest)} does not support writing '{options.Format}' format.");
-            }
-        }
+            MultiPartFormDataBinaryContent content = new();
+            content.Add("profileImage", ProfileImage);
 
-        FileWithHttpPartSpecificContentTypeRequest IPersistableModel<FileWithHttpPartSpecificContentTypeRequest>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual FileWithHttpPartSpecificContentTypeRequest PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<FileWithHttpPartSpecificContentTypeRequest>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                default:
-                    throw new FormatException($"The model {nameof(FileWithHttpPartSpecificContentTypeRequest)} does not support reading '{options.Format}' format.");
-            }
-        }
-
-        string IPersistableModel<FileWithHttpPartSpecificContentTypeRequest>.GetFormatFromOptions(ModelReaderWriterOptions options) => "MPFD";
-
-        public static implicit operator BinaryContent(FileWithHttpPartSpecificContentTypeRequest fileWithHttpPartSpecificContentTypeRequest)
-        {
-            if (fileWithHttpPartSpecificContentTypeRequest == null)
-            {
-                return null;
-            }
-            return fileWithHttpPartSpecificContentTypeRequest.ToMultipartContent();
-        }
-
-        internal BinaryContent ToMultipartContent()
-        {
-            List<BinaryContent> parts = [];
-            parts.Add(BinaryContent.CreateMultipartFormDataPart("profileImage", ProfileImage));
-
-            return BinaryContent.CreateMultipartFormDataContent(parts);
-        }
-
-        private BinaryData SerializeMultipart()
-        {
-            using MemoryStream stream = new MemoryStream();
-
-            WriteTo(stream);
-            if (stream.CanSeek)
-            {
-                stream.Seek(0, SeekOrigin.Begin);
-            }
-            return BinaryData.FromStream(stream);
-        }
-
-        private void WriteTo(Stream stream)
-        {
-            using BinaryContent content = ToMultipartContent();
-            content.WriteTo(stream);
+            return content;
         }
     }
 }

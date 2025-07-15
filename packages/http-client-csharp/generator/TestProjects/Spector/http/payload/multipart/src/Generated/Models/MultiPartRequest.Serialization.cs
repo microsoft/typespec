@@ -121,8 +121,6 @@ namespace Payload.MultiPart.Models
             {
                 case "J":
                     return ModelReaderWriter.Write(this, options);
-                case "MPFD":
-                    return SerializeMultipart();
                 default:
                     throw new FormatException($"The model {nameof(MultiPartRequest)} does not support writing '{options.Format}' format.");
             }
@@ -147,7 +145,7 @@ namespace Payload.MultiPart.Models
             }
         }
 
-        string IPersistableModel<MultiPartRequest>.GetFormatFromOptions(ModelReaderWriterOptions options) => "MPFD";
+        string IPersistableModel<MultiPartRequest>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
 
         public static implicit operator BinaryContent(MultiPartRequest multiPartRequest)
@@ -160,26 +158,13 @@ namespace Payload.MultiPart.Models
             return BinaryContent.Create(multiPartRequest, ModelSerializationExtensions.WireOptions);
         }
 
-        internal BinaryContent ToMultipartContent()
+        internal virtual MultiPartFormDataBinaryContent ToMultipartContent()
         {
-            List<BinaryContent> parts = [];
-            parts.Add(BinaryContent.CreateMultipartFormDataPart("id", Id));
-            parts.Add(BinaryContent.CreateMultipartFormDataPart("profileImage", ProfileImage));
+            MultiPartFormDataBinaryContent content = new();
+            content.Add("id", Id);
+            content.Add("profileImage", ProfileImage);
 
-            return BinaryContent.CreateMultipartFormDataContent(parts);
-        }
-
-        private BinaryData SerializeMultipart()
-        {
-            using MemoryStream stream = new MemoryStream();
-            using BinaryContent content = ToMultipartContent();
-
-            content.WriteTo(stream);
-            if (stream.CanSeek)
-            {
-                stream.Seek(0, SeekOrigin.Begin);
-            }
-            return BinaryData.FromStream(stream);
+            return content;
         }
     }
 }

@@ -11,77 +11,18 @@ using System.Text.Json;
 
 namespace Payload.MultiPart.Models
 {
-    public partial class FloatRequest : IPersistableModel<FloatRequest>
+    public partial class FloatRequest
     {
         internal FloatRequest()
         {
         }
 
-        BinaryData IPersistableModel<FloatRequest>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        internal virtual MultiPartFormDataBinaryContent ToMultipartContent()
         {
-            string format = options.Format == "W" ? ((IPersistableModel<FloatRequest>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "MPFD":
-                    return SerializeMultipart();
-                default:
-                    throw new FormatException($"The model {nameof(FloatRequest)} does not support writing '{options.Format}' format.");
-            }
-        }
+            MultiPartFormDataBinaryContent content = new();
+            content.Add("temperature", Temperature, "text/plain");
 
-        FloatRequest IPersistableModel<FloatRequest>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual FloatRequest PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<FloatRequest>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                default:
-                    throw new FormatException($"The model {nameof(FloatRequest)} does not support reading '{options.Format}' format.");
-            }
-        }
-
-        string IPersistableModel<FloatRequest>.GetFormatFromOptions(ModelReaderWriterOptions options) => "MPFD";
-
-        public static implicit operator BinaryContent(FloatRequest floatRequest)
-        {
-            if (floatRequest == null)
-            {
-                return null;
-            }
-            return floatRequest.ToMultipartContent();
-        }
-
-        internal virtual BinaryContent ToMultipartContent()
-        {
-            List<BinaryContent> parts = [];
-
-            var temperaturePart = BinaryContent.CreateMultipartFormDataPart("temperature", Temperature);
-            temperaturePart.ContentType = "text/plain";
-            parts.Add(temperaturePart);
-
-            return BinaryContent.CreateMultipartFormDataContent(parts);
-        }
-
-        private BinaryData SerializeMultipart()
-        {
-            using MemoryStream stream = new MemoryStream();
-
-            WriteTo(stream);
-            if (stream.CanSeek)
-            {
-                stream.Seek(0, SeekOrigin.Begin);
-            }
-            return BinaryData.FromStream(stream);
-        }
-
-        private void WriteTo(Stream stream)
-        {
-            using BinaryContent content = ToMultipartContent();
-            content.WriteTo(stream);
+            return content;
         }
     }
 }

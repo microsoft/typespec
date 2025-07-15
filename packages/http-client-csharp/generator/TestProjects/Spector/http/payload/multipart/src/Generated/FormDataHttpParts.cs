@@ -59,8 +59,8 @@ namespace Payload.MultiPart._FormData.HttpParts
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using BinaryContent content = body.ToMultipartContent();
-            return JsonArrayAndFileArray(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+            return JsonArrayAndFileArray(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
 
         // CUSTOM: Convenience method
@@ -68,8 +68,8 @@ namespace Payload.MultiPart._FormData.HttpParts
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using BinaryContent content = body.ToMultipartContent();
-            return await JsonArrayAndFileArrayAsync(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+            return await JsonArrayAndFileArrayAsync(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
         }
 
         /// <summary> Initializes a new instance of FormDataHttpPartsContentType. </summary>

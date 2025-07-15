@@ -11,66 +11,25 @@ using System.Text.Json;
 
 namespace Payload.MultiPart.Models
 {
-    public partial class ComplexPartsRequest : IPersistableModel<ComplexPartsRequest>
+    public partial class ComplexPartsRequest
     {
         internal ComplexPartsRequest()
         {
         }
 
-        BinaryData IPersistableModel<ComplexPartsRequest>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        internal virtual MultiPartFormDataBinaryContent ToMultipartContent()
         {
-            string format = options.Format == "W" ? ((IPersistableModel<ComplexPartsRequest>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "MPFD":
-                    return SerializeMultipart();
-                default:
-                    throw new FormatException($"The model {nameof(ComplexPartsRequest)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        ComplexPartsRequest IPersistableModel<ComplexPartsRequest>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual ComplexPartsRequest PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<ComplexPartsRequest>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                default:
-                    throw new FormatException($"The model {nameof(ComplexPartsRequest)} does not support reading '{options.Format}' format.");
-            }
-        }
-
-        string IPersistableModel<ComplexPartsRequest>.GetFormatFromOptions(ModelReaderWriterOptions options) => "MPFD";
-        internal BinaryContent ToMultipartContent()
-        {
-            List<BinaryContent> parts = [];
-            parts.Add(BinaryContent.CreateMultipartFormDataPart("id", Id));
-            parts.Add(BinaryContent.CreateMultipartFormDataPart("address", Address));
-            parts.Add(BinaryContent.CreateMultipartFormDataPart("profileImage", ProfileImage));
+            MultiPartFormDataBinaryContent content = new();
+            content.Add("id", Id);
+            content.Add("address", Address, ModelSerializationExtensions.WireOptions, new PayloadMultiPartContext());
+            content.Add("profileImage", ProfileImage);
 
             foreach (var picture in Pictures)
             {
-                parts.Add(BinaryContent.CreateMultipartFormDataPart("pictures", picture));
+                content.Add("pictures", picture);
             }
 
-            return BinaryContent.CreateMultipartFormDataContent(parts);
-        }
-
-        private BinaryData SerializeMultipart()
-        {
-            using MemoryStream stream = new MemoryStream();
-            using BinaryContent content = ToMultipartContent();
-
-            content.WriteTo(stream);
-            if (stream.CanSeek)
-            {
-                stream.Seek(0, SeekOrigin.Begin);
-            }
-            return BinaryData.FromStream(stream);
+            return content;
         }
     }
 }
