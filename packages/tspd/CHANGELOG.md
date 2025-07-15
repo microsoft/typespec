@@ -1,6 +1,6 @@
 # Changelog - @typespec/tspd
 
-## 0.71.1
+## 0.72.0
 
 ### Bump dependencies
 
