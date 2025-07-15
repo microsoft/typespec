@@ -6564,6 +6564,17 @@
     "apiKey": {
       "name": "my-api-key",
       "in": "header"
+    },
+    "oAuth2": {
+      "flows": [
+        {
+          "scopes": [
+            "read"
+          ],
+          "refreshUrl": "https://api.example.com/oauth2/refresh",
+          "authorizationUrl": "https://api.example.com/oauth2/authorize"
+        }
+      ]
     }
   }
 }

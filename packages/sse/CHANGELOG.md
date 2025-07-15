@@ -1,5 +1,12 @@
 # Changelog - @typespec/sse
 
+## 0.72.0
+
+### Bump dependencies
+
+- [#7674](https://github.com/microsoft/typespec/pull/7674) Upgrade dependencies
+
+
 ## 0.71.0
 
 No changes, version bump only.
