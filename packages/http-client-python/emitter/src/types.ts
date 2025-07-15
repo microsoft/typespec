@@ -290,7 +290,7 @@ function emitModel(context: PythonSdkContext, type: SdkModelType): Record<string
     properties: new Array<Record<string, any>>(),
     snakeCaseName: camelToSnakeCase(type.name),
     base: "dpg",
-    internal: type.access === "internal",
+    internal: type.access === "internal" || onlyUsedAsErrorModel(type),
     crossLanguageDefinitionId: type.crossLanguageDefinitionId,
     usage: type.usage,
     isXml: type.usage & UsageFlags.Xml ? true : false,
@@ -319,6 +319,10 @@ function emitModel(context: PythonSdkContext, type: SdkModelType): Record<string
     }
   }
   return newValue;
+}
+
+function onlyUsedAsErrorModel(type: SdkModelType): boolean {
+  return (type.usage & UsageFlags.Exception) > 0 && (type.usage & UsageFlags.Output) === 0;
 }
 
 function getConstantFromEnumValueType(type: SdkEnumValueType): Record<string, any> {
