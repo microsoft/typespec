@@ -113,18 +113,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// </summary>
         private bool ImplementsIPersistableModel(CSharpType type)
         {
-            // Check if the type is a model type (not a framework type)
+            // Check if the type is a framework type (System.* types)
             if (type.IsFrameworkType)
             {
                 return false;
             }
 
-            // All generated models implement IPersistableModel
+            // Check if the type has a model provider in the current library (local models)
             var modelProvider = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
                 .OfType<ModelProvider>()
                 .FirstOrDefault(m => m.Type.Equals(type));
 
-            return modelProvider != null;
+            if (modelProvider != null)
+            {
+                return true;
+            }
+
+            // For dependency models (models from other libraries), assume they implement IPersistableModel
+            // if they are not framework types and don't have a model provider in the current library
+            // This handles models that are referenced from dependency libraries
+            return !type.IsFrameworkType && !type.IsLiteral && !type.IsEnum && !type.IsGenericTypeDefinition;
         }
 
         protected override XmlDocProvider BuildXmlDocs()
