@@ -58,6 +58,83 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly bool _shouldOverrideMethods;
         private readonly Lazy<PropertyProvider[]> _additionalProperties;
 
+        /// <summary>
+        /// Collects all types that implement IPersistableModel, including the current model and all properties
+        /// that are also IPersistableModel types, recursively without duplicates.
+        /// </summary>
+        private HashSet<CSharpType> CollectBuildableTypes()
+        {
+            var buildableTypes = new HashSet<CSharpType>();
+            var visitedTypes = new HashSet<CSharpType>();
+
+            // Start with the current model type
+            CollectBuildableTypesRecursive(_model.Type, buildableTypes, visitedTypes);
+
+            return buildableTypes;
+        }
+
+        /// <summary>
+        /// Recursively collects all types that implement IPersistableModel.
+        /// </summary>
+        private void CollectBuildableTypesRecursive(CSharpType type, HashSet<CSharpType> buildableTypes, HashSet<CSharpType> visitedTypes)
+        {
+            // Avoid infinite recursion by checking if we've already visited this type
+            if (visitedTypes.Contains(type) || type.IsFrameworkType)
+            {
+                return;
+            }
+
+            visitedTypes.Add(type);
+
+            // Check if this type implements IPersistableModel
+            if (ImplementsIPersistableModel(type))
+            {
+                buildableTypes.Add(type);
+
+                // Look for all properties of this type that are also IPersistableModel
+                var modelProvider = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                    .OfType<ModelProvider>()
+                    .FirstOrDefault(m => m.Type.Equals(type));
+
+                if (modelProvider != null)
+                {
+                    // Check all properties of this model
+                    foreach (var property in modelProvider.Properties)
+                    {
+                        if (property.Type.IsCollection)
+                        {
+                            // For collections, check the element type
+                            CollectBuildableTypesRecursive(property.Type.ElementType, buildableTypes, visitedTypes);
+                        }
+                        else
+                        {
+                            // For regular properties, check the property type
+                            CollectBuildableTypesRecursive(property.Type, buildableTypes, visitedTypes);
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Checks if a type implements IPersistableModel interface.
+        /// </summary>
+        private bool ImplementsIPersistableModel(CSharpType type)
+        {
+            // Check if the type is a model type (not a framework type)
+            if (type.IsFrameworkType)
+            {
+                return false;
+            }
+
+            // All generated models implement IPersistableModel
+            var modelProvider = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .FirstOrDefault(m => m.Type.Equals(type));
+
+            return modelProvider != null;
+        }
+
         public MrwSerializationTypeDefinition(InputModelType inputModel, ModelProvider modelProvider)
         {
             _model = modelProvider;
@@ -93,15 +170,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override IReadOnlyList<AttributeStatement> BuildAttributes()
         {
+            var attributes = new List<AttributeStatement>();
+
+            // Add existing PersistableModelProxyAttribute for abstract models
             if (_model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract))
             {
                 var unknownVariant = _model.DerivedModels.FirstOrDefault(m => m.IsUnknownDiscriminatorModel);
                 if (unknownVariant != null)
                 {
-                    return [new AttributeStatement(typeof(PersistableModelProxyAttribute), TypeOf(unknownVariant.Type))];
+                    attributes.Add(new AttributeStatement(typeof(PersistableModelProxyAttribute), TypeOf(unknownVariant.Type)));
                 }
             }
-            return [];
+
+            // Add ModelReaderWriterBuildableAttribute for all IPersistableModel types
+            var buildableTypes = CollectBuildableTypes();
+            foreach (var type in buildableTypes)
+            {
+                attributes.Add(new AttributeStatement(typeof(ModelReaderWriterBuildableAttribute), TypeOf(type)));
+            }
+
+            return attributes;
         }
 
         protected override ConstructorProvider[] BuildConstructors()
