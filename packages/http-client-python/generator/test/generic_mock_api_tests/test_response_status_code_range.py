@@ -5,7 +5,7 @@
 # --------------------------------------------------------------------------
 import pytest
 from response.statuscoderange import StatusCodeRangeClient
-from response.statuscoderange.models import ErrorInRange, NotFoundError
+from response.statuscoderange.models._models import ErrorInRange, NotFoundError
 
 
 @pytest.fixture
