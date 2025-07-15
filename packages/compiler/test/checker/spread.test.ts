@@ -84,8 +84,8 @@ it("emits duplicate diagnostic at correct location", async () => {
 
 describe("circular reference", () => {
   // https://github.com/microsoft/typespec/issues/2826
-  describe("spread all properties", () => {
-    it("before", async () => {
+  describe("ensure the target model is completely resolved before spreading ", () => {
+    it("declared before", async () => {
       const { B } = await Tester.compile(t.code`
       model ${t.model("B")} {  ...A }
       model A {
@@ -98,7 +98,7 @@ describe("circular reference", () => {
       expect(B.properties.has("prop")).toBe(true);
     });
 
-    it("after", async () => {
+    it("declared after", async () => {
       const { B } = await Tester.compile(t.code`
       model A {
         b: B;
