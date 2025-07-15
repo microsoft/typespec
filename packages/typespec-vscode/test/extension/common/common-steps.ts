@@ -5,28 +5,23 @@ import { Locator, Page } from "playwright";
 import { imagesPath, retry, screenshot } from "./utils";
 
 /**
- * Before comparing the results, you need to check whether the conditions for result comparison are met.
- * @param page vscode object
- * @param text The text in which the element appears
- * @param errorMessage Error message when element does not appear
- * @param [count, sleep] count: Retry times, sleep: Sleep time between retries
+ * Waits for the specified text to appear on the page before proceeding.
+ * @param page The Playwright Page object representing the current browser page.
+ * @param text The text content to wait for on the page.
+ * @param errorMessage The error message to throw if the text does not appear within the timeout.
+ * @param timeout The maximum time (in milliseconds) to wait for the text to appear. Default is 10 seconds.
  */
 export async function preContrastResult(
   page: Page,
   text: string,
   errorMessage: string,
-  [count, sleep]: number[] = [10, 5],
+  timeout: number = 10000,
 ) {
-  await retry(
-    page,
-    count,
-    async () => {
-      const contrastResult = page.getByText(new RegExp(text)).first();
-      return (await contrastResult.count()) > 0;
-    },
-    errorMessage,
-    sleep,
-  );
+  try {
+    await page.waitForSelector(`:text("${text}")`, { timeout });
+  } catch (e) {
+    throw new Error(errorMessage);
+  }
 }
 
 /**

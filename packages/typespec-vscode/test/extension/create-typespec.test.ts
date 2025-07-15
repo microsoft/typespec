@@ -103,12 +103,7 @@ describe.each(CreateCasesConfigList)("CreateTypespecProject", async (item) => {
       await selectEmitters(page);
     }
 
-    await preContrastResult(
-      page,
-      "Project created",
-      "Failed to create project Successful",
-      [10, 15],
-    );
+    await preContrastResult(page, "Project created", "Failed to create project Successful", 150000);
     app.close();
     await contrastResult(page, expectedResults, workspacePath);
   });
