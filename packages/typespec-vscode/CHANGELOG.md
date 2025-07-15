@@ -1,5 +1,16 @@
 # Change Log - typespec-vscode
 
+## 1.2.0
+
+### Features
+
+- [#7576](https://github.com/microsoft/typespec/pull/7576) Allow LSP to configure which emitters to include for live checks
+
+### Bump dependencies
+
+- [#7674](https://github.com/microsoft/typespec/pull/7674) Upgrade dependencies
+
+
 ## 1.1.0
 
 ### Features
