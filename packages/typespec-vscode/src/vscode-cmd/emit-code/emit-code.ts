@@ -1,5 +1,4 @@
-import { resolveCompilerOptions } from "@typespec/compiler";
-import { NodeSystemHost } from "@typespec/compiler/internals";
+import { NodeSystemHost, resolveCompilerOptions } from "@typespec/compiler/internals";
 import { createHash } from "crypto";
 import { readFile, writeFile } from "fs/promises";
 import path from "path";
