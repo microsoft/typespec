@@ -48,6 +48,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     new InputAuthConverter(referenceHandler),
                     new InputApiKeyAuthConverter(),
                     new InputOAuth2AuthConverter(),
+                    new InputOAuth2FlowConverter(),
                     new InputDecoratorInfoConverter(),
                     new InputSerializationOptionsConverter(),
                     new InputJsonSerializationOptionsConverter(),
