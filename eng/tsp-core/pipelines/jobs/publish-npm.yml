@@ -7,8 +7,8 @@ parameters:
     type: boolean
     default: false
   - name: dependsOn
-    type: array
-    default: []
+    type: string
+    default: ""
 
 jobs:
   - job: publish_npm_${{ parameters.tag }}
