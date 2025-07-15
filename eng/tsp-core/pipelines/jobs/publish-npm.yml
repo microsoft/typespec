@@ -6,10 +6,14 @@ parameters:
   - name: publishGithubRelease
     type: boolean
     default: false
+  - name: dependsOn
+    type: array
+    default: []
 
 jobs:
   - job: publish_npm_${{ parameters.tag }}
     displayName: Publish Npm (${{ parameters.tag }})
+    dependsOn: ${{ parameters.dependsOn }}
     pool:
       name: $(LINUXPOOL)
       image: $(LINUXVMIMAGE)
