@@ -5,7 +5,7 @@ import { createDiagnostic } from "../../../messages.js";
 import { CompilerOptions } from "../../../options.js";
 import { resolvePath } from "../../../path-utils.js";
 import { CompilerHost, Diagnostic, NoTarget } from "../../../types.js";
-import { parseCliArgsArg } from "../../utils.js";
+import { parseCliArgsArgOption } from "../../utils.js";
 
 export interface CompileCliArgs {
   path?: string;
@@ -52,7 +52,7 @@ export async function getCompilerOptions(
       entrypoint,
       configPath: args["config"] && resolvePath(cwd, args["config"]),
       cwd,
-      args: parseCliArgsArg(args.args),
+      args: parseCliArgsArgOption(args.args),
       env,
       overrides: omitUndefined({
         outputDir: cliOutputDir,

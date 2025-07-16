@@ -3,7 +3,7 @@ import { readdir } from "fs/promises";
 import pc from "picocolors";
 import * as semver from "semver";
 import { CliCompilerHost } from "../core/cli/types.js";
-import { parseCliArgsArg } from "../core/cli/utils.js";
+import { parseCliArgsArgOption } from "../core/cli/utils.js";
 import { createDiagnostic } from "../core/messages.js";
 import { getBaseFileName, getDirectoryPath } from "../core/path-utils.js";
 import { CompilerHost, Diagnostic, NoTarget, SourceFile } from "../core/types.js";
@@ -194,7 +194,7 @@ async function resolveCustomParameter(
   name: string,
   options: InitTypeSpecProjectOptions,
 ): Promise<string> {
-  const suppliedArgs = parseCliArgsArg(options.args);
+  const suppliedArgs = parseCliArgsArgOption(options.args);
   const defaultValue = suppliedArgs[name] ?? templateInput.initialValue;
 
   if (options["no-prompt"]) {
