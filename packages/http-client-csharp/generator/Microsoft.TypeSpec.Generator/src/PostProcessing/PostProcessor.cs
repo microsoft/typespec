@@ -359,6 +359,123 @@ namespace Microsoft.TypeSpec.Generator
             // remove what are now invalid usings due to the models being removed
             project = await RemoveInvalidUsings(project);
 
+            // remove invalid attributes from the MRWContext attributes
+            project = await RemoveInvalidAttributesFromMrwContextAsync(project);
+
+            return project;
+        }
+
+        private async Task<Project> RemoveInvalidAttributesFromMrwContextAsync(Project project)
+        {
+            var compilation = await project.GetCompilationAsync();
+            if (compilation == null)
+                return project;
+
+            // Find the MRWContext class
+            foreach (var document in project.Documents)
+            {
+                var root = await document.GetSyntaxRootAsync();
+                if (root == null)
+                    continue;
+
+                var semanticModel = compilation.GetSemanticModel(root.SyntaxTree);
+
+                // Find all class declarations that inherit from ModelReaderWriterContext
+                var mrwContextClasses = root.DescendantNodes()
+                    .OfType<ClassDeclarationSyntax>()
+                    .Where(c => c.BaseList != null &&
+                           c.BaseList.Types.Any(t =>
+                           {
+                               var baseTypeSymbol = semanticModel.GetSymbolInfo(t.Type).Symbol as INamedTypeSymbol;
+                               return baseTypeSymbol?.Name == "ModelReaderWriterContext";
+                           }))
+                    .ToList();
+
+                if (!mrwContextClasses.Any())
+                    continue;
+
+                // Process each MRWContext class
+                var newRoot = root;
+                foreach (var mrwContextClass in mrwContextClasses)
+                {
+                    // Get all attributes on the class
+                    var attributesToRemove = new List<AttributeSyntax>();
+
+                    foreach (var attributeList in mrwContextClass.AttributeLists)
+                    {
+                        foreach (var attribute in attributeList.Attributes)
+                        {
+                            var attributeSymbol = semanticModel.GetSymbolInfo(attribute).Symbol;
+                            if (attributeSymbol == null)
+                            {
+                                // If we can't resolve the attribute symbol, it might be pointing to a removed type
+                                attributesToRemove.Add(attribute);
+                                continue;
+                            }
+
+                            // Check if the attribute has any arguments that reference types
+                            if (attribute.ArgumentList != null)
+                            {
+                                foreach (var arg in attribute.ArgumentList.Arguments)
+                                {
+                                    if (arg.Expression is TypeOfExpressionSyntax typeOfExpr)
+                                    {
+                                        var typeSymbol = semanticModel.GetSymbolInfo(typeOfExpr.Type).Symbol;
+                                        if (typeSymbol == null)
+                                        {
+                                            // The type referenced in typeof() no longer exists
+                                            attributesToRemove.Add(attribute);
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Remove invalid attributes
+                    if (attributesToRemove.Any())
+                    {
+                        var updatedClass = mrwContextClass;
+
+                        // Group attributes by their containing AttributeList
+                        var attributeListsToUpdate = attributesToRemove
+                            .GroupBy(attr => attr.Parent as AttributeListSyntax)
+                            .Where(g => g.Key != null);
+
+                        foreach (var group in attributeListsToUpdate)
+                        {
+                            var attributeList = group.Key!;
+                            var remainingAttributes = attributeList.Attributes
+                                .Where(a => !group.Contains(a))
+                                .ToList();
+
+                            if (remainingAttributes.Any())
+                            {
+                                // Update the attribute list with remaining attributes
+                                var newAttributeList = attributeList.WithAttributes(
+                                    SyntaxFactory.SeparatedList(remainingAttributes));
+                                updatedClass = updatedClass.ReplaceNode(attributeList, newAttributeList);
+                            }
+                            else
+                            {
+                                // Remove the entire attribute list if no attributes remain
+                                var attributeLists = updatedClass.AttributeLists.Remove(attributeList);
+                                updatedClass = updatedClass.WithAttributeLists(attributeLists);
+                            }
+                        }
+
+                        newRoot = newRoot.ReplaceNode(mrwContextClass, updatedClass);
+                    }
+                }
+
+                if (newRoot != root)
+                {
+                    var newDocument = document.WithSyntaxRoot(newRoot);
+                    project = newDocument.Project;
+                }
+            }
+
             return project;
         }
 
