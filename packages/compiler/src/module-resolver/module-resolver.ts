@@ -450,18 +450,6 @@ async function readPackage(host: ResolveModuleHost, pkgfile: string): Promise<Pa
   };
 }
 
-async function isDirectory(host: ResolveModuleHost, path: string) {
-  try {
-    const stats = await host.stat(path);
-    return stats.isDirectory();
-  } catch (e: any) {
-    if (e.code === "ENOENT" || e.code === "ENOTDIR") {
-      return false;
-    }
-    throw e;
-  }
-}
-
 async function isFile(host: ResolveModuleHost, path: string) {
   try {
     const stats = await host.stat(path);
