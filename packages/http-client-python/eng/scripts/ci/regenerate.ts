@@ -87,6 +87,7 @@ const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<stri
     namespace: "specs.azure.clientgenerator.core.usage",
   },
   "azure/client-generator-core/override": {
+    "package-name": "specs-azure-clientgenerator-core-override",
     namespace: "specs.azure.clientgenerator.core.override",
   },
   "azure/core/basic": {
