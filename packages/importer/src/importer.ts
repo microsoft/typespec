@@ -7,6 +7,7 @@ import {
   type Statement,
 } from "@typespec/compiler";
 import {
+  createSourceLoader,
   SyntaxKind,
   visitChildren,
   type IdentifierNode,
@@ -15,7 +16,6 @@ import {
   type TypeSpecScriptNode,
   type UsingStatementNode,
 } from "@typespec/compiler/ast";
-import { createSourceLoader } from "../../compiler/src/core/source-loader.js";
 
 export interface ImportResult {
   /** TypeSpec Content */

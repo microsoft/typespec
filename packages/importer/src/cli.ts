@@ -23,7 +23,12 @@ const args = parseArgs({
   allowPositionals: true,
 });
 
-const rawEntrypoint = normalizePath(resolve(args.positionals[0]));
+const entrypoint = args.positionals[0];
+
+const rawEntrypoint =
+  entrypoint.startsWith("http://") || entrypoint.startsWith("https://")
+    ? entrypoint
+    : normalizePath(resolve(entrypoint));
 
 const { content, diagnostics } = await combineProjectIntoFile(ImporterHost, rawEntrypoint);
 
