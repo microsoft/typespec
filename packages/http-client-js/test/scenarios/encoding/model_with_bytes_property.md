@@ -1,6 +1,7 @@
 # Should handle a model with bytes property
 
 ```tsp
+@service
 @route("/bytes")
 namespace Test;
 // Test a model with a bytes property

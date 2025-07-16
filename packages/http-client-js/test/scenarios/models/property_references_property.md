@@ -3,6 +3,7 @@
 This way of referencing a model property ends up with a ModelProperty which type is a ModelProperty. This test makes sure we can handle that.
 
 ```tsp
+@service
 namespace Test;
 
 model Foo {
