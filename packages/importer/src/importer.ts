@@ -41,6 +41,10 @@ export async function combineProjectIntoFile(
       : normalizePath(rawEntrypoint);
 
   const loader = await createSourceLoader(host, {
+    parseOptions: {
+      docs: true,
+      comments: true,
+    },
     externals: (path: string) => {
       return !(path === entrypoint || path.startsWith("."));
     },
