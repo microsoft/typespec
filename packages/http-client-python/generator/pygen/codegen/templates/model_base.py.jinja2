@@ -25,7 +25,7 @@ from {{ code_model.core_library }}.exceptions import DeserializationError
 from {{ code_model.core_library }}{{ "" if code_model.is_azure_flavor else ".utils" }} import CaseInsensitiveEnumMeta
 from {{ code_model.core_library }}.{{ "" if code_model.is_azure_flavor else "runtime." }}pipeline import PipelineResponse
 from {{ code_model.core_library }}.serialization import _Null
-from {{ code_model.core_library }}.rest import HttpResponseError
+from {{ code_model.core_library }}.rest import HttpResponse
 
 _LOGGER = logging.getLogger(__name__)
 
