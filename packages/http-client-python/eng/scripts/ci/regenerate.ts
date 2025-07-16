@@ -37,6 +37,24 @@ interface TspCommand {
 }
 
 const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, string>[]> = {
+  "azure:azure/special-headers/client-request-id": {
+    namespace: "azure.special.headers.client.request.id",
+  },
+  "azure:azure/resource-manager/large-header": {
+    namespace: "azure.resource.manager.large.header",
+  },
+  "azure:azure/resource-manager/resources": {
+    namespace: "azure.resource.manager.resources",
+  },
+  "azure:azure/resource-manager/common-properties": {
+    namespace: "azure.resource.manager.common.properties",
+  },
+  "azure:azure/resource-manager/operation-templates": {
+    namespace: "azure.resource.manager.operation.templates",
+  },
+  "azure:azure/resource-manager/non-resource": {
+    namespace: "azure.resource.manager.non.resource",
+  },
   "azure/client-generator-core/access": {
     namespace: "specs.azure.clientgenerator.core.access",
   },
@@ -133,6 +151,89 @@ const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<stri
 };
 
 const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, string>[]> = {
+  "azure:azure/client-generator-core/access": {
+    namespace: "azure.client.generator.core.access",
+  },
+  "azure:azure/core/scalar": {
+    namespace: "azure.core.scalar",
+  },
+  "azure:client/namespace": {
+    namespace: "client.namespace",
+  },
+  "azure:azure/client-generator-core/flatten-property": {
+    namespace: "azure.client.generator.core.flatten.property",
+  },
+  "parameters/body-optionality": {
+    namespace: "parameters.body.optionality",
+  },
+  "azure:azure/core/model": {
+    namespace: "azure.core.model",
+  },
+  "parameters/collection-format": {
+    namespace: "parameters.collection.format",
+  },
+  "response/status-code-range": {
+    namespace: "response.status.code.range",
+  },
+  "azure:client/structure/default": {
+    namespace: "client.structure.default",
+  },
+  "azure:azure/core/traits": {
+    namespace: "azure.core.traits",
+  },
+  "azure:azure/client-generator-core/client-initialization": {
+    namespace: "azure.client.generator.core.client.initialization",
+  },
+  "azure:azure/core/lro/standard": {
+    namespace: "azure.core.lro.standard",
+  },
+  "azure:azure/payload/pageable": {
+    namespace: "azure.payload.pageable",
+  },
+  "azure:azure/client-generator-core/usage": {
+    namespace: "azure.client.generator.core.usage",
+  },
+  "azure:azure/core/page": {
+    namespace: "azure.core.page",
+  },
+  "azure:azure/core/lro/rpc": {
+    namespace: "azure.core.lro.rpc",
+  },
+  "payload/json-merge-patch": {
+    namespace: "payload.json.merge.patch",
+  },
+  "azure:azure/example/basic": {
+    namespace: "azure.example.basic",
+  },
+  "special-headers/conditional-request": {
+    namespace: "special.headers.conditional.request",
+  },
+  "azure:azure/encode/duration": {
+    namespace: "azure.encode.duration",
+  },
+  "azure:azure/client-generator-core/client-location": {
+    namespace: "azure.client.generator.core.client.location",
+  },
+  "special-headers/repeatability": {
+    namespace: "special.headers.repeatability",
+  },
+  "server/versions/not-versioned": {
+    "package-name": "server-versions-not-versioned",
+    namespace: "server.versions.notversioned",
+  },
+  "server/endpoint/not-defined": {
+    "package-name": "server-endpoint-not-defined",
+    namespace: "server.endpoint.notdefined",
+  },
+  "authentication/api-key": {
+    namespace: "authentication.api.key",
+  },
+  "payload/media-type": {
+    namespace: "payload.media.type",
+  },
+  "azure:azure/client-generator-core/deserialize-empty-string-as-null": {
+    namespace: "azure.client.generator.core.deserialize.empty.string.as.null",
+  },
   "resiliency/srv-driven/old.tsp": {
     "package-name": "resiliency-srv-driven1",
     namespace: "resiliency.srv.driven1",
@@ -184,7 +285,6 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
     namespace: "typetest.model.nesteddiscriminator",
   },
   "type/model/inheritance/not-discriminated": {
-    "package-name": "typetest-model-notdiscriminated",
     namespace: "typetest.model.notdiscriminated",
   },
   "type/model/inheritance/single-discriminator": {
