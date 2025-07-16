@@ -57,7 +57,7 @@
     "@typespec/versioning": ">=0.72.1 <0.73.0 || ~0.73.0-0"
   },
   "devDependencies": {
-    "@azure-tools/azure-http-specs": "0.1.0-alpha.19",
+    "@azure-tools/azure-http-specs": "0.1.0-alpha.23",
     "@azure-tools/typespec-azure-core": "0.57.0",
     "@azure-tools/typespec-client-generator-core": "0.57.2",
     "@microsoft/api-extractor": "^7.52.2",
