@@ -225,4 +225,100 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     public PagedIterable<Pet> requestHeaderResponseHeader(String foo, String bar, RequestContext requestContext) {
         return this.serviceClient.requestHeaderResponseHeader(foo, bar, requestContext);
     }
+
+    /**
+     * The requestQueryNestedResponseBody operation.
+     * 
+     * @param foo The foo parameter.
+     * @param bar The bar parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> requestQueryNestedResponseBody(String foo, String bar) {
+        return requestQueryNestedResponseBody(foo, bar, RequestContext.none());
+    }
+
+    /**
+     * The requestQueryNestedResponseBody operation.
+     * 
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> requestQueryNestedResponseBody() {
+        final String foo = null;
+        final String bar = null;
+        return requestQueryNestedResponseBody(foo, bar, RequestContext.none());
+    }
+
+    /**
+     * The requestQueryNestedResponseBody operation.
+     * 
+     * @param foo The foo parameter.
+     * @param bar The bar parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> requestQueryNestedResponseBody(String foo, String bar, RequestContext requestContext) {
+        return this.serviceClient.requestQueryNestedResponseBody(foo, bar, requestContext);
+    }
+
+    /**
+     * The requestHeaderNestedResponseBody operation.
+     * 
+     * @param foo The foo parameter.
+     * @param bar The bar parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> requestHeaderNestedResponseBody(String foo, String bar) {
+        return requestHeaderNestedResponseBody(foo, bar, RequestContext.none());
+    }
+
+    /**
+     * The requestHeaderNestedResponseBody operation.
+     * 
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> requestHeaderNestedResponseBody() {
+        final String foo = null;
+        final String bar = null;
+        return requestHeaderNestedResponseBody(foo, bar, RequestContext.none());
+    }
+
+    /**
+     * The requestHeaderNestedResponseBody operation.
+     * 
+     * @param foo The foo parameter.
+     * @param bar The bar parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> requestHeaderNestedResponseBody(String foo, String bar, RequestContext requestContext) {
+        return this.serviceClient.requestHeaderNestedResponseBody(foo, bar, requestContext);
+    }
 }
