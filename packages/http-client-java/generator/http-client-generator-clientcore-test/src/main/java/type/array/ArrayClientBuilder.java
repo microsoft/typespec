@@ -14,13 +14,17 @@ import io.clientcore.core.http.pipeline.HttpRedirectOptions;
 import io.clientcore.core.http.pipeline.HttpRedirectPolicy;
 import io.clientcore.core.http.pipeline.HttpRetryOptions;
 import io.clientcore.core.http.pipeline.HttpRetryPolicy;
+import io.clientcore.core.instrumentation.Instrumentation;
+import io.clientcore.core.instrumentation.SdkInstrumentationOptions;
 import io.clientcore.core.traits.ConfigurationTrait;
 import io.clientcore.core.traits.EndpointTrait;
 import io.clientcore.core.traits.HttpTrait;
 import io.clientcore.core.traits.ProxyTrait;
+import io.clientcore.core.utils.CoreUtils;
 import io.clientcore.core.utils.configuration.Configuration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import type.array.implementation.ArrayClientImpl;
 
@@ -50,6 +54,9 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("type-array.properties");
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
@@ -194,7 +201,16 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
     private ArrayClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        ArrayClientImpl client = new ArrayClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        ArrayClientImpl client = new ArrayClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -228,7 +244,8 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public Int32ValueClient buildInt32ValueClient() {
-        return new Int32ValueClient(buildInnerClient().getInt32Values());
+        ArrayClientImpl innerClient = buildInnerClient();
+        return new Int32ValueClient(innerClient.getInt32Values(), innerClient.getInstrumentation());
     }
 
     /**
@@ -238,7 +255,8 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public Int64ValueClient buildInt64ValueClient() {
-        return new Int64ValueClient(buildInnerClient().getInt64Values());
+        ArrayClientImpl innerClient = buildInnerClient();
+        return new Int64ValueClient(innerClient.getInt64Values(), innerClient.getInstrumentation());
     }
 
     /**
@@ -248,7 +266,8 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public BooleanValueClient buildBooleanValueClient() {
-        return new BooleanValueClient(buildInnerClient().getBooleanValues());
+        ArrayClientImpl innerClient = buildInnerClient();
+        return new BooleanValueClient(innerClient.getBooleanValues(), innerClient.getInstrumentation());
     }
 
     /**
@@ -258,7 +277,8 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public StringValueClient buildStringValueClient() {
-        return new StringValueClient(buildInnerClient().getStringValues());
+        ArrayClientImpl innerClient = buildInnerClient();
+        return new StringValueClient(innerClient.getStringValues(), innerClient.getInstrumentation());
     }
 
     /**
@@ -268,7 +288,8 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public Float32ValueClient buildFloat32ValueClient() {
-        return new Float32ValueClient(buildInnerClient().getFloat32Values());
+        ArrayClientImpl innerClient = buildInnerClient();
+        return new Float32ValueClient(innerClient.getFloat32Values(), innerClient.getInstrumentation());
     }
 
     /**
@@ -278,7 +299,8 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public DatetimeValueClient buildDatetimeValueClient() {
-        return new DatetimeValueClient(buildInnerClient().getDatetimeValues());
+        ArrayClientImpl innerClient = buildInnerClient();
+        return new DatetimeValueClient(innerClient.getDatetimeValues(), innerClient.getInstrumentation());
     }
 
     /**
@@ -288,7 +310,8 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public DurationValueClient buildDurationValueClient() {
-        return new DurationValueClient(buildInnerClient().getDurationValues());
+        ArrayClientImpl innerClient = buildInnerClient();
+        return new DurationValueClient(innerClient.getDurationValues(), innerClient.getInstrumentation());
     }
 
     /**
@@ -298,7 +321,8 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public UnknownValueClient buildUnknownValueClient() {
-        return new UnknownValueClient(buildInnerClient().getUnknownValues());
+        ArrayClientImpl innerClient = buildInnerClient();
+        return new UnknownValueClient(innerClient.getUnknownValues(), innerClient.getInstrumentation());
     }
 
     /**
@@ -308,7 +332,8 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ModelValueClient buildModelValueClient() {
-        return new ModelValueClient(buildInnerClient().getModelValues());
+        ArrayClientImpl innerClient = buildInnerClient();
+        return new ModelValueClient(innerClient.getModelValues(), innerClient.getInstrumentation());
     }
 
     /**
@@ -318,7 +343,8 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public NullableFloatValueClient buildNullableFloatValueClient() {
-        return new NullableFloatValueClient(buildInnerClient().getNullableFloatValues());
+        ArrayClientImpl innerClient = buildInnerClient();
+        return new NullableFloatValueClient(innerClient.getNullableFloatValues(), innerClient.getInstrumentation());
     }
 
     /**
@@ -328,7 +354,8 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public NullableInt32ValueClient buildNullableInt32ValueClient() {
-        return new NullableInt32ValueClient(buildInnerClient().getNullableInt32Values());
+        ArrayClientImpl innerClient = buildInnerClient();
+        return new NullableInt32ValueClient(innerClient.getNullableInt32Values(), innerClient.getInstrumentation());
     }
 
     /**
@@ -338,7 +365,8 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public NullableBooleanValueClient buildNullableBooleanValueClient() {
-        return new NullableBooleanValueClient(buildInnerClient().getNullableBooleanValues());
+        ArrayClientImpl innerClient = buildInnerClient();
+        return new NullableBooleanValueClient(innerClient.getNullableBooleanValues(), innerClient.getInstrumentation());
     }
 
     /**
@@ -348,7 +376,8 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public NullableStringValueClient buildNullableStringValueClient() {
-        return new NullableStringValueClient(buildInnerClient().getNullableStringValues());
+        ArrayClientImpl innerClient = buildInnerClient();
+        return new NullableStringValueClient(innerClient.getNullableStringValues(), innerClient.getInstrumentation());
     }
 
     /**
@@ -358,6 +387,7 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public NullableModelValueClient buildNullableModelValueClient() {
-        return new NullableModelValueClient(buildInnerClient().getNullableModelValues());
+        ArrayClientImpl innerClient = buildInnerClient();
+        return new NullableModelValueClient(innerClient.getNullableModelValues(), innerClient.getInstrumentation());
     }
 }

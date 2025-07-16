@@ -3,56 +3,61 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 public final class MethodPageDetails {
-    private final ModelPropertySegment nextLinkPropertyReference;
-    private final ModelPropertySegment itemPropertyReference;
+    private final List<ModelPropertySegment> pageItemsPropertyReference;
+    private final List<ModelPropertySegment> nextLinkPropertyReference;
     private final IType lroIntermediateType;
     private final ClientMethod nextMethod;
     private final ContinuationToken continuationToken;
     private final ClientMethodParameter maxPageSizeParameter;
+    private final NextLinkReInjection nextLinkReInjection;
 
-    public MethodPageDetails(ModelPropertySegment itemPropertyReference, ModelPropertySegment nextLinkPropertyReference,
-        ClientMethod nextMethod, IType lroIntermediateType, ContinuationToken continuationToken,
-        ClientMethodParameter maxPageSizeParameter) {
-        this.itemPropertyReference = Objects.requireNonNull(itemPropertyReference);
+    public MethodPageDetails(List<ModelPropertySegment> pageItemsPropertyReference,
+        List<ModelPropertySegment> nextLinkPropertyReference, ClientMethod nextMethod, IType lroIntermediateType,
+        ContinuationToken continuationToken, ClientMethodParameter maxPageSizeParameter,
+        NextLinkReInjection nextLinkReInjectedParameterNames) {
+        this.pageItemsPropertyReference = Objects.requireNonNull(pageItemsPropertyReference);
         this.nextLinkPropertyReference = nextLinkPropertyReference;
         this.lroIntermediateType = lroIntermediateType;
         this.nextMethod = nextMethod;
         this.continuationToken = continuationToken;
         this.maxPageSizeParameter = maxPageSizeParameter;
+        this.nextLinkReInjection = nextLinkReInjectedParameterNames;
     }
 
     public String getNextLinkName() {
-        if (nextLinkPropertyReference == null) {
+        if (CoreUtils.isNullOrEmpty(nextLinkPropertyReference)) {
             return null;
         }
-        return nextLinkPropertyReference.getProperty().getName();
+        return nextLinkPropertyReference.get(0).getProperty().getName();
     }
 
     public IType getNextLinkType() {
-        if (nextLinkPropertyReference == null) {
+        if (CoreUtils.isNullOrEmpty(nextLinkPropertyReference)) {
             return null;
         }
-        return nextLinkPropertyReference.getProperty().getClientType();
+        return nextLinkPropertyReference.get(0).getProperty().getClientType();
     }
 
     public String getSerializedNextLinkName() {
-        if (nextLinkPropertyReference == null) {
+        if (CoreUtils.isNullOrEmpty(nextLinkPropertyReference)) {
             return null;
         }
-        return nextLinkPropertyReference.getProperty().getSerializedName();
+        return nextLinkPropertyReference.get(0).getProperty().getSerializedName();
     }
 
     public String getItemName() {
-        return itemPropertyReference.getProperty().getName();
+        return pageItemsPropertyReference.get(0).getProperty().getName();
     }
 
     public String getSerializedItemName() {
-        return itemPropertyReference.getProperty().getSerializedName();
+        return pageItemsPropertyReference.get(0).getProperty().getSerializedName();
     }
 
     public ClientMethod getNextMethod() {
@@ -61,6 +66,14 @@ public final class MethodPageDetails {
 
     public IType getLroIntermediateType() {
         return lroIntermediateType;
+    }
+
+    public List<ModelPropertySegment> getPageItemsPropertyReference() {
+        return pageItemsPropertyReference;
+    }
+
+    public List<ModelPropertySegment> getNextLinkPropertyReference() {
+        return nextLinkPropertyReference;
     }
 
     public ContinuationToken getContinuationToken() {
@@ -82,6 +95,10 @@ public final class MethodPageDetails {
             return parameter == maxPageSizeParameter;
         }
         return false;
+    }
+
+    public NextLinkReInjection getNextLinkReInjection() {
+        return nextLinkReInjection;
     }
 
     public static final class ContinuationToken {
@@ -112,6 +129,22 @@ public final class MethodPageDetails {
 
         public String getResponseHeaderSerializedName() {
             return responseHeaderSerializedName;
+        }
+    }
+
+    /**
+     * Represents the nextLink re-injected parameters for paging. Legacy feature.
+     * Only query parameters are included.
+     */
+    public static final class NextLinkReInjection {
+        private final List<String> queryParameterSerializedNames;
+
+        public NextLinkReInjection(List<String> queryParameterNames) {
+            this.queryParameterSerializedNames = Collections.unmodifiableList(queryParameterNames);
+        }
+
+        public List<String> getQueryParameterSerializedNames() {
+            return queryParameterSerializedNames;
         }
     }
 }

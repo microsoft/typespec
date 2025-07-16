@@ -3,7 +3,6 @@
 #nullable disable
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
@@ -30,9 +29,5 @@ namespace _Type.Property.Nullable
         protected virtual InnerModel PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<InnerModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(InnerModel innerModel) => throw null;
-
-        public static explicit operator InnerModel(ClientResult result) => throw null;
     }
 }

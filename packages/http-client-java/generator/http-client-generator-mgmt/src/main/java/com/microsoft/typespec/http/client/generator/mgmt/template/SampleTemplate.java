@@ -8,6 +8,7 @@ import com.microsoft.typespec.http.client.generator.core.postprocessor.implement
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentExample;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -24,8 +25,9 @@ public class SampleTemplate {
         assert examples.size() == sampleJavaFiles.size();
 
         // clean up copyright etc.
-        Map<String, String> javaFiles
-            = sampleJavaFiles.stream().collect(Collectors.toMap(JavaFile::getFilePath, SampleTemplate::cleanJavaFile));
+        Map<String, String> javaFiles = sampleJavaFiles.stream()
+            .collect(Collectors.toMap(JavaFile::getFilePath, SampleTemplate::cleanJavaFile,
+                (existing, replacement) -> existing, LinkedHashMap::new));
         // format code
         List<String> javaFileContents;
         try {

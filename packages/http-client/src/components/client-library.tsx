@@ -1,4 +1,4 @@
-import { Children } from "@alloy-js/core";
+import { type Children } from "@alloy-js/core";
 import { Program } from "@typespec/compiler";
 import { unsafe_Mutator } from "@typespec/compiler/experimental";
 import { createClientLibrary } from "../client-library.js";

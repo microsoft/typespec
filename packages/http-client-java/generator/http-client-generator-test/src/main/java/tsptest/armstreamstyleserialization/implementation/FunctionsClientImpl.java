@@ -54,7 +54,7 @@ public final class FunctionsClientImpl implements FunctionsClient {
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArmResourceProviderM")
+    @ServiceInterface(name = "ArmResourceProviderManagementClientFunctions")
     public interface FunctionsService {
         @Put("/function")
         @ExpectedResponses({ 200 })

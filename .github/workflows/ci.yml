@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+      - release/*
+    paths-ignore:
+      - "packages/http-client-csharp/**"
+      - "packages/http-client-java/**"
+      - "packages/http-client-python/**"
+      - "website/**"
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 ## Needed for Changesets to find `main` branch
+
+      - uses: ./.github/actions/setup
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build
+        run: pnpm run --filter "internal-build-utils" --filter "[origin/main]..." --filter='!@typespec/website' build
+
+      - name: Bump version to prerelease targets
+        run: node ./packages/internal-build-utils/cmd/cli.js bump-version-pr . --pr ${{ github.event.pull_request.number }} --buildNumber ${{ github.run_number }}
+
+      - run: pnpm tsx eng/tsp-core/pkg-pr-new.ts

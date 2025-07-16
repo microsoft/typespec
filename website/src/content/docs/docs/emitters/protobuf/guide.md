@@ -2,7 +2,7 @@
 title: Guide
 ---
 
-TypeSpec includes a built-in emitter (`/protobuf`) that can generate Protocol Buffers specifications from TypeSpec sources. The Protobuf files generated can then be used to create gRPC services or any other tools that are compatible with Protocol Buffers.
+TypeSpec includes a built-in emitter (`@typespec/protobuf`) that can generate Protocol Buffers specifications from TypeSpec sources. The Protobuf files generated can then be used to create gRPC services or any other tools that are compatible with Protocol Buffers.
 
 **Please note**: The Protobuf emitter is designed to work with Protocol Buffers 3 (proto3) syntax. Ensure that your workflow (including `protoc` version) supports proto3 to make full use of this emitter.
 

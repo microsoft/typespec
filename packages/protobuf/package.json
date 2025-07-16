@@ -1,6 +1,6 @@
 {
   "name": "@typespec/protobuf",
-  "version": "0.70.0",
+  "version": "0.72.1",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library and emitter for Protobuf (gRPC)",
   "homepage": "https://github.com/microsoft/typespec",
@@ -45,7 +45,7 @@
   },
   "devDependencies": {
     "@types/micromatch": "^4.0.9",
-    "@types/node": "~22.13.11",
+    "@types/node": "~24.0.3",
     "@typespec/compiler": "workspace:^",
     "@typespec/tspd": "workspace:^",
     "@vitest/coverage-v8": "^3.1.2",

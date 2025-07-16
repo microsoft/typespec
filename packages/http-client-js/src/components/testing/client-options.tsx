@@ -1,4 +1,4 @@
-import * as ay from "@alloy-js/core";
+import { Children, code } from "@alloy-js/core";
 
 export interface ClientTestOptions {}
 
@@ -7,7 +7,7 @@ export function ClientTestOptions(_props: ClientTestOptions) {
     return null;
   }
 
-  return ay.code`
+  return code`
     allowInsecureConnection: true,
     retryOptions: {
       maxRetries: 1,
@@ -15,7 +15,7 @@ export function ClientTestOptions(_props: ClientTestOptions) {
 }
 
 export function addClientTestOptions(
-  options: ay.Children[],
+  options: Children[],
   settings: { location?: "front" | "back" } = { location: "front" },
 ) {
   if (process.env.TYPESPEC_JS_EMITTER_TESTING === "true") {

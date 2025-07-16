@@ -78,7 +78,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             bool isContentType = false,
             bool isApiVersion = false,
             bool explode = false,
-            string? delimiter = null)
+            string? delimiter = null,
+            string? serverUrlTemplate = null)
         {
             return new InputParameter(
                 name,
@@ -96,7 +97,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 false,
                 explode,
                 delimiter,
-                null);
+                null,
+                serverUrlTemplate);
         }
 
         public static InputNamespace Namespace(
@@ -427,7 +429,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             IEnumerable<string>? requestMediaTypes = null,
             string uri = "",
             string path = "",
-            string httpMethod = "GET")
+            string httpMethod = "GET",
+            bool generateConvenienceMethod = true)
         {
             return new InputOperation(
                 name,
@@ -445,15 +448,19 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 requestMediaTypes is null ? null : [.. requestMediaTypes],
                 false,
                 true,
-                true,
+                generateConvenienceMethod,
                 name);
         }
 
-        public static InputPagingServiceMetadata NextLinkPagingMetadata(string itemPropertyName, string nextLinkName, InputResponseLocation nextLinkLocation)
+        public static InputPagingServiceMetadata NextLinkPagingMetadata(
+            string itemPropertyName,
+            string nextLinkName,
+            InputResponseLocation nextLinkLocation,
+            IReadOnlyList<InputParameter>? reinjectedParameters = null)
         {
             return PagingMetadata(
                 [itemPropertyName],
-                new InputNextLink(null, [nextLinkName], nextLinkLocation),
+                new InputNextLink(null, [nextLinkName], nextLinkLocation, reinjectedParameters),
                 null);
         }
 
@@ -465,14 +472,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 continuationToken: new InputContinuationToken(parameter, [continuationTokenName], continuationTokenLocation));
         }
 
-        public static InputOperationResponse OperationResponse(IEnumerable<int>? statusCodes = null, InputType? bodytype = null, IReadOnlyList<InputOperationResponseHeader>? headers = null)
+        public static InputOperationResponse OperationResponse(
+            IEnumerable<int>? statusCodes = null,
+            InputType? bodytype = null,
+            IReadOnlyList<InputOperationResponseHeader>? headers = null,
+            IReadOnlyList<string>? contentTypes = null)
         {
             return new InputOperationResponse(
                 statusCodes is null ? [200] : [.. statusCodes],
                 bodytype,
                 headers ?? [],
                 false,
-                ["application/json"]);
+                contentTypes ?? ["application/json"]);
         }
 
         public static InputServiceMethodResponse ServiceMethodResponse(InputType? type, IReadOnlyList<string>? resultSegments)

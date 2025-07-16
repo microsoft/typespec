@@ -3,7 +3,6 @@ package payload.pageable.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
@@ -17,10 +16,13 @@ import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.paging.PagedIterable;
 import io.clientcore.core.http.paging.PagedResponse;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.instrumentation.logging.ClientLogger;
 import java.lang.reflect.InvocationTargetException;
 import payload.pageable.Pet;
+import payload.pageable.serverdrivenpagination.continuationtoken.implementation.RequestHeaderNestedResponseBodyResponse;
 import payload.pageable.serverdrivenpagination.continuationtoken.implementation.RequestHeaderResponseBodyResponse;
+import payload.pageable.serverdrivenpagination.continuationtoken.implementation.RequestQueryNestedResponseBodyResponse;
 import payload.pageable.serverdrivenpagination.continuationtoken.implementation.RequestQueryResponseBodyResponse;
 
 /**
@@ -38,21 +40,26 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
     private final PageableClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of ServerDrivenPaginationContinuationTokensImpl.
      * 
      * @param client the instance of the service client containing this operation class.
      */
     ServerDrivenPaginationContinuationTokensImpl(PageableClientImpl client) {
-        this.service
-            = RestProxy.create(ServerDrivenPaginationContinuationTokensService.class, client.getHttpPipeline());
+        this.service = ServerDrivenPaginationContinuationTokensService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
      * The interface defining all the services for PageableClientServerDrivenPaginationContinuationTokens to be used by
      * the proxy service to perform REST calls.
      */
-    @ServiceInterface(name = "PageableClientServer", host = "{endpoint}")
+    @ServiceInterface(name = "PageableClientServerDrivenPaginationContinuationTokens", host = "{endpoint}")
     public interface ServerDrivenPaginationContinuationTokensService {
         static ServerDrivenPaginationContinuationTokensService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -103,6 +110,24 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         Response<RequestHeaderResponseHeaderResponse> requestHeaderResponseHeader(
             @HostParam("endpoint") String endpoint, @HeaderParam("token") String token, @HeaderParam("foo") String foo,
             @QueryParam("bar") String bar, @HeaderParam("Accept") String accept, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/payload/pageable/server-driven-pagination/continuationtoken/request-query-nested-response-body",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<RequestQueryNestedResponseBodyResponse> requestQueryNestedResponseBody(
+            @HostParam("endpoint") String endpoint, @QueryParam("token") String token, @HeaderParam("foo") String foo,
+            @QueryParam("bar") String bar, @HeaderParam("Accept") String accept, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/payload/pageable/server-driven-pagination/continuationtoken/request-header-nested-response-body",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<RequestHeaderNestedResponseBodyResponse> requestHeaderNestedResponseBody(
+            @HostParam("endpoint") String endpoint, @HeaderParam("token") String token, @HeaderParam("foo") String foo,
+            @QueryParam("bar") String bar, @HeaderParam("Accept") String accept, RequestContext requestContext);
     }
 
     /**
@@ -118,11 +143,17 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public PagedResponse<Pet> requestQueryResponseBodySinglePage(String token, String foo, String bar) {
-        final String accept = "application/json";
-        Response<RequestQueryResponseBodyResponse> res = service.requestQueryResponseBody(this.client.getEndpoint(),
-            token, foo, bar, accept, RequestContext.none());
-        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
-            res.getValue().getNextToken(), null, null, null, null);
+        return this.instrumentation.instrumentWithResponse(
+            "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestQueryResponseBody", RequestContext.none(),
+            updatedContext -> {
+                final String accept = "application/json";
+                Response<RequestQueryResponseBodyResponse> res = service
+                    .requestQueryResponseBody(this.client.getEndpoint(), token, foo, bar, accept, updatedContext);
+                return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
+                    res.getValue().getPets(),
+                    res.getValue().getNextToken() != null ? res.getValue().getNextToken() : null, null, null, null,
+                    null);
+            });
     }
 
     /**
@@ -140,11 +171,17 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public PagedResponse<Pet> requestQueryResponseBodySinglePage(String token, String foo, String bar,
         RequestContext requestContext) {
-        final String accept = "application/json";
-        Response<RequestQueryResponseBodyResponse> res
-            = service.requestQueryResponseBody(this.client.getEndpoint(), token, foo, bar, accept, requestContext);
-        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
-            res.getValue().getNextToken(), null, null, null, null);
+        return this.instrumentation.instrumentWithResponse(
+            "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestQueryResponseBody", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                Response<RequestQueryResponseBodyResponse> res = service
+                    .requestQueryResponseBody(this.client.getEndpoint(), token, foo, bar, accept, updatedContext);
+                return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
+                    res.getValue().getPets(),
+                    res.getValue().getNextToken() != null ? res.getValue().getNextToken() : null, null, null, null,
+                    null);
+            });
     }
 
     /**
@@ -162,45 +199,22 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
     public PagedIterable<Pet> requestQueryResponseBody(String foo, String bar) {
         return new PagedIterable<>((pagingOptions) -> {
             if (pagingOptions.getOffset() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'offset' in PagingOptions is not supported in API 'requestQueryResponseBody'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "offset")
+                    .addKeyValue("methodName", "requestQueryResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageSize' in PagingOptions is not supported in API 'requestQueryResponseBody'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageSize")
+                    .addKeyValue("methodName", "requestQueryResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageIndex' in PagingOptions is not supported in API 'requestQueryResponseBody'."));
-            }
-            String token = pagingOptions.getContinuationToken();
-            return requestQueryResponseBodySinglePage(token, foo, bar);
-        });
-    }
-
-    /**
-     * The requestQueryResponseBody operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestQueryResponseBody() {
-        final String foo = null;
-        final String bar = null;
-        return new PagedIterable<>((pagingOptions) -> {
-            if (pagingOptions.getOffset() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'offset' in PagingOptions is not supported in API 'requestQueryResponseBody'."));
-            }
-            if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageSize' in PagingOptions is not supported in API 'requestQueryResponseBody'."));
-            }
-            if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageIndex' in PagingOptions is not supported in API 'requestQueryResponseBody'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageIndex")
+                    .addKeyValue("methodName", "requestQueryResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             String token = pagingOptions.getContinuationToken();
             return requestQueryResponseBodySinglePage(token, foo, bar);
@@ -223,16 +237,22 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
     public PagedIterable<Pet> requestQueryResponseBody(String foo, String bar, RequestContext requestContext) {
         return new PagedIterable<>((pagingOptions) -> {
             if (pagingOptions.getOffset() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'offset' in PagingOptions is not supported in API 'requestQueryResponseBody'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "offset")
+                    .addKeyValue("methodName", "requestQueryResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageSize' in PagingOptions is not supported in API 'requestQueryResponseBody'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageSize")
+                    .addKeyValue("methodName", "requestQueryResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageIndex' in PagingOptions is not supported in API 'requestQueryResponseBody'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageIndex")
+                    .addKeyValue("methodName", "requestQueryResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             String token = pagingOptions.getContinuationToken();
             return requestQueryResponseBodySinglePage(token, foo, bar, requestContext);
@@ -252,11 +272,17 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public PagedResponse<Pet> requestHeaderResponseBodySinglePage(String token, String foo, String bar) {
-        final String accept = "application/json";
-        Response<RequestHeaderResponseBodyResponse> res = service.requestHeaderResponseBody(this.client.getEndpoint(),
-            token, foo, bar, accept, RequestContext.none());
-        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
-            res.getValue().getNextToken(), null, null, null, null);
+        return this.instrumentation.instrumentWithResponse(
+            "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestHeaderResponseBody",
+            RequestContext.none(), updatedContext -> {
+                final String accept = "application/json";
+                Response<RequestHeaderResponseBodyResponse> res = service
+                    .requestHeaderResponseBody(this.client.getEndpoint(), token, foo, bar, accept, updatedContext);
+                return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
+                    res.getValue().getPets(),
+                    res.getValue().getNextToken() != null ? res.getValue().getNextToken() : null, null, null, null,
+                    null);
+            });
     }
 
     /**
@@ -274,11 +300,17 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public PagedResponse<Pet> requestHeaderResponseBodySinglePage(String token, String foo, String bar,
         RequestContext requestContext) {
-        final String accept = "application/json";
-        Response<RequestHeaderResponseBodyResponse> res
-            = service.requestHeaderResponseBody(this.client.getEndpoint(), token, foo, bar, accept, requestContext);
-        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
-            res.getValue().getNextToken(), null, null, null, null);
+        return this.instrumentation.instrumentWithResponse(
+            "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestHeaderResponseBody", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                Response<RequestHeaderResponseBodyResponse> res = service
+                    .requestHeaderResponseBody(this.client.getEndpoint(), token, foo, bar, accept, updatedContext);
+                return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
+                    res.getValue().getPets(),
+                    res.getValue().getNextToken() != null ? res.getValue().getNextToken() : null, null, null, null,
+                    null);
+            });
     }
 
     /**
@@ -296,45 +328,22 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
     public PagedIterable<Pet> requestHeaderResponseBody(String foo, String bar) {
         return new PagedIterable<>((pagingOptions) -> {
             if (pagingOptions.getOffset() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'offset' in PagingOptions is not supported in API 'requestHeaderResponseBody'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "offset")
+                    .addKeyValue("methodName", "requestHeaderResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageSize' in PagingOptions is not supported in API 'requestHeaderResponseBody'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageSize")
+                    .addKeyValue("methodName", "requestHeaderResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageIndex' in PagingOptions is not supported in API 'requestHeaderResponseBody'."));
-            }
-            String token = pagingOptions.getContinuationToken();
-            return requestHeaderResponseBodySinglePage(token, foo, bar);
-        });
-    }
-
-    /**
-     * The requestHeaderResponseBody operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestHeaderResponseBody() {
-        final String foo = null;
-        final String bar = null;
-        return new PagedIterable<>((pagingOptions) -> {
-            if (pagingOptions.getOffset() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'offset' in PagingOptions is not supported in API 'requestHeaderResponseBody'."));
-            }
-            if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageSize' in PagingOptions is not supported in API 'requestHeaderResponseBody'."));
-            }
-            if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageIndex' in PagingOptions is not supported in API 'requestHeaderResponseBody'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageIndex")
+                    .addKeyValue("methodName", "requestHeaderResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             String token = pagingOptions.getContinuationToken();
             return requestHeaderResponseBodySinglePage(token, foo, bar);
@@ -357,16 +366,22 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
     public PagedIterable<Pet> requestHeaderResponseBody(String foo, String bar, RequestContext requestContext) {
         return new PagedIterable<>((pagingOptions) -> {
             if (pagingOptions.getOffset() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'offset' in PagingOptions is not supported in API 'requestHeaderResponseBody'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "offset")
+                    .addKeyValue("methodName", "requestHeaderResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageSize' in PagingOptions is not supported in API 'requestHeaderResponseBody'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageSize")
+                    .addKeyValue("methodName", "requestHeaderResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageIndex' in PagingOptions is not supported in API 'requestHeaderResponseBody'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageIndex")
+                    .addKeyValue("methodName", "requestHeaderResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             String token = pagingOptions.getContinuationToken();
             return requestHeaderResponseBodySinglePage(token, foo, bar, requestContext);
@@ -386,11 +401,16 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public PagedResponse<Pet> requestQueryResponseHeaderSinglePage(String token, String foo, String bar) {
-        final String accept = "application/json";
-        Response<RequestQueryResponseHeaderResponse> res = service.requestQueryResponseHeader(this.client.getEndpoint(),
-            token, foo, bar, accept, RequestContext.none());
-        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
-            res.getHeaders().getValue(HttpHeaderName.fromString("next-token")), null, null, null, null);
+        return this.instrumentation.instrumentWithResponse(
+            "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestQueryResponseHeader",
+            RequestContext.none(), updatedContext -> {
+                final String accept = "application/json";
+                Response<RequestQueryResponseHeaderResponse> res = service
+                    .requestQueryResponseHeader(this.client.getEndpoint(), token, foo, bar, accept, updatedContext);
+                return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
+                    res.getValue().getPets(), res.getHeaders().getValue(HttpHeaderName.fromString("next-token")), null,
+                    null, null, null);
+            });
     }
 
     /**
@@ -408,11 +428,16 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public PagedResponse<Pet> requestQueryResponseHeaderSinglePage(String token, String foo, String bar,
         RequestContext requestContext) {
-        final String accept = "application/json";
-        Response<RequestQueryResponseHeaderResponse> res
-            = service.requestQueryResponseHeader(this.client.getEndpoint(), token, foo, bar, accept, requestContext);
-        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
-            res.getHeaders().getValue(HttpHeaderName.fromString("next-token")), null, null, null, null);
+        return this.instrumentation.instrumentWithResponse(
+            "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestQueryResponseHeader", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                Response<RequestQueryResponseHeaderResponse> res = service
+                    .requestQueryResponseHeader(this.client.getEndpoint(), token, foo, bar, accept, updatedContext);
+                return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
+                    res.getValue().getPets(), res.getHeaders().getValue(HttpHeaderName.fromString("next-token")), null,
+                    null, null, null);
+            });
     }
 
     /**
@@ -430,45 +455,22 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
     public PagedIterable<Pet> requestQueryResponseHeader(String foo, String bar) {
         return new PagedIterable<>((pagingOptions) -> {
             if (pagingOptions.getOffset() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'offset' in PagingOptions is not supported in API 'requestQueryResponseHeader'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "offset")
+                    .addKeyValue("methodName", "requestQueryResponseHeader")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageSize' in PagingOptions is not supported in API 'requestQueryResponseHeader'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageSize")
+                    .addKeyValue("methodName", "requestQueryResponseHeader")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageIndex' in PagingOptions is not supported in API 'requestQueryResponseHeader'."));
-            }
-            String token = pagingOptions.getContinuationToken();
-            return requestQueryResponseHeaderSinglePage(token, foo, bar);
-        });
-    }
-
-    /**
-     * The requestQueryResponseHeader operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestQueryResponseHeader() {
-        final String foo = null;
-        final String bar = null;
-        return new PagedIterable<>((pagingOptions) -> {
-            if (pagingOptions.getOffset() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'offset' in PagingOptions is not supported in API 'requestQueryResponseHeader'."));
-            }
-            if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageSize' in PagingOptions is not supported in API 'requestQueryResponseHeader'."));
-            }
-            if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageIndex' in PagingOptions is not supported in API 'requestQueryResponseHeader'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageIndex")
+                    .addKeyValue("methodName", "requestQueryResponseHeader")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             String token = pagingOptions.getContinuationToken();
             return requestQueryResponseHeaderSinglePage(token, foo, bar);
@@ -491,16 +493,22 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
     public PagedIterable<Pet> requestQueryResponseHeader(String foo, String bar, RequestContext requestContext) {
         return new PagedIterable<>((pagingOptions) -> {
             if (pagingOptions.getOffset() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'offset' in PagingOptions is not supported in API 'requestQueryResponseHeader'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "offset")
+                    .addKeyValue("methodName", "requestQueryResponseHeader")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageSize' in PagingOptions is not supported in API 'requestQueryResponseHeader'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageSize")
+                    .addKeyValue("methodName", "requestQueryResponseHeader")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageIndex' in PagingOptions is not supported in API 'requestQueryResponseHeader'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageIndex")
+                    .addKeyValue("methodName", "requestQueryResponseHeader")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             String token = pagingOptions.getContinuationToken();
             return requestQueryResponseHeaderSinglePage(token, foo, bar, requestContext);
@@ -520,11 +528,16 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public PagedResponse<Pet> requestHeaderResponseHeaderSinglePage(String token, String foo, String bar) {
-        final String accept = "application/json";
-        Response<RequestHeaderResponseHeaderResponse> res = service
-            .requestHeaderResponseHeader(this.client.getEndpoint(), token, foo, bar, accept, RequestContext.none());
-        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
-            res.getHeaders().getValue(HttpHeaderName.fromString("next-token")), null, null, null, null);
+        return this.instrumentation.instrumentWithResponse(
+            "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestHeaderResponseHeader",
+            RequestContext.none(), updatedContext -> {
+                final String accept = "application/json";
+                Response<RequestHeaderResponseHeaderResponse> res = service
+                    .requestHeaderResponseHeader(this.client.getEndpoint(), token, foo, bar, accept, updatedContext);
+                return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
+                    res.getValue().getPets(), res.getHeaders().getValue(HttpHeaderName.fromString("next-token")), null,
+                    null, null, null);
+            });
     }
 
     /**
@@ -542,11 +555,16 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public PagedResponse<Pet> requestHeaderResponseHeaderSinglePage(String token, String foo, String bar,
         RequestContext requestContext) {
-        final String accept = "application/json";
-        Response<RequestHeaderResponseHeaderResponse> res
-            = service.requestHeaderResponseHeader(this.client.getEndpoint(), token, foo, bar, accept, requestContext);
-        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
-            res.getHeaders().getValue(HttpHeaderName.fromString("next-token")), null, null, null, null);
+        return this.instrumentation.instrumentWithResponse(
+            "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestHeaderResponseHeader", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                Response<RequestHeaderResponseHeaderResponse> res = service
+                    .requestHeaderResponseHeader(this.client.getEndpoint(), token, foo, bar, accept, updatedContext);
+                return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
+                    res.getValue().getPets(), res.getHeaders().getValue(HttpHeaderName.fromString("next-token")), null,
+                    null, null, null);
+            });
     }
 
     /**
@@ -564,45 +582,22 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
     public PagedIterable<Pet> requestHeaderResponseHeader(String foo, String bar) {
         return new PagedIterable<>((pagingOptions) -> {
             if (pagingOptions.getOffset() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'offset' in PagingOptions is not supported in API 'requestHeaderResponseHeader'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "offset")
+                    .addKeyValue("methodName", "requestHeaderResponseHeader")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageSize' in PagingOptions is not supported in API 'requestHeaderResponseHeader'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageSize")
+                    .addKeyValue("methodName", "requestHeaderResponseHeader")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageIndex' in PagingOptions is not supported in API 'requestHeaderResponseHeader'."));
-            }
-            String token = pagingOptions.getContinuationToken();
-            return requestHeaderResponseHeaderSinglePage(token, foo, bar);
-        });
-    }
-
-    /**
-     * The requestHeaderResponseHeader operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestHeaderResponseHeader() {
-        final String foo = null;
-        final String bar = null;
-        return new PagedIterable<>((pagingOptions) -> {
-            if (pagingOptions.getOffset() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'offset' in PagingOptions is not supported in API 'requestHeaderResponseHeader'."));
-            }
-            if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageSize' in PagingOptions is not supported in API 'requestHeaderResponseHeader'."));
-            }
-            if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageIndex' in PagingOptions is not supported in API 'requestHeaderResponseHeader'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageIndex")
+                    .addKeyValue("methodName", "requestHeaderResponseHeader")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             String token = pagingOptions.getContinuationToken();
             return requestHeaderResponseHeaderSinglePage(token, foo, bar);
@@ -625,19 +620,291 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
     public PagedIterable<Pet> requestHeaderResponseHeader(String foo, String bar, RequestContext requestContext) {
         return new PagedIterable<>((pagingOptions) -> {
             if (pagingOptions.getOffset() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'offset' in PagingOptions is not supported in API 'requestHeaderResponseHeader'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "offset")
+                    .addKeyValue("methodName", "requestHeaderResponseHeader")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageSize' in PagingOptions is not supported in API 'requestHeaderResponseHeader'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageSize")
+                    .addKeyValue("methodName", "requestHeaderResponseHeader")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageIndex' in PagingOptions is not supported in API 'requestHeaderResponseHeader'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageIndex")
+                    .addKeyValue("methodName", "requestHeaderResponseHeader")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             String token = pagingOptions.getContinuationToken();
             return requestHeaderResponseHeaderSinglePage(token, foo, bar, requestContext);
+        });
+    }
+
+    /**
+     * The requestQueryNestedResponseBody operation.
+     * 
+     * @param token The token parameter.
+     * @param foo The foo parameter.
+     * @param bar The bar parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<Pet> requestQueryNestedResponseBodySinglePage(String token, String foo, String bar) {
+        return this.instrumentation.instrumentWithResponse(
+            "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestQueryNestedResponseBody",
+            RequestContext.none(), updatedContext -> {
+                final String accept = "application/json";
+                Response<RequestQueryNestedResponseBodyResponse> res = service
+                    .requestQueryNestedResponseBody(this.client.getEndpoint(), token, foo, bar, accept, updatedContext);
+                return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
+                    res.getValue().getNestedItems().getPets(),
+                    res.getValue().getNestedNext() != null && res.getValue().getNestedNext().getNextToken() != null
+                        ? res.getValue().getNestedNext().getNextToken()
+                        : null,
+                    null, null, null, null);
+            });
+    }
+
+    /**
+     * The requestQueryNestedResponseBody operation.
+     * 
+     * @param token The token parameter.
+     * @param foo The foo parameter.
+     * @param bar The bar parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<Pet> requestQueryNestedResponseBodySinglePage(String token, String foo, String bar,
+        RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse(
+            "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestQueryNestedResponseBody", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                Response<RequestQueryNestedResponseBodyResponse> res = service
+                    .requestQueryNestedResponseBody(this.client.getEndpoint(), token, foo, bar, accept, updatedContext);
+                return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
+                    res.getValue().getNestedItems().getPets(),
+                    res.getValue().getNestedNext() != null && res.getValue().getNestedNext().getNextToken() != null
+                        ? res.getValue().getNestedNext().getNextToken()
+                        : null,
+                    null, null, null, null);
+            });
+    }
+
+    /**
+     * The requestQueryNestedResponseBody operation.
+     * 
+     * @param token The token parameter.
+     * @param foo The foo parameter.
+     * @param bar The bar parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> requestQueryNestedResponseBody(String foo, String bar) {
+        return new PagedIterable<>((pagingOptions) -> {
+            if (pagingOptions.getOffset() != null) {
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "offset")
+                    .addKeyValue("methodName", "requestQueryNestedResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
+            }
+            if (pagingOptions.getPageSize() != null) {
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageSize")
+                    .addKeyValue("methodName", "requestQueryNestedResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
+            }
+            if (pagingOptions.getPageIndex() != null) {
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageIndex")
+                    .addKeyValue("methodName", "requestQueryNestedResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
+            }
+            String token = pagingOptions.getContinuationToken();
+            return requestQueryNestedResponseBodySinglePage(token, foo, bar);
+        });
+    }
+
+    /**
+     * The requestQueryNestedResponseBody operation.
+     * 
+     * @param token The token parameter.
+     * @param foo The foo parameter.
+     * @param bar The bar parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> requestQueryNestedResponseBody(String foo, String bar, RequestContext requestContext) {
+        return new PagedIterable<>((pagingOptions) -> {
+            if (pagingOptions.getOffset() != null) {
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "offset")
+                    .addKeyValue("methodName", "requestQueryNestedResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
+            }
+            if (pagingOptions.getPageSize() != null) {
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageSize")
+                    .addKeyValue("methodName", "requestQueryNestedResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
+            }
+            if (pagingOptions.getPageIndex() != null) {
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageIndex")
+                    .addKeyValue("methodName", "requestQueryNestedResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
+            }
+            String token = pagingOptions.getContinuationToken();
+            return requestQueryNestedResponseBodySinglePage(token, foo, bar, requestContext);
+        });
+    }
+
+    /**
+     * The requestHeaderNestedResponseBody operation.
+     * 
+     * @param token The token parameter.
+     * @param foo The foo parameter.
+     * @param bar The bar parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<Pet> requestHeaderNestedResponseBodySinglePage(String token, String foo, String bar) {
+        return this.instrumentation.instrumentWithResponse(
+            "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestHeaderNestedResponseBody",
+            RequestContext.none(), updatedContext -> {
+                final String accept = "application/json";
+                Response<RequestHeaderNestedResponseBodyResponse> res = service.requestHeaderNestedResponseBody(
+                    this.client.getEndpoint(), token, foo, bar, accept, updatedContext);
+                return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
+                    res.getValue().getNestedItems().getPets(),
+                    res.getValue().getNestedNext() != null && res.getValue().getNestedNext().getNextToken() != null
+                        ? res.getValue().getNestedNext().getNextToken()
+                        : null,
+                    null, null, null, null);
+            });
+    }
+
+    /**
+     * The requestHeaderNestedResponseBody operation.
+     * 
+     * @param token The token parameter.
+     * @param foo The foo parameter.
+     * @param bar The bar parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<Pet> requestHeaderNestedResponseBodySinglePage(String token, String foo, String bar,
+        RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse(
+            "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestHeaderNestedResponseBody", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                Response<RequestHeaderNestedResponseBodyResponse> res = service.requestHeaderNestedResponseBody(
+                    this.client.getEndpoint(), token, foo, bar, accept, updatedContext);
+                return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
+                    res.getValue().getNestedItems().getPets(),
+                    res.getValue().getNestedNext() != null && res.getValue().getNestedNext().getNextToken() != null
+                        ? res.getValue().getNestedNext().getNextToken()
+                        : null,
+                    null, null, null, null);
+            });
+    }
+
+    /**
+     * The requestHeaderNestedResponseBody operation.
+     * 
+     * @param token The token parameter.
+     * @param foo The foo parameter.
+     * @param bar The bar parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> requestHeaderNestedResponseBody(String foo, String bar) {
+        return new PagedIterable<>((pagingOptions) -> {
+            if (pagingOptions.getOffset() != null) {
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "offset")
+                    .addKeyValue("methodName", "requestHeaderNestedResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
+            }
+            if (pagingOptions.getPageSize() != null) {
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageSize")
+                    .addKeyValue("methodName", "requestHeaderNestedResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
+            }
+            if (pagingOptions.getPageIndex() != null) {
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageIndex")
+                    .addKeyValue("methodName", "requestHeaderNestedResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
+            }
+            String token = pagingOptions.getContinuationToken();
+            return requestHeaderNestedResponseBodySinglePage(token, foo, bar);
+        });
+    }
+
+    /**
+     * The requestHeaderNestedResponseBody operation.
+     * 
+     * @param token The token parameter.
+     * @param foo The foo parameter.
+     * @param bar The bar parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> requestHeaderNestedResponseBody(String foo, String bar, RequestContext requestContext) {
+        return new PagedIterable<>((pagingOptions) -> {
+            if (pagingOptions.getOffset() != null) {
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "offset")
+                    .addKeyValue("methodName", "requestHeaderNestedResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
+            }
+            if (pagingOptions.getPageSize() != null) {
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageSize")
+                    .addKeyValue("methodName", "requestHeaderNestedResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
+            }
+            if (pagingOptions.getPageIndex() != null) {
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageIndex")
+                    .addKeyValue("methodName", "requestHeaderNestedResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
+            }
+            String token = pagingOptions.getContinuationToken();
+            return requestHeaderNestedResponseBodySinglePage(token, foo, bar, requestContext);
         });
     }
 

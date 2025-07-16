@@ -3,7 +3,6 @@ package versioning.madeoptional.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -15,6 +14,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import versioning.madeoptional.MadeOptionalServiceVersion;
 import versioning.madeoptional.TestModel;
@@ -71,18 +71,34 @@ public final class MadeOptionalClientImpl {
     }
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
      * Initializes an instance of MadeOptionalClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
      * @param serviceVersion Service version.
      */
-    public MadeOptionalClientImpl(HttpPipeline httpPipeline, String endpoint,
+    public MadeOptionalClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint,
         MadeOptionalServiceVersion serviceVersion) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
         this.serviceVersion = serviceVersion;
-        this.service = RestProxy.create(MadeOptionalClientService.class, this.httpPipeline);
+        this.service = MadeOptionalClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -124,39 +140,12 @@ public final class MadeOptionalClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<TestModel> testWithResponse(TestModel body, String param, RequestContext requestContext) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.test(this.getEndpoint(), this.getServiceVersion().getVersion(), param, contentType, accept, body,
-            requestContext);
-    }
-
-    /**
-     * The test operation.
-     * 
-     * @param body The body parameter.
-     * @param param The param parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public TestModel test(TestModel body, String param) {
-        return testWithResponse(body, param, RequestContext.none()).getValue();
-    }
-
-    /**
-     * The test operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public TestModel test(TestModel body) {
-        final String param = null;
-        return testWithResponse(body, param, RequestContext.none()).getValue();
+        return this.instrumentation.instrumentWithResponse("Versioning.MadeOptional.test", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.test(this.getEndpoint(), this.getServiceVersion().getVersion(), param, contentType,
+                    accept, body, updatedContext);
+            });
     }
 }

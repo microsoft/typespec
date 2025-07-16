@@ -6,6 +6,7 @@ import com.azure.v2.core.http.polling.PollingStrategyOptions;
 import io.clientcore.core.http.models.HttpHeader;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.CoreException;
 import io.clientcore.core.models.binarydata.BinaryData;
 import io.clientcore.core.serialization.ObjectSerializer;
 import io.clientcore.core.serialization.json.JsonSerializer;
@@ -93,10 +94,11 @@ public final class OperationLocationPollingStrategy<T, U> extends OperationResou
             return new PollResponse<>(LongRunningOperationStatus.IN_PROGRESS, initialResponseType, retryAfter);
         }
 
-        throw LOGGER.logThrowableAsError(new RuntimeException(
-            String.format("Operation failed or cancelled with status code %d, '%s' header: %s, and response body: %s",
-                response.getStatusCode(), PollingUtils.OPERATION_LOCATION_HEADER, operationLocationHeader,
-                response.getValue())));
+        throw LOGGER.throwableAtError()
+            .addKeyValue(PollingUtils.OPERATION_LOCATION_HEADER, operationLocationHeader)
+            .addKeyValue("statusCode", response.getStatusCode())
+            .addKeyValue("responseBody", response.getValue())
+            .log("Operation failed or cancelled", RuntimeException::new);
     }
 
     /**
@@ -104,9 +106,9 @@ public final class OperationLocationPollingStrategy<T, U> extends OperationResou
      */
     public U getResult(PollingContext<T> pollingContext, Type resultType) {
         if (pollingContext.getLatestResponse().getStatus() == LongRunningOperationStatus.FAILED) {
-            throw LOGGER.logThrowableAsError(new RuntimeException("Long running operation failed."));
+            throw LOGGER.throwableAtError().log("Long running operation failed.", RuntimeException::new);
         } else if (pollingContext.getLatestResponse().getStatus() == LongRunningOperationStatus.USER_CANCELLED) {
-            throw LOGGER.logThrowableAsError(new RuntimeException("Long running operation cancelled."));
+            throw LOGGER.throwableAtError().log("Long running operation cancelled.", RuntimeException::new);
         }
         if (propertyName != null) {
             // take the last poll response body from PollingContext,
@@ -119,7 +121,7 @@ public final class OperationLocationPollingStrategy<T, U> extends OperationResou
                 return PollingUtils.deserializeResponse(BinaryData.fromObject(pollResult.get(propertyName)),
                     serializer, resultType);
             } else {
-                throw LOGGER.logThrowableAsError(new RuntimeException("Cannot get final result"));
+                throw LOGGER.throwableAtError().log("Cannot get final result", RuntimeException::new);
             }
         } else {
             return super.getResult(pollingContext, resultType);

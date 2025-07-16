@@ -10,10 +10,13 @@ import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PollingSettings;
+import com.microsoft.typespec.http.client.generator.mgmt.model.ResourceCollectionAssociation;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private String namespace;
@@ -31,13 +34,20 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private Boolean includeApiViewProperties = true;
     private String packageVersion;
     private Boolean useObjectForUnknown = false;
-    private Boolean useEclipseLanguageServer = true;
     private Map<String, PollingSettings> polling = new HashMap<>();
     private String modelsSubpackage;
     private String apiVersion;
     private Boolean useRestProxy;
-    private String renameModel;
+    private Boolean useDefaultHttpStatusCodeToExceptionTypeMapping = true;
     private DevOptions devOptions;
+
+    // mgmt
+    private String renameModel;
+    private String addInner;
+    private String removeInner;
+    private String preserveModel;
+    private Boolean generateAsyncMethods;
+    private List<ResourceCollectionAssociation> resourceCollectionAssociations = new ArrayList<>();
 
     // internal
     private String outputDir;
@@ -88,10 +98,6 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
 
     public Boolean getUseObjectForUnknown() {
         return useObjectForUnknown;
-    }
-
-    public Boolean getUseEclipseLanguageServer() {
-        return useEclipseLanguageServer;
     }
 
     public List<String> getServiceVersions() {
@@ -154,6 +160,30 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return renameModel;
     }
 
+    public String getAddInner() {
+        return addInner;
+    }
+
+    public String getRemoveInner() {
+        return removeInner;
+    }
+
+    public String getPreserveModel() {
+        return preserveModel;
+    }
+
+    public Boolean getGenerateAsyncMethods() {
+        return generateAsyncMethods;
+    }
+
+    public List<ResourceCollectionAssociation> getResourceCollectionAssociations() {
+        return resourceCollectionAssociations;
+    }
+
+    public Boolean getUseDefaultHttpStatusCodeToExceptionTypeMapping() {
+        return useDefaultHttpStatusCodeToExceptionTypeMapping;
+    }
+
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         // it does not need to be written to JSON
@@ -192,8 +222,6 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                 options.includeApiViewProperties = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("use-object-for-unknown".equals(fieldName)) {
                 options.useObjectForUnknown = reader.getNullable(EmitterOptions::getBoolean);
-            } else if ("use-eclipse-language-server".equals(fieldName)) {
-                options.useEclipseLanguageServer = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("polling".equals(fieldName)) {
                 options.polling = reader.readMap(PollingSettings::fromJson);
             } else if ("arm".equals(fieldName)) {
@@ -209,9 +237,21 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
             } else if ("api-version".equals(fieldName)) {
                 options.apiVersion = emptyToNull(reader.getString());
             } else if ("use-rest-proxy".equals(fieldName)) {
-                options.useRestProxy = reader.getNullable(JsonReader::getBoolean);
+                options.useRestProxy = reader.getNullable(EmitterOptions::getBoolean);
+            } else if ("use-default-http-status-code-to-exception-type-mapping".equals(fieldName)) {
+                options.useDefaultHttpStatusCodeToExceptionTypeMapping = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("rename-model".equals(fieldName)) {
                 options.renameModel = reader.getNullable(EmitterOptions::getStringOrMap);
+            } else if ("add-inner".equals(fieldName)) {
+                options.addInner = reader.getNullable(EmitterOptions::getStringOrList);
+            } else if ("remove-inner".equals(fieldName)) {
+                options.removeInner = reader.getNullable(EmitterOptions::getStringOrList);
+            } else if ("preserve-model".equals(fieldName)) {
+                options.preserveModel = reader.getNullable(EmitterOptions::getStringOrList);
+            } else if ("generate-async-methods".equals(fieldName)) {
+                options.generateAsyncMethods = reader.getNullable(EmitterOptions::getBoolean);
+            } else if ("resource-collection-associations".equals(fieldName)) {
+                options.resourceCollectionAssociations = reader.readArray(ResourceCollectionAssociation::fromJson);
             } else {
                 reader.skipChildren();
             }
@@ -248,12 +288,30 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                 return renameMap.entrySet()
                     .stream()
                     .map(e -> e.getKey() + ":" + e.getValue())
-                    .reduce("", (s1, s2) -> s1 + "," + s2);
+                    .collect(Collectors.joining(","));
             } else {
                 return null;
             }
-        } else {
-            return null;
+        } else if (currentToken == JsonToken.START_ARRAY) {
+            jsonReader.skipChildren();
         }
+        throw new IllegalStateException("Unexpected token to begin object deserialization: " + currentToken);
+    }
+
+    private static String getStringOrList(JsonReader jsonReader) throws IOException {
+        JsonToken currentToken = jsonReader.currentToken();
+        if (currentToken == JsonToken.STRING) {
+            return jsonReader.getString();
+        } else if (currentToken == JsonToken.START_ARRAY) {
+            List<String> list = jsonReader.readArray(JsonReader::getString);
+            if (!list.isEmpty()) {
+                return String.join(",", list);
+            } else {
+                return null;
+            }
+        } else if (currentToken == JsonToken.START_OBJECT) {
+            jsonReader.skipChildren();
+        }
+        throw new IllegalStateException("Unexpected token to begin object deserialization: " + currentToken);
     }
 }

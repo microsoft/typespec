@@ -107,13 +107,14 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 "sampleType",
                 [("value1", "value1"), ("value2", "value2")],
                 usage: InputModelTypeUsage.Input);
-            var declaringType = new Mock<TypeProvider>().Object;
+            var declaringType = new TestTypeProvider();
+
             var expected = CodeModelGenerator.Instance.TypeFactory.CreateEnum(input, declaringType);
             var actual = CodeModelGenerator.Instance.TypeFactory.CreateEnum(input, declaringType);
             Assert.IsTrue(ReferenceEquals(expected, actual));
 
             // Validate that a new type is created when the declaring type is different
-            var declaringType2 = new Mock<TypeProvider>().Object;
+            var declaringType2 = new TestTypeProvider();
             var expected2 = CodeModelGenerator.Instance.TypeFactory.CreateEnum(input, declaringType2);
             var actual2 = CodeModelGenerator.Instance.TypeFactory.CreateEnum(input, declaringType2);
             Assert.IsTrue(ReferenceEquals(expected2, actual2));

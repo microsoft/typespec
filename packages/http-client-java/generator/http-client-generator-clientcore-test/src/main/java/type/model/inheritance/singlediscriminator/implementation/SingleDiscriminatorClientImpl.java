@@ -3,7 +3,6 @@ package type.model.inheritance.singlediscriminator.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -14,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import type.model.inheritance.singlediscriminator.Bird;
 import type.model.inheritance.singlediscriminator.Dinosaur;
@@ -56,22 +56,38 @@ public final class SingleDiscriminatorClientImpl {
     }
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
      * Initializes an instance of SingleDiscriminatorClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
      */
-    public SingleDiscriminatorClientImpl(HttpPipeline httpPipeline, String endpoint) {
+    public SingleDiscriminatorClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
-        this.service = RestProxy.create(SingleDiscriminatorClientService.class, this.httpPipeline);
+        this.service = SingleDiscriminatorClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
      * The interface defining all the services for SingleDiscriminatorClient to be used by the proxy service to perform
      * REST calls.
      */
-    @ServiceInterface(name = "SingleDiscriminatorC", host = "{endpoint}")
+    @ServiceInterface(name = "SingleDiscriminatorClient", host = "{endpoint}")
     public interface SingleDiscriminatorClientService {
         static SingleDiscriminatorClientService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -155,20 +171,11 @@ public final class SingleDiscriminatorClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Bird> getModelWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getModel(this.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * The getModel operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return this is base model for polymorphic single level inheritance with a discriminator.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Bird getModel() {
-        return getModelWithResponse(RequestContext.none()).getValue();
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.SingleDiscriminator.getModel",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getModel(this.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -183,21 +190,11 @@ public final class SingleDiscriminatorClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putModelWithResponse(Bird input, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.putModel(this.getEndpoint(), contentType, input, requestContext);
-    }
-
-    /**
-     * The putModel operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putModel(Bird input) {
-        putModelWithResponse(input, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.SingleDiscriminator.putModel",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                return service.putModel(this.getEndpoint(), contentType, input, updatedContext);
+            });
     }
 
     /**
@@ -211,20 +208,11 @@ public final class SingleDiscriminatorClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Bird> getRecursiveModelWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getRecursiveModel(this.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * The getRecursiveModel operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return this is base model for polymorphic single level inheritance with a discriminator.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Bird getRecursiveModel() {
-        return getRecursiveModelWithResponse(RequestContext.none()).getValue();
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.SingleDiscriminator.getRecursiveModel", requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getRecursiveModel(this.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -239,21 +227,11 @@ public final class SingleDiscriminatorClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putRecursiveModelWithResponse(Bird input, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.putRecursiveModel(this.getEndpoint(), contentType, input, requestContext);
-    }
-
-    /**
-     * The putRecursiveModel operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putRecursiveModel(Bird input) {
-        putRecursiveModelWithResponse(input, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.SingleDiscriminator.putRecursiveModel", requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                return service.putRecursiveModel(this.getEndpoint(), contentType, input, updatedContext);
+            });
     }
 
     /**
@@ -267,20 +245,11 @@ public final class SingleDiscriminatorClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Bird> getMissingDiscriminatorWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getMissingDiscriminator(this.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * The getMissingDiscriminator operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return this is base model for polymorphic single level inheritance with a discriminator.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Bird getMissingDiscriminator() {
-        return getMissingDiscriminatorWithResponse(RequestContext.none()).getValue();
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.SingleDiscriminator.getMissingDiscriminator", requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getMissingDiscriminator(this.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -294,20 +263,11 @@ public final class SingleDiscriminatorClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Bird> getWrongDiscriminatorWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getWrongDiscriminator(this.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * The getWrongDiscriminator operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return this is base model for polymorphic single level inheritance with a discriminator.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Bird getWrongDiscriminator() {
-        return getWrongDiscriminatorWithResponse(RequestContext.none()).getValue();
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.SingleDiscriminator.getWrongDiscriminator", requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getWrongDiscriminator(this.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -321,19 +281,10 @@ public final class SingleDiscriminatorClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Dinosaur> getLegacyModelWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getLegacyModel(this.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * The getLegacyModel operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return define a base class in the legacy way.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Dinosaur getLegacyModel() {
-        return getLegacyModelWithResponse(RequestContext.none()).getValue();
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.SingleDiscriminator.getLegacyModel",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getLegacyModel(this.getEndpoint(), accept, updatedContext);
+            });
     }
 }

@@ -57,7 +57,7 @@ public final class NullableFloatValuesImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArrayClientNullableF")
+    @ServiceInterface(name = "ArrayClientNullableFloatValues")
     public interface NullableFloatValuesService {
         @Get("/type/array/nullable-float")
         @ExpectedResponses({ 200 })

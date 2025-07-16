@@ -57,7 +57,7 @@ public final class DatetimeValuesImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArrayClientDatetimeV")
+    @ServiceInterface(name = "ArrayClientDatetimeValues")
     public interface DatetimeValuesService {
         @Get("/type/array/datetime")
         @ExpectedResponses({ 200 })

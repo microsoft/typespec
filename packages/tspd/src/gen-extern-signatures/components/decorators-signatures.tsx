@@ -1,4 +1,12 @@
-import * as ay from "@alloy-js/core";
+import {
+  For,
+  Output,
+  OutputDirectory,
+  Refkey,
+  refkey,
+  render,
+  StatementList,
+} from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Program } from "@typespec/compiler";
 import { typespecCompiler } from "../external-packages/compiler.js";
@@ -14,7 +22,7 @@ import { createTspdContext, TspdContext, useTspd } from "./tspd-context.js";
 export interface DecoratorSignaturesProps {
   decorators: DecoratorSignature[];
   namespaceName: string;
-  dollarDecoratorsRefKey: ay.Refkey;
+  dollarDecoratorsRefKey: Refkey;
 }
 
 export function DecoratorSignatures({
@@ -27,11 +35,11 @@ export function DecoratorSignatures({
       <LocalTypes />
       <hbr />
       <hbr />
-      <ay.For each={decorators} doubleHardline>
+      <For each={decorators} doubleHardline>
         {(signature) => {
           return <DecoratorSignatureType signature={signature} />;
         }}
-      </ay.For>
+      </For>
       <hbr />
       <hbr />
       <DollarDecoratorsType
@@ -46,17 +54,17 @@ export function DecoratorSignatures({
 export function LocalTypes() {
   const { localTypes } = useTspd();
   return (
-    <ay.StatementList>
-      <ay.For each={localTypes} doubleHardline>
+    <StatementList>
+      <For each={localTypes} doubleHardline>
         {(type) => {
           return (
-            <ts.InterfaceDeclaration export name={type.name} refkey={ay.refkey(type)}>
+            <ts.InterfaceDeclaration export name={type.name} refkey={refkey(type)}>
               <ValueOfModelTsInterfaceBody model={type} />
             </ts.InterfaceDeclaration>
           );
         }}
-      </ay.For>
-    </ay.StatementList>
+      </For>
+    </StatementList>
   );
 }
 
@@ -65,10 +73,10 @@ export function generateSignatures(
   decorators: DecoratorSignature[],
   libraryName: string,
   namespaceName: string,
-): ay.OutputDirectory {
+): OutputDirectory {
   const context = createTspdContext(program);
   const base = namespaceName === "" ? "__global__" : namespaceName;
-  const $decoratorsRef = ay.refkey();
+  const $decoratorsRef = refkey();
   const userLib = ts.createPackage({
     name: libraryName,
     version: "0.0.0",
@@ -81,7 +89,7 @@ export function generateSignatures(
 
   const jsxContent = (
     <TspdContext.Provider value={context}>
-      <ay.Output externals={[typespecCompiler, userLib]}>
+      <Output externals={[typespecCompiler, userLib]}>
         <ts.SourceFile path={`${base}.ts`}>
           <DecoratorSignatures
             namespaceName={namespaceName}
@@ -101,9 +109,9 @@ export function generateSignatures(
             />
           </ts.SourceFile>
         )}
-      </ay.Output>
+      </Output>
     </TspdContext.Provider>
   );
 
-  return ay.render(jsxContent);
+  return render(jsxContent);
 }

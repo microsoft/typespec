@@ -33,8 +33,7 @@ from .patch_serializer import PatchSerializer
 from .sample_serializer import SampleSerializer
 from .test_serializer import TestSerializer, TestGeneralSerializer
 from .types_serializer import TypesSerializer
-from ...utils import to_snake_case
-from .._utils import VALID_PACKAGE_MODE
+from ...utils import to_snake_case, VALID_PACKAGE_MODE
 from .utils import (
     extract_sample_name,
     get_namespace_from_package_name,
@@ -84,11 +83,11 @@ class JinjaSerializer(ReaderAndWriter):
 
     @property
     def has_aio_folder(self) -> bool:
-        return not self.code_model.options["no_async"] and bool(self.code_model.has_operations)
+        return not self.code_model.options["no-async"] and bool(self.code_model.has_operations)
 
     @property
     def has_operations_folder(self) -> bool:
-        return self.code_model.options["show_operations"] and bool(self.code_model.has_operations)
+        return self.code_model.options["show-operations"] and bool(self.code_model.has_operations)
 
     @property
     def serialize_loop(self) -> List[AsyncInfo]:
@@ -98,7 +97,7 @@ class JinjaSerializer(ReaderAndWriter):
 
     @property
     def keep_version_file(self) -> bool:
-        if self.options.get("keep_version_file"):
+        if self.options.get("keep-version-file"):
             return True
         # If the version file is already there and the version is greater than the current version, keep it.
         try:
@@ -107,7 +106,7 @@ class JinjaSerializer(ReaderAndWriter):
             serialized_version = match.group(1) if match else ""
         except (FileNotFoundError, IndexError):
             serialized_version = ""
-        return serialized_version > self.code_model.options["package_version"]
+        return serialized_version > self.code_model.options.get("package-version", "")
 
     def serialize(self) -> None:
         env = Environment(
@@ -124,25 +123,25 @@ class JinjaSerializer(ReaderAndWriter):
             exec_path = self.exec_path(client_namespace)
             if client_namespace == "":
                 # Write the setup file
-                if self.code_model.options["basic_setup_py"]:
+                if self.code_model.options["basic-setup-py"]:
                     self.write_file(exec_path / Path("setup.py"), general_serializer.serialize_setup_file())
 
                 # add packaging files in root namespace (e.g. setup.py, README.md, etc.)
-                if self.code_model.options["package_mode"]:
+                if self.code_model.options.get("package-mode"):
                     self._serialize_and_write_package_files(client_namespace)
 
                 # write apiview-properties.json
-                if self.code_model.options.get("emit_cross_language_definition_file"):
+                if self.code_model.options.get("emit-cross-language-definition-file"):
                     self.write_file(
                         exec_path / Path("apiview-properties.json"),
                         general_serializer.serialize_cross_language_definition_file(),
                     )
 
                 # add generated samples and generated tests
-                if self.code_model.options["show_operations"] and self.code_model.has_operations:
-                    if self.code_model.options["generate_sample"]:
+                if self.code_model.options["show-operations"] and self.code_model.has_operations:
+                    if self.code_model.options["generate-sample"]:
                         self._serialize_and_write_sample(env, namespace=client_namespace)
-                    if self.code_model.options["generate_test"]:
+                    if self.code_model.options["generate-test"]:
                         self._serialize_and_write_test(env, namespace=client_namespace)
 
                 # add _metadata.json
@@ -169,7 +168,7 @@ class JinjaSerializer(ReaderAndWriter):
             # add models folder if there are models in this namespace
             if (
                 self.code_model.has_non_json_models(client_namespace_type.models) or client_namespace_type.enums
-            ) and self.code_model.options["models_mode"]:
+            ) and self.code_model.options["models-mode"]:
                 self._serialize_and_write_models_folder(
                     env=env,
                     namespace=client_namespace,
@@ -177,7 +176,7 @@ class JinjaSerializer(ReaderAndWriter):
                     enums=client_namespace_type.enums,
                 )
 
-            if not self.code_model.options["models_mode"]:
+            if not self.code_model.options["models-mode"]:
                 # keep models file if users ended up just writing a models file
                 model_path = exec_path / Path("models.py")
                 if self.read_file(model_path):
@@ -201,7 +200,7 @@ class JinjaSerializer(ReaderAndWriter):
 
     def _serialize_and_write_package_files(self, client_namespace: str) -> None:
         root_of_sdk = self.exec_path(client_namespace)
-        if self.code_model.options["package_mode"] in VALID_PACKAGE_MODE:
+        if self.code_model.options["package-mode"] in VALID_PACKAGE_MODE:
             env = Environment(
                 loader=PackageLoader("pygen.codegen", "templates/packaging_templates"),
                 undefined=StrictUndefined,
@@ -212,9 +211,9 @@ class JinjaSerializer(ReaderAndWriter):
             package_files = _PACKAGE_FILES
             if not self.code_model.license_description:
                 package_files.remove("LICENSE.jinja2")
-        elif Path(self.code_model.options["package_mode"]).exists():
+        elif Path(self.code_model.options["package-mode"]).exists():
             env = Environment(
-                loader=FileSystemLoader(str(Path(self.code_model.options["package_mode"]))),
+                loader=FileSystemLoader(str(Path(self.code_model.options["package-mode"]))),
                 keep_trailing_newline=True,
                 undefined=StrictUndefined,
             )
@@ -222,7 +221,7 @@ class JinjaSerializer(ReaderAndWriter):
         else:
             return
         serializer = GeneralSerializer(self.code_model, env, async_mode=False)
-        params = self.code_model.options["packaging_files_config"] or {}
+        params = self.code_model.options.get("packaging-files-config", {})
         for template_name in package_files:
             if not self.code_model.is_azure_flavor and template_name == "dev_requirements.txt.jinja2":
                 continue
@@ -251,7 +250,7 @@ class JinjaSerializer(ReaderAndWriter):
     ) -> None:
         # Write the models folder
         models_path = self.exec_path(namespace) / "models"
-        serializer = DpgModelSerializer if self.code_model.options["models_mode"] == "dpg" else MsrestModelSerializer
+        serializer = DpgModelSerializer if self.code_model.options["models-mode"] == "dpg" else MsrestModelSerializer
         if self.code_model.has_non_json_models(models):
             self.write_file(
                 models_path / Path(f"{self.code_model.models_filename}.py"),
@@ -332,7 +331,7 @@ class JinjaSerializer(ReaderAndWriter):
 
             # write operations file
             OgLoop = namedtuple("OgLoop", ["operation_groups", "filename"])
-            if self.code_model.options["combine_operation_files"]:
+            if self.code_model.options["combine-operation-files"]:
                 loops = [OgLoop(operation_groups, "_operations")]
             else:
                 loops = [OgLoop([og], og.filename) for og in operation_groups]
@@ -372,7 +371,7 @@ class JinjaSerializer(ReaderAndWriter):
             _write_version_file(original_version_file_name="_version.py")
         elif self.keep_version_file and _read_version_file("version.py"):
             _write_version_file(original_version_file_name="version.py")
-        elif self.code_model.options["package_version"]:
+        elif self.code_model.options.get("package-version"):
             self.write_file(
                 exec_path / Path("_version.py"),
                 general_serializer.serialize_version_file(),
@@ -437,7 +436,7 @@ class JinjaSerializer(ReaderAndWriter):
             )
 
         # write _model_base.py
-        if self.code_model.options["models_mode"] == "dpg":
+        if self.code_model.options["models-mode"] == "dpg":
             self.write_file(
                 utils_folder_path / Path("model_base.py"),
                 general_serializer.serialize_model_base_file(),
@@ -479,7 +478,7 @@ class JinjaSerializer(ReaderAndWriter):
         """Assume the process is running in the root folder of the package. If not, we need the path compensation."""
         return (
             Path("../" * (self.code_model.namespace.count(".") + 1))
-            if self.code_model.options["no_namespace_folders"]
+            if self.code_model.options["no-namespace-folders"]
             else Path(".")
         )
 
@@ -488,7 +487,7 @@ class JinjaSerializer(ReaderAndWriter):
 
     # pylint: disable=line-too-long
     def exec_path(self, namespace: str) -> Path:
-        if self.code_model.options["no_namespace_folders"] and not self.code_model.options["multiapi"]:
+        if self.code_model.options["no-namespace-folders"] and not self.code_model.options["multiapi"]:
             # when output folder contains parts different from the namespace, we fall back to current folder directly.
             # (e.g. https://github.com/Azure/azure-sdk-for-python/blob/main/sdk/communication/azure-communication-callautomation/swagger/SWAGGER.md)
             return Path(".")
@@ -506,7 +505,7 @@ class JinjaSerializer(ReaderAndWriter):
         namespace_config = get_namespace_config(self.code_model.namespace, self.code_model.options["multiapi"])
         num_of_namespace = namespace_config.count(".") + 1
         num_of_package_namespace = (
-            get_namespace_from_package_name(self.code_model.options["package_name"]).count(".") + 1
+            get_namespace_from_package_name(self.code_model.options.get("namespace", "")).count(".") + 1
         )
         if num_of_namespace > num_of_package_namespace:
             return Path("/".join(namespace_config.split(".")[num_of_package_namespace:]))
@@ -519,7 +518,7 @@ class JinjaSerializer(ReaderAndWriter):
                 for operation in op_group.operations:
                     if (
                         self.code_model.options["multiapi"]
-                        and operation.api_versions[0] != self.code_model.options["default_api_version"]
+                        and operation.api_versions[0] != self.code_model.options["default-api-version"]
                     ):
                         continue
                     samples = operation.yaml_data.get("samples")
@@ -550,7 +549,7 @@ class JinjaSerializer(ReaderAndWriter):
         out_path = self.exec_path_for_test_sample(namespace) / Path("generated_tests")
         general_serializer = TestGeneralSerializer(code_model=self.code_model, env=env)
         self.write_file(out_path / "conftest.py", general_serializer.serialize_conftest())
-        if not self.code_model.options["azure_arm"]:
+        if not self.code_model.options["azure-arm"]:
             for async_mode in (True, False):
                 async_suffix = "_async" if async_mode else ""
                 general_serializer.async_mode = async_mode
@@ -562,7 +561,7 @@ class JinjaSerializer(ReaderAndWriter):
         for client in self.code_model.clients:
             for og in client.operation_groups:
                 if self.code_model.options["multiapi"] and any(
-                    o.api_versions[0] != self.code_model.options["default_api_version"] for o in og.operations
+                    o.api_versions[0] != self.code_model.options["default-api-version"] for o in og.operations
                 ):
                     continue
                 test_serializer = TestSerializer(self.code_model, env, client=client, operation_group=og)

@@ -289,6 +289,16 @@ public class ClassType implements IType {
 
     public static final ClassType VOID = new ClassType.Builder(false).knownClass(Void.class).build();
 
+    public static final ClassType INSTRUMENTATION
+        = new ClassType.Builder(false).packageName("io.clientcore.core.instrumentation")
+            .name("Instrumentation")
+            .build();
+
+    public static final ClassType SDK_INSTRUMENTATION_OPTIONS
+        = new ClassType.Builder(false).packageName("io.clientcore.core.instrumentation")
+            .name("SdkInstrumentationOptions")
+            .build();
+
     public static final ClassType BOOLEAN = new Builder(false).knownClass(Boolean.class)
         .defaultValueExpressionConverter(String::toLowerCase)
         .jsonToken("JsonToken.BOOLEAN")

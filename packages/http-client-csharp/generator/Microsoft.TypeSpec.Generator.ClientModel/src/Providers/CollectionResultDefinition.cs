@@ -70,7 +70,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var field = new FieldProvider(
                     FieldModifiers.Private | FieldModifiers.ReadOnly,
                     parameter.Type,
-                    $"_{parameter.Name}",
+                    $"_{parameter.Name.ToVariableName()}",
                     this);
                 fields.Add(field);
                 if (field.Name == "_options")
@@ -314,7 +314,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // Declare the initial request message
                 Declare(
                     "message",
-                    InvokeCreateRequestForNextLink(_requestFields[0].As<Uri>()),
+                    InvokeCreateInitialRequest(),
                     out ScopedApi<PipelineMessage> message),
 
                 // Declare nextPageUri variable
@@ -388,7 +388,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var pipelineMessageDeclaration = Declare(
                     "message",
-                    InvokeCreateRequestForSingle(),
+                    InvokeCreateInitialRequest(),
                     out ScopedApi<PipelineMessage> m);
             var pipelineResponse = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(
                         _clientField.Property("Pipeline").ToApi<ClientPipelineApi>().ProcessMessage(
@@ -435,11 +435,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private ScopedApi<PipelineMessage> InvokeCreateRequestForNextLink(ValueExpression nextPageUri) => _clientField.Invoke(
-            _createRequestMethodName,
-            // we replace the first argument (the initialUri) with the nextPageUri
-            [nextPageUri, .. _requestFields.Skip(1)])
-            .As<PipelineMessage>();
+        private ScopedApi<PipelineMessage> InvokeCreateRequestForNextLink(ValueExpression nextPageUri)
+        {
+            var createNextLinkRequestMethodName =
+                _client.RestClient.GetCreateNextLinkRequestMethod(_operation).Signature.Name;
+            return _clientField.Invoke(
+                    createNextLinkRequestMethodName,
+                    [nextPageUri, .._requestFields])
+                .As<PipelineMessage>();
+        }
 
         private ScopedApi<PipelineMessage> InvokeCreateRequestForContinuationToken(ValueExpression nextToken)
         {
@@ -451,7 +455,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return _clientField.Invoke(_createRequestMethodName, arguments).As<PipelineMessage>();
         }
 
-        private ScopedApi<PipelineMessage> InvokeCreateRequestForSingle()
+        private ScopedApi<PipelineMessage> InvokeCreateInitialRequest()
         {
             ValueExpression[] arguments = [.. _requestFields.Select(f => f.AsValueExpression)];
 

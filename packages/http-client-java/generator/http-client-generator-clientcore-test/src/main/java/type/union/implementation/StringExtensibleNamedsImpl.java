@@ -3,7 +3,6 @@ package type.union.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -14,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import type.union.GetResponse2;
 import type.union.StringExtensibleNamedUnion;
@@ -33,20 +33,26 @@ public final class StringExtensibleNamedsImpl {
     private final UnionClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of StringExtensibleNamedsImpl.
      * 
      * @param client the instance of the service client containing this operation class.
      */
     StringExtensibleNamedsImpl(UnionClientImpl client) {
-        this.service = RestProxy.create(StringExtensibleNamedsService.class, client.getHttpPipeline());
+        this.service = StringExtensibleNamedsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
      * The interface defining all the services for UnionClientStringExtensibleNameds to be used by the proxy service to
      * perform REST calls.
      */
-    @ServiceInterface(name = "UnionClientStringExt", host = "{endpoint}")
+    @ServiceInterface(name = "UnionClientStringExtensibleNameds", host = "{endpoint}")
     public interface StringExtensibleNamedsService {
         static StringExtensibleNamedsService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -88,20 +94,11 @@ public final class StringExtensibleNamedsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<GetResponse2> getWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.get(this.client.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * The get operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public GetResponse2 get() {
-        return getWithResponse(RequestContext.none()).getValue();
+        return this.instrumentation.instrumentWithResponse("Type.Union.StringExtensibleNamed.get", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.get(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -116,21 +113,11 @@ public final class StringExtensibleNamedsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> sendWithResponse(StringExtensibleNamedUnion prop, RequestContext requestContext) {
-        final String contentType = "application/json";
-        SendRequest2 sendRequest2 = new SendRequest2(prop);
-        return service.send(this.client.getEndpoint(), contentType, sendRequest2, requestContext);
-    }
-
-    /**
-     * The send operation.
-     * 
-     * @param prop The prop parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void send(StringExtensibleNamedUnion prop) {
-        sendWithResponse(prop, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Type.Union.StringExtensibleNamed.send", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                SendRequest2 sendRequest2 = new SendRequest2(prop);
+                return service.send(this.client.getEndpoint(), contentType, sendRequest2, updatedContext);
+            });
     }
 }

@@ -40,7 +40,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
         public void ValidateModifiers()
         {
             var modifiers = _namedTypeSymbolProvider.DeclarationModifiers;
-            Assert.IsTrue(modifiers.HasFlag(TypeSignatureModifiers.Public | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class));
+            Assert.IsTrue(modifiers.HasFlag(TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class));
         }
 
         [Test]

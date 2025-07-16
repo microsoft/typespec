@@ -9,6 +9,7 @@ import {
   isTemplateDeclaration,
   joinPaths,
 } from "@typespec/compiler";
+import { $ } from "@typespec/compiler/typekit";
 import { CustomKeyMap } from "./custom-key-map.js";
 import { Placeholder } from "./placeholder.js";
 import { resolveDeclarationReferenceScope } from "./ref-scope.js";
@@ -753,7 +754,7 @@ export function createAssetEmitter<T, TOptions extends object>(
   function typeEmitterKey(type: Type) {
     switch (type.kind) {
       case "Model":
-        if (program.checker.isStdType(type) && type.name === "Array") {
+        if ($(program).array.is(type) && type.name === "Array") {
           // likely an array literal, though could be a bare reference to Array maybe?
           return "arrayLiteral";
         }

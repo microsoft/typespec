@@ -55,7 +55,7 @@ public final class ResponseBodiesImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "BytesClientResponseB")
+    @ServiceInterface(name = "BytesClientResponseBodies")
     public interface ResponseBodiesService {
         @Get("/encode/bytes/body/response/default")
         @ExpectedResponses({ 200 })

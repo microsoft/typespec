@@ -46,7 +46,7 @@ class {{ client.name }}Configuration:  {{ client.config.pylint_disable() }}
         self.proxy_policy = kwargs.get('proxy_policy') or policies.ProxyPolicy(**kwargs)
         self.logging_policy = kwargs.get('logging_policy') or policies.NetworkTraceLoggingPolicy(**kwargs)
         {% if code_model.is_azure_flavor %}
-        self.http_logging_policy = kwargs.get('http_logging_policy') or {{ "ARM" if client.code_model.options['azure_arm'] else "policies." }}HttpLoggingPolicy(**kwargs)
+        self.http_logging_policy = kwargs.get('http_logging_policy') or {{ "ARM" if client.code_model.options["azure-arm"] else "policies." }}HttpLoggingPolicy(**kwargs)
         self.custom_hook_policy = kwargs.get('custom_hook_policy') or policies.CustomHookPolicy(**kwargs)
         self.redirect_policy = kwargs.get('redirect_policy') or policies.{{ keywords.async_class }}RedirectPolicy(**kwargs)
         {% endif %}

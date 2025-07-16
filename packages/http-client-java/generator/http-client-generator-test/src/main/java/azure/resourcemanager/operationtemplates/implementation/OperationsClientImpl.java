@@ -61,7 +61,7 @@ public final class OperationsClientImpl implements OperationsClient {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "OperationTemplatesCl")
+    @ServiceInterface(name = "OperationTemplatesClientOperations")
     public interface OperationsService {
         @Headers({ "Content-Type: application/json" })
         @Get("/providers/Azure.ResourceManager.OperationTemplates/operations")

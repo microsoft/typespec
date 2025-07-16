@@ -21,7 +21,7 @@ _BLACK_MODE.line_length = 120
 class BlackScriptPlugin(Plugin):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        output_folder = self.options.get("output_folder", str(self.output_folder))
+        output_folder = self.options.get("output-folder", str(self.output_folder))
         if output_folder.startswith("file:"):
             output_folder = output_folder[5:]
         if os.name == "nt" and output_folder.startswith("///"):

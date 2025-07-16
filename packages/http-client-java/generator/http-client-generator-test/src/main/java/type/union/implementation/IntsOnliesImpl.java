@@ -57,7 +57,7 @@ public final class IntsOnliesImpl {
      * calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "UnionClientIntsOnlie")
+    @ServiceInterface(name = "UnionClientIntsOnlies")
     public interface IntsOnliesService {
         @Get("/type/union/ints-only")
         @ExpectedResponses({ 200 })

@@ -57,7 +57,7 @@ public final class DurationOperationsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "OptionalClientDurati")
+    @ServiceInterface(name = "OptionalClientDurationOperations")
     public interface DurationOperationsService {
         @Get("/type/property/optional/duration/all")
         @ExpectedResponses({ 200 })

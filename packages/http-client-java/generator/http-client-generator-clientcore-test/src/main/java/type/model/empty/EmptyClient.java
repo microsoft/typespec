@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import type.model.empty.implementation.EmptyClientImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class EmptyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final EmptyClientImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of EmptyClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    EmptyClient(EmptyClientImpl serviceClient) {
+    EmptyClient(EmptyClientImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -41,7 +46,8 @@ public final class EmptyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putEmptyWithResponse(EmptyInput input, RequestContext requestContext) {
-        return this.serviceClient.putEmptyWithResponse(input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Empty.putEmpty", requestContext,
+            updatedContext -> this.serviceClient.putEmptyWithResponse(input, updatedContext));
     }
 
     /**
@@ -55,7 +61,7 @@ public final class EmptyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putEmpty(EmptyInput input) {
-        this.serviceClient.putEmpty(input);
+        putEmptyWithResponse(input, RequestContext.none());
     }
 
     /**
@@ -70,7 +76,8 @@ public final class EmptyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<EmptyOutput> getEmptyWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getEmptyWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Empty.getEmpty", requestContext,
+            updatedContext -> this.serviceClient.getEmptyWithResponse(updatedContext));
     }
 
     /**
@@ -83,7 +90,7 @@ public final class EmptyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public EmptyOutput getEmpty() {
-        return this.serviceClient.getEmpty();
+        return getEmptyWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -100,7 +107,8 @@ public final class EmptyClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<EmptyInputOutput> postRoundTripEmptyWithResponse(EmptyInputOutput body,
         RequestContext requestContext) {
-        return this.serviceClient.postRoundTripEmptyWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Empty.postRoundTripEmpty", requestContext,
+            updatedContext -> this.serviceClient.postRoundTripEmptyWithResponse(body, updatedContext));
     }
 
     /**
@@ -115,6 +123,6 @@ public final class EmptyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public EmptyInputOutput postRoundTripEmpty(EmptyInputOutput body) {
-        return this.serviceClient.postRoundTripEmpty(body);
+        return postRoundTripEmptyWithResponse(body, RequestContext.none()).getValue();
     }
 }

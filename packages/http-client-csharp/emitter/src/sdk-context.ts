@@ -10,12 +10,15 @@ import {
   SdkHttpResponse,
   SdkModelPropertyType,
   SdkModelType,
+  SdkServiceMethod,
   SdkType,
 } from "@azure-tools/typespec-client-generator-core";
 import { Type } from "@typespec/compiler";
 import { Logger } from "./lib/logger.js";
 import { CSharpEmitterOptions } from "./options.js";
+import { InputOperation } from "./type/input-operation.js";
 import { InputParameter } from "./type/input-parameter.js";
+import { InputServiceMethod } from "./type/input-service-method.js";
 import {
   InputClient,
   InputEnumType,
@@ -54,6 +57,8 @@ export function createCSharpEmitterContext<
 
 class SdkTypeCache {
   clients: Map<SdkClientType<SdkHttpOperation>, InputClient>;
+  methods: Map<SdkServiceMethod<SdkHttpOperation>, InputServiceMethod>;
+  operations: Map<SdkHttpOperation, InputOperation>;
   properties: Map<SdkModelPropertyType, InputParameter | InputProperty>; // TODO -- in the near future, we should replace `InputParameter` with those `InputQueryParameter`, etc.
   responses: Map<SdkHttpResponse, OperationResponse>;
   types: Map<SdkType, InputType>;
@@ -64,6 +69,8 @@ class SdkTypeCache {
 
   constructor() {
     this.clients = new Map<SdkClientType<SdkHttpOperation>, InputClient>();
+    this.methods = new Map<SdkServiceMethod<SdkHttpOperation>, InputServiceMethod>();
+    this.operations = new Map<SdkHttpOperation, InputOperation>();
     this.properties = new Map<SdkModelPropertyType, InputParameter | InputProperty>();
     this.responses = new Map<SdkHttpResponse, OperationResponse>();
     this.types = new Map<SdkType, InputType>();
@@ -76,6 +83,18 @@ class SdkTypeCache {
   updateSdkClientReferences(sdkClient: SdkClientType<SdkHttpOperation>, inputClient: InputClient) {
     this.clients.set(sdkClient, inputClient);
     this.crossLanguageDefinitionIds.set(sdkClient.crossLanguageDefinitionId, sdkClient.__raw.type);
+  }
+
+  updateSdkMethodReferences(
+    sdkMethod: SdkServiceMethod<SdkHttpOperation>,
+    inputMethod: InputServiceMethod,
+  ) {
+    this.methods.set(sdkMethod, inputMethod);
+    this.crossLanguageDefinitionIds.set(sdkMethod.crossLanguageDefinitionId, sdkMethod.__raw);
+  }
+
+  updateSdkOperationReferences(sdkOperation: SdkHttpOperation, inputMethod: InputOperation) {
+    this.operations.set(sdkOperation, inputMethod);
   }
 
   updateSdkPropertyReferences(

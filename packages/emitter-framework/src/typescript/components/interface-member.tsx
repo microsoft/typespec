@@ -1,6 +1,6 @@
-import { Children } from "@alloy-js/core";
+import { type Children } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { isNeverType, ModelProperty, Operation } from "@typespec/compiler";
+import { isNeverType, type ModelProperty, type Operation } from "@typespec/compiler";
 import { getHttpPart } from "@typespec/http";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { InterfaceMethod } from "./interface-method.jsx";

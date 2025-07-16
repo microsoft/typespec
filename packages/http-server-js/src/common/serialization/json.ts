@@ -20,7 +20,7 @@ import {
 import { getHeaderFieldOptions, getPathParamOptions, getQueryParamOptions } from "@typespec/http";
 import { JsContext, Module } from "../../ctx.js";
 import { reportDiagnostic } from "../../lib.js";
-import { access, parseCase } from "../../util/case.js";
+import { access, objectLiteralProperty, parseCase } from "../../util/case.js";
 import { differentiateUnion, writeCodeTree } from "../../util/differentiate.js";
 import { UnimplementedError } from "../../util/error.js";
 import { indent } from "../../util/iter.js";
@@ -106,10 +106,12 @@ function propertyRequiresJsonSerialization(
   module: Module,
   property: ModelProperty,
 ): boolean {
+  const encodedName = resolveEncodedName(ctx.program, property, "application/json");
+  const jsPropertyName = keywordSafe(parseCase(property.name).camelCase);
   return !!(
     isHttpMetadata(ctx, property) ||
     getEncode(ctx.program, property) ||
-    resolveEncodedName(ctx.program, property, "application/json") !== property.name ||
+    encodedName !== jsPropertyName ||
     (isJsonSerializable(property.type) &&
       requiresJsonSerialization(ctx, module, property.type, property))
   );
@@ -190,7 +192,7 @@ function* emitToJson(
           expr = transposeExpressionToJson(ctx, property.type, expr, module);
         }
 
-        yield `  ${encodedName}: ${expr},`;
+        yield `  ${objectLiteralProperty(encodedName)}: ${expr},`;
       }
 
       yield `};`;

@@ -8,7 +8,7 @@ using Microsoft.TypeSpec.Generator.Snippets;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    internal static class ValueExpressionExtensions
+    public static class ValueExpressionExtensions
     {
         public static T ToApi<T>(this ValueExpression valueExpression) where T : ScopedApi
         {

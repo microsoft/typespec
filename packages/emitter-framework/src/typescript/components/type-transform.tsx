@@ -1,6 +1,6 @@
-import { Children, code, For, mapJoin, Refkey } from "@alloy-js/core";
+import { type Children, code, For, mapJoin, type Refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import {
+import type {
   Discriminator,
   Model,
   ModelProperty,
@@ -9,7 +9,7 @@ import {
   Type,
   Union,
 } from "@typespec/compiler";
-import { Typekit } from "@typespec/compiler/typekit";
+import type { Typekit } from "@typespec/compiler/typekit";
 import { createRekeyableMap } from "@typespec/compiler/utils";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";

@@ -56,7 +56,7 @@ public final class QueriesImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "CollectionFormatClie")
+    @ServiceInterface(name = "CollectionFormatClientQueries")
     public interface QueriesService {
         @Get("/parameters/collection-format/query/multi")
         @ExpectedResponses({ 204 })

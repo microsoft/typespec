@@ -57,7 +57,7 @@ public final class MixedLiteralsImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "UnionClientMixedLite")
+    @ServiceInterface(name = "UnionClientMixedLiterals")
     public interface MixedLiteralsService {
         @Get("/type/union/mixed-literals")
         @ExpectedResponses({ 200 })

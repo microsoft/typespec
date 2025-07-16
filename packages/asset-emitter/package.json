@@ -1,6 +1,6 @@
 {
   "name": "@typespec/asset-emitter",
-  "version": "0.70.1",
+  "version": "0.72.1",
   "author": "Microsoft Corporation",
   "description": "TypeSpec Asset Emitter, this is to be replaced by the new emitter framework",
   "homepage": "https://typespec.io",
@@ -45,7 +45,7 @@
     "@typespec/compiler": "workspace:^"
   },
   "devDependencies": {
-    "@types/node": "~22.13.11",
+    "@types/node": "~24.0.3",
     "@typespec/compiler": "workspace:^",
     "@vitest/coverage-v8": "^3.1.2",
     "@vitest/ui": "^3.1.2",

@@ -9,31 +9,22 @@ namespace Microsoft.TypeSpec.Generator.Input
 {
     internal sealed class InputSerializationOptionsConverter : JsonConverter<InputSerializationOptions>
     {
-        private readonly TypeSpecReferenceHandler _referenceHandler;
-
-        public InputSerializationOptionsConverter(TypeSpecReferenceHandler referenceHandler)
+        public InputSerializationOptionsConverter()
         {
-            _referenceHandler = referenceHandler;
         }
 
         public override InputSerializationOptions Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            => reader.ReadReferenceAndResolve<InputSerializationOptions>(_referenceHandler.CurrentResolver) ?? ReadInputSerializationOptions(ref reader, null, options, _referenceHandler.CurrentResolver);
+            => ReadInputSerializationOptions(ref reader, options);
 
         public override void Write(Utf8JsonWriter writer, InputSerializationOptions value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        private static InputSerializationOptions ReadInputSerializationOptions(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options, ReferenceResolver resolver)
+        private static InputSerializationOptions ReadInputSerializationOptions(ref Utf8JsonReader reader, JsonSerializerOptions options)
         {
-            if (id == null)
+            if (reader.TokenType == JsonTokenType.StartObject)
             {
-                reader.TryReadReferenceId(ref id);
+                reader.Read();
             }
-
-            id = id ?? throw new JsonException();
-
-            // create an empty serialization options to resolve circular references
-            var serializationOptions = new InputSerializationOptions();
-            resolver.AddReference(id, serializationOptions);
 
             InputJsonSerializationOptions? json = null;
             InputXmlSerializationOptions? xml = null;
@@ -51,11 +42,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
             }
 
-            serializationOptions.Json = json;
-            serializationOptions.Xml = xml;
-            serializationOptions.Multipart = multipart;
-
-            return serializationOptions;
+            return new InputSerializationOptions(json, xml, multipart);
         }
     }
 }

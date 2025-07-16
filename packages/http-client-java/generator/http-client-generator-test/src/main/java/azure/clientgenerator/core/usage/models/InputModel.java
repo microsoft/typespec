@@ -13,7 +13,7 @@ import com.azure.json.JsonWriter;
 import java.io.IOException;
 
 /**
- * Usage override to roundtrip.
+ * Usage additive to roundtrip.
  */
 @Immutable
 public final class InputModel implements JsonSerializable<InputModel> {

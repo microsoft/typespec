@@ -54,7 +54,7 @@ public final class OptionalExplicitsImpl {
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "BodyOptionalityClien")
+    @ServiceInterface(name = "BodyOptionalityClientOptionalExplicits")
     public interface OptionalExplicitsService {
         @Post("/parameters/body-optionality/optional-explicit/set")
         @ExpectedResponses({ 204 })

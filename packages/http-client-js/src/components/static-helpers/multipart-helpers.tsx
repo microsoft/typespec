@@ -1,17 +1,17 @@
-import * as ay from "@alloy-js/core";
+import { code, mapJoin, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 export interface MultipartHelpersProps {}
 
 export function getFileContentsTypeReference() {
-  return ay.refkey("FileContents", "type", "static-helpers");
+  return refkey("FileContents", "type", "static-helpers");
 }
 
 export function getCreateFilePartDescriptorReference() {
-  return ay.refkey("createFilePartDescriptor", "function", "static-helpers");
+  return refkey("createFilePartDescriptor", "function", "static-helpers");
 }
 
 export function getFileTypeReference() {
-  return ay.refkey("File", "type", "static-helpers");
+  return refkey("File", "type", "static-helpers");
 }
 
 export function MultipartHelpers(props: MultipartHelpersProps) {
@@ -26,7 +26,7 @@ export function MultipartHelpers(props: MultipartHelpersProps) {
         kind="type"
         refkey={getFileContentsTypeReference()}
       >
-        {ay.mapJoin(
+        {mapJoin(
           () => [
             "string",
             "NodeJS.ReadableStream",
@@ -45,7 +45,7 @@ export function MultipartHelpers(props: MultipartHelpersProps) {
         returnType="any"
         refkey={getCreateFilePartDescriptorReference()}
       >
-        {ay.code`
+        {code`
        if (fileInput.contents) {
           return {
             name: partName,
@@ -73,7 +73,7 @@ function getCreateFilePartParameters(): ts.ParameterDescriptor[] {
     {
       name: "defaultContentType",
       optional: true,
-      refkey: ay.refkey(),
+      refkey: refkey(),
       type: "string",
     },
   ];

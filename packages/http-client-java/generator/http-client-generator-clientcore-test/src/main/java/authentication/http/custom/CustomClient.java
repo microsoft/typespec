@@ -9,6 +9,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 
 /**
  * Initializes a new instance of the synchronous CustomClient type.
@@ -18,14 +19,18 @@ public final class CustomClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final CustomClientImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of CustomClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    CustomClient(CustomClientImpl serviceClient) {
+    CustomClient(CustomClientImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -40,7 +45,8 @@ public final class CustomClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> validWithResponse(RequestContext requestContext) {
-        return this.serviceClient.validWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("Authentication.Http.Custom.valid", requestContext,
+            updatedContext -> this.serviceClient.validWithResponse(updatedContext));
     }
 
     /**
@@ -52,7 +58,7 @@ public final class CustomClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void valid() {
-        this.serviceClient.valid();
+        validWithResponse(RequestContext.none());
     }
 
     /**
@@ -67,7 +73,8 @@ public final class CustomClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> invalidWithResponse(RequestContext requestContext) {
-        return this.serviceClient.invalidWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("Authentication.Http.Custom.invalid", requestContext,
+            updatedContext -> this.serviceClient.invalidWithResponse(updatedContext));
     }
 
     /**
@@ -79,6 +86,6 @@ public final class CustomClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void invalid() {
-        this.serviceClient.invalid();
+        invalidWithResponse(RequestContext.none());
     }
 }

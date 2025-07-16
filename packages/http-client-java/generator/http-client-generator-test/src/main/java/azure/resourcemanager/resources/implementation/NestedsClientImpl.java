@@ -70,7 +70,7 @@ public final class NestedsClientImpl implements NestedsClient {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ResourcesClientNeste")
+    @ServiceInterface(name = "ResourcesClientNesteds")
     public interface NestedsService {
         @Headers({ "Content-Type: application/json" })
         @Get("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/{topLevelTrackedResourceName}/nestedProxyResources/{nextedProxyResourceName}")

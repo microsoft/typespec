@@ -101,3 +101,9 @@ Whether to return responses from HEAD requests as boolean. Defaults to `true`.
 **Type:** `boolean`
 
 Whether to generate using `pyodide` instead of `python`. If there is no python installed on your device, we will default to using pyodide to generate the code.
+
+### `validate-versioning`
+
+**Type:** `boolean`
+
+Whether to validate the versioning of the package. Defaults to `true`. If set to `false`, we will not validate the versioning of the package.

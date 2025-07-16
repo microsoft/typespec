@@ -1,4 +1,4 @@
-import * as ay from "@alloy-js/core";
+import { List } from "@alloy-js/core";
 import * as md from "@alloy-js/markdown";
 import * as ts from "@alloy-js/typescript";
 import { TypekitFunctionDoc } from "../typekit-docs.js";
@@ -23,7 +23,7 @@ export function TypekitFunction(props: TypekitFunctionProps) {
     );
   return (
     <md.Section heading={props.typekit.name}>
-      <ay.List>
+      <List>
         {"```ts"}
         {props.typekit.docComment?.emitAsTsdoc().trimEnd()}
         <>
@@ -36,7 +36,7 @@ export function TypekitFunction(props: TypekitFunctionProps) {
           <>: {props.typekit.returnTypeExcerpt.text};</>
         </>
         {"```"}
-      </ay.List>
+      </List>
     </md.Section>
   );
 }

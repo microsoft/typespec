@@ -3,7 +3,6 @@ package parameters.bodyoptionality.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -14,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import parameters.bodyoptionality.BodyModel;
 
@@ -55,6 +55,20 @@ public final class BodyOptionalityClientImpl {
     }
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
      * The OptionalExplicitsImpl object to access its operations.
      */
     private final OptionalExplicitsImpl optionalExplicits;
@@ -72,20 +86,22 @@ public final class BodyOptionalityClientImpl {
      * Initializes an instance of BodyOptionalityClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
      */
-    public BodyOptionalityClientImpl(HttpPipeline httpPipeline, String endpoint) {
+    public BodyOptionalityClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
         this.optionalExplicits = new OptionalExplicitsImpl(this);
-        this.service = RestProxy.create(BodyOptionalityClientService.class, this.httpPipeline);
+        this.service = BodyOptionalityClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
      * The interface defining all the services for BodyOptionalityClient to be used by the proxy service to perform REST
      * calls.
      */
-    @ServiceInterface(name = "BodyOptionalityClien", host = "{endpoint}")
+    @ServiceInterface(name = "BodyOptionalityClient", host = "{endpoint}")
     public interface BodyOptionalityClientService {
         static BodyOptionalityClientService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -131,21 +147,11 @@ public final class BodyOptionalityClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> requiredExplicitWithResponse(BodyModel body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.requiredExplicit(this.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The requiredExplicit operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void requiredExplicit(BodyModel body) {
-        requiredExplicitWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Parameters.BodyOptionality.requiredExplicit",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                return service.requiredExplicit(this.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -160,21 +166,11 @@ public final class BodyOptionalityClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> requiredImplicitWithResponse(String name, RequestContext requestContext) {
-        final String contentType = "application/json";
-        BodyModel bodyModel = new BodyModel(name);
-        return service.requiredImplicit(this.getEndpoint(), contentType, bodyModel, requestContext);
-    }
-
-    /**
-     * The requiredImplicit operation.
-     * 
-     * @param name The name parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void requiredImplicit(String name) {
-        requiredImplicitWithResponse(name, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Parameters.BodyOptionality.requiredImplicit",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                BodyModel bodyModel = new BodyModel(name);
+                return service.requiredImplicit(this.getEndpoint(), contentType, bodyModel, updatedContext);
+            });
     }
 }

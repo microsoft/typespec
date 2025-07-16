@@ -13,19 +13,17 @@ namespace Sample
     internal partial class CatClientGetCatsCollectionResult : global::System.ClientModel.Primitives.CollectionResult
     {
         private readonly global::Sample.CatClient _client;
-        private readonly global::System.Uri _nextPage;
         private readonly global::System.ClientModel.Primitives.RequestOptions _options;
 
-        public CatClientGetCatsCollectionResult(global::Sample.CatClient client, global::System.Uri nextPage, global::System.ClientModel.Primitives.RequestOptions options)
+        public CatClientGetCatsCollectionResult(global::Sample.CatClient client, global::System.ClientModel.Primitives.RequestOptions options)
         {
             _client = client;
-            _nextPage = nextPage;
             _options = options;
         }
 
         public override global::System.Collections.Generic.IEnumerable<global::System.ClientModel.ClientResult> GetRawPages()
         {
-            global::System.ClientModel.Primitives.PipelineMessage message = _client.CreateGetCatsRequest(_nextPage, _options);
+            global::System.ClientModel.Primitives.PipelineMessage message = _client.CreateGetCatsRequest(_options);
             global::System.Uri nextPageUri = null;
             while (true)
             {
@@ -37,7 +35,7 @@ namespace Sample
                 {
                     yield break;
                 }
-                message = _client.CreateGetCatsRequest(nextPageUri, _options);
+                message = _client.CreateNextGetCatsRequest(nextPageUri, _options);
             }
         }
 

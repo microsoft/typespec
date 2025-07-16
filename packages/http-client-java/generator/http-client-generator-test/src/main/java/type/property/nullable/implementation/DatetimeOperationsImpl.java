@@ -57,7 +57,7 @@ public final class DatetimeOperationsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "NullableClientDateti")
+    @ServiceInterface(name = "NullableClientDatetimeOperations")
     public interface DatetimeOperationsService {
         @Get("/type/property/nullable/datetime/non-null")
         @ExpectedResponses({ 200 })

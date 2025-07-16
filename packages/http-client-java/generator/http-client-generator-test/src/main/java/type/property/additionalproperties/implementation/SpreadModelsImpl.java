@@ -57,7 +57,7 @@ public final class SpreadModelsImpl {
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "AdditionalProperties")
+    @ServiceInterface(name = "AdditionalPropertiesClientSpreadModels")
     public interface SpreadModelsService {
         @Get("/type/property/additionalProperties/spreadRecordModel")
         @ExpectedResponses({ 200 })

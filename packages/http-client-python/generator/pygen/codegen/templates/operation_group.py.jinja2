@@ -25,7 +25,7 @@ class {{ operation_group.class_name }}: {{ operation_group.pylint_disable() }}
         :attr:`{{ operation_group.property_name }}` attribute.
     """
 
-{% if code_model.public_model_types and code_model.options["models_mode"] == "msrest" %}
+{% if code_model.public_model_types and code_model.options["models-mode"] == "msrest" %}
     models = _models
 
 {% endif %}

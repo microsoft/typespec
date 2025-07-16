@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
@@ -152,6 +153,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
                 t => t is CollectionResultDefinition && t.Name == "FelineClientGetCatsCollectionResult");
             Assert.IsNotNull(felineClientCollectionResult);
             Assert.AreEqual("Felines", felineClientCollectionResult!.Type.Namespace);
+        }
+
+        [Test]
+        public void UsesValidFieldIdentifierNames()
+        {
+            MockHelpers.LoadMockGenerator();
+            var inputModel = InputFactory.Model("cat", properties:
+            [
+                InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
+            ]);
+            var pagingMetadata = InputFactory.NextLinkPagingMetadata("cats", "nextCat", InputResponseLocation.Body);
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "page",
+                    properties: [InputFactory.Property("cats", InputFactory.Array(inputModel)), InputFactory.Property("nextCat", InputPrimitiveType.Url)]));
+            IReadOnlyList<InputParameter> parameters = [InputFactory.Parameter("$foo", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Header)];
+            var operation = InputFactory.Operation("getCats", responses: [response], parameters: parameters);
+            var inputServiceMethod = InputFactory.PagingServiceMethod("getCats", operation, pagingMetadata: pagingMetadata, parameters: parameters);
+            var catClient = InputFactory.Client("catClient", methods: [inputServiceMethod], clientNamespace: "Cats");
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(catClient);
+            var modelType = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
+            var collectionResultDefinition = new CollectionResultDefinition(clientProvider!, inputServiceMethod, modelType!.Type, false);
+            var fields = collectionResultDefinition.Fields;
+
+            Assert.IsTrue(fields.Any(f => f.Name == "_foo"));
         }
 
 

@@ -18,14 +18,18 @@ import io.clientcore.core.http.pipeline.HttpRedirectPolicy;
 import io.clientcore.core.http.pipeline.HttpRetryOptions;
 import io.clientcore.core.http.pipeline.HttpRetryPolicy;
 import io.clientcore.core.http.pipeline.OAuthBearerTokenAuthenticationPolicy;
+import io.clientcore.core.instrumentation.Instrumentation;
+import io.clientcore.core.instrumentation.SdkInstrumentationOptions;
 import io.clientcore.core.traits.ConfigurationTrait;
 import io.clientcore.core.traits.EndpointTrait;
 import io.clientcore.core.traits.HttpTrait;
 import io.clientcore.core.traits.OAuthTokenCredentialTrait;
 import io.clientcore.core.traits.ProxyTrait;
+import io.clientcore.core.utils.CoreUtils;
 import io.clientcore.core.utils.configuration.Configuration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -43,6 +47,9 @@ public final class OAuth2ClientBuilder
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String[] DEFAULT_SCOPES = new String[] { "https://security.microsoft.com/.default" };
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("authentication-oauth2.properties");
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
@@ -203,7 +210,16 @@ public final class OAuth2ClientBuilder
     private OAuth2ClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        OAuth2ClientImpl client = new OAuth2ClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        OAuth2ClientImpl client = new OAuth2ClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -242,6 +258,7 @@ public final class OAuth2ClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public OAuth2Client buildClient() {
-        return new OAuth2Client(buildInnerClient());
+        OAuth2ClientImpl innerClient = buildInnerClient();
+        return new OAuth2Client(innerClient, innerClient.getInstrumentation());
     }
 }

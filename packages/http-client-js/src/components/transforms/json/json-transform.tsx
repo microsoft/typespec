@@ -1,5 +1,6 @@
-import * as ay from "@alloy-js/core";
-import { Type } from "@typespec/compiler";
+import { code, Refkey } from "@alloy-js/core";
+import { Children } from "@alloy-js/core/jsx-runtime";
+import type { Type } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
 import { ScalarDataTransform } from "../data-transform.jsx";
 import {
@@ -25,7 +26,7 @@ import {
 } from "./union-transform.jsx";
 
 export interface JsonTransformProps {
-  itemRef: ay.Refkey | ay.Children;
+  itemRef: Refkey | Children;
   type: Type;
   target: "transport" | "application";
 }
@@ -36,7 +37,7 @@ export function JsonTransform(props: JsonTransformProps) {
   const declaredTransform = getTransformReference(type, props.target);
 
   if (declaredTransform) {
-    return ay.code`${declaredTransform}(${props.itemRef})`;
+    return code`${declaredTransform}(${props.itemRef})`;
   }
 
   switch (type.kind) {
@@ -97,7 +98,7 @@ export function JsonTransformDeclaration(props: JsonTransformDeclarationProps) {
 function getTransformReference(
   type: Type,
   target: "transport" | "application",
-): ay.Refkey | undefined {
+): Refkey | undefined {
   const { $ } = useTsp();
   if (type.kind === "Model" && Boolean(type.name)) {
     if ($.array.is(type)) {

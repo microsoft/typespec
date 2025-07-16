@@ -7,11 +7,11 @@ namespace Microsoft.TypeSpec.Generator.Input
 {
     public class InputOAuth2Auth
     {
-        public InputOAuth2Auth(IReadOnlyCollection<string> scopes)
+        public InputOAuth2Auth(IReadOnlyCollection<InputOAuth2Flow> flows)
         {
-            Scopes = scopes;
+            Flows = flows;
         }
 
-        public IReadOnlyCollection<string> Scopes { get; }
+        public IReadOnlyCollection<InputOAuth2Flow> Flows { get; }
     }
 }

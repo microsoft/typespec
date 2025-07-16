@@ -1,4 +1,4 @@
-import { Model } from "@typespec/compiler";
+import type { Model } from "@typespec/compiler";
 import { assert, describe, expect, it } from "vitest";
 import { expectDecorators } from "./utils/expect.js";
 import { tspForOpenAPI3 } from "./utils/tsp-for-openapi3.js";

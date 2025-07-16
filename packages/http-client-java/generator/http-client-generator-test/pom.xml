@@ -23,7 +23,7 @@
     <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-core</artifactId>
-      <version>1.55.3</version>
+      <version>1.55.4</version>
     </dependency>
     <dependency>
       <groupId>com.azure</groupId>
@@ -38,7 +38,7 @@
     <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-core-test</artifactId>
-      <version>1.27.0-beta.8</version>
+      <version>1.27.0-beta.9</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -50,12 +50,12 @@
     <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-identity</artifactId>
-      <version>1.16.1</version>
+      <version>1.16.2</version>
     </dependency>
     <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-core-management</artifactId>
-      <version>1.17.0</version>
+      <version>1.18.0</version>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>

@@ -2,13 +2,13 @@ import { Output, render } from "@alloy-js/core";
 import { dedent } from "@alloy-js/core/testing";
 import { SourceFile } from "@alloy-js/typescript";
 import {
-  EnumValue,
-  Model,
-  Namespace,
+  type EnumValue,
+  type Model,
+  type Namespace,
   Numeric,
-  NumericValue,
-  Program,
-  Value,
+  type NumericValue,
+  type Program,
+  type Value,
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { assert, beforeAll, describe, expect, it } from "vitest";

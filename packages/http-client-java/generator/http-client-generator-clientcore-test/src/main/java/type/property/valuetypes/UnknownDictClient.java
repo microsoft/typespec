@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import type.property.valuetypes.implementation.UnknownDictsImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class UnknownDictClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final UnknownDictsImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of UnknownDictClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    UnknownDictClient(UnknownDictsImpl serviceClient) {
+    UnknownDictClient(UnknownDictsImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -40,7 +45,8 @@ public final class UnknownDictClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<UnknownDictProperty> getWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Property.ValueTypes.UnknownDict.get", requestContext,
+            updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
     /**
@@ -53,7 +59,7 @@ public final class UnknownDictClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public UnknownDictProperty get() {
-        return this.serviceClient.get();
+        return getWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -69,7 +75,8 @@ public final class UnknownDictClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(UnknownDictProperty body, RequestContext requestContext) {
-        return this.serviceClient.putWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Property.ValueTypes.UnknownDict.put", requestContext,
+            updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 
     /**
@@ -83,6 +90,6 @@ public final class UnknownDictClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void put(UnknownDictProperty body) {
-        this.serviceClient.put(body);
+        putWithResponse(body, RequestContext.none());
     }
 }

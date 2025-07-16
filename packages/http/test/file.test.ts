@@ -656,7 +656,7 @@ describe("custom file model", () => {
           ],
         },
       ],
-      runner,
+      program,
     } = await compileOperationsFull(`
         ${makeFileModel("x-filename")}
         op example(...SpecFile): SpecFile;
@@ -670,7 +670,7 @@ describe("custom file model", () => {
       (p) => p.type === "header" && p.name === "x-filename",
     );
     ok(requestXFilename);
-    ok(isHeader(runner.program, requestBody.type.properties.get("filename")!));
+    ok(isHeader(program, requestBody.type.properties.get("filename")!));
 
     strictEqual(responseBody?.bodyKind, "file");
     expect(responseBody?.property).toStrictEqual(undefined);
@@ -680,7 +680,7 @@ describe("custom file model", () => {
       (p) => p.kind === "header" && p.options.name === "x-filename",
     );
     ok(responseXFilename);
-    ok(isHeader(runner.program, responseBody.type.properties.get("filename")!));
+    ok(isHeader(program, responseBody.type.properties.get("filename")!));
   });
 
   it("extends aliased File with header", async () => {
@@ -695,7 +695,7 @@ describe("custom file model", () => {
           ],
         },
       ],
-      runner,
+      program,
     } = await compileOperationsFull(`
         model StringFile<T extends string> is Http.File<Contents = string, ContentType = T>;
         model JsonFile extends StringFile<"application/json"> {
@@ -712,7 +712,7 @@ describe("custom file model", () => {
       (p) => p.type === "header" && p.name === "x-filename",
     );
     ok(requestXFilename);
-    ok(isHeader(runner.program, requestBody.type.properties.get("filename")!));
+    ok(isHeader(program, requestBody.type.properties.get("filename")!));
 
     strictEqual(responseBody?.bodyKind, "file");
     expect(responseBody?.property).toStrictEqual(undefined);
@@ -722,7 +722,7 @@ describe("custom file model", () => {
       (p) => p.kind === "header" && p.options.name === "x-filename",
     );
     ok(responseXFilename);
-    ok(isHeader(runner.program, responseBody.type.properties.get("filename")!));
+    ok(isHeader(program, responseBody.type.properties.get("filename")!));
   });
 
   it("intersected payload upload and download", async () => {
@@ -808,7 +808,7 @@ describe("custom file model", () => {
   });
 
   it("allows interior metadata using bodyRoot", async () => {
-    const { operations, runner, diagnostics } = await compileOperationsFull(`
+    const { operations, program, diagnostics } = await compileOperationsFull(`
         ${makeFileModel("x-filename")}
         op example(@bodyRoot specFile: SpecFile): { @bodyRoot specFile: SpecFile };
       `);
@@ -835,7 +835,7 @@ describe("custom file model", () => {
       (p) => p.type === "header" && p.name === "x-filename",
     );
     ok(requestXFilename);
-    ok(isHeader(runner.program, requestBody.type.properties.get("filename")!));
+    ok(isHeader(program, requestBody.type.properties.get("filename")!));
 
     strictEqual(responseBody?.bodyKind, "file");
     ok(responseBody.property);
@@ -846,7 +846,7 @@ describe("custom file model", () => {
       (p) => p.kind === "header" && p.options.name === "x-filename",
     );
     ok(responseXFilename);
-    ok(isHeader(runner.program, responseBody.type.properties.get("filename")!));
+    ok(isHeader(program, responseBody.type.properties.get("filename")!));
   });
 
   describe("multipart", () => {
@@ -863,7 +863,7 @@ describe("custom file model", () => {
           },
         ],
         diagnostics,
-        runner,
+        program,
       } = await compileOperationsFull(`
           ${makeFileModel("x-filename")}
           op example(@multipartBody fields: { file: HttpPart<SpecFile> }) : { @multipartBody fields: { file: HttpPart<SpecFile>}};
@@ -884,7 +884,7 @@ describe("custom file model", () => {
         (p) => p.options.name === "x-filename",
       );
       ok(requestXFilename);
-      ok(isHeader(runner.program, requestPartBody.type.properties.get("filename")!));
+      ok(isHeader(program, requestPartBody.type.properties.get("filename")!));
 
       strictEqual(multipartResponseBody?.bodyKind, "multipart");
       ok(multipartResponseBody?.property);
@@ -899,7 +899,7 @@ describe("custom file model", () => {
         (p) => p.options.name === "x-filename",
       );
       ok(responseXFilename);
-      ok(isHeader(runner.program, responsePartBody.type.properties.get("filename")!));
+      ok(isHeader(program, responsePartBody.type.properties.get("filename")!));
     });
 
     it("intersect payload form-data upload and download", async () => {
@@ -915,7 +915,7 @@ describe("custom file model", () => {
           },
         ],
         diagnostics,
-        runner,
+        program,
       } = await compileOperationsFull(`
           ${makeFileModel("x-filename")}
           op example(@multipartBody fields: { file: HttpPart<SpecFile & { @header xFoo: string }> }) : { @multipartBody fields: { file: HttpPart<SpecFile & { @header xBar: string }>};};
@@ -936,12 +936,12 @@ describe("custom file model", () => {
         (p) => p.options.name === "x-filename",
       );
       ok(requestXFilename);
-      ok(isHeader(runner.program, requestPartBody.type.properties.get("filename")!));
+      ok(isHeader(program, requestPartBody.type.properties.get("filename")!));
       const requestXFoo = multipartRequestBody?.parts[0].headers.find(
         (p) => p.options.name === "x-foo",
       );
       ok(requestXFoo);
-      ok(isHeader(runner.program, requestPartBody.type.properties.get("xFoo")!));
+      ok(isHeader(program, requestPartBody.type.properties.get("xFoo")!));
 
       strictEqual(multipartResponseBody?.bodyKind, "multipart");
       ok(multipartResponseBody?.property);
@@ -956,12 +956,12 @@ describe("custom file model", () => {
         (p) => p.options.name === "x-filename",
       );
       ok(responseXFilename);
-      ok(isHeader(runner.program, responsePartBody.type.properties.get("filename")!));
+      ok(isHeader(program, responsePartBody.type.properties.get("filename")!));
       const responseXBar = multipartResponseBody?.parts[0].headers.find(
         (p) => p.options.name === "x-bar",
       );
       ok(responseXBar);
-      ok(isHeader(runner.program, responsePartBody.type.properties.get("xBar")!));
+      ok(isHeader(program, responsePartBody.type.properties.get("xBar")!));
     });
   });
 });

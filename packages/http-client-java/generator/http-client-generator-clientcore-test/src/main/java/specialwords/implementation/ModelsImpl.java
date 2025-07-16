@@ -3,7 +3,6 @@ package specialwords.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -14,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import specialwords.models.And;
 import specialwords.models.As;
@@ -64,20 +64,26 @@ public final class ModelsImpl {
     private final SpecialWordsClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of ModelsImpl.
      * 
      * @param client the instance of the service client containing this operation class.
      */
     ModelsImpl(SpecialWordsClientImpl client) {
-        this.service = RestProxy.create(ModelsService.class, client.getHttpPipeline());
+        this.service = ModelsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
      * The interface defining all the services for SpecialWordsClientModels to be used by the proxy service to perform
      * REST calls.
      */
-    @ServiceInterface(name = "SpecialWordsClientMo", host = "{endpoint}")
+    @ServiceInterface(name = "SpecialWordsClientModels", host = "{endpoint}")
     public interface ModelsService {
         static ModelsService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -383,21 +389,11 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withAndWithResponse(And body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withAnd(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withAnd operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withAnd(And body) {
-        withAndWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withAnd", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withAnd(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -412,21 +408,11 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withAsWithResponse(As body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withAs(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withAs operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withAs(As body) {
-        withAsWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withAs", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withAs(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -441,21 +427,11 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withAssertWithResponse(Assert body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withAssert(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withAssert operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withAssert(Assert body) {
-        withAssertWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withAssert", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withAssert(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -470,21 +446,11 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withAsyncWithResponse(Async body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withAsync(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withAsync operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withAsync(Async body) {
-        withAsyncWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withAsync", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withAsync(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -499,21 +465,11 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withAwaitWithResponse(Await body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withAwait(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withAwait operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withAwait(Await body) {
-        withAwaitWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withAwait", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withAwait(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -528,21 +484,11 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withBreakWithResponse(Break body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withBreak(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withBreak operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withBreak(Break body) {
-        withBreakWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withBreak", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withBreak(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -557,21 +503,11 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withClassWithResponse(ClassModel body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withClass(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withClass operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withClass(ClassModel body) {
-        withClassWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withClass", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withClass(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -586,21 +522,11 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withConstructorWithResponse(Constructor body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withConstructor(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withConstructor operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withConstructor(Constructor body) {
-        withConstructorWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withConstructor", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withConstructor(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -615,21 +541,11 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withContinueWithResponse(Continue body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withContinue(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withContinue operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withContinue(Continue body) {
-        withContinueWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withContinue", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withContinue(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -644,21 +560,11 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withDefWithResponse(Def body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withDef(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withDef operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withDef(Def body) {
-        withDefWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withDef", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withDef(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -673,21 +579,11 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withDelWithResponse(Del body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withDel(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withDel operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withDel(Del body) {
-        withDelWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withDel", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withDel(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -702,21 +598,11 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withElifWithResponse(Elif body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withElif(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withElif operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withElif(Elif body) {
-        withElifWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withElif", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withElif(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -731,21 +617,11 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withElseWithResponse(Else body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withElse(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withElse operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withElse(Else body) {
-        withElseWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withElse", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withElse(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -760,21 +636,11 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withExceptWithResponse(Except body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withExcept(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withExcept operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withExcept(Except body) {
-        withExceptWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withExcept", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withExcept(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -789,21 +655,11 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withExecWithResponse(Exec body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withExec(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withExec operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withExec(Exec body) {
-        withExecWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withExec", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withExec(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -818,21 +674,11 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withFinallyWithResponse(Finally body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withFinally(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withFinally operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withFinally(Finally body) {
-        withFinallyWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withFinally", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withFinally(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -847,21 +693,11 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withForWithResponse(For body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withFor(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withFor operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withFor(For body) {
-        withForWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withFor", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withFor(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -876,21 +712,11 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withFromWithResponse(From body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withFrom(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withFrom operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withFrom(From body) {
-        withFromWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withFrom", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withFrom(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -905,21 +731,11 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withGlobalWithResponse(Global body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withGlobal(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withGlobal operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withGlobal(Global body) {
-        withGlobalWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withGlobal", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withGlobal(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -934,21 +750,11 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withIfWithResponse(If body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withIf(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withIf operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withIf(If body) {
-        withIfWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withIf", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withIf(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -963,21 +769,11 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withImportWithResponse(Import body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withImport(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withImport operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withImport(Import body) {
-        withImportWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withImport", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withImport(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -992,21 +788,11 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withInWithResponse(In body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withIn(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withIn operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withIn(In body) {
-        withInWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withIn", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withIn(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -1021,21 +807,11 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withIsWithResponse(Is body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withIs(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withIs operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withIs(Is body) {
-        withIsWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withIs", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withIs(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -1050,21 +826,11 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withLambdaWithResponse(Lambda body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withLambda(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withLambda operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withLambda(Lambda body) {
-        withLambdaWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withLambda", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withLambda(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -1079,21 +845,11 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withNotWithResponse(Not body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withNot(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withNot operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withNot(Not body) {
-        withNotWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withNot", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withNot(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -1108,21 +864,11 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withOrWithResponse(Or body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withOr(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withOr operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withOr(Or body) {
-        withOrWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withOr", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withOr(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -1137,21 +883,11 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withPassWithResponse(Pass body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withPass(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withPass operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withPass(Pass body) {
-        withPassWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withPass", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withPass(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -1166,21 +902,11 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withRaiseWithResponse(Raise body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withRaise(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withRaise operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withRaise(Raise body) {
-        withRaiseWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withRaise", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withRaise(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -1195,21 +921,11 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withReturnWithResponse(Return body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withReturn(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withReturn operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withReturn(Return body) {
-        withReturnWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withReturn", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withReturn(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -1224,21 +940,11 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withTryWithResponse(Try body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withTry(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withTry operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withTry(Try body) {
-        withTryWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withTry", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withTry(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -1253,21 +959,11 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withWhileWithResponse(While body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withWhile(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withWhile operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withWhile(While body) {
-        withWhileWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withWhile", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withWhile(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -1282,21 +978,11 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withWithWithResponse(With body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withWith(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withWith operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withWith(With body) {
-        withWithWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withWith", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withWith(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -1311,20 +997,10 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withYieldWithResponse(Yield body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.withYield(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withYield operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withYield(Yield body) {
-        withYieldWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withYield", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withYield(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 }

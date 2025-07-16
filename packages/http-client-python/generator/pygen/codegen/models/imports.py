@@ -255,7 +255,7 @@ class FileImport:
         msrest_import_type: MsrestImportType,
         typing_section: TypingSection,
     ):
-        if self.code_model.options["client_side_validation"]:
+        if self.code_model.options["client-side-validation"]:
             if msrest_import_type == MsrestImportType.Module:
                 self.add_import("msrest.serialization", ImportType.SDKCORE, typing_section)
             else:

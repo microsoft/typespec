@@ -108,9 +108,10 @@ function fromSdkClient(
       const isEndpoint = parameter.name === endpointVariableName;
       const parameterType: InputType = isEndpoint
         ? {
-            kind: "url",
-            name: "url",
-            crossLanguageDefinitionId: "TypeSpec.url",
+            kind: parameter.type.kind === "string" ? "string" : "url",
+            name: "endpoint",
+            crossLanguageDefinitionId:
+              parameter.type.kind === "string" ? "TypeSpec.string" : "TypeSpec.url",
           }
         : fromSdkType(sdkContext, parameter.type); // TODO: consolidate with converter.fromSdkEndpointType
       parameters.push({
@@ -132,6 +133,7 @@ function fromSdkClient(
           parameter.clientDefaultValue,
           parameterType,
         ),
+        serverUrlTemplate: type.serverUrl,
       });
     }
     return parameters;

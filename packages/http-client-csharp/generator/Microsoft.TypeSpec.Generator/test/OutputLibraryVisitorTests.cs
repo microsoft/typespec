@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -106,7 +107,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 .Returns([mockSerializationProvider.Object]);
             var sig = new MethodSignature("Test", $"", MethodSignatureModifiers.Public, null, $"", []);
             var mockMethodProvider = new Mock<MethodProvider>(MockBehavior.Default, sig, MethodBodyStatement.Empty,
-                mockSerializationProvider.Object, new XmlDocProvider())
+                mockSerializationProvider.Object, new XmlDocProvider(), new List<AttributeStatement>())
             {
                 CallBase = true
             };

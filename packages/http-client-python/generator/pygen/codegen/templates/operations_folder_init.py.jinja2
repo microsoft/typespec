@@ -10,7 +10,9 @@
 {{ keywords.patch_imports() }}
 __all__ = [
       {% for operation_group in operation_groups %}
+      {% if not operation_group.is_mixin or code_model.options["multiapi"] %}
     '{{ operation_group.class_name }}',
+      {% endif %}
       {% endfor %}
 ]
 {{ keywords.extend_all }}

@@ -1,8 +1,9 @@
-import { Operation } from "@typespec/compiler";
+import type { Operation } from "@typespec/compiler";
 import { BasicTestRunner, createTestRunner } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { resolveOperationId } from "../src/helpers.js";
+
 describe("openapi: helpers", () => {
   let runner: BasicTestRunner;
 

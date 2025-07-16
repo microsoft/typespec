@@ -3,7 +3,6 @@ package payload.jsonmergepatch.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -14,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import payload.jsonmergepatch.Resource;
 import payload.jsonmergepatch.ResourcePatch;
@@ -56,15 +56,31 @@ public final class JsonMergePatchClientImpl {
     }
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
      * Initializes an instance of JsonMergePatchClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
      */
-    public JsonMergePatchClientImpl(HttpPipeline httpPipeline, String endpoint) {
+    public JsonMergePatchClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
-        this.service = RestProxy.create(JsonMergePatchClientService.class, this.httpPipeline);
+        this.service = JsonMergePatchClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -125,23 +141,12 @@ public final class JsonMergePatchClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Resource> createResourceWithResponse(Resource body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.createResource(this.getEndpoint(), contentType, accept, body, requestContext);
-    }
-
-    /**
-     * Test content-type: application/merge-patch+json with required body.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return details about a resource.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Resource createResource(Resource body) {
-        return createResourceWithResponse(body, RequestContext.none()).getValue();
+        return this.instrumentation.instrumentWithResponse("Payload.JsonMergePatch.createResource", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.createResource(this.getEndpoint(), contentType, accept, body, updatedContext);
+            });
     }
 
     /**
@@ -156,23 +161,12 @@ public final class JsonMergePatchClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Resource> updateResourceWithResponse(ResourcePatch body, RequestContext requestContext) {
-        final String contentType = "application/merge-patch+json";
-        final String accept = "application/json";
-        return service.updateResource(this.getEndpoint(), contentType, accept, body, requestContext);
-    }
-
-    /**
-     * Test content-type: application/merge-patch+json with required body.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return details about a resource.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Resource updateResource(ResourcePatch body) {
-        return updateResourceWithResponse(body, RequestContext.none()).getValue();
+        return this.instrumentation.instrumentWithResponse("Payload.JsonMergePatch.updateResource", requestContext,
+            updatedContext -> {
+                final String contentType = "application/merge-patch+json";
+                final String accept = "application/json";
+                return service.updateResource(this.getEndpoint(), contentType, accept, body, updatedContext);
+            });
     }
 
     /**
@@ -187,34 +181,10 @@ public final class JsonMergePatchClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Resource> updateOptionalResourceWithResponse(ResourcePatch body, RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.updateOptionalResource(this.getEndpoint(), accept, body, requestContext);
-    }
-
-    /**
-     * Test content-type: application/merge-patch+json with optional body.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return details about a resource.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Resource updateOptionalResource(ResourcePatch body) {
-        return updateOptionalResourceWithResponse(body, RequestContext.none()).getValue();
-    }
-
-    /**
-     * Test content-type: application/merge-patch+json with optional body.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return details about a resource.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Resource updateOptionalResource() {
-        final ResourcePatch body = null;
-        return updateOptionalResourceWithResponse(body, RequestContext.none()).getValue();
+        return this.instrumentation.instrumentWithResponse("Payload.JsonMergePatch.updateOptionalResource",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.updateOptionalResource(this.getEndpoint(), accept, body, updatedContext);
+            });
     }
 }

@@ -1,29 +1,26 @@
-import * as ay from "@alloy-js/core";
+import { code, Declaration, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 
 export function getPagedAsyncIterableIteratorRefkey() {
-  return ay.refkey("PagedAsyncIterableIterator", "interface");
+  return refkey("PagedAsyncIterableIterator", "interface");
 }
 
 export function getBuildPagedAsyncIteratorRefkey() {
-  return ay.refkey("buildPagedAsyncIterator", "function");
+  return refkey("buildPagedAsyncIterator", "function");
 }
 
 function getPagedResultRefkey() {
-  return ay.refkey("PagedResult", "interface");
+  return refkey("PagedResult", "interface");
 }
 
 function getBuildPagedAsyncIteratorOptionsRefkey() {
-  return ay.refkey("BuildPagedAsyncIteratorOptions", "interface");
+  return refkey("BuildPagedAsyncIteratorOptions", "interface");
 }
 
 function PagedAsyncIterableIteratorInterfaceDeclaration() {
   return (
-    <ay.Declaration
-      name="PagedAsyncIterableIterator"
-      refkey={getPagedAsyncIterableIteratorRefkey()}
-    >
-      {ay.code`
+    <Declaration name="PagedAsyncIterableIterator" refkey={getPagedAsyncIterableIteratorRefkey()}>
+      {code`
   /**
 * An interface that allows async iterable iteration both to completion and by page.
 */
@@ -51,14 +48,14 @@ export interface PagedAsyncIterableIterator<
     settings?: TPageSettings,
   ) => AsyncIterableIterator<TPageResponse>;
 }  `}
-    </ay.Declaration>
+    </Declaration>
   );
 }
 
 function PagedResultInterfaceDeclaration() {
   return (
-    <ay.Declaration name="PagedResult" refkey={getPagedResultRefkey()}>
-      {ay.code`
+    <Declaration name="PagedResult" refkey={getPagedResultRefkey()}>
+      {code`
 /**
 * An interface that describes how to communicate with the service.
 */
@@ -87,17 +84,17 @@ interface PagedResult<
     settings?: TPageSettings,
   ) => AsyncIterableIterator<TPageResponse>;
 }`}
-    </ay.Declaration>
+    </Declaration>
   );
 }
 
 function BuildPagedAsyncIteratorOptionsInterfaceDeclaration() {
   return (
-    <ay.Declaration
+    <Declaration
       name="BuildPagedAsyncIteratorOptions"
       refkey={getBuildPagedAsyncIteratorOptionsRefkey()}
     >
-      {ay.code`
+      {code`
 /**
  * Options for the paging helper
  */
@@ -109,14 +106,14 @@ export interface BuildPagedAsyncIteratorOptions<
   getElements: (response: TPageResponse) => TElement[];
   getPagedResponse: (nextToken?: string, settings?: TPageSettings) =>  Promise<{ pagedResponse: TPageResponse; nextToken?: string } | undefined>;
 }`}
-    </ay.Declaration>
+    </Declaration>
   );
 }
 
 function BuildPagedAsyncIteratorInterfaceDeclaration() {
   return (
-    <ay.Declaration name="buildPagedAsyncIterator" refkey={getBuildPagedAsyncIteratorRefkey()}>
-      {ay.code`
+    <Declaration name="buildPagedAsyncIterator" refkey={getBuildPagedAsyncIteratorRefkey()}>
+      {code`
 /**
  * Helper to paginate results in a generic way and return a PagedAsyncIterableIterator
  */
@@ -179,7 +176,7 @@ async function* getPageAsyncIterator<TElement, TPageResponse, TPageSettings>(
     yield results;
   }
 }`}
-    </ay.Declaration>
+    </Declaration>
   );
 }
 

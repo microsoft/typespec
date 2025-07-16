@@ -183,7 +183,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             CSharpType customType,
             [NotNullWhen(true)] out InputType? specValueType)
         {
-            var enumValueType = GetEnumValueType(inputProperty?.Type);
+            var enumValueType = GetInputPrimitiveType(inputProperty?.Type);
             if (enumValueType != null)
             {
                 specValueType = enumValueType;
@@ -216,7 +216,27 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // handle customized enums - we need to pull the type information from the spec property
             customType = EnsureEnum(specProperty, customType);
             // ensure literal types are correctly represented in the custom field using the info from the spec property
-            return EnsureLiteral(specProperty, customType);
+            customType = EnsureLiteral(specProperty, customType);
+
+            // Ensure the namespace is populated for custom model/enum types
+            if (string.IsNullOrEmpty(customType.Namespace))
+            {
+                var modelType = GetInputModelType(specProperty?.Type);
+                if (modelType != null)
+                {
+                    customType.Namespace = modelType.Namespace;
+                }
+                else
+                {
+                    var enumValueType = GetInputEnumType(specProperty?.Type);
+                    if (enumValueType != null)
+                    {
+                        customType.Namespace = enumValueType.Namespace;
+                    }
+                }
+            }
+
+            return customType;
         }
 
         private static CSharpType EnsureLiteral(InputProperty? specProperty, CSharpType customType)
@@ -252,16 +272,40 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return customType;
         }
 
-        private static InputPrimitiveType? GetEnumValueType(InputType? type)
+        private static InputPrimitiveType? GetInputPrimitiveType(InputType? type)
         {
             return type switch
             {
-                InputNullableType nullableType => GetEnumValueType(nullableType.Type),
+                InputNullableType nullableType => GetInputPrimitiveType(nullableType.Type),
                 InputEnumTypeValue enumValueType => enumValueType.ValueType,
                 InputEnumType enumType => enumType.ValueType,
                 InputLiteralType inputLiteral => inputLiteral.ValueType,
-                InputArrayType arrayType => GetEnumValueType(arrayType.ValueType),
-                InputDictionaryType dictionaryType => GetEnumValueType(dictionaryType.ValueType),
+                InputArrayType arrayType => GetInputPrimitiveType(arrayType.ValueType),
+                InputDictionaryType dictionaryType => GetInputPrimitiveType(dictionaryType.ValueType),
+                _ => null
+            };
+        }
+
+        private static InputEnumType? GetInputEnumType(InputType? type)
+        {
+            return type switch
+            {
+                InputNullableType nullableType => GetInputEnumType(nullableType.Type),
+                InputEnumType enumType => enumType,
+                InputArrayType arrayType => GetInputEnumType(arrayType.ValueType),
+                InputDictionaryType dictionaryType => GetInputEnumType(dictionaryType.ValueType),
+                _ => null
+            };
+        }
+
+        private static InputModelType? GetInputModelType(InputType? type)
+        {
+            return type switch
+            {
+                InputNullableType nullableType => GetInputModelType(nullableType.Type),
+                InputModelType modelType => modelType,
+                InputArrayType arrayType => GetInputModelType(arrayType.ValueType),
+                InputDictionaryType dictionaryType => GetInputModelType(dictionaryType.ValueType),
                 _ => null
             };
         }

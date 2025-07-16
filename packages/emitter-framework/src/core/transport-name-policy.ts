@@ -1,4 +1,4 @@
-import { Type } from "@typespec/compiler";
+import type { Type } from "@typespec/compiler";
 
 /**
  * A type that extends `Type` and includes a `name` property that can either be a `string` or `symbol`.

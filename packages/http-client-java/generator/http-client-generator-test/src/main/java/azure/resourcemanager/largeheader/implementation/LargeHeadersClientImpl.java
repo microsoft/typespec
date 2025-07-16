@@ -62,7 +62,7 @@ public final class LargeHeadersClientImpl implements LargeHeadersClient {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "LargeHeaderClientLar")
+    @ServiceInterface(name = "LargeHeaderClientLargeHeaders")
     public interface LargeHeadersService {
         @Headers({ "Content-Type: application/json" })
         @Post("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.LargeHeader/largeHeaders/{largeHeaderName}/two6k")

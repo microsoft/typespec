@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import type.property.optional.implementation.BooleanLiteralsImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class BooleanLiteralClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final BooleanLiteralsImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of BooleanLiteralClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    BooleanLiteralClient(BooleanLiteralsImpl serviceClient) {
+    BooleanLiteralClient(BooleanLiteralsImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -40,7 +45,8 @@ public final class BooleanLiteralClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BooleanLiteralProperty> getAllWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getAllWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.BooleanLiteral.getAll",
+            requestContext, updatedContext -> this.serviceClient.getAllWithResponse(updatedContext));
     }
 
     /**
@@ -53,7 +59,7 @@ public final class BooleanLiteralClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public BooleanLiteralProperty getAll() {
-        return this.serviceClient.getAll();
+        return getAllWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -68,7 +74,8 @@ public final class BooleanLiteralClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BooleanLiteralProperty> getDefaultWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getDefaultWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.BooleanLiteral.getDefault",
+            requestContext, updatedContext -> this.serviceClient.getDefaultWithResponse(updatedContext));
     }
 
     /**
@@ -81,7 +88,7 @@ public final class BooleanLiteralClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public BooleanLiteralProperty getDefault() {
-        return this.serviceClient.getDefault();
+        return getDefaultWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -97,7 +104,8 @@ public final class BooleanLiteralClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putAllWithResponse(BooleanLiteralProperty body, RequestContext requestContext) {
-        return this.serviceClient.putAllWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.BooleanLiteral.putAll",
+            requestContext, updatedContext -> this.serviceClient.putAllWithResponse(body, updatedContext));
     }
 
     /**
@@ -111,7 +119,7 @@ public final class BooleanLiteralClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putAll(BooleanLiteralProperty body) {
-        this.serviceClient.putAll(body);
+        putAllWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -127,7 +135,8 @@ public final class BooleanLiteralClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putDefaultWithResponse(BooleanLiteralProperty body, RequestContext requestContext) {
-        return this.serviceClient.putDefaultWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.BooleanLiteral.putDefault",
+            requestContext, updatedContext -> this.serviceClient.putDefaultWithResponse(body, updatedContext));
     }
 
     /**
@@ -141,6 +150,6 @@ public final class BooleanLiteralClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putDefault(BooleanLiteralProperty body) {
-        this.serviceClient.putDefault(body);
+        putDefaultWithResponse(body, RequestContext.none());
     }
 }

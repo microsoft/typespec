@@ -92,7 +92,7 @@ export interface LanguageConfiguration {
 
 await Parser.init();
 
-export function createSnipperExtractor(
+export function createSnippetExtractor(
   languageConfiguration: LanguageConfiguration,
 ): SnippetExtractor {
   return new SnippetExtractorImpl(languageConfiguration);

@@ -6,8 +6,9 @@ export default mergeConfig(
   defaultTypeSpecVitestConfig,
   defineConfig({
     test: {
-      include: ["test/**/*.test.ts", "test/**/*.test.tsx"],
+      include: ["src/**/*.test.ts", "src/**/*.test.tsx", "test/**/*.test.ts", "test/**/*.test.tsx"],
       passWithNoTests: true,
+      setupFiles: ["./test/vitest.setup.ts"],
     },
     esbuild: {
       jsx: "preserve",

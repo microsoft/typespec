@@ -11,7 +11,7 @@ using TypeSpec.Versioning;
 
 @service(#{ title: "MethodOverride" })
 @versioned(Versions)
-namespace MethodOverride {
+namespace TspTest.MethodOverride {
   enum Versions {
     @useDependency(global.Azure.Core.Versions.v1_0_Preview_2)
     v2022_12_01_preview: "2022-12-01-preview",
@@ -106,31 +106,37 @@ namespace MethodOverride {
 // customization in client.tsp
 namespace Customization {
   op groupQueryCustomization(
-    options?: MethodOverride.GroupQueryOptions,
+    options?: TspTest.MethodOverride.GroupQueryOptions,
     ...ApiVersionParameter,
   ): void;
-  op groupAllCustomization(options: MethodOverride.GroupAllOptions, ...ApiVersionParameter): void;
+  op groupAllCustomization(
+    options: TspTest.MethodOverride.GroupAllOptions,
+    ...ApiVersionParameter,
+  ): void;
   op groupPartCustomization(
-    ...MethodOverride.GroupPartNotGrouped,
-    options?: MethodOverride.GroupPartOptions,
+    ...TspTest.MethodOverride.GroupPartNotGrouped,
+    options?: TspTest.MethodOverride.GroupPartOptions,
     ...ApiVersionParameter,
   ): void;
   op groupPartETagCustomization(
-    ...MethodOverride.GroupPartNotGrouped,
-    options?: MethodOverride.GroupPartETagOptions,
+    ...TspTest.MethodOverride.GroupPartNotGrouped,
+    options?: TspTest.MethodOverride.GroupPartETagOptions,
     ...ApiVersionParameter,
   ): void;
   op groupExcludeBodyCustomization(
-    ...MethodOverride.GroupExcludeBody,
-    options?: MethodOverride.GroupQueryOptions,
+    ...TspTest.MethodOverride.GroupExcludeBody,
+    options?: TspTest.MethodOverride.GroupQueryOptions,
     ...ApiVersionParameter,
   ): void;
-  op groupNoneCustomization(...MethodOverride.GroupNoneNotGrouped, ...ApiVersionParameter): void;
+  op groupNoneCustomization(
+    ...TspTest.MethodOverride.GroupNoneNotGrouped,
+    ...ApiVersionParameter,
+  ): void;
 
-  @@override(MethodOverride.groupQuery, Customization.groupQueryCustomization);
-  @@override(MethodOverride.groupAll, Customization.groupAllCustomization);
-  @@override(MethodOverride.groupPart, Customization.groupPartCustomization);
-  @@override(MethodOverride.groupPartETag, Customization.groupPartETagCustomization);
-  @@override(MethodOverride.groupExcludeBody, Customization.groupExcludeBodyCustomization);
-  @@override(MethodOverride.groupNone, Customization.groupNoneCustomization);
+  @@override(TspTest.MethodOverride.groupQuery, Customization.groupQueryCustomization);
+  @@override(TspTest.MethodOverride.groupAll, Customization.groupAllCustomization);
+  @@override(TspTest.MethodOverride.groupPart, Customization.groupPartCustomization);
+  @@override(TspTest.MethodOverride.groupPartETag, Customization.groupPartETagCustomization);
+  @@override(TspTest.MethodOverride.groupExcludeBody, Customization.groupExcludeBodyCustomization);
+  @@override(TspTest.MethodOverride.groupNone, Customization.groupNoneCustomization);
 }

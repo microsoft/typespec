@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.time.OffsetDateTime;
 import specialheaders.conditionalrequest.implementation.ConditionalRequestClientImpl;
 
@@ -19,14 +20,18 @@ public final class ConditionalRequestClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final ConditionalRequestClientImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of ConditionalRequestClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    ConditionalRequestClient(ConditionalRequestClientImpl serviceClient) {
+    ConditionalRequestClient(ConditionalRequestClientImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -42,7 +47,8 @@ public final class ConditionalRequestClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> postIfMatchWithResponse(String ifMatch, RequestContext requestContext) {
-        return this.serviceClient.postIfMatchWithResponse(ifMatch, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialHeaders.ConditionalRequest.postIfMatch",
+            requestContext, updatedContext -> this.serviceClient.postIfMatchWithResponse(ifMatch, updatedContext));
     }
 
     /**
@@ -56,7 +62,7 @@ public final class ConditionalRequestClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void postIfMatch(String ifMatch) {
-        this.serviceClient.postIfMatch(ifMatch);
+        postIfMatchWithResponse(ifMatch, RequestContext.none());
     }
 
     /**
@@ -68,7 +74,8 @@ public final class ConditionalRequestClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void postIfMatch() {
-        this.serviceClient.postIfMatch();
+        final String ifMatch = null;
+        postIfMatchWithResponse(ifMatch, RequestContext.none());
     }
 
     /**
@@ -84,7 +91,9 @@ public final class ConditionalRequestClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> postIfNoneMatchWithResponse(String ifNoneMatch, RequestContext requestContext) {
-        return this.serviceClient.postIfNoneMatchWithResponse(ifNoneMatch, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialHeaders.ConditionalRequest.postIfNoneMatch",
+            requestContext,
+            updatedContext -> this.serviceClient.postIfNoneMatchWithResponse(ifNoneMatch, updatedContext));
     }
 
     /**
@@ -98,7 +107,7 @@ public final class ConditionalRequestClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void postIfNoneMatch(String ifNoneMatch) {
-        this.serviceClient.postIfNoneMatch(ifNoneMatch);
+        postIfNoneMatchWithResponse(ifNoneMatch, RequestContext.none());
     }
 
     /**
@@ -110,7 +119,8 @@ public final class ConditionalRequestClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void postIfNoneMatch() {
-        this.serviceClient.postIfNoneMatch();
+        final String ifNoneMatch = null;
+        postIfNoneMatchWithResponse(ifNoneMatch, RequestContext.none());
     }
 
     /**
@@ -129,7 +139,9 @@ public final class ConditionalRequestClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> headIfModifiedSinceWithResponse(OffsetDateTime ifModifiedSince,
         RequestContext requestContext) {
-        return this.serviceClient.headIfModifiedSinceWithResponse(ifModifiedSince, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialHeaders.ConditionalRequest.headIfModifiedSince",
+            requestContext,
+            updatedContext -> this.serviceClient.headIfModifiedSinceWithResponse(ifModifiedSince, updatedContext));
     }
 
     /**
@@ -145,7 +157,7 @@ public final class ConditionalRequestClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void headIfModifiedSince(OffsetDateTime ifModifiedSince) {
-        this.serviceClient.headIfModifiedSince(ifModifiedSince);
+        headIfModifiedSinceWithResponse(ifModifiedSince, RequestContext.none());
     }
 
     /**
@@ -157,7 +169,8 @@ public final class ConditionalRequestClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void headIfModifiedSince() {
-        this.serviceClient.headIfModifiedSince();
+        final OffsetDateTime ifModifiedSince = null;
+        headIfModifiedSinceWithResponse(ifModifiedSince, RequestContext.none());
     }
 
     /**
@@ -176,7 +189,9 @@ public final class ConditionalRequestClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> postIfUnmodifiedSinceWithResponse(OffsetDateTime ifUnmodifiedSince,
         RequestContext requestContext) {
-        return this.serviceClient.postIfUnmodifiedSinceWithResponse(ifUnmodifiedSince, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialHeaders.ConditionalRequest.postIfUnmodifiedSince",
+            requestContext,
+            updatedContext -> this.serviceClient.postIfUnmodifiedSinceWithResponse(ifUnmodifiedSince, updatedContext));
     }
 
     /**
@@ -192,7 +207,7 @@ public final class ConditionalRequestClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void postIfUnmodifiedSince(OffsetDateTime ifUnmodifiedSince) {
-        this.serviceClient.postIfUnmodifiedSince(ifUnmodifiedSince);
+        postIfUnmodifiedSinceWithResponse(ifUnmodifiedSince, RequestContext.none());
     }
 
     /**
@@ -204,6 +219,7 @@ public final class ConditionalRequestClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void postIfUnmodifiedSince() {
-        this.serviceClient.postIfUnmodifiedSince();
+        final OffsetDateTime ifUnmodifiedSince = null;
+        postIfUnmodifiedSinceWithResponse(ifUnmodifiedSince, RequestContext.none());
     }
 }

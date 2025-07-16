@@ -156,28 +156,28 @@ StringLiteral :
     `"""` TripleQuotedStringCharacters? `"""`
     StringTemplate
 
-StringTemplate : 
-  TemplateHead Expression TemplateSpans
+StringTemplate :
+    StringTemplateHead Expression StringTemplateSpans
 
-TemplateSpans : 
-  TemplateTail
-  TemplateMiddleList TemplateTail
+StringTemplateSpans :
+    StringTemplateTail
+    StringTemplateMiddleList StringTemplateTail
 
-TemplateMiddleList : 
-  StringTemplateMiddle Expression 
-  StringTemplateMiddle Expression TemplateMiddleList
+StringTemplateMiddleList :
+    StringTemplateMiddle Expression
+    StringTemplateMiddle Expression StringTemplateMiddleList
 
 StringTemplateHead :
     `"` StringCharacters? `${`
     `"""` TripleQuotedStringCharacters? `${`
-      
-StringTemplateMiddle :
-      `}` TemplateCharacters? `${`
 
+StringTemplateMiddle :
+    `}` StringCharacters? `${`
+    `}` TripleQuotedStringCharacters? `${`
 
 StringTemplateTail :
-      `}` TemplateCharacters? `"`
-      `}` TemplateCharacters? `"""`
+    `}` StringCharacters? `"`
+    `}` TripleQuotedStringCharacters? `"""`
 
 StringCharacters :
     StringCharacter StringCharacters?
@@ -318,6 +318,7 @@ Statement :
     AugmentDecoratorStatement
     DecoratorDeclarationStatement
     FunctionDeclarationStatement
+    ConstStatement
     `;`
 
 UsingStatement :
@@ -613,5 +614,7 @@ FunctionParameterList :
 FunctionParameter :
   `...`? Identifier `?`? TypeAnnotation?
 
+ConstStatement :
+  `const` Identifier TypeAnnotation? `=` Expression `;`
 </emu-grammar>
 </emu-clause>

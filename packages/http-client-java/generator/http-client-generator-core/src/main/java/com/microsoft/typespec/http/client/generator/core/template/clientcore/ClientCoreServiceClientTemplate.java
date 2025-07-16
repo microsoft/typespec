@@ -27,6 +27,7 @@ public class ClientCoreServiceClientTemplate extends ServiceClientTemplate {
     protected void writeMaxOverloadedDataPlaneConstructorImplementation(JavaBlock constructorBlock,
         ServiceClient serviceClient, Consumer<JavaBlock> constructorParametersCodes) {
         constructorBlock.line("this.httpPipeline = httpPipeline;");
+        constructorBlock.line("this.instrumentation = instrumentation;");
         constructorParametersCodes.accept(constructorBlock);
 
         for (ServiceClientProperty serviceClientProperty : serviceClient.getProperties()

@@ -3,7 +3,6 @@ package encode.duration.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.QueryParam;
@@ -13,6 +12,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.models.binarydata.BinaryData;
 import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
@@ -34,20 +34,26 @@ public final class QueriesImpl {
     private final DurationClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of QueriesImpl.
      * 
      * @param client the instance of the service client containing this operation class.
      */
     QueriesImpl(DurationClientImpl client) {
-        this.service = RestProxy.create(QueriesService.class, client.getHttpPipeline());
+        this.service = QueriesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
      * The interface defining all the services for DurationClientQueries to be used by the proxy service to perform REST
      * calls.
      */
-    @ServiceInterface(name = "DurationClientQuerie", host = "{endpoint}")
+    @ServiceInterface(name = "DurationClientQueries", host = "{endpoint}")
     public interface QueriesService {
         static QueriesService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -121,20 +127,10 @@ public final class QueriesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> defaultMethodWithResponse(Duration input, RequestContext requestContext) {
-        return service.defaultMethod(this.client.getEndpoint(), input, requestContext);
-    }
-
-    /**
-     * The defaultMethod operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void defaultMethod(Duration input) {
-        defaultMethodWithResponse(input, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Query.default", requestContext,
+            updatedContext -> {
+                return service.defaultMethod(this.client.getEndpoint(), input, updatedContext);
+            });
     }
 
     /**
@@ -149,20 +145,10 @@ public final class QueriesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> iso8601WithResponse(Duration input, RequestContext requestContext) {
-        return service.iso8601(this.client.getEndpoint(), input, requestContext);
-    }
-
-    /**
-     * The iso8601 operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void iso8601(Duration input) {
-        iso8601WithResponse(input, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Query.iso8601", requestContext,
+            updatedContext -> {
+                return service.iso8601(this.client.getEndpoint(), input, updatedContext);
+            });
     }
 
     /**
@@ -177,21 +163,11 @@ public final class QueriesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> int32SecondsWithResponse(Duration input, RequestContext requestContext) {
-        long inputConverted = input.getSeconds();
-        return service.int32Seconds(this.client.getEndpoint(), inputConverted, requestContext);
-    }
-
-    /**
-     * The int32Seconds operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void int32Seconds(Duration input) {
-        int32SecondsWithResponse(input, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Query.int32Seconds", requestContext,
+            updatedContext -> {
+                long inputConverted = input.getSeconds();
+                return service.int32Seconds(this.client.getEndpoint(), inputConverted, updatedContext);
+            });
     }
 
     /**
@@ -206,21 +182,11 @@ public final class QueriesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> floatSecondsWithResponse(Duration input, RequestContext requestContext) {
-        double inputConverted = (double) input.toNanos() / 1000_000_000L;
-        return service.floatSeconds(this.client.getEndpoint(), inputConverted, requestContext);
-    }
-
-    /**
-     * The floatSeconds operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void floatSeconds(Duration input) {
-        floatSecondsWithResponse(input, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Query.floatSeconds", requestContext,
+            updatedContext -> {
+                double inputConverted = (double) input.toNanos() / 1000_000_000L;
+                return service.floatSeconds(this.client.getEndpoint(), inputConverted, updatedContext);
+            });
     }
 
     /**
@@ -235,21 +201,11 @@ public final class QueriesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> float64SecondsWithResponse(Duration input, RequestContext requestContext) {
-        double inputConverted = (double) input.toNanos() / 1000_000_000L;
-        return service.float64Seconds(this.client.getEndpoint(), inputConverted, requestContext);
-    }
-
-    /**
-     * The float64Seconds operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void float64Seconds(Duration input) {
-        float64SecondsWithResponse(input, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Query.float64Seconds", requestContext,
+            updatedContext -> {
+                double inputConverted = (double) input.toNanos() / 1000_000_000L;
+                return service.float64Seconds(this.client.getEndpoint(), inputConverted, updatedContext);
+            });
     }
 
     /**
@@ -264,51 +220,41 @@ public final class QueriesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> int32SecondsArrayWithResponse(List<Duration> input, RequestContext requestContext) {
-        String inputConverted = input.stream()
-            .map(paramItemValue -> paramItemValue.getSeconds())
-            .collect(Collectors.toList())
-            .stream()
-            .map(paramItemValue -> {
-                if (paramItemValue == null) {
-                    return "";
-                } else {
-                    String itemValueString = BinaryData.fromObject(paramItemValue).toString();
-                    int strLength = itemValueString.length();
-                    int startOffset = 0;
-                    while (startOffset < strLength) {
-                        if (itemValueString.charAt(startOffset) != '"') {
-                            break;
-                        }
-                        startOffset++;
-                    }
-                    if (startOffset == strLength) {
-                        return "";
-                    }
-                    int endOffset = strLength - 1;
-                    while (endOffset >= 0) {
-                        if (itemValueString.charAt(endOffset) != '"') {
-                            break;
-                        }
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Query.int32SecondsArray", requestContext,
+            updatedContext -> {
+                String inputConverted = input.stream()
+                    .map(paramItemValue -> paramItemValue.getSeconds())
+                    .collect(Collectors.toList())
+                    .stream()
+                    .map(paramItemValue -> {
+                        if (paramItemValue == null) {
+                            return "";
+                        } else {
+                            String itemValueString = BinaryData.fromObject(paramItemValue).toString();
+                            int strLength = itemValueString.length();
+                            int startOffset = 0;
+                            while (startOffset < strLength) {
+                                if (itemValueString.charAt(startOffset) != '"') {
+                                    break;
+                                }
+                                startOffset++;
+                            }
+                            if (startOffset == strLength) {
+                                return "";
+                            }
+                            int endOffset = strLength - 1;
+                            while (endOffset >= 0) {
+                                if (itemValueString.charAt(endOffset) != '"') {
+                                    break;
+                                }
 
-                        endOffset--;
-                    }
-                    return itemValueString.substring(startOffset, endOffset + 1);
-                }
-            })
-            .collect(Collectors.joining(","));
-        return service.int32SecondsArray(this.client.getEndpoint(), inputConverted, requestContext);
-    }
-
-    /**
-     * The int32SecondsArray operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void int32SecondsArray(List<Duration> input) {
-        int32SecondsArrayWithResponse(input, RequestContext.none());
+                                endOffset--;
+                            }
+                            return itemValueString.substring(startOffset, endOffset + 1);
+                        }
+                    })
+                    .collect(Collectors.joining(","));
+                return service.int32SecondsArray(this.client.getEndpoint(), inputConverted, updatedContext);
+            });
     }
 }

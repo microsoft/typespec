@@ -49,6 +49,7 @@ public class MethodGroupTemplate implements IJavaTemplate<MethodGroupClient, Jav
         imports.add(String.format("%1$s.%2$s", serviceClientPackageName, methodGroupClient.getServiceClientName()));
         imports.add(InvocationTargetException.class.getName());
         imports.add(ObjectSerializer.class.getName());
+        ClassType.INSTRUMENTATION.addImportsTo(imports, false);
         ClassType.HTTP_PIPELINE.addImportsTo(imports, false);
         javaFile.declareImport(imports);
 
@@ -79,6 +80,12 @@ public class MethodGroupTemplate implements IJavaTemplate<MethodGroupClient, Jav
                 classBlock.javadocComment("The service client containing this operation class.");
                 classBlock.privateFinalMemberVariable(methodGroupClient.getServiceClientName(), "client");
 
+                boolean writeInstrumentation = !settings.isAzureV1();
+                if (writeInstrumentation) {
+                    classBlock.javadocComment("The instance of instrumentation to report telemetry.");
+                    classBlock.privateFinalMemberVariable(ClassType.INSTRUMENTATION.getName(), "instrumentation");
+                }
+
                 classBlock.javadocComment(comment -> {
                     comment.description(
                         String.format("Initializes an instance of %1$s.", methodGroupClient.getClassName()));
@@ -90,6 +97,10 @@ public class MethodGroupTemplate implements IJavaTemplate<MethodGroupClient, Jav
                             writeServiceProxyConstruction(constructor, methodGroupClient);
                         }
                         constructor.line("this.client = client;");
+
+                        if (writeInstrumentation) {
+                            constructor.line("this.instrumentation = client.getInstrumentation();");
+                        }
                     });
 
                 if (!CoreUtils.isNullOrEmpty(methodGroupClient.getProperties())) {

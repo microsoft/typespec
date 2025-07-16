@@ -1,6 +1,6 @@
 import { strictEqual } from "node:assert";
 import { describe, it, beforeEach } from "node:test";
-import { Operation } from "@typespec/compiler";
+import type { Operation } from "@typespec/compiler";
 import { BasicTestRunner, expectDiagnostics, extractCursor } from "@typespec/compiler/testing";
 import { getAlternateName } from "../src/decorators.js";
 import { create{{#casing.pascalCase}}{{name}}{{/casing.pascalCase}}TestRunner } from "./test-host.js";

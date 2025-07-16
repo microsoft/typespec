@@ -14,13 +14,17 @@ import io.clientcore.core.http.pipeline.HttpRedirectOptions;
 import io.clientcore.core.http.pipeline.HttpRedirectPolicy;
 import io.clientcore.core.http.pipeline.HttpRetryOptions;
 import io.clientcore.core.http.pipeline.HttpRetryPolicy;
+import io.clientcore.core.instrumentation.Instrumentation;
+import io.clientcore.core.instrumentation.SdkInstrumentationOptions;
 import io.clientcore.core.traits.ConfigurationTrait;
 import io.clientcore.core.traits.EndpointTrait;
 import io.clientcore.core.traits.HttpTrait;
 import io.clientcore.core.traits.ProxyTrait;
+import io.clientcore.core.utils.CoreUtils;
 import io.clientcore.core.utils.configuration.Configuration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import versioning.madeoptional.implementation.MadeOptionalClientImpl;
 
@@ -36,6 +40,9 @@ public final class MadeOptionalClientBuilder
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("versioning-madeoptional.properties");
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
@@ -199,8 +206,17 @@ public final class MadeOptionalClientBuilder
         this.validateClient();
         MadeOptionalServiceVersion localServiceVersion
             = (serviceVersion != null) ? serviceVersion : MadeOptionalServiceVersion.getLatest();
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         MadeOptionalClientImpl client
-            = new MadeOptionalClientImpl(createHttpPipeline(), this.endpoint, localServiceVersion);
+            = new MadeOptionalClientImpl(createHttpPipeline(), instrumentation, this.endpoint, localServiceVersion);
         return client;
     }
 
@@ -235,6 +251,7 @@ public final class MadeOptionalClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public MadeOptionalClient buildClient() {
-        return new MadeOptionalClient(buildInnerClient());
+        MadeOptionalClientImpl innerClient = buildInnerClient();
+        return new MadeOptionalClient(innerClient, innerClient.getInstrumentation());
     }
 }

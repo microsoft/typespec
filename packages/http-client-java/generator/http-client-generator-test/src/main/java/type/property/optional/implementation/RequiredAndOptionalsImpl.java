@@ -57,7 +57,7 @@ public final class RequiredAndOptionalsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "OptionalClientRequir")
+    @ServiceInterface(name = "OptionalClientRequiredAndOptionals")
     public interface RequiredAndOptionalsService {
         @Get("/type/property/optional/requiredAndOptional/all")
         @ExpectedResponses({ 200 })

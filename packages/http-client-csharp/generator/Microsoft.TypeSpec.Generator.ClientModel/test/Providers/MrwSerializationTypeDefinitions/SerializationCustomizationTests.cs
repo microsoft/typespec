@@ -275,7 +275,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsNotNull(serializationProvider);
 
             var methods = serializationProvider!.Methods;
-            Assert.AreEqual(11, methods.Count);
+            Assert.AreEqual(9, methods.Count);
 
             // validate the serialization method doesn't exist in the serialization provider
             Assert.IsNull(methods.FirstOrDefault(m => m.Signature.Name == "JsonModelWriteCore"));
@@ -302,7 +302,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsNotNull(serializationProvider);
 
             var methods = serializationProvider!.Methods;
-            Assert.AreEqual(10, methods.Count);
+            Assert.AreEqual(8, methods.Count);
 
             // validate the Write method doesn't exist in the serialization provider
             Assert.IsNull(methods.FirstOrDefault(m => m.Signature.Name == "Write"));
@@ -325,7 +325,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsNotNull(serializationProvider);
 
             var methods = serializationProvider!.Methods;
-            Assert.AreEqual(11, methods.Count);
+            Assert.AreEqual(9, methods.Count);
 
             // validate the deserialization method doesn't exist in the serialization provider
             Assert.IsNull(methods.FirstOrDefault(m => m.Signature.Name == "DeserializeMockInputModel"));

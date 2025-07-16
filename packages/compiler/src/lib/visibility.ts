@@ -52,6 +52,7 @@ import {
   MutatorFlow,
   setAlwaysMutate,
 } from "../experimental/mutators.js";
+import { $ } from "../typekit/index.js";
 import { useStateMap } from "../utils/index.js";
 import { mutate } from "../utils/misc.js";
 import { isKey } from "./key.js";
@@ -653,6 +654,22 @@ function createVisibilityFilterMutator(
             options.recur ?? self,
             model.indexer.value,
           ).type;
+
+          if (
+            $(realm).array.is(model) &&
+            clone.name === "Array" &&
+            clone.indexer.value !== model.indexer.value
+          ) {
+            return $(program).array.create(clone.indexer.value);
+          }
+
+          if (
+            $(realm).record.is(model) &&
+            clone.name === "Record" &&
+            clone.indexer.value !== model.indexer.value
+          ) {
+            return $(program).record.create(clone.indexer.value);
+          }
 
           modified ||= clone.indexer.value !== model.indexer.value;
         }

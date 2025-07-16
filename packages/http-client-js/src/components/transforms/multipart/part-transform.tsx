@@ -1,4 +1,4 @@
-import * as ay from "@alloy-js/core";
+import { type Children } from "@alloy-js/core";
 import { HttpOperationPart } from "@typespec/http";
 import { ArrayPartTransform } from "./array-part-transform.jsx";
 import { FilePartTransform } from "./file-part-transform.jsx";
@@ -6,7 +6,7 @@ import { SimplePartTransform } from "./simple-part-transform.jsx";
 
 export interface HttpPartTransformProps {
   part: HttpOperationPart;
-  itemRef: ay.Children;
+  itemRef: Children;
 }
 
 export function HttpPartTransform(props: HttpPartTransformProps) {

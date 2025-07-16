@@ -11,6 +11,7 @@ import { NoTarget } from "@typespec/compiler";
 import { Oauth2Auth, OAuth2Flow } from "@typespec/http";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { InputAuth } from "../type/input-auth.js";
+import { InputOAuth2Flow } from "../type/input-oauth2-auth.js";
 
 export function processServiceAuthentication(
   sdkContext: CSharpEmitterContext,
@@ -132,18 +133,27 @@ function processAuthType(
 }
 
 function processOAuth2(scheme: Oauth2Auth<OAuth2Flow[]>): InputAuth | undefined {
-  let scopes: Set<string> | undefined = undefined;
+  const inputFlows: InputOAuth2Flow[] = [];
+
   for (const flow of scheme.flows) {
+    const inputFlow: InputOAuth2Flow = {};
+
     if (flow.scopes) {
-      scopes ??= new Set<string>();
-      for (const scope of flow.scopes) {
-        scopes.add(scope.value);
-      }
+      inputFlow.scopes = flow.scopes.map((scope) => scope.value);
     }
+
+    inputFlow.refreshUrl = flow.refreshUrl;
+
+    if (flow.type === "authorizationCode" || flow.type === "implicit" || flow.type === "password") {
+      inputFlow.authorizationUrl = flow.authorizationUrl;
+    }
+
+    if (flow.type === "authorizationCode" || flow.type === "clientCredentials") {
+      inputFlow.tokenUrl = flow.tokenUrl;
+    }
+
+    inputFlows.push(inputFlow);
   }
-  return scopes
-    ? {
-        oAuth2: { scopes: Array.from(scopes.values()) },
-      }
-    : undefined;
+
+  return { oAuth2: { flows: inputFlows } };
 }

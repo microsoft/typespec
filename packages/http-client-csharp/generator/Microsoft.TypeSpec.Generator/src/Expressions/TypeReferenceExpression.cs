@@ -13,9 +13,15 @@ namespace Microsoft.TypeSpec.Generator.Expressions
         private static readonly Dictionary<Type, TypeProvider> _cache = new Dictionary<Type, TypeProvider>();
         private static readonly TypeReferenceExpression _nullType = new((CSharpType?)null);
 
+        internal static void ResetCache()
+        {
+            _cache.Clear();
+            _typeCache.Clear();
+        }
+
         public CSharpType? Type { get; }
 
-        private static readonly Dictionary<CSharpType, TypeReferenceExpression> _typeCache = new Dictionary<CSharpType, TypeReferenceExpression>();
+        private static Dictionary<CSharpType, TypeReferenceExpression> _typeCache = new Dictionary<CSharpType, TypeReferenceExpression>();
         internal static TypeReferenceExpression FromType(CSharpType? type)
         {
             if (type is null)

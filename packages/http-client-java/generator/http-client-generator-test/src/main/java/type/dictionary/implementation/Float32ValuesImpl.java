@@ -57,7 +57,7 @@ public final class Float32ValuesImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "DictionaryClientFloa")
+    @ServiceInterface(name = "DictionaryClientFloat32Values")
     public interface Float32ValuesService {
         @Get("/type/dictionary/float32")
         @ExpectedResponses({ 200 })

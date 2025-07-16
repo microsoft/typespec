@@ -73,4 +73,11 @@ public interface ArmResourceProviderManagementClient {
      * @return the PrioritiesClient object.
      */
     PrioritiesClient getPriorities();
+
+    /**
+     * Gets the ItemsClient object to access its operations.
+     * 
+     * @return the ItemsClient object.
+     */
+    ItemsClient getItems();
 }

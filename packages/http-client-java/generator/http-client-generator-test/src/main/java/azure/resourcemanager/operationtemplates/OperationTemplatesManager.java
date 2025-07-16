@@ -9,9 +9,11 @@ import azure.resourcemanager.operationtemplates.implementation.CheckNameAvailabi
 import azure.resourcemanager.operationtemplates.implementation.LroesImpl;
 import azure.resourcemanager.operationtemplates.implementation.OperationTemplatesClientBuilder;
 import azure.resourcemanager.operationtemplates.implementation.OperationsImpl;
+import azure.resourcemanager.operationtemplates.implementation.OptionalBodiesImpl;
 import azure.resourcemanager.operationtemplates.models.CheckNameAvailabilities;
 import azure.resourcemanager.operationtemplates.models.Lroes;
 import azure.resourcemanager.operationtemplates.models.Operations;
+import azure.resourcemanager.operationtemplates.models.OptionalBodies;
 import com.azure.core.credential.TokenCredential;
 import com.azure.core.http.HttpClient;
 import com.azure.core.http.HttpPipeline;
@@ -50,6 +52,8 @@ public final class OperationTemplatesManager {
     private CheckNameAvailabilities checkNameAvailabilities;
 
     private Lroes lroes;
+
+    private OptionalBodies optionalBodies;
 
     private final OperationTemplatesClient clientObject;
 
@@ -301,6 +305,18 @@ public final class OperationTemplatesManager {
             this.lroes = new LroesImpl(clientObject.getLroes(), this);
         }
         return lroes;
+    }
+
+    /**
+     * Gets the resource collection API of OptionalBodies.
+     * 
+     * @return Resource collection API of OptionalBodies.
+     */
+    public OptionalBodies optionalBodies() {
+        if (this.optionalBodies == null) {
+            this.optionalBodies = new OptionalBodiesImpl(clientObject.getOptionalBodies(), this);
+        }
+        return optionalBodies;
     }
 
     /**

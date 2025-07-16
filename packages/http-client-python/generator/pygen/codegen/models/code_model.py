@@ -14,10 +14,11 @@ from .request_builder import RequestBuilder, OverloadedRequestBuilder
 from .operation_group import OperationGroup
 from .utils import NamespaceType
 from .._utils import DEFAULT_HEADER_TEXT, DEFAULT_LICENSE_DESCRIPTION
+from ... import OptionsDict
 
 
 def _is_legacy(options) -> bool:
-    return not (options.get("version_tolerant") or options.get("low_level_client"))
+    return not (options.get("version-tolerant") or options.get("low-level-client"))
 
 
 def get_all_operation_groups_recursively(clients: List[Client]) -> List[OperationGroup]:
@@ -72,7 +73,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
     def __init__(
         self,
         yaml_data: Dict[str, Any],
-        options: Dict[str, Any],
+        options: OptionsDict,
     ) -> None:
         self.yaml_data = yaml_data
         self.options = options
@@ -86,7 +87,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         self.clients: List[Client] = [
             Client.from_yaml(client_yaml_data, self) for client_yaml_data in yaml_data["clients"]
         ]
-        if self.options["models_mode"] and self.model_types:
+        if self.options["models-mode"] and self.model_types:
             self.sort_model_types()
         self.named_unions: List[CombinedType] = [
             t for t in self.types_map.values() if isinstance(t, CombinedType) and t.name
@@ -227,7 +228,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
     @property
     def rest_layer_name(self) -> str:
         """If we have a separate rest layer, what is its name?"""
-        return "rest" if self.options["builders_visibility"] == "public" else "_rest"
+        return "rest" if self.options["builders-visibility"] == "public" else "_rest"
 
     @property
     def client_filename(self) -> str:
@@ -247,12 +248,12 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         return (
             self.need_utils_utils(async_mode, client_namespace)
             or self.need_utils_serialization
-            or self.options["models_mode"] == "dpg"
+            or self.options["models-mode"] == "dpg"
         )
 
     @property
     def need_utils_serialization(self) -> bool:
-        return not self.options["client_side_validation"]
+        return not self.options["client-side-validation"]
 
     def need_utils_utils(self, async_mode: bool, client_namespace: str) -> bool:
         return (
@@ -267,7 +268,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
             (not async_mode)
             and self.is_top_namespace(client_namespace)
             and self.has_form_data
-            and self.options["models_mode"] == "dpg"
+            and self.options["models-mode"] == "dpg"
         )
 
     def need_utils_etag(self, client_namespace: str) -> bool:
@@ -292,7 +293,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         if client_namespace not in self._operations_folder_name:
             name = "operations"
             operation_groups = self.client_namespace_types.get(client_namespace, ClientNamespaceType()).operation_groups
-            if self.options["version_tolerant"] and all(og.is_mixin for og in operation_groups):
+            if self.options["version-tolerant"] and all(og.is_mixin for og in operation_groups):
                 name = f"_{name}"
             self._operations_folder_name[client_namespace] = name
         return self._operations_folder_name[client_namespace]
@@ -427,7 +428,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
             license_header = self.yaml_data.get("licenseInfo", {}).get("header", "")
         else:
             # typespec azure case without custom license and swagger case
-            license_header = self.options.get("header_text") or DEFAULT_HEADER_TEXT
+            license_header = self.options.get("header-text") or DEFAULT_HEADER_TEXT
         if license_header:
             license_header = license_header.replace("\n", "\n# ")
             license_header = (

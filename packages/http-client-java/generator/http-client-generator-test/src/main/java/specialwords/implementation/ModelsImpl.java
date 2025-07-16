@@ -55,7 +55,7 @@ public final class ModelsImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "SpecialWordsClientMo")
+    @ServiceInterface(name = "SpecialWordsClientModels")
     public interface ModelsService {
         @Post("/special-words/models/and")
         @ExpectedResponses({ 204 })

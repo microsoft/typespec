@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import routes.implementation.PathParametersImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class PathParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final PathParametersImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of PathParametersClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    PathParametersClient(PathParametersImpl serviceClient) {
+    PathParametersClient(PathParametersImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -41,7 +46,8 @@ public final class PathParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> templateOnlyWithResponse(String param, RequestContext requestContext) {
-        return this.serviceClient.templateOnlyWithResponse(param, requestContext);
+        return this.instrumentation.instrumentWithResponse("Routes.PathParameters.templateOnly", requestContext,
+            updatedContext -> this.serviceClient.templateOnlyWithResponse(param, updatedContext));
     }
 
     /**
@@ -55,7 +61,7 @@ public final class PathParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void templateOnly(String param) {
-        this.serviceClient.templateOnly(param);
+        templateOnlyWithResponse(param, RequestContext.none());
     }
 
     /**
@@ -71,7 +77,8 @@ public final class PathParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> explicitWithResponse(String param, RequestContext requestContext) {
-        return this.serviceClient.explicitWithResponse(param, requestContext);
+        return this.instrumentation.instrumentWithResponse("Routes.PathParameters.explicit", requestContext,
+            updatedContext -> this.serviceClient.explicitWithResponse(param, updatedContext));
     }
 
     /**
@@ -85,7 +92,7 @@ public final class PathParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void explicit(String param) {
-        this.serviceClient.explicit(param);
+        explicitWithResponse(param, RequestContext.none());
     }
 
     /**
@@ -101,7 +108,8 @@ public final class PathParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> annotationOnlyWithResponse(String param, RequestContext requestContext) {
-        return this.serviceClient.annotationOnlyWithResponse(param, requestContext);
+        return this.instrumentation.instrumentWithResponse("Routes.PathParameters.annotationOnly", requestContext,
+            updatedContext -> this.serviceClient.annotationOnlyWithResponse(param, updatedContext));
     }
 
     /**
@@ -115,6 +123,6 @@ public final class PathParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void annotationOnly(String param) {
-        this.serviceClient.annotationOnly(param);
+        annotationOnlyWithResponse(param, RequestContext.none());
     }
 }

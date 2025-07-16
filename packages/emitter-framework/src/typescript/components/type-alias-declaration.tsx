@@ -1,5 +1,5 @@
 import * as ts from "@alloy-js/typescript";
-import { Type } from "@typespec/compiler";
+import type { Type } from "@typespec/compiler";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
 import { declarationRefkeys } from "../utils/refkey.js";
@@ -31,7 +31,7 @@ export function TypeAliasDeclaration(props: TypeAliasDeclarationProps) {
   }
 
   const doc = props.doc ?? $.type.getDoc(props.type);
-  const refkeys = declarationRefkeys(props.refkey, props.name);
+  const refkeys = declarationRefkeys(props.refkey, props.type);
 
   const name = ts.useTSNamePolicy().getName(originalName, "type");
   return (

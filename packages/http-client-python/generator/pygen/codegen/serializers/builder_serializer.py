@@ -326,7 +326,7 @@ class _BuilderBaseSerializer(Generic[BuilderType]):
 
         if (
             isinstance(body_param.type, (ListType, DictionaryType))
-            and self.code_model.options["models_mode"] == "msrest"
+            and self.code_model.options["models-mode"] == "msrest"
         ):
             return template
 
@@ -351,7 +351,7 @@ class _BuilderBaseSerializer(Generic[BuilderType]):
             )
             for idx in range(
                 min(
-                    self.code_model.options["polymorphic_examples"],
+                    self.code_model.options["polymorphic-examples"],
                     len(polymorphic_subtypes),
                 )
             ):
@@ -494,7 +494,7 @@ class RequestBuilderSerializer(_BuilderBaseSerializer[RequestBuilderType]):
         return retval
 
     def construct_url(self, builder: RequestBuilderType) -> str:
-        if any(o for o in ["low_level_client", "version_tolerant"] if self.code_model.options.get(o)):
+        if any(o for o in ["low-level-client", "version-tolerant"] if self.code_model.options.get(o)):
             url_value = _escape_str(builder.url)
         else:
             url_value = f'kwargs.pop("template_url", {_escape_str(builder.url)})'
@@ -522,7 +522,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         return "response"
 
     def example_template(self, builder: OperationType) -> List[str]:
-        if self.code_model.options["models_mode"] in ("msrest", "dpg"):
+        if self.code_model.options["models-mode"] in ("msrest", "dpg"):
             return []
         retval = super().example_template(builder)
         for response in builder.responses:
@@ -540,7 +540,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 )
                 for idx in range(
                     min(
-                        self.code_model.options["polymorphic_examples"],
+                        self.code_model.options["polymorphic-examples"],
                         len(polymorphic_subtypes),
                     )
                 ):
@@ -559,7 +559,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
     def make_pipeline_call(self, builder: OperationType) -> List[str]:
         retval = []
         type_ignore = self.async_mode and builder.group_name == ""  # is in a mixin
-        if builder.stream_value is True and not self.code_model.options["version_tolerant"]:
+        if builder.stream_value is True and not self.code_model.options["version-tolerant"]:
             retval.append("_decompress = kwargs.pop('decompress', True)")
         pylint_disable = " # pylint: disable=protected-access" if self.code_model.is_azure_flavor else ""
         retval.extend(
@@ -607,6 +607,8 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         if params_added_on:
             retval.append(f"    params_added_on={dict(params_added_on)},")
         if retval:
+            if builder.api_versions:
+                retval.append(f"   api_versions_list={builder.api_versions},")
             retval_str = "\n".join(retval)
             return f"@api_version_validation(\n{retval_str}\n)"
         return ""
@@ -686,9 +688,9 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         send_xml = builder.parameters.body_parameter.type.is_xml
         xml_serialization_ctxt = body_param.type.xml_serialization_ctxt if send_xml else None
         ser_ctxt_name = "serialization_ctxt"
-        if xml_serialization_ctxt and self.code_model.options["models_mode"]:
+        if xml_serialization_ctxt and self.code_model.options["models-mode"]:
             retval.append(f'{ser_ctxt_name} = {{"xml": {{{xml_serialization_ctxt}}}}}')
-        if self.code_model.options["models_mode"] == "msrest":
+        if self.code_model.options["models-mode"] == "msrest":
             is_xml_cmd = _xml_config(send_xml, builder.parameters.body_parameter.content_types)
             serialization_ctxt_cmd = f", {ser_ctxt_name}={ser_ctxt_name}" if xml_serialization_ctxt else ""
             serialization_type = body_param.type.serialization_type(serialize_namespace=self.serialize_namespace)
@@ -696,7 +698,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 f"_{body_kwarg_name} = self._serialize.body({body_param.client_name}, "
                 f"'{serialization_type}'{is_xml_cmd}{serialization_ctxt_cmd})"
             )
-        elif self.code_model.options["models_mode"] == "dpg":
+        elif self.code_model.options["models-mode"] == "dpg":
             if json_serializable(body_param.default_content_type):
                 if hasattr(body_param.type, "encode") and body_param.type.encode:  # type: ignore
                     create_body_call = (
@@ -810,7 +812,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         is_next_request: bool = False,
     ) -> List[str]:
         retval: List[str] = []
-        if self.code_model.options["builders_visibility"] == "embedded":
+        if self.code_model.options["builders-visibility"] == "embedded":
             request_path_name = request_builder.name
         else:
             group_name = request_builder.group_name
@@ -871,7 +873,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         if builder.parameters.path:
             retval.extend(self.serialize_path(builder))
         url_to_format = "_request.url"
-        if self.code_model.options["version_tolerant"] and template_url:
+        if self.code_model.options["version-tolerant"] and template_url:
             url_to_format = template_url
         retval.append(
             "_request.url = self._client.format_url({}{})".format(
@@ -946,7 +948,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 deserialized = f"{'await ' if self.async_mode else ''}response.read()"
             else:
                 stream_logic = False
-                if self.code_model.options["version_tolerant"]:
+                if self.code_model.options["version-tolerant"]:
                     deserialized = "response.iter_bytes()"
                 else:
                     deserialized = (
@@ -957,13 +959,13 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             pylint_disable = ""
             if isinstance(response.type, ModelType) and response.type.internal:
                 pylint_disable = "  # pylint: disable=protected-access"
-            if self.code_model.options["models_mode"] == "msrest":
+            if self.code_model.options["models-mode"] == "msrest":
                 deserialize_code.append("deserialized = self._deserialize(")
                 serialization_type = response.serialization_type(serialize_namespace=self.serialize_namespace)
                 deserialize_code.append(f"    '{serialization_type}',{pylint_disable}")
                 deserialize_code.append(" pipeline_response.http_response")
                 deserialize_code.append(")")
-            elif self.code_model.options["models_mode"] == "dpg":
+            elif self.code_model.options["models-mode"] == "dpg":
                 if builder.has_stream_response:
                     deserialize_code.append("deserialized = response.content")
                 else:
@@ -1017,7 +1019,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             retval.extend([f"    {l}" for l in response_read])
         retval.append("    map_error(status_code=response.status_code, response=response, error_map=error_map)")
         error_model = ""
-        if builder.non_default_errors and self.code_model.options["models_mode"]:
+        if builder.non_default_errors and self.code_model.options["models-mode"]:
             error_model = ", model=error"
             condition = "if"
             retval.append("    error = None")
@@ -1029,7 +1031,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                         type_annotation = e.type.type_annotation(  # type: ignore
                             is_operation_file=True, skip_quote=True, serialize_namespace=self.serialize_namespace
                         )
-                        if self.code_model.options["models_mode"] == "dpg":
+                        if self.code_model.options["models-mode"] == "dpg":
                             retval.append(f"        error = _failsafe_deserialize({type_annotation},  response.json())")
                         else:
                             retval.append(
@@ -1049,7 +1051,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                                 "        raise {}(response=response{}{})".format(
                                     status_code_error_map[cast(int, status_code)],
                                     error_model,
-                                    (", error_format=ARMErrorFormat" if self.code_model.options["azure_arm"] else ""),
+                                    (", error_format=ARMErrorFormat" if self.code_model.options["azure-arm"] else ""),
                                 )
                             )
                             condition = "if"
@@ -1063,7 +1065,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     type_annotation = e.type.type_annotation(  # type: ignore
                         is_operation_file=True, skip_quote=True, serialize_namespace=self.serialize_namespace
                     )
-                    if self.code_model.options["models_mode"] == "dpg":
+                    if self.code_model.options["models-mode"] == "dpg":
                         if xml_serializable(str(e.default_content_type)):
                             retval.append(
                                 f"        error = _failsafe_deserialize_xml({type_annotation},  response.text())"
@@ -1077,12 +1079,12 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                         )
                     condition = "elif"
         # default error handling
-        if builder.default_error_deserialization and self.code_model.options["models_mode"]:
+        if builder.default_error_deserialization and self.code_model.options["models-mode"]:
             error_model = ", model=error"
             indent = "        " if builder.non_default_errors else "    "
             if builder.non_default_errors:
                 retval.append("    else:")
-            if self.code_model.options["models_mode"] == "dpg":
+            if self.code_model.options["models-mode"] == "dpg":
                 retval.append(
                     f"{indent}error = _failsafe_deserialize({builder.default_error_deserialization},  response.json())"
                 )
@@ -1094,7 +1096,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         retval.append(
             "    raise HttpResponseError(response=response{}{})".format(
                 error_model,
-                (", error_format=ARMErrorFormat" if self.code_model.options["azure_arm"] else ""),
+                (", error_format=ARMErrorFormat" if self.code_model.options["azure-arm"] else ""),
             )
         )
         return retval
@@ -1142,7 +1144,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             else:
                 retval.extend(self.response_headers_and_deserialization(builder, builder.responses[0]))
                 retval.append("")
-        if builder.has_optional_return_type or self.code_model.options["models_mode"]:
+        if builder.has_optional_return_type or self.code_model.options["models-mode"]:
             deserialized = "deserialized"
         else:
             deserialized = f"cast({builder.response_type_annotation(async_mode=self.async_mode)}, deserialized)"
@@ -1159,7 +1161,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         ):
             retval.append("")
             retval.append(f"return {deserialized}  # type: ignore")
-        if builder.request_builder.method == "HEAD" and self.code_model.options["head_as_boolean"]:
+        if builder.request_builder.method == "HEAD" and self.code_model.options["head-as-boolean"]:
             retval.append("return 200 <= response.status_code <= 299")
         return retval
 
@@ -1178,7 +1180,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
 
     def error_map(self, builder: OperationType) -> List[str]:
         retval = ["error_map: MutableMapping = {"]
-        if builder.non_default_errors and self.code_model.options["models_mode"]:
+        if builder.non_default_errors and self.code_model.options["models-mode"]:
             # TODO: we should decide whether to add the build-in error map when there is a customized default error type
             if self._need_specific_error_map(401, builder):
                 retval.append("    401: ClientAuthenticationError,")
@@ -1324,7 +1326,7 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
         retval = [f"{'async ' if self.async_mode else ''}def extract_data(pipeline_response):"]
         response = builder.responses[0]
         deserialized = "pipeline_response.http_response.json()"
-        if self.code_model.options["models_mode"] == "msrest":
+        if self.code_model.options["models-mode"] == "msrest":
             suffix = ".http_response" if hasattr(builder, "initial_operation") else ""
             deserialize_type = response.serialization_type(serialize_namespace=self.serialize_namespace)
             pylint_disable = "  # pylint: disable=protected-access"
@@ -1335,13 +1337,13 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
                 f"self._deserialize(\n    {deserialize_type},{pylint_disable}\n    pipeline_response{suffix}\n)"
             )
             retval.append(f"    deserialized = {deserialized}")
-        elif self.code_model.options["models_mode"] == "dpg":
+        elif self.code_model.options["models-mode"] == "dpg":
             # we don't want to generate paging models for DPG
             retval.append(f"    deserialized = {deserialized}")
         else:
             retval.append(f"    deserialized = {deserialized}")
         item_name = builder.item_name
-        if self.code_model.options["models_mode"] == "msrest":
+        if self.code_model.options["models-mode"] == "msrest":
             access = f".{item_name}"
         else:
             item_name_array = item_name.split(".")
@@ -1349,7 +1351,7 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
                 "".join([f'.get("{i}", {{}})' for i in item_name_array[:-1]]) + f'.get("{item_name_array[-1]}", [])'
             )
         list_of_elem_deserialized = ""
-        if self.code_model.options["models_mode"] == "dpg":
+        if self.code_model.options["models-mode"] == "dpg":
             item_type = builder.item_type.type_annotation(
                 is_operation_file=True, serialize_namespace=self.serialize_namespace
             )
@@ -1375,7 +1377,7 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
             next_link_name = builder.next_link_name
             if not next_link_name:
                 cont_token_property = "None"
-            elif self.code_model.options["models_mode"] == "msrest":
+            elif self.code_model.options["models-mode"] == "msrest":
                 cont_token_property = f"deserialized.{next_link_name} or None"
             else:
                 cont_token_property = f'deserialized.get("{next_link_name}") or None'
@@ -1496,8 +1498,8 @@ class _LROOperationSerializer(_OperationSerializer[LROOperationType]):
             if builder.lro_response.headers:
                 retval.append("    response_headers = {}")
             if (
-                not self.code_model.options["models_mode"]
-                or self.code_model.options["models_mode"] == "dpg"
+                not self.code_model.options["models-mode"]
+                or self.code_model.options["models-mode"] == "dpg"
                 or builder.lro_response.headers
             ):
                 retval.append("    response = pipeline_response.http_response")

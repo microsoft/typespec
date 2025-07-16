@@ -19,5 +19,5 @@ export async function $onEmit(context) {
 }
 
 export const $lib = {
-  name: "description",
+  name: "emitter1",
 };

@@ -1,11 +1,11 @@
-import * as ay from "@alloy-js/core";
+import { code, mapJoin, refkey, useNamePolicy, type Children, type Refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Discriminator, Model, Union } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
 import { JsonTransform } from "./json-transform.jsx";
 
 export interface JsonTransformDiscriminatorProps {
-  itemRef: ay.Refkey | ay.Children;
+  itemRef: Refkey | Children;
   discriminator: Discriminator;
   type: Union | Model;
   target: "application" | "transport";
@@ -20,18 +20,18 @@ export function JsonTransformDiscriminator(props: JsonTransformDiscriminatorProp
   const propertyName = props.discriminator.propertyName;
 
   if (!discriminatedUnion || !propertyName) {
-    return ay.code`${props.itemRef}`;
+    return code`${props.itemRef}`;
   }
 
-  const discriminatorRef = ay.code`${props.itemRef}.${props.discriminator.propertyName}`;
+  const discriminatorRef = code`${props.itemRef}.${props.discriminator.propertyName}`;
 
   // Need to cast to make sure that the general types which usually have a broader
   // type in the discriminator are compatible.
-  const itemRef = ay.code`${props.itemRef} as any`;
-  const discriminatingCases = ay.mapJoin(
+  const itemRef = code`${props.itemRef} as any`;
+  const discriminatingCases = mapJoin(
     () => discriminatedUnion.variants,
     (name, variant) => {
-      return ay.code`
+      return code`
     if( discriminatorValue === ${JSON.stringify(name)}) {
       return ${(<JsonTransform type={variant} target={props.target} itemRef={itemRef} />)}!
     }
@@ -52,7 +52,7 @@ export function getJsonTransformDiscriminatorRefkey(
   type: Union | Model,
   target: "application" | "transport",
 ) {
-  return ay.refkey(type, "json_transform_discriminator_", target);
+  return refkey(type, "json_transform_discriminator_", target);
 }
 
 export interface JsonTransformDiscriminatorDeclarationProps {
@@ -77,16 +77,16 @@ export function JsonTransformDiscriminatorDeclaration(
     return null;
   }
 
-  const namePolicy = ay.useNamePolicy();
+  const namePolicy = useNamePolicy();
   const transformName = namePolicy.getName(
     `json_${props.type.name}_to_${props.target}_discriminator`,
     "function",
   );
 
-  const typeRef = ay.refkey(props.type);
+  const typeRef = refkey(props.type);
   const returnType = props.target === "transport" ? "any" : typeRef;
   const inputType = props.target === "transport" ? typeRef : "any";
-  const inputRef = ay.refkey();
+  const inputRef = refkey();
 
   const parameters: ts.ParameterDescriptor[] = [
     { name: "input_", type: inputType, refkey: inputRef, optional: true },
@@ -100,7 +100,7 @@ export function JsonTransformDiscriminatorDeclaration(
       parameters={parameters}
       refkey={getJsonTransformDiscriminatorRefkey(props.type, props.target)}
     >
-      {ay.code`
+      {code`
     if(!${inputRef}) {
       return ${inputRef} as any;
     }

@@ -25,6 +25,7 @@ import { doIO, loadFile } from "../utils/io.js";
 import { resolveTspMain } from "../utils/misc.js";
 import { getLocationInYamlScript } from "../yaml/diagnostics.js";
 import { parseYaml } from "../yaml/parser.js";
+import { ClientConfigProvider } from "./client-config-provider.js";
 import { serverOptions } from "./constants.js";
 import { FileService } from "./file-service.js";
 import { FileSystemCache } from "./file-system-cache.js";
@@ -78,6 +79,7 @@ export interface CompileServiceOptions {
   readonly serverHost: ServerHost;
   readonly compilerHost: CompilerHost;
   readonly log: (log: ServerLog) => void;
+  readonly clientConfigsProvider?: ClientConfigProvider;
 }
 
 export function createCompileService({
@@ -86,6 +88,7 @@ export function createCompileService({
   fileService,
   fileSystemCache,
   log,
+  clientConfigsProvider,
 }: CompileServiceOptions): CompileService {
   const oldPrograms = new Map<string, Program>();
   const eventListeners = new Map<string, (...args: unknown[]) => void>();
@@ -139,6 +142,15 @@ export function createCompileService({
       ...serverOptions,
       ...(additionalOptions ?? {}),
     };
+
+    // If emit is set in additionalOptions, use this setting first
+    // otherwise, obtain the `typespec.lsp.emit` configuration from clientConfigsProvider
+    if (additionalOptions?.emit === undefined) {
+      const configEmits = clientConfigsProvider?.config?.lsp?.emit;
+      if (configEmits) {
+        options.emit = configEmits;
+      }
+    }
 
     // add linter rule for unused using if user didn't configure it explicitly
     const unusedUsingRule = `${builtInLinterLibraryName}/${builtInLinterRule_UnusedUsing}`;

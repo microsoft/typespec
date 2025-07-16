@@ -55,7 +55,7 @@ public final class VisibilityReadsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "VisibilityClientVisi")
+    @ServiceInterface(name = "VisibilityClientVisibilityReads")
     public interface VisibilityReadsService {
         @Get("/read")
         @ExpectedResponses({ 200 })

@@ -74,7 +74,7 @@ public final class TwoModelsAsPageItemsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "PageClientTwoModelsA")
+    @ServiceInterface(name = "PageClientTwoModelsAsPageItems")
     public interface TwoModelsAsPageItemsService {
         @Get("/azure/core/page/first-item")
         @ExpectedResponses({ 200 })

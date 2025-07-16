@@ -6,7 +6,7 @@ import {
   Scope,
   SourceFile,
 } from "@typespec/asset-emitter";
-import { Model } from "@typespec/compiler";
+import type { Model } from "@typespec/compiler";
 import { HttpStatusCodeRange } from "@typespec/http";
 import { HttpRequestParameterKind } from "@typespec/http/experimental/typekit";
 import { CSharpServiceEmitterOptions } from "./lib.js";

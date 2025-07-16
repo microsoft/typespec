@@ -32,6 +32,7 @@ import {
   expectDiagnosticEmpty,
   expectDiagnostics,
 } from "../src/testing/index.js";
+import { $ } from "../src/typekit/index.js";
 
 function assertSetsEqual<T>(a: Set<T>, b: Set<T>): void {
   strictEqual(a.size, b.size);
@@ -1168,6 +1169,9 @@ describe("compiler: visibility core", () => {
     ok(arrayType.kind === "Model");
     ok(recordType.kind === "Model");
 
+    ok($(runner.program).array.is(arrayType));
+    ok($(runner.program).record.is(recordType));
+
     const arrayA = (arrayType as Model).indexer!.value as Model;
     const recordA = (recordType as Model).indexer!.value as Model;
 
@@ -1181,6 +1185,59 @@ describe("compiler: visibility core", () => {
 
     ok(arrayA.properties.has("a"));
     ok(!arrayA.properties.has("invisible"));
+  });
+
+  it("correctly transforms 'model is' declarations of arrays and records", async () => {
+    const { Result } = (await runner.compile(`
+      model A {
+        @visibility(Lifecycle.Read)
+        a: string;
+
+        @visibility(Lifecycle.Create)
+        invisible: string;
+      }
+
+      model B is Array<A>;
+
+      model C is Record<A>;
+
+      @withVisibilityFilter(#{ any: #[Lifecycle.Read] }, "{name}Transform")
+      @test model Result {
+        arr: B;
+        rec: C;
+      }
+    `)) as { Result: Model };
+
+    ok(Result);
+
+    const arr = Result.properties.get("arr");
+    const rec = Result.properties.get("rec");
+
+    ok(arr);
+    ok(rec);
+
+    const arrType = arr.type;
+    const recType = rec.type;
+
+    ok(arrType.kind === "Model");
+    ok(recType.kind === "Model");
+
+    ok($(runner.program).array.is(arrType));
+    ok($(runner.program).record.is(recType));
+
+    strictEqual(arrType.name, "BTransform");
+    strictEqual(recType.name, "CTransform");
+
+    const arrA = (arrType as Model).indexer!.value as Model;
+    const recA = (recType as Model).indexer!.value as Model;
+
+    strictEqual(arrA, recA);
+
+    strictEqual(arrA.kind, "Model");
+    strictEqual(arrA.name, "ATransform");
+
+    ok(arrA.properties.has("a"));
+    ok(!arrA.properties.has("invisible"));
   });
 });
 

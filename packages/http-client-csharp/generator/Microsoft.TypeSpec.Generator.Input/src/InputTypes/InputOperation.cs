@@ -102,5 +102,94 @@ namespace Microsoft.TypeSpec.Generator.Input
 
         private bool? _isMultipartFormData;
         public bool IsMultipartFormData => _isMultipartFormData ??= RequestMediaTypes is not null && RequestMediaTypes.Count == 1 && RequestMediaTypes[0] == "multipart/form-data";
+
+        public void Update(
+            string? name = null,
+            string? resourceName = null,
+            string? summary = null,
+            string? doc = null,
+            string? deprecated = null,
+            string? accessibility = null,
+            IEnumerable<InputParameter>? parameters = null,
+            IEnumerable<InputOperationResponse>? responses = null,
+            string? httpMethod = null,
+            string? uri = null,
+            string? path = null,
+            string? externalDocsUrl = null,
+            IEnumerable<string>? requestMediaTypes = null,
+            bool? bufferResponse = null,
+            bool? generateProtocolMethod = null,
+            bool? generateConvenienceMethod = null,
+            string? crossLanguageDefinitionId = null)
+        {
+            if (name != null)
+            {
+                Name = name;
+            }
+            if (resourceName != null)
+            {
+                ResourceName = resourceName;
+            }
+            if (summary != null)
+            {
+                Summary = summary;
+            }
+            if (doc != null)
+            {
+                Doc = doc;
+            }
+            if (deprecated != null)
+            {
+                Deprecated = deprecated;
+            }
+            if (accessibility != null)
+            {
+                Accessibility = accessibility;
+            }
+            if (parameters != null)
+            {
+                Parameters = new List<InputParameter>(parameters);
+            }
+            if (responses != null)
+            {
+                Responses = new List<InputOperationResponse>(responses);
+            }
+            if (httpMethod != null)
+            {
+                HttpMethod = httpMethod;
+            }
+            if (uri != null)
+            {
+                Uri = uri;
+            }
+            if (path != null)
+            {
+                Path = path;
+            }
+            if (externalDocsUrl != null)
+            {
+                ExternalDocsUrl = externalDocsUrl;
+            }
+            if (requestMediaTypes != null)
+            {
+                RequestMediaTypes = new List<string>(requestMediaTypes);
+            }
+            if (bufferResponse.HasValue)
+            {
+                BufferResponse = bufferResponse.Value;
+            }
+            if (generateProtocolMethod.HasValue)
+            {
+                GenerateProtocolMethod = generateProtocolMethod.Value;
+            }
+            if (generateConvenienceMethod.HasValue)
+            {
+                GenerateConvenienceMethod = generateConvenienceMethod.Value;
+            }
+            if (crossLanguageDefinitionId != null)
+            {
+                CrossLanguageDefinitionId = crossLanguageDefinitionId;
+            }
+        }
     }
 }

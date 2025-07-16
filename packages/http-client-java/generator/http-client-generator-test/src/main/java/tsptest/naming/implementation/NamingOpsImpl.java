@@ -58,7 +58,7 @@ public final class NamingOpsImpl {
      * calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "NamingClientNamingOp")
+    @ServiceInterface(name = "NamingClientNamingOps")
     public interface NamingOpsService {
         @Post("/naming")
         @ExpectedResponses({ 200 })
@@ -137,6 +137,7 @@ public final class NamingOpsImpl {
      *     }
      *     type: String(Blob/File) (Required)
      *     status: String(Running/Completed/Failed) (Required)
+     *     domainUsername: String (Required)
      *     anonymous (Required): {
      *         last_error (Required): {
      *             code: String(server_error/rate_limit_exceeded/invalid_prompt) (Required)
@@ -204,6 +205,7 @@ public final class NamingOpsImpl {
      *     }
      *     type: String(Blob/File) (Required)
      *     status: String(Running/Completed/Failed) (Required)
+     *     domainUsername: String (Required)
      *     anonymous (Required): {
      *         last_error (Required): {
      *             code: String(server_error/rate_limit_exceeded/invalid_prompt) (Required)

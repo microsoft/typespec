@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import type.property.nullable.implementation.DurationOperationsImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class DurationOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final DurationOperationsImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of DurationOperationClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    DurationOperationClient(DurationOperationsImpl serviceClient) {
+    DurationOperationClient(DurationOperationsImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -40,7 +45,8 @@ public final class DurationOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<DurationProperty> getNonNullWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getNonNullWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.Duration.getNonNull", requestContext,
+            updatedContext -> this.serviceClient.getNonNullWithResponse(updatedContext));
     }
 
     /**
@@ -53,7 +59,7 @@ public final class DurationOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public DurationProperty getNonNull() {
-        return this.serviceClient.getNonNull();
+        return getNonNullWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -68,7 +74,8 @@ public final class DurationOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<DurationProperty> getNullWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getNullWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.Duration.getNull", requestContext,
+            updatedContext -> this.serviceClient.getNullWithResponse(updatedContext));
     }
 
     /**
@@ -81,7 +88,7 @@ public final class DurationOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public DurationProperty getNull() {
-        return this.serviceClient.getNull();
+        return getNullWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -97,7 +104,8 @@ public final class DurationOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> patchNonNullWithResponse(DurationProperty body, RequestContext requestContext) {
-        return this.serviceClient.patchNonNullWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.Duration.patchNonNull",
+            requestContext, updatedContext -> this.serviceClient.patchNonNullWithResponse(body, updatedContext));
     }
 
     /**
@@ -111,7 +119,7 @@ public final class DurationOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void patchNonNull(DurationProperty body) {
-        this.serviceClient.patchNonNull(body);
+        patchNonNullWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -127,7 +135,8 @@ public final class DurationOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> patchNullWithResponse(DurationProperty body, RequestContext requestContext) {
-        return this.serviceClient.patchNullWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.Duration.patchNull", requestContext,
+            updatedContext -> this.serviceClient.patchNullWithResponse(body, updatedContext));
     }
 
     /**
@@ -141,6 +150,6 @@ public final class DurationOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void patchNull(DurationProperty body) {
-        this.serviceClient.patchNull(body);
+        patchNullWithResponse(body, RequestContext.none());
     }
 }

@@ -56,7 +56,7 @@ public final class FormDataHttpPartsNonStringsImpl {
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "MultiPartClientFormD")
+    @ServiceInterface(name = "MultiPartClientFormDataHttpPartsNonStrings")
     public interface FormDataHttpPartsNonStringsService {
         // @Multipart not supported by RestProxy
         @Post("/multipart/form-data/non-string-float")

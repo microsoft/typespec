@@ -57,7 +57,7 @@ public final class NullableFloatValuesImpl {
      * to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "DictionaryClientNull")
+    @ServiceInterface(name = "DictionaryClientNullableFloatValues")
     public interface NullableFloatValuesService {
         @Get("/type/dictionary/nullable-float")
         @ExpectedResponses({ 200 })

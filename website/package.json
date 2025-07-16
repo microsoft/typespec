@@ -22,7 +22,7 @@
     "@docsearch/css": "^3.9.0",
     "@docsearch/js": "^3.9.0",
     "@expressive-code/core": "^0.41.2",
-    "@fluentui/react-components": "~9.63.0",
+    "@fluentui/react-components": "~9.66.1",
     "@fluentui/react-icons": "^2.0.292",
     "@typespec/compiler": "workspace:^",
     "@typespec/playground": "workspace:^",
@@ -30,12 +30,12 @@
     "astro-rehype-relative-markdown-links": "^0.18.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
-    "es-module-shims": "~2.5.0",
+    "es-module-shims": "~2.6.0",
     "pathe": "^2.0.3",
     "prism-react-renderer": "^2.4.1",
     "react": "~18.3.1",
     "react-dom": "~18.3.1",
-    "sharp": "^0.33.5",
+    "sharp": "^0.34.2",
     "typescript": "~5.8.2"
   },
   "devDependencies": {

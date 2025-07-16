@@ -57,7 +57,7 @@ public final class DurationOperationsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ValueTypesClientDura")
+    @ServiceInterface(name = "ValueTypesClientDurationOperations")
     public interface DurationOperationsService {
         @Get("/type/property/value-types/duration")
         @ExpectedResponses({ 200 })

@@ -147,7 +147,7 @@ class SampleSerializer(BaseSerializer):
         name = self.sample.get("x-ms-original-file", "")
         if "specification" in name:
             return "specification" + name.split("specification")[-1]
-        return name if self.code_model.options["from_typespec"] else ""
+        return name if self.code_model.options["from-typespec"] else ""
 
     def serialize(self) -> str:
         operation_result, return_var = self._operation_result()

@@ -18,3 +18,9 @@ def test_v2(client: RemovedClient):
     assert client.v2(ModelV2(prop="foo", enum_prop=EnumV2.ENUM_MEMBER_V2, union_prop="bar")) == ModelV2(
         prop="foo", enum_prop=EnumV2.ENUM_MEMBER_V2, union_prop="bar"
     )
+
+
+def test_model_v3(client: RemovedClient):
+    result = client.model_v3({"id": "123", "enumProp": "enumMemberV1"})
+    assert result.id == "123"
+    assert result.enum_prop == "enumMemberV1"

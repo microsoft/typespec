@@ -66,7 +66,7 @@ public final class LroesClientImpl implements LroesClient {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "OperationTemplatesCl")
+    @ServiceInterface(name = "OperationTemplatesClientLroes")
     public interface LroesService {
         @Put("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.OperationTemplates/orders/{orderName}")
         @ExpectedResponses({ 200, 201 })

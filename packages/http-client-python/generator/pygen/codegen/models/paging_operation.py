@@ -92,14 +92,14 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
         if not wire_name:
             # That's an ok scenario, it just means no next page possible
             return None
-        if self.code_model.options["models_mode"] == "msrest":
+        if self.code_model.options["models-mode"] == "msrest":
             return self._get_attr_name(wire_name)
         return wire_name
 
     @property
     def item_name(self) -> str:
         wire_name = self.yaml_data["itemName"]
-        if self.code_model.options["models_mode"] == "msrest":
+        if self.code_model.options["models-mode"] == "msrest":
             # we don't use the paging model for dpg
             return self._get_attr_name(wire_name)
         return wire_name
@@ -135,7 +135,7 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
             )
         if (
             self.next_request_builder
-            and self.code_model.options["builders_visibility"] == "embedded"
+            and self.code_model.options["builders-visibility"] == "embedded"
             and not async_mode
         ):
             file_import.merge(self.next_request_builder.imports(**kwargs))
@@ -168,7 +168,7 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
                 "case_insensitive_dict",
                 ImportType.SDKCORE,
             )
-        if self.code_model.options["models_mode"] == "dpg":
+        if self.code_model.options["models-mode"] == "dpg":
             relative_path = self.code_model.get_relative_import_path(
                 serialize_namespace, module_name="_utils.model_base"
             )

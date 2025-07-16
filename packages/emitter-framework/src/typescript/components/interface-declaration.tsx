@@ -1,15 +1,14 @@
-import * as ay from "@alloy-js/core";
-import { Children, mapJoin } from "@alloy-js/core";
+import { Block, type Children, For, mapJoin } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import {
-  Interface,
+  type Interface,
   isNeverType,
-  Model,
-  ModelProperty,
-  Operation,
-  RekeyableMap,
+  type Model,
+  type ModelProperty,
+  type Operation,
+  type RekeyableMap,
 } from "@typespec/compiler";
-import { Typekit } from "@typespec/compiler/typekit";
+import type { Typekit } from "@typespec/compiler/typekit";
 import { createRekeyableMap } from "@typespec/compiler/utils";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
@@ -74,9 +73,9 @@ export interface InterfaceExpressionProps extends ts.InterfaceExpressionProps {
 
 export function InterfaceExpression(props: InterfaceExpressionProps) {
   return (
-    <ay.Block>
+    <Block>
       <InterfaceBody {...props} />
-    </ay.Block>
+    </Block>
   );
 }
 
@@ -156,11 +155,11 @@ function InterfaceBody(props: TypedInterfaceDeclarationProps): Children {
 
   return (
     <>
-      <ay.For each={validTypeMembers} semicolon line {...enderProp}>
+      <For each={validTypeMembers} semicolon line {...enderProp}>
         {(typeMember) => {
           return <InterfaceMember type={typeMember} />;
         }}
-      </ay.For>
+      </For>
       {props.children}
     </>
   );

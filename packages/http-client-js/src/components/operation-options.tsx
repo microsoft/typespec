@@ -1,4 +1,4 @@
-import * as ay from "@alloy-js/core";
+import { For, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { ModelProperty } from "@typespec/compiler";
 import * as ef from "@typespec/emitter-framework/typescript";
@@ -11,7 +11,7 @@ export interface OperationOptionsProps {
 }
 
 export function getOperationOptionsTypeRefkey(operation: HttpOperation) {
-  return ay.refkey(operation, "operation-options");
+  return refkey(operation, "operation-options");
 }
 export function OperationOptionsDeclaration(props: OperationOptionsProps) {
   const namePolicy = ts.useTSNamePolicy();
@@ -28,7 +28,7 @@ export function OperationOptionsDeclaration(props: OperationOptionsProps) {
       extends={getOperationOptionsInterfaceRefkey()}
       refkey={getOperationOptionsTypeRefkey(props.operation)}
     >
-      <ay.For each={optionalParameters} line>
+      <For each={optionalParameters} line>
         {(parameter) => (
           <ts.InterfaceMember
             name={parameter.property.name}
@@ -36,7 +36,7 @@ export function OperationOptionsDeclaration(props: OperationOptionsProps) {
             type={<ef.TypeExpression type={parameter.property.type} />}
           />
         )}
-      </ay.For>
+      </For>
     </ef.InterfaceDeclaration>
   );
 }

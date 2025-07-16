@@ -3,7 +3,6 @@ package specialwords.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.QueryParam;
@@ -13,6 +12,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -30,20 +30,26 @@ public final class ParametersImpl {
     private final SpecialWordsClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of ParametersImpl.
      * 
      * @param client the instance of the service client containing this operation class.
      */
     ParametersImpl(SpecialWordsClientImpl client) {
-        this.service = RestProxy.create(ParametersService.class, client.getHttpPipeline());
+        this.service = ParametersService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
      * The interface defining all the services for SpecialWordsClientParameters to be used by the proxy service to
      * perform REST calls.
      */
-    @ServiceInterface(name = "SpecialWordsClientPa", host = "{endpoint}")
+    @ServiceInterface(name = "SpecialWordsClientParameters", host = "{endpoint}")
     public interface ParametersService {
         static ParametersService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -341,20 +347,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withAndWithResponse(String and, RequestContext requestContext) {
-        return service.withAnd(this.client.getEndpoint(), and, requestContext);
-    }
-
-    /**
-     * The withAnd operation.
-     * 
-     * @param and The and parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withAnd(String and) {
-        withAndWithResponse(and, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withAnd", requestContext,
+            updatedContext -> {
+                return service.withAnd(this.client.getEndpoint(), and, updatedContext);
+            });
     }
 
     /**
@@ -369,20 +365,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withAsWithResponse(String as, RequestContext requestContext) {
-        return service.withAs(this.client.getEndpoint(), as, requestContext);
-    }
-
-    /**
-     * The withAs operation.
-     * 
-     * @param as The as parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withAs(String as) {
-        withAsWithResponse(as, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withAs", requestContext,
+            updatedContext -> {
+                return service.withAs(this.client.getEndpoint(), as, updatedContext);
+            });
     }
 
     /**
@@ -397,20 +383,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withAssertWithResponse(String assertParameter, RequestContext requestContext) {
-        return service.withAssert(this.client.getEndpoint(), assertParameter, requestContext);
-    }
-
-    /**
-     * The withAssert operation.
-     * 
-     * @param assertParameter The assertParameter parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withAssert(String assertParameter) {
-        withAssertWithResponse(assertParameter, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withAssert", requestContext,
+            updatedContext -> {
+                return service.withAssert(this.client.getEndpoint(), assertParameter, updatedContext);
+            });
     }
 
     /**
@@ -425,20 +401,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withAsyncWithResponse(String async, RequestContext requestContext) {
-        return service.withAsync(this.client.getEndpoint(), async, requestContext);
-    }
-
-    /**
-     * The withAsync operation.
-     * 
-     * @param async The async parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withAsync(String async) {
-        withAsyncWithResponse(async, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withAsync", requestContext,
+            updatedContext -> {
+                return service.withAsync(this.client.getEndpoint(), async, updatedContext);
+            });
     }
 
     /**
@@ -453,20 +419,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withAwaitWithResponse(String await, RequestContext requestContext) {
-        return service.withAwait(this.client.getEndpoint(), await, requestContext);
-    }
-
-    /**
-     * The withAwait operation.
-     * 
-     * @param await The await parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withAwait(String await) {
-        withAwaitWithResponse(await, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withAwait", requestContext,
+            updatedContext -> {
+                return service.withAwait(this.client.getEndpoint(), await, updatedContext);
+            });
     }
 
     /**
@@ -481,20 +437,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withBreakWithResponse(String breakParameter, RequestContext requestContext) {
-        return service.withBreak(this.client.getEndpoint(), breakParameter, requestContext);
-    }
-
-    /**
-     * The withBreak operation.
-     * 
-     * @param breakParameter The breakParameter parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withBreak(String breakParameter) {
-        withBreakWithResponse(breakParameter, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withBreak", requestContext,
+            updatedContext -> {
+                return service.withBreak(this.client.getEndpoint(), breakParameter, updatedContext);
+            });
     }
 
     /**
@@ -509,20 +455,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withClassWithResponse(String classParameter, RequestContext requestContext) {
-        return service.withClass(this.client.getEndpoint(), classParameter, requestContext);
-    }
-
-    /**
-     * The withClass operation.
-     * 
-     * @param classParameter The classParameter parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withClass(String classParameter) {
-        withClassWithResponse(classParameter, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withClass", requestContext,
+            updatedContext -> {
+                return service.withClass(this.client.getEndpoint(), classParameter, updatedContext);
+            });
     }
 
     /**
@@ -537,20 +473,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withConstructorWithResponse(String constructor, RequestContext requestContext) {
-        return service.withConstructor(this.client.getEndpoint(), constructor, requestContext);
-    }
-
-    /**
-     * The withConstructor operation.
-     * 
-     * @param constructor The constructor parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withConstructor(String constructor) {
-        withConstructorWithResponse(constructor, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withConstructor", requestContext,
+            updatedContext -> {
+                return service.withConstructor(this.client.getEndpoint(), constructor, updatedContext);
+            });
     }
 
     /**
@@ -565,20 +491,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withContinueWithResponse(String continueParameter, RequestContext requestContext) {
-        return service.withContinue(this.client.getEndpoint(), continueParameter, requestContext);
-    }
-
-    /**
-     * The withContinue operation.
-     * 
-     * @param continueParameter The continueParameter parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withContinue(String continueParameter) {
-        withContinueWithResponse(continueParameter, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withContinue", requestContext,
+            updatedContext -> {
+                return service.withContinue(this.client.getEndpoint(), continueParameter, updatedContext);
+            });
     }
 
     /**
@@ -593,20 +509,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withDefWithResponse(String def, RequestContext requestContext) {
-        return service.withDef(this.client.getEndpoint(), def, requestContext);
-    }
-
-    /**
-     * The withDef operation.
-     * 
-     * @param def The def parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withDef(String def) {
-        withDefWithResponse(def, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withDef", requestContext,
+            updatedContext -> {
+                return service.withDef(this.client.getEndpoint(), def, updatedContext);
+            });
     }
 
     /**
@@ -621,20 +527,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withDelWithResponse(String del, RequestContext requestContext) {
-        return service.withDel(this.client.getEndpoint(), del, requestContext);
-    }
-
-    /**
-     * The withDel operation.
-     * 
-     * @param del The del parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withDel(String del) {
-        withDelWithResponse(del, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withDel", requestContext,
+            updatedContext -> {
+                return service.withDel(this.client.getEndpoint(), del, updatedContext);
+            });
     }
 
     /**
@@ -649,20 +545,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withElifWithResponse(String elif, RequestContext requestContext) {
-        return service.withElif(this.client.getEndpoint(), elif, requestContext);
-    }
-
-    /**
-     * The withElif operation.
-     * 
-     * @param elif The elif parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withElif(String elif) {
-        withElifWithResponse(elif, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withElif", requestContext,
+            updatedContext -> {
+                return service.withElif(this.client.getEndpoint(), elif, updatedContext);
+            });
     }
 
     /**
@@ -677,20 +563,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withElseWithResponse(String elseParameter, RequestContext requestContext) {
-        return service.withElse(this.client.getEndpoint(), elseParameter, requestContext);
-    }
-
-    /**
-     * The withElse operation.
-     * 
-     * @param elseParameter The elseParameter parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withElse(String elseParameter) {
-        withElseWithResponse(elseParameter, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withElse", requestContext,
+            updatedContext -> {
+                return service.withElse(this.client.getEndpoint(), elseParameter, updatedContext);
+            });
     }
 
     /**
@@ -705,20 +581,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withExceptWithResponse(String except, RequestContext requestContext) {
-        return service.withExcept(this.client.getEndpoint(), except, requestContext);
-    }
-
-    /**
-     * The withExcept operation.
-     * 
-     * @param except The except parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withExcept(String except) {
-        withExceptWithResponse(except, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withExcept", requestContext,
+            updatedContext -> {
+                return service.withExcept(this.client.getEndpoint(), except, updatedContext);
+            });
     }
 
     /**
@@ -733,20 +599,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withExecWithResponse(String exec, RequestContext requestContext) {
-        return service.withExec(this.client.getEndpoint(), exec, requestContext);
-    }
-
-    /**
-     * The withExec operation.
-     * 
-     * @param exec The exec parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withExec(String exec) {
-        withExecWithResponse(exec, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withExec", requestContext,
+            updatedContext -> {
+                return service.withExec(this.client.getEndpoint(), exec, updatedContext);
+            });
     }
 
     /**
@@ -761,20 +617,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withFinallyWithResponse(String finallyParameter, RequestContext requestContext) {
-        return service.withFinally(this.client.getEndpoint(), finallyParameter, requestContext);
-    }
-
-    /**
-     * The withFinally operation.
-     * 
-     * @param finallyParameter The finallyParameter parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withFinally(String finallyParameter) {
-        withFinallyWithResponse(finallyParameter, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withFinally", requestContext,
+            updatedContext -> {
+                return service.withFinally(this.client.getEndpoint(), finallyParameter, updatedContext);
+            });
     }
 
     /**
@@ -789,20 +635,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withForWithResponse(String forParameter, RequestContext requestContext) {
-        return service.withFor(this.client.getEndpoint(), forParameter, requestContext);
-    }
-
-    /**
-     * The withFor operation.
-     * 
-     * @param forParameter The forParameter parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withFor(String forParameter) {
-        withForWithResponse(forParameter, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withFor", requestContext,
+            updatedContext -> {
+                return service.withFor(this.client.getEndpoint(), forParameter, updatedContext);
+            });
     }
 
     /**
@@ -817,20 +653,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withFromWithResponse(String from, RequestContext requestContext) {
-        return service.withFrom(this.client.getEndpoint(), from, requestContext);
-    }
-
-    /**
-     * The withFrom operation.
-     * 
-     * @param from The from parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withFrom(String from) {
-        withFromWithResponse(from, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withFrom", requestContext,
+            updatedContext -> {
+                return service.withFrom(this.client.getEndpoint(), from, updatedContext);
+            });
     }
 
     /**
@@ -845,20 +671,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withGlobalWithResponse(String global, RequestContext requestContext) {
-        return service.withGlobal(this.client.getEndpoint(), global, requestContext);
-    }
-
-    /**
-     * The withGlobal operation.
-     * 
-     * @param global The global parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withGlobal(String global) {
-        withGlobalWithResponse(global, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withGlobal", requestContext,
+            updatedContext -> {
+                return service.withGlobal(this.client.getEndpoint(), global, updatedContext);
+            });
     }
 
     /**
@@ -873,20 +689,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withIfWithResponse(String ifParameter, RequestContext requestContext) {
-        return service.withIf(this.client.getEndpoint(), ifParameter, requestContext);
-    }
-
-    /**
-     * The withIf operation.
-     * 
-     * @param ifParameter The ifParameter parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withIf(String ifParameter) {
-        withIfWithResponse(ifParameter, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withIf", requestContext,
+            updatedContext -> {
+                return service.withIf(this.client.getEndpoint(), ifParameter, updatedContext);
+            });
     }
 
     /**
@@ -901,20 +707,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withImportWithResponse(String importParameter, RequestContext requestContext) {
-        return service.withImport(this.client.getEndpoint(), importParameter, requestContext);
-    }
-
-    /**
-     * The withImport operation.
-     * 
-     * @param importParameter The importParameter parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withImport(String importParameter) {
-        withImportWithResponse(importParameter, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withImport", requestContext,
+            updatedContext -> {
+                return service.withImport(this.client.getEndpoint(), importParameter, updatedContext);
+            });
     }
 
     /**
@@ -929,20 +725,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withInWithResponse(String in, RequestContext requestContext) {
-        return service.withIn(this.client.getEndpoint(), in, requestContext);
-    }
-
-    /**
-     * The withIn operation.
-     * 
-     * @param in The in parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withIn(String in) {
-        withInWithResponse(in, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withIn", requestContext,
+            updatedContext -> {
+                return service.withIn(this.client.getEndpoint(), in, updatedContext);
+            });
     }
 
     /**
@@ -957,20 +743,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withIsWithResponse(String is, RequestContext requestContext) {
-        return service.withIs(this.client.getEndpoint(), is, requestContext);
-    }
-
-    /**
-     * The withIs operation.
-     * 
-     * @param is The is parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withIs(String is) {
-        withIsWithResponse(is, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withIs", requestContext,
+            updatedContext -> {
+                return service.withIs(this.client.getEndpoint(), is, updatedContext);
+            });
     }
 
     /**
@@ -985,20 +761,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withLambdaWithResponse(String lambda, RequestContext requestContext) {
-        return service.withLambda(this.client.getEndpoint(), lambda, requestContext);
-    }
-
-    /**
-     * The withLambda operation.
-     * 
-     * @param lambda The lambda parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withLambda(String lambda) {
-        withLambdaWithResponse(lambda, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withLambda", requestContext,
+            updatedContext -> {
+                return service.withLambda(this.client.getEndpoint(), lambda, updatedContext);
+            });
     }
 
     /**
@@ -1013,20 +779,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withNotWithResponse(String not, RequestContext requestContext) {
-        return service.withNot(this.client.getEndpoint(), not, requestContext);
-    }
-
-    /**
-     * The withNot operation.
-     * 
-     * @param not The not parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withNot(String not) {
-        withNotWithResponse(not, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withNot", requestContext,
+            updatedContext -> {
+                return service.withNot(this.client.getEndpoint(), not, updatedContext);
+            });
     }
 
     /**
@@ -1041,20 +797,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withOrWithResponse(String or, RequestContext requestContext) {
-        return service.withOr(this.client.getEndpoint(), or, requestContext);
-    }
-
-    /**
-     * The withOr operation.
-     * 
-     * @param or The or parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withOr(String or) {
-        withOrWithResponse(or, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withOr", requestContext,
+            updatedContext -> {
+                return service.withOr(this.client.getEndpoint(), or, updatedContext);
+            });
     }
 
     /**
@@ -1069,20 +815,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withPassWithResponse(String pass, RequestContext requestContext) {
-        return service.withPass(this.client.getEndpoint(), pass, requestContext);
-    }
-
-    /**
-     * The withPass operation.
-     * 
-     * @param pass The pass parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withPass(String pass) {
-        withPassWithResponse(pass, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withPass", requestContext,
+            updatedContext -> {
+                return service.withPass(this.client.getEndpoint(), pass, updatedContext);
+            });
     }
 
     /**
@@ -1097,20 +833,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withRaiseWithResponse(String raise, RequestContext requestContext) {
-        return service.withRaise(this.client.getEndpoint(), raise, requestContext);
-    }
-
-    /**
-     * The withRaise operation.
-     * 
-     * @param raise The raise parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withRaise(String raise) {
-        withRaiseWithResponse(raise, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withRaise", requestContext,
+            updatedContext -> {
+                return service.withRaise(this.client.getEndpoint(), raise, updatedContext);
+            });
     }
 
     /**
@@ -1125,20 +851,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withReturnWithResponse(String returnParameter, RequestContext requestContext) {
-        return service.withReturn(this.client.getEndpoint(), returnParameter, requestContext);
-    }
-
-    /**
-     * The withReturn operation.
-     * 
-     * @param returnParameter The returnParameter parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withReturn(String returnParameter) {
-        withReturnWithResponse(returnParameter, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withReturn", requestContext,
+            updatedContext -> {
+                return service.withReturn(this.client.getEndpoint(), returnParameter, updatedContext);
+            });
     }
 
     /**
@@ -1153,20 +869,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withTryWithResponse(String tryParameter, RequestContext requestContext) {
-        return service.withTry(this.client.getEndpoint(), tryParameter, requestContext);
-    }
-
-    /**
-     * The withTry operation.
-     * 
-     * @param tryParameter The tryParameter parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withTry(String tryParameter) {
-        withTryWithResponse(tryParameter, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withTry", requestContext,
+            updatedContext -> {
+                return service.withTry(this.client.getEndpoint(), tryParameter, updatedContext);
+            });
     }
 
     /**
@@ -1181,20 +887,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withWhileWithResponse(String whileParameter, RequestContext requestContext) {
-        return service.withWhile(this.client.getEndpoint(), whileParameter, requestContext);
-    }
-
-    /**
-     * The withWhile operation.
-     * 
-     * @param whileParameter The whileParameter parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withWhile(String whileParameter) {
-        withWhileWithResponse(whileParameter, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withWhile", requestContext,
+            updatedContext -> {
+                return service.withWhile(this.client.getEndpoint(), whileParameter, updatedContext);
+            });
     }
 
     /**
@@ -1209,20 +905,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withWithWithResponse(String with, RequestContext requestContext) {
-        return service.withWith(this.client.getEndpoint(), with, requestContext);
-    }
-
-    /**
-     * The withWith operation.
-     * 
-     * @param with The with parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withWith(String with) {
-        withWithWithResponse(with, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withWith", requestContext,
+            updatedContext -> {
+                return service.withWith(this.client.getEndpoint(), with, updatedContext);
+            });
     }
 
     /**
@@ -1237,20 +923,10 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withYieldWithResponse(String yield, RequestContext requestContext) {
-        return service.withYield(this.client.getEndpoint(), yield, requestContext);
-    }
-
-    /**
-     * The withYield operation.
-     * 
-     * @param yield The yield parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withYield(String yield) {
-        withYieldWithResponse(yield, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withYield", requestContext,
+            updatedContext -> {
+                return service.withYield(this.client.getEndpoint(), yield, updatedContext);
+            });
     }
 
     /**
@@ -1265,19 +941,9 @@ public final class ParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withCancellationTokenWithResponse(String cancellationToken, RequestContext requestContext) {
-        return service.withCancellationToken(this.client.getEndpoint(), cancellationToken, requestContext);
-    }
-
-    /**
-     * The withCancellationToken operation.
-     * 
-     * @param cancellationToken The cancellationToken parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withCancellationToken(String cancellationToken) {
-        withCancellationTokenWithResponse(cancellationToken, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Parameters.withCancellationToken",
+            requestContext, updatedContext -> {
+                return service.withCancellationToken(this.client.getEndpoint(), cancellationToken, updatedContext);
+            });
     }
 }

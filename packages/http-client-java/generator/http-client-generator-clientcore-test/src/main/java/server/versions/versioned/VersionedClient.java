@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import server.versions.versioned.implementation.VersionedClientImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class VersionedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final VersionedClientImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of VersionedClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    VersionedClient(VersionedClientImpl serviceClient) {
+    VersionedClient(VersionedClientImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -40,7 +45,8 @@ public final class VersionedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withoutApiVersionWithResponse(RequestContext requestContext) {
-        return this.serviceClient.withoutApiVersionWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("Server.Versions.Versioned.withoutApiVersion",
+            requestContext, updatedContext -> this.serviceClient.withoutApiVersionWithResponse(updatedContext));
     }
 
     /**
@@ -52,7 +58,7 @@ public final class VersionedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withoutApiVersion() {
-        this.serviceClient.withoutApiVersion();
+        withoutApiVersionWithResponse(RequestContext.none());
     }
 
     /**
@@ -67,7 +73,8 @@ public final class VersionedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withQueryApiVersionWithResponse(RequestContext requestContext) {
-        return this.serviceClient.withQueryApiVersionWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("Server.Versions.Versioned.withQueryApiVersion",
+            requestContext, updatedContext -> this.serviceClient.withQueryApiVersionWithResponse(updatedContext));
     }
 
     /**
@@ -79,7 +86,7 @@ public final class VersionedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withQueryApiVersion() {
-        this.serviceClient.withQueryApiVersion();
+        withQueryApiVersionWithResponse(RequestContext.none());
     }
 
     /**
@@ -94,7 +101,8 @@ public final class VersionedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withPathApiVersionWithResponse(RequestContext requestContext) {
-        return this.serviceClient.withPathApiVersionWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("Server.Versions.Versioned.withPathApiVersion",
+            requestContext, updatedContext -> this.serviceClient.withPathApiVersionWithResponse(updatedContext));
     }
 
     /**
@@ -106,7 +114,7 @@ public final class VersionedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withPathApiVersion() {
-        this.serviceClient.withPathApiVersion();
+        withPathApiVersionWithResponse(RequestContext.none());
     }
 
     /**
@@ -121,7 +129,8 @@ public final class VersionedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withQueryOldApiVersionWithResponse(RequestContext requestContext) {
-        return this.serviceClient.withQueryOldApiVersionWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("Server.Versions.Versioned.withQueryOldApiVersion",
+            requestContext, updatedContext -> this.serviceClient.withQueryOldApiVersionWithResponse(updatedContext));
     }
 
     /**
@@ -133,6 +142,6 @@ public final class VersionedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withQueryOldApiVersion() {
-        this.serviceClient.withQueryOldApiVersion();
+        withQueryOldApiVersionWithResponse(RequestContext.none());
     }
 }

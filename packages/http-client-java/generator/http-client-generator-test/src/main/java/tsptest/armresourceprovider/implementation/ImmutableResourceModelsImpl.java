@@ -4,9 +4,12 @@
 
 package tsptest.armresourceprovider.implementation;
 
+import com.azure.core.util.Context;
 import com.azure.core.util.logging.ClientLogger;
 import tsptest.armresourceprovider.fluent.ImmutableResourceModelsClient;
 import tsptest.armresourceprovider.models.ImmutableResourceModels;
+import tsptest.armresourceprovider.models.NginxConfigurationRequest;
+import tsptest.armresourceprovider.models.NginxConfigurationResponse;
 
 public final class ImmutableResourceModelsImpl implements ImmutableResourceModels {
     private static final ClientLogger LOGGER = new ClientLogger(ImmutableResourceModelsImpl.class);
@@ -21,15 +24,20 @@ public final class ImmutableResourceModelsImpl implements ImmutableResourceModel
         this.serviceManager = serviceManager;
     }
 
+    public NginxConfigurationResponse createOrUpdate(String resourceGroupName, String configurationName) {
+        return this.serviceClient().createOrUpdate(resourceGroupName, configurationName);
+    }
+
+    public NginxConfigurationResponse createOrUpdate(String resourceGroupName, String configurationName,
+        NginxConfigurationRequest properties, Context context) {
+        return this.serviceClient().createOrUpdate(resourceGroupName, configurationName, properties, context);
+    }
+
     private ImmutableResourceModelsClient serviceClient() {
         return this.innerClient;
     }
 
     private tsptest.armresourceprovider.ArmResourceProviderManager manager() {
         return this.serviceManager;
-    }
-
-    public NginxConfigurationResponseImpl define(String name) {
-        return new NginxConfigurationResponseImpl(name, this.manager());
     }
 }

@@ -108,4 +108,49 @@ describe("arrays", () => {
     });
     assert.deepStrictEqual(Bar.properties.x.prefixItems[2], { $ref: "Foo.json" });
   });
+
+  it("accepts a visibility transform", async () => {
+    const {
+      "Test.json": Test,
+      "Person.json": Person,
+      "Friend.json": Friend,
+      "CreateFriend.json": CreateFriend,
+    } = await emitSchema(`
+      model Friend {
+        name: string;
+      
+        @visibility(Lifecycle.Read)
+        age: integer;
+      }
+      
+      model Person {
+        friends: Friend[];
+      }
+      
+      model Test {
+        a: Create<Person>;
+      }
+    `);
+
+    assert.deepStrictEqual(Friend.properties, {
+      name: { type: "string" },
+      age: { type: "integer" },
+    });
+
+    assert.deepStrictEqual(CreateFriend.properties, {
+      name: { type: "string" },
+    });
+
+    assert.deepStrictEqual(Person.properties, {
+      friends: { type: "array", items: { $ref: "Friend.json" } },
+    });
+
+    assert.deepStrictEqual(Test.properties, {
+      a: {
+        type: "object",
+        properties: { friends: { type: "array", items: { $ref: "CreateFriend.json" } } },
+        required: ["friends"],
+      },
+    });
+  });
 });

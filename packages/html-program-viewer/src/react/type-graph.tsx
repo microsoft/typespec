@@ -22,11 +22,21 @@ export function renderProgram(program: Program) {
 
 export interface TypeGraphProps {
   readonly program: Program;
+  readonly onNavigationChange?: (path: string) => void;
+  readonly currentPath?: string;
 }
 
-export const TypeGraph: FunctionComponent<TypeGraphProps> = ({ program }) => {
+export const TypeGraph: FunctionComponent<TypeGraphProps> = ({
+  program,
+  onNavigationChange,
+  currentPath,
+}) => {
   return (
-    <TypeGraphNavigatorProvider program={program}>
+    <TypeGraphNavigatorProvider
+      program={program}
+      onNavigationChange={onNavigationChange}
+      currentPath={currentPath}
+    >
       <ProgramProvider value={program}>
         <SplitPane initialSizes={["200px", ""]} split="vertical" className={style["type-graph"]}>
           <Pane className={style["tree-navigation-pane"]}>

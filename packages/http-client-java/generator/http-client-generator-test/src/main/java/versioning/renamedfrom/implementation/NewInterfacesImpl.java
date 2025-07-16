@@ -66,7 +66,7 @@ public final class NewInterfacesImpl {
      * perform REST calls.
      */
     @Host("{endpoint}/versioning/renamed-from/api-version:{version}")
-    @ServiceInterface(name = "RenamedFromClientNew")
+    @ServiceInterface(name = "RenamedFromClientNewInterfaces")
     public interface NewInterfacesService {
         @Post("/interface/test")
         @ExpectedResponses({ 200 })

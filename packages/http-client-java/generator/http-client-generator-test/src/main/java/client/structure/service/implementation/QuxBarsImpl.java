@@ -53,7 +53,7 @@ public final class QuxBarsImpl {
      * REST calls.
      */
     @Host("{endpoint}/client/structure/{client}")
-    @ServiceInterface(name = "ServiceClientClientQ")
+    @ServiceInterface(name = "ServiceClientClientQuxBars")
     public interface QuxBarsService {
         @Post("/nine")
         @ExpectedResponses({ 204 })

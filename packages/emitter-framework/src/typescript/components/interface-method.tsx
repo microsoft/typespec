@@ -1,6 +1,6 @@
-import { Children, splitProps } from "@alloy-js/core";
+import { type Children, splitProps } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Operation } from "@typespec/compiler";
+import type { Operation } from "@typespec/compiler";
 import { useTsp } from "../../core/index.js";
 import { buildParameterDescriptors, getReturnType } from "../utils/operation.js";
 import { TypeExpression } from "./type-expression.jsx";

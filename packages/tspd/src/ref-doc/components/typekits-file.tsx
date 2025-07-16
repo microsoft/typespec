@@ -1,4 +1,12 @@
-import * as ay from "@alloy-js/core";
+import {
+  code,
+  For,
+  Output,
+  OutputDirectory,
+  OutputFile,
+  render,
+  traverseOutput,
+} from "@alloy-js/core";
 import * as md from "@alloy-js/markdown";
 import { format as prettierFormat } from "prettier";
 import { TypekitCollection } from "../typekit-docs.js";
@@ -6,30 +14,30 @@ import { TypekitSection } from "./typekit-section.js";
 
 export function createTypekitDocs(typekit: TypekitCollection) {
   const jsxContent = (
-    <ay.Output>
+    <Output>
       <md.SourceFile path={`typekits.mdx`}>
         <>
           <md.Frontmatter jsValue={{ title: "[API] Typekits" }} />
-          {ay.code`
+          {code`
         import { Badge } from '@astrojs/starlight/components';
         `}
         </>
         <md.Section>
-          <ay.For each={Object.values(typekit.namespaces)}>
+          <For each={Object.values(typekit.namespaces)}>
             {(x) => <TypekitSection typekit={x} />}
-          </ay.For>
+          </For>
         </md.Section>
       </md.SourceFile>
-    </ay.Output>
+    </Output>
   );
 
-  return flattenOutput(ay.render(jsxContent));
+  return flattenOutput(render(jsxContent));
 }
 
-async function flattenOutput(output: ay.OutputDirectory): Promise<Record<string, string>> {
+async function flattenOutput(output: OutputDirectory): Promise<Record<string, string>> {
   const files: Record<string, string> = {};
-  const rawFiles: ay.OutputFile[] = [];
-  ay.traverseOutput(output, {
+  const rawFiles: OutputFile[] = [];
+  traverseOutput(output, {
     visitDirectory: () => {},
     visitFile: (file) => rawFiles.push(file),
   });

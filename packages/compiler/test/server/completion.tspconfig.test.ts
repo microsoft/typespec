@@ -73,27 +73,27 @@ describe("Test completion items for options and emitters", () => {
   it.each([
     {
       config: `emit:\n  - ┆`,
-      expected: ['"fake-emitter"', '"fake-emitter-no-schema"'],
+      expected: ['"@typespec/fake-emitter"', '"@typespec/fake-emitter-no-schema"'],
     },
     {
       config: `emit:\n  - "┆"`,
-      expected: ["fake-emitter", "fake-emitter-no-schema"],
+      expected: ["@typespec/fake-emitter", "@typespec/fake-emitter-no-schema"],
     },
     {
       config: `emit:\n  - "┆`,
-      expected: ["fake-emitter", "fake-emitter-no-schema"],
+      expected: ["@typespec/fake-emitter", "@typespec/fake-emitter-no-schema"],
     },
     {
       config: `emit:\n  - '┆`,
-      expected: ["fake-emitter", "fake-emitter-no-schema"],
+      expected: ["@typespec/fake-emitter", "@typespec/fake-emitter-no-schema"],
     },
     {
       config: `emit:\n  - '┆'`,
-      expected: ["fake-emitter", "fake-emitter-no-schema"],
+      expected: ["@typespec/fake-emitter", "@typespec/fake-emitter-no-schema"],
     },
     {
       config: `options:\n\n  fak┆`,
-      expected: ['"fake-emitter"', '"fake-emitter-no-schema"'],
+      expected: ['"@typespec/fake-emitter"', '"@typespec/fake-emitter-no-schema"'],
     },
   ])("#%# Test emitters: $config", async ({ config, expected }) => {
     await checkCompletionItems(config, true, expected);
@@ -129,7 +129,7 @@ describe("Test completion items for options and emitters", () => {
 describe("Test completion items for emitters options", () => {
   it.each([
     {
-      config: `options:\n  fake-emitter:\n    ┆`,
+      config: `options:\n  @typespec/fake-emitter:\n    ┆`,
       expected: [
         "target-name",
         "is-valid",
@@ -142,23 +142,23 @@ describe("Test completion items for emitters options", () => {
       ],
     },
     {
-      config: `options:\n  fake-emitter:\n    target-name: ┆`,
+      config: `options:\n  @typespec/fake-emitter:\n    target-name: ┆`,
       expected: [],
     },
     {
-      config: `options:\n  fake-emitter:\n  fake-emitter-no-schema: \n    ┆`,
+      config: `options:\n  @typespec/fake-emitter:\n  @typespec/fake-emitter-no-schema: \n    ┆`,
       expected: ["emitter-output-dir"],
     },
     {
-      config: `options:\n  fake-emitter:\n    target-name: "fak┆e"`,
+      config: `options:\n  @typespec/fake-emitter:\n    target-name: "fak┆e"`,
       expected: [],
     },
     {
-      config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: ┆`,
+      config: `options:\n  @typespec/fake-emitter:\n    target-name: "fake"\n    is-valid: ┆`,
       expected: ["true", "false"],
     },
     {
-      config: `options:\n  fake-emitter:\n    target-name: "fake"\n    i┆`,
+      config: `options:\n  @typespec/fake-emitter:\n    target-name: "fake"\n    i┆`,
       expected: [
         "is-valid",
         "type",
@@ -170,7 +170,7 @@ describe("Test completion items for emitters options", () => {
       ],
     },
     {
-      config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    ┆`,
+      config: `options:\n  @typespec/fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    ┆`,
       expected: [
         "type",
         "emitter-output-dir",
@@ -181,7 +181,7 @@ describe("Test completion items for emitters options", () => {
       ],
     },
     {
-      config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: ┆`,
+      config: `options:\n  "@typespec/fake-emitter":\n    target-name: "fake"\n    is-valid: true\n    type: ┆`,
       expected: ["a", "b", "c"],
     },
   ])("#%# Test emitter options: $config", async ({ config, expected }) => {
@@ -192,7 +192,7 @@ describe("Test completion items for emitters options", () => {
 describe("Test whether the completion items description of the emitters options is optional or required", () => {
   it.each([
     {
-      config: `options:\n  fake-emitter:\n    ┆`,
+      config: `options:\n  @typespec/fake-emitter:\n    ┆`,
       expected: [
         "[required]\nThe name of the target to emit to.", //"target-name",
         "[optional]\nWhether the target is valid.", //"is-valid",
@@ -248,34 +248,58 @@ describe("Test completion items for linter", () => {
     },
     {
       config: `linter:\n  extends:\n    - "┆`,
-      expected: ["fake-linter-no-schema", "fake-linter/recommended", "fake-linter"],
+      expected: [
+        "@typespec/fake-linter-no-schema",
+        "@typespec/fake-linter/recommended",
+        "@typespec/fake-linter",
+      ],
     },
     {
-      config: `linter:\n  extends:\n    - "fake-linter/recommended"\n    - "┆`,
-      expected: ["fake-linter-no-schema", "fake-linter"],
+      config: `linter:\n  extends:\n    - "@typespec/fake-linter/recommended"\n    - "┆`,
+      expected: ["@typespec/fake-linter-no-schema", "@typespec/fake-linter"],
     },
     {
-      config: `linter:\n  extends:\n    - "fake-linter"\n  enable:\n    "┆`,
-      expected: ["fake-linter/casing", "fake-linter/no-model-doc", "fake-linter/testing"],
+      config: `linter:\n  extends:\n    - "@typespec/fake-linter"\n  enable:\n    "┆`,
+      expected: [
+        "@typespec/fake-linter/casing",
+        "@typespec/fake-linter/no-model-doc",
+        "@typespec/fake-linter/testing",
+      ],
     },
     {
-      config: `linter:\n  extends:\n    - "fake-linter/recommended"\n  enable:\n    "┆`,
-      expected: ["fake-linter/casing", "fake-linter/no-model-doc", "fake-linter/testing"],
+      config: `linter:\n  extends:\n    - "@typespec/fake-linter/recommended"\n  enable:\n    "┆`,
+      expected: [
+        "@typespec/fake-linter/casing",
+        "@typespec/fake-linter/no-model-doc",
+        "@typespec/fake-linter/testing",
+      ],
     },
     {
-      config: `linter:\n  extends:\n    - "fake-linter/recommended"\n  disable:\n    "┆`,
-      expected: ["fake-linter/casing", "fake-linter/no-model-doc", "fake-linter/testing"],
+      config: `linter:\n  extends:\n    - "@typespec/fake-linter/recommended"\n  disable:\n    "┆`,
+      expected: [
+        "@typespec/fake-linter/casing",
+        "@typespec/fake-linter/no-model-doc",
+        "@typespec/fake-linter/testing",
+      ],
     },
     {
-      config: `linter:\n  extends:\n    - "fake-linter/recommended"\n    - "fake-linter-no-schema"\n  enable:\n    "┆`,
-      expected: ["fake-linter/casing", "fake-linter/no-model-doc", "fake-linter/testing"],
+      config: `linter:\n  extends:\n    - "@typespec/fake-linter/recommended"\n    - "@typespec/fake-linter-no-schema"\n  enable:\n    "┆`,
+      expected: [
+        "@typespec/fake-linter/casing",
+        "@typespec/fake-linter/no-model-doc",
+        "@typespec/fake-linter/testing",
+      ],
     },
     {
-      config: `linter:\n  extends:\n    - "fake-linter/recommended"\n  enable:\n    "fake-linter/casing": true\n  disable:\n    "┆`,
-      expected: ["fake-linter/casing", "fake-linter/no-model-doc", "fake-linter/testing"],
+      config: `linter:\n  extends:\n    - "@typespec/fake-linter/recommended"\n  enable:\n    "@typespec/fake-linter/casing": true\n  disable:\n    "┆`,
+      expected: [
+        "@typespec/fake-linter/casing",
+        "@typespec/fake-linter/no-model-doc",
+        "@typespec/fake-linter/testing",
+      ],
     },
     {
-      config: `linter:\n  extends:\n    - "fake-linter-no-schema"    - "fake-linter/recommended"┆`,
+      config: `linter:\n  extends:\n    - "@typespec/fake-linter-no-schema"    - "@typespec/fake-linter/recommended"┆`,
       expected: [],
     },
     {
@@ -283,7 +307,7 @@ describe("Test completion items for linter", () => {
       expected: [],
     },
     {
-      config: `linter:\n  extends:\n    - "fake-linter-no-schema"    - "fake"┆`,
+      config: `linter:\n  extends:\n    - "@typespec/fake-linter-no-schema"    - "fake"┆`,
       expected: [],
     },
   ])("#%# Test emitter options: $config", async ({ config, expected }) => {
@@ -533,91 +557,91 @@ describe("Test completion items with comments", () => {
 describe("Test completion items in complex scenario", () => {
   it.each([
     {
-      config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options:\n      ┆\nwarn-as-error: true`,
+      config: `options:\n  @typespec/fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options:\n      ┆\nwarn-as-error: true`,
       expected: ["propA", "propB", "propC"],
     },
     {
-      config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options:\n      prop┆ \n    some-option: "value"`,
+      config: `options:\n  @typespec/fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options:\n      prop┆ \n    some-option: "value"`,
       expected: ["propA", "propB", "propC"],
     },
     {
-      config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options:\n      propA: ┆\n\nemit:\n  - fake-emitter2`,
+      config: `options:\n  @typespec/fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options:\n      propA: ┆\n\nemit:\n  - fake-emitter2`,
       expected: [],
     },
     {
-      config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options:\n      propA:\n      propB: ┆`,
+      config: `options:\n  @typespec/fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options:\n      propA:\n      propB: ┆`,
       expected: ["true", "false", "valueB1", "valueB2"],
     },
     {
-      config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options:\n      propC: ┆`,
+      config: `options:\n  @typespec/fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options:\n      propC: ┆`,
       expected: [],
     },
     {
-      config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options:\n      propC:\n        ┆`,
+      config: `options:\n  @typespec/fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options:\n      propC:\n        ┆`,
       expected: ["propC-one", "propC-two"],
     },
     {
-      config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options:\n      propC:\n        propC-one:┆`,
+      config: `options:\n  @typespec/fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options:\n      propC:\n        propC-one:┆`,
       expected: ["true", "false"],
     },
     {
-      config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options:\n      propC:\n        propC-two:┆`,
+      config: `options:\n  @typespec/fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options:\n      propC:\n        propC-two:┆`,
       expected: ["valueC1", "valueC2"],
     },
     {
-      config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options:\n      propC:\n        propC-two:┆\n`,
+      config: `options:\n  @typespec/fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options:\n      propC:\n        propC-two:┆\n`,
       expected: ["valueC1", "valueC2"],
     },
     {
-      config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options:\n      new-option:\n        ┆`,
+      config: `options:\n  @typespec/fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options:\n      new-option:\n        ┆`,
       expected: ["addProp"],
     },
     {
-      config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options:\n      new-option:\n        addProp:┆`,
+      config: `options:\n  @typespec/fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options:\n      new-option:\n        addProp:┆`,
       expected: ["true", "false"],
     },
     {
-      config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-b:\n      new-option: ┆`,
+      config: `options:\n  @typespec/fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-b:\n      new-option: ┆`,
       expected: ["true", "false"],
     },
     {
-      config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-arr-obj:\n      - ┆`,
+      config: `options:\n  @typespec/fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-arr-obj:\n      - ┆`,
       expected: ["arr-propA", "arr-propB"],
     },
     {
-      config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-arr-obj:\n      - \n        ┆`,
+      config: `options:\n  @typespec/fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-arr-obj:\n      - \n        ┆`,
       expected: [],
     },
     {
-      config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-arr-obj:\n      - arr-propA┆`,
+      config: `options:\n  @typespec/fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-arr-obj:\n      - arr-propA┆`,
       expected: ["arr-propA", "arr-propB"],
     },
     {
-      config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-arr-obj:\n      - arr-propA\n        ┆`,
+      config: `options:\n  @typespec/fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-arr-obj:\n      - arr-propA\n        ┆`,
       expected: [],
     },
     {
-      config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-arr-obj:\n      - arr-propA:\n        ┆`,
+      config: `options:\n  @typespec/fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-arr-obj:\n      - arr-propA:\n        ┆`,
       expected: ["arr-propB"],
     },
     {
-      config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-arr-obj:\n      - arr-propA:\n      - ┆`,
+      config: `options:\n  @typespec/fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-arr-obj:\n      - arr-propA:\n      - ┆`,
       expected: ["arr-propA", "arr-propB"],
     },
     {
-      config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-arr-obj:\n      - arr-propA:\n          ┆\n`,
+      config: `options:\n  @typespec/fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-arr-obj:\n      - arr-propA:\n          ┆\n`,
       expected: ["arr-propA-one", "arr-propA-two"],
     },
     {
-      config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-arr-obj:\n      - arr-propA:\n          arr-propA-one: ┆`,
+      config: `options:\n  @typespec/fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-arr-obj:\n      - arr-propA:\n          arr-propA-one: ┆`,
       expected: ["true", "false"],
     },
     {
-      config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-arr-obj:\n      - arr-propA:\n          arr-propA-one: \n\n        ┆`,
+      config: `options:\n  @typespec/fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-arr-obj:\n      - arr-propA:\n          arr-propA-one: \n\n        ┆`,
       expected: ["arr-propB"],
     },
     {
-      config: `options:\n  fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-arr-boolean:\n      - ┆`,
+      config: `options:\n  @typespec/fake-emitter:\n    target-name: "fake"\n    is-valid: true\n    type: a\n    options-arr-boolean:\n      - ┆`,
       expected: ["true", "false"],
     },
   ])("#%# Test Complex: $config", async ({ config, expected }) => {
@@ -636,13 +660,13 @@ describe("Test package cache cleared properly", () => {
       textDocument,
       position: textDocument.positionAt(pos),
     });
-    const expected = ["fake-emitter", "fake-emitter-no-schema"];
+    const expected = ["@typespec/fake-emitter", "@typespec/fake-emitter-no-schema"];
     expect(items.map((i) => i.label).sort()).toEqual(expected.sort());
 
     const oldFile = await testHost.compilerHost.readFile("./workspace/package.json");
     const changed = oldFile.text.replace(
-      "fake-emitter-no-schema",
-      "fake-emitter-no-schema-not-exist",
+      "@typespec/fake-emitter-no-schema",
+      "@typespec/fake-emitter-no-schema-not-exist",
     );
     await testHost.compilerHost.writeFile("./workspace/package.json", changed);
     const changedPackageUrl = testHost.getURL("./workspace/package.json")!;
@@ -654,7 +678,7 @@ describe("Test package cache cleared properly", () => {
       textDocument,
       position: textDocument.positionAt(pos),
     });
-    const expected2 = ["fake-emitter"];
+    const expected2 = ["@typespec/fake-emitter"];
     expect(items2.map((i) => i.label).sort()).toEqual(expected2.sort());
   });
 });

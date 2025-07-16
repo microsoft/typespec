@@ -57,7 +57,7 @@ public final class ExtendsUnknownsImpl {
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "AdditionalProperties")
+    @ServiceInterface(name = "AdditionalPropertiesClientExtendsUnknowns")
     public interface ExtendsUnknownsService {
         @Get("/type/property/additionalProperties/extendsRecordUnknown")
         @ExpectedResponses({ 200 })

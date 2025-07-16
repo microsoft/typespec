@@ -1,4 +1,4 @@
-import { Program } from "@typespec/compiler";
+import type { Program } from "@typespec/compiler";
 import {
   createTestHost,
   createTestWrapper,

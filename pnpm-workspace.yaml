@@ -5,3 +5,6 @@ packages:
   - "!packages/http-client-csharp/**"
   - "!packages/http-client-java/**"
   - "!packages/http-client-python/**"
+
+overrides:
+  "cross-spawn@>=7.0.0 <7.0.5": "^7.0.5"

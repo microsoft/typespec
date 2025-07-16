@@ -12,6 +12,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 
 /**
  * Initializes a new instance of the synchronous NumericClient type.
@@ -21,14 +22,18 @@ public final class NumericClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final PropertiesImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of NumericClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    NumericClient(PropertiesImpl serviceClient) {
+    NumericClient(PropertiesImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -45,7 +50,8 @@ public final class NumericClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<SafeintAsStringProperty> safeintAsStringWithResponse(SafeintAsStringProperty value,
         RequestContext requestContext) {
-        return this.serviceClient.safeintAsStringWithResponse(value, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Numeric.Property.safeintAsString", requestContext,
+            updatedContext -> this.serviceClient.safeintAsStringWithResponse(value, updatedContext));
     }
 
     /**
@@ -60,7 +66,7 @@ public final class NumericClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public SafeintAsStringProperty safeintAsString(SafeintAsStringProperty value) {
-        return this.serviceClient.safeintAsString(value);
+        return safeintAsStringWithResponse(value, RequestContext.none()).getValue();
     }
 
     /**
@@ -77,7 +83,9 @@ public final class NumericClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Uint32AsStringProperty> uint32AsStringOptionalWithResponse(Uint32AsStringProperty value,
         RequestContext requestContext) {
-        return this.serviceClient.uint32AsStringOptionalWithResponse(value, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Numeric.Property.uint32AsStringOptional",
+            requestContext,
+            updatedContext -> this.serviceClient.uint32AsStringOptionalWithResponse(value, updatedContext));
     }
 
     /**
@@ -92,7 +100,7 @@ public final class NumericClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Uint32AsStringProperty uint32AsStringOptional(Uint32AsStringProperty value) {
-        return this.serviceClient.uint32AsStringOptional(value);
+        return uint32AsStringOptionalWithResponse(value, RequestContext.none()).getValue();
     }
 
     /**
@@ -109,7 +117,8 @@ public final class NumericClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Uint8AsStringProperty> uint8AsStringWithResponse(Uint8AsStringProperty value,
         RequestContext requestContext) {
-        return this.serviceClient.uint8AsStringWithResponse(value, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Numeric.Property.uint8AsString", requestContext,
+            updatedContext -> this.serviceClient.uint8AsStringWithResponse(value, updatedContext));
     }
 
     /**
@@ -124,6 +133,6 @@ public final class NumericClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Uint8AsStringProperty uint8AsString(Uint8AsStringProperty value) {
-        return this.serviceClient.uint8AsString(value);
+        return uint8AsStringWithResponse(value, RequestContext.none()).getValue();
     }
 }

@@ -57,7 +57,7 @@ public final class DecimalVerifiesImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ScalarClientDecimalV")
+    @ServiceInterface(name = "ScalarClientDecimalVerifies")
     public interface DecimalVerifiesService {
         @Get("/type/scalar/decimal/prepare_verify")
         @ExpectedResponses({ 200 })

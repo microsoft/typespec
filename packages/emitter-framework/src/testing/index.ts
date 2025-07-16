@@ -1,5 +1,5 @@
 import { resolvePath } from "@typespec/compiler";
-import { createTestLibrary, TypeSpecTestLibrary } from "@typespec/compiler/testing";
+import { createTestLibrary, type TypeSpecTestLibrary } from "@typespec/compiler/testing";
 import { fileURLToPath } from "url";
 
 export const EmitterFrameworkTestLibrary: TypeSpecTestLibrary = createTestLibrary({

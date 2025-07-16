@@ -57,7 +57,7 @@ public final class ExtendsFloatsImpl {
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "AdditionalProperties")
+    @ServiceInterface(name = "AdditionalPropertiesClientExtendsFloats")
     public interface ExtendsFloatsService {
         @Get("/type/property/additionalProperties/extendsRecordFloat")
         @ExpectedResponses({ 200 })

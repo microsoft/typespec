@@ -111,7 +111,7 @@ public final class OutputOnlyModelChild extends OutputOnlyModelInner {
      * 
      * @return the dog value.
      */
-    public Dog dog() {
+    public Golden dog() {
         return this.innerProperties() == null ? null : this.innerProperties().dog();
     }
 

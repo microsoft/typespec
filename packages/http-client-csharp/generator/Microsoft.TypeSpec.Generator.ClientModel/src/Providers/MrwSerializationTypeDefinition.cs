@@ -79,6 +79,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _isNotEqualToWireConditionSnippet = _mrwOptionsParameterSnippet.Format().NotEqual(ModelReaderWriterOptionsSnippets.WireFormat);
         }
 
+        protected override FormattableString BuildDescription() => _model.Description;
+
         protected override string BuildNamespace() => _model.Type.Namespace;
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => _model.DeclarationModifiers;
@@ -154,8 +156,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (!_inputModel.IsUnknownDiscriminatorModel)
             {
                 //cast operators
-                methods.Add(BuildImplicitToBinaryContent());
-                methods.Add(BuildExplicitFromClientResult());
+                if (ScmCodeModelGenerator.Instance.TypeFactory.RootInputModels.Contains(_inputModel))
+                {
+                    methods.Add(BuildImplicitToBinaryContent());
+                }
+
+                if (ScmCodeModelGenerator.Instance.TypeFactory.RootOutputModels.Contains(_inputModel))
+                {
+                    methods.Add(BuildExplicitFromClientResult());
+                }
             }
 
             if (_isStruct)

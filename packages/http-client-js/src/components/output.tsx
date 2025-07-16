@@ -1,4 +1,4 @@
-import * as ay from "@alloy-js/core";
+import { Children } from "@alloy-js/core/jsx-runtime";
 import * as ts from "@alloy-js/typescript";
 import { Program } from "@typespec/compiler";
 import { Output as EFOutput, TransformNamePolicyContext } from "@typespec/emitter-framework";
@@ -9,7 +9,7 @@ import { uriTemplateLib } from "./external-packages/uri-template.js";
 import { createTransformNamePolicy } from "./transforms/transform-name-policy.js";
 
 export interface OutputProps {
-  children?: ay.Children;
+  children?: Children;
   program: Program;
 }
 

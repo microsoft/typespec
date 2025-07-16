@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import type.property.additionalproperties.implementation.SpreadDifferentStringsImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class SpreadDifferentStringClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final SpreadDifferentStringsImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of SpreadDifferentStringClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    SpreadDifferentStringClient(SpreadDifferentStringsImpl serviceClient) {
+    SpreadDifferentStringClient(SpreadDifferentStringsImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -40,7 +45,9 @@ public final class SpreadDifferentStringClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<DifferentSpreadStringRecord> getWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Property.AdditionalProperties.SpreadDifferentString.get", requestContext,
+            updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
     /**
@@ -53,7 +60,7 @@ public final class SpreadDifferentStringClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public DifferentSpreadStringRecord get() {
-        return this.serviceClient.get();
+        return getWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -69,7 +76,9 @@ public final class SpreadDifferentStringClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(DifferentSpreadStringRecord body, RequestContext requestContext) {
-        return this.serviceClient.putWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Property.AdditionalProperties.SpreadDifferentString.put", requestContext,
+            updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 
     /**
@@ -83,6 +92,6 @@ public final class SpreadDifferentStringClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void put(DifferentSpreadStringRecord body) {
-        this.serviceClient.put(body);
+        putWithResponse(body, RequestContext.none());
     }
 }

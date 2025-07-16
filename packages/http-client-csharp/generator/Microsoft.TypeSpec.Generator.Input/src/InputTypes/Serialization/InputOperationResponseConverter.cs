@@ -10,24 +10,22 @@ namespace Microsoft.TypeSpec.Generator.Input
 {
     internal sealed class InputOperationResponseConverter : JsonConverter<InputOperationResponse>
     {
-        private readonly TypeSpecReferenceHandler _referenceHandler;
-
-        public InputOperationResponseConverter(TypeSpecReferenceHandler referenceHandler)
+        public InputOperationResponseConverter()
         {
-            _referenceHandler = referenceHandler;
         }
 
         public override InputOperationResponse? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            return reader.ReadReferenceAndResolve<InputOperationResponse>(_referenceHandler.CurrentResolver) ?? CreateOperationResponse(ref reader, null, options);
-        }
+            => CreateOperationResponse(ref reader, options);
 
         public override void Write(Utf8JsonWriter writer, InputOperationResponse value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        private InputOperationResponse CreateOperationResponse(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options)
+        private InputOperationResponse CreateOperationResponse(ref Utf8JsonReader reader, JsonSerializerOptions options)
         {
-            var isFirstProperty = id == null;
+            if (reader.TokenType == JsonTokenType.StartObject)
+            {
+                reader.Read();
+            }
             IReadOnlyList<int>? statusCodes = null;
             InputType? bodyType = null;
             IReadOnlyList<InputOperationResponseHeader>? headers = null;
@@ -35,8 +33,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             IReadOnlyList<string>? contentTypes = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
-                var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
-                    || reader.TryReadComplexType("statusCodes", options, ref statusCodes)
+                var isKnownProperty = reader.TryReadComplexType("statusCodes", options, ref statusCodes)
                     || reader.TryReadComplexType("bodyType", options, ref bodyType)
                     || reader.TryReadComplexType("headers", options, ref headers)
                     || reader.TryReadBoolean("isErrorResponse", ref isErrorResponse)
@@ -53,11 +50,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             headers ??= [];
 
             var result = new InputOperationResponse(statusCodes, bodyType, headers, isErrorResponse, contentTypes);
-
-            if (id != null)
-            {
-                _referenceHandler.CurrentResolver.AddReference(id, result);
-            }
 
             return result;
         }

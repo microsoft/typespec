@@ -10,9 +10,6 @@ steps:
       nodeVersion: ${{ parameters.nodeVersion }}
       useDotnet: true
 
-  - script: pnpm run check-version-mismatch
-    displayName: Check version mismatch
-
   - template: /eng/tsp-core/pipelines/templates/build.yml
 
   - script: pnpm run test:ci

@@ -75,7 +75,7 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
     let root = createModel(sdkContext);
 
     if (root) {
-      root = options["update-code-model"](root);
+      root = options["update-code-model"](root, sdkContext);
       const generatedFolder = resolvePath(outputFolder, "src", "Generated");
 
       if (!fs.existsSync(generatedFolder)) {

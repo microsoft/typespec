@@ -2,8 +2,8 @@ import { code, Output, render } from "@alloy-js/core";
 import { d } from "@alloy-js/core/testing";
 import * as ts from "@alloy-js/typescript";
 import { SourceFile } from "@alloy-js/typescript";
-import { Model } from "@typespec/compiler";
-import { BasicTestRunner } from "@typespec/compiler/testing";
+import type { Model } from "@typespec/compiler";
+import type { BasicTestRunner } from "@typespec/compiler/testing";
 import { assert, beforeEach, describe, expect, it } from "vitest";
 import {
   ArraySerializer,

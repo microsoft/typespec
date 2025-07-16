@@ -1,4 +1,4 @@
-import * as ay from "@alloy-js/core";
+import { refkey } from "@alloy-js/core";
 import { HttpOperation } from "@typespec/http";
 import { ClientOperation as DefaultOperationComponent } from "../client-operation.jsx";
 import { OperationHandlerPipeline } from "./types.jsx";
@@ -22,7 +22,7 @@ export function OperationPipeline({ httpOperation, pipeline, internal }: Operati
   }
 
   // Default to standard client operation if no handler matched
-  const defaultOperationRefkey = ay.refkey(httpOperation.operation);
+  const defaultOperationRefkey = refkey(httpOperation.operation);
   return (
     <DefaultOperationComponent
       httpOperation={httpOperation}

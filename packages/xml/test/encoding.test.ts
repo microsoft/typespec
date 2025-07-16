@@ -1,14 +1,7 @@
-import type { ModelProperty } from "@typespec/compiler";
-import type { BasicTestRunner } from "@typespec/compiler/testing";
-import { beforeEach, describe, expect, it } from "vitest";
+import { t } from "@typespec/compiler/testing";
+import { describe, expect, it } from "vitest";
 import { getXmlEncoding } from "../src/encoding.js";
-import { createXmlTestRunner } from "./test-host.js";
-
-let runner: BasicTestRunner;
-
-beforeEach(async () => {
-  runner = await createXmlTestRunner();
-});
+import { Tester } from "./test-host.js";
 
 describe("default encodings", () => {
   it.each([
@@ -19,19 +12,19 @@ describe("default encodings", () => {
     ["plainTime", "TypeSpec.Xml.Encoding.xmlTime"],
     ["bytes", "TypeSpec.Xml.Encoding.xmlBase64Binary"],
   ])("%s", async (type, expectedEncoding) => {
-    const { prop } = (await runner.compile(`model Foo {
-      @test prop: ${type}
-    }`)) as { prop: ModelProperty };
-    const encoding = getXmlEncoding(runner.program, prop);
+    const { prop, program } = await Tester.compile(t.code`model Foo {
+      ${t.modelProperty("prop")}: ${type}
+    }`);
+    const encoding = getXmlEncoding(program, prop);
     expect(encoding?.encoding).toEqual(expectedEncoding);
   });
 });
 
 it("override encoding", async () => {
-  const { prop } = (await runner.compile(`model Foo {
+  const { prop, program } = await Tester.compile(t.code`model Foo {
     @encode("rfc3339")
-    @test prop: utcDateTime;
-  }`)) as { prop: ModelProperty };
-  const encoding = getXmlEncoding(runner.program, prop);
+    ${t.modelProperty("prop")}: utcDateTime;
+  }`);
+  const encoding = getXmlEncoding(program, prop);
   expect(encoding?.encoding).toEqual("rfc3339");
 });

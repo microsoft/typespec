@@ -57,7 +57,7 @@ public final class ExtensibleEnumsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ValueTypesClientExte")
+    @ServiceInterface(name = "ValueTypesClientExtensibleEnums")
     public interface ExtensibleEnumsService {
         @Get("/type/property/value-types/extensible-enum")
         @ExpectedResponses({ 200 })

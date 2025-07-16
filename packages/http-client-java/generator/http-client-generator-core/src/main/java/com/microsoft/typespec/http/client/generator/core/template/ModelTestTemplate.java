@@ -22,7 +22,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class ModelTestTemplate implements IJavaTemplate<ClientModel, JavaFile> {
+public class ModelTestTemplate implements IJavaTemplate<ModelTestTemplate.ModelUnitTestInfo, JavaFile> {
 
     private static final ModelTestTemplate INSTANCE = new ModelTestTemplate();
 
@@ -33,10 +33,20 @@ public class ModelTestTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         return INSTANCE;
     }
 
+    public static final class ModelUnitTestInfo {
+        private final String className;
+        private final ClientModel model;
+
+        public ModelUnitTestInfo(String className, ClientModel model) {
+            this.className = className;
+            this.model = model;
+        }
+    }
+
     /**
      * Write the JSON serialization / de-serialization unit test for the model.
      *
-     * @param model the client model to test.
+     * @param testInfo the info, which include the client model to test.
      * @param javaFile the java file.
      * @throws com.microsoft.typespec.http.client.generator.core.util.PossibleCredentialException
      * thrown when there is possible mock value to a secret property.
@@ -46,7 +56,10 @@ public class ModelTestTemplate implements IJavaTemplate<ClientModel, JavaFile> {
      * Constant string of that size would cause compiler "constant string too long" error.
      */
     @Override
-    public void write(ClientModel model, JavaFile javaFile) {
+    public void write(ModelUnitTestInfo testInfo, JavaFile javaFile) {
+
+        String className = testInfo.className;
+        ClientModel model = testInfo.model;
 
         final boolean immutableOutputModel = JavaSettings.getInstance().isOutputModelImmutable()
             && model.getImplementationDetails() != null
@@ -82,7 +95,7 @@ public class ModelTestTemplate implements IJavaTemplate<ClientModel, JavaFile> {
             throw new ConstantStringTooLongException();
         }
 
-        javaFile.publicFinalClass(model.getName() + "Tests", classBlock -> {
+        javaFile.publicFinalClass(className, classBlock -> {
             // testDeserialize
             classBlock.annotation("org.junit.jupiter.api.Test");
             classBlock.publicMethod("void testDeserialize() throws Exception", methodBlock -> {

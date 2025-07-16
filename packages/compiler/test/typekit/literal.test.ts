@@ -1,6 +1,22 @@
-import { expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
+import { t } from "../../src/testing/marked-template.js";
 import { $ } from "../../src/typekit/index.js";
+import { Tester } from "../tester.js";
 import { getTypes } from "./utils.js";
+
+describe("created literal have object equality", async () => {
+  it.each([
+    ["string", "value"],
+    ["number", 123],
+    ["boolean", true],
+  ])("%s", async (_, value) => {
+    const { program, s } = await Tester.compile(t.code`
+    alias ${t.type("s")} = ${JSON.stringify(value)};  
+  `);
+    expect(s).toBe($(program).literal.create(value));
+    expect($(program).literal.create(value)).toBe($(program).literal.create(value));
+  });
+});
 
 it("can check for a string", async () => {
   const {

@@ -24,7 +24,6 @@ namespace Microsoft.TypeSpec.Generator.Input
 
         public static InputLiteralType CreateInputLiteralType(ref Utf8JsonReader reader, string? id, string? name, JsonSerializerOptions options, ReferenceResolver resolver)
         {
-            var isFirstProperty = id == null && name == null;
             string? ns = null;
             JsonElement? rawValue = null;
             InputPrimitiveType? valueType = null;
@@ -32,7 +31,7 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
-                var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
+                var isKnownProperty = reader.TryReadReferenceId(ref id)
                     || reader.TryReadString("name", ref name)
                     || reader.TryReadString("namespace", ref ns)
                     || reader.TryReadComplexType("value", options, ref rawValue)

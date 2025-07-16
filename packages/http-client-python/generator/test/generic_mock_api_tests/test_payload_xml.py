@@ -11,6 +11,8 @@ from payload.xml.models import (
     ModelWithArrayOfModel,
     ModelWithAttributes,
     ModelWithUnwrappedArray,
+    ModelWithRenamedArrays,
+    ModelWithOptionalField,
     ModelWithRenamedFields,
     ModelWithEmptyArray,
     ModelWithText,
@@ -58,6 +60,18 @@ def test_model_with_unwrapped_array(client: XmlClient):
     model = ModelWithUnwrappedArray(colors=["red", "green", "blue"], counts=[1, 2])
     assert client.model_with_unwrapped_array_value.get() == model
     client.model_with_unwrapped_array_value.put(model)
+
+
+def test_model_with_renamed_arrays(client: XmlClient):
+    model = ModelWithRenamedArrays(colors=["red", "green", "blue"], counts=[1, 2])
+    assert client.model_with_renamed_arrays_value.get() == model
+    client.model_with_renamed_arrays_value.put(model)
+
+
+def test_model_with_optional_field(client: XmlClient):
+    model = ModelWithOptionalField(item="widget")
+    assert client.model_with_optional_field_value.get() == model
+    client.model_with_optional_field_value.put(model)
 
 
 def test_model_with_renamed_fields(client: XmlClient):

@@ -15,7 +15,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
                 writer.AppendRaw("{ }");
                 return;
             }
-            using var scope = writer.Scope();
+            using var scope = writer.ScopeRaw(newLine: false);
             WriteItem(writer, enumerator.Current);
             while (enumerator.MoveNext())
             {

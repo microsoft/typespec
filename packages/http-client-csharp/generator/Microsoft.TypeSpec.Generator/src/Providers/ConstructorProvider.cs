@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -15,10 +16,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public ConstructorSignature Signature { get; private set; }
         public MethodBodyStatement? BodyStatements { get; private set; }
         public ValueExpression? BodyExpression { get; private set; }
-        public XmlDocProvider? XmlDocs => _xmlDocs ??= BuildXmlDocs();
-        private XmlDocProvider? _xmlDocs;
+        public XmlDocProvider XmlDocs { get; private set; }
 
         public TypeProvider EnclosingType { get; }
+        public IReadOnlyList<AttributeStatement> Attributes { get; private set; }
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -34,14 +35,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <param name="bodyStatements">The method body.</param>
         /// <param name="enclosingType">The enclosing type.</param>
         /// <param name="xmlDocProvider">The XML documentation provider.</param>
-        public ConstructorProvider(ConstructorSignature signature, MethodBodyStatement bodyStatements, TypeProvider enclosingType, XmlDocProvider? xmlDocProvider = default)
+        /// <param name="attributes"> The attributes for the method.</param>
+        public ConstructorProvider(
+            ConstructorSignature signature,
+            MethodBodyStatement bodyStatements,
+            TypeProvider enclosingType,
+            XmlDocProvider? xmlDocProvider = default,
+            IEnumerable<AttributeStatement>? attributes = default)
         {
             Signature = signature;
-            bool skipParamValidation = !signature.Modifiers.HasFlag(MethodSignatureModifiers.Public);
-            var paramHash = MethodProviderHelpers.GetParamHash(signature.Parameters, skipParamValidation);
+            var paramHash = MethodProviderHelpers.GetParamHash(signature);
             BodyStatements = MethodProviderHelpers.GetBodyStatementWithValidation(signature.Parameters, bodyStatements, paramHash);
-            _xmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature.Parameters, signature.Description, null, paramHash);
+            XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature);
             EnclosingType = enclosingType;
+            Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [];
         }
 
         /// <summary>
@@ -51,38 +58,33 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <param name="bodyExpression">The method body expression.</param>
         /// <param name="enclosingType">The enclosing type.</param>
         /// <param name="xmlDocProvider">The XML documentation provider.</param>
-        public ConstructorProvider(ConstructorSignature signature, ValueExpression bodyExpression, TypeProvider enclosingType, XmlDocProvider? xmlDocProvider = default)
+        /// <param name="attributes"> The attributes for the method.</param>
+        public ConstructorProvider(
+            ConstructorSignature signature,
+            ValueExpression bodyExpression,
+            TypeProvider enclosingType,
+            XmlDocProvider? xmlDocProvider = default,
+            IEnumerable<AttributeStatement>? attributes = default)
         {
             Signature = signature;
             BodyExpression = bodyExpression;
-            _xmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature.Parameters, signature.Description, null, null);
+            XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature);
             EnclosingType = enclosingType;
-        }
-
-        private XmlDocProvider? BuildXmlDocs()
-        {
-            return MethodProviderHelpers.BuildXmlDocs(
-                Signature.Parameters,
-                Signature.Description,
-                null,
-                BodyStatements != null ?
-                    MethodProviderHelpers.GetParamHash(
-                        Signature.Parameters,
-                        !Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)) :
-                    null);
+            Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [];
         }
 
         public void Update(
             MethodBodyStatement? bodyStatements = null,
             ConstructorSignature? signature = null,
             ValueExpression? bodyExpression = null,
-            XmlDocProvider? xmlDocs = null)
+            XmlDocProvider? xmlDocs = null,
+            IEnumerable<AttributeStatement>? attributes = default)
         {
             if (signature != null)
             {
                 Signature = signature;
                 // rebuild the XML docs if the signature changed
-                _xmlDocs = BuildXmlDocs();
+                XmlDocs = MethodProviderHelpers.BuildXmlDocs(signature);
             }
             if (bodyExpression != null)
             {
@@ -96,7 +98,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             if (xmlDocs != null)
             {
-                _xmlDocs = xmlDocs;
+                XmlDocs = xmlDocs;
+            }
+            if (attributes != null)
+            {
+                Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [.. attributes];
             }
         }
     }

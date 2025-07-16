@@ -1,6 +1,7 @@
 import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpHeaders;
 import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.CoreException;
 import io.clientcore.core.models.binarydata.BinaryData;
 import io.clientcore.core.serialization.ObjectSerializer;
 import io.clientcore.core.utils.CoreUtils;
@@ -34,8 +35,8 @@ final class PollingUtils {
             URI uri = new URI(path);
             if (!uri.isAbsolute()) {
                 if (CoreUtils.isNullOrEmpty(endpoint)) {
-                    throw logger.logThrowableAsError(new IllegalArgumentException(
-                        "Relative path requires endpoint to be non-null and non-empty to create an absolute path."));
+                    throw new IllegalArgumentException(
+                        "Relative path requires endpoint to be non-null and non-empty to create an absolute path.");
                 }
 
                 if (endpoint.endsWith(FORWARD_SLASH) && path.startsWith(FORWARD_SLASH)) {
@@ -47,7 +48,9 @@ final class PollingUtils {
                 }
             }
         } catch (URISyntaxException ex) {
-            throw logger.logThrowableAsWarning(new IllegalArgumentException("'path' must be a valid URI.", ex));
+            throw logger.throwableAtError()
+                .addKeyValue("path", path)
+                .log("'path' must be a valid URI.", ex, CoreException::from);
         }
         return path;
     }

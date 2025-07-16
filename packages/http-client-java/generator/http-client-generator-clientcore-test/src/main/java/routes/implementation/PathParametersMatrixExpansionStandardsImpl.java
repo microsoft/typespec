@@ -3,7 +3,6 @@ package routes.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.PathParam;
@@ -13,6 +12,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
@@ -34,20 +34,26 @@ public final class PathParametersMatrixExpansionStandardsImpl {
     private final RoutesClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of PathParametersMatrixExpansionStandardsImpl.
      * 
      * @param client the instance of the service client containing this operation class.
      */
     PathParametersMatrixExpansionStandardsImpl(RoutesClientImpl client) {
-        this.service = RestProxy.create(PathParametersMatrixExpansionStandardsService.class, client.getHttpPipeline());
+        this.service = PathParametersMatrixExpansionStandardsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
      * The interface defining all the services for RoutesClientPathParametersMatrixExpansionStandards to be used by the
      * proxy service to perform REST calls.
      */
-    @ServiceInterface(name = "RoutesClientPathPara", host = "{endpoint}")
+    @ServiceInterface(name = "RoutesClientPathParametersMatrixExpansionStandards", host = "{endpoint}")
     public interface PathParametersMatrixExpansionStandardsService {
         static PathParametersMatrixExpansionStandardsService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -100,20 +106,10 @@ public final class PathParametersMatrixExpansionStandardsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> primitiveWithResponse(String param, RequestContext requestContext) {
-        return service.primitive(this.client.getEndpoint(), param, requestContext);
-    }
-
-    /**
-     * The primitive operation.
-     * 
-     * @param param The param parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void primitive(String param) {
-        primitiveWithResponse(param, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Routes.PathParameters.MatrixExpansion.Standard.primitive",
+            requestContext, updatedContext -> {
+                return service.primitive(this.client.getEndpoint(), param, updatedContext);
+            });
     }
 
     /**
@@ -128,23 +124,13 @@ public final class PathParametersMatrixExpansionStandardsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> arrayWithResponse(List<String> param, RequestContext requestContext) {
-        String paramConverted = param.stream()
-            .map(paramItemValue -> Objects.toString(paramItemValue, ""))
-            .collect(Collectors.joining(","));
-        return service.array(this.client.getEndpoint(), paramConverted, requestContext);
-    }
-
-    /**
-     * The array operation.
-     * 
-     * @param param The param parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void array(List<String> param) {
-        arrayWithResponse(param, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Routes.PathParameters.MatrixExpansion.Standard.array",
+            requestContext, updatedContext -> {
+                String paramConverted = param.stream()
+                    .map(paramItemValue -> Objects.toString(paramItemValue, ""))
+                    .collect(Collectors.joining(","));
+                return service.array(this.client.getEndpoint(), paramConverted, updatedContext);
+            });
     }
 
     /**
@@ -159,19 +145,9 @@ public final class PathParametersMatrixExpansionStandardsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> recordWithResponse(Map<String, Integer> param, RequestContext requestContext) {
-        return service.record(this.client.getEndpoint(), param, requestContext);
-    }
-
-    /**
-     * The record operation.
-     * 
-     * @param param The param parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void record(Map<String, Integer> param) {
-        recordWithResponse(param, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Routes.PathParameters.MatrixExpansion.Standard.record",
+            requestContext, updatedContext -> {
+                return service.record(this.client.getEndpoint(), param, updatedContext);
+            });
     }
 }

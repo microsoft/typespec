@@ -9,25 +9,25 @@ namespace Microsoft.TypeSpec.Generator.Input
 {
     internal class InputConstantConverter : JsonConverter<InputConstant>
     {
-        private readonly TypeSpecReferenceHandler _referenceHandler;
-
-        public InputConstantConverter(TypeSpecReferenceHandler referenceHandler)
+        public InputConstantConverter()
         {
-            _referenceHandler = referenceHandler;
         }
 
         public override InputConstant Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            => reader.ReadReferenceAndResolve<InputConstant>(_referenceHandler.CurrentResolver) ?? CreateInputConstant(ref reader, null, options, _referenceHandler.CurrentResolver);
+            => CreateInputConstant(ref reader, options);
 
         public override void Write(Utf8JsonWriter writer, InputConstant value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        public static InputConstant CreateInputConstant(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options, ReferenceResolver resolver)
+        public static InputConstant CreateInputConstant(ref Utf8JsonReader reader, JsonSerializerOptions options)
         {
-            var isFirstProperty = id == null;
+            if (reader.TokenType == JsonTokenType.StartObject)
+            {
+                reader.Read();
+            }
+
             InputType? type = null;
 
-            reader.TryReadReferenceId(ref isFirstProperty, ref id);
             if (!reader.TryReadComplexType("type", options, ref type))
             {
                 throw new JsonException("Must provide type ahead of value.");
@@ -39,10 +39,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             value = value ?? throw new JsonException("InputConstant must have value");
 
             var constant = new InputConstant(value, type);
-            if (id != null)
-            {
-                resolver.AddReference(id, constant);
-            }
             return constant;
         }
 

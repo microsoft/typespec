@@ -56,7 +56,7 @@ public final class SharedModelInOperationsImpl {
      * to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "AccessClientSharedMo")
+    @ServiceInterface(name = "AccessClientSharedModelInOperations")
     public interface SharedModelInOperationsService {
         @Get("/azure/client-generator-core/access/sharedModelInOperation/public")
         @ExpectedResponses({ 200 })

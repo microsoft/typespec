@@ -145,7 +145,7 @@ public final class TypeChangedFromClientImpl {
      * calls.
      */
     @Host("{endpoint}/versioning/type-changed-from/api-version:{version}")
-    @ServiceInterface(name = "TypeChangedFromClien")
+    @ServiceInterface(name = "TypeChangedFromClient")
     public interface TypeChangedFromClientService {
         @Post("/test")
         @ExpectedResponses({ 200 })

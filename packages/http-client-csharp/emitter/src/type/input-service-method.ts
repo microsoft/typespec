@@ -55,6 +55,7 @@ export interface InputNextLink {
   operation?: InputServiceMethod;
   responseSegments: string[];
   responseLocation: ResponseLocation;
+  reInjectedParameters?: InputParameter[];
 }
 
 export interface InputContinuationToken {

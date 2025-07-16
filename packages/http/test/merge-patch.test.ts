@@ -1,8 +1,8 @@
 import { Diagnostic, Model, ModelProperty, Program, Type, TypeKind } from "@typespec/compiler";
 import {
-  BasicTestRunner,
   expectDiagnosticEmpty,
   expectDiagnostics,
+  TesterInstance,
 } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { deepStrictEqual, ok } from "assert";
@@ -14,15 +14,11 @@ import {
 } from "../src/experimental/merge-patch/helpers.js";
 import { getAllHttpServices } from "../src/operations.js";
 import { HttpOperation, RouteResolutionOptions } from "../src/types.js";
-import {
-  createHttpTestRunner,
-  diagnoseOperations,
-  getOperationsWithServiceNamespace,
-} from "./test-host.js";
+import { diagnoseOperations, getOperationsWithServiceNamespace, Tester } from "./test-host.js";
 
-let runner: BasicTestRunner;
+let runner: TesterInstance;
 beforeEach(async () => {
-  runner = await createHttpTestRunner();
+  runner = await Tester.createInstance();
 });
 
 function checkNullableUnion(program: Program, union: Type): boolean {
@@ -69,16 +65,13 @@ function isNullableUnion(property: ModelProperty) {
   return property;
 }
 async function compileAndDiagnoseWithRunner(
-  runner: BasicTestRunner,
+  runner: TesterInstance,
   code: string,
   options?: RouteResolutionOptions,
 ): Promise<[HttpOperation[], readonly Diagnostic[]]> {
   await runner.compileAndDiagnose(
     `@service(#{title: "Test Service"}) namespace TestService;
       ${code}`,
-    {
-      noEmit: true,
-    },
   );
   const [services] = getAllHttpServices(runner.program, options);
   return [services[0].operations, runner.program.diagnostics];

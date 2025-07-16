@@ -13,7 +13,7 @@ using System.Text.Json;
 
 namespace SampleTypeSpec
 {
-    /// <summary></summary>
+    /// <summary> this is a roundtrip model. </summary>
     public partial class RoundTripModel : IJsonModel<RoundTripModel>
     {
         /// <summary> Initializes a new instance of <see cref="RoundTripModel"/> for deserialization. </summary>
@@ -615,7 +615,7 @@ namespace SampleTypeSpec
             switch (format)
             {
                 case "J":
-                    return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
+                    return ModelReaderWriter.Write(this, options);
                 default:
                     throw new FormatException($"The model {nameof(RoundTripModel)} does not support writing '{options.Format}' format.");
             }

@@ -14,13 +14,17 @@ import io.clientcore.core.http.pipeline.HttpRedirectOptions;
 import io.clientcore.core.http.pipeline.HttpRedirectPolicy;
 import io.clientcore.core.http.pipeline.HttpRetryOptions;
 import io.clientcore.core.http.pipeline.HttpRetryPolicy;
+import io.clientcore.core.instrumentation.Instrumentation;
+import io.clientcore.core.instrumentation.SdkInstrumentationOptions;
 import io.clientcore.core.traits.ConfigurationTrait;
 import io.clientcore.core.traits.EndpointTrait;
 import io.clientcore.core.traits.HttpTrait;
 import io.clientcore.core.traits.ProxyTrait;
+import io.clientcore.core.utils.CoreUtils;
 import io.clientcore.core.utils.configuration.Configuration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import specialwords.implementation.SpecialWordsClientImpl;
 
@@ -41,6 +45,9 @@ public final class SpecialWordsClientBuilder
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("specialwords.properties");
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
@@ -185,7 +192,17 @@ public final class SpecialWordsClientBuilder
     private SpecialWordsClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        SpecialWordsClientImpl client = new SpecialWordsClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        SpecialWordsClientImpl client
+            = new SpecialWordsClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -219,7 +236,8 @@ public final class SpecialWordsClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ModelsClient buildModelsClient() {
-        return new ModelsClient(buildInnerClient().getModels());
+        SpecialWordsClientImpl innerClient = buildInnerClient();
+        return new ModelsClient(innerClient.getModels(), innerClient.getInstrumentation());
     }
 
     /**
@@ -229,7 +247,8 @@ public final class SpecialWordsClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ModelPropertiesClient buildModelPropertiesClient() {
-        return new ModelPropertiesClient(buildInnerClient().getModelProperties());
+        SpecialWordsClientImpl innerClient = buildInnerClient();
+        return new ModelPropertiesClient(innerClient.getModelProperties(), innerClient.getInstrumentation());
     }
 
     /**
@@ -239,7 +258,8 @@ public final class SpecialWordsClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public OperationsClient buildOperationsClient() {
-        return new OperationsClient(buildInnerClient().getOperations());
+        SpecialWordsClientImpl innerClient = buildInnerClient();
+        return new OperationsClient(innerClient.getOperations(), innerClient.getInstrumentation());
     }
 
     /**
@@ -249,6 +269,7 @@ public final class SpecialWordsClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ParametersClient buildParametersClient() {
-        return new ParametersClient(buildInnerClient().getParameters());
+        SpecialWordsClientImpl innerClient = buildInnerClient();
+        return new ParametersClient(innerClient.getParameters(), innerClient.getInstrumentation());
     }
 }

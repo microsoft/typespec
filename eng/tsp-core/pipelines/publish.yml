@@ -55,6 +55,7 @@ extends:
 
           - template: /eng/tsp-core/pipelines/jobs/publish-npm.yml
             parameters:
+              dependsOn: publish_npm_latest
               artifactName: npm-packages-next
               tag: next
 

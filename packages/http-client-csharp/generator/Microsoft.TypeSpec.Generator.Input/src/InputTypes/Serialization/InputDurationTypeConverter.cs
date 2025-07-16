@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
@@ -24,7 +25,6 @@ namespace Microsoft.TypeSpec.Generator.Input
 
         public static InputDurationType CreateDurationType(ref Utf8JsonReader reader, string? id, string? name, JsonSerializerOptions options, ReferenceResolver resolver)
         {
-            var isFirstProperty = id == null;
             string? crossLanguageDefinitionId = null;
             string? encode = null;
             InputPrimitiveType? wireType = null;
@@ -33,7 +33,7 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
-                var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
+                var isKnownProperty = reader.TryReadReferenceId(ref id)
                     || reader.TryReadString("name", ref name)
                     || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId)
                     || reader.TryReadString("encode", ref encode)
@@ -52,8 +52,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             encode = encode ?? throw new JsonException("Duration type must have encoding");
             wireType = wireType ?? throw new JsonException("Duration type must have wireType");
 
-            var dateTimeType = Enum.TryParse<DurationKnownEncoding>(encode, ignoreCase: true, out var encodeKind)
-                ? new InputDurationType(encodeKind, name, crossLanguageDefinitionId, wireType, baseType) { Decorators = decorators ?? [] }
+            var dateTimeType = DurationKnownEncodingExtensions.TryParse(encode, out var encodeKind)
+                ? new InputDurationType(encodeKind.Value, name, crossLanguageDefinitionId, wireType, baseType) { Decorators = decorators ?? [] }
                 : throw new JsonException($"Encoding of Duration type {encode} is unknown.");
 
             if (id != null)

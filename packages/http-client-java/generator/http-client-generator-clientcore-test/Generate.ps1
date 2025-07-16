@@ -96,9 +96,6 @@ try {
 
   Write-Host "Copied http-specs to current directory"
 
-  # remove xml tests, emitter has not supported xml model
-  Remove-Item ./specs/payload/xml -Recurse -Force
-
   $job = (Get-ChildItem ./specs -Include "main.tsp","old.tsp" -File -Recurse) | ForEach-Object -Parallel $generateScript -ThrottleLimit $Parallelization -AsJob
 
   $job | Wait-Job -Timeout 1200
@@ -118,7 +115,7 @@ try {
   }
 
   # smoke test, generate Java project and verify compilation pass
-  Copy-Item -Path ../../../http-specs/smoke -Destination ./smoke -Recurse -Force
+  Copy-Item -Path node_modules/@typespec/http-specs/smoke -Destination ./smoke -Recurse -Force
   Generate-Compile todoapp
   Generate-Compile petstore
   Remove-Item ./smoke -Recurse -Force

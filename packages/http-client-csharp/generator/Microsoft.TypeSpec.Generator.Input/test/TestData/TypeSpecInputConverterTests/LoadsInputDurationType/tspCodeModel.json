@@ -1,0 +1,14 @@
+{
+  "name": "inputDuration",
+  "$id": "1",
+  "kind": "duration",
+  "encode": "duration-constant",
+  "crossLanguageDefinitionId": "TypeSpec.duration",
+  "wireType": {
+    "$id": "2",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+  }
+}

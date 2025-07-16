@@ -105,7 +105,7 @@ scalar plainDate {
    * @example
    *
    * ```tsp
-   * const time = plainTime.fromISO("2024-05-06");
+   * const date = plainDate.fromISO("2024-05-06");
    * ```
    */
   init fromISO(value: string);

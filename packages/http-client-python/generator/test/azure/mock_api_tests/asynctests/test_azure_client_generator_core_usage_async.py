@@ -29,3 +29,10 @@ async def test_model_usage(client: UsageClient):
     assert models.RoundTripModel(
         result=models.ResultModel(name="Madge")
     ) == await client.model_in_operation.model_in_read_only_property(body=models.RoundTripModel())
+
+
+@pytest.mark.asyncio
+async def test_orphan_model_serializable(client: UsageClient):
+    await client.model_in_operation.orphan_model_serializable(
+        body=models.OrphanModel(model_name="name", description="desc")
+    )

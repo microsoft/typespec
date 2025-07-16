@@ -1,6 +1,6 @@
-import * as ay from "@alloy-js/core";
+import { type Children, For, type Refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Enum, EnumMember as TspEnumMember, Union } from "@typespec/compiler";
+import type { Enum, EnumMember as TspEnumMember, Union } from "@typespec/compiler";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
 import { declarationRefkeys, efRefkey } from "../utils/refkey.js";
@@ -38,7 +38,7 @@ export function EnumDeclaration(props: EnumDeclarationProps) {
       default={props.default}
       export={props.export}
     >
-      <ay.For each={members} joiner={",\n"}>
+      <For each={members} joiner={",\n"}>
         {([key, value]) => {
           const memberDoc = $.type.getDoc(value);
           return (
@@ -51,15 +51,15 @@ export function EnumDeclaration(props: EnumDeclarationProps) {
             />
           );
         }}
-      </ay.For>
+      </For>
     </ts.EnumDeclaration>
   );
 }
 
 export interface EnumMemberProps {
   type: TspEnumMember;
-  doc?: ay.Children;
-  refkey?: ay.Refkey;
+  doc?: Children;
+  refkey?: Refkey;
 }
 
 export function EnumMember(props: EnumMemberProps) {

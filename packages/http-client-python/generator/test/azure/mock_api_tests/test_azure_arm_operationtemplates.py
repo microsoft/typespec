@@ -43,8 +43,11 @@ def test_check_name_availability_check_local(client):
 
 
 def test_operations_list(client):
-    result = client.operations.list()
-    assert result
+    result = client.operations.list().next()
+    assert result.name == "Microsoft.Compute/virtualMachines/write"
+    assert result.display.operation == "Create or Update Virtual Machine."
+    assert result.origin == "user,system"
+    assert result.action_type == "Internal"
 
 
 def test_lro_begin_create_or_replace(client):

@@ -26,4 +26,5 @@ export interface InputParameter {
   arraySerializationDelimiter?: string;
   headerCollectionPrefix?: string;
   decorators?: DecoratorInfo[];
+  serverUrlTemplate?: string;
 }

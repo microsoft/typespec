@@ -3,7 +3,6 @@ package type.model.inheritance.recursive.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -14,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import type.model.inheritance.recursive.Extension;
 
@@ -55,15 +55,31 @@ public final class RecursiveClientImpl {
     }
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
      * Initializes an instance of RecursiveClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
      */
-    public RecursiveClientImpl(HttpPipeline httpPipeline, String endpoint) {
+    public RecursiveClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
-        this.service = RestProxy.create(RecursiveClientService.class, this.httpPipeline);
+        this.service = RecursiveClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -114,21 +130,11 @@ public final class RecursiveClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(Extension input, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.put(this.getEndpoint(), contentType, input, requestContext);
-    }
-
-    /**
-     * The put operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void put(Extension input) {
-        putWithResponse(input, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.Recursive.put", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.put(this.getEndpoint(), contentType, input, updatedContext);
+            });
     }
 
     /**
@@ -142,19 +148,10 @@ public final class RecursiveClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Extension> getWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.get(this.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * The get operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return extension.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Extension get() {
-        return getWithResponse(RequestContext.none()).getValue();
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.Recursive.get", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.get(this.getEndpoint(), accept, updatedContext);
+            });
     }
 }

@@ -57,7 +57,7 @@ public final class DurationValuesImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArrayClientDurationV")
+    @ServiceInterface(name = "ArrayClientDurationValues")
     public interface DurationValuesService {
         @Get("/type/array/duration")
         @ExpectedResponses({ 200 })

@@ -31,8 +31,6 @@ namespace _Type.Model.Usage
 
         string IPersistableModel<OutputRecord>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator BinaryContent(OutputRecord outputRecord) => throw null;
-
         public static explicit operator OutputRecord(ClientResult result) => throw null;
     }
 }

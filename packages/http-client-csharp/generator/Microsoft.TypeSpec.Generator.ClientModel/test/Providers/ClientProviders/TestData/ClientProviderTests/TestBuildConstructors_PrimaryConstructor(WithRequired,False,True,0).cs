@@ -1,8 +1,8 @@
 global::Sample.Argument.AssertNotNull(endpoint, nameof(endpoint));
-global::Sample.Argument.AssertNotNull(credential, nameof(credential));
+global::Sample.Argument.AssertNotNull(tokenProvider, nameof(tokenProvider));
 
 options ??= new global::Sample.TestClientOptions();
 
 _endpoint = endpoint;
-_tokenCredential = credential;
-Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { this.GetFakeTokenAuthorizationPolicy(_tokenCredential, AuthorizationScopes) }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
+_tokenProvider = tokenProvider;
+Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.BearerTokenPolicy(_tokenProvider, _flows) }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());

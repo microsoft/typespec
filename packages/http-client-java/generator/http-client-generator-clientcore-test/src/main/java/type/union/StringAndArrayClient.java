@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import type.union.implementation.StringAndArraysImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class StringAndArrayClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final StringAndArraysImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of StringAndArrayClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    StringAndArrayClient(StringAndArraysImpl serviceClient) {
+    StringAndArrayClient(StringAndArraysImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -40,7 +45,8 @@ public final class StringAndArrayClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<GetResponse7> getWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Union.StringAndArray.get", requestContext,
+            updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
     /**
@@ -53,7 +59,7 @@ public final class StringAndArrayClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public GetResponse7 get() {
-        return this.serviceClient.get();
+        return getWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -69,7 +75,8 @@ public final class StringAndArrayClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> sendWithResponse(StringAndArrayCases prop, RequestContext requestContext) {
-        return this.serviceClient.sendWithResponse(prop, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Union.StringAndArray.send", requestContext,
+            updatedContext -> this.serviceClient.sendWithResponse(prop, updatedContext));
     }
 
     /**
@@ -83,6 +90,6 @@ public final class StringAndArrayClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void send(StringAndArrayCases prop) {
-        this.serviceClient.send(prop);
+        sendWithResponse(prop, RequestContext.none());
     }
 }

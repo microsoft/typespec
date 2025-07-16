@@ -1,0 +1,10 @@
+{
+  "flavor": "generic", 
+  "CrossLanguageDefinitionId": {
+    "type.union.discriminated.DiscriminatedClientBuilder": "Type.Union.Discriminated",
+    "type.union.discriminated.EnvelopeObjectCustomPropertiesClient": "Type.Union.Discriminated.Envelope.Object.CustomProperties",
+    "type.union.discriminated.EnvelopeObjectDefaultClient": "Type.Union.Discriminated.Envelope.Object.Default",
+    "type.union.discriminated.NoEnvelopeCustomDiscriminatorClient": "Type.Union.Discriminated.NoEnvelope.CustomDiscriminator",
+    "type.union.discriminated.NoEnvelopeDefaultClient": "Type.Union.Discriminated.NoEnvelope.Default"
+  }
+}

@@ -6,6 +6,7 @@ package tsptest.armresourceprovider.fluent;
 
 import com.azure.core.annotation.ReturnType;
 import com.azure.core.annotation.ServiceMethod;
+import com.azure.core.http.rest.PagedFlux;
 import com.azure.core.http.rest.PagedIterable;
 import com.azure.core.util.Context;
 import tsptest.armresourceprovider.fluent.models.OperationInner;
@@ -14,6 +15,17 @@ import tsptest.armresourceprovider.fluent.models.OperationInner;
  * An instance of this class provides access to all the operations defined in OperationsClient.
  */
 public interface OperationsClient {
+    /**
+     * List the operations for the provider.
+     * 
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a list of REST API operations supported by an Azure Resource Provider as paginated response with
+     * {@link PagedFlux}.
+     */
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    PagedFlux<OperationInner> listAsync();
+
     /**
      * List the operations for the provider.
      * 

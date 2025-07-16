@@ -230,8 +230,8 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
                 ? nextLinkLine(clientMethod, null, "lroPageableResult")
                 : "null";
             function.methodReturn(String.format(
-                "new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), lroPageableResult.value(), %s, null)",
-                nextLink));
+                "new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), lroPageableResult.%1$s(), %2$s, null)",
+                clientMethod.getMethodPageDetails().getSerializedItemName(), nextLink));
         } else {
             super.pagedSinglePageResponseConversion(restAPIMethod, clientMethod, settings, function);
         }

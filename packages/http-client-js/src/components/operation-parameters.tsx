@@ -1,4 +1,4 @@
-import * as ay from "@alloy-js/core";
+import { Refkey, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { useTransformNamePolicy } from "@typespec/emitter-framework";
 import * as ef from "@typespec/emitter-framework/typescript";
@@ -10,11 +10,10 @@ export interface OperationParametersProps {
   operation: HttpOperation;
 }
 
-export function getOperationOptionsParameterRefkey(operation: HttpOperation) {
-  return ay.refkey(operation, "operation-options-parameter");
-}
-
-export function getOperationParameters(operation: HttpOperation): ts.ParameterDescriptor[] {
+export function getOperationParameters(
+  operation: HttpOperation,
+  optionsRefkey: Refkey,
+): ts.ParameterDescriptor[] {
   const transformNamer = useTransformNamePolicy();
   const requiredParameters = operation.parameters.properties
     .filter((p) => !p.property.optional && !hasDefaultValue(p))
@@ -26,7 +25,7 @@ export function getOperationParameters(operation: HttpOperation): ts.ParameterDe
     const name = transformNamer.getApplicationName(parameter.property);
     const parameterDescriptor: ts.ParameterDescriptor = {
       name,
-      refkey: ay.refkey(parameter.property, "operation-parameter"),
+      refkey: refkey(),
       type: <ef.TypeExpression type={parameter.property.type} />,
     };
 
@@ -35,7 +34,7 @@ export function getOperationParameters(operation: HttpOperation): ts.ParameterDe
 
   parameters.push({
     name: "options",
-    refkey: getOperationOptionsParameterRefkey(operation),
+    refkey: optionsRefkey,
     type: getOperationOptionsTypeRefkey(operation),
     optional: true,
   });

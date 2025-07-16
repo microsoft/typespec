@@ -57,7 +57,7 @@ public final class IsUnknownDiscriminatedsImpl {
      * proxy service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "AdditionalProperties")
+    @ServiceInterface(name = "AdditionalPropertiesClientIsUnknownDiscriminateds")
     public interface IsUnknownDiscriminatedsService {
         @Get("/type/property/additionalProperties/isUnknownDiscriminated")
         @ExpectedResponses({ 200 })

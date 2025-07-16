@@ -537,8 +537,11 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
 
         static SwaggerExceptionDefinitions create(ProxyMethodMapper mapper, Operation operation,
             JavaSettings settings) {
-            if (settings.isDataPlaneClient() && settings.isAzureV1()) {
-                // LLC does not use model, hence exception from swagger
+            if (settings.isDataPlaneClient()
+                && settings.isAzureV1()
+                && settings.isUseDefaultHttpStatusCodeToExceptionTypeMapping()) {
+                // for DPG, the default is to use HttpResponseException
+                // when the setting is false, it would still use the Error/Exception defined in source
                 final SwaggerExceptionDefinitions definitions = new SwaggerExceptionDefinitions();
                 definitions.defaultExceptionType = ClassType.HTTP_RESPONSE_EXCEPTION;
                 return definitions;

@@ -85,7 +85,7 @@ public final class ProtocolAndConvenienceOpsImpl {
      * the proxy service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ProtocolAndConvenien")
+    @ServiceInterface(name = "ProtocolAndConvenientClientProtocolAndConvenienceOps")
     public interface ProtocolAndConvenienceOpsService {
         @Post("/protocolandconvenient/onlyConvenient")
         @ExpectedResponses({ 200 })

@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { createBrowserHostInternal } from "../../src/browser-host.js";
 import { PlaygroundContextProvider } from "../../src/react/context/playground-context.js";
 import { Footer, FooterItem, FooterVersionItem } from "../../src/react/footer/index.js";

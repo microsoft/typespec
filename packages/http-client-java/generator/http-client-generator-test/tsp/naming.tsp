@@ -33,6 +33,9 @@ model Response {
   @doc("description of status property")
   status: StatusModel;
 
+  @doc("The domain\\username data")
+  domainUsername: string;
+
   anonymous: RunObject;
 }
 

@@ -1,6 +1,7 @@
 package type.array.implementation;
 
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 
 /**
  * Initializes a new instance of the ArrayClient type.
@@ -32,6 +33,20 @@ public final class ArrayClientImpl {
      */
     public HttpPipeline getHttpPipeline() {
         return this.httpPipeline;
+    }
+
+    /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
     }
 
     /**
@@ -234,10 +249,12 @@ public final class ArrayClientImpl {
      * Initializes an instance of ArrayClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
      */
-    public ArrayClientImpl(HttpPipeline httpPipeline, String endpoint) {
+    public ArrayClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
         this.int32Values = new Int32ValuesImpl(this);
         this.int64Values = new Int64ValuesImpl(this);

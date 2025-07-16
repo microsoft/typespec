@@ -9,7 +9,7 @@
 from .{{ client.filename }} import {{ client.name }}  # type: ignore
     {% endfor %}
 {% endif %}
-{% if not async_mode and code_model.options['package_version']%}
+{% if not async_mode and code_model.options.get("package-version") %}
 from {{ code_model.get_relative_import_path(serialize_namespace, module_name="_version") }} import VERSION
 
 __version__ = VERSION

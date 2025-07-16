@@ -3,7 +3,6 @@ package type.property.optional.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -14,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import type.property.optional.StringProperty;
 
@@ -32,20 +32,26 @@ public final class StringOperationsImpl {
     private final OptionalClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of StringOperationsImpl.
      * 
      * @param client the instance of the service client containing this operation class.
      */
     StringOperationsImpl(OptionalClientImpl client) {
-        this.service = RestProxy.create(StringOperationsService.class, client.getHttpPipeline());
+        this.service = StringOperationsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
      * The interface defining all the services for OptionalClientStringOperations to be used by the proxy service to
      * perform REST calls.
      */
-    @ServiceInterface(name = "OptionalClientString", host = "{endpoint}")
+    @ServiceInterface(name = "OptionalClientStringOperations", host = "{endpoint}")
     public interface StringOperationsService {
         static StringOperationsService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -104,20 +110,11 @@ public final class StringOperationsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<StringProperty> getAllWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getAll(this.client.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * Get models that will return all properties in the model.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return models that will return all properties in the model.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public StringProperty getAll() {
-        return getAllWithResponse(RequestContext.none()).getValue();
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.String.getAll", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.getAll(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -131,20 +128,11 @@ public final class StringOperationsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<StringProperty> getDefaultWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getDefault(this.client.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * Get models that will return the default object.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return models that will return the default object.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public StringProperty getDefault() {
-        return getDefaultWithResponse(RequestContext.none()).getValue();
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.String.getDefault", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.getDefault(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -159,21 +147,11 @@ public final class StringOperationsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putAllWithResponse(StringProperty body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.putAll(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * Put a body with all properties present.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putAll(StringProperty body) {
-        putAllWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.String.putAll", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.putAll(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -188,20 +166,10 @@ public final class StringOperationsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putDefaultWithResponse(StringProperty body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.putDefault(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * Put a body with default properties.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putDefault(StringProperty body) {
-        putDefaultWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.String.putDefault", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.putDefault(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 }

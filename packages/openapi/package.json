@@ -1,6 +1,6 @@
 {
   "name": "@typespec/openapi",
-  "version": "1.0.0",
+  "version": "1.2.1",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library providing OpenAPI concepts",
   "homepage": "https://typespec.io",
@@ -58,7 +58,7 @@
     "@typespec/http": "workspace:^"
   },
   "devDependencies": {
-    "@types/node": "~22.13.11",
+    "@types/node": "~24.0.3",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
     "@typespec/library-linter": "workspace:^",

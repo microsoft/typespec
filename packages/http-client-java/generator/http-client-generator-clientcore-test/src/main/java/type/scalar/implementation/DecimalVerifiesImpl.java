@@ -3,7 +3,6 @@ package type.scalar.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -14,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.List;
@@ -33,20 +33,26 @@ public final class DecimalVerifiesImpl {
     private final ScalarClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of DecimalVerifiesImpl.
      * 
      * @param client the instance of the service client containing this operation class.
      */
     DecimalVerifiesImpl(ScalarClientImpl client) {
-        this.service = RestProxy.create(DecimalVerifiesService.class, client.getHttpPipeline());
+        this.service = DecimalVerifiesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
      * The interface defining all the services for ScalarClientDecimalVerifies to be used by the proxy service to
      * perform REST calls.
      */
-    @ServiceInterface(name = "ScalarClientDecimalV", host = "{endpoint}")
+    @ServiceInterface(name = "ScalarClientDecimalVerifies", host = "{endpoint}")
     public interface DecimalVerifiesService {
         static DecimalVerifiesService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -88,20 +94,11 @@ public final class DecimalVerifiesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<List<BigDecimal>> prepareVerifyWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.prepareVerify(this.client.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * The prepareVerify operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public List<BigDecimal> prepareVerify() {
-        return prepareVerifyWithResponse(RequestContext.none()).getValue();
+        return this.instrumentation.instrumentWithResponse("Type.Scalar.DecimalVerify.prepareVerify", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.prepareVerify(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -116,20 +113,10 @@ public final class DecimalVerifiesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> verifyWithResponse(BigDecimal body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.verify(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The verify operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void verify(BigDecimal body) {
-        verifyWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Type.Scalar.DecimalVerify.verify", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.verify(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 }

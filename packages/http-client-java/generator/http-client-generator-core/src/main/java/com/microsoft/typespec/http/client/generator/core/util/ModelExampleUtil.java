@@ -70,8 +70,7 @@ public class ModelExampleUtil {
             if (objectValue == null) {
                 node = new ListNode(elementType, null);
             } else if (objectValue instanceof List) {
-                ListNode listNode = new ListNode(elementType, objectValue);
-                node = listNode;
+                node = new ListNode(elementType, objectValue);
 
                 List<Object> elements = (List<Object>) objectValue;
                 for (Object childObjectValue : elements) {

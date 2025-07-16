@@ -37,6 +37,7 @@ import reactor.core.publisher.Mono;
 import tsptest.armstreamstyleserialization.fluent.ArmResourceProviderManagementClient;
 import tsptest.armstreamstyleserialization.fluent.FishesClient;
 import tsptest.armstreamstyleserialization.fluent.FunctionsClient;
+import tsptest.armstreamstyleserialization.fluent.ItemsClient;
 import tsptest.armstreamstyleserialization.fluent.PrioritiesClient;
 import tsptest.armstreamstyleserialization.fluent.TopLevelArmResourcesClient;
 
@@ -186,6 +187,20 @@ public final class ArmResourceProviderManagementClientImpl implements ArmResourc
     }
 
     /**
+     * The ItemsClient object to access its operations.
+     */
+    private final ItemsClient items;
+
+    /**
+     * Gets the ItemsClient object to access its operations.
+     * 
+     * @return the ItemsClient object.
+     */
+    public ItemsClient getItems() {
+        return this.items;
+    }
+
+    /**
      * Initializes an instance of ArmResourceProviderManagementClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
@@ -207,6 +222,7 @@ public final class ArmResourceProviderManagementClientImpl implements ArmResourc
         this.topLevelArmResources = new TopLevelArmResourcesClientImpl(this);
         this.functions = new FunctionsClientImpl(this);
         this.priorities = new PrioritiesClientImpl(this);
+        this.items = new ItemsClientImpl(this);
     }
 
     /**

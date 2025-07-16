@@ -3,7 +3,6 @@
 #nullable disable
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
@@ -30,9 +29,5 @@ namespace _Type.Property.AdditionalProperties
         protected virtual WidgetData0 PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<WidgetData0>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(WidgetData0 widgetData0) => throw null;
-
-        public static explicit operator WidgetData0(ClientResult result) => throw null;
     }
 }

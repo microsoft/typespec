@@ -1,12 +1,12 @@
-import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 
-import { Model } from "@typespec/compiler";
+import { type Children, type Refkey, code, refkey } from "@alloy-js/core";
+import type { Model } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
 import { JsonTransform } from "./json-transform.jsx";
 
 export interface JsonRecordTransformProps {
-  itemRef: ay.Refkey | ay.Children;
+  itemRef: Refkey | Children;
   type: Model;
   target: "transport" | "application";
 }
@@ -20,7 +20,7 @@ export function JsonRecordTransform(props: JsonRecordTransformProps) {
   const elementType = $.record.getElementType(props.type);
 
   // TODO: Do we need to cast?
-  return ay.code`
+  return code`
     if(!${props.itemRef}) {
       return ${props.itemRef} as any;
     }
@@ -39,8 +39,8 @@ export function JsonRecordTransform(props: JsonRecordTransformProps) {
 export function getJsonRecordTransformRefkey(
   type: Model,
   target: "transport" | "application",
-): ay.Refkey {
-  return ay.refkey(type, "json_record_transform", target);
+): Refkey {
+  return refkey(type, "json_record_transform", target);
 }
 
 export interface JsonRecordTransformDeclarationProps {
@@ -64,10 +64,10 @@ export function JsonRecordTransformDeclaration(props: JsonRecordTransformDeclara
     "function",
   );
 
-  const itemType = ay.code`Record<string, any>`;
+  const itemType = code`Record<string, any>`;
   const returnType = props.target === "transport" ? "any" : itemType;
   const inputType = props.target === "transport" ? <>{itemType} | null</> : "any";
-  const inputRef = ay.refkey();
+  const inputRef = refkey();
 
   const parameters: ts.ParameterDescriptor[] = [
     { name: "items_", type: inputType, refkey: inputRef, optional: true },

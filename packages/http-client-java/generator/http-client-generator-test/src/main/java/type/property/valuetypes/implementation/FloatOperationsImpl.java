@@ -57,7 +57,7 @@ public final class FloatOperationsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ValueTypesClientFloa")
+    @ServiceInterface(name = "ValueTypesClientFloatOperations")
     public interface FloatOperationsService {
         @Get("/type/property/value-types/float")
         @ExpectedResponses({ 200 })

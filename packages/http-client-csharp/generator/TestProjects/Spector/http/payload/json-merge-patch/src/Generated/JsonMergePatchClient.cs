@@ -30,8 +30,8 @@ namespace Payload.JsonMergePatch
 
         public virtual Task<ClientResult> UpdateResourceAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult UpdateOptionalResource(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual ClientResult UpdateOptionalResource(BinaryContent content = null, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> UpdateOptionalResourceAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> UpdateOptionalResourceAsync(BinaryContent content = null, RequestOptions options = null) => throw null;
     }
 }

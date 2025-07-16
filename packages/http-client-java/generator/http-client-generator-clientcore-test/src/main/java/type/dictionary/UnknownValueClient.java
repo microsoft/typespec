@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.models.binarydata.BinaryData;
 import java.util.Map;
 import type.dictionary.implementation.UnknownValuesImpl;
@@ -20,14 +21,18 @@ public final class UnknownValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final UnknownValuesImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of UnknownValueClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    UnknownValueClient(UnknownValuesImpl serviceClient) {
+    UnknownValueClient(UnknownValuesImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -42,7 +47,8 @@ public final class UnknownValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Map<String, BinaryData>> getWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Dictionary.UnknownValue.get", requestContext,
+            updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
     /**
@@ -55,7 +61,7 @@ public final class UnknownValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Map<String, BinaryData> get() {
-        return this.serviceClient.get();
+        return getWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -71,7 +77,8 @@ public final class UnknownValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(Map<String, BinaryData> body, RequestContext requestContext) {
-        return this.serviceClient.putWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Dictionary.UnknownValue.put", requestContext,
+            updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 
     /**
@@ -85,6 +92,6 @@ public final class UnknownValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void put(Map<String, BinaryData> body) {
-        this.serviceClient.put(body);
+        putWithResponse(body, RequestContext.none());
     }
 }

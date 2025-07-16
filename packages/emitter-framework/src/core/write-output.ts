@@ -1,5 +1,5 @@
-import { Children, OutputDirectory, render } from "@alloy-js/core";
-import { emitFile, joinPaths, Program } from "@typespec/compiler";
+import { type Children, type OutputDirectory, render } from "@alloy-js/core";
+import { emitFile, joinPaths, type Program } from "@typespec/compiler";
 
 export async function writeOutput(
   program: Program,

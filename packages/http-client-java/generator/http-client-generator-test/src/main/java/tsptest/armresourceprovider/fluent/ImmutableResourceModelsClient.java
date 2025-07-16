@@ -6,16 +6,68 @@ package tsptest.armresourceprovider.fluent;
 
 import com.azure.core.annotation.ReturnType;
 import com.azure.core.annotation.ServiceMethod;
+import com.azure.core.http.rest.Response;
 import com.azure.core.management.polling.PollResult;
 import com.azure.core.util.Context;
+import com.azure.core.util.polling.PollerFlux;
 import com.azure.core.util.polling.SyncPoller;
-import tsptest.armresourceprovider.fluent.models.NginxConfigurationResponseInner;
+import java.nio.ByteBuffer;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import tsptest.armresourceprovider.models.NginxConfigurationRequest;
+import tsptest.armresourceprovider.models.NginxConfigurationResponse;
 
 /**
  * An instance of this class provides access to all the operations defined in ImmutableResourceModelsClient.
  */
 public interface ImmutableResourceModelsClient {
+    /**
+     * The createOrUpdate operation.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param configurationName The name of the NginxConfigurationResponse.
+     * @param properties The resource properties to be updated.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return concrete proxy resource types can be created by aliasing this type using a specific property type along
+     * with {@link Response} on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Mono<Response<Flux<ByteBuffer>>> createOrUpdateWithResponseAsync(String resourceGroupName, String configurationName,
+        NginxConfigurationRequest properties);
+
+    /**
+     * The createOrUpdate operation.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param configurationName The name of the NginxConfigurationResponse.
+     * @param properties The resource properties to be updated.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link PollerFlux} for polling of concrete proxy resource types can be created by aliasing this type
+     * using a specific property type.
+     */
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    PollerFlux<PollResult<NginxConfigurationResponse>, NginxConfigurationResponse> beginCreateOrUpdateAsync(
+        String resourceGroupName, String configurationName, NginxConfigurationRequest properties);
+
+    /**
+     * The createOrUpdate operation.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param configurationName The name of the NginxConfigurationResponse.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link PollerFlux} for polling of concrete proxy resource types can be created by aliasing this type
+     * using a specific property type.
+     */
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    PollerFlux<PollResult<NginxConfigurationResponse>, NginxConfigurationResponse>
+        beginCreateOrUpdateAsync(String resourceGroupName, String configurationName);
+
     /**
      * The createOrUpdate operation.
      * 
@@ -28,7 +80,7 @@ public interface ImmutableResourceModelsClient {
      * using a specific property type.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    SyncPoller<PollResult<NginxConfigurationResponseInner>, NginxConfigurationResponseInner>
+    SyncPoller<PollResult<NginxConfigurationResponse>, NginxConfigurationResponse>
         beginCreateOrUpdate(String resourceGroupName, String configurationName);
 
     /**
@@ -45,8 +97,38 @@ public interface ImmutableResourceModelsClient {
      * using a specific property type.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    SyncPoller<PollResult<NginxConfigurationResponseInner>, NginxConfigurationResponseInner> beginCreateOrUpdate(
+    SyncPoller<PollResult<NginxConfigurationResponse>, NginxConfigurationResponse> beginCreateOrUpdate(
         String resourceGroupName, String configurationName, NginxConfigurationRequest properties, Context context);
+
+    /**
+     * The createOrUpdate operation.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param configurationName The name of the NginxConfigurationResponse.
+     * @param properties The resource properties to be updated.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return concrete proxy resource types can be created by aliasing this type using a specific property type on
+     * successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Mono<NginxConfigurationResponse> createOrUpdateAsync(String resourceGroupName, String configurationName,
+        NginxConfigurationRequest properties);
+
+    /**
+     * The createOrUpdate operation.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param configurationName The name of the NginxConfigurationResponse.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return concrete proxy resource types can be created by aliasing this type using a specific property type on
+     * successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Mono<NginxConfigurationResponse> createOrUpdateAsync(String resourceGroupName, String configurationName);
 
     /**
      * The createOrUpdate operation.
@@ -59,7 +141,7 @@ public interface ImmutableResourceModelsClient {
      * @return concrete proxy resource types can be created by aliasing this type using a specific property type.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    NginxConfigurationResponseInner createOrUpdate(String resourceGroupName, String configurationName);
+    NginxConfigurationResponse createOrUpdate(String resourceGroupName, String configurationName);
 
     /**
      * The createOrUpdate operation.
@@ -74,6 +156,6 @@ public interface ImmutableResourceModelsClient {
      * @return concrete proxy resource types can be created by aliasing this type using a specific property type.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    NginxConfigurationResponseInner createOrUpdate(String resourceGroupName, String configurationName,
+    NginxConfigurationResponse createOrUpdate(String resourceGroupName, String configurationName,
         NginxConfigurationRequest properties, Context context);
 }

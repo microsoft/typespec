@@ -75,7 +75,7 @@ class BaseBuilder(
         self.external_docs: Optional[Dict[str, Any]] = yaml_data.get("externalDocs")
         self.client_namespace: str = yaml_data.get("clientNamespace", code_model.namespace)
 
-        if code_model.options["version_tolerant"] and yaml_data.get("abstract"):
+        if code_model.options["version-tolerant"] and yaml_data.get("abstract"):
             _LOGGER.warning(
                 'Not going to generate operation "%s" because we are unable to generate this '
                 "type of operation right now. "

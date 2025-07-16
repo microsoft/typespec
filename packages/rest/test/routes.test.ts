@@ -1,14 +1,9 @@
 import { ModelProperty, Operation } from "@typespec/compiler";
-import { expectDiagnostics } from "@typespec/compiler/testing";
+import { expectDiagnostics, t } from "@typespec/compiler/testing";
 import { isSharedRoute } from "@typespec/http";
 import { deepStrictEqual, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
-import {
-  compileOperations,
-  createRestTestRunner,
-  getOperations,
-  getRoutesFor,
-} from "./test-host.js";
+import { Tester, compileOperations, getOperations, getRoutesFor } from "./test-host.js";
 
 describe("rest: routes", () => {
   it("always produces a route starting with /", async () => {
@@ -222,9 +217,11 @@ describe("rest: routes", () => {
   });
 
   it("emit diagnostic if passing arguments to autoroute decorators", async () => {
-    const [_, diagnostics] = await compileOperations(`
+    const [_, diagnostics] = await compileOperations(
+      `
       @autoRoute("/test") op test(): string;
-    `);
+    `,
+    );
 
     expectDiagnostics(diagnostics, {
       code: "invalid-argument-count",
@@ -234,7 +231,8 @@ describe("rest: routes", () => {
 
   describe("use of @route with @autoRoute", () => {
     it("can override library operation route in service", async () => {
-      const ops = await getOperations(`
+      const ops = await getOperations(
+        `
         namespace Lib {
           @route("one")
           op action(): void;
@@ -246,7 +244,8 @@ describe("rest: routes", () => {
           @route("my")
           op my2 is Lib.action;
         }
-      `);
+      `,
+      );
       strictEqual(ops[0].verb, "get");
       strictEqual(ops[0].path, "/one");
       strictEqual(ops[1].verb, "get");
@@ -254,7 +253,8 @@ describe("rest: routes", () => {
     });
 
     it("can override library interface route in service", async () => {
-      const ops = await getOperations(`
+      const ops = await getOperations(
+        `
         namespace Lib {
           @route("one")
           interface Ops {
@@ -269,7 +269,8 @@ describe("rest: routes", () => {
 
           @route("my") interface Mys2 extends Lib.Ops {}
         }
-      `);
+      `,
+      );
       strictEqual(ops[0].verb, "get");
       strictEqual(ops[0].path, "/");
       strictEqual(ops[1].verb, "get");
@@ -277,7 +278,8 @@ describe("rest: routes", () => {
     });
 
     it("can override library interface route in service without changing library", async () => {
-      const ops = await getOperations(`
+      const ops = await getOperations(
+        `
         namespace Lib {
           @route("one")
           interface Ops {
@@ -291,7 +293,8 @@ describe("rest: routes", () => {
 
           op op2 is Lib.Ops.action;
         }
-      `);
+      `,
+      );
       strictEqual(ops[1].verb, "get");
       strictEqual(ops[1].path, "/my");
       strictEqual(ops[1].container.kind, "Interface");
@@ -301,7 +304,8 @@ describe("rest: routes", () => {
     });
 
     it("prepends @route in service when library operation uses @autoRoute", async () => {
-      const ops = await getOperations(`
+      const ops = await getOperations(
+        `
         namespace Lib {
           @autoRoute
           op action(@path @segment("pets") id: string): void;
@@ -314,7 +318,8 @@ describe("rest: routes", () => {
           @route("my")
           op my2 is Lib.action;
         }
-      `);
+      `,
+      );
       strictEqual(ops[0].verb, "get");
       strictEqual(ops[0].path, "/pets/{id}");
       strictEqual(ops[1].verb, "get");
@@ -322,7 +327,8 @@ describe("rest: routes", () => {
     });
 
     it("prepends @route in service when library interface operation uses @autoRoute", async () => {
-      const ops = await getOperations(`
+      const ops = await getOperations(
+        `
         namespace Lib {
           interface Ops {
             @autoRoute
@@ -336,7 +342,8 @@ describe("rest: routes", () => {
           @route("my")
           interface Mys2 extends Lib.Ops {};
         }
-      `);
+      `,
+      );
       strictEqual(ops[0].verb, "get");
       strictEqual(ops[0].path, "/pets/{id}");
       strictEqual(ops[1].verb, "get");
@@ -344,7 +351,8 @@ describe("rest: routes", () => {
     });
 
     it("prepends @route in service when library interface uses @autoRoute", async () => {
-      const ops = await getOperations(`
+      const ops = await getOperations(
+        `
         namespace Lib {
           @autoRoute
           interface Ops {
@@ -358,7 +366,8 @@ describe("rest: routes", () => {
           @route("my")
           interface Mys2 extends Lib.Ops {};
         }
-      `);
+      `,
+      );
       strictEqual(ops[0].verb, "get");
       strictEqual(ops[0].path, "/pets/{id}");
       strictEqual(ops[1].verb, "get");
@@ -491,20 +500,17 @@ describe("rest: routes", () => {
   });
 
   it("@autoRoute operations can also be shared routes", async () => {
-    const runner = await createRestTestRunner();
-    const { get1, get2 } = (await runner.compile(`
-      @test
+    const { get1, get2, program } = await Tester.compile(t.code`
       @autoRoute
       @sharedRoute
-      op get1(@segment("get1") @path name: string): string;
+      op ${t.op("get1")}(@segment("get1") @path name: string): string;
 
-      @test
       @autoRoute
-      op get2(@segment("get2") @path name: string): string;
-    `)) as { get1: Operation; get2: Operation };
+      op ${t.op("get2")}(@segment("get2") @path name: string): string;
+    `);
 
-    strictEqual(isSharedRoute(runner.program, get1), true);
-    strictEqual(isSharedRoute(runner.program, get2), false);
+    strictEqual(isSharedRoute(program, get1), true);
+    strictEqual(isSharedRoute(program, get2), false);
   });
 
   it("emits a diagnostic when @sharedRoute is used on action without explicit name", async () => {

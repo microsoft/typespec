@@ -1,5 +1,54 @@
 # Change Log - @typespec/compiler
 
+## 1.2.0
+
+### Features
+
+- [#7576](https://github.com/microsoft/typespec/pull/7576) Allow LSP to configure which emitters to include for live checks
+- [#7151](https://github.com/microsoft/typespec/pull/7151) [API] Addition of a new testing framework. See https://typespec.io/docs/extending-typespec/testing
+
+### Bump dependencies
+
+- [#7674](https://github.com/microsoft/typespec/pull/7674) Upgrade dependencies
+
+### Bug Fixes
+
+- [#7586](https://github.com/microsoft/typespec/pull/7586) Improved the error message for the `@pattern` decorator when applied to a `union` type. The new message is more descriptive and helps users understand how to correctly define string-compatible union types.
+- [#7740](https://github.com/microsoft/typespec/pull/7740) Config interpolation is more flexible in interpolating variables in any order as long as no circular reference occur. For example using `{output-dir}` in parameters.
+- [#7731](https://github.com/microsoft/typespec/pull/7731) Fix literal typekits `$.literal.create`, `$.literal.createString`, etc. use right checker api that include caching
+- [#7906](https://github.com/microsoft/typespec/pull/7906) Corrected some logic around the detection of array types in visibility calculation.
+
+
+## 1.1.0
+
+### Features
+
+- [#7377](https://github.com/microsoft/typespec/pull/7377) Add a `--stats` flag to `tsp compile` to log some performance and complexity statistics
+- [#7530](https://github.com/microsoft/typespec/pull/7530) Show the full definition of model and interface when it has 'extends' and 'is' relationship in the hover text
+- [#6923](https://github.com/microsoft/typespec/pull/6923) Init templates can define a project kind which decide if dependencies are added to peer or regular dependencies
+- [#6783](https://github.com/microsoft/typespec/pull/6783) Install packages for unrecognized import via npm command
+- [#7239](https://github.com/microsoft/typespec/pull/7239) [LSP] Expose new compile project command
+- [#7137](https://github.com/microsoft/typespec/pull/7137) Allow passing template parameters as property defaults
+- [#7256](https://github.com/microsoft/typespec/pull/7256) Expose `VisibilityFilter.toCacheKey` to allow caching results based on visibility filters.
+
+### Bump dependencies
+
+- [#7323](https://github.com/microsoft/typespec/pull/7323) Upgrade dependencies
+
+### Bug Fixes
+
+- [#7421](https://github.com/microsoft/typespec/pull/7421) Fix hanging when using `::returnType` meta accessor on operation defined with `op is`
+- [#7507](https://github.com/microsoft/typespec/pull/7507) Fix empty string emitting error when used in string interpolation in a template
+- [#7524](https://github.com/microsoft/typespec/pull/7524) Fixes an error where reported diagnostics had invalid relative paths on Windows
+- [#7508](https://github.com/microsoft/typespec/pull/7508) Allow extends of array expression for not just template (`model MyStrings extends string[]`)
+- [#7473](https://github.com/microsoft/typespec/pull/7473) Mutator were not mutating tuple values
+- [#7485](https://github.com/microsoft/typespec/pull/7485) Fix paging operations to correctly detect the `@pageItems` decorator on base models.
+- [#7461](https://github.com/microsoft/typespec/pull/7461) Remove non documented `templateArguments` property on types
+- [#7480](https://github.com/microsoft/typespec/pull/7480) Fix infinite recursion when navigating paging properties by detecting and handling circular model references.
+- [#7137](https://github.com/microsoft/typespec/pull/7137) Allow passing tempalate parameter values in object and array values used inside the template
+- [#7295](https://github.com/microsoft/typespec/pull/7295) Corrected visibility filtering logic to even more aggressively deduplicate the models it visits when the applied visibility transform does not actually remove any properties from a model.
+
+
 ## 1.0.0
 
 ### Features

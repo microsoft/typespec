@@ -56,7 +56,7 @@ public final class ModelsImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ValueTypesClientMode")
+    @ServiceInterface(name = "ValueTypesClientModels")
     public interface ModelsService {
         @Get("/type/property/value-types/model")
         @ExpectedResponses({ 200 })

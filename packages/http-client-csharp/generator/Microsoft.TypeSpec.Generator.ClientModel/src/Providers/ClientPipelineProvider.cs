@@ -29,7 +29,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public override CSharpType KeyCredentialType => typeof(ApiKeyCredential);
 
-        public override CSharpType? TokenCredentialType => null; // Scm library does not support token credentials yet.
+        public override CSharpType? TokenCredentialType => typeof(AuthenticationTokenProvider);
 
         public override ValueExpression Create(ValueExpression options, ValueExpression perRetryPolicies)
             => Static<ClientPipeline>().Invoke(nameof(ClientPipeline.Create), [options, New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType), perRetryPolicies, New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType)]).As<ClientPipeline>();
@@ -47,11 +47,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         public override ValueExpression TokenAuthorizationPolicy(ValueExpression credential, ValueExpression scopes)
-        {
-            // Scm library does not support token credentials yet. The throw here is intentional.
-            // For a generator that supports token credentials, they could override this implementation as well as the above TokenCredentialType property.
-            throw new NotImplementedException();
-        }
+            => New.Instance(typeof(BearerTokenPolicy), credential, scopes);
 
         public override ClientPipelineApi ToExpression() => this;
 

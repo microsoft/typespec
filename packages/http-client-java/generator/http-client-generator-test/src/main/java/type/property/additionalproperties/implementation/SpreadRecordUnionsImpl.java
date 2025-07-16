@@ -57,7 +57,7 @@ public final class SpreadRecordUnionsImpl {
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "AdditionalProperties")
+    @ServiceInterface(name = "AdditionalPropertiesClientSpreadRecordUnions")
     public interface SpreadRecordUnionsService {
         @Get("/type/property/additionalProperties/spreadRecordUnion")
         @ExpectedResponses({ 200 })

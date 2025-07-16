@@ -110,7 +110,7 @@ class RequestBuilderBase(BaseBuilder[ParameterListType, Sequence["RequestBuilder
             msrest_import_type=MsrestImportType.Serializer,
             typing_section=TypingSection.REGULAR,
         )
-        if self.overloads and self.code_model.options["builders_visibility"] != "embedded":
+        if self.overloads and self.code_model.options["builders-visibility"] != "embedded":
             file_import.add_submodule_import("typing", "overload", ImportType.STDLIB)
         return file_import
 
@@ -127,7 +127,7 @@ class RequestBuilderBase(BaseBuilder[ParameterListType, Sequence["RequestBuilder
         client: "Client",
     ) -> str:
         additional_mark = ""
-        if code_model.options["combine_operation_files"] and code_model.options["builders_visibility"] == "embedded":
+        if code_model.options["combine-operation-files"] and code_model.options["builders-visibility"] == "embedded":
             additional_mark = yaml_data["groupName"] or client.yaml_data["builderPadName"]
         names = [
             "build",

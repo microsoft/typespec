@@ -272,6 +272,34 @@ describe("compiler: built-in decorators", () => {
       });
     });
 
+    it("emit diagnostic if pattern targe is a non-string union", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Employee {
+          @pattern("^[a-zA-Z0-9-]{3,24}$")
+          name: Test;
+        }
+        union Test { 1, int32 }
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "decorator-wrong-target",
+        message:
+          'Cannot apply @pattern decorator to a union type that is not string compatible. The union must explicitly include a string type, and all union values should be strings. For example: union Test { string, "A", "B" }',
+      });
+    });
+
+    it("allows string union on @pattern", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Employee {
+          @pattern("^[a-zA-Z0-9-]{3,24}$")
+          name: Test;
+        }
+        union Test { "A", "B", string }
+      `);
+
+      expectDiagnosticEmpty(diagnostics);
+    });
+
     it("emit diagnostic if pattern is not a valid RegEx", async () => {
       const diagnostics = await runner.diagnose(`
         model A {

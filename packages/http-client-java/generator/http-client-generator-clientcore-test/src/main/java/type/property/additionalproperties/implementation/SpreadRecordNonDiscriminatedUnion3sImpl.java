@@ -3,7 +3,6 @@ package type.property.additionalproperties.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -14,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import type.property.additionalproperties.SpreadRecordForNonDiscriminatedUnion3;
 
@@ -32,20 +32,26 @@ public final class SpreadRecordNonDiscriminatedUnion3sImpl {
     private final AdditionalPropertiesClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of SpreadRecordNonDiscriminatedUnion3sImpl.
      * 
      * @param client the instance of the service client containing this operation class.
      */
     SpreadRecordNonDiscriminatedUnion3sImpl(AdditionalPropertiesClientImpl client) {
-        this.service = RestProxy.create(SpreadRecordNonDiscriminatedUnion3sService.class, client.getHttpPipeline());
+        this.service = SpreadRecordNonDiscriminatedUnion3sService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
      * The interface defining all the services for AdditionalPropertiesClientSpreadRecordNonDiscriminatedUnion3s to be
      * used by the proxy service to perform REST calls.
      */
-    @ServiceInterface(name = "AdditionalProperties", host = "{endpoint}")
+    @ServiceInterface(name = "AdditionalPropertiesClientSpreadRecordNonDiscriminatedUnion3s", host = "{endpoint}")
     public interface SpreadRecordNonDiscriminatedUnion3sService {
         static SpreadRecordNonDiscriminatedUnion3sService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -89,20 +95,12 @@ public final class SpreadRecordNonDiscriminatedUnion3sImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<SpreadRecordForNonDiscriminatedUnion3> getWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.get(this.client.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * Get call.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return call.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public SpreadRecordForNonDiscriminatedUnion3 get() {
-        return getWithResponse(RequestContext.none()).getValue();
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Property.AdditionalProperties.SpreadRecordNonDiscriminatedUnion3.get", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.get(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -117,20 +115,11 @@ public final class SpreadRecordNonDiscriminatedUnion3sImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(SpreadRecordForNonDiscriminatedUnion3 body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.put(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * Put operation.
-     * 
-     * @param body body.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void put(SpreadRecordForNonDiscriminatedUnion3 body) {
-        putWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Property.AdditionalProperties.SpreadRecordNonDiscriminatedUnion3.put", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.put(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 }

@@ -57,7 +57,7 @@ public final class SpreadFloatsImpl {
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "AdditionalProperties")
+    @ServiceInterface(name = "AdditionalPropertiesClientSpreadFloats")
     public interface SpreadFloatsService {
         @Get("/type/property/additionalProperties/spreadRecordFloat")
         @ExpectedResponses({ 200 })

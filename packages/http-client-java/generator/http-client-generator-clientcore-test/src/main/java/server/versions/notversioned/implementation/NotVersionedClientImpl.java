@@ -3,7 +3,6 @@ package server.versions.notversioned.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.PathParam;
@@ -14,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -54,15 +54,31 @@ public final class NotVersionedClientImpl {
     }
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
      * Initializes an instance of NotVersionedClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
      */
-    public NotVersionedClientImpl(HttpPipeline httpPipeline, String endpoint) {
+    public NotVersionedClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
-        this.service = RestProxy.create(NotVersionedClientService.class, this.httpPipeline);
+        this.service = NotVersionedClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -119,18 +135,10 @@ public final class NotVersionedClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withoutApiVersionWithResponse(RequestContext requestContext) {
-        return service.withoutApiVersion(this.getEndpoint(), requestContext);
-    }
-
-    /**
-     * The withoutApiVersion operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withoutApiVersion() {
-        withoutApiVersionWithResponse(RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Server.Versions.NotVersioned.withoutApiVersion",
+            requestContext, updatedContext -> {
+                return service.withoutApiVersion(this.getEndpoint(), updatedContext);
+            });
     }
 
     /**
@@ -145,20 +153,10 @@ public final class NotVersionedClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withQueryApiVersionWithResponse(String apiVersion, RequestContext requestContext) {
-        return service.withQueryApiVersion(this.getEndpoint(), apiVersion, requestContext);
-    }
-
-    /**
-     * The withQueryApiVersion operation.
-     * 
-     * @param apiVersion The apiVersion parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withQueryApiVersion(String apiVersion) {
-        withQueryApiVersionWithResponse(apiVersion, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Server.Versions.NotVersioned.withQueryApiVersion",
+            requestContext, updatedContext -> {
+                return service.withQueryApiVersion(this.getEndpoint(), apiVersion, updatedContext);
+            });
     }
 
     /**
@@ -173,19 +171,9 @@ public final class NotVersionedClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withPathApiVersionWithResponse(String apiVersion, RequestContext requestContext) {
-        return service.withPathApiVersion(this.getEndpoint(), apiVersion, requestContext);
-    }
-
-    /**
-     * The withPathApiVersion operation.
-     * 
-     * @param apiVersion The apiVersion parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withPathApiVersion(String apiVersion) {
-        withPathApiVersionWithResponse(apiVersion, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Server.Versions.NotVersioned.withPathApiVersion",
+            requestContext, updatedContext -> {
+                return service.withPathApiVersion(this.getEndpoint(), apiVersion, updatedContext);
+            });
     }
 }

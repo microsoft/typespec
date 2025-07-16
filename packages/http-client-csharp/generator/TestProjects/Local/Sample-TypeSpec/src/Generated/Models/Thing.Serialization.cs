@@ -13,7 +13,7 @@ using System.Text.Json;
 
 namespace SampleTypeSpec
 {
-    /// <summary></summary>
+    /// <summary> A model with a few properties of literal types. </summary>
     public partial class Thing : IJsonModel<Thing>
     {
         /// <summary> Initializes a new instance of <see cref="Thing"/> for deserialization. </summary>
@@ -328,7 +328,7 @@ namespace SampleTypeSpec
             switch (format)
             {
                 case "J":
-                    return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
+                    return ModelReaderWriter.Write(this, options);
                 default:
                     throw new FormatException($"The model {nameof(Thing)} does not support writing '{options.Format}' format.");
             }

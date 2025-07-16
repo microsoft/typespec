@@ -1,6 +1,7 @@
 package parameters.spread.implementation;
 
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 
 /**
  * Initializes a new instance of the SpreadClient type.
@@ -35,6 +36,20 @@ public final class SpreadClientImpl {
     }
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
      * The ModelsImpl object to access its operations.
      */
     private final ModelsImpl models;
@@ -66,10 +81,12 @@ public final class SpreadClientImpl {
      * Initializes an instance of SpreadClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
      */
-    public SpreadClientImpl(HttpPipeline httpPipeline, String endpoint) {
+    public SpreadClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
         this.models = new ModelsImpl(this);
         this.alias = new AliasImpl(this);
