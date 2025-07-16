@@ -702,7 +702,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var type = (response?.BodyType as InputModelType)?.Properties.FirstOrDefault(p =>
                     p.SerializedName == _pagingServiceMethod.PagingMetadata.ItemPropertySegments[0]);
 
-                responseBodyType = response?.BodyType is null || type is null ? null : GetResponseBodyType((type.Type as InputArrayType)!.ValueType);
+                responseBodyType = response?.BodyType is null || type?.Type is not InputArrayType arrayType ? null : GetResponseBodyType(arrayType.ValueType);
 
                 if (response == null || responseBodyType == null)
                 {
