@@ -65,6 +65,7 @@ async function createTesterFs(base: string, options: TesterOptions) {
   for (const lib of options.libraries) {
     await sl.importPath(lib, NoTarget, base);
 
+    // We also need to load the library js entrypoint for emitters and linters.
     const resolved = await resolveModule(
       {
         realpath: async (x) => x,
@@ -80,6 +81,10 @@ async function createTesterFs(base: string, options: TesterOptions) {
     if (resolved.type === "module") {
       const virtualPath = computeRelativePath(lib, resolved.mainFile);
       fs.addJsFile(virtualPath, host.getJsImport(resolved.mainFile));
+      fs.add(
+        resolvePath("node_modules", lib, "package.json"),
+        (resolved.manifest as any).file.text,
+      );
     }
   }
 

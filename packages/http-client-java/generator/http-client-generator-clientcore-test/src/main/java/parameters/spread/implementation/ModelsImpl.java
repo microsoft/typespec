@@ -14,6 +14,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import parameters.spread.model.BodyParameter;
 
@@ -32,6 +33,11 @@ public final class ModelsImpl {
     private final SpreadClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of ModelsImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -39,6 +45,7 @@ public final class ModelsImpl {
     ModelsImpl(SpreadClientImpl client) {
         this.service = ModelsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -117,9 +124,13 @@ public final class ModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> spreadAsRequestBodyWithResponse(String name, RequestContext requestContext) {
-        final String contentType = "application/json";
-        BodyParameter bodyParameter = new BodyParameter(name);
-        return service.spreadAsRequestBody(this.client.getEndpoint(), contentType, bodyParameter, requestContext);
+        return this.instrumentation.instrumentWithResponse("Parameters.Spread.Model.spreadAsRequestBody",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                BodyParameter bodyParameter = new BodyParameter(name);
+                return service.spreadAsRequestBody(this.client.getEndpoint(), contentType, bodyParameter,
+                    updatedContext);
+            });
     }
 
     /**
@@ -135,8 +146,12 @@ public final class ModelsImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> spreadCompositeRequestOnlyWithBodyWithResponse(BodyParameter body,
         RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.spreadCompositeRequestOnlyWithBody(this.client.getEndpoint(), contentType, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Parameters.Spread.Model.spreadCompositeRequestOnlyWithBody",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                return service.spreadCompositeRequestOnlyWithBody(this.client.getEndpoint(), contentType, body,
+                    updatedContext);
+            });
     }
 
     /**
@@ -153,7 +168,11 @@ public final class ModelsImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> spreadCompositeRequestWithoutBodyWithResponse(String name, String testHeader,
         RequestContext requestContext) {
-        return service.spreadCompositeRequestWithoutBody(this.client.getEndpoint(), name, testHeader, requestContext);
+        return this.instrumentation.instrumentWithResponse("Parameters.Spread.Model.spreadCompositeRequestWithoutBody",
+            requestContext, updatedContext -> {
+                return service.spreadCompositeRequestWithoutBody(this.client.getEndpoint(), name, testHeader,
+                    updatedContext);
+            });
     }
 
     /**
@@ -171,9 +190,12 @@ public final class ModelsImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> spreadCompositeRequestWithResponse(String name, String testHeader, BodyParameter body,
         RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.spreadCompositeRequest(this.client.getEndpoint(), name, testHeader, contentType, body,
-            requestContext);
+        return this.instrumentation.instrumentWithResponse("Parameters.Spread.Model.spreadCompositeRequest",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                return service.spreadCompositeRequest(this.client.getEndpoint(), name, testHeader, contentType, body,
+                    updatedContext);
+            });
     }
 
     /**
@@ -191,9 +213,13 @@ public final class ModelsImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> spreadCompositeRequestMixWithResponse(String name, String testHeader, String prop,
         RequestContext requestContext) {
-        final String contentType = "application/json";
-        SpreadCompositeRequestMixRequest spreadCompositeRequestMixRequest = new SpreadCompositeRequestMixRequest(prop);
-        return service.spreadCompositeRequestMix(this.client.getEndpoint(), name, testHeader, contentType,
-            spreadCompositeRequestMixRequest, requestContext);
+        return this.instrumentation.instrumentWithResponse("Parameters.Spread.Model.spreadCompositeRequestMix",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                SpreadCompositeRequestMixRequest spreadCompositeRequestMixRequest
+                    = new SpreadCompositeRequestMixRequest(prop);
+                return service.spreadCompositeRequestMix(this.client.getEndpoint(), name, testHeader, contentType,
+                    spreadCompositeRequestMixRequest, updatedContext);
+            });
     }
 }

@@ -1,6 +1,7 @@
 package payload.contentnegotiation.implementation;
 
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 
 /**
  * Initializes a new instance of the ContentNegotiationClient type.
@@ -35,6 +36,20 @@ public final class ContentNegotiationClientImpl {
     }
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
      * The SameBodiesImpl object to access its operations.
      */
     private final SameBodiesImpl sameBodies;
@@ -66,10 +81,12 @@ public final class ContentNegotiationClientImpl {
      * Initializes an instance of ContentNegotiationClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
      */
-    public ContentNegotiationClientImpl(HttpPipeline httpPipeline, String endpoint) {
+    public ContentNegotiationClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
         this.sameBodies = new SameBodiesImpl(this);
         this.differentBodies = new DifferentBodiesImpl(this);

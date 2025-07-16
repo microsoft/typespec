@@ -1,6 +1,7 @@
-import { Diagnostic } from "@typespec/compiler";
+import { Diagnostic, resolvePath } from "@typespec/compiler";
 import {
   BasicTestRunner,
+  createTester,
   createTestHost,
   createTestWrapper,
   expectDiagnosticEmpty,
@@ -9,6 +10,12 @@ import { HttpTestLibrary } from "@typespec/http/testing";
 import { RestTestLibrary } from "@typespec/rest/testing";
 import { join, relative } from "path";
 import { HttpClientJavascriptEmitterTestLibrary } from "../src/testing/index.js";
+
+const ApiTester = createTester(resolvePath(import.meta.dirname, ".."), {
+  libraries: ["@typespec/http", "@typespec/rest", "@typespec/http-client-js"],
+});
+
+export const Tester = ApiTester.emit("@typespec/http-client-js");
 
 export async function createHttpClientJsTestHost() {
   return createTestHost({

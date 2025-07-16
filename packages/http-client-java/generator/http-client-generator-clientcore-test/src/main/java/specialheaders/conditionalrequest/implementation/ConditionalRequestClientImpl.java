@@ -12,6 +12,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.utils.DateTimeRfc1123;
 import java.lang.reflect.InvocationTargetException;
 import java.time.OffsetDateTime;
@@ -54,13 +55,29 @@ public final class ConditionalRequestClientImpl {
     }
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
      * Initializes an instance of ConditionalRequestClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
      */
-    public ConditionalRequestClientImpl(HttpPipeline httpPipeline, String endpoint) {
+    public ConditionalRequestClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
         this.service = ConditionalRequestClientService.getNewInstance(this.httpPipeline);
     }
@@ -129,7 +146,10 @@ public final class ConditionalRequestClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> postIfMatchWithResponse(String ifMatch, RequestContext requestContext) {
-        return service.postIfMatch(this.getEndpoint(), ifMatch, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialHeaders.ConditionalRequest.postIfMatch",
+            requestContext, updatedContext -> {
+                return service.postIfMatch(this.getEndpoint(), ifMatch, updatedContext);
+            });
     }
 
     /**
@@ -144,7 +164,10 @@ public final class ConditionalRequestClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> postIfNoneMatchWithResponse(String ifNoneMatch, RequestContext requestContext) {
-        return service.postIfNoneMatch(this.getEndpoint(), ifNoneMatch, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialHeaders.ConditionalRequest.postIfNoneMatch",
+            requestContext, updatedContext -> {
+                return service.postIfNoneMatch(this.getEndpoint(), ifNoneMatch, updatedContext);
+            });
     }
 
     /**
@@ -162,9 +185,12 @@ public final class ConditionalRequestClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> headIfModifiedSinceWithResponse(OffsetDateTime ifModifiedSince,
         RequestContext requestContext) {
-        DateTimeRfc1123 ifModifiedSinceConverted
-            = ifModifiedSince == null ? null : new DateTimeRfc1123(ifModifiedSince);
-        return service.headIfModifiedSince(this.getEndpoint(), ifModifiedSinceConverted, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialHeaders.ConditionalRequest.headIfModifiedSince",
+            requestContext, updatedContext -> {
+                DateTimeRfc1123 ifModifiedSinceConverted
+                    = ifModifiedSince == null ? null : new DateTimeRfc1123(ifModifiedSince);
+                return service.headIfModifiedSince(this.getEndpoint(), ifModifiedSinceConverted, updatedContext);
+            });
     }
 
     /**
@@ -182,8 +208,11 @@ public final class ConditionalRequestClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> postIfUnmodifiedSinceWithResponse(OffsetDateTime ifUnmodifiedSince,
         RequestContext requestContext) {
-        DateTimeRfc1123 ifUnmodifiedSinceConverted
-            = ifUnmodifiedSince == null ? null : new DateTimeRfc1123(ifUnmodifiedSince);
-        return service.postIfUnmodifiedSince(this.getEndpoint(), ifUnmodifiedSinceConverted, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialHeaders.ConditionalRequest.postIfUnmodifiedSince",
+            requestContext, updatedContext -> {
+                DateTimeRfc1123 ifUnmodifiedSinceConverted
+                    = ifUnmodifiedSince == null ? null : new DateTimeRfc1123(ifUnmodifiedSince);
+                return service.postIfUnmodifiedSince(this.getEndpoint(), ifUnmodifiedSinceConverted, updatedContext);
+            });
     }
 }

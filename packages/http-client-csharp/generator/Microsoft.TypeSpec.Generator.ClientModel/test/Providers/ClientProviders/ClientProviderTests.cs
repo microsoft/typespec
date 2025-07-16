@@ -7,6 +7,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -42,6 +43,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         private const string SubClientsCategory = "WithSubClients";
         private const string KeyAuthCategory = "WithKeyAuth";
         private const string OAuth2Category = "WithOAuth2";
+        private const string OAuth2CategoryOtherCredType = "WithOAuth2_OtherCredType";
         private const string OnlyUnsupportedAuthCategory = "WithOnlyUnsupportedAuth";
         private const string TestClientName = "TestClient";
         private static readonly InputClient _testClient = InputFactory.Client(TestClientName);
@@ -59,6 +61,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         private bool _containsSubClients;
         private bool _hasKeyAuth;
         private bool _hasOAuth2;
+        private bool _hasOAuth2WithOtherCredType;
         private bool _hasSupportedAuth;
         private bool _hasOnlyUnsupportedAuth;
 
@@ -69,21 +72,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             _containsSubClients = categories?.Contains(SubClientsCategory) ?? false;
             _hasKeyAuth = categories?.Contains(KeyAuthCategory) ?? false;
             _hasOAuth2 = categories?.Contains(OAuth2Category) ?? false;
-            _hasSupportedAuth = _hasKeyAuth || _hasOAuth2;
+            _hasOAuth2WithOtherCredType = categories?.Contains(OAuth2CategoryOtherCredType) ?? false;
+            _hasSupportedAuth = _hasKeyAuth || _hasOAuth2 || _hasOAuth2WithOtherCredType;
             _hasOnlyUnsupportedAuth = categories?.Contains(OnlyUnsupportedAuthCategory) ?? false;
 
             Func<IReadOnlyList<InputClient>>? clients = _containsSubClients ?
                 () => [_testClient] :
                 null;
             InputApiKeyAuth? apiKeyAuth = _hasKeyAuth ? new InputApiKeyAuth("mock", null) : null;
-            InputOAuth2Auth? oauth2Auth = _hasOAuth2 ? new InputOAuth2Auth(["mock"]) : null;
+            InputOAuth2Auth? oauth2Auth = (_hasOAuth2 || _hasOAuth2WithOtherCredType)
+                ? new InputOAuth2Auth([new InputOAuth2Flow(["mock"], null, null, null)])
+                : null;
             Func<InputAuth>? auth = (_hasSupportedAuth || _hasOnlyUnsupportedAuth)
                 ? () => new InputAuth(apiKeyAuth, oauth2Auth)
                 : null;
 
             MockHelpers.LoadMockGenerator(
                 clients: clients,
-                clientPipelineApi: TestClientPipelineApi.Instance,
+                clientPipelineApi: _hasOAuth2WithOtherCredType ? TestClientPipelineApi.Instance : null,
                 auth: auth);
         }
 
@@ -92,7 +98,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         {
             var plugin = MockHelpers.LoadMockGenerator(
                 clients: () => [_testClient],
-                clientPipelineApi: TestClientPipelineApi.Instance,
                 createClientCore: FilterOutClient
                 );
 
@@ -142,6 +147,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
         [TestCaseSource(nameof(BuildAuthFieldsTestCases), Category = KeyAuthCategory)]
         [TestCaseSource(nameof(BuildAuthFieldsTestCases), Category = OAuth2Category)]
+        [TestCaseSource(nameof(BuildAuthFieldsTestCases), Category = OAuth2CategoryOtherCredType)]
         [TestCaseSource(nameof(BuildAuthFieldsTestCases), Category = $"{KeyAuthCategory},{OAuth2Category}")]
         [TestCaseSource(nameof(BuildAuthFieldsTestCases), Category = OnlyUnsupportedAuthCategory)]
         public void TestBuildAuthFields_WithAuth(List<InputParameter> inputParameters)
@@ -162,7 +168,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             }
             if (_hasOAuth2)
             {
-                // oauth2 auth should have the following fields: AuthorizationScopes, _tokenCredential
+                // oauth2 auth should have the following fields: _flows, _tokenProvider
+                AssertHasFields(clientProvider, new List<ExpectedFieldProvider>
+                {
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Dictionary<string, object>[])), "_flows"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(AuthenticationTokenProvider)), "_tokenProvider"),
+                });
+            }
+
+            if (_hasOAuth2WithOtherCredType)
+            {
+                // if another cred type other than the SCM type is used, then the client should default to the following fields: _scopes, _tokenCredential
                 AssertHasFields(clientProvider, new List<ExpectedFieldProvider>
                 {
                     new(FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly, new CSharpType(typeof(string[])), "AuthorizationScopes"),
@@ -175,6 +191,43 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 Assert.IsFalse(clientProvider.Fields.Any(f => f.Name.Contains("credential", StringComparison.OrdinalIgnoreCase)));
                 Assert.IsFalse(clientProvider.Fields.Any(f => f.Name.Contains("auth", StringComparison.OrdinalIgnoreCase)));
             }
+        }
+
+        [TestCaseSource(nameof(BuildOAuth2FlowsFieldTestCases))]
+        public void TestBuildOAuth2FlowsField(IEnumerable<InputOAuth2Flow> inputFlows)
+        {
+            var oauth2Auth = new InputOAuth2Auth([ ..inputFlows]);
+            Func<InputAuth>? inputAuth = () => new InputAuth(null, oauth2Auth);
+            MockHelpers.LoadMockGenerator(auth: inputAuth);
+
+            var client = InputFactory.Client(TestClientName);
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider);
+
+            // oauth2 auth should have the following fields: _flows, _tokenProvider
+            AssertHasFields(clientProvider, new List<ExpectedFieldProvider>
+            {
+                new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(AuthenticationTokenProvider)), "_tokenProvider"),
+                new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Dictionary<string, object>[])), "_flows"),
+            });
+
+            // validate the field initialization
+            var testName = TestContext.CurrentContext.Test.Name;
+            Match match = Regex.Match(testName, @"\(([^)]*)\)");
+            string? caseName = null;
+            if (!match.Success)
+            {
+                Assert.Fail("Unable to parse test case name.");
+            }
+            caseName = match.Groups[1].Value;
+
+            var expected = Helpers.GetExpectedFromFile($"{caseName}");
+            ValueExpression? initValue = clientProvider.Fields.FirstOrDefault(f => f.Name == "_flows")?.InitializationValue;
+            Assert.IsNotNull(initValue);
+
+            var actual = initValue?.ToDisplayString();
+            Assert.AreEqual(expected, actual);
         }
 
         [TestCaseSource(nameof(BuildAuthFieldsTestCases))]
@@ -234,6 +287,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         // validates the credential fields are built correctly when a client has sub-clients
         [TestCaseSource(nameof(WithSubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{KeyAuthCategory}")]
         [TestCaseSource(nameof(WithSubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{OAuth2Category}")]
+        [TestCaseSource(nameof(WithSubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{OAuth2CategoryOtherCredType}")]
         [TestCaseSource(nameof(WithSubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{KeyAuthCategory},{OAuth2Category}")]
         public void TestBuildAuthFields_WithSubClients_WithAuth(InputClient client)
         {
@@ -252,7 +306,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             }
             if (_hasOAuth2)
             {
-                // oauth2 auth should have the following fields: AuthorizationScopes, _tokenCredential
+                // oauth2 auth should have the following fields: _flows, _tokenProvider
+                AssertHasFields(clientProvider, new List<ExpectedFieldProvider>
+                {
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Dictionary<string, object>[])), "_flows"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(AuthenticationTokenProvider)), "_tokenProvider"),
+                });
+            }
+            if (_hasOAuth2WithOtherCredType)
+            {
                 AssertHasFields(clientProvider, new List<ExpectedFieldProvider>
                 {
                     new(FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly, new CSharpType(typeof(string[])), "AuthorizationScopes"),
@@ -264,6 +326,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         // validates the credential fields do not exist within sub-clients
         [TestCaseSource(nameof(SubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{KeyAuthCategory}")]
         [TestCaseSource(nameof(SubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{OAuth2Category}")]
+        [TestCaseSource(nameof(SubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{OAuth2CategoryOtherCredType}")]
         [TestCaseSource(nameof(SubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{KeyAuthCategory},{OAuth2Category}")]
         [TestCaseSource(nameof(SubClientAuthFieldsTestCases), Category = OnlyUnsupportedAuthCategory)]
         public void TestBuildAuthFields_SubClients_WithAuth(InputClient client)
@@ -278,7 +341,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             }
             if (_hasOAuth2)
             {
+                Assert.IsFalse(clientProvider.Fields.Any(f => f.Name.Equals("_flows")));
                 Assert.IsFalse(clientProvider.Fields.Any(f => f.Name.Equals("_tokenCredential")));
+            }
+            if (_hasOAuth2WithOtherCredType)
+            {
+                Assert.IsFalse(clientProvider.Fields.Any(f => f.Name.Equals("_tokenCredential")));
+                Assert.IsFalse(clientProvider.Fields.Any(f => f.Name.Equals("AuthorizationScopes")));
             }
         }
 
@@ -322,6 +391,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [TestCaseSource(nameof(BuildConstructorsTestCases))]
         [TestCaseSource(nameof(BuildConstructorsTestCases), Category = KeyAuthCategory)]
         [TestCaseSource(nameof(BuildConstructorsTestCases), Category = OAuth2Category)]
+        [TestCaseSource(nameof(BuildConstructorsTestCases), Category = OAuth2CategoryOtherCredType)]
         [TestCaseSource(nameof(BuildConstructorsTestCases), Category = $"{KeyAuthCategory},{OAuth2Category}")]
         [TestCaseSource(nameof(BuildConstructorsTestCases), Category = OnlyUnsupportedAuthCategory)]
         public void TestBuildConstructors_SecondaryConstructor(List<InputParameter> inputParameters)
@@ -464,9 +534,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 {
                     Assert.AreEqual("credential", authParam.Name);
                 }
-                else if (authParam?.Type.Equals(typeof(FakeTokenCredential)) == true)
+                else if (authParam?.Type.Equals(typeof(AuthenticationTokenProvider)) == true)
                 {
-                    Assert.AreEqual("credential", authParam.Name);
+                    Assert.AreEqual("tokenProvider", authParam.Name);
                 }
                 else
                 {
@@ -500,7 +570,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 // auth should be the only parameter if endpoint is optional when there is auth
                 if (_hasSupportedAuth)
                 {
-                    Assert.AreEqual("credential", ctorParams?[0].Name);
+                    var expectedName = ctorParams?[0].Type?.Equals(ClientPipelineProvider.Instance.TokenCredentialType) == true
+                        ? "tokenProvider"
+                        : "credential";
+                    Assert.AreEqual(expectedName, ctorParams?[0].Name);
                 }
                 else
                 {
@@ -514,7 +587,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 Assert.AreEqual(KnownParameters.Endpoint.Name, ctorParams?[0].Name);
                 if (_hasSupportedAuth)
                 {
-                    Assert.AreEqual("credential", ctorParams?[1].Name);
+                    var expectedName = ctorParams?[1].Type?.Equals(ClientPipelineProvider.Instance.TokenCredentialType) == true
+                        ? "tokenProvider"
+                        : "credential";
+                    Assert.AreEqual(expectedName, ctorParams?[1].Name);
                 }
             }
 
@@ -898,6 +974,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual("/// <summary> client description. </summary>\n", client!.XmlDocs.Summary!.ToDisplayString());
         }
 
+        [Test]
+        public void ClientProviderSummaryIsPopulatedWithDefaultDocs()
+        {
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                clients: () => [new InputClient("testClient", @namespace: "test", string.Empty, null, null, [], [], null, null)]);
+
+            var client = mockGenerator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().SingleOrDefault();
+            Assert.IsNotNull(client);
+
+            Assert.AreEqual("/// <summary> The TestClient. </summary>\n", client!.XmlDocs.Summary!.ToDisplayString());
+        }
+
         [TestCase(true)]
         [TestCase(false)]
         public void AccessibilityOfMethodMatchesInputOperation(bool isPublic)
@@ -1213,6 +1301,55 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                         kind: InputParameterKind.Client,
                         isEndpoint: true)
                 });
+            }
+        }
+
+        public static IEnumerable<TestCaseData> BuildOAuth2FlowsFieldTestCases
+        {
+            get
+            {
+                // all flow properties present
+                yield return new TestCaseData(new List<InputOAuth2Flow>
+                {
+                    new(
+                        ["mockScope1", "mockScope2"],
+                        "mockAuthUrl",
+                        "mockTokenUrl",
+                        "mockRefreshUrl"),
+                }).SetArgDisplayNames(["AllFlowProperties"]);
+
+                // multiple flows
+                yield return new TestCaseData(new List<InputOAuth2Flow>
+                {
+                    new(
+                        ["mockScope1", "mockScope2"],
+                        "mockAuthUrl",
+                        null,
+                        null),
+                    new(
+                        ["mockScope3"],
+                        "mockAuthUrl",
+                        null,
+                        null),
+                     new(
+                        [],
+                        null,
+                        null,
+                        "mockRefreshUrl"),
+                }).SetArgDisplayNames(["MultipleFlows"]);
+
+                // no flow
+                yield return new TestCaseData(new List<InputOAuth2Flow>()).SetArgDisplayNames(["NoFlows"]);
+
+                // no scopes
+                yield return new TestCaseData(new List<InputOAuth2Flow>
+                {
+                    new(
+                        [],
+                        "mockAuthUrl",
+                        null,
+                        null),
+                }).SetArgDisplayNames(["NoScopes"]);
             }
         }
 
@@ -1832,7 +1969,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             }
         }
 
-        // TODO -- this is temporary here before System.ClientModel officially supports OAuth2 auth
         private record TestClientPipelineApi : ClientPipelineProvider
         {
             private static ClientPipelineApi? _instance;

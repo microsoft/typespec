@@ -127,7 +127,11 @@ public class ModelPropertyMapper implements IMapper<Property, ClientModelPropert
         }
 
         XmlSerializationFormat xmlSerializationFormat = null;
-        if (property.getSchema().getSerialization() != null) {
+        if (property.getSerialization() != null) {
+            // TypeSpec sets "serialization" to property
+            xmlSerializationFormat = property.getSerialization().getXml();
+        } else if (property.getSchema().getSerialization() != null) {
+            // m4 sets "serialization" to schema of the property
             xmlSerializationFormat = property.getSchema().getSerialization().getXml();
         }
 
@@ -189,9 +193,15 @@ public class ModelPropertyMapper implements IMapper<Property, ClientModelPropert
         Schema autoRestPropertyModelType = property.getSchema();
         if (autoRestPropertyModelType instanceof ArraySchema) {
             ArraySchema sequence = (ArraySchema) autoRestPropertyModelType;
-            if (sequence.getElementType().getSerialization() != null
+            if (property.getSerialization() != null && !isXmlWrapper) {
+                // TypeSpec sets "serialization" to property
+                builder.xmlListElementName(property.getSerialization().getXml().getName());
+                builder.xmlListElementNamespace(property.getSerialization().getXml().getNamespace());
+                builder.xmlListElementPrefix(property.getSerialization().getXml().getPrefix());
+            } else if (sequence.getElementType().getSerialization() != null
                 && sequence.getElementType().getSerialization().getXml() != null
                 && sequence.getElementType().getSerialization().getXml().getName() != null) {
+                // m4 sets "serialization" to the element type of the array schema of the property
                 builder.xmlListElementName(sequence.getElementType().getSerialization().getXml().getName());
                 builder.xmlListElementNamespace(sequence.getElementType().getSerialization().getXml().getNamespace());
                 builder.xmlListElementPrefix(sequence.getElementType().getSerialization().getXml().getPrefix());

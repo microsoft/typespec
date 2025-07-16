@@ -58,6 +58,9 @@ const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<stri
   "azure/client-generator-core/usage": {
     namespace: "specs.azure.clientgenerator.core.usage",
   },
+  "azure/client-generator-core/override": {
+    namespace: "specs.azure.clientgenerator.core.override",
+  },
   "azure/core/basic": {
     namespace: "specs.azure.core.basic",
   },
@@ -259,17 +262,13 @@ function getEmitterOption(spec: string, flavor: string): Record<string, string>[
 
 // Function to execute CLI commands asynchronously
 async function executeCommand(tspCommand: TspCommand): Promise<void> {
-  try {
-    rmSync(tspCommand.outputDir, { recursive: true, force: true });
-  } catch (error) {
-    console.error(chalk.red(`rm error: ${error}`));
-  }
   const execFileAsync = promisify(execFile);
   try {
     console.log(chalk.green(`start tsp ${tspCommand.command.join(" ")}`));
     await execFileAsync("tsp", tspCommand.command, { shell: true });
     console.log(chalk.green(`tsp ${tspCommand.command.join(" ")} succeeded`));
   } catch (err) {
+    rmSync(tspCommand.outputDir, { recursive: true, force: true });
     console.error(chalk.red(`exec error: ${err}`));
     throw err;
   }
@@ -309,6 +308,9 @@ async function getSubdirectories(baseDir: string, flags: RegenerateFlags): Promi
         const clientTspPath = join(subDirPath, "client.tsp");
 
         const mainTspRelativePath = toPosix(relative(baseDir, mainTspPath));
+
+        // after support discriminated union, remove this check
+        if (mainTspRelativePath.includes("type/union/discriminated")) return;
 
         // after fix test generation for nested operation group, remove this check
         if (mainTspRelativePath.includes("client-operation-group")) return;

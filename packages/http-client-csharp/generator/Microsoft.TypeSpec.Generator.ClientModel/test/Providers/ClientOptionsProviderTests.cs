@@ -248,5 +248,36 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsTrue(body?.Contains("ServiceVersion.V2_0_0 => \"2.0.0\""));
             Assert.IsTrue(body?.Contains("ServiceVersion.V3_0_0 => \"3.0.0\""));
         }
+
+        [Test]
+        public void ServiceVersionEnumIsForcedToClientOptionsNamespace()
+        {
+            string[] apiVersions = ["2.0.0", "3.0.0"];
+            var enumValues = apiVersions.Select(a => (a, a));
+            var inputEnum = InputFactory.StringEnum(
+                "ServiceVersion",
+                enumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "SampleNamespace");
+            var inputClient = InputFactory.Client("TestClient", clientNamespace: "SomeOtherNamespace");
+            MockHelpers.LoadMockGenerator(
+                inputEnums: () => [inputEnum],
+                clients: () => [inputClient]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            Assert.IsNotNull(clientProvider);
+
+            var clientOptionsProvider = clientProvider!.ClientOptions;
+            Assert.IsNotNull(clientOptionsProvider);
+            Assert.AreEqual("SomeOtherNamespace", clientOptionsProvider!.Type.Namespace);
+            Assert.IsNotNull(clientOptionsProvider.NestedTypes);
+            Assert.AreEqual(1, clientOptionsProvider.NestedTypes.Count);
+
+            var serviceVersionType = clientOptionsProvider.NestedTypes[0];
+            Assert.IsNotNull(serviceVersionType);
+            Assert.AreEqual("ServiceVersion", serviceVersionType.Name);
+            Assert.AreEqual("SomeOtherNamespace", serviceVersionType.Type.Namespace);
+        }
     }
 }

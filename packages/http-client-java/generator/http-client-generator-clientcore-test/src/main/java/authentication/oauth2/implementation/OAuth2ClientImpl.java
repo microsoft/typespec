@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -53,13 +54,29 @@ public final class OAuth2ClientImpl {
     }
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
      * Initializes an instance of OAuth2Client client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
      */
-    public OAuth2ClientImpl(HttpPipeline httpPipeline, String endpoint) {
+    public OAuth2ClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
         this.service = OAuth2ClientService.getNewInstance(this.httpPipeline);
     }
@@ -109,7 +126,10 @@ public final class OAuth2ClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> validWithResponse(RequestContext requestContext) {
-        return service.valid(this.getEndpoint(), requestContext);
+        return this.instrumentation.instrumentWithResponse("Authentication.OAuth2.valid", requestContext,
+            updatedContext -> {
+                return service.valid(this.getEndpoint(), updatedContext);
+            });
     }
 
     /**
@@ -123,7 +143,10 @@ public final class OAuth2ClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> invalidWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.invalid(this.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Authentication.OAuth2.invalid", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.invalid(this.getEndpoint(), accept, updatedContext);
+            });
     }
 }
