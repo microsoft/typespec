@@ -37,76 +37,97 @@ interface TspCommand {
 }
 
 const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, string>[]> = {
-  "azure:azure/special-headers/client-request-id": {
-    namespace: "azure.special.headers.client.request.id",
+  "azure/special-headers/client-request-id": {
+    "package-name": "azure-specialheaders-clientrequestid",
   },
-  "azure:azure/resource-manager/large-header": {
-    namespace: "azure.resource.manager.large.header",
+  "azure/resource-manager/large-header": {
+    "package-name": "azure-resourcemanager-largeheader",
   },
-  "azure:azure/resource-manager/resources": {
-    namespace: "azure.resource.manager.resources",
+  "azure/resource-manager/resources": {
+    "package-name": "azure-resourcemanager-resources",
   },
-  "azure:azure/resource-manager/common-properties": {
-    namespace: "azure.resource.manager.common.properties",
+  "azure/resource-manager/common-properties": {
+    "package-name": "azure-resourcemanager-commonproperties",
   },
-  "azure:azure/resource-manager/operation-templates": {
-    namespace: "azure.resource.manager.operation.templates",
+  "azure/resource-manager/operation-templates": {
+    "package-name": "azure-resourcemanager-operationtemplates",
   },
-  "azure:azure/resource-manager/non-resource": {
-    namespace: "azure.resource.manager.non.resource",
+  "azure/resource-manager/non-resource": {
+    "package-name": "azure-resourcemanager-nonresource",
+  },
+  "client/namespace": {
+    "package-name": "client-namespace",
   },
   "azure/client-generator-core/access": {
+    "package-name": "specs-azure-clientgenerator-core-access",
     namespace: "specs.azure.clientgenerator.core.access",
   },
   "azure/client-generator-core/api-version": {
+    "package-name": "specs-azure-clientgenerator-core-apiversion",
     namespace: "specs.azure.clientgenerator.core.apiversion",
   },
   "azure/client-generator-core/client-initialization": {
+    "package-name": "specs-azure-clientgenerator-core-clientinitialization",
     namespace: "specs.azure.clientgenerator.core.clientinitialization",
   },
   "azure/client-generator-core/client-location": {
+    "package-name": "specs-azure-clientgenerator-core-clientlocation",
     namespace: "specs.azure.clientgenerator.core.clientlocation",
   },
   "azure/client-generator-core/deserialize-empty-string-as-null": {
+    "package-name": "specs-azure-clientgenerator-core-emptystring",
     namespace: "specs.azure.clientgenerator.core.emptystring",
   },
   "azure/client-generator-core/flatten-property": {
+    "package-name": "specs-azure-clientgenerator-core-flattenproperty",
     namespace: "specs.azure.clientgenerator.core.flattenproperty",
   },
   "azure/client-generator-core/usage": {
+    "package-name": "specs-azure-clientgenerator-core-usage",
     namespace: "specs.azure.clientgenerator.core.usage",
   },
   "azure/core/basic": {
+    "package-name": "specs-azure-core-basic",
     namespace: "specs.azure.core.basic",
   },
   "azure/core/lro/rpc": {
+    "package-name": "specs-azure-core-lro-rpc",
     namespace: "specs.azure.core.lro.rpc",
   },
   "azure/core/lro/standard": {
+    "package-name": "specs-azure-core-lro-standard",
     namespace: "specs.azure.core.lro.standard",
   },
   "azure/core/model": {
+    "package-name": "specs-azure-core-model",
     namespace: "specs.azure.core.model",
   },
   "azure/core/page": {
+    "package-name": "specs-azure-core-page",
     namespace: "specs.azure.core.page",
   },
   "azure/core/scalar": {
+    "package-name": "specs-azure-core-scalar",
     namespace: "specs.azure.core.scalar",
   },
   "azure/core/traits": {
+    "package-name": "specs-azure-core-traits",
     namespace: "specs.azure.core.traits",
   },
   "azure/encode/duration": {
+    "package-name": "specs-azure-encode-duration",
     namespace: "specs.azure.encode.duration",
   },
   "azure/example/basic": {
+    "package-name": "specs-azure-example-basic",
     namespace: "specs.azure.example.basic",
   },
   "azure/payload/pageable": {
+    "package-name": "specs-azure-payload-pageable",
     namespace: "specs.azure.payload.pageable",
   },
   "client/structure/default": {
+    "package-name": "client-structure-service",
     namespace: "client.structure.service",
   },
   "client/structure/multi-client": {
@@ -137,102 +158,52 @@ const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<stri
     namespace: "parameters.spread",
   },
   "payload/content-negotiation": {
+    "package-name": "payload-contentnegotiation",
     namespace: "payload.contentnegotiation",
   },
   "payload/multipart": {
     namespace: "payload.multipart",
   },
   "serialization/encoded-name/json": {
+    "package-name": "serialization-encodedname-json",
     namespace: "serialization.encodedname.json",
   },
   "special-words": {
+    "package-name": "specialwords",
     namespace: "specialwords",
   },
 };
 
 const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, string>[]> = {
-  "azure:azure/client-generator-core/access": {
-    namespace: "azure.client.generator.core.access",
-  },
-  "azure:azure/core/scalar": {
-    namespace: "azure.core.scalar",
-  },
-  "azure:client/namespace": {
-    namespace: "client.namespace",
-  },
-  "azure:azure/client-generator-core/flatten-property": {
-    namespace: "azure.client.generator.core.flatten.property",
-  },
   "parameters/body-optionality": {
-    namespace: "parameters.body.optionality",
-  },
-  "azure:azure/core/model": {
-    namespace: "azure.core.model",
+    "package-name": "parameters-bodyoptionality",
   },
   "parameters/collection-format": {
-    namespace: "parameters.collection.format",
+    "package-name": "parameters-collectionformat",
   },
   "response/status-code-range": {
-    namespace: "response.status.code.range",
-  },
-  "azure:client/structure/default": {
-    namespace: "client.structure.default",
-  },
-  "azure:azure/core/traits": {
-    namespace: "azure.core.traits",
-  },
-  "azure:azure/client-generator-core/client-initialization": {
-    namespace: "azure.client.generator.core.client.initialization",
-  },
-  "azure:azure/core/lro/standard": {
-    namespace: "azure.core.lro.standard",
-  },
-  "azure:azure/payload/pageable": {
-    namespace: "azure.payload.pageable",
-  },
-  "azure:azure/client-generator-core/usage": {
-    namespace: "azure.client.generator.core.usage",
-  },
-  "azure:azure/core/page": {
-    namespace: "azure.core.page",
-  },
-  "azure:azure/core/lro/rpc": {
-    namespace: "azure.core.lro.rpc",
+    "package-name": "response-statuscoderange",
   },
   "payload/json-merge-patch": {
-    namespace: "payload.json.merge.patch",
-  },
-  "azure:azure/example/basic": {
-    namespace: "azure.example.basic",
+    "package-name": "payload-jsonmergepatch",
   },
   "special-headers/conditional-request": {
-    namespace: "special.headers.conditional.request",
-  },
-  "azure:azure/encode/duration": {
-    namespace: "azure.encode.duration",
-  },
-  "azure:azure/client-generator-core/client-location": {
-    namespace: "azure.client.generator.core.client.location",
+    "package-name": "specialheaders-conditionalrequest",
   },
   "special-headers/repeatability": {
-    namespace: "special.headers.repeatability",
+    "package-name": "specialheaders-repeatability",
   },
   "server/versions/not-versioned": {
-    "package-name": "server-versions-not-versioned",
-    namespace: "server.versions.notversioned",
+    "package-name": "server-versions-notversioned",
   },
   "server/endpoint/not-defined": {
-    "package-name": "server-endpoint-not-defined",
-    namespace: "server.endpoint.notdefined",
+    "package-name": "server-endpoint-notdefined",
   },
   "authentication/api-key": {
-    namespace: "authentication.api.key",
+    "package-name": "authentication-apikey",
   },
   "payload/media-type": {
-    namespace: "payload.media.type",
-  },
-  "azure:azure/client-generator-core/deserialize-empty-string-as-null": {
-    namespace: "azure.client.generator.core.deserialize.empty.string.as.null",
+    "package-name": "payload-mediatype",
   },
   "resiliency/srv-driven/old.tsp": {
     "package-name": "resiliency-srv-driven1",
@@ -285,6 +256,7 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
     namespace: "typetest.model.nesteddiscriminator",
   },
   "type/model/inheritance/not-discriminated": {
+    "package-name": "typetest-model-notdiscriminated",
     namespace: "typetest.model.notdiscriminated",
   },
   "type/model/inheritance/single-discriminator": {
