@@ -48,8 +48,8 @@
     "dist/generator/**"
   ],
   "peerDependencies": {
-    "@azure-tools/typespec-azure-core": ">=0.57.0 <0.58.0 || ~0.58.0-0",
-    "@azure-tools/typespec-client-generator-core": ">=0.57.0 <0.58.0 || ~0.58.0-0",
+    "@azure-tools/typespec-azure-core": ">=0.58.0 <0.59.0 || ~0.59.0-0",
+    "@azure-tools/typespec-client-generator-core": ">=0.58.0 <0.59.0 || ~0.59.0-0",
     "@typespec/compiler": "^1.2.1",
     "@typespec/http": "^1.2.1",
     "@typespec/openapi": "^1.2.1",
@@ -58,8 +58,8 @@
   },
   "devDependencies": {
     "@azure-tools/azure-http-specs": "0.1.0-alpha.23",
-    "@azure-tools/typespec-azure-core": "0.57.0",
-    "@azure-tools/typespec-client-generator-core": "0.57.2",
+    "@azure-tools/typespec-azure-core": "0.58.0",
+    "@azure-tools/typespec-client-generator-core": "0.58.0",
     "@microsoft/api-extractor": "^7.52.2",
     "@types/node": "~22.7.5",
     "@typespec/compiler": "1.2.1",
