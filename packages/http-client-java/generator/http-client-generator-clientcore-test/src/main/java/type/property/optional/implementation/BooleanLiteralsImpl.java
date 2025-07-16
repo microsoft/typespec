@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import type.property.optional.BooleanLiteralProperty;
 
@@ -31,6 +32,11 @@ public final class BooleanLiteralsImpl {
     private final OptionalClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of BooleanLiteralsImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -38,6 +44,7 @@ public final class BooleanLiteralsImpl {
     BooleanLiteralsImpl(OptionalClientImpl client) {
         this.service = BooleanLiteralsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -103,8 +110,11 @@ public final class BooleanLiteralsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BooleanLiteralProperty> getAllWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getAll(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.BooleanLiteral.getAll",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getAll(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -118,8 +128,11 @@ public final class BooleanLiteralsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BooleanLiteralProperty> getDefaultWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getDefault(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.BooleanLiteral.getDefault",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getDefault(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -134,8 +147,11 @@ public final class BooleanLiteralsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putAllWithResponse(BooleanLiteralProperty body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.putAll(this.client.getEndpoint(), contentType, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.BooleanLiteral.putAll",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                return service.putAll(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -150,7 +166,10 @@ public final class BooleanLiteralsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putDefaultWithResponse(BooleanLiteralProperty body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.putDefault(this.client.getEndpoint(), contentType, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.BooleanLiteral.putDefault",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                return service.putDefault(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 }

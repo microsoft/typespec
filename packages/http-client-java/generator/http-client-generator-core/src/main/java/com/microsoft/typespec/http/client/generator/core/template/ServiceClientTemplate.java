@@ -207,8 +207,7 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
                 classBlock.constructor(visibility,
                     String.format("%1$s(%2$s)", serviceClient.getClassName(), constructorParams), constructorBlock -> {
                         if (!settings.isAzureV1() || settings.isAzureV2()) {
-                            if (constructor.getParameters()
-                                .equals(Arrays.asList(serviceClient.getHttpPipelineParameter()))) {
+                            if (constructor.getParameters().contains(serviceClient.getHttpPipelineParameter())) {
                                 writeMaxOverloadedDataPlaneConstructorImplementation(constructorBlock, serviceClient,
                                     constructorParametersCodes);
                             }

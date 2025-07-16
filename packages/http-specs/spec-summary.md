@@ -1696,6 +1696,56 @@ Content-Type: application/octet-stream
 --abcde12345--
 ```
 
+### Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeaderNestedResponseBody
+
+- Endpoint: `get /payload/pageable/server-driven-pagination/continuationtoken/request-header-nested-response-body`
+
+Test case for using continuation token as pagination with nested response structure. Continuation token is passed in the request header and nested within response body.
+
+Two requests need to be tested.
+
+1. Initial request:
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-nested-response-body?bar=bar
+
+Expected request header:
+foo=foo
+
+Expected response body:
+
+```json
+{
+  "nestedItems": {
+    "pets": [
+      { "id": "1", "name": "dog" },
+      { "id": "2", "name": "cat" }
+    ]
+  },
+  "next": {
+    "nextToken": "page2"
+  }
+}
+```
+
+2. Next page request:
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-nested-response-body?bar=bar
+
+Expected request header:
+token=page2
+foo=foo
+
+Expected response body:
+
+```json
+{
+  "nestedItems": {
+    "pets": [
+      { "id": "3", "name": "bird" },
+      { "id": "4", "name": "fish" }
+    ]
+  }
+}
+```
+
 ### Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeaderResponseBody
 
 - Endpoint: `get /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body`
@@ -1783,6 +1833,55 @@ Expected response body:
     { "id": "3", "name": "bird" },
     { "id": "4", "name": "fish" }
   ]
+}
+```
+
+### Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestQueryNestedResponseBody
+
+- Endpoint: `get /payload/pageable/server-driven-pagination/continuationtoken/request-query-nested-response-body`
+
+Test case for using continuation token as pagination with nested response structure. Continuation token is passed in the request query and nested within response body.
+
+Two requests need to be tested.
+
+1. Initial request:
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-nested-response-body?bar=bar
+
+Expected request header:
+foo=foo
+
+Expected response body:
+
+```json
+{
+  "nestedItems": {
+    "pets": [
+      { "id": "1", "name": "dog" },
+      { "id": "2", "name": "cat" }
+    ]
+  },
+  "nestedNext": {
+    "nextToken": "page2"
+  }
+}
+```
+
+2. Next page request:
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-nested-response-body?bar=bar&token=page2
+
+Expected request header:
+foo=foo
+
+Expected response body:
+
+```json
+{
+  "nestedItems": {
+    "pets": [
+      { "id": "3", "name": "bird" },
+      { "id": "4", "name": "fish" }
+    ]
+  }
 }
 ```
 
@@ -1906,6 +2005,47 @@ Two requests need to be tested.
     { "id": "3", "name": "bird" },
     { "id": "4", "name": "fish" }
   ]
+}
+```
+
+### Payload_Pageable_ServerDrivenPagination_nestedLink
+
+- Endpoint: `get /payload/pageable/server-driven-pagination/nested-link`
+
+Test case for using link as pagination with nested structure.
+
+Two requests need to be tested.
+
+1. Initial request:
+   Expected route: /payload/pageable/server-driven-pagination/nested-link
+   Expected response body:
+
+```json
+{
+  "nestedItems": {
+    "pets": [
+      { "id": "1", "name": "dog" },
+      { "id": "2", "name": "cat" }
+    ]
+  },
+  "nestedNext": {
+    "next": "http://[host]:[port]/payload/pageable/server-driven-pagination/nested-link/nextPage"
+  }
+}
+```
+
+2. Next page request:
+   Expected route: /payload/pageable/server-driven-pagination/nested-link/nextPage
+   Expected response body:
+
+```json
+{
+  "nestedItems": {
+    "pets": [
+      { "id": "3", "name": "bird" },
+      { "id": "4", "name": "fish" }
+    ]
+  }
 }
 ```
 

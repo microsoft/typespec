@@ -9,6 +9,7 @@ azure-mgmt-core==1.5.0
 -e ./generated/specs-azure-clientgenerator-core-emptystring
 -e ./generated/specs-azure-clientgenerator-core-flattenproperty
 -e ./generated/specs-azure-clientgenerator-core-usage
+-e ./generated/specs-azure-clientgenerator-core-override
 -e ./generated/specs-azure-core-basic
 -e ./generated/specs-azure-core-lro-rpc
 -e ./generated/specs-azure-core-lro-standard
