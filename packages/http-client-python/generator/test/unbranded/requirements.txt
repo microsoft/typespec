@@ -17,7 +17,7 @@
 -e ./generated/parameters-collectionformat
 -e ./generated/parameters-path
 -e ./generated/parameters-spread
--e ./generated/payload-content-negotiation
+-e ./generated/payload-contentnegotiation
 -e ./generated/payload-jsonmergepatch
 -e ./generated/payload-mediatype
 -e ./generated/payload-multipart
@@ -25,15 +25,15 @@
 -e ./generated/payload-xml
 -e ./generated/response-statuscoderange
 -e ./generated/routes
--e ./generated/serialization-encoded-name-json
+-e ./generated/serialization-encodedname-json
 -e ./generated/server-endpoint-notdefined
 -e ./generated/server-path-multiple
 -e ./generated/server-path-single
 -e ./generated/server-versions-notversioned
 -e ./generated/server-versions-versioned
--e ./generated/special-words
 -e ./generated/specialheaders-conditionalrequest
 -e ./generated/specialheaders-repeatability
+-e ./generated/specialwords
 -e ./generated/streaming-jsonl
 -e ./generated/typetest-array
 -e ./generated/typetest-dictionary

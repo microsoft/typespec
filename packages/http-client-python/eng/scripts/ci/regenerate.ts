@@ -160,20 +160,8 @@ const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<stri
   "parameters/spread": {
     namespace: "parameters.spread",
   },
-  "payload/content-negotiation": {
-    "package-name": "payload-contentnegotiation",
-    namespace: "payload.contentnegotiation",
-  },
   "payload/multipart": {
     namespace: "payload.multipart",
-  },
-  "serialization/encoded-name/json": {
-    "package-name": "serialization-encodedname-json",
-    namespace: "serialization.encodedname.json",
-  },
-  "special-words": {
-    "package-name": "specialwords",
-    namespace: "specialwords",
   },
 };
 
@@ -228,6 +216,18 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
   "authentication/union": {
     "package-name": "authentication-union",
     namespace: "authentication.union",
+  },
+  "payload/content-negotiation": {
+    "package-name": "payload-contentnegotiation",
+    namespace: "payload.contentnegotiation",
+  },
+  "serialization/encoded-name/json": {
+    "package-name": "serialization-encodedname-json",
+    namespace: "serialization.encodedname.json",
+  },
+  "special-words": {
+    "package-name": "specialwords",
+    namespace: "specialwords",
   },
   "type/array": {
     "package-name": "typetest-array",
