@@ -309,6 +309,9 @@ async function getSubdirectories(baseDir: string, flags: RegenerateFlags): Promi
 
         const mainTspRelativePath = toPosix(relative(baseDir, mainTspPath));
 
+        // after support discriminated union, remove this check
+        if (mainTspRelativePath.includes("type/union/discriminated")) return;
+
         // after fix test generation for nested operation group, remove this check
         if (mainTspRelativePath.includes("client-operation-group")) return;
 
