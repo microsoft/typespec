@@ -3,6 +3,7 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -48,8 +49,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// </summary>
         private HashSet<CSharpType> CollectBuildableTypes()
         {
-            var buildableTypes = new HashSet<CSharpType>();
-            var visitedTypes = new HashSet<CSharpType>();
+            var buildableTypes = new HashSet<CSharpType>(new CSharpTypeNameComparer());
+            var visitedTypes = new HashSet<CSharpType>(new CSharpTypeNameComparer());
 
             // Get all model providers from the output library
             var modelProviders = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
@@ -161,6 +162,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return buffer.Slice(0, index).ToString();
+        }
+
+        private class CSharpTypeNameComparer : IEqualityComparer<CSharpType>
+        {
+            public bool Equals(CSharpType? x, CSharpType? y)
+            {
+                if (x is null && y is null)
+                {
+                    return true;
+                }
+                if (x is null || y is null)
+                {
+                    return false;
+                }
+                return x.Namespace == y.Namespace && x.Name == y.Name;
+            }
+
+            public int GetHashCode(CSharpType obj)
+            {
+                HashCode hashCode = new HashCode();
+                hashCode.Add(obj.Namespace);
+                return hashCode.ToHashCode();
+            }
         }
     }
 }
