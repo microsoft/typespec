@@ -9,7 +9,6 @@ using System.Text.Json;
 
 namespace _Type.Property.AdditionalProperties
 {
-    [PersistableModelProxy(typeof(UnknownIsUnknownAdditionalPropertiesDiscriminated))]
     public abstract partial class IsUnknownAdditionalPropertiesDiscriminated : IJsonModel<IsUnknownAdditionalPropertiesDiscriminated>
     {
         internal IsUnknownAdditionalPropertiesDiscriminated() => throw null;

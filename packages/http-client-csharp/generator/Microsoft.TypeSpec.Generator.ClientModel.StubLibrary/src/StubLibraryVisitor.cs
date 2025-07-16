@@ -23,7 +23,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.StubLibrary
                 !type.Name.Equals("MultiPartFormDataBinaryContent", StringComparison.Ordinal))
                 return null;
 
-            type.Update(xmlDocs: XmlDocProvider.Empty);
+            type.Update(xmlDocs: XmlDocProvider.Empty, attributes: []);
             return type;
         }
 

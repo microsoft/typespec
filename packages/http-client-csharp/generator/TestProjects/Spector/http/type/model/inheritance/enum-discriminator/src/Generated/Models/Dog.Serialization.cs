@@ -9,7 +9,6 @@ using System.Text.Json;
 
 namespace _Type.Model.Inheritance.EnumDiscriminator
 {
-    [PersistableModelProxy(typeof(UnknownDog))]
     public abstract partial class Dog : IJsonModel<Dog>
     {
         internal Dog() => throw null;
