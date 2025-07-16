@@ -215,7 +215,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             Address address = new Address("X");
 
             await using var imageStream1 = File.OpenRead(SampleJpgPath);
-            var profileImage = new FileBinaryContent(imageStream1)
+            using var profileImage = new FileBinaryContent(imageStream1)
             {
                 Filename = "profileImage.jpg",
             };
@@ -235,9 +235,10 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             Assert.AreEqual(204, response.GetRawResponse().Status);
 
             // Assert all streams are disposed
-            Assert.IsFalse(imageStream1.CanRead);
-            Assert.IsFalse(imageStream2.CanRead);
-            Assert.IsFalse(imageStream3.CanRead);
+            // Test that streams are properly disposed
+            Assert.Throws<ObjectDisposedException>(() => imageStream1.ReadByte());
+            Assert.Throws<ObjectDisposedException>(() => imageStream2.ReadByte());
+            Assert.Throws<ObjectDisposedException>(() => imageStream3.ReadByte());
         });
 
         [SpectorTest]
