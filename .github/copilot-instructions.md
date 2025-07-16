@@ -20,3 +20,4 @@ This document serves as an index to task-specific instructions for GitHub Copilo
 ## Available Task Instructions
 
 - [Testserver Generation](./prompts/testserver-generation.md): Instructions for generating TypeSpec HTTP spec test servers
+- [Emitter http-client-java](../packages/http-client-java/.github/copilot-instructions.md): Instructions for tasks on TypeSpec library for Java client.
