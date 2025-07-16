@@ -6,13 +6,26 @@ import vscode from "vscode";
 import { StartFileName } from "./const.js";
 import logger from "./log/logger.js";
 import { getDirectoryPath, joinPaths, normalizeSlashes } from "./path-utils.js";
-import { Result, ResultCode } from "./types.js";
+import { Result, ResultCode, SettingName } from "./types.js";
 import { ConfirmOptions, QuickPickOptionsWithExternalLink, tryExecuteWithUi } from "./ui-utils.js";
 import { isFile, loadPackageJsonFile, spawnExecutionAndLogToOutput } from "./utils.js";
 
 export async function getEntrypointTspFile(tspPath: string): Promise<string | undefined> {
   const isFilePath = await isFile(tspPath);
   let baseDir = isFilePath ? getDirectoryPath(tspPath) : tspPath;
+
+  const configEntrypoints = vscode.workspace
+    .getConfiguration()
+    .get<string[] | null>(SettingName.CompileEntrypoint);
+  if (configEntrypoints && configEntrypoints.length > 0) {
+    for (const entrypoint of configEntrypoints) {
+      const mainTspFile = path.resolve(baseDir, entrypoint);
+      if (await isFile(mainTspFile)) {
+        logger.debug(`Configuration entrypoint file ${mainTspFile} selected as entrypoint file.`);
+        return mainTspFile;
+      }
+    }
+  }
 
   while (true) {
     const pkgPath = path.resolve(baseDir, "package.json");

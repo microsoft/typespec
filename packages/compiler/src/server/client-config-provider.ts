@@ -5,8 +5,13 @@ interface LSPConfig {
   emit?: string[];
 }
 
+interface EntrypointConfig {
+  entrypoint?: string[];
+}
+
 interface Config {
   lsp?: LSPConfig;
+  compile?: EntrypointConfig;
 }
 
 /**
@@ -37,6 +42,9 @@ export function createClientConfigProvider(): ClientConfigProvider {
         lsp: {
           emit: configs?.lsp?.emit,
         },
+        compile: {
+          entrypoint: configs?.compile?.entrypoint,
+        },
       };
 
       connection.onDidChangeConfiguration(async (params) => {
@@ -45,6 +53,9 @@ export function createClientConfigProvider(): ClientConfigProvider {
           config = {
             lsp: {
               emit: newConfigs?.lsp?.emit,
+            },
+            compile: {
+              entrypoint: configs?.compile?.entrypoint,
             },
           };
         }

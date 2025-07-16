@@ -14,7 +14,7 @@ import { builtInLinterLibraryName } from "../core/linter.js";
 import { formatDiagnostic } from "../core/logger/console-sink.js";
 import { CompilerOptions } from "../core/options.js";
 import { parse } from "../core/parser.js";
-import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
+import { getBaseFileName, getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import { compile as compileProgram, Program } from "../core/program.js";
 import type {
   CompilerHost,
@@ -327,6 +327,15 @@ export function createCompileService({
     if (path.startsWith("untitled:")) {
       log({ level: "debug", message: `untitled document treated as its own main file: ${path}` });
       return path;
+    }
+
+    const entrypoints = clientConfigsProvider?.config?.compile?.entrypoint;
+    if (entrypoints && entrypoints.length > 0) {
+      const fileName = getBaseFileName(path);
+      if (entrypoints.includes(fileName)) {
+        log({ level: "debug", message: `using client provided entrypoint: ${fileName}` });
+        return path;
+      }
     }
 
     let dir = getDirectoryPath(path);
