@@ -24,7 +24,7 @@
     <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-core</artifactId>
-      <version>1.55.5</version>
+      <version>1.55.4</version>
     </dependency>
     <dependency>
       <groupId>io.clientcore</groupId>
@@ -56,11 +56,11 @@
       <artifactId>javaparser-core</artifactId>
       <version>3.27.0</version>
     </dependency>
-    <!-- 1.28.0 is compatible with Java 11 -->
+    <!-- 1.24.0 is the last version that supports Java 11 -->
     <dependency>
       <groupId>com.google.googlejavaformat</groupId>
       <artifactId>google-java-format</artifactId>
-      <version>1.28.0</version>
+      <version>1.24.0</version>
     </dependency>
     <dependency>
       <groupId>org.atteo</groupId>
