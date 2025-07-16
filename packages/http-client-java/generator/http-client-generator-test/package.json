@@ -20,11 +20,11 @@
     "@typespec/http-client-java-tests": "file:"
   },
   "overrides": {
-    "@typespec/compiler": "1.1.0",
-    "@typespec/http": "1.1.0",
+    "@typespec/compiler": "1.2.1",
+    "@typespec/http": "1.2.1",
     "@typespec/rest": "0.71.0",
     "@typespec/versioning": "0.71.0",
-    "@typespec/openapi": "1.1.0",
+    "@typespec/openapi": "1.2.1",
     "@typespec/xml": "0.71.0",
     "@typespec/events": "0.71.0",
     "@typespec/sse": "0.71.0",
