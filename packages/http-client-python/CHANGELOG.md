@@ -1,5 +1,16 @@
 # Change Log - @typespec/http-client-python
 
+## 0.14.0
+
+### Features
+
+- [#7924](https://github.com/microsoft/typespec/pull/7924) Support @override to reorder operation parameters
+
+### Bump dependencies
+
+- [#7924](https://github.com/microsoft/typespec/pull/7924) bump typespec
+
+
 ## 0.13.0
 
 ### Features
