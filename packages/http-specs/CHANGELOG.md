@@ -1,5 +1,17 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.24
+
+### Features
+
+- [#7602](https://github.com/microsoft/typespec/pull/7602) Add discriminated union spector test cases covering default serialization, custom property names, and inline discriminator scenarios
+- [#6477](https://github.com/microsoft/typespec/pull/6477) Add nested cases for paging
+
+### Bump dependencies
+
+- [#7674](https://github.com/microsoft/typespec/pull/7674) Upgrade dependencies
+
+
 ## 0.1.0-alpha.23
 
 ### Features

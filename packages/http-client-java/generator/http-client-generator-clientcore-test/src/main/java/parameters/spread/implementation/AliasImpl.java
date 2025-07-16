@@ -14,6 +14,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import parameters.spread.alias.implementation.SpreadAsRequestBodyRequest;
@@ -33,6 +34,11 @@ public final class AliasImpl {
     private final SpreadClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of AliasImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -40,6 +46,7 @@ public final class AliasImpl {
     AliasImpl(SpreadClientImpl client) {
         this.service = AliasService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -122,10 +129,13 @@ public final class AliasImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> spreadAsRequestBodyWithResponse(String name, RequestContext requestContext) {
-        final String contentType = "application/json";
-        SpreadAsRequestBodyRequest spreadAsRequestBodyRequest = new SpreadAsRequestBodyRequest(name);
-        return service.spreadAsRequestBody(this.client.getEndpoint(), contentType, spreadAsRequestBodyRequest,
-            requestContext);
+        return this.instrumentation.instrumentWithResponse("Parameters.Spread.Alias.spreadAsRequestBody",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                SpreadAsRequestBodyRequest spreadAsRequestBodyRequest = new SpreadAsRequestBodyRequest(name);
+                return service.spreadAsRequestBody(this.client.getEndpoint(), contentType, spreadAsRequestBodyRequest,
+                    updatedContext);
+            });
     }
 
     /**
@@ -143,11 +153,14 @@ public final class AliasImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> spreadParameterWithInnerModelWithResponse(String id, String xMsTestHeader, String name,
         RequestContext requestContext) {
-        final String contentType = "application/json";
-        SpreadParameterWithInnerModelRequest spreadParameterWithInnerModelRequest
-            = new SpreadParameterWithInnerModelRequest(name);
-        return service.spreadParameterWithInnerModel(this.client.getEndpoint(), id, xMsTestHeader, contentType,
-            spreadParameterWithInnerModelRequest, requestContext);
+        return this.instrumentation.instrumentWithResponse("Parameters.Spread.Alias.spreadParameterWithInnerModel",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                SpreadParameterWithInnerModelRequest spreadParameterWithInnerModelRequest
+                    = new SpreadParameterWithInnerModelRequest(name);
+                return service.spreadParameterWithInnerModel(this.client.getEndpoint(), id, xMsTestHeader, contentType,
+                    spreadParameterWithInnerModelRequest, updatedContext);
+            });
     }
 
     /**
@@ -165,10 +178,14 @@ public final class AliasImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> spreadAsRequestParameterWithResponse(String id, String xMsTestHeader, String name,
         RequestContext requestContext) {
-        final String contentType = "application/json";
-        SpreadAsRequestParameterRequest spreadAsRequestParameterRequest = new SpreadAsRequestParameterRequest(name);
-        return service.spreadAsRequestParameter(this.client.getEndpoint(), id, xMsTestHeader, contentType,
-            spreadAsRequestParameterRequest, requestContext);
+        return this.instrumentation.instrumentWithResponse("Parameters.Spread.Alias.spreadAsRequestParameter",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                SpreadAsRequestParameterRequest spreadAsRequestParameterRequest
+                    = new SpreadAsRequestParameterRequest(name);
+                return service.spreadAsRequestParameter(this.client.getEndpoint(), id, xMsTestHeader, contentType,
+                    spreadAsRequestParameterRequest, updatedContext);
+            });
     }
 
     /**
@@ -190,13 +207,16 @@ public final class AliasImpl {
     public Response<Void> spreadWithMultipleParametersWithResponse(String id, String xMsTestHeader,
         String requiredString, List<Integer> requiredIntList, Integer optionalInt, List<String> optionalStringList,
         RequestContext requestContext) {
-        final String contentType = "application/json";
-        SpreadWithMultipleParametersRequest spreadWithMultipleParametersRequest
-            = new SpreadWithMultipleParametersRequest(requiredString, requiredIntList);
-        spreadWithMultipleParametersRequest.setOptionalInt(optionalInt);
-        spreadWithMultipleParametersRequest.setOptionalStringList(optionalStringList);
-        return service.spreadWithMultipleParameters(this.client.getEndpoint(), id, xMsTestHeader, contentType,
-            spreadWithMultipleParametersRequest, requestContext);
+        return this.instrumentation.instrumentWithResponse("Parameters.Spread.Alias.spreadWithMultipleParameters",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                SpreadWithMultipleParametersRequest spreadWithMultipleParametersRequest
+                    = new SpreadWithMultipleParametersRequest(requiredString, requiredIntList);
+                spreadWithMultipleParametersRequest.setOptionalInt(optionalInt);
+                spreadWithMultipleParametersRequest.setOptionalStringList(optionalStringList);
+                return service.spreadWithMultipleParameters(this.client.getEndpoint(), id, xMsTestHeader, contentType,
+                    spreadWithMultipleParametersRequest, updatedContext);
+            });
     }
 
     /**
@@ -215,10 +235,13 @@ public final class AliasImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> spreadParameterWithInnerAliasWithResponse(String id, String xMsTestHeader, String name,
         int age, RequestContext requestContext) {
-        final String contentType = "application/json";
-        SpreadParameterWithInnerAliasRequest spreadParameterWithInnerAliasRequest
-            = new SpreadParameterWithInnerAliasRequest(name, age);
-        return service.spreadParameterWithInnerAlias(this.client.getEndpoint(), id, xMsTestHeader, contentType,
-            spreadParameterWithInnerAliasRequest, requestContext);
+        return this.instrumentation.instrumentWithResponse("Parameters.Spread.Alias.spreadParameterWithInnerAlias",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                SpreadParameterWithInnerAliasRequest spreadParameterWithInnerAliasRequest
+                    = new SpreadParameterWithInnerAliasRequest(name, age);
+                return service.spreadParameterWithInnerAlias(this.client.getEndpoint(), id, xMsTestHeader, contentType,
+                    spreadParameterWithInnerAliasRequest, updatedContext);
+            });
     }
 }

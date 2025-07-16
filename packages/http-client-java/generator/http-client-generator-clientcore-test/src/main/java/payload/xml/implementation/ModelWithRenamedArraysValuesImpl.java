@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import payload.xml.ModelWithRenamedArrays;
 
@@ -31,6 +32,11 @@ public final class ModelWithRenamedArraysValuesImpl {
     private final XmlClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of ModelWithRenamedArraysValuesImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -38,6 +44,7 @@ public final class ModelWithRenamedArraysValuesImpl {
     ModelWithRenamedArraysValuesImpl(XmlClientImpl client) {
         this.service = ModelWithRenamedArraysValuesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -87,8 +94,11 @@ public final class ModelWithRenamedArraysValuesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ModelWithRenamedArrays> getWithResponse(RequestContext requestContext) {
-        final String accept = "application/xml";
-        return service.get(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Payload.Xml.ModelWithRenamedArraysValue.get",
+            requestContext, updatedContext -> {
+                final String accept = "application/xml";
+                return service.get(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -103,7 +113,10 @@ public final class ModelWithRenamedArraysValuesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(ModelWithRenamedArrays input, RequestContext requestContext) {
-        final String contentType = "application/xml";
-        return service.put(this.client.getEndpoint(), contentType, input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Payload.Xml.ModelWithRenamedArraysValue.put",
+            requestContext, updatedContext -> {
+                final String contentType = "application/xml";
+                return service.put(this.client.getEndpoint(), contentType, input, updatedContext);
+            });
     }
 }

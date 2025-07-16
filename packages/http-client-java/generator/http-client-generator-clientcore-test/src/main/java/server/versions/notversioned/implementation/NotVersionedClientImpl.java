@@ -135,7 +135,10 @@ public final class NotVersionedClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withoutApiVersionWithResponse(RequestContext requestContext) {
-        return service.withoutApiVersion(this.getEndpoint(), requestContext);
+        return this.instrumentation.instrumentWithResponse("Server.Versions.NotVersioned.withoutApiVersion",
+            requestContext, updatedContext -> {
+                return service.withoutApiVersion(this.getEndpoint(), updatedContext);
+            });
     }
 
     /**
@@ -150,7 +153,10 @@ public final class NotVersionedClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withQueryApiVersionWithResponse(String apiVersion, RequestContext requestContext) {
-        return service.withQueryApiVersion(this.getEndpoint(), apiVersion, requestContext);
+        return this.instrumentation.instrumentWithResponse("Server.Versions.NotVersioned.withQueryApiVersion",
+            requestContext, updatedContext -> {
+                return service.withQueryApiVersion(this.getEndpoint(), apiVersion, updatedContext);
+            });
     }
 
     /**
@@ -165,6 +171,9 @@ public final class NotVersionedClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withPathApiVersionWithResponse(String apiVersion, RequestContext requestContext) {
-        return service.withPathApiVersion(this.getEndpoint(), apiVersion, requestContext);
+        return this.instrumentation.instrumentWithResponse("Server.Versions.NotVersioned.withPathApiVersion",
+            requestContext, updatedContext -> {
+                return service.withPathApiVersion(this.getEndpoint(), apiVersion, updatedContext);
+            });
     }
 }

@@ -123,7 +123,10 @@ public final class RepeatabilityClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> immediateSuccessWithResponse(RequestContext requestContext) {
-        return service.immediateSuccess(this.getEndpoint(), UUID.randomUUID().toString(),
-            DateTimeRfc1123.toRfc1123String(OffsetDateTime.now()), requestContext);
+        return this.instrumentation.instrumentWithResponse("SpecialHeaders.Repeatability.immediateSuccess",
+            requestContext, updatedContext -> {
+                return service.immediateSuccess(this.getEndpoint(), UUID.randomUUID().toString(),
+                    DateTimeRfc1123.toRfc1123String(OffsetDateTime.now()), updatedContext);
+            });
     }
 }

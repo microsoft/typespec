@@ -12,6 +12,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Objects;
@@ -32,6 +33,11 @@ public final class HeadersImpl {
     private final CollectionFormatClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of HeadersImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -39,6 +45,7 @@ public final class HeadersImpl {
     HeadersImpl(CollectionFormatClientImpl client) {
         this.service = HeadersService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -79,9 +86,12 @@ public final class HeadersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> csvWithResponse(List<String> colors, RequestContext requestContext) {
-        String colorsConverted = colors.stream()
-            .map(paramItemValue -> Objects.toString(paramItemValue, ""))
-            .collect(Collectors.joining(","));
-        return service.csv(this.client.getEndpoint(), colorsConverted, requestContext);
+        return this.instrumentation.instrumentWithResponse("Parameters.CollectionFormat.Header.csv", requestContext,
+            updatedContext -> {
+                String colorsConverted = colors.stream()
+                    .map(paramItemValue -> Objects.toString(paramItemValue, ""))
+                    .collect(Collectors.joining(","));
+                return service.csv(this.client.getEndpoint(), colorsConverted, updatedContext);
+            });
     }
 }
