@@ -240,11 +240,16 @@ async function main() {
               "Emitters to include in the project. Emitters not specified by the template will be ignored. Default emitters are always included.",
             type: "array",
             string: true,
+          })
+          .option("output-dir", {
+            type: "string",
+            describe: "The output path for generated artifacts. It must already exist.",
           }),
       withCliHostAndDiagnostics((host, args) =>
         initAction(host, {
           ...args,
           emitters: args["template-emitters"],
+          outputDir: args["output-dir"],
         }),
       ),
     )
