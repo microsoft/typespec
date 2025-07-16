@@ -2,13 +2,13 @@ import { For } from "@alloy-js/core";
 import { Reference, ValueExpression } from "@alloy-js/typescript";
 import type { IntrinsicType, Model, Scalar, Type } from "@typespec/compiler";
 import type { Typekit } from "@typespec/compiler/typekit";
-import "@typespec/http/experimental/typekit";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportTypescriptDiagnostic } from "../../typescript/lib.js";
 import { efRefkey } from "../utils/refkey.js";
 import { ArrayExpression } from "./array-expression.js";
 import { FunctionType } from "./function-type.js";
 import { InterfaceExpression } from "./interface-declaration.js";
+import { OverridableComponent } from "./overrides/component-overrides.jsx";
 import { RecordExpression } from "./record-expression.js";
 import { UnionExpression } from "./union-expression.js";
 
@@ -25,11 +25,15 @@ export interface TypeExpressionProps {
 
 export function TypeExpression(props: TypeExpressionProps) {
   const { $ } = useTsp();
-  const type = $.httpPart.unpack(props.type);
+  const type = props.type;
   if (!props.noReference && isDeclaration($, type)) {
     // todo: probably need abstraction around deciding what's a declaration in the output
     // (it may not correspond to things which are declarations in TypeSpec?)
-    return <Reference refkey={efRefkey(type)} />;
+    return (
+      <OverridableComponent reference type={type}>
+        <Reference refkey={efRefkey(type)} />
+      </OverridableComponent>
+    );
     //throw new Error("Reference not implemented");
   }
 
@@ -67,11 +71,6 @@ export function TypeExpression(props: TypeExpressionProps) {
       if ($.record.is(type)) {
         const elementType = (type as Model).indexer!.value;
         return <RecordExpression elementType={elementType} />;
-      }
-
-      if ($.httpPart.is(type)) {
-        const partType = $.httpPart.unpack(type);
-        return <TypeExpression type={partType} />;
       }
 
       return <InterfaceExpression type={type} />;

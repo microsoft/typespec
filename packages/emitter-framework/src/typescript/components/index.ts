@@ -7,6 +7,8 @@ export * from "./function-type.js";
 export * from "./interface-declaration.js";
 export * from "./interface-member.js";
 export * from "./interface-method.js";
+export * from "./overrides/component-overrides.js";
+export * from "./overrides/config.js";
 export * from "./static-serializers.js";
 export * from "./type-declaration.js";
 export * from "./type-expression.js";

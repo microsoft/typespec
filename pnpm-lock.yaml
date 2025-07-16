@@ -429,12 +429,6 @@ importers:
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
-      '@typespec/http':
-        specifier: workspace:^
-        version: link:../http
-      '@typespec/rest':
-        specifier: workspace:^
-        version: link:../rest
       concurrently:
         specifier: ^9.1.2
         version: 9.2.0
