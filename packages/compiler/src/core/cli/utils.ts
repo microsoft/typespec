@@ -194,7 +194,11 @@ function color(text: string, color: Colors) {
   return pc[color](text);
 }
 
-export function parseCliArgsArg(args: string[] = []): Record<string, string> {
+/**
+ * Parses the `key=value` pairs from the `--arg` or `--args` CLI option.
+ * @param args The array of args passed to the CLI via --arg/--args.
+ */
+export function parseCliArgsArgOption(args: string[] = []): Record<string, string> {
   const map: Record<string, string> = {};
   for (const arg of args) {
     const optionParts = arg.split("=");
