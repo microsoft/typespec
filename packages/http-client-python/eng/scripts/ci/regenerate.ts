@@ -167,9 +167,15 @@ const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<stri
 };
 
 const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, string>[]> = {
-  "parameters/body-optionality": {
-    "package-name": "parameters-bodyoptionality",
-  },
+  "parameters/body-optionality": [
+    {
+      "package-name": "parameters-bodyoptionality",
+    },
+    {
+      "package-name": "setuppy-parameters-bodyoptionality",
+      "generate-setup-py": "true",
+    }
+  ],
   "parameters/collection-format": {
     "package-name": "parameters-collectionformat",
   },

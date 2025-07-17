@@ -53,10 +53,9 @@ _PACKAGE_FILES = [
     "LICENSE.jinja2",
     "MANIFEST.in.jinja2",
     "README.md.jinja2",
-    "pyproject.toml.jinja2",
 ]
 
-_REGENERATE_FILES = {"MANIFEST.in", "pyproject.toml"}
+_REGENERATE_FILES = {"MANIFEST.in"}
 AsyncInfo = namedtuple("AsyncInfo", ["async_mode", "async_path"])
 
 # extract sub folders. For example, source_file_path is like:
@@ -80,6 +79,15 @@ class JinjaSerializer(ReaderAndWriter):
     ) -> None:
         super().__init__(output_folder=output_folder, **kwargs)
         self.code_model = code_model
+        self._regenerate_setup_py()
+
+    def _regenerate_setup_py(self):
+      if self.code_model.options["generate-setup-py"]:
+        _PACKAGE_FILES.append("setup.py.jinja2")
+        _REGENERATE_FILES.add("setup.py")
+      else:
+        _PACKAGE_FILES.append("pyproject.toml.jinja2")
+        _REGENERATE_FILES.add("pyproject.toml")
 
     @property
     def has_aio_folder(self) -> bool:
@@ -127,7 +135,12 @@ class JinjaSerializer(ReaderAndWriter):
             exec_path = self.exec_path(client_namespace)
             if client_namespace == "":
                 # remove setup.py file
-                self.remove_file(exec_path / Path("setup.py"))
+                if self.code_model.options.get("generate-setup-py"):
+                    # Write the setup file
+                    if self.code_model.options["basic-setup-py"]:
+                        self.write_file(exec_path / Path("setup.py"), general_serializer.serialize_setup_file())
+                else:
+                    self.remove_file(exec_path / Path("setup.py"))
 
                 # add packaging files in root namespace (e.g. setup.py, README.md, etc.)
                 if self.code_model.options.get("package-mode"):

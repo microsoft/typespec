@@ -59,6 +59,7 @@ azure-mgmt-core==1.5.0
 -e ./generated/payload-xml
 -e ./generated/response-statuscoderange
 -e ./generated/routes
+-e ./generated/setuppy-parameters-bodyoptionality
 -e ./generated/serialization-encodedname-json
 -e ./generated/server-endpoint-notdefined
 -e ./generated/server-path-multiple

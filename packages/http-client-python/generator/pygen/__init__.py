@@ -29,6 +29,7 @@ class OptionsDict(MutableMapping):
         "flavor": "azure",  # need to default to azure in shared code so we don't break swagger generation
         "from-typespec": False,
         "generate-sample": False,
+        "generate-setup-py": False,
         "generate-test": False,
         "head-as-boolean": True,
         "keep-version-file": False,

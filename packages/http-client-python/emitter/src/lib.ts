@@ -22,6 +22,7 @@ export interface PythonEmitterOptions {
   "package-pprint-name"?: string;
   "head-as-boolean"?: boolean;
   "use-pyodide"?: boolean;
+  "generate-setup-py"?: boolean;
 }
 
 export interface PythonSdkContext extends SdkContext<PythonEmitterOptions> {
@@ -85,6 +86,12 @@ export const PythonEmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = 
       nullable: true,
       description:
         "Whether to validate the versioning of the package. Defaults to `true`. If set to `false`, we will not validate the versioning of the package.",
+    },
+    "generate-setup-py": {
+      type: "boolean",
+      nullable: true,
+      description:
+        "Whether to generate `setup.py` when generating packaging files. If set to `false` and by default, `pyproject.toml` will be generated instead.",
     },
   },
   required: [],
