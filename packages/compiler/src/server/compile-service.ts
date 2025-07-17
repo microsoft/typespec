@@ -14,7 +14,7 @@ import { builtInLinterLibraryName } from "../core/linter.js";
 import { formatDiagnostic } from "../core/logger/console-sink.js";
 import { CompilerOptions } from "../core/options.js";
 import { parse } from "../core/parser.js";
-import { getBaseFileName, getDirectoryPath, joinPaths } from "../core/path-utils.js";
+import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import { compile as compileProgram, Program } from "../core/program.js";
 import type {
   CompilerHost,
@@ -329,15 +329,6 @@ export function createCompileService({
       return path;
     }
 
-    const entrypoints = clientConfigsProvider?.config?.compile?.entrypoint;
-    if (entrypoints && entrypoints.length > 0) {
-      const fileName = getBaseFileName(path);
-      if (entrypoints.includes(fileName)) {
-        log({ level: "debug", message: `using client provided entrypoint: ${fileName}` });
-        return path;
-      }
-    }
-
     let dir = getDirectoryPath(path);
     const options = { allowFileNotFound: true };
 
@@ -358,6 +349,27 @@ export function createCompileService({
           options,
         );
         await fileSystemCache.setData(pkgPath, pkg ?? {});
+      }
+
+      const entrypoints = clientConfigsProvider?.config?.compile?.entrypoint;
+      if (entrypoints && entrypoints.length > 0) {
+        for (const entrypoint of entrypoints) {
+          const candidate = joinPaths(dir, entrypoint);
+          const stat = await doIO(
+            () => compilerHost.stat(candidate),
+            candidate,
+            logMainFileSearchDiagnostic,
+            options,
+          );
+
+          if (stat?.isFile()) {
+            log({
+              level: "debug",
+              message: `main file found using client provided entrypoint: ${candidate}`,
+            });
+            return candidate;
+          }
+        }
       }
 
       const tspMain = resolveTspMain(pkg);

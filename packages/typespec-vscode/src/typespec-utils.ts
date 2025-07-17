@@ -17,17 +17,18 @@ export async function getEntrypointTspFile(tspPath: string): Promise<string | un
   const configEntrypoints = vscode.workspace
     .getConfiguration()
     .get<string[] | null>(SettingName.CompileEntrypoint);
-  if (configEntrypoints && configEntrypoints.length > 0) {
-    for (const entrypoint of configEntrypoints) {
-      const mainTspFile = path.resolve(baseDir, entrypoint);
-      if (await isFile(mainTspFile)) {
-        logger.debug(`Configuration entrypoint file ${mainTspFile} selected as entrypoint file.`);
-        return mainTspFile;
-      }
-    }
-  }
 
   while (true) {
+    if (configEntrypoints && configEntrypoints.length > 0) {
+      for (const entrypoint of configEntrypoints) {
+        const mainTspFile = path.resolve(baseDir, entrypoint);
+        if (await isFile(mainTspFile)) {
+          logger.debug(`Configuration entrypoint file ${mainTspFile} selected as entrypoint file.`);
+          return mainTspFile;
+        }
+      }
+    }
+
     const pkgPath = path.resolve(baseDir, "package.json");
     if (await isFile(pkgPath)) {
       /* get the tspMain from package.json. */

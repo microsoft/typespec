@@ -115,7 +115,7 @@
           "typespec.compile.entrypoint": {
             "type": "array",
             "default": null,
-            "description": "List of entry points for the TypeSpec compiler.\n\nExample:\n\"typespec.compile.entrypoint\": [\n  \"client.tsp\",\"entrypoint.tsp\",\"main.tsp\"\n]",
+            "description": "List of file names to check as entry points when compiling TypeSpec code. Files are checked in order across the current and parent directories. The first existing file is used; if none are found, `main.tsp` is used by default.\n\nExample:\n\"typespec.compile.entrypoint\": [\n  \"client.tsp\",\"entrypoint.tsp\",\"main.tsp\"\n]",
             "scope": "machine-overridable",
             "items": {
               "type": "string"

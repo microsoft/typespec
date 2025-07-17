@@ -14,6 +14,17 @@ interface Config {
   compile?: EntrypointConfig;
 }
 
+function transformConfig(rawConfig: any): Config {
+  return {
+    lsp: {
+      emit: rawConfig?.lsp?.emit,
+    },
+    compile: {
+      entrypoint: rawConfig?.compile?.entrypoint,
+    },
+  };
+}
+
 /**
  * TypeSpec client-side configuration provider
  * Inspired by VS Code's WorkspaceConfiguration API for extensibility
@@ -38,26 +49,12 @@ export function createClientConfigProvider(): ClientConfigProvider {
       host.log({ level: "debug", message: "VSCode settings loaded", detail: configs });
 
       // Transform the raw configuration to match our Config interface
-      config = {
-        lsp: {
-          emit: configs?.lsp?.emit,
-        },
-        compile: {
-          entrypoint: configs?.compile?.entrypoint,
-        },
-      };
+      config = transformConfig(configs);
 
       connection.onDidChangeConfiguration(async (params) => {
         if (params.settings) {
           const newConfigs = params.settings?.typespec;
-          config = {
-            lsp: {
-              emit: newConfigs?.lsp?.emit,
-            },
-            compile: {
-              entrypoint: configs?.compile?.entrypoint,
-            },
-          };
+          config = transformConfig(newConfigs);
         }
 
         host.log({ level: "debug", message: "Configuration changed", detail: params.settings });
