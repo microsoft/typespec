@@ -357,134 +357,10 @@ namespace Microsoft.TypeSpec.Generator
                 project = await RemoveModelsFromDocumentAsync(project, models);
             }
 
-            // remove what are now invalid usings due to the models being removed
-            project = await RemoveInvalidUsings(project);
-
-            // remove invalid attributes from the MRWContext attributes
-            project = await RemoveInvalidAttributesFromMrwContextAsync(project);
+            // remove what are now invalid references due to the models being removed
+            project = await RemoveInvalidRefs(project);
 
             return project;
-        }
-
-        private async Task<Project> RemoveInvalidAttributesFromMrwContextAsync(Project project)
-        {
-            var compilation = await project.GetCompilationAsync();
-            if (compilation == null)
-                return project;
-
-            foreach (var document in project.Documents)
-            {
-                var root = await document.GetSyntaxRootAsync();
-                if (root == null)
-                    continue;
-
-                var semanticModel = compilation.GetSemanticModel(root.SyntaxTree);
-
-                // Find all class declarations that inherit from ModelReaderWriterContext
-                var mrwContextClasses = root.DescendantNodes()
-                    .OfType<ClassDeclarationSyntax>()
-                    .Where(c => c.BaseList != null &&
-                           c.BaseList.Types.Any(t =>
-                           {
-                               var baseTypeSymbol = semanticModel.GetSymbolInfo(t.Type).Symbol as INamedTypeSymbol;
-                               return baseTypeSymbol?.Name == "ModelReaderWriterContext";
-                           }))
-                    .ToList();
-
-                if (mrwContextClasses.Count == 0)
-                {
-                    continue;
-                }
-
-                // Process each MrwContext class
-                var newRoot = root;
-                foreach (var mrwContextClass in mrwContextClasses)
-                {
-                    // Get all attributes on the class
-                    var attributesToRemove = new List<AttributeSyntax>();
-
-                    foreach (var attributeList in mrwContextClass.AttributeLists)
-                    {
-                        foreach (var attribute in attributeList.Attributes)
-                        {
-                            bool shouldRemove = false;
-
-                            // Check if the attribute has any arguments that reference types
-                            if (attribute.ArgumentList != null)
-                            {
-                                foreach (var arg in attribute.ArgumentList.Arguments)
-                                {
-                                    if (arg.Expression is TypeOfExpressionSyntax typeOfExpr)
-                                    {
-                                        var typeInfo = semanticModel.GetTypeInfo(typeOfExpr.Type);
-                                        // Check if this is an error type (unresolved)
-                                        if (typeInfo.Type?.TypeKind == TypeKind.Error)
-                                        {
-                                            shouldRemove = true;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (shouldRemove)
-                            {
-                                attributesToRemove.Add(attribute);
-                            }
-                        }
-                    }
-
-                    // Remove invalid attributes
-                    if (attributesToRemove.Count > 0)
-                    {
-                        // Find the current version of the class in the newRoot
-                        var currentClass = newRoot.DescendantNodes()
-                            .OfType<ClassDeclarationSyntax>()
-                            .First(c => c.Identifier.Text == mrwContextClass.Identifier.Text);
-
-                        // Create new attribute lists by filtering out the attributes to remove
-                        var newAttributeLists = new List<AttributeListSyntax>();
-                        foreach (var attributeList in currentClass.AttributeLists)
-                        {
-                            var remainingAttributes = attributeList.Attributes
-                                .Where(attr => attributesToRemove.All(toRemove => toRemove.Span != attr.Span))
-                                .ToList();
-
-                            if (remainingAttributes.Count > 0)
-                            {
-                                var newAttributeList = attributeList.WithAttributes(
-                                    SyntaxFactory.SeparatedList(remainingAttributes));
-                                newAttributeLists.Add(newAttributeList);
-                            }
-                        }
-
-                        // Create updated class with new attribute lists
-                        var updatedClass = currentClass.WithAttributeLists(SyntaxFactory.List(newAttributeLists));
-
-                        // Replace in the root
-                        newRoot = newRoot.ReplaceNode(currentClass, updatedClass);
-                    }
-                }
-
-                if (newRoot != root)
-                {
-                    var newDocument = document.WithSyntaxRoot(newRoot);
-                    project = newDocument.Project;
-                }
-            }
-
-            return project;
-        }
-
-        private static string GetTypeNameFromTypeSyntax(TypeSyntax typeSyntax)
-        {
-            return typeSyntax switch
-            {
-                IdentifierNameSyntax identifierName => identifierName.Identifier.Text,
-                QualifiedNameSyntax qualifiedName => GetTypeNameFromTypeSyntax(qualifiedName.Right),
-                GenericNameSyntax genericName => genericName.Identifier.Text,
-                _ => string.Empty
-            };
         }
 
         private static BaseTypeDeclarationSyntax ChangeModifier(BaseTypeDeclarationSyntax memberDeclaration,
@@ -528,39 +404,76 @@ namespace Microsoft.TypeSpec.Generator
             return document.Project;
         }
 
-        private async Task<Project> RemoveInvalidUsings(Project project)
+        private async Task<Project> RemoveInvalidRefs(Project project)
         {
             var solution = project.Solution;
+
+            // Process each document for invalid usings
             foreach (var documentId in project.DocumentIds)
             {
-                var document = solution.GetDocument(documentId)!;
-                var root = await document.GetSyntaxRootAsync();
-                var model = await document.GetSemanticModelAsync();
+                solution = await RemoveInvalidUsings(solution, documentId);
+            }
 
-                if (root is not CompilationUnitSyntax cu || model == null)
-                {
-                    continue;
-                }
-
-                var invalidUsings = cu.Usings
-                    .Where(u =>
-                    {
-                        var info = model.GetSymbolInfo(u.Name!);
-                        var sym  = info.Symbol;
-                        return sym is null || sym.Kind != SymbolKind.Namespace;
-                    })
-                    .ToList();
-
-                if (invalidUsings.Count == 0)
-                {
-                    continue;
-                }
-
-                var cleaned = cu.RemoveNodes(invalidUsings, SyntaxRemoveOptions.KeepNoTrivia);
-                solution = solution.WithDocumentSyntaxRoot(documentId, cleaned!);
+            // Process each document for invalid attributes (with fresh semantic models)
+            foreach (var documentId in project.DocumentIds)
+            {
+                solution = await RemoveInvalidAttributes(solution, documentId);
             }
 
             return solution.GetProject(project.Id)!;
+        }
+
+        private async Task<Solution> RemoveInvalidUsings(Solution solution, DocumentId documentId)
+        {
+            var document = solution.GetDocument(documentId)!;
+            var root = await document.GetSyntaxRootAsync();
+            var model = await document.GetSemanticModelAsync();
+
+            if (root is not CompilationUnitSyntax cu || model == null)
+                return solution;
+
+            var invalidUsings = cu.Usings
+                .Where(u =>
+                {
+                    var info = model.GetSymbolInfo(u.Name!);
+                    var sym = info.Symbol;
+                    return sym is null || sym.Kind != SymbolKind.Namespace;
+                })
+                .ToList();
+
+            if (invalidUsings.Count > 0)
+            {
+                cu = cu.RemoveNodes(invalidUsings, SyntaxRemoveOptions.KeepNoTrivia)!;
+                solution = solution.WithDocumentSyntaxRoot(documentId, cu);
+            }
+
+            return solution;
+        }
+
+        private async Task<Solution> RemoveInvalidAttributes(Solution solution, DocumentId documentId)
+        {
+            var document = solution.GetDocument(documentId)!;
+            var root = await document.GetSyntaxRootAsync();
+            var model = await document.GetSemanticModelAsync();
+
+            if (root is not CompilationUnitSyntax cu || model == null)
+                return solution;
+
+            var invalidAttributes = cu.DescendantNodes()
+                .OfType<AttributeListSyntax>()
+                .Where(attr => attr.Attributes.Any(attribute =>
+                    attribute.ArgumentList?.Arguments.Any(arg =>
+                        arg.Expression is TypeOfExpressionSyntax typeOfExpr &&
+                        model.GetTypeInfo(typeOfExpr.Type).Type?.TypeKind == TypeKind.Error) == true))
+                .ToList();
+
+            if (invalidAttributes.Count > 0)
+            {
+                cu = cu.RemoveNodes(invalidAttributes, SyntaxRemoveOptions.KeepNoTrivia)!;
+                solution = solution.WithDocumentSyntaxRoot(documentId, cu);
+            }
+
+            return solution;
         }
 
         private async Task<HashSet<INamedTypeSymbol>> GetRootSymbolsAsync(Project project, TypeSymbols modelSymbols)
