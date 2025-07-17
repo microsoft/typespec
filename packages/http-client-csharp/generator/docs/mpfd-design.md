@@ -3,7 +3,7 @@
 ## Table of Contents
 
 1. [Motivation](#motivation)
-2. [System ClientModel & Azure.Core Updates](#system-clientmodel-and-azurecore-updates)
+2. [System ClientModel & Azure.Core Updates](#systemclientmodel-updates)
 3. [Usage Examples](#usage-examples)
 
 ## Motivation
@@ -56,73 +56,28 @@ but with the intention to provide support for both unbranded and azure branded l
 
 - Provide discoverable convenience methods & APIs that simplify creating and sending multipart/form-data requests.
 
-## System ClientModel and Azure.Core Updates
+## System.ClientModel Updates
 
-The BinaryContent & RequestContent classes are being extended with multipart/form-data capabilities to provide a streamlined API for building requests for clients that need to send multipart payloads. These additions eliminate the need for manual boundary management and complex multipart construction while maintaining full control over content types and part metadata.
+A new type can be added to facilitate building multipart/form-data requests and provide a streamlined API for clients that need to send multipart payloads. This type eliminates the need for manual boundary management and complex multipart construction while maintaining full control over content types and part metadata.
 
 ### System.ClientModel
 
 ```c#
-public abstract partial class BinaryContent : System.IDisposable
+public partial class MultiPartFormDataBinaryContent : System.ClientModel.BinaryContent
 {
-    // Add ContentType property
-    public virtual string? ContentType { get { throw null; } set { } }
-
-    // Add APIs for creating MPFD parts and payload.
-    public static System.ClientModel.BinaryContent CreateMultipartFormDataContent(System.Collections.Generic.IEnumerable<System.ClientModel.BinaryContent> parts) { throw null; }
-    public static System.ClientModel.BinaryContent CreateMultipartFormDataContent(string boundary, System.Collections.Generic.IEnumerable<System.ClientModel.BinaryContent> parts) { throw null; }
-    public static System.ClientModel.BinaryContent CreateMultipartFormDataPart(string name, System.BinaryData content) { throw null; }
-    public static System.ClientModel.BinaryContent CreateMultipartFormDataPart(string name, bool content) { throw null; }
-    public static System.ClientModel.BinaryContent CreateMultipartFormDataPart(string name, byte[] content) { throw null; }
-    public static System.ClientModel.BinaryContent CreateMultipartFormDataPart(string name, System.ClientModel.FileBinaryContent content) { throw null; }
-    public static System.ClientModel.BinaryContent CreateMultipartFormDataPart(string name, decimal content) { throw null; }
-    public static System.ClientModel.BinaryContent CreateMultipartFormDataPart(string name, double content) { throw null; }
-    public static System.ClientModel.BinaryContent CreateMultipartFormDataPart(string name, int content) { throw null; }
-    public static System.ClientModel.BinaryContent CreateMultipartFormDataPart(string name, long content) { throw null; }
-    public static System.ClientModel.BinaryContent CreateMultipartFormDataPart(string name, float content) { throw null; }
-    public static System.ClientModel.BinaryContent CreateMultipartFormDataPart(string name, string content) { throw null; }
-    public static System.ClientModel.BinaryContent CreateMultipartFormDataPart<T>(string name, T model, System.ClientModel.Primitives.ModelReaderWriterOptions? options = null) where T : System.ClientModel.Primitives.IPersistableModel<T> { throw null; }
-}
-```
-
-### Azure.Core
-
-```c#
-public abstract partial class RequestContent : System.IDisposable
-{
-    // Add ContentType property
-    public virtual string? ContentType { get { throw null; } set { } }
-
-    // Add APIs for creating MPFD parts and payload.
-    public static Azure.Core.RequestContent CreateMultipartFormDataContent(System.Collections.Generic.IEnumerable<Azure.Core.RequestContent> parts) { throw null; }
-    public static Azure.Core.RequestContent CreateMultipartFormDataContent(string boundary, System.Collections.Generic.IEnumerable<Azure.Core.RequestContent> parts) { throw null; }
-    public static Azure.Core.RequestContent CreateMultipartFormDataPart(string name, Azure.Core.FileRequestContent content) { throw null; }
-    public static Azure.Core.RequestContent CreateMultipartFormDataPart(string name, System.BinaryData content) { throw null; }
-    public static Azure.Core.RequestContent CreateMultipartFormDataPart(string name, bool content) { throw null; }
-    public static Azure.Core.RequestContent CreateMultipartFormDataPart(string name, byte[] content) { throw null; }
-    public static Azure.Core.RequestContent CreateMultipartFormDataPart(string name, decimal content) { throw null; }
-    public static Azure.Core.RequestContent CreateMultipartFormDataPart(string name, double content) { throw null; }
-    public static Azure.Core.RequestContent CreateMultipartFormDataPart(string name, int content) { throw null; }
-    public static Azure.Core.RequestContent CreateMultipartFormDataPart(string name, long content) { throw null; }
-    public static Azure.Core.RequestContent CreateMultipartFormDataPart(string name, float content) { throw null; }
-    public static Azure.Core.RequestContent CreateMultipartFormDataPart(string name, string content) { throw null; }
-}
-```
-
-### File Part Type
-
-To support generating a convenience layer for file parts described in a TypeSpec request, new convenience model type can be added to the System.ClientModel & Azure.Core libraries, to be consumed by generated clients. This new type can serve as the common type for file parts within a request.
-
-#### System.ClientModel
-
-```csharp
-public sealed partial class FileBinaryContent : System.ClientModel.BinaryContent
-{
-    public FileBinaryContent(System.BinaryData data) { }
-    public FileBinaryContent(System.IO.Stream stream) { }
-    public FileBinaryContent(string path) { }
-    public override string? ContentType { get { throw null; } set { } }
-    public string? Filename { get { throw null; } set { } }
+    public MultiPartFormDataBinaryContent() { }
+    public MultiPartFormDataBinaryContent(string boundary) { }
+    public void Add(string name, System.BinaryData content, string? mediaType = null) { }
+    public void Add(string name, bool content, string? mediaType = null) { }
+    public void Add(string name, byte[] content, string? mediaType = null) { }
+    public void Add(string name, System.ClientModel.FileBinaryContent fileContent) { }
+    public void Add(string name, decimal content, string? mediaType = null) { }
+    public void Add(string name, double content, string? mediaType = null) { }
+    public void Add(string name, int content, string? mediaType = null) { }
+    public void Add(string name, long content, string? mediaType = null) { }
+    public void Add(string name, float content, string? mediaType = null) { }
+    public void Add(string name, string content, string? mediaType = null) { }
+    public void Add<T>(string name, System.ClientModel.Primitives.IPersistableModel<T> model, System.ClientModel.Primitives.ModelReaderWriterOptions? options = null, System.ClientModel.Primitives.ModelReaderWriterContext? context = null, string? mediaType = null) { }
     public override void Dispose() { }
     public override bool TryComputeLength(out long length) { throw null; }
     public override void WriteTo(System.IO.Stream stream, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) { }
@@ -130,16 +85,18 @@ public sealed partial class FileBinaryContent : System.ClientModel.BinaryContent
 }
 ```
 
-#### Azure.Core
+### File Part Type
 
+To support generating a convenience layer for file parts in multipart/form-data requests, a new type can be added to the System.ClientModel library for use by generated clients. This type serves as the common representation for file parts within multipart requests.
+
+#### System.ClientModel
 
 ```csharp
-public sealed partial class FileRequestContent : Azure.Core.RequestContent
+public partial class FileBinaryContent : System.ClientModel.BinaryContent
 {
-    public FileRequestContent(System.BinaryData data) { }
-    public FileRequestContent(System.IO.Stream stream) { }
-    public FileRequestContent(string path) { }
-    public override string? ContentType { get { throw null; } set { } }
+    public FileBinaryContent(System.BinaryData data, string? mediaType = null) { }
+    public FileBinaryContent(System.IO.Stream stream, string? mediaType = null) { }
+    public FileBinaryContent(string path, string? mediaType = null) { }
     public string? Filename { get { throw null; } set { } }
     public override void Dispose() { }
     public override bool TryComputeLength(out long length) { throw null; }
@@ -203,16 +160,16 @@ public virtual async Task<ClientResult> UploadDogAsync(Dog body, CancellationTok
 {
     Argument.AssertNotNull(body, nameof(body));
 
-    using BinaryContent content = body.ToMultipartContent();
-    return await UploadDogAsync(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+    using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+    return await UploadDogAsync(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
 }
 
 public virtual ClientResult UploadDog(Dog body, CancellationToken cancellationToken = default)
 {
     Argument.AssertNotNull(body, nameof(body));
 
-    using BinaryContent content = body.ToMultipartContent();
-    return UploadDog(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+    using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+    return UploadDog(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
 }
 ```
 
@@ -271,62 +228,23 @@ public partial class Dog
 <summary>Dog.Serialization.cs</summary>
 
 ```c#
-public partial class Dog : IPersistableModel<Dog>
+public partial class Dog
 {
     internal Dog()
     {
     }
 
-    private string _boundary;
-
-    BinaryData IPersistableModel<Dog>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-    protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+    public partial class Dog
     {
-        string format = options.Format == "W" ? ((IPersistableModel<Dog>)this).GetFormatFromOptions(options) : options.Format;
-        switch (format)
+
+        internal MultiPartFormDataBinaryContent ToMultipartContent()
         {
-            case "MPFD":
-                return SerializeMultipart();
-            default:
-                throw new FormatException($"The model {nameof(Dog)} does not support writing '{options.Format}' format.");
+            MultiPartFormDataBinaryContent content = new();
+            content.Add("id", Id);
+            content.Add("profileImage", ProfileImage);
+            
+            return content;
         }
-    }
-
-    Dog IPersistableModel<Dog>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-
-    protected virtual Dog PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
-    {
-        string format = options.Format == "W" ? ((IPersistableModel<Dog>)this).GetFormatFromOptions(options) : options.Format;
-        switch (format)
-        {
-            default:
-                throw new FormatException($"The model {nameof(Dog)} does not support reading '{options.Format}' format.");
-        }
-    }
-
-    string IPersistableModel<Dog>.GetFormatFromOptions(ModelReaderWriterOptions options) => "MPFD";
-
-    internal BinaryContent ToMultipartContent()
-    {
-        List<BinaryContent> parts = [];
-        parts.Add(BinaryContent.CreateMultipartFormDataPart("id", Id));
-        parts.Add(BinaryContent.CreateMultipartFormDataPart("profileImage", ProfileImage));
-
-        return BinaryContent.CreateMultipartFormDataContent(parts);
-    }
-
-    private BinaryData SerializeMultipart()
-    {
-        using MemoryStream stream = new MemoryStream();
-        using BinaryContent content = ToMultipartContent();
-
-        content.WriteTo(stream);
-        if (stream.CanSeek)
-        {
-            stream.Seek(0, SeekOrigin.Begin);
-        }
-        return BinaryData.FromStream(stream);
     }
 }
 
@@ -352,12 +270,11 @@ ClientResult response = await client.UploadDogAsync(dog);
 ```csharp
  PetStoreClient client = new PetStoreClient();
 
- List<BinaryContent> parts = [];
- parts.Add(BinaryContent.CreateMultipartFormDataPart("id", "123"));
- parts.Add(BinaryContent.CreateMultipartFormDataPart("profileImage", new FileBinaryContent("C:\\myDog.jpg")));
+ using MultiPartFormDataBinaryContent content = new();
+ content.Add("id", "123");
+ content.Add("profileImage", new FileBinaryContent("C:\\myDog.jpg"));
 
- using BinaryContent content = BinaryContent.CreateMultipartFormDataContent(parts);
- ClientResult response = await client.UploadDogAsync(content, content.ContentType);
+ ClientResult response = await client.UploadDogAsync(content, content.MediaType);
 ```
 
 </details>
@@ -417,16 +334,16 @@ public virtual ClientResult UploadCat(Cat body, CancellationToken cancellationTo
 {
     Argument.AssertNotNull(body, nameof(body));
 
-    using BinaryContent content = body.ToMultipartContent();
-    return UploadCat(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+    using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+    return UploadCat(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
 }
 
 public virtual async Task<ClientResult> UploadCatAsync(Cat body, CancellationToken cancellationToken = default)
 {
     Argument.AssertNotNull(body, nameof(body));
 
-    using BinaryContent content = body.ToMultipartContent();
-    return await UploadCatAsync(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+    using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+    return await UploadCatAsync(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
 }
 ```
 
@@ -445,9 +362,8 @@ public partial class Cat
         Argument.AssertNotNullOrEmpty(contentType, nameof(contentType));
         Argument.AssertNotNullOrEmpty(profileImagePath, nameof(profileImagePath));
 
-        ProfileImage = new(profileImagePath)
+        ProfileImage = new(profileImagePath, contentType)
         {
-            ContentType = contentType,
             Filename = filename,
         };
 
@@ -459,9 +375,8 @@ public partial class Cat
         Argument.AssertNotNullOrEmpty(contentType, nameof(contentType));
         Argument.AssertNotNull(profileImage, nameof(profileImage));
 
-        ProfileImage = new(profileImage)
+        ProfileImage = new(profileImage, contentType)
         {
-            ContentType = contentType,
             Filename = filename,
         };
     }
@@ -473,9 +388,8 @@ public partial class Cat
         Argument.AssertNotNullOrEmpty(contentType, nameof(contentType));
         Argument.AssertNotNull(profileImage, nameof(profileImage));
 
-        ProfileImage = new(profileImage)
+        ProfileImage = new(profileImage, contentType)
         {
-            ContentType = contentType,
             Filename = filename,
         };
     }
@@ -491,59 +405,19 @@ public partial class Cat
 <summary>Cat.Serialization.cs</summary>
 
 ```c#
-public partial class Cat : IPersistableModel<Cat>
+public partial class Cat
 {
     internal Cat()
     {
     }
 
-    BinaryData IPersistableModel<Cat>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-    protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+    internal MultiPartFormDataBinaryContent ToMultipartContent()
     {
-        string format = options.Format == "W" ? ((IPersistableModel<Cat>)this).GetFormatFromOptions(options) : options.Format;
-        switch (format)
-        {
-            case "MPFD":
-                return SerializeMultipart();
-            default:
-                throw new FormatException($"The model {nameof(Cat)} does not support writing '{options.Format}' format.");
-        }
-    }
+        MultiPartFormDataBinaryContent content = new();
+        content.Add("id", Id);
+        content.Add("profileImage", ProfileImage);
 
-    Cat IPersistableModel<Cat>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-    protected virtual Cat PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
-    {
-        string format = options.Format == "W" ? ((IPersistableModel<Cat>)this).GetFormatFromOptions(options) : options.Format;
-        switch (format)
-        {
-            default:
-                throw new FormatException($"The model {nameof(Cat)} does not support reading '{options.Format}' format.");
-        }
-    }
-
-    string IPersistableModel<Cat>.GetFormatFromOptions(ModelReaderWriterOptions options) => "MPFD";
-
-    internal BinaryContent ToMultipartContent()
-    {
-        List<BinaryContent> parts = [];
-        parts.Add(BinaryContent.CreateMultipartFormDataPart("id", Id));
-        parts.Add(BinaryContent.CreateMultipartFormDataPart("profileImage", ProfileImage));
-
-        return BinaryContent.CreateMultipartFormDataContent(parts);
-    }
-
-    private BinaryData SerializeMultipart()
-    {
-        using MemoryStream stream = new MemoryStream();
-        using BinaryContent content = ToMultipartContent();
-
-        content.WriteTo(stream);
-        if (stream.CanSeek)
-        {
-            stream.Seek(0, SeekOrigin.Begin);
-        }
-        return BinaryData.FromStream(stream);
+        return content;
     }
 }
 ```
@@ -568,18 +442,15 @@ public partial class Cat : IPersistableModel<Cat>
 ```csharp
  PetStoreClient client = new PetStoreClient();
 
- List<BinaryContent> parts = [];
- parts.Add(BinaryContent.CreateMultipartFormDataPart("id", "123"));
- parts.Add(BinaryContent.CreateMultipartFormDataPart(
-     "profileImage",
-     new FileBinaryContent("C:\\myCat.jpg")
+ using MultiPartFormDataBinaryContent content = new();
+ content.Add("id", "123");
+ content.Add("profileImage",
+     new FileBinaryContent("C:\\myCat.jpg", "image/jpeg")
      {
-         ContentType = "image/jpeg",
          Filename = "myCat.jpg"
-     }));
+     });
 
- using BinaryContent content = BinaryContent.CreateMultipartFormDataContent(parts);
- ClientResult response = await client.UploadCatAsync(content, content.ContentType);
+ ClientResult response = await client.UploadCatAsync(content, content.MediaType);
 ```
 
 </details>
@@ -640,16 +511,16 @@ public virtual ClientResult UploadPetDetails(PetDetails body, CancellationToken 
 {
     Argument.AssertNotNull(body, nameof(body));
 
-    using BinaryContent content = body.ToMultipartContent();
-    return UploadPetDetails(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+    using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+    return UploadPetDetails(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
 }
 
 public virtual async Task<ClientResult> UploadPetDetailsAsync(PetDetails body, CancellationToken cancellationToken = default)
 {
     Argument.AssertNotNull(body, nameof(body));
 
-    using BinaryContent content = body.ToMultipartContent();
-    return await UploadPetDetailsAsync(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+    using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+    return await UploadPetDetailsAsync(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
 }
 ```
 
@@ -754,63 +625,22 @@ public partial class PetDetails
 <summary>PetDetails.Serialization.cs</summary>
 
 ```c#
-public partial class PetDetails : IPersistableModel<PetDetails>
+public partial class PetDetails
 {
     internal PetDetails()
     {
     }
 
-    BinaryData IPersistableModel<PetDetails>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-    protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+    internal MultiPartFormDataBinaryContent ToMultipartContent()
     {
-        string format = options.Format == "W" ? ((IPersistableModel<PetDetails>)this).GetFormatFromOptions(options) : options.Format;
-        switch (format)
-        {
-            case "MPFD":
-                return SerializeMultipart();
-            default:
-                throw new FormatException($"The model {nameof(PetDetails)} does not support writing '{options.Format}' format.");
-        }
-    }
+        MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
+        content.Add("id", Id);
+        content.Add("ownerName", OwnerName);
+        content.Add("petName", PetName);
+        content.Add("address", Address, ModelSerializationExtensions.WireOptions, new PetStoreContext());
+        content.Add("profileImage", ProfileImage);
 
-
-    PetDetails IPersistableModel<PetDetails>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-    protected virtual PetDetails PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
-    {
-        string format = options.Format == "W" ? ((IPersistableModel<PetDetails>)this).GetFormatFromOptions(options) : options.Format;
-        switch (format)
-        {
-            default:
-                throw new FormatException($"The model {nameof(PetDetails)} does not support reading '{options.Format}' format.");
-        }
-    }
-
-    string IPersistableModel<PetDetails>.GetFormatFromOptions(ModelReaderWriterOptions options) => "MPFD";
-
-    internal BinaryContent ToMultipartContent()
-    {
-        List<BinaryContent> parts = [];
-        parts.Add(BinaryContent.CreateMultipartFormDataPart("id", Id));
-        parts.Add(BinaryContent.CreateMultipartFormDataPart("ownerName", OwnerName));
-        parts.Add(BinaryContent.CreateMultipartFormDataPart("petName", PetName));
-        parts.Add(BinaryContent.CreateMultipartFormDataPart("address", Address));
-        parts.Add(BinaryContent.CreateMultipartFormDataPart("profileImage", ProfileImage));
-
-        return BinaryContent.CreateMultipartFormDataContent(parts);
-    }
-
-    private BinaryData SerializeMultipart()
-    {
-        using MemoryStream stream = new MemoryStream();
-        using BinaryContent content = ToMultipartContent();
-
-        content.WriteTo(stream);
-        if (stream.CanSeek)
-        {
-            stream.Seek(0, SeekOrigin.Begin);
-        }
-        return BinaryData.FromStream(stream);
+        return content;
     }
 }
 ```
@@ -841,15 +671,14 @@ var response = await client.UploadPetDetailsAsync(petDetails);
 ```csharp
  PetStoreClient client = new PetStoreClient();
 
- List<BinaryContent> parts = [];
- parts.Add(BinaryContent.CreateMultipartFormDataPart("id", "123"));
- parts.Add(BinaryContent.CreateMultipartFormDataPart("ownerName", "John Doe"));
- parts.Add(BinaryContent.CreateMultipartFormDataPart("petName", "Winston"));
- parts.Add(BinaryContent.CreateMultipartFormDataPart("address", new Address("123 Main St.")));
- parts.Add(BinaryContent.CreateMultipartFormDataPart("profileImage", new FileBinaryContent("C:\\winston.jpg")));
+using MultiPartFormDataBinaryContent content = new();
+content.Add("id", "123");
+content.Add("ownerName", "John Doe");
+content.Add("petName", "Winston");
+content.Add("address", new Address("123 Main St."));
+content.Add("profileImage", new FileBinaryContent("C:\\winston.jpg"));
 
- using BinaryContent content = BinaryContent.CreateMultipartFormDataContent(parts);
- var response = await client.UploadPetDetailsAsync(content, content.ContentType);
+var response = await client.UploadPetDetailsAsync(content, content.MediaType);
 ```
 
 </details>
