@@ -2290,80 +2290,81 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
     }
 
-    // Is this a definition or reference?
-    let parameters: Model, returnType: Type, sourceOperation: Operation | undefined;
-    if (node.signature.kind === SyntaxKind.OperationSignatureReference) {
-      // Attempt to resolve the operation
-      const baseOperation = checkOperationIs(node, node.signature.baseOperation, mapper);
-      if (baseOperation) {
-        sourceOperation = baseOperation;
-        // Reference the same return type and create the parameters type
-        const clone = initializeClone(baseOperation.parameters, {
-          properties: createRekeyableMap(),
-        });
-
-        clone.properties = createRekeyableMap(
-          Array.from(baseOperation.parameters.properties.entries()).map(([key, prop]) => [
-            key,
-            cloneTypeForSymbol(getMemberSymbol(parameterModelSym!, prop.name)!, prop, {
-              model: clone,
-              sourceProperty: prop,
-            }),
-          ]),
-        );
-        parameters = finishType(clone);
-        returnType = baseOperation.returnType;
-
-        // Copy decorators from the base operation, inserting the base decorators first
-        decorators = [...baseOperation.decorators];
-      } else {
-        // If we can't resolve the signature we return an empty model.
-        parameters = createAndFinishType({
-          kind: "Model",
-          name: "",
-          decorators: [],
-          properties: createRekeyableMap(),
-          derivedModels: [],
-          sourceModels: [],
-        });
-        returnType = voidType;
-      }
-    } else {
-      parameters = getTypeForNode(node.signature.parameters, mapper) as Model;
-      returnType = getTypeForNode(node.signature.returnType, mapper);
-    }
-
     const operationType: Operation = createType({
       kind: "Operation",
       name,
       namespace,
+      parameters: null as any,
+      returnType: voidType,
       node,
-      parameters,
-      returnType,
       decorators,
-      sourceOperation,
       interface: parentInterface,
     });
+
+    const parent = node.parent!;
+
+    function finishOperation() {
+      operationType.parameters.namespace = namespace;
+
+      decorators.push(...checkDecorators(operationType, node, mapper));
+      const runDecorators =
+        parent.kind === SyntaxKind.InterfaceStatement
+          ? shouldRunDecorators(parent, mapper) && shouldRunDecorators(node, mapper)
+          : shouldRunDecorators(node, mapper);
+
+      return finishType(operationType, { skipDecorators: !runDecorators });
+    }
+    // Is this a definition or reference?
+    if (node.signature.kind === SyntaxKind.OperationSignatureReference) {
+      // Attempt to resolve the operation
+      const baseOperation = checkOperationIs(node, node.signature.baseOperation, mapper);
+      if (baseOperation) {
+        ensureResolved([baseOperation], () => {
+          operationType.sourceOperation = baseOperation;
+          // Reference the same return type and create the parameters type
+          const clone = initializeClone(baseOperation.parameters, {
+            properties: createRekeyableMap(),
+          });
+
+          clone.properties = createRekeyableMap(
+            Array.from(baseOperation.parameters.properties.entries()).map(([key, prop]) => [
+              key,
+              cloneTypeForSymbol(getMemberSymbol(parameterModelSym!, prop.name)!, prop, {
+                model: clone,
+                sourceProperty: prop,
+              }),
+            ]),
+          );
+          operationType.parameters = finishType(clone);
+          operationType.returnType = baseOperation.returnType;
+
+          // Copy decorators from the base operation, inserting the base decorators first
+          operationType.decorators = [...baseOperation.decorators];
+          finishOperation();
+        });
+      } else {
+        // If we can't resolve the signature we return an empty model.
+        operationType.parameters = initModel();
+        operationType.returnType = voidType;
+        finishOperation();
+      }
+    } else {
+      operationType.parameters = getTypeForNode(node.signature.parameters, mapper) as Model;
+      operationType.returnType = getTypeForNode(node.signature.returnType, mapper);
+      ensureResolved([operationType.parameters], () => {
+        finishOperation();
+      });
+    }
     if (links) {
       linkType(links, operationType, mapper);
     }
 
-    decorators.push(...checkDecorators(operationType, node, mapper));
-
-    operationType.parameters.namespace = namespace;
-
-    const parent = node.parent!;
     linkMapper(operationType, mapper);
     if (parent.kind !== SyntaxKind.InterfaceStatement && mapper === undefined) {
       namespace?.operations.set(name, operationType);
     }
 
-    const runDecorators =
-      parent.kind === SyntaxKind.InterfaceStatement
-        ? shouldRunDecorators(parent, mapper) && shouldRunDecorators(node, mapper)
-        : shouldRunDecorators(node, mapper);
-
-    return finishType(operationType, { skipDecorators: !runDecorators });
+    return operationType;
   }
 
   function checkOperationIs(
@@ -5814,12 +5815,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   /** Initialize model type for the given node */
-  function initModel(node: ModelStatementNode | ModelExpressionNode | IntersectionExpressionNode) {
+  function initModel(node?: ModelStatementNode | ModelExpressionNode | IntersectionExpressionNode) {
     return createType({
       kind: "Model",
       node,
       name: "",
-      namespace: getParentNamespaceType(node),
+      namespace: node && getParentNamespaceType(node),
       properties: createRekeyableMap<string, ModelProperty>(),
       decorators: [],
       derivedModels: [],
