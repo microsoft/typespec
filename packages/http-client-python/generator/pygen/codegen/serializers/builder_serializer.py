@@ -1068,10 +1068,10 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     if self.code_model.options["models-mode"] == "dpg":
                         if xml_serializable(str(e.default_content_type)):
                             retval.append(
-                                f"        error = _failsafe_deserialize_xml({type_annotation},  response.text())"
+                                f"        error = _failsafe_deserialize_xml({type_annotation},  response)"
                             )
                         else:
-                            retval.append(f"        error = _failsafe_deserialize({type_annotation},  response.json())")
+                            retval.append(f"        error = _failsafe_deserialize({type_annotation},  response)")
                     else:
                         retval.append(
                             f"        error = self._deserialize.failsafe_deserialize({type_annotation}, "
