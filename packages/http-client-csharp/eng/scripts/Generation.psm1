@@ -18,7 +18,7 @@ function Invoke($command, $executePath=$packageRoot)
         Pop-Location
     }
 
-    if ($LastExitCode -ne 0)
+    if($LastExitCode -ne 0)
     {
         Write-Error "Command failed to execute: $command"
     }
