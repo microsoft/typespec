@@ -1,5 +1,23 @@
 # Changelog - @typespec/emitter-framework
 
+## 0.9.0
+
+### Features
+
+- [#7566](https://github.com/microsoft/typespec/pull/7566) Add csharp support: class, enum
+- [#7815](https://github.com/microsoft/typespec/pull/7815) Migrate the scenario tester to use the new tester framework(Remove explicit relation with http/rest libraries in scenario framework)
+- [#7655](https://github.com/microsoft/typespec/pull/7655) [C#] Add support for JsonPropertyName attributes on properties
+- [#7655](https://github.com/microsoft/typespec/pull/7655) [C#] Add support for nullable properties
+
+### Bump dependencies
+
+- [#7655](https://github.com/microsoft/typespec/pull/7655) Upgrade to alloy 0.18.0
+
+### Bug Fixes
+
+- [#7650](https://github.com/microsoft/typespec/pull/7650) Adds subpath export for csharp emitter-framework components
+
+
 ## 0.8.0
 
 ### Features

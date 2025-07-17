@@ -1,5 +1,21 @@
 # Change Log - @typespec/html-program-viewer
 
+## 0.72.0
+
+### Features
+
+- [#7620](https://github.com/microsoft/typespec/pull/7620) Render `indexer` property on model
+- [#7836](https://github.com/microsoft/typespec/pull/7836) Expose program viewer navigation in TypGraph props
+
+### Bump dependencies
+
+- [#7674](https://github.com/microsoft/typespec/pull/7674) Upgrade dependencies
+
+### Bug Fixes
+
+- [#7834](https://github.com/microsoft/typespec/pull/7834) Fix type state not showing in program viewer
+
+
 ## 0.71.0
 
 ### Bump dependencies

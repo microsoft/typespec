@@ -1,5 +1,16 @@
 # Change Log - @typespec/http
 
+## 1.2.0
+
+### Bump dependencies
+
+- [#7674](https://github.com/microsoft/typespec/pull/7674) Upgrade dependencies
+
+### Bug Fixes
+
+- [#7849](https://github.com/microsoft/typespec/pull/7849) Fix optional path parameter with explicit name would have the wrong style(`path` instead of `simple`).
+
+
 ## 1.1.0
 
 No changes, version bump only.
