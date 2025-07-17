@@ -85,5 +85,6 @@ export async function findFilesFromPattern(directory: string, pattern: string): 
   return globby(pattern, {
     cwd: directory,
     onlyFiles: true,
+    ignore: ["**/*.test.ts", "**/*.test.tsx"],
   });
 }
