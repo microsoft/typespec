@@ -3,7 +3,6 @@ package type.property.nullable.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -14,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import type.property.nullable.CollectionsStringProperty;
 
@@ -32,20 +32,26 @@ public final class CollectionsStringsImpl {
     private final NullableClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of CollectionsStringsImpl.
      * 
      * @param client the instance of the service client containing this operation class.
      */
     CollectionsStringsImpl(NullableClientImpl client) {
-        this.service = RestProxy.create(CollectionsStringsService.class, client.getHttpPipeline());
+        this.service = CollectionsStringsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
      * The interface defining all the services for NullableClientCollectionsStrings to be used by the proxy service to
      * perform REST calls.
      */
-    @ServiceInterface(name = "NullableClientCollec", host = "{endpoint}")
+    @ServiceInterface(name = "NullableClientCollectionsStrings", host = "{endpoint}")
     public interface CollectionsStringsService {
         static CollectionsStringsService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -105,20 +111,11 @@ public final class CollectionsStringsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<CollectionsStringProperty> getNonNullWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getNonNull(this.client.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * Get models that will return all properties in the model.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return models that will return all properties in the model.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public CollectionsStringProperty getNonNull() {
-        return getNonNullWithResponse(RequestContext.none()).getValue();
+        return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.CollectionsString.getNonNull",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getNonNull(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -132,20 +129,11 @@ public final class CollectionsStringsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<CollectionsStringProperty> getNullWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getNull(this.client.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * Get models that will return the default object.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return models that will return the default object.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public CollectionsStringProperty getNull() {
-        return getNullWithResponse(RequestContext.none()).getValue();
+        return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.CollectionsString.getNull",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getNull(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -160,21 +148,11 @@ public final class CollectionsStringsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> patchNonNullWithResponse(CollectionsStringProperty body, RequestContext requestContext) {
-        final String contentType = "application/merge-patch+json";
-        return service.patchNonNull(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * Put a body with all properties present.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void patchNonNull(CollectionsStringProperty body) {
-        patchNonNullWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.CollectionsString.patchNonNull",
+            requestContext, updatedContext -> {
+                final String contentType = "application/merge-patch+json";
+                return service.patchNonNull(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -189,20 +167,10 @@ public final class CollectionsStringsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> patchNullWithResponse(CollectionsStringProperty body, RequestContext requestContext) {
-        final String contentType = "application/merge-patch+json";
-        return service.patchNull(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * Put a body with default properties.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void patchNull(CollectionsStringProperty body) {
-        patchNullWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.CollectionsString.patchNull",
+            requestContext, updatedContext -> {
+                final String contentType = "application/merge-patch+json";
+                return service.patchNull(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 }

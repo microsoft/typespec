@@ -57,7 +57,7 @@ public final class ExtendsModelsImpl {
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "AdditionalProperties")
+    @ServiceInterface(name = "AdditionalPropertiesClientExtendsModels")
     public interface ExtendsModelsService {
         @Get("/type/property/additionalProperties/extendsRecordModel")
         @ExpectedResponses({ 200 })

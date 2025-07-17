@@ -66,13 +66,22 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             {
                 builder.PackageReferences.Add(packages);
             }
+            foreach (var compileInclude in CompileIncludes)
+            {
+                builder.CompileIncludes.Add(compileInclude);
+            }
 
             return builder.Write();
         }
 
+        private IReadOnlyList<CSharpProjectCompileInclude>? _compileIncludes;
+        public IReadOnlyList<CSharpProjectCompileInclude> CompileIncludes => _compileIncludes ??= BuildCompileIncludes();
+
+        protected virtual IReadOnlyList<CSharpProjectCompileInclude> BuildCompileIncludes() => [];
+
         private static readonly IReadOnlyList<CSharpProjectWriter.CSProjDependencyPackage> _unbrandedDependencyPackages = new CSharpProjectWriter.CSProjDependencyPackage[]
         {
-            new("System.ClientModel", "1.4.1"),
+            new("System.ClientModel", "1.5.0"),
         };
 
         protected virtual string GetSolutionFileContent()

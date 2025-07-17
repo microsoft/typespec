@@ -3,7 +3,6 @@ package routes.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
@@ -12,6 +11,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -29,20 +29,26 @@ public final class InInterfacesImpl {
     private final RoutesClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of InInterfacesImpl.
      * 
      * @param client the instance of the service client containing this operation class.
      */
     InInterfacesImpl(RoutesClientImpl client) {
-        this.service = RestProxy.create(InInterfacesService.class, client.getHttpPipeline());
+        this.service = InInterfacesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
      * The interface defining all the services for RoutesClientInInterfaces to be used by the proxy service to perform
      * REST calls.
      */
-    @ServiceInterface(name = "RoutesClientInInterf", host = "{endpoint}")
+    @ServiceInterface(name = "RoutesClientInInterfaces", host = "{endpoint}")
     public interface InInterfacesService {
         static InInterfacesService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -75,17 +81,9 @@ public final class InInterfacesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> fixedWithResponse(RequestContext requestContext) {
-        return service.fixed(this.client.getEndpoint(), requestContext);
-    }
-
-    /**
-     * The fixed operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void fixed() {
-        fixedWithResponse(RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Routes.InInterface.fixed", requestContext,
+            updatedContext -> {
+                return service.fixed(this.client.getEndpoint(), updatedContext);
+            });
     }
 }

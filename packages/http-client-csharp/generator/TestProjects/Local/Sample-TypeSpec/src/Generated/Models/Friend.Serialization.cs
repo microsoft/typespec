@@ -14,7 +14,7 @@ using SampleTypeSpec;
 
 namespace SampleTypeSpec.Models.Custom
 {
-    /// <summary></summary>
+    /// <summary> this is not a friendly model but with a friendly name. </summary>
     public partial class Friend : IJsonModel<Friend>
     {
         /// <summary> Initializes a new instance of <see cref="Friend"/> for deserialization. </summary>

@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import versioning.madeoptional.implementation.MadeOptionalClientImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class MadeOptionalClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final MadeOptionalClientImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of MadeOptionalClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    MadeOptionalClient(MadeOptionalClientImpl serviceClient) {
+    MadeOptionalClient(MadeOptionalClientImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -42,7 +47,8 @@ public final class MadeOptionalClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<TestModel> testWithResponse(TestModel body, String param, RequestContext requestContext) {
-        return this.serviceClient.testWithResponse(body, param, requestContext);
+        return this.instrumentation.instrumentWithResponse("Versioning.MadeOptional.test", requestContext,
+            updatedContext -> this.serviceClient.testWithResponse(body, param, updatedContext));
     }
 
     /**
@@ -58,7 +64,7 @@ public final class MadeOptionalClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public TestModel test(TestModel body, String param) {
-        return this.serviceClient.test(body, param);
+        return testWithResponse(body, param, RequestContext.none()).getValue();
     }
 
     /**
@@ -73,6 +79,7 @@ public final class MadeOptionalClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public TestModel test(TestModel body) {
-        return this.serviceClient.test(body);
+        final String param = null;
+        return testWithResponse(body, param, RequestContext.none()).getValue();
     }
 }

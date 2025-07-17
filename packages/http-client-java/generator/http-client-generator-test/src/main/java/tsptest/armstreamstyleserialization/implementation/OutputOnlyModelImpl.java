@@ -5,7 +5,7 @@
 package tsptest.armstreamstyleserialization.implementation;
 
 import tsptest.armstreamstyleserialization.fluent.models.OutputOnlyModelInner;
-import tsptest.armstreamstyleserialization.models.Dog;
+import tsptest.armstreamstyleserialization.models.Golden;
 import tsptest.armstreamstyleserialization.models.OutputOnlyModel;
 
 public final class OutputOnlyModelImpl implements OutputOnlyModel {
@@ -35,7 +35,7 @@ public final class OutputOnlyModelImpl implements OutputOnlyModel {
         return this.innerModel().title();
     }
 
-    public Dog dog() {
+    public Golden dog() {
         return this.innerModel().dog();
     }
 

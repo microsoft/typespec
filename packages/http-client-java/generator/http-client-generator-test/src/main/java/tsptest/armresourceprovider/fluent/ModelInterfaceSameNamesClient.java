@@ -8,12 +8,41 @@ import com.azure.core.annotation.ReturnType;
 import com.azure.core.annotation.ServiceMethod;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.Context;
+import reactor.core.publisher.Mono;
 import tsptest.armresourceprovider.fluent.models.ModelInterfaceSameNameInner;
 
 /**
  * An instance of this class provides access to all the operations defined in ModelInterfaceSameNamesClient.
  */
 public interface ModelInterfaceSameNamesClient {
+    /**
+     * Get a ModelInterfaceDifferentName.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param modelInterfaceDifferentNameName The name of the ModelInterfaceDifferentName.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a ModelInterfaceDifferentName along with {@link Response} on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Mono<Response<ModelInterfaceSameNameInner>> getByResourceGroupWithResponseAsync(String resourceGroupName,
+        String modelInterfaceDifferentNameName);
+
+    /**
+     * Get a ModelInterfaceDifferentName.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param modelInterfaceDifferentNameName The name of the ModelInterfaceDifferentName.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a ModelInterfaceDifferentName on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Mono<ModelInterfaceSameNameInner> getByResourceGroupAsync(String resourceGroupName,
+        String modelInterfaceDifferentNameName);
+
     /**
      * Get a ModelInterfaceDifferentName.
      * 
@@ -41,4 +70,62 @@ public interface ModelInterfaceSameNamesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     ModelInterfaceSameNameInner getByResourceGroup(String resourceGroupName, String modelInterfaceDifferentNameName);
+
+    /**
+     * Delete a ModelInterfaceDifferentName.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param modelInterfaceDifferentNameName The name of the ModelInterfaceDifferentName.
+     * @param ifMatch The request should only proceed if an entity matches this string.
+     * @param ifNoneMatch The request should only proceed if no entity matches this string.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Mono<Response<Void>> deleteWithResponseAsync(String resourceGroupName, String modelInterfaceDifferentNameName,
+        String ifMatch, String ifNoneMatch);
+
+    /**
+     * Delete a ModelInterfaceDifferentName.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param modelInterfaceDifferentNameName The name of the ModelInterfaceDifferentName.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Mono<Void> deleteAsync(String resourceGroupName, String modelInterfaceDifferentNameName);
+
+    /**
+     * Delete a ModelInterfaceDifferentName.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param modelInterfaceDifferentNameName The name of the ModelInterfaceDifferentName.
+     * @param ifMatch The request should only proceed if an entity matches this string.
+     * @param ifNoneMatch The request should only proceed if no entity matches this string.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Response<Void> deleteWithResponse(String resourceGroupName, String modelInterfaceDifferentNameName, String ifMatch,
+        String ifNoneMatch, Context context);
+
+    /**
+     * Delete a ModelInterfaceDifferentName.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param modelInterfaceDifferentNameName The name of the ModelInterfaceDifferentName.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    void delete(String resourceGroupName, String modelInterfaceDifferentNameName);
 }

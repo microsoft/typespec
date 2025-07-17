@@ -1,15 +1,14 @@
-import { Operation } from "@typespec/compiler";
-import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
+import { expectDiagnosticEmpty, expectDiagnostics, t } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
 import { PathOptions } from "../generated-defs/TypeSpec.Http.js";
-import { HttpOperation, HttpOperationParameter, getRoutePath } from "../src/index.js";
+import { getRoutePath, HttpOperation, HttpOperationParameter } from "../src/index.js";
 import {
   compileOperations,
-  createHttpTestRunner,
   diagnoseOperations,
   getOperations,
   getRoutesFor,
+  Tester,
 } from "./test-host.js";
 
 describe("http: routes", () => {
@@ -462,26 +461,23 @@ describe("http: routes", () => {
 
   describe("shared routes", () => {
     it("@sharedRoute decorator makes routes shared", async () => {
-      const runner = await createHttpTestRunner();
-      const { get1, get2 } = (await runner.compile(`
+      const { program, get1, get2 } = await Tester.compile(t.code`
         @route("/test")
         namespace Foo {
-          @test
           @sharedRoute
           @route("/get1")
-          op get1(): string;
+          op ${t.op("get1")}(): string;
         }
 
         @route("/test")
         namespace Foo {
-          @test
           @route("/get2")
-          op get2(): string;
+          op ${t.op("get2")}(): string;
         }
-      `)) as { get1: Operation; get2: Operation };
+      `);
 
-      strictEqual(getRoutePath(runner.program, get1)?.shared, true);
-      strictEqual(getRoutePath(runner.program, get2)?.shared, false);
+      strictEqual(getRoutePath(program, get1)?.shared, true);
+      strictEqual(getRoutePath(program, get2)?.shared, false);
     });
   });
 });
@@ -522,6 +518,15 @@ describe("uri template", () => {
         "foo",
       );
       expectPathParameter(param, { style: "simple", allowReserved: true, explode: false });
+    });
+
+    // Regression test for https://github.com/microsoft/typespec/issues/7848
+    it("optional parameter with explicit name should still have simple style", async () => {
+      const param = await getParameter(
+        `@route("/bar/{bar}") op foo(@path("bar") foo?: string): void;`,
+        "bar",
+      );
+      expectPathParameter(param, { style: "simple", allowReserved: false, explode: false });
     });
 
     it.each([

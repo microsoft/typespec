@@ -124,5 +124,12 @@ namespace Microsoft.TypeSpec.Generator.Tests
                     this)
             ];
         }
+
+        protected override TypeProvider[] BuildNestedTypes()
+        {
+            return [new TestTypeProvider("Foo")];
+        }
+
+        protected override TypeSignatureModifiers BuildDeclarationModifiers() => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial |TypeSignatureModifiers.Class;
     }
 }

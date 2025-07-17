@@ -64,7 +64,7 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArmClientCustomTempl")
+    @ServiceInterface(name = "ArmClientCustomTemplateResourceInterfaces")
     public interface CustomTemplateResourceInterfacesService {
         @Put("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/customTemplateResources/{customTemplateResourceName}")
         @ExpectedResponses({ 200, 201 })
@@ -124,7 +124,7 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
      * with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<Flux<ByteBuffer>>> createOrUpdateWithResponseAsync(String resourceGroupName,
+    public Mono<Response<Flux<ByteBuffer>>> createOrUpdateWithResponseAsync(String resourceGroupName,
         String customTemplateResourceName, CustomTemplateResourceInner resource, String ifMatch, String ifNoneMatch) {
         if (this.client.getEndpoint() == null) {
             return Mono.error(
@@ -270,7 +270,7 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
      * type using a specific property type.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    private PollerFlux<PollResult<CustomTemplateResourceInner>, CustomTemplateResourceInner> beginCreateOrUpdateAsync(
+    public PollerFlux<PollResult<CustomTemplateResourceInner>, CustomTemplateResourceInner> beginCreateOrUpdateAsync(
         String resourceGroupName, String customTemplateResourceName, CustomTemplateResourceInner resource,
         String ifMatch, String ifNoneMatch) {
         Mono<Response<Flux<ByteBuffer>>> mono = createOrUpdateWithResponseAsync(resourceGroupName,
@@ -293,7 +293,7 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
      * type using a specific property type.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    private PollerFlux<PollResult<CustomTemplateResourceInner>, CustomTemplateResourceInner> beginCreateOrUpdateAsync(
+    public PollerFlux<PollResult<CustomTemplateResourceInner>, CustomTemplateResourceInner> beginCreateOrUpdateAsync(
         String resourceGroupName, String customTemplateResourceName, CustomTemplateResourceInner resource) {
         final String ifMatch = null;
         final String ifNoneMatch = null;
@@ -391,7 +391,7 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
      * successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<CustomTemplateResourceInner> createOrUpdateAsync(String resourceGroupName,
+    public Mono<CustomTemplateResourceInner> createOrUpdateAsync(String resourceGroupName,
         String customTemplateResourceName, CustomTemplateResourceInner resource, String ifMatch, String ifNoneMatch) {
         return beginCreateOrUpdateAsync(resourceGroupName, customTemplateResourceName, resource, ifMatch, ifNoneMatch)
             .last()
@@ -411,7 +411,7 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
      * successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<CustomTemplateResourceInner> createOrUpdateAsync(String resourceGroupName,
+    public Mono<CustomTemplateResourceInner> createOrUpdateAsync(String resourceGroupName,
         String customTemplateResourceName, CustomTemplateResourceInner resource) {
         final String ifMatch = null;
         final String ifNoneMatch = null;
@@ -474,7 +474,7 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
      * with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<Flux<ByteBuffer>>> updateLongRunningWithResponseAsync(String resourceGroupName,
+    public Mono<Response<Flux<ByteBuffer>>> updateLongRunningWithResponseAsync(String resourceGroupName,
         String customTemplateResourceName, CustomTemplateResourcePatch properties) {
         if (this.client.getEndpoint() == null) {
             return Mono.error(
@@ -614,9 +614,8 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
      * type using a specific property type.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    private PollerFlux<PollResult<CustomTemplateResourceInner>, CustomTemplateResourceInner>
-        beginUpdateLongRunningAsync(String resourceGroupName, String customTemplateResourceName,
-            CustomTemplateResourcePatch properties) {
+    public PollerFlux<PollResult<CustomTemplateResourceInner>, CustomTemplateResourceInner> beginUpdateLongRunningAsync(
+        String resourceGroupName, String customTemplateResourceName, CustomTemplateResourcePatch properties) {
         Mono<Response<Flux<ByteBuffer>>> mono
             = updateLongRunningWithResponseAsync(resourceGroupName, customTemplateResourceName, properties);
         return this.client.<CustomTemplateResourceInner, CustomTemplateResourceInner>getLroResult(mono,
@@ -681,7 +680,7 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
      * successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<CustomTemplateResourceInner> updateLongRunningAsync(String resourceGroupName,
+    public Mono<CustomTemplateResourceInner> updateLongRunningAsync(String resourceGroupName,
         String customTemplateResourceName, CustomTemplateResourcePatch properties) {
         return beginUpdateLongRunningAsync(resourceGroupName, customTemplateResourceName, properties).last()
             .flatMap(this.client::getLroFinalResultOrError);

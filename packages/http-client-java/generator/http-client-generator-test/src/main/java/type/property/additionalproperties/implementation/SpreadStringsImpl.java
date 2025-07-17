@@ -57,7 +57,7 @@ public final class SpreadStringsImpl {
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "AdditionalProperties")
+    @ServiceInterface(name = "AdditionalPropertiesClientSpreadStrings")
     public interface SpreadStringsService {
         @Get("/type/property/additionalProperties/spreadRecordString")
         @ExpectedResponses({ 200 })

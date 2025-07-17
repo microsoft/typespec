@@ -70,7 +70,7 @@ public final class SingletonsClientImpl implements SingletonsClient {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ResourcesClientSingl")
+    @ServiceInterface(name = "ResourcesClientSingletons")
     public interface SingletonsService {
         @Headers({ "Content-Type: application/json" })
         @Get("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/singletonTrackedResources/default")

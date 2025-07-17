@@ -36,6 +36,7 @@ import tsptest.armresourceprovider.implementation.ArmClientBuilder;
 import tsptest.armresourceprovider.implementation.ChildExtensionResourceInterfacesImpl;
 import tsptest.armresourceprovider.implementation.ChildResourcesInterfacesImpl;
 import tsptest.armresourceprovider.implementation.CustomTemplateResourceInterfacesImpl;
+import tsptest.armresourceprovider.implementation.ImmutableResourceModelsImpl;
 import tsptest.armresourceprovider.implementation.ManagedMaintenanceWindowStatusOperationsImpl;
 import tsptest.armresourceprovider.implementation.ModelInterfaceSameNamesImpl;
 import tsptest.armresourceprovider.implementation.OperationsImpl;
@@ -43,6 +44,7 @@ import tsptest.armresourceprovider.implementation.TopLevelArmResourceInterfacesI
 import tsptest.armresourceprovider.models.ChildExtensionResourceInterfaces;
 import tsptest.armresourceprovider.models.ChildResourcesInterfaces;
 import tsptest.armresourceprovider.models.CustomTemplateResourceInterfaces;
+import tsptest.armresourceprovider.models.ImmutableResourceModels;
 import tsptest.armresourceprovider.models.ManagedMaintenanceWindowStatusOperations;
 import tsptest.armresourceprovider.models.ModelInterfaceSameNames;
 import tsptest.armresourceprovider.models.Operations;
@@ -66,6 +68,8 @@ public final class ArmResourceProviderManager {
     private ManagedMaintenanceWindowStatusOperations managedMaintenanceWindowStatusOperations;
 
     private ModelInterfaceSameNames modelInterfaceSameNames;
+
+    private ImmutableResourceModels immutableResourceModels;
 
     private final ArmClient clientObject;
 
@@ -370,6 +374,19 @@ public final class ArmResourceProviderManager {
                 = new ModelInterfaceSameNamesImpl(clientObject.getModelInterfaceSameNames(), this);
         }
         return modelInterfaceSameNames;
+    }
+
+    /**
+     * Gets the resource collection API of ImmutableResourceModels.
+     * 
+     * @return Resource collection API of ImmutableResourceModels.
+     */
+    public ImmutableResourceModels immutableResourceModels() {
+        if (this.immutableResourceModels == null) {
+            this.immutableResourceModels
+                = new ImmutableResourceModelsImpl(clientObject.getImmutableResourceModels(), this);
+        }
+        return immutableResourceModels;
     }
 
     /**

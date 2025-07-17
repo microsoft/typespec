@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Expressions;
@@ -183,6 +184,14 @@ namespace Microsoft.TypeSpec.Generator
 
             using (WriteXmlDocs(method.XmlDocs))
             {
+                if (method.Attributes.Count > 0)
+                {
+                    foreach (var attr in method.Attributes)
+                    {
+                        attr.Write(this);
+                    }
+                }
+
                 if (method.BodyStatements is { } body)
                 {
                     using (WriteMethodDeclaration(method.Signature))
@@ -208,6 +217,14 @@ namespace Microsoft.TypeSpec.Generator
 
             using (WriteXmlDocs(ctor.XmlDocs))
             {
+                if (ctor.Attributes.Count > 0)
+                {
+                    foreach (var attr in ctor.Attributes)
+                    {
+                        attr.Write(this);
+                    }
+                }
+
                 if (ctor.BodyStatements is { } body)
                 {
                     using (WriteMethodDeclaration(ctor.Signature))
@@ -274,6 +291,14 @@ namespace Microsoft.TypeSpec.Generator
         public void WriteProperty(PropertyProvider property)
         {
             WriteXmlDocsNoScope(property.XmlDocs);
+
+            if (property.Attributes.Count > 0)
+            {
+                foreach (var attr in property.Attributes)
+                {
+                    attr.Write(this);
+                }
+            }
 
             CodeScope? indexerScope = null;
 
@@ -434,6 +459,14 @@ namespace Microsoft.TypeSpec.Generator
         {
             WriteXmlDocsNoScope(field.XmlDocs);
 
+            if (field.Attributes.Count > 0)
+            {
+                foreach (var attr in field.Attributes)
+                {
+                    attr.Write(this);
+                }
+            }
+
             var modifiers = field.Modifiers;
 
             AppendRaw(modifiers.HasFlag(FieldModifiers.Public) ? "public " : (modifiers.HasFlag(FieldModifiers.Internal) ? "internal " : "private "))
@@ -451,8 +484,7 @@ namespace Microsoft.TypeSpec.Generator
                 Append($"{field.Type} {field.Declaration:D}");
             }
 
-            if (field.InitializationValue != null &&
-                (modifiers.HasFlag(FieldModifiers.Const) || modifiers.HasFlag(FieldModifiers.Static)))
+            if (field.InitializationValue != null)
             {
                 AppendRaw(" = ");
                 field.InitializationValue.Write(this);

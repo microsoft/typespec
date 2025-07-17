@@ -1,4 +1,4 @@
-import { Type } from "@typespec/compiler";
+import type { Type } from "@typespec/compiler";
 import { defineKit } from "@typespec/compiler/typekit";
 import { getHttpPart, HttpPart } from "../../../private.decorators.js";
 

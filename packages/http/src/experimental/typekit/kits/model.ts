@@ -1,4 +1,4 @@
-import { Model } from "@typespec/compiler";
+import type { Model } from "@typespec/compiler";
 import { defineKit } from "@typespec/compiler/typekit";
 import { isHttpFile } from "../../../private.decorators.js";
 

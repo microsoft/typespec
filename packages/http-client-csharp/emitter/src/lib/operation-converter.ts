@@ -48,67 +48,86 @@ import { parseHttpRequestMethod } from "../type/request-method.js";
 import { ResponseLocation } from "../type/response-location.js";
 import { getExternalDocs, getOperationId } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
-import { fromSdkModelType, fromSdkType } from "./type-converter.js";
+import { fromSdkType } from "./type-converter.js";
 import { getClientNamespaceString } from "./utils.js";
 
 export function fromSdkServiceMethod(
   sdkContext: CSharpEmitterContext,
-  method: SdkServiceMethod<SdkHttpOperation>,
+  sdkMethod: SdkServiceMethod<SdkHttpOperation>,
   uri: string,
   rootApiVersions: string[],
 ): InputServiceMethod | undefined {
-  const methodKind = method.kind;
+  let method = sdkContext.__typeCache.methods.get(sdkMethod);
+  if (method) {
+    return method;
+  }
+  const methodKind = sdkMethod.kind;
 
   switch (methodKind) {
     case "basic":
-      return createServiceMethod<InputBasicServiceMethod>(sdkContext, method, uri, rootApiVersions);
+      method = createServiceMethod<InputBasicServiceMethod>(
+        sdkContext,
+        sdkMethod,
+        uri,
+        rootApiVersions,
+      );
+      break;
     case "paging":
       const pagingServiceMethod = createServiceMethod<InputPagingServiceMethod>(
         sdkContext,
-        method,
+        sdkMethod,
         uri,
         rootApiVersions,
       );
       pagingServiceMethod.pagingMetadata = loadPagingServiceMetadata(
         sdkContext,
-        method,
+        sdkMethod,
         rootApiVersions,
         uri,
       );
-      return pagingServiceMethod;
+      method = pagingServiceMethod;
+      break;
     case "lro":
       const lroServiceMethod = createServiceMethod<InputLongRunningServiceMethod>(
         sdkContext,
-        method,
+        sdkMethod,
         uri,
         rootApiVersions,
       );
-      lroServiceMethod.lroMetadata = loadLongRunningMetadata(sdkContext, method);
-      return lroServiceMethod;
+      lroServiceMethod.lroMetadata = loadLongRunningMetadata(sdkContext, sdkMethod);
+      method = lroServiceMethod;
+      break;
     case "lropaging":
       const lroPagingMethod = createServiceMethod<InputLongRunningPagingServiceMethod>(
         sdkContext,
-        method,
+        sdkMethod,
         uri,
         rootApiVersions,
       );
-      lroPagingMethod.lroMetadata = loadLongRunningMetadata(sdkContext, method);
+      lroPagingMethod.lroMetadata = loadLongRunningMetadata(sdkContext, sdkMethod);
       lroPagingMethod.pagingMetadata = loadPagingServiceMetadata(
         sdkContext,
-        method,
+        sdkMethod,
         rootApiVersions,
         uri,
       );
-      return lroPagingMethod;
-
+      method = lroPagingMethod;
+      break;
     default:
       sdkContext.logger.reportDiagnostic({
         code: "unsupported-service-method",
         format: { methodKind: methodKind },
         target: NoTarget,
       });
-      return undefined;
+      method = undefined;
+      break;
   }
+
+  if (method) {
+    sdkContext.__typeCache.updateSdkMethodReferences(sdkMethod, method);
+  }
+
+  return method;
 }
 
 export function fromSdkServiceMethodOperation(
@@ -117,6 +136,11 @@ export function fromSdkServiceMethodOperation(
   uri: string,
   rootApiVersions: string[],
 ): InputOperation {
+  let operation = sdkContext.__typeCache.operations.get(method.operation);
+  if (operation) {
+    return operation;
+  }
+
   let generateConvenience = shouldGenerateConvenient(sdkContext, method.operation.__raw.operation);
   if (method.operation.verb === "patch" && generateConvenience) {
     sdkContext.logger.reportDiagnostic({
@@ -129,7 +153,7 @@ export function fromSdkServiceMethodOperation(
     generateConvenience = false;
   }
 
-  return {
+  operation = {
     name: method.name,
     resourceName:
       getResourceOperation(sdkContext.program, method.operation.__raw.operation)?.resourceType
@@ -155,6 +179,10 @@ export function fromSdkServiceMethodOperation(
       ? fromSdkHttpExamples(sdkContext, method.operation.examples)
       : undefined,
   };
+
+  sdkContext.__typeCache.updateSdkOperationReferences(method.operation, operation);
+
+  return operation;
 }
 
 export function getParameterDefaultValue(
@@ -365,7 +393,7 @@ function loadLongRunningMetadata(
       statusCodes: method.operation.verb === "delete" ? [204] : [200],
       bodyType:
         method.lroMetadata.finalResponse?.envelopeResult !== undefined
-          ? fromSdkModelType(sdkContext, method.lroMetadata.finalResponse.envelopeResult)
+          ? fromSdkType(sdkContext, method.lroMetadata.finalResponse.envelopeResult)
           : undefined,
     } as OperationResponse,
     resultPath: method.lroMetadata.finalResponse?.resultPath,
@@ -491,6 +519,24 @@ function loadPagingServiceMetadata(
         uri,
         rootApiVersions,
       );
+    }
+
+    if (
+      method.pagingMetadata.nextLinkReInjectedParametersSegments &&
+      method.pagingMetadata.nextLinkReInjectedParametersSegments.length > 0
+    ) {
+      const nextLinkReInjectedParameters = [];
+      for (const parameterSegments of method.pagingMetadata.nextLinkReInjectedParametersSegments) {
+        const lastParameterSegment = parameterSegments[
+          parameterSegments.length - 1
+        ] as SdkModelPropertyType;
+        const operationParameter = getHttpOperationParameter(method, lastParameterSegment);
+        if (operationParameter) {
+          const parameter = fromParameter(context, operationParameter, rootApiVersions);
+          nextLinkReInjectedParameters.push(parameter);
+        }
+      }
+      nextLink.reInjectedParameters = nextLinkReInjectedParameters;
     }
   }
 

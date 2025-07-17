@@ -47,7 +47,6 @@
                   <include>src/test/java/**/*.java</include>
                 </includes>
 
-                <removeUnusedImports/>
                 <importOrder/>
                 <eclipse>
                   <version>4.21</version>

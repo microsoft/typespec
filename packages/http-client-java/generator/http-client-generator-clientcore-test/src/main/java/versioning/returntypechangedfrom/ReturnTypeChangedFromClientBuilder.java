@@ -14,13 +14,17 @@ import io.clientcore.core.http.pipeline.HttpRedirectOptions;
 import io.clientcore.core.http.pipeline.HttpRedirectPolicy;
 import io.clientcore.core.http.pipeline.HttpRetryOptions;
 import io.clientcore.core.http.pipeline.HttpRetryPolicy;
+import io.clientcore.core.instrumentation.Instrumentation;
+import io.clientcore.core.instrumentation.SdkInstrumentationOptions;
 import io.clientcore.core.traits.ConfigurationTrait;
 import io.clientcore.core.traits.EndpointTrait;
 import io.clientcore.core.traits.HttpTrait;
 import io.clientcore.core.traits.ProxyTrait;
+import io.clientcore.core.utils.CoreUtils;
 import io.clientcore.core.utils.configuration.Configuration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import versioning.returntypechangedfrom.implementation.ReturnTypeChangedFromClientImpl;
 
@@ -36,6 +40,10 @@ public final class ReturnTypeChangedFromClientBuilder
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES
+        = CoreUtils.getProperties("versioning-returntypechangedfrom.properties");
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
@@ -173,24 +181,6 @@ public final class ReturnTypeChangedFromClientBuilder
     }
 
     /*
-     * Need to be set as 'v1' or 'v2' in client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private Versions version;
-
-    /**
-     * Sets Need to be set as 'v1' or 'v2' in client.
-     * 
-     * @param version the version value.
-     * @return the ReturnTypeChangedFromClientBuilder.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public ReturnTypeChangedFromClientBuilder version(Versions version) {
-        this.version = version;
-        return this;
-    }
-
-    /*
      * Service version
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -218,8 +208,17 @@ public final class ReturnTypeChangedFromClientBuilder
         this.validateClient();
         ReturnTypeChangedFromServiceVersion localServiceVersion
             = (serviceVersion != null) ? serviceVersion : ReturnTypeChangedFromServiceVersion.getLatest();
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         ReturnTypeChangedFromClientImpl client = new ReturnTypeChangedFromClientImpl(createHttpPipeline(),
-            this.endpoint, this.version, localServiceVersion);
+            instrumentation, this.endpoint, localServiceVersion);
         return client;
     }
 
@@ -228,7 +227,6 @@ public final class ReturnTypeChangedFromClientBuilder
         // This method is invoked from 'buildInnerClient'/'buildClient' method.
         // Developer can customize this method, to validate that the necessary conditions are met for the new client.
         Objects.requireNonNull(endpoint, "'endpoint' cannot be null.");
-        Objects.requireNonNull(version, "'version' cannot be null.");
     }
 
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -255,6 +253,7 @@ public final class ReturnTypeChangedFromClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public ReturnTypeChangedFromClient buildClient() {
-        return new ReturnTypeChangedFromClient(buildInnerClient());
+        ReturnTypeChangedFromClientImpl innerClient = buildInnerClient();
+        return new ReturnTypeChangedFromClient(innerClient, innerClient.getInstrumentation());
     }
 }

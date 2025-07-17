@@ -8,6 +8,7 @@ import azure.resourcemanager.operationtemplates.fluent.CheckNameAvailabilitiesCl
 import azure.resourcemanager.operationtemplates.fluent.LroesClient;
 import azure.resourcemanager.operationtemplates.fluent.OperationTemplatesClient;
 import azure.resourcemanager.operationtemplates.fluent.OperationsClient;
+import azure.resourcemanager.operationtemplates.fluent.OptionalBodiesClient;
 import com.azure.core.annotation.ServiceClient;
 import com.azure.core.http.HttpHeaderName;
 import com.azure.core.http.HttpHeaders;
@@ -171,6 +172,20 @@ public final class OperationTemplatesClientImpl implements OperationTemplatesCli
     }
 
     /**
+     * The OptionalBodiesClient object to access its operations.
+     */
+    private final OptionalBodiesClient optionalBodies;
+
+    /**
+     * Gets the OptionalBodiesClient object to access its operations.
+     * 
+     * @return the OptionalBodiesClient object.
+     */
+    public OptionalBodiesClient getOptionalBodies() {
+        return this.optionalBodies;
+    }
+
+    /**
      * Initializes an instance of OperationTemplatesClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
@@ -191,6 +206,7 @@ public final class OperationTemplatesClientImpl implements OperationTemplatesCli
         this.operations = new OperationsClientImpl(this);
         this.checkNameAvailabilities = new CheckNameAvailabilitiesClientImpl(this);
         this.lroes = new LroesClientImpl(this);
+        this.optionalBodies = new OptionalBodiesClientImpl(this);
     }
 
     /**

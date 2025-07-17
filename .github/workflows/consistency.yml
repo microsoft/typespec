@@ -25,7 +25,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 ## Needed for Changesets to find `main` branch
-          submodules: recursive
 
       - uses: ./.github/actions/setup
 
@@ -103,3 +102,20 @@ jobs:
 
       - run: pnpm run lint
         name: Lint
+
+  # Check version mismatch
+  version-consistency:
+    name: Versions consistency
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: ./.github/actions/setup
+
+      - run: pnpm install
+        name: Install dependencies
+
+      - run: pnpm run check-version-mismatch
+        name: Check version mismatch

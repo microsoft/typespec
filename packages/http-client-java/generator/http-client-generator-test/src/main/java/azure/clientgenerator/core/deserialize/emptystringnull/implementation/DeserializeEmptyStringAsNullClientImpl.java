@@ -123,7 +123,7 @@ public final class DeserializeEmptyStringAsNullClientImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "DeserializeEmptyStri")
+    @ServiceInterface(name = "DeserializeEmptyStringAsNullClient")
     public interface DeserializeEmptyStringAsNullClientService {
         @Get("/azure/client-generator-core/deserialize-empty-string-as-null/responseModel")
         @ExpectedResponses({ 200 })

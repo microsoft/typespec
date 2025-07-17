@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import type.model.inheritance.nesteddiscriminator.implementation.NestedDiscriminatorClientImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class NestedDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final NestedDiscriminatorClientImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of NestedDiscriminatorClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    NestedDiscriminatorClient(NestedDiscriminatorClientImpl serviceClient) {
+    NestedDiscriminatorClient(NestedDiscriminatorClientImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -40,7 +45,8 @@ public final class NestedDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Fish> getModelWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getModelWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.NestedDiscriminator.getModel",
+            requestContext, updatedContext -> this.serviceClient.getModelWithResponse(updatedContext));
     }
 
     /**
@@ -53,7 +59,7 @@ public final class NestedDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Fish getModel() {
-        return this.serviceClient.getModel();
+        return getModelWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -69,7 +75,8 @@ public final class NestedDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putModelWithResponse(Fish input, RequestContext requestContext) {
-        return this.serviceClient.putModelWithResponse(input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.NestedDiscriminator.putModel",
+            requestContext, updatedContext -> this.serviceClient.putModelWithResponse(input, updatedContext));
     }
 
     /**
@@ -83,7 +90,7 @@ public final class NestedDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putModel(Fish input) {
-        this.serviceClient.putModel(input);
+        putModelWithResponse(input, RequestContext.none());
     }
 
     /**
@@ -98,7 +105,9 @@ public final class NestedDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Fish> getRecursiveModelWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getRecursiveModelWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.NestedDiscriminator.getRecursiveModel", requestContext,
+            updatedContext -> this.serviceClient.getRecursiveModelWithResponse(updatedContext));
     }
 
     /**
@@ -111,7 +120,7 @@ public final class NestedDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Fish getRecursiveModel() {
-        return this.serviceClient.getRecursiveModel();
+        return getRecursiveModelWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -127,7 +136,9 @@ public final class NestedDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putRecursiveModelWithResponse(Fish input, RequestContext requestContext) {
-        return this.serviceClient.putRecursiveModelWithResponse(input, requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.NestedDiscriminator.putRecursiveModel", requestContext,
+            updatedContext -> this.serviceClient.putRecursiveModelWithResponse(input, updatedContext));
     }
 
     /**
@@ -141,7 +152,7 @@ public final class NestedDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putRecursiveModel(Fish input) {
-        this.serviceClient.putRecursiveModel(input);
+        putRecursiveModelWithResponse(input, RequestContext.none());
     }
 
     /**
@@ -156,7 +167,9 @@ public final class NestedDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Fish> getMissingDiscriminatorWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getMissingDiscriminatorWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.NestedDiscriminator.getMissingDiscriminator", requestContext,
+            updatedContext -> this.serviceClient.getMissingDiscriminatorWithResponse(updatedContext));
     }
 
     /**
@@ -169,7 +182,7 @@ public final class NestedDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Fish getMissingDiscriminator() {
-        return this.serviceClient.getMissingDiscriminator();
+        return getMissingDiscriminatorWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -184,7 +197,9 @@ public final class NestedDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Fish> getWrongDiscriminatorWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getWrongDiscriminatorWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.NestedDiscriminator.getWrongDiscriminator", requestContext,
+            updatedContext -> this.serviceClient.getWrongDiscriminatorWithResponse(updatedContext));
     }
 
     /**
@@ -197,6 +212,6 @@ public final class NestedDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Fish getWrongDiscriminator() {
-        return this.serviceClient.getWrongDiscriminator();
+        return getWrongDiscriminatorWithResponse(RequestContext.none()).getValue();
     }
 }

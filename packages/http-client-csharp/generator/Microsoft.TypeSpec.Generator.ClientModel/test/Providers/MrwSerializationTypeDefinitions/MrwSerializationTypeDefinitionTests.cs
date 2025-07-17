@@ -17,21 +17,29 @@ using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializationTypeDefinitions
 {
     internal class MrwSerializationTypeDefinitionTests
     {
-        public MrwSerializationTypeDefinitionTests()
-        {
-            MockHelpers.LoadMockGenerator(createSerializationsCore: (inputType, typeProvider) =>
-                inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)] : []);
-        }
-
-        internal static (ModelProvider Model, MrwSerializationTypeDefinition Serialization) CreateModelAndSerialization(InputModelType inputModel)
+        internal static (ModelProvider Model, MrwSerializationTypeDefinition Serialization) CreateModelAndSerialization(InputModelType inputModel, bool isRootInput = true, bool isRootOutput = true)
         {
             var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel],
+                createSerializationsCore: (inputType, typeProvider) =>
+                    inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)]: []);
+            if (isRootInput)
+            {
+                generator.Object.TypeFactory.RootInputModels.Add(inputModel);
+            }
+            if (isRootOutput)
+            {
+                generator.Object.TypeFactory.RootOutputModels.Add(inputModel);
+            }
+
             var serializations = model!.SerializationProviders;
 
             Assert.AreEqual(1, serializations.Count);
@@ -656,6 +664,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public void TestImplicitToBinaryContentNotGeneratedForNonRootInputModel()
+        {
+            var inputModel = InputFactory.Model("mockInputModel");
+            var (_, serialization) = CreateModelAndSerialization(inputModel, isRootInput: false);
+            var methods = serialization.Methods;
+
+            Assert.IsTrue(methods.Count > 0);
+
+            var method = methods.FirstOrDefault(m => m.Signature.Name == nameof(BinaryContent));
+
+            Assert.IsNull(method);
+        }
+
+        [Test]
         public void TestBuildExplicitFromClientResult()
         {
             var inputModel = InputFactory.Model("mockInputModel");
@@ -683,6 +705,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             var methodBody = method?.BodyStatements;
             Assert.IsNotNull(methodBody);
+        }
+
+        [Test]
+        public void TestExplicitFromClientResultNotGeneratedForNonRootOutputModel()
+        {
+            var inputModel = InputFactory.Model("mockInputModel");
+            var (model, serialization) = CreateModelAndSerialization(inputModel, isRootOutput: false);
+            var methods = serialization.Methods;
+
+            Assert.IsTrue(methods.Count > 0);
+
+            var method = methods.FirstOrDefault(m => m.Signature.Name == "MockInputModel");
+
+            Assert.IsNull(method);
         }
 
         [TestCase(true)]
@@ -790,6 +826,47 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         {
             var expr = MrwSerializationTypeDefinition.DeserializeJsonValueCore(type, new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "foo")), format);
             return expr.ToDisplayString();
+        }
+
+        [Test]
+        public void ModelPropertiesAreNotEvaluatedInConstructor()
+        {
+            MockHelpers.LoadMockGenerator();
+            var inputModel = InputFactory.Model("mockInputModel", properties: [InputFactory.Property("mockProperty", InputPrimitiveType.String, isRequired: true, isReadOnly: true)]);
+
+            // Create a custom model provider that tracks property access
+            var trackingModel = new PropertyAccessTrackingModelProvider(inputModel);
+
+            // Create the MrwSerializationTypeDefinition - this should NOT access Properties
+            var serialization = new MrwSerializationTypeDefinition(inputModel, trackingModel);
+
+            // Verify that Properties were not accessed during construction
+            Assert.IsFalse(trackingModel.PropertiesAccessed, "Model.Properties should not be accessed in the MrwSerializationTypeDefinition constructor");
+
+            // Now access a member that would require Properties (like Methods or Constructors)
+            var _ = serialization.Methods;
+
+            // Now Properties should have been accessed
+            Assert.IsTrue(trackingModel.PropertiesAccessed, "Model.Properties should be accessed when Methods are requested");
+        }
+
+        private class PropertyAccessTrackingModelProvider : ModelProvider
+        {
+            private readonly InputModelType _inputModel;
+            private bool _propertiesAccessed;
+
+            public PropertyAccessTrackingModelProvider(InputModelType inputModel) : base(inputModel)
+            {
+                _inputModel = inputModel;
+            }
+
+            public bool PropertiesAccessed => _propertiesAccessed;
+
+            protected override PropertyProvider[] BuildProperties()
+            {
+                _propertiesAccessed = true;
+                return base.BuildProperties();
+            }
         }
 
         /// <summary>

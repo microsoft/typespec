@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -28,6 +29,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             Func<IReadOnlyList<InputClient>>? clients = null,
             Func<IReadOnlyList<InputLiteralType>>? inputLiterals = null,
             Func<Task<Compilation>>? compilation = null,
+            Func<Task<Compilation>>? lastContractCompilation = null,
+            Func<IReadOnlyList<string>>? apiVersions = null,
             string? configuration = null)
         {
             var mockGenerator = LoadMockGenerator(
@@ -35,11 +38,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
                 inputEnums: inputEnums,
                 inputModels: inputModels,
                 clients: clients,
+                apiVersions: apiVersions,
                 configuration: configuration);
 
             var compilationResult = compilation == null ? null : await compilation();
+            var lastContractCompilationResult = lastContractCompilation == null ? null : await lastContractCompilation();
 
-            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(compilationResult, null)) { CallBase = true };
+            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(compilationResult, lastContractCompilationResult)) { CallBase = true };
             mockGenerator.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
 
             return mockGenerator;
@@ -71,6 +76,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             IReadOnlyList<InputClient> inputNsClients = clients?.Invoke() ?? [];
             IReadOnlyList<InputModelType> inputNsModels = inputModels?.Invoke() ?? [];
             InputAuth? inputAuth = auth?.Invoke() ?? null;
+
+            // reset the type cache on TypeReferenceExpression
+            var resetCacheMethod = typeof(TypeReferenceExpression).GetMethod("ResetCache", BindingFlags.Static | BindingFlags.NonPublic);
+            resetCacheMethod!.Invoke(null, null);
 
             var mockTypeFactory = new Mock<ScmTypeFactory>() { CallBase = true };
             var mockInputNs = new Mock<InputNamespace>(

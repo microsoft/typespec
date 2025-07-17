@@ -3,7 +3,6 @@ package parameters.basic.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -14,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import parameters.basic.explicitbody.User;
 
@@ -32,20 +32,26 @@ public final class ExplicitBodiesImpl {
     private final BasicClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of ExplicitBodiesImpl.
      * 
      * @param client the instance of the service client containing this operation class.
      */
     ExplicitBodiesImpl(BasicClientImpl client) {
-        this.service = RestProxy.create(ExplicitBodiesService.class, client.getHttpPipeline());
+        this.service = ExplicitBodiesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
      * The interface defining all the services for BasicClientExplicitBodies to be used by the proxy service to perform
      * REST calls.
      */
-    @ServiceInterface(name = "BasicClientExplicitB", host = "{endpoint}")
+    @ServiceInterface(name = "BasicClientExplicitBodies", host = "{endpoint}")
     public interface ExplicitBodiesService {
         static ExplicitBodiesService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -80,20 +86,10 @@ public final class ExplicitBodiesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> simpleWithResponse(User body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.simple(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The simple operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void simple(User body) {
-        simpleWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Parameters.Basic.ExplicitBody.simple", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.simple(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 }

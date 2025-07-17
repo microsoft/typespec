@@ -57,7 +57,7 @@ public final class ModelValuesImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "DictionaryClientMode")
+    @ServiceInterface(name = "DictionaryClientModelValues")
     public interface ModelValuesService {
         @Get("/type/dictionary/model")
         @ExpectedResponses({ 200 })

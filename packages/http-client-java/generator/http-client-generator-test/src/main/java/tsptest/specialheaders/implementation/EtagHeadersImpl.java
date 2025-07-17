@@ -77,7 +77,7 @@ public final class EtagHeadersImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "SpecialHeadersClient")
+    @ServiceInterface(name = "SpecialHeadersClientEtagHeaders")
     public interface EtagHeadersService {
         @Put("/etag-headers/resources/{name}")
         @ExpectedResponses({ 200, 201 })

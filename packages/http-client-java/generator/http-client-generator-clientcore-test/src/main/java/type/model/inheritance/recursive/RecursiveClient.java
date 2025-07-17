@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import type.model.inheritance.recursive.implementation.RecursiveClientImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class RecursiveClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final RecursiveClientImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of RecursiveClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    RecursiveClient(RecursiveClientImpl serviceClient) {
+    RecursiveClient(RecursiveClientImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -41,7 +46,8 @@ public final class RecursiveClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(Extension input, RequestContext requestContext) {
-        return this.serviceClient.putWithResponse(input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.Recursive.put", requestContext,
+            updatedContext -> this.serviceClient.putWithResponse(input, updatedContext));
     }
 
     /**
@@ -55,7 +61,7 @@ public final class RecursiveClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void put(Extension input) {
-        this.serviceClient.put(input);
+        putWithResponse(input, RequestContext.none());
     }
 
     /**
@@ -70,7 +76,8 @@ public final class RecursiveClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Extension> getWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.Recursive.get", requestContext,
+            updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
     /**
@@ -83,6 +90,6 @@ public final class RecursiveClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Extension get() {
-        return this.serviceClient.get();
+        return getWithResponse(RequestContext.none()).getValue();
     }
 }

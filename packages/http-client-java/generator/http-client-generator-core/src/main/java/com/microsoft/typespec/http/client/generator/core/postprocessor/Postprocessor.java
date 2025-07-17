@@ -14,6 +14,7 @@ import com.microsoft.typespec.http.client.generator.core.partialupdate.util.Part
 import com.microsoft.typespec.http.client.generator.core.postprocessor.implementation.CodeFormatterUtil;
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -28,12 +29,10 @@ import org.slf4j.Logger;
 
 public class Postprocessor {
     protected final NewPlugin plugin;
-    private final boolean useEclipseLanguageServer;
     private final Logger logger;
 
-    public Postprocessor(NewPlugin plugin, boolean useEclipseLanguageServer) {
+    public Postprocessor(NewPlugin plugin) {
         this.plugin = plugin;
-        this.useEclipseLanguageServer = useEclipseLanguageServer;
         this.logger = new PluginLogger(plugin, Postprocessor.class);
     }
 
@@ -100,7 +99,7 @@ public class Postprocessor {
             try {
                 Customization customization = customizationClass.getConstructor().newInstance();
                 logger.info("Running customization, this may take a while...");
-                fileContents = customization.run(fileContents, useEclipseLanguageServer, logger);
+                fileContents = customization.run(fileContents, logger);
             } catch (Exception e) {
                 logger.error("Unable to complete customization", e);
                 throw new RuntimeException("Unable to complete customization", e);
@@ -120,11 +119,7 @@ public class Postprocessor {
             handlePartialUpdate(javaFiles, plugin, logger);
         }
 
-        try {
-            CodeFormatterUtil.formatCode(javaFiles, plugin, logger);
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
+        CodeFormatterUtil.formatCode(javaFiles, plugin, logger);
     }
 
     private static String getReadme(NewPlugin plugin) {
@@ -218,9 +213,9 @@ public class Postprocessor {
                         String existingFileContent = Files.readString(existingFilePath);
                         return PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent,
                             existingFileContent);
-                    } catch (Exception e) {
+                    } catch (IOException e) {
                         logger.error("Unable to get content from file path", e);
-                        throw new RuntimeException(e);
+                        throw new UncheckedIOException(e);
                     }
                 }
             }

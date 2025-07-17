@@ -30,7 +30,5 @@ namespace _Type.Model.Empty
         string IPersistableModel<EmptyInput>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(EmptyInput emptyInput) => throw null;
-
-        public static explicit operator EmptyInput(ClientResult result) => throw null;
     }
 }

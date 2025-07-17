@@ -8,6 +8,10 @@
     "tsptest.errormodel.ErrorModelClient.read": "TspTest.ErrorModel.ErrorOp.read",
     "tsptest.errormodel.ErrorModelClient.readWithResponse": "TspTest.ErrorModel.ErrorOp.read",
     "tsptest.errormodel.ErrorModelClientBuilder": "TspTest.ErrorModel",
+    "tsptest.errormodel.models.BadResponseError": "TspTest.ErrorModel.BadResponseError",
+    "tsptest.errormodel.models.BatchError": "TspTest.ErrorModel.BatchError",
+    "tsptest.errormodel.models.BatchErrorMessage": "TspTest.ErrorModel.BatchErrorMessage",
+    "tsptest.errormodel.models.Details": "TspTest.ErrorModel.Details",
     "tsptest.errormodel.models.Diagnostic": "TspTest.ErrorModel.Diagnostic",
     "tsptest.errormodel.models.InnerError": "Azure.Core.Foundations.InnerError",
     "tsptest.errormodel.models.SubError": "TspTest.ErrorModel.SubError"

@@ -14,13 +14,17 @@ import io.clientcore.core.http.pipeline.HttpRedirectOptions;
 import io.clientcore.core.http.pipeline.HttpRedirectPolicy;
 import io.clientcore.core.http.pipeline.HttpRetryOptions;
 import io.clientcore.core.http.pipeline.HttpRetryPolicy;
+import io.clientcore.core.instrumentation.Instrumentation;
+import io.clientcore.core.instrumentation.SdkInstrumentationOptions;
 import io.clientcore.core.traits.ConfigurationTrait;
 import io.clientcore.core.traits.EndpointTrait;
 import io.clientcore.core.traits.HttpTrait;
 import io.clientcore.core.traits.ProxyTrait;
+import io.clientcore.core.utils.CoreUtils;
 import io.clientcore.core.utils.configuration.Configuration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import versioning.renamedfrom.implementation.RenamedFromClientImpl;
 
@@ -36,6 +40,9 @@ public final class RenamedFromClientBuilder
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("versioning-renamedfrom.properties");
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
@@ -172,24 +179,6 @@ public final class RenamedFromClientBuilder
     }
 
     /*
-     * Need to be set as 'v1' or 'v2' in client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private Versions version;
-
-    /**
-     * Sets Need to be set as 'v1' or 'v2' in client.
-     * 
-     * @param version the version value.
-     * @return the RenamedFromClientBuilder.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public RenamedFromClientBuilder version(Versions version) {
-        this.version = version;
-        return this;
-    }
-
-    /*
      * Service version
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -217,8 +206,17 @@ public final class RenamedFromClientBuilder
         this.validateClient();
         RenamedFromServiceVersion localServiceVersion
             = (serviceVersion != null) ? serviceVersion : RenamedFromServiceVersion.getLatest();
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(this.endpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         RenamedFromClientImpl client
-            = new RenamedFromClientImpl(createHttpPipeline(), this.endpoint, this.version, localServiceVersion);
+            = new RenamedFromClientImpl(createHttpPipeline(), instrumentation, this.endpoint, localServiceVersion);
         return client;
     }
 
@@ -227,7 +225,6 @@ public final class RenamedFromClientBuilder
         // This method is invoked from 'buildInnerClient'/'buildClient' method.
         // Developer can customize this method, to validate that the necessary conditions are met for the new client.
         Objects.requireNonNull(endpoint, "'endpoint' cannot be null.");
-        Objects.requireNonNull(version, "'version' cannot be null.");
     }
 
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -254,7 +251,8 @@ public final class RenamedFromClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public RenamedFromClient buildClient() {
-        return new RenamedFromClient(buildInnerClient());
+        RenamedFromClientImpl innerClient = buildInnerClient();
+        return new RenamedFromClient(innerClient, innerClient.getInstrumentation());
     }
 
     /**
@@ -264,6 +262,7 @@ public final class RenamedFromClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public NewInterfaceClient buildNewInterfaceClient() {
-        return new NewInterfaceClient(buildInnerClient().getNewInterfaces());
+        RenamedFromClientImpl innerClient = buildInnerClient();
+        return new NewInterfaceClient(innerClient.getNewInterfaces(), innerClient.getInstrumentation());
     }
 }

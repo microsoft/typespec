@@ -3,7 +3,6 @@ package parameters.spread.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -15,6 +14,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import parameters.spread.alias.implementation.SpreadAsRequestBodyRequest;
@@ -34,13 +34,19 @@ public final class AliasImpl {
     private final SpreadClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of AliasImpl.
      * 
      * @param client the instance of the service client containing this operation class.
      */
     AliasImpl(SpreadClientImpl client) {
-        this.service = RestProxy.create(AliasService.class, client.getHttpPipeline());
+        this.service = AliasService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -123,23 +129,13 @@ public final class AliasImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> spreadAsRequestBodyWithResponse(String name, RequestContext requestContext) {
-        final String contentType = "application/json";
-        SpreadAsRequestBodyRequest spreadAsRequestBodyRequest = new SpreadAsRequestBodyRequest(name);
-        return service.spreadAsRequestBody(this.client.getEndpoint(), contentType, spreadAsRequestBodyRequest,
-            requestContext);
-    }
-
-    /**
-     * The spreadAsRequestBody operation.
-     * 
-     * @param name The name parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void spreadAsRequestBody(String name) {
-        spreadAsRequestBodyWithResponse(name, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Parameters.Spread.Alias.spreadAsRequestBody",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                SpreadAsRequestBodyRequest spreadAsRequestBodyRequest = new SpreadAsRequestBodyRequest(name);
+                return service.spreadAsRequestBody(this.client.getEndpoint(), contentType, spreadAsRequestBodyRequest,
+                    updatedContext);
+            });
     }
 
     /**
@@ -157,26 +153,14 @@ public final class AliasImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> spreadParameterWithInnerModelWithResponse(String id, String xMsTestHeader, String name,
         RequestContext requestContext) {
-        final String contentType = "application/json";
-        SpreadParameterWithInnerModelRequest spreadParameterWithInnerModelRequest
-            = new SpreadParameterWithInnerModelRequest(name);
-        return service.spreadParameterWithInnerModel(this.client.getEndpoint(), id, xMsTestHeader, contentType,
-            spreadParameterWithInnerModelRequest, requestContext);
-    }
-
-    /**
-     * The spreadParameterWithInnerModel operation.
-     * 
-     * @param id The id parameter.
-     * @param xMsTestHeader The xMsTestHeader parameter.
-     * @param name The name parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void spreadParameterWithInnerModel(String id, String xMsTestHeader, String name) {
-        spreadParameterWithInnerModelWithResponse(id, xMsTestHeader, name, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Parameters.Spread.Alias.spreadParameterWithInnerModel",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                SpreadParameterWithInnerModelRequest spreadParameterWithInnerModelRequest
+                    = new SpreadParameterWithInnerModelRequest(name);
+                return service.spreadParameterWithInnerModel(this.client.getEndpoint(), id, xMsTestHeader, contentType,
+                    spreadParameterWithInnerModelRequest, updatedContext);
+            });
     }
 
     /**
@@ -194,25 +178,14 @@ public final class AliasImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> spreadAsRequestParameterWithResponse(String id, String xMsTestHeader, String name,
         RequestContext requestContext) {
-        final String contentType = "application/json";
-        SpreadAsRequestParameterRequest spreadAsRequestParameterRequest = new SpreadAsRequestParameterRequest(name);
-        return service.spreadAsRequestParameter(this.client.getEndpoint(), id, xMsTestHeader, contentType,
-            spreadAsRequestParameterRequest, requestContext);
-    }
-
-    /**
-     * The spreadAsRequestParameter operation.
-     * 
-     * @param id The id parameter.
-     * @param xMsTestHeader The xMsTestHeader parameter.
-     * @param name The name parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void spreadAsRequestParameter(String id, String xMsTestHeader, String name) {
-        spreadAsRequestParameterWithResponse(id, xMsTestHeader, name, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Parameters.Spread.Alias.spreadAsRequestParameter",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                SpreadAsRequestParameterRequest spreadAsRequestParameterRequest
+                    = new SpreadAsRequestParameterRequest(name);
+                return service.spreadAsRequestParameter(this.client.getEndpoint(), id, xMsTestHeader, contentType,
+                    spreadAsRequestParameterRequest, updatedContext);
+            });
     }
 
     /**
@@ -234,53 +207,16 @@ public final class AliasImpl {
     public Response<Void> spreadWithMultipleParametersWithResponse(String id, String xMsTestHeader,
         String requiredString, List<Integer> requiredIntList, Integer optionalInt, List<String> optionalStringList,
         RequestContext requestContext) {
-        final String contentType = "application/json";
-        SpreadWithMultipleParametersRequest spreadWithMultipleParametersRequest
-            = new SpreadWithMultipleParametersRequest(requiredString, requiredIntList);
-        spreadWithMultipleParametersRequest.setOptionalInt(optionalInt);
-        spreadWithMultipleParametersRequest.setOptionalStringList(optionalStringList);
-        return service.spreadWithMultipleParameters(this.client.getEndpoint(), id, xMsTestHeader, contentType,
-            spreadWithMultipleParametersRequest, requestContext);
-    }
-
-    /**
-     * The spreadWithMultipleParameters operation.
-     * 
-     * @param id The id parameter.
-     * @param xMsTestHeader The xMsTestHeader parameter.
-     * @param requiredString required string.
-     * @param requiredIntList required int.
-     * @param optionalInt optional int.
-     * @param optionalStringList optional string.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void spreadWithMultipleParameters(String id, String xMsTestHeader, String requiredString,
-        List<Integer> requiredIntList, Integer optionalInt, List<String> optionalStringList) {
-        spreadWithMultipleParametersWithResponse(id, xMsTestHeader, requiredString, requiredIntList, optionalInt,
-            optionalStringList, RequestContext.none());
-    }
-
-    /**
-     * The spreadWithMultipleParameters operation.
-     * 
-     * @param id The id parameter.
-     * @param xMsTestHeader The xMsTestHeader parameter.
-     * @param requiredString required string.
-     * @param requiredIntList required int.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void spreadWithMultipleParameters(String id, String xMsTestHeader, String requiredString,
-        List<Integer> requiredIntList) {
-        final Integer optionalInt = null;
-        final List<String> optionalStringList = null;
-        spreadWithMultipleParametersWithResponse(id, xMsTestHeader, requiredString, requiredIntList, optionalInt,
-            optionalStringList, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Parameters.Spread.Alias.spreadWithMultipleParameters",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                SpreadWithMultipleParametersRequest spreadWithMultipleParametersRequest
+                    = new SpreadWithMultipleParametersRequest(requiredString, requiredIntList);
+                spreadWithMultipleParametersRequest.setOptionalInt(optionalInt);
+                spreadWithMultipleParametersRequest.setOptionalStringList(optionalStringList);
+                return service.spreadWithMultipleParameters(this.client.getEndpoint(), id, xMsTestHeader, contentType,
+                    spreadWithMultipleParametersRequest, updatedContext);
+            });
     }
 
     /**
@@ -299,26 +235,13 @@ public final class AliasImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> spreadParameterWithInnerAliasWithResponse(String id, String xMsTestHeader, String name,
         int age, RequestContext requestContext) {
-        final String contentType = "application/json";
-        SpreadParameterWithInnerAliasRequest spreadParameterWithInnerAliasRequest
-            = new SpreadParameterWithInnerAliasRequest(name, age);
-        return service.spreadParameterWithInnerAlias(this.client.getEndpoint(), id, xMsTestHeader, contentType,
-            spreadParameterWithInnerAliasRequest, requestContext);
-    }
-
-    /**
-     * spread an alias with contains another alias property as body.
-     * 
-     * @param id The id parameter.
-     * @param xMsTestHeader The xMsTestHeader parameter.
-     * @param name name of the Thing.
-     * @param age age of the Thing.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void spreadParameterWithInnerAlias(String id, String xMsTestHeader, String name, int age) {
-        spreadParameterWithInnerAliasWithResponse(id, xMsTestHeader, name, age, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Parameters.Spread.Alias.spreadParameterWithInnerAlias",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                SpreadParameterWithInnerAliasRequest spreadParameterWithInnerAliasRequest
+                    = new SpreadParameterWithInnerAliasRequest(name, age);
+                return service.spreadParameterWithInnerAlias(this.client.getEndpoint(), id, xMsTestHeader, contentType,
+                    spreadParameterWithInnerAliasRequest, updatedContext);
+            });
     }
 }

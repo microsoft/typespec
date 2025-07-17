@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http",
-  "version": "1.0.1",
+  "version": "1.2.1",
   "author": "Microsoft Corporation",
   "description": "TypeSpec HTTP protocol binding",
   "homepage": "https://github.com/microsoft/typespec",
@@ -80,7 +80,7 @@
     }
   },
   "devDependencies": {
-    "@types/node": "~22.13.11",
+    "@types/node": "~24.0.3",
     "@typespec/compiler": "workspace:^",
     "@typespec/library-linter": "workspace:^",
     "@typespec/streams": "workspace:^",

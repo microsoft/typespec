@@ -3,7 +3,6 @@
 #nullable disable
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
@@ -30,9 +29,5 @@ namespace Response.StatusCodeRange
         protected virtual ErrorInRange PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<ErrorInRange>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(ErrorInRange errorInRange) => throw null;
-
-        public static explicit operator ErrorInRange(ClientResult result) => throw null;
     }
 }

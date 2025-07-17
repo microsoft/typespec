@@ -1,5 +1,5 @@
 import * as ts from "@alloy-js/typescript";
-import { Model, Operation } from "@typespec/compiler";
+import type { Model, Operation } from "@typespec/compiler";
 import { useTsp } from "../../core/index.js";
 import { buildParameterDescriptors, getReturnType } from "../utils/operation.js";
 import { declarationRefkeys } from "../utils/refkey.js";
