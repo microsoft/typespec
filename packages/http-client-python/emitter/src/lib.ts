@@ -91,7 +91,7 @@ export const PythonEmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = 
       type: "boolean",
       nullable: true,
       description:
-        "Whether to generate `setup.py` when generating packaging files. If set to `false` and by default, `pyproject.toml` will be generated instead.",
+        "Whether to generate `setup.py` when `generate-packaging-files` is `true`. If set to `false` and by default, `pyproject.toml` will be generated instead.",
     },
   },
   required: [],
