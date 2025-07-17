@@ -9,11 +9,6 @@ namespace Microsoft.TypeSpec.Generator.Expressions
     {
         internal override void Write(CodeWriter writer)
         {
-            // Explicitly ensure the namespace is added to the using statements
-            if (!string.IsNullOrEmpty(Type.Namespace))
-            {
-                writer.UseNamespace(Type.Namespace);
-            }
             writer.Append($"typeof({Type})");
         }
     }
