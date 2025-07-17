@@ -58,6 +58,9 @@ const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<stri
   "azure/client-generator-core/usage": {
     namespace: "specs.azure.clientgenerator.core.usage",
   },
+  "azure/client-generator-core/override": {
+    namespace: "specs.azure.clientgenerator.core.override",
+  },
   "azure/core/basic": {
     namespace: "specs.azure.core.basic",
   },
@@ -305,6 +308,9 @@ async function getSubdirectories(baseDir: string, flags: RegenerateFlags): Promi
         const clientTspPath = join(subDirPath, "client.tsp");
 
         const mainTspRelativePath = toPosix(relative(baseDir, mainTspPath));
+
+        // after support discriminated union, remove this check
+        if (mainTspRelativePath.includes("type/union/discriminated")) return;
 
         // after fix test generation for nested operation group, remove this check
         if (mainTspRelativePath.includes("client-operation-group")) return;
