@@ -10,7 +10,7 @@ using System.Text.Json;
 
 namespace SampleTypeSpec
 {
-    /// <summary> The ListWithContinuationTokenHeaderResponseResponse. </summary>
+    /// <summary></summary>
     internal partial class ListWithContinuationTokenHeaderResponseResponse : IJsonModel<ListWithContinuationTokenHeaderResponseResponse>
     {
         /// <summary> Initializes a new instance of <see cref="ListWithContinuationTokenHeaderResponseResponse"/> for deserialization. </summary>
@@ -146,6 +146,16 @@ namespace SampleTypeSpec
 
         /// <param name="options"> The client options for reading and writing models. </param>
         string IPersistableModel<ListWithContinuationTokenHeaderResponseResponse>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="listWithContinuationTokenHeaderResponseResponse"> The <see cref="ListWithContinuationTokenHeaderResponseResponse"/> to serialize into <see cref="BinaryContent"/>. </param>
+        public static implicit operator BinaryContent(ListWithContinuationTokenHeaderResponseResponse listWithContinuationTokenHeaderResponseResponse)
+        {
+            if (listWithContinuationTokenHeaderResponseResponse == null)
+            {
+                return null;
+            }
+            return BinaryContent.Create(listWithContinuationTokenHeaderResponseResponse, ModelSerializationExtensions.WireOptions);
+        }
 
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ListWithContinuationTokenHeaderResponseResponse"/> from. </param>
         public static explicit operator ListWithContinuationTokenHeaderResponseResponse(ClientResult result)

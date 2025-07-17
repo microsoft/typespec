@@ -10,7 +10,7 @@ using System.Text.Json;
 
 namespace SampleTypeSpec
 {
-    /// <summary> this is not a friendly model but with a friendly name. </summary>
+    /// <summary></summary>
     public partial class Friend : IJsonModel<Friend>
     {
         /// <summary> Initializes a new instance of <see cref="Friend"/> for deserialization. </summary>

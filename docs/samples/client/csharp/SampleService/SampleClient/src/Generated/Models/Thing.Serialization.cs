@@ -10,7 +10,7 @@ using System.Text.Json;
 
 namespace SampleTypeSpec
 {
-    /// <summary> A model with a few properties of literal types. </summary>
+    /// <summary></summary>
     public partial class Thing : IJsonModel<Thing>
     {
         /// <summary> Initializes a new instance of <see cref="Thing"/> for deserialization. </summary>

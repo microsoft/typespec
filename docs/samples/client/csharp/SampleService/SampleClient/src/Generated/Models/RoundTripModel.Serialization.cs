@@ -10,7 +10,7 @@ using System.Text.Json;
 
 namespace SampleTypeSpec
 {
-    /// <summary> this is a roundtrip model. </summary>
+    /// <summary></summary>
     public partial class RoundTripModel : IJsonModel<RoundTripModel>
     {
         /// <summary> Initializes a new instance of <see cref="RoundTripModel"/> for deserialization. </summary>

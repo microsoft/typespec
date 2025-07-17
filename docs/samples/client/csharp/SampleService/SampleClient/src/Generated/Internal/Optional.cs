@@ -25,7 +25,7 @@ namespace SampleTypeSpec
         }
 
         public static bool IsDefined<T>(T? value)
-            where T : struct
+            where T : struct 
         {
             return value.HasValue;
         }

@@ -9,15 +9,15 @@ using System.Threading.Tasks;
 
 namespace SampleTypeSpec
 {
-    internal partial class SampleTypeSpecClientGetWithPagingAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
+    internal partial class SampleTypeSpecClientListWithPagingAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
     {
         private readonly SampleTypeSpecClient _client;
         private readonly RequestOptions _options;
 
-        /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithPagingAsyncCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
+        /// <summary> Initializes a new instance of SampleTypeSpecClientListWithPagingAsyncCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
         /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        public SampleTypeSpecClientGetWithPagingAsyncCollectionResultOfT(SampleTypeSpecClient client, RequestOptions options)
+        public SampleTypeSpecClientListWithPagingAsyncCollectionResultOfT(SampleTypeSpecClient client, RequestOptions options)
         {
             _client = client;
             _options = options;
@@ -27,7 +27,7 @@ namespace SampleTypeSpec
         /// <returns> The raw pages of the collection. </returns>
         public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
         {
-            PipelineMessage message = _client.CreateGetWithPagingRequest(_options);
+            PipelineMessage message = _client.CreateListWithPagingRequest(_options);
             yield return ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
         }
 

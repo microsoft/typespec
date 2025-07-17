@@ -3,13 +3,14 @@
 #nullable disable
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
 
 namespace SampleTypeSpec
 {
-    /// <summary> A model with a few required nullable properties. </summary>
+    /// <summary></summary>
     public partial class ModelWithRequiredNullableProperties : IJsonModel<ModelWithRequiredNullableProperties>
     {
         /// <summary> Initializes a new instance of <see cref="ModelWithRequiredNullableProperties"/> for deserialization. </summary>
@@ -187,5 +188,23 @@ namespace SampleTypeSpec
 
         /// <param name="options"> The client options for reading and writing models. </param>
         string IPersistableModel<ModelWithRequiredNullableProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="modelWithRequiredNullableProperties"> The <see cref="ModelWithRequiredNullableProperties"/> to serialize into <see cref="BinaryContent"/>. </param>
+        public static implicit operator BinaryContent(ModelWithRequiredNullableProperties modelWithRequiredNullableProperties)
+        {
+            if (modelWithRequiredNullableProperties == null)
+            {
+                return null;
+            }
+            return BinaryContent.Create(modelWithRequiredNullableProperties, ModelSerializationExtensions.WireOptions);
+        }
+
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ModelWithRequiredNullableProperties"/> from. </param>
+        public static explicit operator ModelWithRequiredNullableProperties(ClientResult result)
+        {
+            using PipelineResponse response = result.GetRawResponse();
+            using JsonDocument document = JsonDocument.Parse(response.Content);
+            return DeserializeModelWithRequiredNullableProperties(document.RootElement, ModelSerializationExtensions.WireOptions);
+        }
     }
 }

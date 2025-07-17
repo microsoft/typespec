@@ -9,17 +9,17 @@ using System.Collections.Generic;
 
 namespace SampleTypeSpec
 {
-    internal partial class SampleTypeSpecClientGetWithContinuationTokenCollectionResult : CollectionResult
+    internal partial class SampleTypeSpecClientListWithContinuationTokenHeaderResponseCollectionResult : CollectionResult
     {
         private readonly SampleTypeSpecClient _client;
         private readonly string _token;
         private readonly RequestOptions _options;
 
-        /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithContinuationTokenCollectionResult, which is used to iterate over the pages of a collection. </summary>
+        /// <summary> Initializes a new instance of SampleTypeSpecClientListWithContinuationTokenHeaderResponseCollectionResult, which is used to iterate over the pages of a collection. </summary>
         /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
         /// <param name="token"></param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        public SampleTypeSpecClientGetWithContinuationTokenCollectionResult(SampleTypeSpecClient client, string token, RequestOptions options)
+        public SampleTypeSpecClientListWithContinuationTokenHeaderResponseCollectionResult(SampleTypeSpecClient client, string token, RequestOptions options)
         {
             _client = client;
             _token = token;
@@ -30,19 +30,22 @@ namespace SampleTypeSpec
         /// <returns> The raw pages of the collection. </returns>
         public override IEnumerable<ClientResult> GetRawPages()
         {
-            PipelineMessage message = _client.CreateGetWithContinuationTokenRequest(_token, _options);
+            PipelineMessage message = _client.CreateListWithContinuationTokenHeaderResponseRequest(_token, _options);
             string nextToken = null;
             while (true)
             {
                 ClientResult result = ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
                 yield return result;
 
-                nextToken = ((ListWithContinuationTokenResponse)result).NextToken;
-                if (nextToken == null)
+                if (result.GetRawResponse().Headers.TryGetValue("next-token", out string value))
+                {
+                    nextToken = value;
+                }
+                else
                 {
                     yield break;
                 }
-                message = _client.CreateGetWithContinuationTokenRequest(nextToken, _options);
+                message = _client.CreateListWithContinuationTokenHeaderResponseRequest(nextToken, _options);
             }
         }
 
@@ -51,10 +54,9 @@ namespace SampleTypeSpec
         /// <returns> The continuation token for the specified page. </returns>
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            string nextPage = ((ListWithContinuationTokenResponse)page).NextToken;
-            if (nextPage != null)
+            if (page.GetRawResponse().Headers.TryGetValue("next-token", out string value))
             {
-                return ContinuationToken.FromBytes(BinaryData.FromString(nextPage));
+                return ContinuationToken.FromBytes(BinaryData.FromString(value));
             }
             else
             {

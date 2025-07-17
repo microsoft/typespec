@@ -10,17 +10,20 @@ using System.Threading.Tasks;
 
 namespace SampleTypeSpec
 {
-    internal partial class SampleTypeSpecClientGetWithNextLinkAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
+    internal partial class SampleTypeSpecClientListWithContinuationTokenHeaderResponseAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
     {
         private readonly SampleTypeSpecClient _client;
+        private readonly string _token;
         private readonly RequestOptions _options;
 
-        /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithNextLinkAsyncCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
+        /// <summary> Initializes a new instance of SampleTypeSpecClientListWithContinuationTokenHeaderResponseAsyncCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
         /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
+        /// <param name="token"></param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        public SampleTypeSpecClientGetWithNextLinkAsyncCollectionResultOfT(SampleTypeSpecClient client, RequestOptions options)
+        public SampleTypeSpecClientListWithContinuationTokenHeaderResponseAsyncCollectionResultOfT(SampleTypeSpecClient client, string token, RequestOptions options)
         {
             _client = client;
+            _token = token;
             _options = options;
         }
 
@@ -28,19 +31,22 @@ namespace SampleTypeSpec
         /// <returns> The raw pages of the collection. </returns>
         public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
         {
-            PipelineMessage message = _client.CreateGetWithNextLinkRequest(_options);
-            Uri nextPageUri = null;
+            PipelineMessage message = _client.CreateListWithContinuationTokenHeaderResponseRequest(_token, _options);
+            string nextToken = null;
             while (true)
             {
                 ClientResult result = ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
                 yield return result;
 
-                nextPageUri = ((ListWithNextLinkResponse)result).Next;
-                if (nextPageUri == null)
+                if (result.GetRawResponse().Headers.TryGetValue("next-token", out string value))
+                {
+                    nextToken = value;
+                }
+                else
                 {
                     yield break;
                 }
-                message = _client.CreateNextGetWithNextLinkRequest(nextPageUri, _options);
+                message = _client.CreateListWithContinuationTokenHeaderResponseRequest(nextToken, _options);
             }
         }
 
@@ -49,10 +55,9 @@ namespace SampleTypeSpec
         /// <returns> The continuation token for the specified page. </returns>
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            Uri nextPage = ((ListWithNextLinkResponse)page).Next;
-            if (nextPage != null)
+            if (page.GetRawResponse().Headers.TryGetValue("next-token", out string value))
             {
-                return ContinuationToken.FromBytes(BinaryData.FromString(nextPage.AbsoluteUri));
+                return ContinuationToken.FromBytes(BinaryData.FromString(value));
             }
             else
             {
@@ -65,7 +70,7 @@ namespace SampleTypeSpec
         /// <returns> The values from the specified page. </returns>
         protected override async IAsyncEnumerable<Thing> GetValuesFromPageAsync(ClientResult page)
         {
-            foreach (Thing item in ((ListWithNextLinkResponse)page).Things)
+            foreach (Thing item in ((ListWithContinuationTokenHeaderResponseResponse)page).Things)
             {
                 yield return item;
                 await Task.Yield();
