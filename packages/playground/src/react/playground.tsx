@@ -1,4 +1,5 @@
 import type { CompilerOptions, Diagnostic } from "@typespec/compiler";
+import { $ } from "@typespec/compiler/typekit";
 import { Pane, SplitPane } from "@typespec/react-components";
 import "@typespec/react-components/style.css";
 import debounce from "debounce";
@@ -18,6 +19,7 @@ import { EditorCommandBar } from "../editor-command-bar/editor-command-bar.js";
 import { getMonacoRange } from "../services.js";
 import type { BrowserHost, PlaygroundSample } from "../types.js";
 import { PlaygroundContextProvider } from "./context/playground-context.js";
+import { debugGlobals, printDebugInfo } from "./debug.js";
 import { DefaultFooter } from "./default-footer.js";
 import { useMonacoModel, type OnMountData } from "./editor.js";
 import { OutputView } from "./output-view/output-view.js";
@@ -149,6 +151,12 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     editor.setTheme(props.editorOptions?.theme ?? "typespec");
   }, [props.editorOptions?.theme]);
 
+  useEffect(() => {
+    printDebugInfo();
+
+    debugGlobals().host = host;
+  }, [host]);
+
   const typespecModel = useMonacoModel("inmemory://test/main.tsp", "typespec");
   const [compilationState, setCompilationState] = useState<CompilationState | undefined>(undefined);
 
@@ -215,6 +223,10 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
         severity: diag.severity === "error" ? MarkerSeverity.Error : MarkerSeverity.Warning,
         tags: diag.code === "deprecated" ? [CompletionItemTag.Deprecated] : undefined,
       }));
+
+      // Set the program on the window.
+      debugGlobals().program = state.program;
+      debugGlobals().$$ = $(state.program);
 
       editor.setModelMarkers(typespecModel, "owner", markers ?? []);
     } else {
