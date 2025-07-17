@@ -1,5 +1,34 @@
 # Change Log - @typespec/playground
 
+## 0.9.0
+
+### Features
+
+- [#7836](https://github.com/microsoft/typespec/pull/7836) Overall of the playground state
+    - Allow viewers to define their own state
+    - Can listen to any state change
+    - Standalone playground updates url on navigation(viewer change, viewer internal state change, etc.)
+
+### Bump dependencies
+
+- [#7674](https://github.com/microsoft/typespec/pull/7674) Upgrade dependencies
+
+### Bug Fixes
+
+- [#7833](https://github.com/microsoft/typespec/pull/7833) Fix editor hovers being cropped by the editor boundary
+
+
+## 0.8.2
+
+### Bump dependencies
+
+- [#7323](https://github.com/microsoft/typespec/pull/7323) Upgrade dependencies
+
+### Bug Fixes
+
+- [#7319](https://github.com/microsoft/typespec/pull/7319) Reduce visual noise in diagnostics by targeting the specific node id rather than the entire node.
+
+
 ## 0.8.1
 
 ### Bump dependencies

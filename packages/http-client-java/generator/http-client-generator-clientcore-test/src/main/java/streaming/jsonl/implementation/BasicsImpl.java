@@ -3,7 +3,6 @@ package streaming.jsonl.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -14,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.models.binarydata.BinaryData;
 import java.lang.reflect.InvocationTargetException;
 
@@ -32,13 +32,19 @@ public final class BasicsImpl {
     private final JsonlClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of BasicsImpl.
      * 
      * @param client the instance of the service client containing this operation class.
      */
     BasicsImpl(JsonlClientImpl client) {
-        this.service = RestProxy.create(BasicsService.class, client.getHttpPipeline());
+        this.service = BasicsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -89,22 +95,11 @@ public final class BasicsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> sendWithResponse(BinaryData body, long contentLength, RequestContext requestContext) {
-        final String contentType = "application/jsonl";
-        return service.send(this.client.getEndpoint(), contentType, body, contentLength, requestContext);
-    }
-
-    /**
-     * The send operation.
-     * 
-     * @param body The body parameter.
-     * @param contentLength The Content-Length header for the request.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void send(BinaryData body, long contentLength) {
-        sendWithResponse(body, contentLength, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Streaming.Jsonl.Basic.send", requestContext,
+            updatedContext -> {
+                final String contentType = "application/jsonl";
+                return service.send(this.client.getEndpoint(), contentType, body, contentLength, updatedContext);
+            });
     }
 
     /**
@@ -118,19 +113,10 @@ public final class BasicsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> receiveWithResponse(RequestContext requestContext) {
-        final String accept = "application/jsonl";
-        return service.receive(this.client.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * The receive operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData receive() {
-        return receiveWithResponse(RequestContext.none()).getValue();
+        return this.instrumentation.instrumentWithResponse("Streaming.Jsonl.Basic.receive", requestContext,
+            updatedContext -> {
+                final String accept = "application/jsonl";
+                return service.receive(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 }

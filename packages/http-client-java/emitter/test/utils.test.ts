@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { scopeExplicitlyIncludeJava, scopeImplicitlyIncludeJava } from "../src/type-utils.js";
-import { pascalCase, removeClientSuffix, stringArrayContainsIgnoreCase } from "../src/utils.js";
+import {
+  optionBoolean,
+  pascalCase,
+  removeClientSuffix,
+  stringArrayContainsIgnoreCase,
+} from "../src/utils.js";
 import { isStableApiVersion } from "../src/versioning-utils.js";
 
 describe("utils", () => {
@@ -20,6 +25,15 @@ describe("utils", () => {
   it("removeClientSuffix", () => {
     expect(removeClientSuffix("FooClient")).toBe("Foo");
     expect(removeClientSuffix("client")).toBe("client");
+  });
+
+  it("optionBoolean", () => {
+    expect(optionBoolean("true")).toBe(true);
+    expect(optionBoolean("false")).toBe(false);
+    expect(optionBoolean("NA")).toBe(false);
+    expect(optionBoolean(true)).toBe(true);
+    expect(optionBoolean(false)).toBe(false);
+    expect(optionBoolean(undefined)).toBe(undefined);
   });
 });
 

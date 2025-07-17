@@ -32,7 +32,5 @@ namespace SpecialWords._Models
         string IPersistableModel<While>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(While @while) => throw null;
-
-        public static explicit operator While(ClientResult result) => throw null;
     }
 }

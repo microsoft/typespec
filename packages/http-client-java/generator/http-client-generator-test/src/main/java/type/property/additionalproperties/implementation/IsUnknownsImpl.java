@@ -57,7 +57,7 @@ public final class IsUnknownsImpl {
      * to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "AdditionalProperties")
+    @ServiceInterface(name = "AdditionalPropertiesClientIsUnknowns")
     public interface IsUnknownsService {
         @Get("/type/property/additionalProperties/isRecordUnknown")
         @ExpectedResponses({ 200 })

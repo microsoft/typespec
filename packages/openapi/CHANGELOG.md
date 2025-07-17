@@ -1,5 +1,19 @@
 # Change Log - @typespec/openapi
 
+## 1.2.0
+
+### Bump dependencies
+
+- [#7674](https://github.com/microsoft/typespec/pull/7674) Upgrade dependencies
+
+
+## 1.1.0
+
+### Bug Fixes
+
+- [#7509](https://github.com/microsoft/typespec/pull/7509) Fix `@tagMetadata` decorator emitting error when incorrectly not finding `@service` decorator
+
+
 ## 1.0.0
 
 No changes, version bump only.

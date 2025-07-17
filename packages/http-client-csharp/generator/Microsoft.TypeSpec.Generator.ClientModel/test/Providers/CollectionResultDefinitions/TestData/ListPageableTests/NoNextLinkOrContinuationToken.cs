@@ -16,7 +16,7 @@ namespace Sample
 
         public CatClientGetCatsCollectionResult(global::Sample.CatClient client, string animalKind, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            global::Sample.Argument.AssertNotNull(animalKind, nameof(animalKind));
+            global::Sample.Argument.AssertNotNullOrEmpty(animalKind, nameof(animalKind));
 
             _client = client;
             _animalKind = animalKind;

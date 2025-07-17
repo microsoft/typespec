@@ -57,7 +57,7 @@ public final class StringLiteralsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ValueTypesClientStri")
+    @ServiceInterface(name = "ValueTypesClientStringLiterals")
     public interface StringLiteralsService {
         @Get("/type/property/value-types/string/literal")
         @ExpectedResponses({ 200 })

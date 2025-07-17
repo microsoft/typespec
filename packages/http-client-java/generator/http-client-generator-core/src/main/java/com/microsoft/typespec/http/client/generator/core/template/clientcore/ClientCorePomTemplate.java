@@ -219,7 +219,7 @@ public class ClientCorePomTemplate extends PomTemplate {
                                 annotationProcessorPathsBlock.block("annotationProcessorPath", pathBlock -> {
                                     pathBlock.tag("groupId", "io.clientcore");
                                     pathBlock.tag("artifactId", "annotation-processor");
-                                    pathBlock.tag("version", "1.0.0-beta.2");
+                                    pathBlock.tag("version", "1.0.0-beta.3");
                                 });
                             });
                             configurationBlock.block("annotationProcessors", annotationProcessorsBlock -> {
@@ -240,7 +240,7 @@ public class ClientCorePomTemplate extends PomTemplate {
                     dependenciesBlock.block("dependency", dependencyBlock -> {
                         dependencyBlock.tag("groupId", "io.clientcore");
                         dependencyBlock.tag("artifactId", "annotation-processor");
-                        dependencyBlock.tag("version", "1.0.0-beta.2");
+                        dependencyBlock.tag("version", "1.0.0-beta.3");
                     });
                 });
             }

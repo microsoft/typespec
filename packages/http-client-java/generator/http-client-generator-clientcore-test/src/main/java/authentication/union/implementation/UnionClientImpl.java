@@ -3,7 +3,6 @@ package authentication.union.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
@@ -12,6 +11,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -52,15 +52,31 @@ public final class UnionClientImpl {
     }
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
      * Initializes an instance of UnionClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
      */
-    public UnionClientImpl(HttpPipeline httpPipeline, String endpoint) {
+    public UnionClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
-        this.service = RestProxy.create(UnionClientService.class, this.httpPipeline);
+        this.service = UnionClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -106,18 +122,10 @@ public final class UnionClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> validKeyWithResponse(RequestContext requestContext) {
-        return service.validKey(this.getEndpoint(), requestContext);
-    }
-
-    /**
-     * Check whether client is authenticated.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void validKey() {
-        validKeyWithResponse(RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Authentication.Union.validKey", requestContext,
+            updatedContext -> {
+                return service.validKey(this.getEndpoint(), updatedContext);
+            });
     }
 
     /**
@@ -131,17 +139,9 @@ public final class UnionClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> validTokenWithResponse(RequestContext requestContext) {
-        return service.validToken(this.getEndpoint(), requestContext);
-    }
-
-    /**
-     * Check whether client is authenticated.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void validToken() {
-        validTokenWithResponse(RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Authentication.Union.validToken", requestContext,
+            updatedContext -> {
+                return service.validToken(this.getEndpoint(), updatedContext);
+            });
     }
 }

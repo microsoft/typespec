@@ -81,6 +81,7 @@ class _ParameterBase(BaseModel, abc.ABC):  # pylint: disable=too-many-instance-a
         self.grouper: bool = self.yaml_data.get("grouper", False)
         self.check_client_input: bool = self.yaml_data.get("checkClientInput", False)
         self.added_on: Optional[str] = self.yaml_data.get("addedOn")
+        self.api_versions: Optional[List[str]] = self.yaml_data.get("apiVersions", [])
         self.is_api_version: bool = self.yaml_data.get("isApiVersion", False)
         self.in_overload: bool = self.yaml_data.get("inOverload", False)
         self.default_to_unset_sentinel: bool = self.yaml_data.get("defaultToUnsetSentinel", False)
@@ -236,7 +237,7 @@ class BodyParameter(_ParameterBase):
         return (
             self.type.is_form_data
             or bool(self.entries)
-            or ("multipart/form-data" in self.content_types and self.code_model.options["from_typespec"])
+            or ("multipart/form-data" in self.content_types and self.code_model.options["from-typespec"])
         )
 
     @property
@@ -313,7 +314,7 @@ class Parameter(_ParameterBase):
 
     @property
     def hide_in_operation_signature(self) -> bool:
-        if self.code_model.options["version_tolerant"] and self.client_name == "maxpagesize":
+        if self.code_model.options["version-tolerant"] and self.client_name == "maxpagesize":
             return True
         return self.is_continuation_token
 
@@ -341,7 +342,7 @@ class Parameter(_ParameterBase):
     ) -> ParameterMethodLocation:
         if not self.in_method_signature:
             raise ValueError(f"Parameter '{self.client_name}' is not in the method.")
-        if self.code_model.options["models_mode"] == "dpg" and self.in_flattened_body:
+        if self.code_model.options["models-mode"] == "dpg" and self.in_flattened_body:
             return ParameterMethodLocation.KEYWORD_ONLY
         if self.grouper:
             return ParameterMethodLocation.POSITIONAL
@@ -355,7 +356,7 @@ class Parameter(_ParameterBase):
             ParameterLocation.HEADER,
             ParameterLocation.QUERY,
         )
-        if self.code_model.options["only_path_and_body_params_positional"] and query_or_header:
+        if self.code_model.options["only-path-and-body-params-positional"] and query_or_header:
             return ParameterMethodLocation.KEYWORD_ONLY
         # for optional path parameter, we need to use keyword only
         if self.location == ParameterLocation.PATH and self.optional:
@@ -384,15 +385,15 @@ class ClientParameter(Parameter):
             return ParameterMethodLocation.KWARG
         if (
             self.is_host
-            and (self.code_model.options["version_tolerant"] or self.code_model.options["low_level_client"])
-            and not self.code_model.options["azure_arm"]
+            and (self.code_model.options["version-tolerant"] or self.code_model.options["low-level-client"])
+            and not self.code_model.options["azure-arm"]
         ):
             # this means i am the base url
             return ParameterMethodLocation.KEYWORD_ONLY
         if (
             self.client_default_value is not None
-            and self.code_model.options["from_typespec"]
-            and not self.code_model.options["azure_arm"]
+            and self.code_model.options["from-typespec"]
+            and not self.code_model.options["azure-arm"]
         ):
             return ParameterMethodLocation.KEYWORD_ONLY
         return ParameterMethodLocation.POSITIONAL

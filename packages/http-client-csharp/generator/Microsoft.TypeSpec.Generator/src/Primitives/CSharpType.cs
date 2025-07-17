@@ -159,7 +159,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             _underlyingType = underlyingEnumType;
         }
 
-        public string Namespace { get; private set; }
+        public string Namespace { get; internal set; }
 
         /// <summary>
         /// Gets or sets the name of the type.
@@ -663,7 +663,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         /// </summary>
         /// <param name="name">Name of the <see cref="CSharpType"/></param>
         /// <param name="namespace">Namespace of the <see cref="CSharpType"/></param>
-        public void Update(string? name = null, string? @namespace = null)
+        internal void Update(string? name = null, string? @namespace = null)
         {
             if (name != null)
             {

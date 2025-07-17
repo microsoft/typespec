@@ -3,7 +3,6 @@ package type.model.usage.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -14,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import type.model.usage.InputOutputRecord;
 import type.model.usage.InputRecord;
@@ -57,15 +57,31 @@ public final class UsageClientImpl {
     }
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
      * Initializes an instance of UsageClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
      */
-    public UsageClientImpl(HttpPipeline httpPipeline, String endpoint) {
+    public UsageClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
-        this.service = RestProxy.create(UsageClientService.class, this.httpPipeline);
+        this.service = UsageClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -123,21 +139,10 @@ public final class UsageClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> inputWithResponse(InputRecord input, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.input(this.getEndpoint(), contentType, input, requestContext);
-    }
-
-    /**
-     * The input operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void input(InputRecord input) {
-        inputWithResponse(input, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Type.Model.Usage.input", requestContext, updatedContext -> {
+            final String contentType = "application/json";
+            return service.input(this.getEndpoint(), contentType, input, updatedContext);
+        });
     }
 
     /**
@@ -151,20 +156,11 @@ public final class UsageClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<OutputRecord> outputWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.output(this.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * The output operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return record used in operation return type.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public OutputRecord output() {
-        return outputWithResponse(RequestContext.none()).getValue();
+        return this.instrumentation.instrumentWithResponse("Type.Model.Usage.output", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.output(this.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -180,22 +176,11 @@ public final class UsageClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<InputOutputRecord> inputAndOutputWithResponse(InputOutputRecord body,
         RequestContext requestContext) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.inputAndOutput(this.getEndpoint(), contentType, accept, body, requestContext);
-    }
-
-    /**
-     * The inputAndOutput operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return record used both as operation parameter and return type.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public InputOutputRecord inputAndOutput(InputOutputRecord body) {
-        return inputAndOutputWithResponse(body, RequestContext.none()).getValue();
+        return this.instrumentation.instrumentWithResponse("Type.Model.Usage.inputAndOutput", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.inputAndOutput(this.getEndpoint(), contentType, accept, body, updatedContext);
+            });
     }
 }

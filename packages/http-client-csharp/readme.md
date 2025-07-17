@@ -19,7 +19,7 @@ npm install @typespec/http-client-csharp
 
 For detailed instructions on how to customize the generated C# code, see the [Customization Guide](https://github.com/microsoft/typespec/blob/main/packages/http-client-csharp/.tspd/docs/customization.md).
 
-## Usage
+## Emitter usage
 
 1. Via the command line
 

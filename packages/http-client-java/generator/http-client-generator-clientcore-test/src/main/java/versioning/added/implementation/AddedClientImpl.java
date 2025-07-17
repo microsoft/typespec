@@ -3,7 +3,6 @@ package versioning.added.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -14,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import versioning.added.AddedServiceVersion;
 import versioning.added.ModelV1;
@@ -71,6 +71,20 @@ public final class AddedClientImpl {
     }
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
      * The InterfaceV2sImpl object to access its operations.
      */
     private final InterfaceV2sImpl interfaceV2s;
@@ -88,15 +102,18 @@ public final class AddedClientImpl {
      * Initializes an instance of AddedClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
      * @param serviceVersion Service version.
      */
-    public AddedClientImpl(HttpPipeline httpPipeline, String endpoint, AddedServiceVersion serviceVersion) {
+    public AddedClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint,
+        AddedServiceVersion serviceVersion) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
         this.serviceVersion = serviceVersion;
         this.interfaceV2s = new InterfaceV2sImpl(this);
-        this.service = RestProxy.create(AddedClientService.class, this.httpPipeline);
+        this.service = AddedClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -143,25 +160,12 @@ public final class AddedClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ModelV1> v1WithResponse(String headerV2, ModelV1 body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.v1(this.getEndpoint(), this.getServiceVersion().getVersion(), headerV2, contentType, accept,
-            body, requestContext);
-    }
-
-    /**
-     * The v1 operation.
-     * 
-     * @param headerV2 The headerV2 parameter.
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public ModelV1 v1(String headerV2, ModelV1 body) {
-        return v1WithResponse(headerV2, body, RequestContext.none()).getValue();
+        return this.instrumentation.instrumentWithResponse("Versioning.Added.v1", requestContext, updatedContext -> {
+            final String contentType = "application/json";
+            final String accept = "application/json";
+            return service.v1(this.getEndpoint(), this.getServiceVersion().getVersion(), headerV2, contentType, accept,
+                body, updatedContext);
+        });
     }
 
     /**
@@ -176,23 +180,11 @@ public final class AddedClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ModelV2> v2WithResponse(ModelV2 body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.v2(this.getEndpoint(), this.getServiceVersion().getVersion(), contentType, accept, body,
-            requestContext);
-    }
-
-    /**
-     * The v2 operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public ModelV2 v2(ModelV2 body) {
-        return v2WithResponse(body, RequestContext.none()).getValue();
+        return this.instrumentation.instrumentWithResponse("Versioning.Added.v2", requestContext, updatedContext -> {
+            final String contentType = "application/json";
+            final String accept = "application/json";
+            return service.v2(this.getEndpoint(), this.getServiceVersion().getVersion(), contentType, accept, body,
+                updatedContext);
+        });
     }
 }

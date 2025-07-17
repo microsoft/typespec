@@ -1,6 +1,7 @@
 package payload.multipart.implementation;
 
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 
 /**
  * Initializes a new instance of the MultiPartClient type.
@@ -32,6 +33,20 @@ public final class MultiPartClientImpl {
      */
     public HttpPipeline getHttpPipeline() {
         return this.httpPipeline;
+    }
+
+    /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
     }
 
     /**
@@ -94,10 +109,12 @@ public final class MultiPartClientImpl {
      * Initializes an instance of MultiPartClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
      */
-    public MultiPartClientImpl(HttpPipeline httpPipeline, String endpoint) {
+    public MultiPartClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
         this.formDatas = new FormDatasImpl(this);
         this.formDataHttpParts = new FormDataHttpPartsImpl(this);

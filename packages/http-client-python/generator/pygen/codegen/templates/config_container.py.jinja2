@@ -8,7 +8,7 @@
 
 {{ imports }}
 
-{% if not code_model.options['package_version'] %}
+{% if not code_model.options.get("package-version") %}
 VERSION = "unknown"
 {% endif %}
 

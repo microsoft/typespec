@@ -9,6 +9,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -20,14 +21,18 @@ public final class HeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final HeadersImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of HeaderClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    HeaderClient(HeadersImpl serviceClient) {
+    HeaderClient(HeadersImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -43,7 +48,8 @@ public final class HeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> defaultMethodWithResponse(OffsetDateTime value, RequestContext requestContext) {
-        return this.serviceClient.defaultMethodWithResponse(value, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.Header.default", requestContext,
+            updatedContext -> this.serviceClient.defaultMethodWithResponse(value, updatedContext));
     }
 
     /**
@@ -57,7 +63,7 @@ public final class HeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void defaultMethod(OffsetDateTime value) {
-        this.serviceClient.defaultMethod(value);
+        defaultMethodWithResponse(value, RequestContext.none());
     }
 
     /**
@@ -73,7 +79,8 @@ public final class HeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> rfc3339WithResponse(OffsetDateTime value, RequestContext requestContext) {
-        return this.serviceClient.rfc3339WithResponse(value, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.Header.rfc3339", requestContext,
+            updatedContext -> this.serviceClient.rfc3339WithResponse(value, updatedContext));
     }
 
     /**
@@ -87,7 +94,7 @@ public final class HeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void rfc3339(OffsetDateTime value) {
-        this.serviceClient.rfc3339(value);
+        rfc3339WithResponse(value, RequestContext.none());
     }
 
     /**
@@ -103,7 +110,8 @@ public final class HeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> rfc7231WithResponse(OffsetDateTime value, RequestContext requestContext) {
-        return this.serviceClient.rfc7231WithResponse(value, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.Header.rfc7231", requestContext,
+            updatedContext -> this.serviceClient.rfc7231WithResponse(value, updatedContext));
     }
 
     /**
@@ -117,7 +125,7 @@ public final class HeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void rfc7231(OffsetDateTime value) {
-        this.serviceClient.rfc7231(value);
+        rfc7231WithResponse(value, RequestContext.none());
     }
 
     /**
@@ -133,7 +141,8 @@ public final class HeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> unixTimestampWithResponse(OffsetDateTime value, RequestContext requestContext) {
-        return this.serviceClient.unixTimestampWithResponse(value, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.Header.unixTimestamp", requestContext,
+            updatedContext -> this.serviceClient.unixTimestampWithResponse(value, updatedContext));
     }
 
     /**
@@ -147,7 +156,7 @@ public final class HeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void unixTimestamp(OffsetDateTime value) {
-        this.serviceClient.unixTimestamp(value);
+        unixTimestampWithResponse(value, RequestContext.none());
     }
 
     /**
@@ -163,7 +172,8 @@ public final class HeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> unixTimestampArrayWithResponse(List<OffsetDateTime> value, RequestContext requestContext) {
-        return this.serviceClient.unixTimestampArrayWithResponse(value, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.Header.unixTimestampArray", requestContext,
+            updatedContext -> this.serviceClient.unixTimestampArrayWithResponse(value, updatedContext));
     }
 
     /**
@@ -177,6 +187,6 @@ public final class HeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void unixTimestampArray(List<OffsetDateTime> value) {
-        this.serviceClient.unixTimestampArray(value);
+        unixTimestampArrayWithResponse(value, RequestContext.none());
     }
 }

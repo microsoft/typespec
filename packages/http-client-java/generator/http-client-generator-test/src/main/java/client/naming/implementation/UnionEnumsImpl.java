@@ -56,7 +56,7 @@ public final class UnionEnumsImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "NamingClientUnionEnu")
+    @ServiceInterface(name = "NamingClientUnionEnums")
     public interface UnionEnumsService {
         @Post("/client/naming/union-enum/union-enum-name")
         @ExpectedResponses({ 204 })

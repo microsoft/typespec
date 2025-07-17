@@ -57,7 +57,7 @@ public final class CollectionsBytesImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "NullableClientCollec")
+    @ServiceInterface(name = "NullableClientCollectionsBytes")
     public interface CollectionsBytesService {
         @Get("/type/property/nullable/collections/bytes/non-null")
         @ExpectedResponses({ 200 })

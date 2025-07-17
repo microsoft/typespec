@@ -57,7 +57,7 @@ public final class SpreadDifferentModelArraysImpl {
      * the proxy service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "AdditionalProperties")
+    @ServiceInterface(name = "AdditionalPropertiesClientSpreadDifferentModelArrays")
     public interface SpreadDifferentModelArraysService {
         @Get("/type/property/additionalProperties/spreadDifferentRecordModelArray")
         @ExpectedResponses({ 200 })
