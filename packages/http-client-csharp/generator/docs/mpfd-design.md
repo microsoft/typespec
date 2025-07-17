@@ -3,7 +3,7 @@
 ## Table of Contents
 
 1. [Motivation](#motivation)
-2. [System ClientModel & Azure.Core Updates](#systemclientmodel-updates)
+2. [System.ClientModel Updates](#systemclientmodel-updates)
 3. [Usage Examples](#usage-examples)
 
 ## Motivation
@@ -60,8 +60,6 @@ but with the intention to provide support for both unbranded and azure branded l
 
 A new type can be added to facilitate building multipart/form-data requests and provide a streamlined API for clients that need to send multipart payloads. This type eliminates the need for manual boundary management and complex multipart construction while maintaining full control over content types and part metadata.
 
-### System.ClientModel
-
 ```c#
 public partial class MultiPartFormDataBinaryContent : System.ClientModel.BinaryContent
 {
@@ -88,8 +86,6 @@ public partial class MultiPartFormDataBinaryContent : System.ClientModel.BinaryC
 ### File Part Type
 
 To support generating a convenience layer for file parts in multipart/form-data requests, a new type can be added to the System.ClientModel library for use by generated clients. This type serves as the common representation for file parts within multipart requests.
-
-#### System.ClientModel
 
 ```csharp
 public partial class FileBinaryContent : System.ClientModel.BinaryContent
