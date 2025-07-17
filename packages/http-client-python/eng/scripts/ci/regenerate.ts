@@ -226,15 +226,12 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
   },
   "payload/content-negotiation": {
     "package-name": "payload-contentnegotiation",
-    namespace: "payload.contentnegotiation",
   },
   "serialization/encoded-name/json": {
     "package-name": "serialization-encodedname-json",
-    namespace: "serialization.encodedname.json",
   },
   "special-words": {
     "package-name": "specialwords",
-    namespace: "specialwords",
   },
   "type/array": {
     "package-name": "typetest-array",
