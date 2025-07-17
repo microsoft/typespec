@@ -1,5 +1,3 @@
-import { useTsp } from "#core/index.js";
-import { efRefkey } from "#typescript/utils/refkey.js";
 import { type Children, For, List } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import {
@@ -9,6 +7,8 @@ import {
   type Union,
   type UnionVariant,
 } from "@typespec/compiler";
+import { useTsp } from "../../../core/context/tsp-context.js";
+import { efRefkey } from "../../utils/refkey.js";
 import { TypeExpression } from "../type-expression.jsx";
 
 export interface UnionExpressionProps {
