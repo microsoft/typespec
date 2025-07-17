@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import List, Sequence, Union, Optional, Dict
+from typing import Sequence, Union, Optional
 from enum import Enum, auto
 
 from ..models import (
@@ -25,7 +25,7 @@ class PopKwargType(Enum):
     CASE_INSENSITIVE = auto()
 
 
-SPECIAL_HEADER_SERIALIZATION: Dict[str, List[str]] = {
+SPECIAL_HEADER_SERIALIZATION: dict[str, list[str]] = {
     "repeatability-request-id": [
         """if "Repeatability-Request-ID" not in _headers:""",
         """    _headers["Repeatability-Request-ID"] = str(uuid.uuid4())""",
@@ -113,13 +113,13 @@ class ParameterSerializer:
     def serialize_path(
         self,
         parameters: Union[
-            List[Parameter],
-            List[RequestBuilderParameter],
-            List[ClientParameter],
-            List[ConfigParameter],
+            list[Parameter],
+            list[RequestBuilderParameter],
+            list[ClientParameter],
+            list[ConfigParameter],
         ],
         serializer_name: str,
-    ) -> List[str]:
+    ) -> list[str]:
         retval = ["path_format_arguments = {"]
         retval.extend(
             [
@@ -143,7 +143,7 @@ class ParameterSerializer:
         kwarg_name: str,
         serializer_name: str,
         is_legacy: bool,
-    ) -> List[str]:
+    ) -> list[str]:
         if (
             not is_legacy
             and param.location == ParameterLocation.HEADER
@@ -173,7 +173,7 @@ class ParameterSerializer:
         pop_params_kwarg: PopKwargType,
         check_client_input: bool = False,
         operation_name: Optional[str] = None,
-    ) -> List[str]:
+    ) -> list[str]:
         retval = []
 
         def append_pop_kwarg(key: str, pop_type: PopKwargType) -> None:
@@ -216,10 +216,10 @@ class ParameterSerializer:
         function_def: str,
         method_name: str,
         need_self_param: bool,
-        method_param_signatures: List[str],
+        method_param_signatures: list[str],
         pylint_disable: str = "",
     ):
-        lines: List[str] = []
+        lines: list[str] = []
         first_line = f"{function_def} {method_name}({pylint_disable}"
         lines.append(first_line)
         if need_self_param:

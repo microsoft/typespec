@@ -3,7 +3,6 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import List
 from jinja2 import Environment
 
 from ..models import CodeModel, OperationGroup
@@ -13,7 +12,7 @@ class OperationsInitSerializer:
     def __init__(
         self,
         code_model: CodeModel,
-        operation_groups: List[OperationGroup],
+        operation_groups: list[OperationGroup],
         env: Environment,
         async_mode: bool,
     ) -> None:
@@ -22,7 +21,7 @@ class OperationsInitSerializer:
         self.env = env
         self.async_mode = async_mode
 
-    def operation_group_imports(self) -> List[str]:
+    def operation_group_imports(self) -> list[str]:
         def _get_filename(operation_group: OperationGroup) -> str:
             return "_operations" if self.code_model.options["combine-operation-files"] else operation_group.filename
 
