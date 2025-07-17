@@ -983,6 +983,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         pendingResolutions.finish(getNodeSym(node), ResolutionKind.Constraint);
       }
       if (node.default) {
+        // Set this to unknownType in case the default points back to the template itself causing failures
+        type.default = unknownType;
         type.default = checkTemplateParameterDefault(
           node.default,
           parentNode.templateParameters,
