@@ -174,7 +174,7 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
     {
       "package-name": "setuppy-parameters-bodyoptionality",
       "generate-setup-py": "true",
-    }
+    },
   ],
   "parameters/collection-format": {
     "package-name": "parameters-collectionformat",

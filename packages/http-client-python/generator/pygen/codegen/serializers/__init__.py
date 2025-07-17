@@ -58,6 +58,7 @@ _PACKAGE_FILES = [
 _REGENERATE_FILES = {"MANIFEST.in"}
 AsyncInfo = namedtuple("AsyncInfo", ["async_mode", "async_path"])
 
+
 # extract sub folders. For example, source_file_path is like:
 # "xxx/resource-manager/Microsoft.XX/stable/2023-04-01/examples/Compute/createOrUpdate/AKSCompute.json",
 # and we want to extract the sub folders after "examples/", which is "compute/create_or_update"
@@ -82,12 +83,12 @@ class JinjaSerializer(ReaderAndWriter):
         self._regenerate_setup_py()
 
     def _regenerate_setup_py(self):
-      if self.code_model.options["generate-setup-py"]:
-        _PACKAGE_FILES.append("setup.py.jinja2")
-        _REGENERATE_FILES.add("setup.py")
-      else:
-        _PACKAGE_FILES.append("pyproject.toml.jinja2")
-        _REGENERATE_FILES.add("pyproject.toml")
+        if self.code_model.options["generate-setup-py"]:
+            _PACKAGE_FILES.append("setup.py.jinja2")
+            _REGENERATE_FILES.add("setup.py")
+        else:
+            _PACKAGE_FILES.append("pyproject.toml.jinja2")
+            _REGENERATE_FILES.add("pyproject.toml")
 
     @property
     def has_aio_folder(self) -> bool:

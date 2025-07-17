@@ -80,7 +80,7 @@ class GeneralSerializer(BaseSerializer):
             if "dependencies" in loaded_pyproject_toml["project"]:
                 kept_deps = []
                 for dep in loaded_pyproject_toml["project"]["dependencies"]:
-                    dep_name = re.split(r'[<>=\[]', dep)[0].strip()
+                    dep_name = re.split(r"[<>=\[]", dep)[0].strip()
 
                     # Check if dependency is one we track in VERSION_MAP
                     if dep_name in VERSION_MAP:
@@ -100,9 +100,9 @@ class GeneralSerializer(BaseSerializer):
 
             # Keep optional dependencies
             if "optional-dependencies" in loaded_pyproject_toml["project"]:
-                result["KEEP_FIELDS"]["project.optional-dependencies"] = (
-                    loaded_pyproject_toml["project"]["optional-dependencies"]
-                )
+                result["KEEP_FIELDS"]["project.optional-dependencies"] = loaded_pyproject_toml["project"][
+                    "optional-dependencies"
+                ]
 
         return result
 
@@ -128,17 +128,19 @@ class GeneralSerializer(BaseSerializer):
             dev_status = "4 - Beta"
         else:
             dev_status = "5 - Production/Stable"
-        params.update({
-            "code_model": self.code_model,
-            "dev_status": dev_status,
-            "token_credential": token_credential,
-            "pkgutil_names": [".".join(package_parts[: i + 1]) for i in range(len(package_parts))],
-            "init_names": ["/".join(package_parts[: i + 1]) + "/__init__.py" for i in range(len(package_parts))],
-            "client_name": self.code_model.clients[0].name if self.code_model.clients else "",
-            "VERSION_MAP": VERSION_MAP,
-            "MIN_PYTHON_VERSION": MIN_PYTHON_VERSION,
-            "MAX_PYTHON_VERSION": MAX_PYTHON_VERSION,
-        })
+        params.update(
+            {
+                "code_model": self.code_model,
+                "dev_status": dev_status,
+                "token_credential": token_credential,
+                "pkgutil_names": [".".join(package_parts[: i + 1]) for i in range(len(package_parts))],
+                "init_names": ["/".join(package_parts[: i + 1]) + "/__init__.py" for i in range(len(package_parts))],
+                "client_name": self.code_model.clients[0].name if self.code_model.clients else "",
+                "VERSION_MAP": VERSION_MAP,
+                "MIN_PYTHON_VERSION": MIN_PYTHON_VERSION,
+                "MAX_PYTHON_VERSION": MAX_PYTHON_VERSION,
+            }
+        )
         params.update({"options": self.code_model.options})
         params.update(kwargs)
         return template.render(file_import=FileImport(self.code_model), **params)
