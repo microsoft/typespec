@@ -341,6 +341,7 @@ namespace Microsoft.TypeSpec.Generator
         {
             // accumulate the definitions from the same document together
             var documents = new Dictionary<Document, HashSet<BaseTypeDeclarationSyntax>>();
+
             foreach (var model in unusedModels)
             {
                 var document = project.GetDocument(model.SyntaxTree);
@@ -371,7 +372,6 @@ namespace Microsoft.TypeSpec.Generator
             if (compilation == null)
                 return project;
 
-            // Find the MRWContext class
             foreach (var document in project.Documents)
             {
                 var root = await document.GetSyntaxRootAsync();
@@ -391,10 +391,12 @@ namespace Microsoft.TypeSpec.Generator
                            }))
                     .ToList();
 
-                if (!mrwContextClasses.Any())
+                if (mrwContextClasses.Count == 0)
+                {
                     continue;
+                }
 
-                // Process each MRWContext class
+                // Process each MrwContext class
                 var newRoot = root;
                 foreach (var mrwContextClass in mrwContextClasses)
                 {
@@ -405,13 +407,7 @@ namespace Microsoft.TypeSpec.Generator
                     {
                         foreach (var attribute in attributeList.Attributes)
                         {
-                            var attributeSymbol = semanticModel.GetSymbolInfo(attribute).Symbol;
-                            if (attributeSymbol == null)
-                            {
-                                // If we can't resolve the attribute symbol, it might be pointing to a removed type
-                                attributesToRemove.Add(attribute);
-                                continue;
-                            }
+                            bool shouldRemove = false;
 
                             // Check if the attribute has any arguments that reference types
                             if (attribute.ArgumentList != null)
@@ -420,52 +416,53 @@ namespace Microsoft.TypeSpec.Generator
                                 {
                                     if (arg.Expression is TypeOfExpressionSyntax typeOfExpr)
                                     {
-                                        var typeSymbol = semanticModel.GetSymbolInfo(typeOfExpr.Type).Symbol;
-                                        if (typeSymbol == null)
+                                        var typeInfo = semanticModel.GetTypeInfo(typeOfExpr.Type);
+                                        // Check if this is an error type (unresolved)
+                                        if (typeInfo.Type?.TypeKind == TypeKind.Error)
                                         {
-                                            // The type referenced in typeof() no longer exists
-                                            attributesToRemove.Add(attribute);
+                                            shouldRemove = true;
                                             break;
                                         }
                                     }
                                 }
                             }
+
+                            if (shouldRemove)
+                            {
+                                attributesToRemove.Add(attribute);
+                            }
                         }
                     }
 
                     // Remove invalid attributes
-                    if (attributesToRemove.Any())
+                    if (attributesToRemove.Count > 0)
                     {
-                        var updatedClass = mrwContextClass;
+                        // Find the current version of the class in the newRoot
+                        var currentClass = newRoot.DescendantNodes()
+                            .OfType<ClassDeclarationSyntax>()
+                            .First(c => c.Identifier.Text == mrwContextClass.Identifier.Text);
 
-                        // Group attributes by their containing AttributeList
-                        var attributeListsToUpdate = attributesToRemove
-                            .GroupBy(attr => attr.Parent as AttributeListSyntax)
-                            .Where(g => g.Key != null);
-
-                        foreach (var group in attributeListsToUpdate)
+                        // Create new attribute lists by filtering out the attributes to remove
+                        var newAttributeLists = new List<AttributeListSyntax>();
+                        foreach (var attributeList in currentClass.AttributeLists)
                         {
-                            var attributeList = group.Key!;
                             var remainingAttributes = attributeList.Attributes
-                                .Where(a => !group.Contains(a))
+                                .Where(attr => attributesToRemove.All(toRemove => toRemove.Span != attr.Span))
                                 .ToList();
 
-                            if (remainingAttributes.Any())
+                            if (remainingAttributes.Count > 0)
                             {
-                                // Update the attribute list with remaining attributes
                                 var newAttributeList = attributeList.WithAttributes(
                                     SyntaxFactory.SeparatedList(remainingAttributes));
-                                updatedClass = updatedClass.ReplaceNode(attributeList, newAttributeList);
-                            }
-                            else
-                            {
-                                // Remove the entire attribute list if no attributes remain
-                                var attributeLists = updatedClass.AttributeLists.Remove(attributeList);
-                                updatedClass = updatedClass.WithAttributeLists(attributeLists);
+                                newAttributeLists.Add(newAttributeList);
                             }
                         }
 
-                        newRoot = newRoot.ReplaceNode(mrwContextClass, updatedClass);
+                        // Create updated class with new attribute lists
+                        var updatedClass = currentClass.WithAttributeLists(SyntaxFactory.List(newAttributeLists));
+
+                        // Replace in the root
+                        newRoot = newRoot.ReplaceNode(currentClass, updatedClass);
                     }
                 }
 
@@ -477,6 +474,17 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             return project;
+        }
+
+        private static string GetTypeNameFromTypeSyntax(TypeSyntax typeSyntax)
+        {
+            return typeSyntax switch
+            {
+                IdentifierNameSyntax identifierName => identifierName.Identifier.Text,
+                QualifiedNameSyntax qualifiedName => GetTypeNameFromTypeSyntax(qualifiedName.Right),
+                GenericNameSyntax genericName => genericName.Identifier.Text,
+                _ => string.Empty
+            };
         }
 
         private static BaseTypeDeclarationSyntax ChangeModifier(BaseTypeDeclarationSyntax memberDeclaration,
