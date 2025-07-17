@@ -1,3 +1,3 @@
 -r ../dev_requirements.txt
 -e ../../../generator
--e ../unbranded/generated/specialwords
+-e ../unbranded/generated/special-words
