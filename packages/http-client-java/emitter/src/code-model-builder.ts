@@ -1139,6 +1139,7 @@ export class CodeModelBuilder {
             }
           }
         } else if (continuationTokenResponseSegment?.kind === "property") {
+          // continuationToken is repsonse body property
           continuationTokenResponseProperty = findResponsePropertySegments(
             op,
             sdkMethod.pagingMetadata.continuationTokenResponseSegments,
@@ -1264,9 +1265,7 @@ export class CodeModelBuilder {
             lroMetadata.finalResponse.resultSegments[
               lroMetadata.finalResponse.resultSegments.length - 1
             ];
-          if (lastSegment.kind === "property") {
-            finalResultPropertySerializedName = getPropertySerializedName(lastSegment);
-          }
+          finalResultPropertySerializedName = getPropertySerializedName(lastSegment);
         }
       }
 
@@ -1536,7 +1535,7 @@ export class CodeModelBuilder {
         if (parameter.kind === "body") {
           // there should be only 1 body parameter
           opParameter = requestParameters.find((it) => it.protocol.http?.in === "body");
-        } else if (parameter.kind === "property") {
+        } else if (parameter.kind === "property" || !isHttpMetadata(this.sdkContext, parameter)) {
           // body property
           // if body property appears on method signature, it should already be flattened, hence the check on VirtualParameter
           opParameter = requestParameters.find(
@@ -2002,7 +2001,7 @@ export class CodeModelBuilder {
         if (bodyParameter) {
           if (bodyParameter.type.kind === "model") {
             for (const bodyProperty of bodyParameter.type.properties) {
-              if (bodyProperty.kind === "property") {
+              if (!isHttpMetadata(this.sdkContext, bodyProperty)) {
                 this.addParameterOrBodyPropertyToCodeModelRequest(
                   bodyProperty,
                   op,
@@ -2691,11 +2690,7 @@ export class CodeModelBuilder {
 
     // properties
     for (const prop of type.properties) {
-      if (
-        prop.kind === "property" &&
-        !isHttpMetadata(this.sdkContext, prop) &&
-        !prop.discriminator
-      ) {
+      if (!isHttpMetadata(this.sdkContext, prop) && !prop.discriminator) {
         objectSchema.addProperty(this.processModelProperty(prop));
       }
     }
@@ -2725,7 +2720,7 @@ export class CodeModelBuilder {
       // if the property does not return in response, it had to be nullable
       nullable = true;
     }
-    if (modelProperty.kind === "property" && modelProperty.flatten) {
+    if (modelProperty.flatten) {
       extensions = extensions ?? {};
       extensions["x-ms-client-flatten"] = true;
     }
@@ -2759,8 +2754,7 @@ export class CodeModelBuilder {
       required: !modelProperty.optional,
       nullable: nullable,
       readOnly: this.isReadOnly(modelProperty),
-      serializedName:
-        modelProperty.kind === "property" ? getPropertySerializedName(modelProperty) : undefined,
+      serializedName: getPropertySerializedName(modelProperty),
       extensions: extensions,
     });
 
@@ -2962,7 +2956,7 @@ export class CodeModelBuilder {
     if (segment) {
       return true;
     } else {
-      const visibility = target.kind === "property" ? target.visibility : undefined;
+      const visibility = target.visibility;
       if (visibility) {
         return (
           !visibility.includes(Visibility.All) &&
@@ -2978,7 +2972,7 @@ export class CodeModelBuilder {
   }
 
   private isSecret(target: SdkModelPropertyType): boolean {
-    if (target.kind === "property" && target.visibility) {
+    if (target.visibility) {
       return !target.visibility.includes(Visibility.Read);
     } else {
       return false;
@@ -2986,7 +2980,7 @@ export class CodeModelBuilder {
   }
 
   private getMutability(target: SdkModelPropertyType): string[] | undefined {
-    if (target.kind === "property" && target.visibility) {
+    if (target.visibility) {
       const mutability: string[] = [];
       if (target.visibility.includes(Visibility.Create)) {
         mutability.push("create");
