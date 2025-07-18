@@ -94,7 +94,7 @@ namespace Microsoft.TypeSpec.Generator
 
             var docs = new XmlDocProvider(
                 signature.Description is null ? null : new XmlDocSummaryStatement([signature.Description]),
-                new ParametersXmlDocProvider(signature.Parameters),
+                signature.Parameters,
                 exceptions,
                 returnDescription is null ? null : new XmlDocReturnsStatement(returnDescription));
 

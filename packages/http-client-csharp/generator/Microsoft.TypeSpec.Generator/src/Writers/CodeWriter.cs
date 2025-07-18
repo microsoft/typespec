@@ -274,7 +274,7 @@ namespace Microsoft.TypeSpec.Generator
 
             if (docs.Parameters is not null)
             {
-                foreach (var statement in docs.Parameters.Statements)
+                foreach (var statement in docs.Parameters)
                 {
                     statement.Write(this);
                 }

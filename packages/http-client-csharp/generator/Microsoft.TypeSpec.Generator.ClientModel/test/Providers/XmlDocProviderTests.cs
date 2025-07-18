@@ -59,7 +59,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         {
             public TestVisitor()
             {
-                // we have the cache here because some parameters are shared between methods, and in the visitor we need to avoid to "duplicatedly" modify the same parameter.
+                // we have the cache here because some parameters are shared between methods, and in the visitor we need to avoid to modify the same parameter multiple times.
                 _visitedParameters = new HashSet<ParameterProvider>();
             }
 
@@ -72,7 +72,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             protected internal override ScmMethodProvider? VisitMethod(ScmMethodProvider method)
             {
-                // modify the parameter names in-placely
+                // modify the parameter names in-place
                 foreach (var parameter in method.Signature.Parameters)
                 {
                     if (_visitedParameters.Contains(parameter))
