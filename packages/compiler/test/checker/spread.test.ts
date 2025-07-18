@@ -112,6 +112,7 @@ describe("circular reference", () => {
     });
   });
 
+  // https://github.com/microsoft/typespec/issues/7956
   it.skip("emit diagnostic if models spread each other", async () => {
     const diagnostics = await Tester.diagnose(`
       model Foo { ...Bar }
