@@ -259,7 +259,7 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                 options.resourceCollectionAssociations = reader.readArray(ResourceCollectionAssociation::fromJson);
             } else if ("premium".equals(fieldName)) {
                 options.premium = reader.getNullable(EmitterOptions::getBoolean);
-            }  else {
+            } else {
                 reader.skipChildren();
             }
         });

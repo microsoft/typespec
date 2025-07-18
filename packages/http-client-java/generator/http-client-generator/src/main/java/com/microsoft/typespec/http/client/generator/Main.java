@@ -125,8 +125,8 @@ public class Main {
         // properties file
         String artifactId = FluentUtils.getArtifactId();
         if (!CoreUtils.isNullOrEmpty(artifactId)) {
-            fluentPlugin.writeFile("src/main/resources/" + artifactId + ".properties",
-                "version=${project.version}\n", null);
+            fluentPlugin.writeFile("src/main/resources/" + artifactId + ".properties", "version=${project.version}\n",
+                null);
         }
 
         // Others
