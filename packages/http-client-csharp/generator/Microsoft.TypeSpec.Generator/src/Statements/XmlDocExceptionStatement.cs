@@ -14,13 +14,12 @@ namespace Microsoft.TypeSpec.Generator.Statements
         public Type ExceptionType { get; }
         public IReadOnlyList<ParameterProvider> Parameters { get; }
 
-        private readonly string _reason;
+        private string? _reason;
 
         public XmlDocExceptionStatement(Type exceptionType, IReadOnlyList<ParameterProvider> parameters)
         {
             ExceptionType = exceptionType;
             Parameters = parameters;
-            _reason = GetText(exceptionType);
         }
 
         public XmlDocExceptionStatement(Type exceptionType, string reason, IReadOnlyList<ParameterProvider> parameters)
@@ -54,7 +53,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
                     writer.Append($" or <paramref name=\"{Parameters[Parameters.Count - 1].AsExpression().Declaration}\"/>");
             }
 
-            writer.WriteLine($" {_reason} </exception>");
+            writer.WriteLine($" {_reason ?? GetText(ExceptionType)} </exception>");
         }
     }
 }

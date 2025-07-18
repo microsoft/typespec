@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -158,13 +159,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public override int GetHashCode()
         {
-            return GetHashCode(this);
-        }
-
-        private int GetHashCode([DisallowNull] ParameterProvider obj)
-        {
-            // remove type as part of the hash code generation as the type might have changes between versions
-            return HashCode.Combine(obj.Name);
+            return RuntimeHelpers.GetHashCode(this); // gets the hash code based on object reference
         }
 
         private string GetDebuggerDisplay()
@@ -331,6 +326,28 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (validation is not null)
             {
                 Validation = validation.Value;
+            }
+        }
+
+        internal static IEqualityComparer<ParameterProvider> EqualityByNameAndType = new ParameterProviderEqualityComparer();
+
+        private struct ParameterProviderEqualityComparer : IEqualityComparer<ParameterProvider>
+        {
+            public bool Equals(ParameterProvider? x, ParameterProvider? y)
+            {
+                if (ReferenceEquals(x, y))
+                {
+                    return true;
+                }
+                if (x is null || y is null)
+                {
+                    return false;
+                }
+                return x.Equals(y);
+            }
+            public int GetHashCode([DisallowNull] ParameterProvider obj)
+            {
+                return HashCode.Combine(obj.Name);
             }
         }
     }

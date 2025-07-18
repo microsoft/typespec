@@ -272,9 +272,12 @@ namespace Microsoft.TypeSpec.Generator
                 docs.Summary.Write(this);
             }
 
-            foreach (var param in docs.Parameters)
+            if (docs.Parameters is not null)
             {
-                param.Write(this);
+                foreach (var statement in docs.Parameters)
+                {
+                    statement.Write(this);
+                }
             }
 
             foreach (var exception in docs.Exceptions)
