@@ -1090,9 +1090,11 @@ export class CodeModelBuilder {
     let continuationTokenResponseHeader: HttpHeader | undefined;
     if (!this.isBranded()) {
       // parameter would either be query or header parameter, so taking the last segment would be enough
-      const continuationTokenParameterSegment = sdkMethod.pagingMetadata.continuationTokenParameterSegments?.at(-1);
+      const continuationTokenParameterSegment =
+        sdkMethod.pagingMetadata.continuationTokenParameterSegments?.at(-1);
       // response could be response header, where the last segment would do; or it be json path in the response body, where we use "findResponsePropertySegments" to find them
-      const continuationTokenResponseSegment = sdkMethod.pagingMetadata.continuationTokenResponseSegments?.at(-1);
+      const continuationTokenResponseSegment =
+        sdkMethod.pagingMetadata.continuationTokenResponseSegments?.at(-1);
       if (continuationTokenParameterSegment && op.parameters) {
         // for now, continuationToken is either request query or header parameter
         const parameter = getHttpOperationParameter(sdkMethod, continuationTokenParameterSegment);
@@ -2689,7 +2691,11 @@ export class CodeModelBuilder {
 
     // properties
     for (const prop of type.properties) {
-      if (prop.kind === "property" && !prop.discriminator) {
+      if (
+        prop.kind === "property" &&
+        !isHttpMetadata(this.sdkContext, prop) &&
+        !prop.discriminator
+      ) {
         objectSchema.addProperty(this.processModelProperty(prop));
       }
     }
@@ -2729,7 +2735,7 @@ export class CodeModelBuilder {
       extensions["x-ms-mutability"] = mutability;
     }
 
-    if (modelProperty.kind === "property" && modelProperty.serializationOptions.multipart) {
+    if (modelProperty.serializationOptions.multipart) {
       if (modelProperty.serializationOptions.multipart?.isFilePart) {
         schema = this.processMultipartFormDataFilePropertySchema(modelProperty);
       } else if (
@@ -2759,7 +2765,7 @@ export class CodeModelBuilder {
     });
 
     // xml
-    if (modelProperty.kind === "property" && modelProperty.serializationOptions.xml) {
+    if (modelProperty.serializationOptions.xml) {
       // property.serializedName is set via getPropertySerializedName
 
       // "serialization" is set to the property in TypeSpec emitter, not in the schema
