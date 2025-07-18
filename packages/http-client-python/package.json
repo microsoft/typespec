@@ -86,6 +86,7 @@
     "@typespec/compiler": "^1.2.1",
     "@typespec/http": "^1.2.1",
     "@typespec/openapi": "^1.2.1",
+    "@typespec/json-schema": "^1.2.1",
     "@typespec/rest": "~0.72.1",
     "@typespec/versioning": "~0.72.1",
     "@typespec/events": "~0.72.1",
