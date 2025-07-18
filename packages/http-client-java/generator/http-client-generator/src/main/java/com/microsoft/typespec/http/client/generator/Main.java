@@ -123,12 +123,10 @@ public class Main {
             .forEach(xmlFile -> fluentPlugin.writeFile(xmlFile.getFilePath(), xmlFile.getContents().toString(), null));
 
         // properties file
-        if (JavaSettings.getInstance().isFluentLite()) {
-            String artifactId = FluentUtils.getArtifactId();
-            if (!CoreUtils.isNullOrEmpty(artifactId)) {
-                fluentPlugin.writeFile("src/main/resources/" + artifactId + ".properties",
-                    "version=${project.version}\n", null);
-            }
+        String artifactId = FluentUtils.getArtifactId();
+        if (!CoreUtils.isNullOrEmpty(artifactId)) {
+            fluentPlugin.writeFile("src/main/resources/" + artifactId + ".properties",
+                "version=${project.version}\n", null);
         }
 
         // Others
