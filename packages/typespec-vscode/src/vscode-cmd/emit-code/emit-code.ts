@@ -15,9 +15,9 @@ import { resolveTypeSpecCli } from "../../tsp-executable-resolver.js";
 import { TspLanguageClient } from "../../tsp-language-client.js";
 import { ResultCode } from "../../types.js";
 import {
-  extractEmitterOptions,
   formatDiagnostic,
   getEntrypointTspFile,
+  loadEmitterOptions,
   TraverseMainTspFileInWorkspace,
 } from "../../typespec-utils.js";
 import {
@@ -419,7 +419,7 @@ async function doEmit(
       generations.push({ emitter: emitter, outputDir: outputDir, codeInfo: codeInfoStr });
     }
     let newYamlContent = configYaml.toString();
-    newYamlContent = newYamlContent.replaceAll("ReplacedStr_", "# ");
+    newYamlContent = newYamlContent.replaceAll("ToBeReplacedWith#", "# ").replaceAll("null", "");
     await writeFile(tspConfigFile, newYamlContent);
   } catch (error: any) {
     logger.error(error);
@@ -869,17 +869,12 @@ function getConfigEntriesFromEmitterOptions(
       comment += ` (Options: ${propSchema.enum.join(", ")})`;
     }
 
-    const defaultValue = propSchema.default ?? extractDefaultValue(propSchema.description);
+    const defaultValue = propSchema.default;
 
     configEntries[propertyName] = {
       value: defaultValue,
       comment: comment,
     };
-  }
-
-  function extractDefaultValue(description: string): string {
-    const match = description.match(/The default value is `([^`]+)`/);
-    return match ? match[1] : "noDefaultVal";
   }
 
   return configEntries;
@@ -891,7 +886,14 @@ async function generateAnnotatedYamlFile(
   baseDir: string,
 ): Promise<void> {
   try {
-    const emitterOptions = await extractEmitterOptions(baseDir, packageName);
+    const emitterOptions = await loadEmitterOptions(baseDir, packageName);
+    if (emitterOptions === undefined) {
+      logger.debug(
+        `No emitter options schema found for package ${packageName}, skipping annotation generation`,
+      );
+      return;
+    }
+
     const configEntries = getConfigEntriesFromEmitterOptions(emitterOptions, configYaml.toString());
     if (Object.keys(configEntries).length === 0) {
       logger.debug(`No configuration entries found for ${packageName}`);
@@ -900,12 +902,12 @@ async function generateAnnotatedYamlFile(
 
     for (const [propertyName, propertyConfig] of Object.entries(configEntries)) {
       const { value, comment } = propertyConfig as { value: any; comment: string };
-      // Use a custom key by adding 'ReplacedStr_' to make it easier to later replace 'ReplacedStr_' with '# ',
+      // Use a custom key by adding 'ToBeReplacedWith#' to make it easier to later replace 'ToBeReplacedWith#' with '# ',
       // and finally implement adding a commented property under a certain package under option.
-      const key = `ReplacedStr_${propertyName}`;
+      const key = `ToBeReplacedWith#${propertyName}`;
 
       const keyScalar = configYaml.createNode(key);
-      const valueScalar = configYaml.createNode(value ?? "undefined");
+      const valueScalar = configYaml.createNode(value);
       const parentMap = configYaml.getIn(["options", packageName], true);
       if (parentMap && typeof parentMap === "object" && "items" in parentMap) {
         const newPair = configYaml.createPair(keyScalar, valueScalar);

@@ -199,15 +199,15 @@ export async function installCompilerWithUi(
   return result;
 }
 
-export async function extractEmitterOptions(
+export async function loadEmitterOptions(
   baseDir: string,
   packageName: string,
-): Promise<Record<string, any>> {
+): Promise<Record<string, any> | undefined> {
   try {
     const moduleResult = await loadModule(baseDir, packageName);
     if (!moduleResult) {
       logger.debug(`Failed to resolve module ${packageName}`);
-      return {};
+      return undefined;
     }
 
     const mainFilePath = moduleResult.type === "file" ? moduleResult.path : moduleResult.mainFile;
@@ -217,9 +217,9 @@ export async function extractEmitterOptions(
     }
 
     logger.debug(`No emitter options schema found in ${packageName}`);
-    return {};
+    return undefined;
   } catch (error) {
     logger.debug(`Error extracting schema from ${packageName}:`, [error]);
-    return {};
+    return undefined;
   }
 }
