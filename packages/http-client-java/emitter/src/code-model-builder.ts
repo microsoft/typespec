@@ -1170,7 +1170,10 @@ export class CodeModelBuilder {
               for (const opParam of op.parameters) {
                 if (
                   opParam.protocol.http?.in === parameter.kind &&
-                  opParam.language.default.serializedName === parameter.serializedName
+                  opParam.language.default.serializedName ===
+                    (parameter.kind === "property"
+                      ? getPropertySerializedName(parameter)
+                      : parameter.serializedName)
                 ) {
                   nextLinkReInjectedParameters.push(opParam);
                   break;
@@ -1526,6 +1529,7 @@ export class CodeModelBuilder {
     request.parameters = [];
     request.signatureParameters = [];
 
+    const tihsSdkContext = this.sdkContext;
     function findOperationParameter(
       parameter: SdkHttpOperationParameterType | SdkBodyParameter | SdkModelPropertyType,
     ): Parameter | undefined {
@@ -1535,7 +1539,7 @@ export class CodeModelBuilder {
         if (parameter.kind === "body") {
           // there should be only 1 body parameter
           opParameter = requestParameters.find((it) => it.protocol.http?.in === "body");
-        } else if (parameter.kind === "property" || !isHttpMetadata(this.sdkContext, parameter)) {
+        } else if (parameter.kind === "property" && !isHttpMetadata(tihsSdkContext, parameter)) {
           // body property
           // if body property appears on method signature, it should already be flattened, hence the check on VirtualParameter
           opParameter = requestParameters.find(
@@ -1548,7 +1552,10 @@ export class CodeModelBuilder {
           opParameter = requestParameters.find(
             (it) =>
               it.protocol.http?.in === parameter.kind &&
-              it.language.default.serializedName === parameter.serializedName,
+              it.language.default.serializedName ===
+                (parameter.kind === "property"
+                  ? getPropertySerializedName(parameter)
+                  : parameter.serializedName),
           );
         }
       }
