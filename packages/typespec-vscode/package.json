@@ -268,8 +268,9 @@
     "package-vsix": "vsce package",
     "deploy": "vsce publish",
     "open-in-browser": "vscode-test-web --extensionDevelopmentPath=. .",
-    "test:e2e": "pnpm test:web",
-    "test:web": "vscode-test-web --quality stable --extensionDevelopmentPath=. --headless --extensionTestsPath=dist/test/web/suite.js ./test/web/data"
+    "test:e2e": "pnpm test:web && pnpm test:extension",
+    "test:web": "vscode-test-web --quality stable --extensionDevelopmentPath=. --headless --extensionTestsPath=dist/test/web/suite.js ./test/web/data",
+    "test:extension": "vitest run --root test/extension"
   },
   "devDependencies": {
     "@types/cross-spawn": "~6.0.6",
@@ -280,6 +281,7 @@
     "@types/which": "^3.0.4",
     "@typespec/compiler": "workspace:^",
     "@typespec/internal-build-utils": "workspace:^",
+    "@vscode/test-electron": "^2.3.9",
     "@vitest/coverage-v8": "^3.1.2",
     "@vitest/ui": "^3.1.2",
     "@vscode/extension-telemetry": "^1.0.0",
