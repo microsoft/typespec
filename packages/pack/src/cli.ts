@@ -10,8 +10,8 @@ import { getDirectoryPath, logDiagnostics, NodeHost, normalizePath } from "@type
 import { mkdir, writeFile } from "fs/promises";
 import { resolve } from "path";
 import { parseArgs } from "util";
-import { PackHost } from "./pack-host.js";
 import { combineProjectIntoFile } from "./pack.js";
+import { createRemoteHost } from "./remote-host.js";
 
 function log(...args: any[]) {
   // eslint-disable-next-line no-console
@@ -30,7 +30,10 @@ const rawEntrypoint =
     ? entrypoint
     : normalizePath(resolve(entrypoint));
 
-const { content, diagnostics } = await combineProjectIntoFile(PackHost, rawEntrypoint);
+const { content, diagnostics } = await combineProjectIntoFile(
+  createRemoteHost(NodeHost),
+  rawEntrypoint,
+);
 
 if (diagnostics.length > 0) {
   logDiagnostics(diagnostics, NodeHost.logSink);
