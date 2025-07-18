@@ -30,7 +30,7 @@ The source files to test are under `generator/http-client-generator-test/src/mai
 Read the `Builder` and `Client` Java file to understand the client structure, and APIs.
 Read the Java files under `generator/http-client-generator-test/src/main/java/<package>/models` to understand the classes that be used in the APIs.
 
-Read the `<url-to-tsp-file>` to understand the scenrio for the test case. This TypeSpec file contains the expected HTTP request and response in `@scenarioDoc`.
+Read the `<url-to-tsp-file>` to understand the scenario for the test case. This TypeSpec file contains the expected HTTP request and response in `@scenarioDoc`.
 Also try read the `client.tsp` in the same folder (replace `main.tsp` with `client.tsp` in the URL). This file is optional, ignore it if there is no such file.
 
 Read a few existing test cases in `generator/http-client-generator-test/src/test/java/` to understand how to write the test case.
