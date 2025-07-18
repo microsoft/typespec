@@ -45,7 +45,6 @@ import { KnownMediaType } from "@azure-tools/codegen";
 import {
   InitializedByFlags,
   SdkArrayType,
-  SdkBodyModelPropertyType,
   SdkBodyParameter,
   SdkBuiltInType,
   SdkClientType,
@@ -73,6 +72,7 @@ import {
   getAllModels,
   getClientNameOverride,
   getHttpOperationParameter,
+  isHttpMetadata,
   isSdkBuiltInKind,
   isSdkIntKind,
 } from "@azure-tools/typespec-client-generator-core";
@@ -1060,15 +1060,6 @@ export class CodeModelBuilder {
       }
     });
 
-    function getLastSegment(
-      segments: SdkModelPropertyType[] | undefined,
-    ): SdkModelPropertyType | undefined {
-      if (segments) {
-        return segments[segments.length - 1];
-      }
-      return undefined;
-    }
-
     // pageItems
     const pageItemsResponseProperty = findResponsePropertySegments(
       op,
@@ -1099,13 +1090,9 @@ export class CodeModelBuilder {
     let continuationTokenResponseHeader: HttpHeader | undefined;
     if (!this.isBranded()) {
       // parameter would either be query or header parameter, so taking the last segment would be enough
-      const continuationTokenParameterSegment = getLastSegment(
-        sdkMethod.pagingMetadata.continuationTokenParameterSegments,
-      );
+      const continuationTokenParameterSegment = sdkMethod.pagingMetadata.continuationTokenParameterSegments?.at(-1);
       // response could be response header, where the last segment would do; or it be json path in the response body, where we use "findResponsePropertySegments" to find them
-      const continuationTokenResponseSegment = getLastSegment(
-        sdkMethod.pagingMetadata.continuationTokenResponseSegments,
-      );
+      const continuationTokenResponseSegment = sdkMethod.pagingMetadata.continuationTokenResponseSegments?.at(-1);
       if (continuationTokenParameterSegment && op.parameters) {
         // for now, continuationToken is either request query or header parameter
         const parameter = getHttpOperationParameter(sdkMethod, continuationTokenParameterSegment);
@@ -1169,7 +1156,7 @@ export class CodeModelBuilder {
         nextLinkReInjectedParameters = [];
         for (const parameterSegments of sdkMethod.pagingMetadata
           .nextLinkReInjectedParametersSegments) {
-          const nextLinkReInjectedParameterSegment = getLastSegment(parameterSegments);
+          const nextLinkReInjectedParameterSegment = parameterSegments?.at(-1);
           if (nextLinkReInjectedParameterSegment && op.parameters) {
             const parameter = getHttpOperationParameter(
               sdkMethod,
@@ -1539,7 +1526,7 @@ export class CodeModelBuilder {
     request.signatureParameters = [];
 
     function findOperationParameter(
-      parameter: SdkHttpOperationParameterType | SdkBodyParameter | SdkBodyModelPropertyType,
+      parameter: SdkHttpOperationParameterType | SdkBodyParameter | SdkModelPropertyType,
     ): Parameter | undefined {
       let opParameter;
       // ignore constant parameter, usually the "accept" and "content-type" header
@@ -2032,7 +2019,7 @@ export class CodeModelBuilder {
   }
 
   private addParameterOrBodyPropertyToCodeModelRequest(
-    opParameter: SdkHttpOperationParameterType | SdkBodyModelPropertyType,
+    opParameter: SdkHttpOperationParameterType | SdkModelPropertyType,
     op: CodeModelOperation,
     request: Request,
     schema: ObjectSchema,
@@ -2747,11 +2734,11 @@ export class CodeModelBuilder {
         schema = this.processMultipartFormDataFilePropertySchema(modelProperty);
       } else if (
         modelProperty.type.kind === "model" &&
-        modelProperty.type.properties.some((it) => it.kind === "body")
+        modelProperty.type.properties.some((it) => !isHttpMetadata(this.sdkContext, it))
       ) {
         // TODO: this is HttpPart of non-File. TCGC should help handle this.
         schema = this.processSchema(
-          modelProperty.type.properties.find((it) => it.kind === "body")!.type,
+          modelProperty.type.properties.find((it) => !isHttpMetadata(this.sdkContext, it))!.type,
           "",
         );
       } else {
@@ -2903,7 +2890,7 @@ export class CodeModelBuilder {
     }
   }
 
-  private processMultipartFormDataFilePropertySchema(property: SdkBodyModelPropertyType): Schema {
+  private processMultipartFormDataFilePropertySchema(property: SdkModelPropertyType): Schema {
     const processSchemaFunc = (type: SdkType) => this.processSchema(type, "");
     const processNamespaceFunc = (type: SdkBuiltInType | SdkModelType) => {
       const namespace =
