@@ -60,4 +60,32 @@ public final class ServerDrivenPaginationClient {
     public PagedIterable<Pet> link(RequestContext requestContext) {
         return this.serviceClient.link(requestContext);
     }
+
+    /**
+     * The nestedLink operation.
+     * 
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> nestedLink() {
+        return nestedLink(RequestContext.none());
+    }
+
+    /**
+     * The nestedLink operation.
+     * 
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> nestedLink(RequestContext requestContext) {
+        return this.serviceClient.nestedLink(requestContext);
+    }
 }
