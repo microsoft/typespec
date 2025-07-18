@@ -25,7 +25,7 @@ export {
   visitChildren,
   type NodeCallback,
 } from "../core/parser.js";
-
+export { createSourceLoader } from "../core/source-loader.js";
 export type {
   AliasStatementNode,
   AnyKeywordNode,
