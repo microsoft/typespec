@@ -1,4 +1,4 @@
-pyright==1.1.391
+pyright==1.1.403
 pylint==3.2.7
 tox==4.16.0
 mypy==1.14.1
