@@ -53,7 +53,11 @@ public class TypeSpecFluentPlugin extends FluentGen {
             SETTINGS_MAP.put("generate-tests", emitterOptions.getGenerateTests());
         }
         if (emitterOptions.getArm()) {
-            SETTINGS_MAP.put("fluent", "lite");
+            if (emitterOptions.getPremium()) {
+                SETTINGS_MAP.put("fluent", "premium");
+            } else {
+                SETTINGS_MAP.put("fluent", "lite");
+            }
         }
         if (emitterOptions.getPackageVersion() != null) {
             SETTINGS_MAP.put("package-version", emitterOptions.getPackageVersion());

@@ -53,6 +53,7 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private String outputDir;
     private Boolean arm = false;
     private String licenseHeader;
+    private Boolean premium = false;
 
     public String getNamespace() {
         return namespace;
@@ -176,6 +177,10 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return generateAsyncMethods;
     }
 
+    public Boolean getPremium() {
+        return premium;
+    }
+
     public List<ResourceCollectionAssociation> getResourceCollectionAssociations() {
         return resourceCollectionAssociations;
     }
@@ -252,6 +257,8 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                 options.generateAsyncMethods = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("resource-collection-associations".equals(fieldName)) {
                 options.resourceCollectionAssociations = reader.readArray(ResourceCollectionAssociation::fromJson);
+            } else if ("premium".equals(fieldName)) {
+                options.premium = reader.getNullable(EmitterOptions::getBoolean);
             } else {
                 reader.skipChildren();
             }
