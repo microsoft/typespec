@@ -161,12 +161,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return base.GetHashCode();
         }
 
-        //private int GetHashCode([DisallowNull] ParameterProvider obj)
-        //{
-        //    // remove type as part of the hash code generation as the type might have changes between versions
-        //    return HashCode.Combine(obj.Name);
-        //}
-
         private string GetDebuggerDisplay()
         {
             return $"Name: {Name}, Type: {Type}";
