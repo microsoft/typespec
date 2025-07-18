@@ -54,4 +54,4 @@ def test_sensitive_word():
     check_folder = (Path(os.path.dirname(__file__)) / "../generated").resolve()
     assert [] == check_sensitive_word(check_folder, "azure")
     # after update spector, it shall also equal to []
-    assert ["authentication-oauth2", "authentication-union"] == check_sensitive_word(check_folder, "microsoft")
+    assert ["authentication-oauth2", "authentication-union", "setuppy-authentication-union"] == check_sensitive_word(check_folder, "microsoft")
