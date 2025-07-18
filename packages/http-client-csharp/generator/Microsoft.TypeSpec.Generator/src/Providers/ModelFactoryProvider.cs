@@ -265,7 +265,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
-            var currentParameters = currentMethod.Parameters.ToHashSet();
+            var currentParameters = currentMethod.Parameters.ToHashSet(ParameterProvider.ParameterProviderComparer);
             foreach (var parameter in previousMethod.Parameters)
             {
                 if (!currentParameters.Contains(parameter))
@@ -275,7 +275,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             // Build the arguments for the overload
-            var previousParameters = previousMethod.Parameters.ToHashSet();
+            var previousParameters = previousMethod.Parameters.ToHashSet(ParameterProvider.ParameterProviderComparer);
             List<ValueExpression> arguments = new(currentMethodParameterCount);
 
             foreach (var parameter in currentMethod.Parameters)

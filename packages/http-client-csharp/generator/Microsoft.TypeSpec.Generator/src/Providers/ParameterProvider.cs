@@ -327,5 +327,27 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 Validation = validation.Value;
             }
         }
+
+        internal static IEqualityComparer<ParameterProvider> ParameterProviderComparer = new ParameterProviderEqualityComparer();
+
+        private struct ParameterProviderEqualityComparer : IEqualityComparer<ParameterProvider>
+        {
+            public bool Equals(ParameterProvider? x, ParameterProvider? y)
+            {
+                if (ReferenceEquals(x, y))
+                {
+                    return true;
+                }
+                if (x is null || y is null)
+                {
+                    return false;
+                }
+                return x.Equals(y);
+            }
+            public int GetHashCode([DisallowNull] ParameterProvider obj)
+            {
+                return HashCode.Combine(obj.Name);
+            }
+        }
     }
 }
