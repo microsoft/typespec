@@ -113,6 +113,23 @@ export async function resolveModule(
   specifier: string,
   options: ResolveModuleOptions,
 ): Promise<ModuleResolutionResult> {
+  const resolved = await resolveModuleInternal(host, specifier, options);
+  if (resolved.type === "module") {
+    // Resolve the path to the real path.
+    resolved.mainFile = await host.realpath(resolved.mainFile);
+    resolved.path = await host.realpath(resolved.path);
+  } else {
+    // Resolve the file path to the real path.
+    resolved.path = await host.realpath(resolved.path);
+  }
+  return resolved;
+}
+
+async function resolveModuleInternal(
+  host: ResolveModuleHost,
+  specifier: string,
+  options: ResolveModuleOptions,
+): Promise<ModuleResolutionResult> {
   const { baseDir } = options;
   const absoluteStart = await realpath(resolvePath(baseDir));
 
