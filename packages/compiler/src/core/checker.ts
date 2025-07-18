@@ -1819,10 +1819,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       () => {
         const type = mergeModelTypes(node.symbol, node, options, mapper, intersection);
         linkType(links, type, mapper);
+        finishType(intersection);
       },
     );
-
-    return finishType(intersection);
+    return intersection;
   }
 
   function ensureResolved<T>(types: readonly (Type | undefined)[], callback: () => T): void {
