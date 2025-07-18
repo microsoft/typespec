@@ -99,7 +99,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             // Validate that the xml docs are updated
             Assert.IsNotNull(updatedMethod.XmlDocs);
-            var xmlDocParamStatement = updatedMethod.XmlDocs!.Parameters[0];
+            Assert.IsNotNull(updatedMethod.XmlDocs!.Parameters);
+            var xmlDocParamStatement = updatedMethod.XmlDocs!.Parameters!.Statements[0];
             Assert.IsNotNull(xmlDocParamStatement);
             Assert.AreEqual(parameter, xmlDocParamStatement.Parameter);
             Assert.AreEqual("/// <param name=\"foo\"> Foo description. </param>\n", xmlDocParamStatement.ToDisplayString());

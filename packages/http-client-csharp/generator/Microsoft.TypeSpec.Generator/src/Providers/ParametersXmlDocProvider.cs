@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.TypeSpec.Generator.Statements;
 
 namespace Microsoft.TypeSpec.Generator.Providers
@@ -16,17 +17,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public IReadOnlyList<ParameterProvider> Parameters { get; }
 
-        internal void Write(CodeWriter writer)
-        {
-            if (Parameters.Count == 0)
-            {
-                return;
-            }
-            foreach (var parameter in Parameters)
-            {
-                var statement = new XmlDocParamStatement(parameter);
-                statement.Write(writer);
-            }
-        }
+        private IReadOnlyList<XmlDocParamStatement>? _statements;
+        internal IReadOnlyList<XmlDocParamStatement> Statements => _statements ??= Parameters.Select(p => new XmlDocParamStatement(p)).ToArray();
     }
 }
