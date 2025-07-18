@@ -251,13 +251,10 @@ function toPosix(dir: string): string {
 }
 
 function getSpecDir(spec: string): string {
-  if (spec.includes("azure")) {
-    return AZURE_HTTP_SPECS;
-  } else if (spec.includes("smoke")) {
-    return SMOKE;
-  } else {
-    return HTTP_SPECS;
-  }
+  if (spec.includes("azure")) return AZURE_HTTP_SPECS;
+  if (spec.includes("smoke")) return SMOKE;
+
+  return HTTP_SPECS;
 }
 
 function getEmitterOption(spec: string, flavor: string): Record<string, string>[] {
