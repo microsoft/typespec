@@ -320,7 +320,7 @@ const TypeInstantiationMap = class
   implements TypeInstantiationMap {};
 
 export function createChecker(program: Program, resolver: NameResolver): Checker {
-  const waitingForResolution = new Map<Type, (() => void)[]>();
+  const waitingForResolution = new Map<Type, [Type, () => void][]>();
   const stats: CheckerStats = {
     createdTypes: 0,
     finishedTypes: 0,
@@ -343,11 +343,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   // Caches the deprecation test of nodes in the program
   const nodeDeprecationMap = new Map<Node, boolean>();
-  const errorType: ErrorType = createType({ kind: "Intrinsic", name: "ErrorType" });
-  const voidType = createType({ kind: "Intrinsic", name: "void" } as const);
-  const neverType = createType({ kind: "Intrinsic", name: "never" } as const);
-  const unknownType = createType({ kind: "Intrinsic", name: "unknown" } as const);
-  const nullType = createType({ kind: "Intrinsic", name: "null" } as const);
+  const errorType: ErrorType = createAndFinishType({ kind: "Intrinsic", name: "ErrorType" });
+  const voidType = createAndFinishType({ kind: "Intrinsic", name: "void" } as const);
+  const neverType = createAndFinishType({ kind: "Intrinsic", name: "never" } as const);
+  const unknownType = createAndFinishType({ kind: "Intrinsic", name: "unknown" } as const);
+  const nullType = createAndFinishType({ kind: "Intrinsic", name: "null" } as const);
 
   /**
    * Set keeping track of node pending type resolution.
@@ -1816,6 +1816,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     ensureResolved(
       options.map(([, type]) => type),
+      intersection,
       () => {
         const type = mergeModelTypes(node.symbol, node, options, mapper, intersection);
         linkType(links, type, mapper);
@@ -1825,7 +1826,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return intersection;
   }
 
-  function ensureResolved<T>(types: readonly (Type | undefined)[], callback: () => T): void {
+  function ensureResolved<T>(
+    types: readonly (Type | undefined)[],
+    awaitingType: Type,
+    callback: () => T,
+  ): void {
     const waitingFor = new Set<Type>();
     for (const type of types) {
       if (type === undefined) continue;
@@ -1842,10 +1847,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     for (const type of waitingFor) {
       waitingForResolution.set(type, [
         ...(waitingForResolution.get(type) || []),
-        () => {
-          waitingFor.delete(type);
-          check();
-        },
+        [
+          awaitingType,
+          () => {
+            waitingFor.delete(type);
+            check();
+          },
+        ],
       ]);
     }
 
@@ -2299,10 +2307,16 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       decorators: [],
       interface: parentInterface,
     });
+    if (links) {
+      linkType(links, operationType, mapper);
+    }
 
+    console.log("Start", name);
     const parent = node.parent!;
 
     function finishOperation() {
+      console.log("Done   ", name);
+
       operationType.parameters.namespace = namespace;
 
       operationType.decorators.push(...checkDecorators(operationType, node, mapper));
@@ -2318,7 +2332,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       // Attempt to resolve the operation
       const baseOperation = checkOperationIs(node, node.signature.baseOperation, mapper);
       if (baseOperation) {
-        ensureResolved([baseOperation], () => {
+        ensureResolved([baseOperation], operationType, () => {
           operationType.sourceOperation = baseOperation;
           // Reference the same return type and create the parameters type
           const clone = initializeClone(baseOperation.parameters, {
@@ -2350,12 +2364,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     } else {
       operationType.parameters = getTypeForNode(node.signature.parameters, mapper) as Model;
       operationType.returnType = getTypeForNode(node.signature.returnType, mapper);
-      ensureResolved([operationType.parameters], () => {
+      ensureResolved([operationType.parameters], operationType, () => {
         finishOperation();
       });
-    }
-    if (links) {
-      linkType(links, operationType, mapper);
     }
 
     linkMapper(operationType, mapper);
@@ -3411,6 +3422,24 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     internalDecoratorValidation();
+    assertNoPendingResolutions();
+  }
+
+  function assertNoPendingResolutions() {
+    if (waitingForResolution.size === 0) {
+      return;
+    }
+
+    const message = [
+      "Unexpected pending resolutions found",
+      ...[...waitingForResolution.entries()].flatMap(([type, items]) => {
+        const base = `  (${type.kind}) ${getTypeName(type)} => `;
+        return items.map(
+          ([item], index) => `${index === 0 ? base : " ".repeat(base.length)}${getTypeName(item)}`,
+        );
+      }),
+    ].join("\n");
+    compilerAssert(false, message);
   }
 
   function checkDuplicateSymbols() {
@@ -3501,7 +3530,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function checkModelStatement(node: ModelStatementNode, mapper: TypeMapper | undefined): Model {
     const links = getSymbolLinks(node.symbol);
 
+    console.log("Checking", node.id.sv, mapper === undefined ? "declaration" : "instantiation");
     if (links.declaredType && mapper === undefined) {
+      console.log("Already checked", node.id.sv, { creating: links.declaredType.creating });
       // we're not instantiating this model and we've already checked it
       return links.declaredType as any;
     }
@@ -3539,7 +3570,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           .filter((x) => x.kind === SyntaxKind.ModelSpreadProperty)
           .map((x) => checkSpreadTarget(node, x.target, mapper)),
       ],
+      type,
       () => {
+        console.log("Model deps resolved", node.id.sv);
         if (isBase) {
           type.sourceModel = isBase;
           type.sourceModels.push({ usage: "is", model: isBase });
@@ -3584,6 +3617,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         decorators.push(...checkDecorators(type, node, mapper));
 
         linkMapper(type, mapper);
+        console.log("FInish model", node.id.sv);
         finishType(type, { skipDecorators: !shouldRunDecorators(node, mapper) });
 
         lateBindMemberContainer(type);
@@ -3640,6 +3674,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       node.properties
         .filter((x) => x.kind === SyntaxKind.ModelSpreadProperty)
         .map((x) => checkSpreadTarget(node, x.target, mapper)),
+      type,
       () => {
         checkModelProperties(node, properties, type, mapper);
         finishType(type);
@@ -5874,8 +5909,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     delete type.creating;
     const pending = waitingForResolution.get(type);
     if (pending) {
-      pending.forEach((resolution) => resolution());
+      pending.forEach(([_, resolution]) => resolution());
     }
+    waitingForResolution.delete(type);
   }
 
   function getLiteralType(
