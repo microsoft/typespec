@@ -24,6 +24,14 @@ namespace Payload.Pageable._ServerDrivenPagination
 
         public virtual AsyncCollectionResult<Pet> LinkAsync(CancellationToken cancellationToken = default) => throw null;
 
+        public virtual CollectionResult NestedLink(RequestOptions options) => throw null;
+
+        public virtual AsyncCollectionResult NestedLinkAsync(RequestOptions options) => throw null;
+
+        public virtual CollectionResult NestedLink(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual AsyncCollectionResult NestedLinkAsync(CancellationToken cancellationToken = default) => throw null;
+
         public virtual ServerDrivenPaginationContinuationToken GetServerDrivenPaginationContinuationTokenClient() => throw null;
     }
 }
