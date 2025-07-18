@@ -54,12 +54,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Get all model providers from the output library
             var modelProviders = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
                 .OfType<ModelProvider>()
-                .ToList();
+                .ToDictionary(mp => mp.Type, mp => mp, new CSharpTypeNameComparer());
 
             // Process each model recursively
-            foreach (var modelProvider in modelProviders)
+            foreach (var modelProvider in modelProviders.Values)
             {
-                CollectBuildableTypesRecursive(modelProvider.Type, buildableTypes, visitedTypes);
+                CollectBuildableTypesRecursive(modelProvider.Type, buildableTypes, visitedTypes, modelProviders);
             }
 
             return buildableTypes;
@@ -68,71 +68,57 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// <summary>
         /// Recursively collects all types that implement IPersistableModel.
         /// </summary>
-        private void CollectBuildableTypesRecursive(CSharpType type, HashSet<CSharpType> buildableTypes, HashSet<CSharpType> visitedTypes)
+        private void CollectBuildableTypesRecursive(CSharpType currentType, HashSet<CSharpType> buildableTypes, HashSet<CSharpType> visitedTypes, Dictionary<CSharpType, ModelProvider> modelProviders)
         {
             // Avoid infinite recursion by checking if we've already visited this type
-            if (visitedTypes.Contains(type) || type.IsFrameworkType)
+            if (visitedTypes.Contains(currentType))
             {
                 return;
             }
 
-            visitedTypes.Add(type);
+            visitedTypes.Add(currentType);
 
             // Check if this type implements IPersistableModel
-            if (ImplementsIPersistableModel(type))
+            if (ImplementsIPersistableModel(currentType, modelProviders, out ModelProvider? model))
             {
-                buildableTypes.Add(type);
+                buildableTypes.Add(currentType);
 
-                // Look for all properties of this type that are also IPersistableModel
-                var modelProvider = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
-                    .OfType<ModelProvider>()
-                    .FirstOrDefault(m => m.Type.Equals(type));
-
-                if (modelProvider != null)
+                if (model is not null)
                 {
                     // Check all properties of this model
-                    foreach (var property in modelProvider.Properties)
+                    foreach (var property in model.Properties)
                     {
-                        if (property.Type.IsCollection)
-                        {
-                            // For collections, check the element type
-                            CollectBuildableTypesRecursive(property.Type.ElementType, buildableTypes, visitedTypes);
-                        }
-                        else
-                        {
-                            // For regular properties, check the property type
-                            CollectBuildableTypesRecursive(property.Type, buildableTypes, visitedTypes);
-                        }
+                        var propertyType = property.Type.IsCollection ? GetInnerMostElement(property.Type) : property.Type;
+                        CollectBuildableTypesRecursive(propertyType, buildableTypes, visitedTypes, modelProviders);
                     }
                 }
             }
         }
 
+        private CSharpType GetInnerMostElement(CSharpType type)
+        {
+            var result = type.ElementType;
+            while (result.IsCollection)
+            {
+                result = result.ElementType;
+            }
+            return result;
+        }
+
         /// <summary>
         /// Checks if a type implements IPersistableModel interface.
         /// </summary>
-        private bool ImplementsIPersistableModel(CSharpType type)
+        private bool ImplementsIPersistableModel(CSharpType type, Dictionary<CSharpType, ModelProvider> modelProviders, out ModelProvider? model)
         {
-            // Check if the type is a framework type (System.* types)
-            if (type.IsFrameworkType)
+            if (modelProviders.TryGetValue(type, out model))
             {
+                return model.SerializationProviders.OfType<MrwSerializationTypeDefinition>().Any();
+            }
+
+            if (!type.IsFrameworkType || type.IsEnum || type.IsLiteral)
                 return false;
-            }
 
-            // Check if the type has a model provider in the current library (local models)
-            var modelProvider = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
-                .OfType<ModelProvider>()
-                .FirstOrDefault(m => m.Type.Equals(type));
-
-            if (modelProvider != null)
-            {
-                return true;
-            }
-
-            // For dependency models (models from other libraries), assume they implement IPersistableModel
-            // if they are not framework types, not literals, not enums, and not generic types
-            // This handles models that are referenced from dependency libraries
-            return !type.IsFrameworkType && !type.IsLiteral && !type.IsEnum && !type.IsGenericType;
+            return type.FrameworkType.GetInterfaces().Any(i => i.Name == "IPersistableModel`1" || i.Name == "IJsonModel`1");
         }
 
         protected override XmlDocProvider BuildXmlDocs()
@@ -182,6 +168,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 HashCode hashCode = new HashCode();
                 hashCode.Add(obj.Namespace);
+                hashCode.Add(obj.Name);
                 return hashCode.ToHashCode();
             }
         }

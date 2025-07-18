@@ -5,11 +5,10 @@ using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
-using Microsoft.TypeSpec.Generator.ClientModel.Tests;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
-using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -23,7 +22,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             MockHelpers.LoadMockGenerator();
 
             var contextDefinition = new ModelReaderWriterContextDefinition();
-            
+
             Assert.IsNotNull(contextDefinition);
             Assert.IsNotNull(contextDefinition.Name);
             Assert.IsTrue(contextDefinition.Name.EndsWith("Context"));
@@ -41,19 +40,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             var mockGenerator = MockHelpers.LoadMockGenerator(
                 inputModels: () => new List<InputModelType>
                 {
-                    InputFactory.Model("TestModel", properties: new[]
-                    {
+                    InputFactory.Model("TestModel", properties:
+                    [
                         InputFactory.Property("StringProperty", InputPrimitiveType.String),
                         InputFactory.Property("IntProperty", InputPrimitiveType.Int32)
-                    })
+                    ])
                 });
 
             var contextDefinition = new ModelReaderWriterContextDefinition();
             var attributes = contextDefinition.Attributes;
-            
+
             Assert.IsNotNull(attributes);
             Assert.IsTrue(attributes.Count > 0);
-            
+
             // Check that exactly one ModelReaderWriterBuildableAttribute exists since TestModel has only primitive properties
             var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute));
             Assert.AreEqual(1, buildableAttributes.Count(), "Exactly one ModelReaderWriterBuildableAttribute should be generated for TestModel");
@@ -63,26 +62,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         public void ValidateModelReaderWriterBuildableAttributesIncludeNestedModels()
         {
             // Create a model with a property that references another model
-            var nestedModel = InputFactory.Model("NestedModel", properties: new[]
-            {
+            var nestedModel = InputFactory.Model("NestedModel", properties:
+            [
                 InputFactory.Property("NestedValue", InputPrimitiveType.String)
-            });
+            ]);
 
-            var parentModel = InputFactory.Model("ParentModel", properties: new[]
-            {
+            var parentModel = InputFactory.Model("ParentModel", properties:
+            [
                 InputFactory.Property("NestedProperty", nestedModel),
                 InputFactory.Property("SimpleProperty", InputPrimitiveType.String)
-            });
+            ]);
 
             var mockGenerator = MockHelpers.LoadMockGenerator(
-                inputModels: () => new List<InputModelType> { parentModel, nestedModel });
+                inputModels: () => [parentModel, nestedModel]);
 
             var contextDefinition = new ModelReaderWriterContextDefinition();
             var attributes = contextDefinition.Attributes;
-            
+
             Assert.IsNotNull(attributes);
             Assert.IsTrue(attributes.Count > 0);
-            
+
             // Check that exactly two ModelReaderWriterBuildableAttribute exist for both models
             var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute));
             Assert.AreEqual(2, buildableAttributes.Count(), "Exactly two ModelReaderWriterBuildableAttributes should be generated for nested models");
@@ -92,25 +91,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         public void ValidateModelReaderWriterBuildableAttributesHandleCollectionProperties()
         {
             // Create a model with a collection property containing another model
-            var itemModel = InputFactory.Model("ItemModel", properties: new[]
-            {
+            var itemModel = InputFactory.Model("ItemModel", properties:
+            [
                 InputFactory.Property("ItemValue", InputPrimitiveType.String)
-            });
+            ]);
 
-            var collectionModel = InputFactory.Model("CollectionModel", properties: new[]
-            {
+            var collectionModel = InputFactory.Model("CollectionModel", properties:
+            [
                 InputFactory.Property("Items", InputFactory.Array(itemModel))
-            });
+            ]);
 
             var mockGenerator = MockHelpers.LoadMockGenerator(
-                inputModels: () => new List<InputModelType> { collectionModel, itemModel });
+                inputModels: () => [collectionModel, itemModel]);
 
             var contextDefinition = new ModelReaderWriterContextDefinition();
             var attributes = contextDefinition.Attributes;
-            
+
             Assert.IsNotNull(attributes);
             Assert.IsTrue(attributes.Count > 0);
-            
+
             // Check that exactly two ModelReaderWriterBuildableAttribute exist for both models
             var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute));
             Assert.AreEqual(2, buildableAttributes.Count(), "Exactly two ModelReaderWriterBuildableAttributes should be generated for collection item models");
@@ -120,37 +119,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         public void ValidateModelReaderWriterBuildableAttributesAvoidDuplicates()
         {
             // Create models with circular references to test duplicate handling
-            var modelA = InputFactory.Model("ModelA", properties: new[]
-            {
+            var modelA = InputFactory.Model("ModelA", properties:
+            [
                 InputFactory.Property("PropertyA", InputPrimitiveType.String)
-            });
+            ]);
 
-            var modelB = InputFactory.Model("ModelB", properties: new[]
-            {
+            var modelB = InputFactory.Model("ModelB", properties:
+            [
                 InputFactory.Property("PropertyB", InputPrimitiveType.String),
                 InputFactory.Property("ModelARef", modelA)
-            });
+            ]);
 
             // Add a property to ModelA that references ModelB to create a circular reference
-            var modelAWithCircularRef = InputFactory.Model("ModelA", properties: new[]
-            {
+            var modelAWithCircularRef = InputFactory.Model("ModelA", properties:
+            [
                 InputFactory.Property("PropertyA", InputPrimitiveType.String),
                 InputFactory.Property("ModelBRef", modelB)
-            });
+            ]);
 
             var mockGenerator = MockHelpers.LoadMockGenerator(
-                inputModels: () => new List<InputModelType> { modelAWithCircularRef, modelB });
+                inputModels: () => [modelAWithCircularRef, modelB]);
 
             var contextDefinition = new ModelReaderWriterContextDefinition();
             var attributes = contextDefinition.Attributes;
-            
+
             Assert.IsNotNull(attributes);
-            
+
             // Check that no duplicate attributes exist
             var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute));
             var uniqueTypes = buildableAttributes.Select(a => a.Arguments.First().ToString()).Distinct().ToList();
-            
-            Assert.AreEqual(buildableAttributes.Count(), uniqueTypes.Count, 
+
+            Assert.AreEqual(buildableAttributes.Count(), uniqueTypes.Count,
                 "No duplicate ModelReaderWriterBuildableAttributes should be generated");
         }
 
@@ -159,32 +158,62 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         {
             // Create a model with a property that references a model from a dependency library
             // The dependency model won't have a model provider in the current library
-            var dependencyModel = InputFactory.Model("DependencyModel", properties: new[]
-            {
-                InputFactory.Property("DependencyValue", InputPrimitiveType.String)
-            });
-            
-            var parentModel = InputFactory.Model("ParentModel", properties: new[]
-            {
+            var dependencyModel = InputFactory.Model("DependencyModel");
+
+            var parentModel = InputFactory.Model("ParentModel", properties:
+            [
                 InputFactory.Property("DependencyProperty", dependencyModel),
                 InputFactory.Property("SimpleProperty", InputPrimitiveType.String)
-            });
+            ]);
 
             // Only include the parentModel in the mock generator, simulating that 
             // dependencyModel is from a dependency library
             var mockGenerator = MockHelpers.LoadMockGenerator(
-                inputModels: () => new List<InputModelType> { parentModel });
+                inputModels: () => [parentModel],
+                createCSharpTypeCore: input =>
+                {
+                    return new CSharpType(typeof(DependencyModel));
+                },
+                createCSharpTypeCoreFallback: input => input.Name == "DependencyModel");
 
             var contextDefinition = new ModelReaderWriterContextDefinition();
             var attributes = contextDefinition.Attributes;
-            
+
             Assert.IsNotNull(attributes);
             Assert.IsTrue(attributes.Count > 0);
-            
+
             // Check that exactly two ModelReaderWriterBuildableAttribute exist:
             // one for ParentModel and one for the dependency model
             var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute));
             Assert.AreEqual(2, buildableAttributes.Count(), "Exactly two ModelReaderWriterBuildableAttributes should be generated for models with dependency references");
+        }
+
+        private class DependencyModel : IJsonModel<DependencyModel>
+        {
+            DependencyModel? IJsonModel<DependencyModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+            {
+                throw new NotImplementedException();
+            }
+
+            DependencyModel? IPersistableModel<DependencyModel>.Create(BinaryData data, ModelReaderWriterOptions options)
+            {
+                throw new NotImplementedException();
+            }
+
+            string IPersistableModel<DependencyModel>.GetFormatFromOptions(ModelReaderWriterOptions options)
+            {
+                throw new NotImplementedException();
+            }
+
+            void IJsonModel<DependencyModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+            {
+                throw new NotImplementedException();
+            }
+
+            BinaryData IPersistableModel<DependencyModel>.Write(ModelReaderWriterOptions options)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }
