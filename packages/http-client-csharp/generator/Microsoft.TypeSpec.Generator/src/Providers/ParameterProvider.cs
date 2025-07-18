@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -158,7 +159,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public override int GetHashCode()
         {
-            return base.GetHashCode();
+            return RuntimeHelpers.GetHashCode(this); // gets the hash code based on object reference
         }
 
         private string GetDebuggerDisplay()
@@ -328,7 +329,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
 
-        internal static IEqualityComparer<ParameterProvider> ParameterProviderComparer = new ParameterProviderEqualityComparer();
+        internal static IEqualityComparer<ParameterProvider> EqualityByNameAndType = new ParameterProviderEqualityComparer();
 
         private struct ParameterProviderEqualityComparer : IEqualityComparer<ParameterProvider>
         {
