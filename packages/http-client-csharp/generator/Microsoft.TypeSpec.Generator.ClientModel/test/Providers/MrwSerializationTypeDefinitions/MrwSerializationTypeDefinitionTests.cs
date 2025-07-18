@@ -828,6 +828,47 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             return expr.ToDisplayString();
         }
 
+        [Test]
+        public void ModelPropertiesAreNotEvaluatedInConstructor()
+        {
+            MockHelpers.LoadMockGenerator();
+            var inputModel = InputFactory.Model("mockInputModel", properties: [InputFactory.Property("mockProperty", InputPrimitiveType.String, isRequired: true, isReadOnly: true)]);
+
+            // Create a custom model provider that tracks property access
+            var trackingModel = new PropertyAccessTrackingModelProvider(inputModel);
+
+            // Create the MrwSerializationTypeDefinition - this should NOT access Properties
+            var serialization = new MrwSerializationTypeDefinition(inputModel, trackingModel);
+
+            // Verify that Properties were not accessed during construction
+            Assert.IsFalse(trackingModel.PropertiesAccessed, "Model.Properties should not be accessed in the MrwSerializationTypeDefinition constructor");
+
+            // Now access a member that would require Properties (like Methods or Constructors)
+            var _ = serialization.Methods;
+
+            // Now Properties should have been accessed
+            Assert.IsTrue(trackingModel.PropertiesAccessed, "Model.Properties should be accessed when Methods are requested");
+        }
+
+        private class PropertyAccessTrackingModelProvider : ModelProvider
+        {
+            private readonly InputModelType _inputModel;
+            private bool _propertiesAccessed;
+
+            public PropertyAccessTrackingModelProvider(InputModelType inputModel) : base(inputModel)
+            {
+                _inputModel = inputModel;
+            }
+
+            public bool PropertiesAccessed => _propertiesAccessed;
+
+            protected override PropertyProvider[] BuildProperties()
+            {
+                _propertiesAccessed = true;
+                return base.BuildProperties();
+            }
+        }
+
         /// <summary>
         /// Determines whether the given statement is or contains a statement which is equal to the given code string.
         /// </summary>

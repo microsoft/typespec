@@ -527,13 +527,15 @@ function loadPagingServiceMetadata(
     ) {
       const nextLinkReInjectedParameters = [];
       for (const parameterSegments of method.pagingMetadata.nextLinkReInjectedParametersSegments) {
-        const lastParameterSegment = parameterSegments[
-          parameterSegments.length - 1
-        ] as SdkModelPropertyType;
-        const operationParameter = getHttpOperationParameter(method, lastParameterSegment);
-        if (operationParameter) {
-          const parameter = fromParameter(context, operationParameter, rootApiVersions);
-          nextLinkReInjectedParameters.push(parameter);
+        if (parameterSegments?.length > 0) {
+          const lastParameterSegment = parameterSegments[
+            parameterSegments.length - 1
+          ] as SdkModelPropertyType;
+          const operationParameter = getHttpOperationParameter(method, lastParameterSegment);
+          if (operationParameter) {
+            const parameter = fromParameter(context, operationParameter, rootApiVersions);
+            nextLinkReInjectedParameters.push(parameter);
+          }
         }
       }
       nextLink.reInjectedParameters = nextLinkReInjectedParameters;
