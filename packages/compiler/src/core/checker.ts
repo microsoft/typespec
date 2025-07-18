@@ -2272,7 +2272,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     const namespace = getParentNamespaceType(node);
     const name = node.id.sv;
-    let decorators: DecoratorApplication[] = [];
 
     const { resolvedSymbol: parameterModelSym } = resolver.resolveMetaMemberByName(
       symbol!,
@@ -2297,7 +2296,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       parameters: null as any,
       returnType: voidType,
       node,
-      decorators,
+      decorators: [],
       interface: parentInterface,
     });
 
@@ -2306,7 +2305,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     function finishOperation() {
       operationType.parameters.namespace = namespace;
 
-      decorators.push(...checkDecorators(operationType, node, mapper));
+      operationType.decorators.push(...checkDecorators(operationType, node, mapper));
       const runDecorators =
         parent.kind === SyntaxKind.InterfaceStatement
           ? shouldRunDecorators(parent, mapper) && shouldRunDecorators(node, mapper)
@@ -2339,7 +2338,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           operationType.returnType = baseOperation.returnType;
 
           // Copy decorators from the base operation, inserting the base decorators first
-          operationType.decorators = [...baseOperation.decorators];
+          operationType.decorators.push(...baseOperation.decorators);
           finishOperation();
         });
       } else {
