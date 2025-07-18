@@ -481,8 +481,7 @@ namespace Microsoft.TypeSpec.Generator
                 Append($"{field.Type} {field.Declaration:D}");
             }
 
-            if (field.InitializationValue != null &&
-                (modifiers.HasFlag(FieldModifiers.Const) || modifiers.HasFlag(FieldModifiers.Static)))
+            if (field.InitializationValue != null)
             {
                 AppendRaw(" = ");
                 field.InitializationValue.Write(this);

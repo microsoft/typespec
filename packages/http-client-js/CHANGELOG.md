@@ -1,5 +1,17 @@
 # Changelog - @typespec/http-client-js
 
+## 0.7.0
+
+### Bump dependencies
+
+- [#7655](https://github.com/microsoft/typespec/pull/7655) Upgrade to alloy 0.18.0
+- [#7674](https://github.com/microsoft/typespec/pull/7674) Upgrade dependencies
+
+### Bug Fixes
+
+- [#6477](https://github.com/microsoft/typespec/pull/6477) Bypass nested paging compile issue
+
+
 ## 0.6.0
 
 ### Features
