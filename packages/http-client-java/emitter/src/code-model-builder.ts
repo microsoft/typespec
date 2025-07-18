@@ -2740,15 +2740,6 @@ export class CodeModelBuilder {
     if (modelProperty.serializationOptions.multipart) {
       if (modelProperty.serializationOptions.multipart?.isFilePart) {
         schema = this.processMultipartFormDataFilePropertySchema(modelProperty);
-      } else if (
-        modelProperty.type.kind === "model" &&
-        modelProperty.type.properties.some((it) => !isHttpMetadata(this.sdkContext, it))
-      ) {
-        // TODO: this is HttpPart of non-File. TCGC should help handle this.
-        schema = this.processSchema(
-          modelProperty.type.properties.find((it) => !isHttpMetadata(this.sdkContext, it))!.type,
-          "",
-        );
       } else {
         schema = this.processSchema(nonNullType, "");
       }
