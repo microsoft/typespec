@@ -98,9 +98,7 @@
       "request": "launch",
       "name": "Debug tsp-pack",
       "program": "${workspaceFolder}/packages/pack/dist/cli.js",
-      "args": [
-        "main.tsp"
-      ],
+      "args": ["main.tsp"],
       "smartStep": true,
       "sourceMaps": true,
       "skipFiles": ["<node_internals>/**/*.js"],
