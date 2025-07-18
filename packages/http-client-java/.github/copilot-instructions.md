@@ -21,3 +21,18 @@ Steps:
 2. Save the file, and run `npm install` in root, so that "package-lock.json" would be updated.
 
 The [publish to NPM](https://dev.azure.com/azure-sdk/internal/_build?definitionId=7294) would be automatically triggered, after the PR is merged.
+
+# Add End2End Test Case
+
+The typical task is to `add e2e test case for <package>, scenario is <url-to-tsp-file>`.
+
+The source files to test are under `generator/http-client-generator-test/src/main/java/<package>`.
+Read the `Builder` and `Client` to understand the client structure, and APIs.
+Read the files under `generator/http-client-generator-test/src/main/java/<package>/models` to understand the classes that be used in the APIs.
+
+Read the `<url-to-tsp-file>` to understand the scenrio for the test case. It should include the expected HTTP request and response.
+Also try read the `client.tsp` in the same url (replace `main.tsp` with `client.tsp`). This file is optional, ignore it if there is no such file.
+
+Read a few existing test cases in `generator/http-client-generator-test/src/test/java/` to understand how to write the test case.
+
+Then, add a test case in `generator/http-client-generator-test/src/test/java/<package>/` with the name `<scenario>Tests.java`.
