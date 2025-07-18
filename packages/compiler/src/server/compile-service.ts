@@ -332,27 +332,10 @@ export function createCompileService({
     let dir = getDirectoryPath(path);
     const options = { allowFileNotFound: true };
 
-    while (true) {
-      let mainFile = "main.tsp";
-      let pkg: any;
-      const pkgPath = joinPaths(dir, "package.json");
-      const cached = await fileSystemCache.get(pkgPath);
-
-      if (cached?.data) {
-        pkg = cached.data;
-      } else {
-        [pkg] = await loadFile(
-          compilerHost,
-          pkgPath,
-          JSON.parse,
-          logMainFileSearchDiagnostic,
-          options,
-        );
-        await fileSystemCache.setData(pkgPath, pkg ?? {});
-      }
-
-      const entrypoints = clientConfigsProvider?.config?.compile?.entrypoint;
-      if (entrypoints && entrypoints.length > 0) {
+    // This takes priority over default main.tsp or package.json
+    const entrypoints = clientConfigsProvider?.config?.compile?.entrypoint;
+    if (entrypoints && entrypoints.length > 0) {
+      while (true) {
         for (const entrypoint of entrypoints) {
           const candidate = joinPaths(dir, entrypoint);
           const stat = await doIO(
@@ -370,6 +353,36 @@ export function createCompileService({
             return candidate;
           }
         }
+
+        const parentDir = getDirectoryPath(dir);
+        if (parentDir === dir) {
+          break;
+        }
+        log({
+          level: "debug",
+          message: `main file not found in ${dir}, search in parent directory ${parentDir}`,
+        });
+        dir = parentDir;
+      }
+    }
+
+    while (true) {
+      let mainFile = "main.tsp";
+      let pkg: any;
+      const pkgPath = joinPaths(dir, "package.json");
+      const cached = await fileSystemCache.get(pkgPath);
+
+      if (cached?.data) {
+        pkg = cached.data;
+      } else {
+        [pkg] = await loadFile(
+          compilerHost,
+          pkgPath,
+          JSON.parse,
+          logMainFileSearchDiagnostic,
+          options,
+        );
+        await fileSystemCache.setData(pkgPath, pkg ?? {});
       }
 
       const tspMain = resolveTspMain(pkg);

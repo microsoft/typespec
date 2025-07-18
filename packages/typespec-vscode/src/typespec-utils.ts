@@ -14,12 +14,12 @@ export async function getEntrypointTspFile(tspPath: string): Promise<string | un
   const isFilePath = await isFile(tspPath);
   let baseDir = isFilePath ? getDirectoryPath(tspPath) : tspPath;
 
+  // This takes priority over default main.tsp or package.json
   const configEntrypoints = vscode.workspace
     .getConfiguration()
     .get<string[] | null>(SettingName.CompileEntrypoint);
-
-  while (true) {
-    if (configEntrypoints && configEntrypoints.length > 0) {
+  if (configEntrypoints && configEntrypoints.length > 0) {
+    while (true) {
       for (const entrypoint of configEntrypoints) {
         const mainTspFile = path.resolve(baseDir, entrypoint);
         if (await isFile(mainTspFile)) {
@@ -27,8 +27,16 @@ export async function getEntrypointTspFile(tspPath: string): Promise<string | un
           return mainTspFile;
         }
       }
-    }
 
+      const parentDir = getDirectoryPath(baseDir);
+      if (parentDir === baseDir) {
+        break;
+      }
+      baseDir = parentDir;
+    }
+  }
+
+  while (true) {
     const pkgPath = path.resolve(baseDir, "package.json");
     if (await isFile(pkgPath)) {
       /* get the tspMain from package.json. */
