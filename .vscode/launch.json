@@ -96,10 +96,9 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Debug importer",
-      "program": "${workspaceFolder}/packages/importer/dist/cli.js",
+      "name": "Debug tsp-pack",
+      "program": "${workspaceFolder}/packages/pack/dist/cli.js",
       "args": [
-        // "https://raw.githubusercontent.com/Azure/azure-rest-api-specs/main/specification/batch/Azure.Batch/main.tsp"
         "main.tsp"
       ],
       "smartStep": true,

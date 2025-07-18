@@ -16,7 +16,7 @@ import {
   Tooltip,
 } from "@fluentui/react-components";
 import { ArrowUploadFilled } from "@fluentui/react-icons";
-import { combineProjectIntoFile, createRemoteHost } from "@typespec/importer";
+import { combineProjectIntoFile, createRemoteHost } from "@typespec/pack";
 import {
   DiagnosticList,
   Editor,

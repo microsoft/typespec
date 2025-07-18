@@ -22,7 +22,7 @@
     { "path": "packages/http-specs/tsconfig.build.json" },
     { "path": "packages/monarch/tsconfig.json" },
     { "path": "packages/bundler/tsconfig.json" },
-    { "path": "packages/importer/tsconfig.json" },
+    { "path": "packages/pack/tsconfig.json" },
     { "path": "packages/tspd/tsconfig.json" },
     { "path": "packages/samples/tsconfig.json" },
     { "path": "packages/json-schema/tsconfig.json" },

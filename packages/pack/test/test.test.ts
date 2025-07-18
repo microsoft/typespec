@@ -2,7 +2,7 @@ import { resolvePath } from "@typespec/compiler";
 import { createTester, expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { ok } from "assert";
 import { describe, expect, it } from "vitest";
-import { combineProjectIntoFile } from "../src/importer.js";
+import { combineProjectIntoFile } from "../src/pack.js";
 import { d } from "./utils.js";
 
 const Tester = createTester(resolvePath(import.meta.dirname, ".."), { libraries: [] });

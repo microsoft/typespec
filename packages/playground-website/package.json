@@ -59,7 +59,7 @@
     "@typespec/events": "workspace:^",
     "@typespec/html-program-viewer": "workspace:^",
     "@typespec/http": "workspace:^",
-    "@typespec/importer": "workspace:~",
+    "@typespec/pack": "workspace:~",
     "@typespec/json-schema": "workspace:^",
     "@typespec/openapi": "workspace:^",
     "@typespec/openapi3": "workspace:^",

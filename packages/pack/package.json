@@ -1,9 +1,9 @@
 {
-  "name": "@typespec/importer",
+  "name": "@typespec/pack",
   "private": true,
   "version": "0.0.1",
   "author": "Microsoft Corporation",
-  "description": "Package to import TypeSpec files into a single one",
+  "description": "Package to pack a TypeSpec project into a single file.",
   "homepage": "https://typespec.io",
   "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
   "license": "MIT",
@@ -22,7 +22,9 @@
   "exports": {
     ".": "./dist/index.js"
   },
-  "bin": "dist/src/cli.js",
+  "bin": {
+    "tsp-pack": "dist/src/cli.js"
+  },
   "engines": {
     "node": ">=18.0.0"
   },
