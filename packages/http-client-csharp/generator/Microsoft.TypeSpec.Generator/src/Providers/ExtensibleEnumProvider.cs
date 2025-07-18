@@ -35,10 +35,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             _valueField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, EnumUnderlyingType, "_value", this);
-            DeclaringTypeProvider = declaringType;
+            _declaringType = declaringType;
         }
 
         private readonly FieldProvider _valueField;
+
+        protected override TypeProvider? BuildDeclaringTypeProvider() => _declaringType;
+        private readonly TypeProvider? _declaringType;
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => _modifiers;
 

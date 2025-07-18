@@ -15,13 +15,17 @@ import io.clientcore.core.http.pipeline.HttpRedirectOptions;
 import io.clientcore.core.http.pipeline.HttpRedirectPolicy;
 import io.clientcore.core.http.pipeline.HttpRetryOptions;
 import io.clientcore.core.http.pipeline.HttpRetryPolicy;
+import io.clientcore.core.instrumentation.Instrumentation;
+import io.clientcore.core.instrumentation.SdkInstrumentationOptions;
 import io.clientcore.core.traits.ConfigurationTrait;
 import io.clientcore.core.traits.EndpointTrait;
 import io.clientcore.core.traits.HttpTrait;
 import io.clientcore.core.traits.ProxyTrait;
+import io.clientcore.core.utils.CoreUtils;
 import io.clientcore.core.utils.configuration.Configuration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -35,6 +39,9 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("encode-duration.properties");
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
@@ -179,7 +186,16 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
     private DurationClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        DurationClientImpl client = new DurationClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        DurationClientImpl client = new DurationClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -213,7 +229,8 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public QueryClient buildQueryClient() {
-        return new QueryClient(buildInnerClient().getQueries());
+        DurationClientImpl innerClient = buildInnerClient();
+        return new QueryClient(innerClient.getQueries(), innerClient.getInstrumentation());
     }
 
     /**
@@ -223,7 +240,8 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public PropertyClient buildPropertyClient() {
-        return new PropertyClient(buildInnerClient().getProperties());
+        DurationClientImpl innerClient = buildInnerClient();
+        return new PropertyClient(innerClient.getProperties(), innerClient.getInstrumentation());
     }
 
     /**
@@ -233,6 +251,7 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public HeaderClient buildHeaderClient() {
-        return new HeaderClient(buildInnerClient().getHeaders());
+        DurationClientImpl innerClient = buildInnerClient();
+        return new HeaderClient(innerClient.getHeaders(), innerClient.getInstrumentation());
     }
 }

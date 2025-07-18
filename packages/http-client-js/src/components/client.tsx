@@ -1,4 +1,4 @@
-import * as ay from "@alloy-js/core";
+import { For, List, Refkey, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { useTsp } from "@typespec/emitter-framework";
 import { ClassMethod } from "@typespec/emitter-framework/typescript";
@@ -18,19 +18,19 @@ export function Client(props: ClientProps) {
   const { topLevel } = useClientLibrary();
 
   return (
-    <ay.For each={topLevel} hardline>
+    <For each={topLevel} hardline>
       {(client) => {
         const fileName = namePolicy.getName($.client.getName(client), "variable");
         const flatClients = flattenClients(client);
         return (
           <ts.SourceFile path={`${fileName}.ts`}>
-            <ay.For each={flatClients} hardline>
+            <For each={flatClients} hardline>
               {(client) => <ClientClass client={client} />}
-            </ay.For>
+            </For>
           </ts.SourceFile>
         );
       }}
-    </ay.For>
+    </For>
   );
 }
 
@@ -39,11 +39,11 @@ export interface ClientClassProps {
 }
 
 export function getClientClassRef(client: cl.Client) {
-  return ay.refkey(client.type, "client-class");
+  return refkey(client.type, "client-class");
 }
 
 function getClientContextFieldRef(client: cl.Client) {
-  return ay.refkey(client.type, "client-context");
+  return refkey(client.type, "client-context");
 }
 export function ClientClass(props: ClientClassProps) {
   const { $ } = useTsp();
@@ -56,20 +56,20 @@ export function ClientClass(props: ClientClassProps) {
   const operations = props.client.operations;
   return (
     <ts.ClassDeclaration export name={clientName} refkey={clientClassRef}>
-      <ay.List hardline>
+      <List hardline>
         <ts.ClassField
           name="context"
           jsPrivate
           refkey={contextMemberRef}
           type={contextDeclarationRef}
         />
-        <ay.For each={subClients} hardline semicolon>
+        <For each={subClients} hardline semicolon>
           {(subClient) => <SubClientClassField client={subClient} />}
-        </ay.For>
+        </For>
         <ClientConstructor client={props.client} />
-        <ay.For each={operations} hardline semicolon>
+        <For each={operations} hardline semicolon>
           {(op) => {
-            const parameters = getOperationParameters(op.httpOperation, ay.refkey());
+            const parameters = getOperationParameters(op.httpOperation, refkey());
             const args = parameters.flatMap((p) => p.refkey);
             const isPaging = Boolean($.operation.getPagingMetadata(op.httpOperation.operation));
 
@@ -83,15 +83,15 @@ export function ClientClass(props: ClientClassProps) {
               >
                 return{" "}
                 <ts.FunctionCallExpression
-                  target={ay.refkey(op.httpOperation.operation)}
+                  target={refkey(op.httpOperation.operation)}
                   args={[contextMemberRef, ...args]}
                 />
                 ;
               </ClassMethod>
             );
           }}
-        </ay.For>
-      </ay.List>
+        </For>
+      </List>
     </ts.ClassDeclaration>
   );
 }
@@ -101,7 +101,7 @@ interface SubClientClassFieldProps {
 }
 
 function getSubClientClassFieldRef(client: cl.Client) {
-  return ay.refkey(client.type, "client-field");
+  return refkey(client.type, "client-field");
 }
 
 function SubClientClassField(props: SubClientClassFieldProps) {
@@ -131,14 +131,14 @@ function ClientConstructor(props: ClientConstructorProps) {
   );
   const clientContextFieldRef = getClientContextFieldRef(props.client);
   const clientContextFactoryRef = getClientContextFactoryRef(props.client);
-  const constructorParameters = buildClientParameters(props.client, ay.refkey());
+  const constructorParameters = buildClientParameters(props.client, refkey());
   const args = Object.values(constructorParameters).map((p) => p.refkey);
 
   return (
     <ts.ClassMethod name="constructor" parameters={constructorParameters}>
       {clientContextFieldRef} ={" "}
       <ts.FunctionCallExpression target={clientContextFactoryRef} args={args} />;<br />
-      <ay.For each={subClients} joiner=";" hardline>
+      <For each={subClients} joiner=";" hardline>
         {(subClient) => {
           const subClientFieldRef = getSubClientClassFieldRef(subClient);
           const subClientArgs = calculateSubClientArgs(subClient, constructorParameters);
@@ -148,13 +148,13 @@ function ClientConstructor(props: ClientConstructorProps) {
             </>
           );
         }}
-      </ay.For>
+      </For>
     </ts.ClassMethod>
   );
 }
 
 function calculateSubClientArgs(subClient: cl.Client, parentParams: ts.ParameterDescriptor[]) {
-  const subClientParams = buildClientParameters(subClient, ay.refkey()).map((p) => p.name);
+  const subClientParams = buildClientParameters(subClient, refkey()).map((p) => p.name);
   return parentParams
     .filter(({ name }) => subClientParams.includes(name))
     .flatMap((p) => (p.refkey ? p.refkey : []));
@@ -162,7 +162,7 @@ function calculateSubClientArgs(subClient: cl.Client, parentParams: ts.Parameter
 
 export interface NewClientExpressionProps {
   client: cl.Client;
-  args: ay.Refkey[];
+  args: Refkey[];
 }
 
 function NewClientExpression(props: NewClientExpressionProps) {

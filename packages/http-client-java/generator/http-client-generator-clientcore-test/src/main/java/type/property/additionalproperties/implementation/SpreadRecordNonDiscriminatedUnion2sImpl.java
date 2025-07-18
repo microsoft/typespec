@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import type.property.additionalproperties.SpreadRecordForNonDiscriminatedUnion2;
 
@@ -31,6 +32,11 @@ public final class SpreadRecordNonDiscriminatedUnion2sImpl {
     private final AdditionalPropertiesClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of SpreadRecordNonDiscriminatedUnion2sImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -38,6 +44,7 @@ public final class SpreadRecordNonDiscriminatedUnion2sImpl {
     SpreadRecordNonDiscriminatedUnion2sImpl(AdditionalPropertiesClientImpl client) {
         this.service = SpreadRecordNonDiscriminatedUnion2sService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -88,8 +95,12 @@ public final class SpreadRecordNonDiscriminatedUnion2sImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<SpreadRecordForNonDiscriminatedUnion2> getWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.get(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Property.AdditionalProperties.SpreadRecordNonDiscriminatedUnion2.get", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.get(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -104,7 +115,11 @@ public final class SpreadRecordNonDiscriminatedUnion2sImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(SpreadRecordForNonDiscriminatedUnion2 body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.put(this.client.getEndpoint(), contentType, body, requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Property.AdditionalProperties.SpreadRecordNonDiscriminatedUnion2.put", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.put(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 }

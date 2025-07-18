@@ -11,6 +11,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -28,6 +29,11 @@ public final class InInterfacesImpl {
     private final RoutesClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of InInterfacesImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -35,6 +41,7 @@ public final class InInterfacesImpl {
     InInterfacesImpl(RoutesClientImpl client) {
         this.service = InInterfacesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -74,6 +81,9 @@ public final class InInterfacesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> fixedWithResponse(RequestContext requestContext) {
-        return service.fixed(this.client.getEndpoint(), requestContext);
+        return this.instrumentation.instrumentWithResponse("Routes.InInterface.fixed", requestContext,
+            updatedContext -> {
+                return service.fixed(this.client.getEndpoint(), updatedContext);
+            });
     }
 }

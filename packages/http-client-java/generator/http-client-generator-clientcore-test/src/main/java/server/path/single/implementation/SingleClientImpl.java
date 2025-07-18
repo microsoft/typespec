@@ -11,6 +11,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -51,13 +52,29 @@ public final class SingleClientImpl {
     }
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
      * Initializes an instance of SingleClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
      */
-    public SingleClientImpl(HttpPipeline httpPipeline, String endpoint) {
+    public SingleClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
         this.service = SingleClientService.getNewInstance(this.httpPipeline);
     }
@@ -98,6 +115,9 @@ public final class SingleClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> myOpWithResponse(RequestContext requestContext) {
-        return service.myOp(this.getEndpoint(), requestContext);
+        return this.instrumentation.instrumentWithResponse("Server.Path.Single.myOp", requestContext,
+            updatedContext -> {
+                return service.myOp(this.getEndpoint(), updatedContext);
+            });
     }
 }

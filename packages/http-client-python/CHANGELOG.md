@@ -1,5 +1,30 @@
 # Change Log - @typespec/http-client-python
 
+## 0.14.0
+
+### Features
+
+- [#7924](https://github.com/microsoft/typespec/pull/7924) Support @override to reorder operation parameters
+
+### Bump dependencies
+
+- [#7924](https://github.com/microsoft/typespec/pull/7924) bump typespec
+
+
+## 0.13.0
+
+### Features
+
+- [#7817](https://github.com/microsoft/typespec/pull/7817) Make mixin operations classes private to remove from documentation
+
+
+## 0.12.5
+
+### Bug Fixes
+
+- [#7760](https://github.com/microsoft/typespec/pull/7760) [http-client-python] Add support for uv package manager alongside pip
+
+
 ## 0.12.4
 
 ### Bump dependencies

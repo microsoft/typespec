@@ -14,13 +14,17 @@ import io.clientcore.core.http.pipeline.HttpRedirectOptions;
 import io.clientcore.core.http.pipeline.HttpRedirectPolicy;
 import io.clientcore.core.http.pipeline.HttpRetryOptions;
 import io.clientcore.core.http.pipeline.HttpRetryPolicy;
+import io.clientcore.core.instrumentation.Instrumentation;
+import io.clientcore.core.instrumentation.SdkInstrumentationOptions;
 import io.clientcore.core.traits.ConfigurationTrait;
 import io.clientcore.core.traits.EndpointTrait;
 import io.clientcore.core.traits.HttpTrait;
 import io.clientcore.core.traits.ProxyTrait;
+import io.clientcore.core.utils.CoreUtils;
 import io.clientcore.core.utils.configuration.Configuration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import type.property.nullable.implementation.NullableClientImpl;
 
@@ -43,6 +47,9 @@ public final class NullableClientBuilder implements HttpTrait<NullableClientBuil
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("type-property-nullable.properties");
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
@@ -187,7 +194,16 @@ public final class NullableClientBuilder implements HttpTrait<NullableClientBuil
     private NullableClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        NullableClientImpl client = new NullableClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        NullableClientImpl client = new NullableClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -221,7 +237,8 @@ public final class NullableClientBuilder implements HttpTrait<NullableClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public StringOperationClient buildStringOperationClient() {
-        return new StringOperationClient(buildInnerClient().getStringOperations());
+        NullableClientImpl innerClient = buildInnerClient();
+        return new StringOperationClient(innerClient.getStringOperations(), innerClient.getInstrumentation());
     }
 
     /**
@@ -231,7 +248,8 @@ public final class NullableClientBuilder implements HttpTrait<NullableClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public BytesClient buildBytesClient() {
-        return new BytesClient(buildInnerClient().getBytes());
+        NullableClientImpl innerClient = buildInnerClient();
+        return new BytesClient(innerClient.getBytes(), innerClient.getInstrumentation());
     }
 
     /**
@@ -241,7 +259,8 @@ public final class NullableClientBuilder implements HttpTrait<NullableClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public DatetimeOperationClient buildDatetimeOperationClient() {
-        return new DatetimeOperationClient(buildInnerClient().getDatetimeOperations());
+        NullableClientImpl innerClient = buildInnerClient();
+        return new DatetimeOperationClient(innerClient.getDatetimeOperations(), innerClient.getInstrumentation());
     }
 
     /**
@@ -251,7 +270,8 @@ public final class NullableClientBuilder implements HttpTrait<NullableClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public DurationOperationClient buildDurationOperationClient() {
-        return new DurationOperationClient(buildInnerClient().getDurationOperations());
+        NullableClientImpl innerClient = buildInnerClient();
+        return new DurationOperationClient(innerClient.getDurationOperations(), innerClient.getInstrumentation());
     }
 
     /**
@@ -261,7 +281,8 @@ public final class NullableClientBuilder implements HttpTrait<NullableClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public CollectionsByteClient buildCollectionsByteClient() {
-        return new CollectionsByteClient(buildInnerClient().getCollectionsBytes());
+        NullableClientImpl innerClient = buildInnerClient();
+        return new CollectionsByteClient(innerClient.getCollectionsBytes(), innerClient.getInstrumentation());
     }
 
     /**
@@ -271,7 +292,8 @@ public final class NullableClientBuilder implements HttpTrait<NullableClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public CollectionsModelClient buildCollectionsModelClient() {
-        return new CollectionsModelClient(buildInnerClient().getCollectionsModels());
+        NullableClientImpl innerClient = buildInnerClient();
+        return new CollectionsModelClient(innerClient.getCollectionsModels(), innerClient.getInstrumentation());
     }
 
     /**
@@ -281,6 +303,7 @@ public final class NullableClientBuilder implements HttpTrait<NullableClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public CollectionsStringClient buildCollectionsStringClient() {
-        return new CollectionsStringClient(buildInnerClient().getCollectionsStrings());
+        NullableClientImpl innerClient = buildInnerClient();
+        return new CollectionsStringClient(innerClient.getCollectionsStrings(), innerClient.getInstrumentation());
     }
 }

@@ -12,6 +12,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.models.binarydata.BinaryData;
 import io.clientcore.core.utils.Base64Uri;
 import java.lang.reflect.InvocationTargetException;
@@ -34,6 +35,11 @@ public final class QueriesImpl {
     private final BytesClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of QueriesImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -41,6 +47,7 @@ public final class QueriesImpl {
     QueriesImpl(BytesClientImpl client) {
         this.service = QueriesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -105,8 +112,11 @@ public final class QueriesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> defaultMethodWithResponse(byte[] value, RequestContext requestContext) {
-        String valueConverted = new String(Base64.getEncoder().encode(value));
-        return service.defaultMethod(this.client.getEndpoint(), valueConverted, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.Query.default", requestContext,
+            updatedContext -> {
+                String valueConverted = new String(Base64.getEncoder().encode(value));
+                return service.defaultMethod(this.client.getEndpoint(), valueConverted, updatedContext);
+            });
     }
 
     /**
@@ -121,8 +131,11 @@ public final class QueriesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> base64WithResponse(byte[] value, RequestContext requestContext) {
-        String valueConverted = new String(Base64.getEncoder().encode(value));
-        return service.base64(this.client.getEndpoint(), valueConverted, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.Query.base64", requestContext,
+            updatedContext -> {
+                String valueConverted = new String(Base64.getEncoder().encode(value));
+                return service.base64(this.client.getEndpoint(), valueConverted, updatedContext);
+            });
     }
 
     /**
@@ -137,8 +150,11 @@ public final class QueriesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> base64urlWithResponse(byte[] value, RequestContext requestContext) {
-        Base64Uri valueConverted = Base64Uri.encode(value);
-        return service.base64url(this.client.getEndpoint(), valueConverted, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.Query.base64url", requestContext,
+            updatedContext -> {
+                Base64Uri valueConverted = Base64Uri.encode(value);
+                return service.base64url(this.client.getEndpoint(), valueConverted, updatedContext);
+            });
     }
 
     /**
@@ -153,38 +169,41 @@ public final class QueriesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> base64urlArrayWithResponse(List<byte[]> value, RequestContext requestContext) {
-        String valueConverted = value.stream()
-            .map(paramItemValue -> Base64Uri.encode(paramItemValue))
-            .collect(Collectors.toList())
-            .stream()
-            .map(paramItemValue -> {
-                if (paramItemValue == null) {
-                    return "";
-                } else {
-                    String itemValueString = BinaryData.fromObject(paramItemValue).toString();
-                    int strLength = itemValueString.length();
-                    int startOffset = 0;
-                    while (startOffset < strLength) {
-                        if (itemValueString.charAt(startOffset) != '"') {
-                            break;
-                        }
-                        startOffset++;
-                    }
-                    if (startOffset == strLength) {
-                        return "";
-                    }
-                    int endOffset = strLength - 1;
-                    while (endOffset >= 0) {
-                        if (itemValueString.charAt(endOffset) != '"') {
-                            break;
-                        }
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.Query.base64urlArray", requestContext,
+            updatedContext -> {
+                String valueConverted = value.stream()
+                    .map(paramItemValue -> Base64Uri.encode(paramItemValue))
+                    .collect(Collectors.toList())
+                    .stream()
+                    .map(paramItemValue -> {
+                        if (paramItemValue == null) {
+                            return "";
+                        } else {
+                            String itemValueString = BinaryData.fromObject(paramItemValue).toString();
+                            int strLength = itemValueString.length();
+                            int startOffset = 0;
+                            while (startOffset < strLength) {
+                                if (itemValueString.charAt(startOffset) != '"') {
+                                    break;
+                                }
+                                startOffset++;
+                            }
+                            if (startOffset == strLength) {
+                                return "";
+                            }
+                            int endOffset = strLength - 1;
+                            while (endOffset >= 0) {
+                                if (itemValueString.charAt(endOffset) != '"') {
+                                    break;
+                                }
 
-                        endOffset--;
-                    }
-                    return itemValueString.substring(startOffset, endOffset + 1);
-                }
-            })
-            .collect(Collectors.joining(","));
-        return service.base64urlArray(this.client.getEndpoint(), valueConverted, requestContext);
+                                endOffset--;
+                            }
+                            return itemValueString.substring(startOffset, endOffset + 1);
+                        }
+                    })
+                    .collect(Collectors.joining(","));
+                return service.base64urlArray(this.client.getEndpoint(), valueConverted, updatedContext);
+            });
     }
 }

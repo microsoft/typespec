@@ -39,7 +39,7 @@ class GeneralSerializer(BaseSerializer):
             "MIN_PYTHON_VERSION": MIN_PYTHON_VERSION,
             "MAX_PYTHON_VERSION": MAX_PYTHON_VERSION,
         }
-        params.update(self.code_model.options)
+        params.update({"options": self.code_model.options})
         return template.render(code_model=self.code_model, **params)
 
     def serialize_package_file(self, template_name: str, **kwargs: Any) -> str:
@@ -47,12 +47,12 @@ class GeneralSerializer(BaseSerializer):
         package_parts = (
             self.code_model.namespace.split(".")[:-1]
             if self.code_model.is_tsp
-            else (self.code_model.options["package_name"] or "").split("-")[:-1]
+            else (self.code_model.options.get("package-name", "")).split("-")[:-1]
         )
         token_credential = any(
             c for c in self.code_model.clients if isinstance(getattr(c.credential, "type", None), TokenCredentialType)
         )
-        version = self.code_model.options["package_version"]
+        version = self.code_model.options.get("package-version", "")
         if any(x in version for x in ["a", "b", "rc"]) or version[0] == "0":
             dev_status = "4 - Beta"
         else:
@@ -68,7 +68,7 @@ class GeneralSerializer(BaseSerializer):
             "MIN_PYTHON_VERSION": MIN_PYTHON_VERSION,
             "MAX_PYTHON_VERSION": MAX_PYTHON_VERSION,
         }
-        params.update(self.code_model.options)
+        params.update({"options": self.code_model.options})
         params.update(kwargs)
         return template.render(file_import=FileImport(self.code_model), **params)
 

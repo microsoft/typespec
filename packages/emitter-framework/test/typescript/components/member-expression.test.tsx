@@ -1,6 +1,6 @@
-import * as ay from "@alloy-js/core";
+import { List } from "@alloy-js/core";
 import { d } from "@alloy-js/core/testing";
-import { Enum, Model, Union } from "@typespec/compiler";
+import type { Enum, Model, Union } from "@typespec/compiler";
 import { describe, expect, it } from "vitest";
 import { TspContext } from "../../../src/core/index.js";
 import { EnumDeclaration } from "../../../src/typescript/components/enum-declaration.js";
@@ -24,10 +24,10 @@ describe("Typescript Enum Member Expression", () => {
       const Bar = program.resolveTypeReference("Bar")[0]! as Model;
       return (
         <TspContext.Provider value={{ program }}>
-          <ay.List hardline>
+          <List hardline>
             <EnumDeclaration type={program.resolveTypeReference("Foo")[0]! as Enum} />
             <InterfaceDeclaration type={Bar} />
-          </ay.List>
+          </List>
         </TspContext.Provider>
       );
     });
@@ -60,10 +60,10 @@ describe("Typescript Enum Member Expression", () => {
       const Bar = program.resolveTypeReference("Bar")[0]! as Model;
       return (
         <TspContext.Provider value={{ program }}>
-          <ay.List hardline>
+          <List hardline>
             <EnumDeclaration type={program.resolveTypeReference("Foo")[0]! as Enum} />
             <InterfaceDeclaration type={Bar} />
-          </ay.List>
+          </List>
         </TspContext.Provider>
       );
     });
@@ -98,10 +98,10 @@ describe("Typescript Union Member Expression", () => {
       const Bar = program.resolveTypeReference("Bar")[0]! as Model;
       return (
         <TspContext.Provider value={{ program }}>
-          <ay.List hardline>
+          <List hardline>
             <UnionDeclaration type={program.resolveTypeReference("Foo")[0]! as Union} />
             <InterfaceDeclaration type={Bar} />
-          </ay.List>
+          </List>
         </TspContext.Provider>
       );
     });
@@ -130,10 +130,10 @@ describe("Typescript Union Member Expression", () => {
       const Bar = program.resolveTypeReference("Bar")[0]! as Model;
       return (
         <TspContext.Provider value={{ program }}>
-          <ay.List hardline>
+          <List hardline>
             <UnionDeclaration type={program.resolveTypeReference("Foo")[0]! as Union} />
             <InterfaceDeclaration type={Bar} />
-          </ay.List>
+          </List>
         </TspContext.Provider>
       );
     });

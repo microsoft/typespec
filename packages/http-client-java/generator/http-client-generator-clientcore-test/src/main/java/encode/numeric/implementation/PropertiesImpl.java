@@ -16,6 +16,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -33,6 +34,11 @@ public final class PropertiesImpl {
     private final NumericClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of PropertiesImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -40,6 +46,7 @@ public final class PropertiesImpl {
     PropertiesImpl(NumericClientImpl client) {
         this.service = PropertiesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -100,9 +107,12 @@ public final class PropertiesImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<SafeintAsStringProperty> safeintAsStringWithResponse(SafeintAsStringProperty value,
         RequestContext requestContext) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.safeintAsString(this.client.getEndpoint(), contentType, accept, value, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Numeric.Property.safeintAsString", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.safeintAsString(this.client.getEndpoint(), contentType, accept, value, updatedContext);
+            });
     }
 
     /**
@@ -118,9 +128,13 @@ public final class PropertiesImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Uint32AsStringProperty> uint32AsStringOptionalWithResponse(Uint32AsStringProperty value,
         RequestContext requestContext) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.uint32AsStringOptional(this.client.getEndpoint(), contentType, accept, value, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Numeric.Property.uint32AsStringOptional",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.uint32AsStringOptional(this.client.getEndpoint(), contentType, accept, value,
+                    updatedContext);
+            });
     }
 
     /**
@@ -136,8 +150,11 @@ public final class PropertiesImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Uint8AsStringProperty> uint8AsStringWithResponse(Uint8AsStringProperty value,
         RequestContext requestContext) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.uint8AsString(this.client.getEndpoint(), contentType, accept, value, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Numeric.Property.uint8AsString", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.uint8AsString(this.client.getEndpoint(), contentType, accept, value, updatedContext);
+            });
     }
 }

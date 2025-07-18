@@ -1,6 +1,6 @@
-import { splitProps } from "@alloy-js/core/jsx-runtime";
+import { splitProps } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Operation } from "@typespec/compiler";
+import type { Operation } from "@typespec/compiler";
 import { buildParameterDescriptors, getReturnType } from "../utils/operation.js";
 import { TypeExpression } from "./type-expression.jsx";
 

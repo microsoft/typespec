@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.paging.PagedIterable;
+import io.clientcore.core.instrumentation.Instrumentation;
 import payload.pageable.implementation.ServerDrivenPaginationsImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class ServerDrivenPaginationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final ServerDrivenPaginationsImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of ServerDrivenPaginationClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    ServerDrivenPaginationClient(ServerDrivenPaginationsImpl serviceClient) {
+    ServerDrivenPaginationClient(ServerDrivenPaginationsImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -54,5 +59,33 @@ public final class ServerDrivenPaginationClient {
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> link(RequestContext requestContext) {
         return this.serviceClient.link(requestContext);
+    }
+
+    /**
+     * The nestedLink operation.
+     * 
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> nestedLink() {
+        return nestedLink(RequestContext.none());
+    }
+
+    /**
+     * The nestedLink operation.
+     * 
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> nestedLink(RequestContext requestContext) {
+        return this.serviceClient.nestedLink(requestContext);
     }
 }

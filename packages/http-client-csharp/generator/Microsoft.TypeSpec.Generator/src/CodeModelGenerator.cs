@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -28,13 +27,13 @@ namespace Microsoft.TypeSpec.Generator
         private static CodeModelGenerator? _instance;
         private List<string> _sharedSourceDirectories = [];
         public const string GeneratorMetadataName = "GeneratorName";
-        internal static CodeModelGenerator Instance
+        public static CodeModelGenerator Instance
         {
             get
             {
                 return _instance ?? throw new InvalidOperationException("CodeModelGenerator is not initialized");
             }
-            set
+            internal set
             {
                 _instance = value;
             }
