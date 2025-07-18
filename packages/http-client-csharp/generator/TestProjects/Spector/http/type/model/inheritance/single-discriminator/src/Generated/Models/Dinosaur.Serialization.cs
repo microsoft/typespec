@@ -9,6 +9,7 @@ using System.Text.Json;
 
 namespace _Type.Model.Inheritance.SingleDiscriminator
 {
+    [PersistableModelProxy(typeof(UnknownDinosaur))]
     public abstract partial class Dinosaur : IJsonModel<Dinosaur>
     {
         internal Dinosaur() => throw null;

@@ -9,6 +9,7 @@ using System.Text.Json;
 
 namespace _Type.Model.Inheritance.NestedDiscriminator
 {
+    [PersistableModelProxy(typeof(UnknownFish))]
     public abstract partial class Fish : IJsonModel<Fish>
     {
         internal Fish() => throw null;
