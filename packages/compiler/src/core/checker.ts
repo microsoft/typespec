@@ -2311,12 +2311,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       linkType(links, operationType, mapper);
     }
 
-    console.log("Start", name);
     const parent = node.parent!;
 
     function finishOperation() {
-      console.log("Done   ", name);
-
       operationType.parameters.namespace = namespace;
 
       operationType.decorators.push(...checkDecorators(operationType, node, mapper));
@@ -3530,9 +3527,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function checkModelStatement(node: ModelStatementNode, mapper: TypeMapper | undefined): Model {
     const links = getSymbolLinks(node.symbol);
 
-    console.log("Checking", node.id.sv, mapper === undefined ? "declaration" : "instantiation");
     if (links.declaredType && mapper === undefined) {
-      console.log("Already checked", node.id.sv, { creating: links.declaredType.creating });
       // we're not instantiating this model and we've already checked it
       return links.declaredType as any;
     }
@@ -3572,7 +3567,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       ],
       type,
       () => {
-        console.log("Model deps resolved", node.id.sv);
         if (isBase) {
           type.sourceModel = isBase;
           type.sourceModels.push({ usage: "is", model: isBase });
@@ -3617,7 +3611,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         decorators.push(...checkDecorators(type, node, mapper));
 
         linkMapper(type, mapper);
-        console.log("FInish model", node.id.sv);
         finishType(type, { skipDecorators: !shouldRunDecorators(node, mapper) });
 
         lateBindMemberContainer(type);
@@ -4632,10 +4625,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     mapper: TypeMapper | undefined,
   ): Type | undefined {
     const modelSymId = getNodeSym(model);
-    pendingResolutions.start(modelSymId, ResolutionKind.BaseType);
 
     const targetSym = resolver.getNodeLinks(target).resolvedSymbol;
-    if (targetSym && pendingResolutions.has(targetSym, ResolutionKind.BaseType)) {
+    if (targetSym === modelSymId) {
       if (mapper === undefined) {
         reportCheckerDiagnostic(
           createDiagnostic({
@@ -4648,7 +4640,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return undefined;
     }
     const type = getTypeForNode(target, mapper);
-    pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
     return type;
   }
 
