@@ -5,4 +5,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Fix incorrectly reported `incomatible-compiler-version` in some cases when using symlinks
+Fix incorrectly reported `incompatible-compiler-version` in some cases when using symlinks
