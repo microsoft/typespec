@@ -133,7 +133,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 _arguments ??= GetTypeArguments(),
                 DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) && _arguments.All(t => t.IsPublic),
                 DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct),
-                GetBaseType(),
+                BaseType,
                 IsEnum ? EnumUnderlyingType.FrameworkType : null);
 
         protected virtual bool GetIsEnum() => false;
@@ -193,11 +193,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal virtual TypeProvider? BaseTypeProvider => null;
 
-        protected virtual CSharpType? GetBaseType() => null;
+        protected virtual CSharpType? BuildBaseType() => null;
 
-        public virtual WhereExpression? WhereClause { get; protected init; }
+        public CSharpType? BaseType => _baseType ??= BuildBaseType();
+        private CSharpType? _baseType;
 
-        public virtual TypeProvider? DeclaringTypeProvider { get; protected init; }
+        public WhereExpression? WhereClause => _whereClause ??= BuildWhereClause();
+        private WhereExpression? _whereClause;
+        protected virtual WhereExpression? BuildWhereClause() => null;
+
+        public TypeProvider? DeclaringTypeProvider => _declaringTypeProvider ??= BuildDeclaringTypeProvider();
+        private TypeProvider? _declaringTypeProvider;
+        protected virtual TypeProvider? BuildDeclaringTypeProvider() => null;
 
         private IReadOnlyList<CSharpType>? _implements;
 

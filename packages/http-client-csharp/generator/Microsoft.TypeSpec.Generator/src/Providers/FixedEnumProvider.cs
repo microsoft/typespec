@@ -29,11 +29,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 _modifiers |= TypeSignatureModifiers.Internal;
             }
 
-            DeclaringTypeProvider = declaringType;
+            _declaringTypeProvider = declaringType;
             AllowedValues = input.Values;
         }
 
         internal IReadOnlyList<InputEnumTypeValue> AllowedValues { get; }
+        protected override TypeProvider? BuildDeclaringTypeProvider() => _declaringTypeProvider;
+        private readonly TypeProvider? _declaringTypeProvider;
 
         protected override TypeProvider[] BuildSerializationProviders()
         {

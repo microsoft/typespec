@@ -80,7 +80,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => TypeSignatureModifiers.Class | TypeSignatureModifiers.Internal;
 
-        protected override CSharpType? GetBaseType() => typeof(BinaryContent);
+        protected override CSharpType? BuildBaseType() => typeof(BinaryContent);
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
