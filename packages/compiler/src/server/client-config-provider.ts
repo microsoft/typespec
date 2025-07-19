@@ -5,8 +5,24 @@ interface LSPConfig {
   emit?: string[];
 }
 
+interface EntrypointConfig {
+  entrypoint?: string[];
+}
+
 interface Config {
   lsp?: LSPConfig;
+  compile?: EntrypointConfig;
+}
+
+function transformConfig(rawConfig: any): Config {
+  return {
+    lsp: {
+      emit: rawConfig?.lsp?.emit,
+    },
+    compile: {
+      entrypoint: rawConfig?.compile?.entrypoint,
+    },
+  };
 }
 
 /**
@@ -33,20 +49,12 @@ export function createClientConfigProvider(): ClientConfigProvider {
       host.log({ level: "debug", message: "VSCode settings loaded", detail: configs });
 
       // Transform the raw configuration to match our Config interface
-      config = {
-        lsp: {
-          emit: configs?.lsp?.emit,
-        },
-      };
+      config = transformConfig(configs);
 
       connection.onDidChangeConfiguration(async (params) => {
         if (params.settings) {
           const newConfigs = params.settings?.typespec;
-          config = {
-            lsp: {
-              emit: newConfigs?.lsp?.emit,
-            },
-          };
+          config = transformConfig(newConfigs);
         }
 
         host.log({ level: "debug", message: "Configuration changed", detail: params.settings });
