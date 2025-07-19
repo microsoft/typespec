@@ -1,3 +1,4 @@
+import { NodeSystemHost, resolveCompilerOptions } from "@typespec/compiler/internals";
 import { createHash } from "crypto";
 import { readFile, writeFile } from "fs/promises";
 import path from "path";
@@ -371,7 +372,6 @@ async function doEmit(
   }[] = [];
   try {
     for (const emitter of emitters) {
-      let outputDir = defaultEmitOutputDirInConfig;
       /*update emitter in config.yaml. */
       const emitNode = configYaml.get("emit");
       if (emitNode) {
@@ -397,9 +397,22 @@ async function doEmit(
           ["options", emitter.package, "emitter-output-dir"],
           defaultEmitOutputDirInConfig,
         );
-      } else {
-        outputDir = emitOutputDir as string;
       }
+    }
+    const newYamlContent = configYaml.toString();
+    await writeFile(tspConfigFile, newYamlContent);
+
+    const [tspConfigOptions, diagnostics] = await resolveCompilerOptions(NodeSystemHost, {
+      entrypoint: mainTspFile,
+      cwd: baseDir,
+    });
+    if (diagnostics.length > 0) {
+      logger.debug(
+        "TypeSpec config diagnostics:",
+        diagnostics.map((d) => d.message),
+      );
+    }
+    for (const emitter of emitters) {
       let codeInfoStr: string = "code";
       if (emitter.kind !== EmitterKind.Unknown) {
         codeInfoStr = `${emitter.kind} code`;
@@ -407,14 +420,17 @@ async function doEmit(
       if (emitter.language) {
         codeInfoStr += ` for ${emitter.language}`;
       }
-      outputDir = outputDir
-        .replace("{project-root}", baseDir)
-        .replace("{output-dir}", `${baseDir}/tsp-output`)
-        .replace("{emitter-name}", emitter.package);
-      generations.push({ emitter: emitter, outputDir: outputDir, codeInfo: codeInfoStr });
+
+      let outputDir: string | undefined;
+      if (tspConfigOptions.options) {
+        outputDir = tspConfigOptions.options[emitter.package]["emitter-output-dir"];
+      }
+      generations.push({
+        emitter: emitter,
+        outputDir: outputDir ?? `${baseDir}/tsp-output/${emitter.package}`,
+        codeInfo: codeInfoStr,
+      });
     }
-    const newYamlContent = configYaml.toString();
-    await writeFile(tspConfigFile, newYamlContent);
   } catch (error: any) {
     logger.error(error);
   }
@@ -422,7 +438,9 @@ async function doEmit(
   const allCodesToGenerate = generations
     .map((g) => `${g.codeInfo} under directory ${g.outputDir}`)
     .join(", ");
+
   logger.info(`Start to emit ${allCodesToGenerate}...`);
+
   const codeInfoStr = generations.map((g) => g.codeInfo).join(", ");
   return await vscode.window.withProgress<ResultCode>(
     {
