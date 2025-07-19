@@ -1,32 +1,19 @@
 export function registerMonacoDefaultWorkersForVite() {
   self.MonacoEnvironment = {
-    getWorker: function (workerId, label) {
-      const getWorkerModule = (moduleUrl: string, label: string) => {
-        return new Worker((self.MonacoEnvironment as any).getWorkerUrl(moduleUrl), {
-          name: label,
-          type: "module",
-        });
-      };
-
+    getWorker: async function (workerId, label) {
       switch (label) {
-        case "json":
-          return getWorkerModule("/monaco-editor/esm/vs/language/json/json.worker?worker", label);
-        case "css":
-        case "scss":
-        case "less":
-          return getWorkerModule("/monaco-editor/esm/vs/language/css/css.worker?worker", label);
-        case "html":
-        case "handlebars":
-        case "razor":
-          return getWorkerModule("/monaco-editor/esm/vs/language/html/html.worker?worker", label);
-        case "typescript":
-        case "javascript":
-          return getWorkerModule(
-            "/monaco-editor/esm/vs/language/typescript/ts.worker?worker",
-            label,
+        case "json": {
+          const { default: jsonWorker } = await import(
+            "monaco-editor/esm/vs/language/json/json.worker?worker" as any
           );
-        default:
-          return getWorkerModule("/monaco-editor/esm/vs/editor/editor.worker?worker", label);
+          return jsonWorker();
+        }
+        default: {
+          const { default: editorWorker } = await import(
+            "monaco-editor/esm/vs/editor/editor.worker?worker" as any
+          );
+          return editorWorker();
+        }
       }
     },
   };
