@@ -1,9 +1,8 @@
-import { Console } from "console";
 import { mkdir, writeFile } from "fs/promises";
 import inspector from "inspector";
 import { join } from "path";
 import { fileURLToPath } from "url";
-import { inspect } from "util";
+import { format, inspect } from "util";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
   ApplyWorkspaceEditParams,
@@ -33,14 +32,20 @@ try {
 }
 
 function main() {
-  // Redirect all console stdout output to stderr since LSP pipe uses stdout
-  // and writing to stdout for anything other than LSP protocol will break
-  // things badly.
-  global.console = new Console(process.stderr, process.stderr);
-
   let clientHasWorkspaceFolderCapability = false;
   const connection = createConnection(ProposedFeatures.all);
   const documents = new TextDocuments(TextDocument);
+
+  // eslint-disable-next-line no-console
+  console.log = (data: any, ...args: any[]) => connection.console.info(format(data, ...args));
+  // eslint-disable-next-line no-console
+  console.info = (data: any, ...args: any[]) => connection.console.info(format(data, ...args));
+  // eslint-disable-next-line no-console
+  console.debug = (data: any, ...args: any[]) => connection.console.debug(format(data, ...args));
+  // eslint-disable-next-line no-console
+  console.warn = (data: any, ...args: any[]) => connection.console.warn(format(data, ...args));
+  // eslint-disable-next-line no-console
+  console.error = (data: any, ...args: any[]) => connection.console.error(format(data, ...args));
 
   const host: ServerHost = {
     compilerHost: NodeHost,
