@@ -1,10 +1,9 @@
-import { Model } from "@typespec/compiler";
-import { expectDiagnostics } from "@typespec/compiler/testing";
+import { expectDiagnostics, t } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { getResourceTypeKey } from "../src/resource.js";
 import { getSegment } from "../src/rest.js";
-import { compileOperations, createRestTestRunner, getRoutesFor } from "./test-host.js";
+import { Tester, compileOperations, getRoutesFor } from "./test-host.js";
 
 describe("rest: resources", () => {
   it("@resource decorator emits a diagnostic when a @key property is not found", async () => {
@@ -13,7 +12,7 @@ describe("rest: resources", () => {
       model Thing {
         id: string;
       }
-      `);
+    `);
 
     expectDiagnostics(diagnostics, {
       code: "@typespec/rest/resource-missing-key",
@@ -23,50 +22,41 @@ describe("rest: resources", () => {
   });
 
   it("getResourceTypeKey works for base classes", async () => {
-    const runner = await createRestTestRunner();
-    const { Thing } = (await runner.compile(`
-
+    const { Thing, program } = await Tester.compile(t.code`
       model BaseThing {
         @key
         id: string;
       }
 
-      @test
       @resource("things")
-      model Thing extends BaseThing {
+      model ${t.model("Thing")} extends BaseThing {
         extra: string;
       }
-    `)) as { Thing: Model };
+    `);
 
-    // Check the key property to ensure the segment got added
-    const key = getResourceTypeKey(runner.program, Thing);
+    const key = getResourceTypeKey(program, Thing);
     ok(key, "No key property found.");
-    strictEqual(getSegment(runner.program, key.keyProperty), "things");
+    strictEqual(getSegment(program, key.keyProperty), "things");
   });
 
   it("@resource decorator applies @segment decorator on the @key property", async () => {
-    const runner = await createRestTestRunner();
-    const { Thing } = (await runner.compile(`
-      @test
+    const { Thing, program } = await Tester.compile(t.code`
       @resource("things")
-      model Thing {
+      model ${t.model("Thing")} {
         @key
         id: string;
       }
-    `)) as { Thing: Model };
+    `);
 
-    // Check the key property to ensure the segment got added
-    const key = getResourceTypeKey(runner.program, Thing);
+    const key = getResourceTypeKey(program, Thing);
     ok(key, "No key property found.");
-    strictEqual(getSegment(runner.program, key.keyProperty), "things");
+    strictEqual(getSegment(program, key.keyProperty), "things");
   });
 
   it("@resource decorator applies @segment decorator that reaches route generation", async () => {
-    const routes = await getRoutesFor(
-      `
+    const routes = await getRoutesFor(`
       using Rest.Resource;
 
-      @test
       @resource("things")
       model Thing {
         @key("thingId")
@@ -76,8 +66,7 @@ describe("rest: resources", () => {
       @error model Error {}
 
       interface Things extends ResourceRead<Thing, Error> {}
-      `,
-    );
+    `);
 
     deepStrictEqual(routes, [
       {
@@ -89,8 +78,7 @@ describe("rest: resources", () => {
   });
 
   it("resources: generates standard operations for resource types and their children", async () => {
-    const routes = await getRoutesFor(
-      `
+    const routes = await getRoutesFor(`
       using Rest.Resource;
 
       namespace Things {
@@ -112,8 +100,7 @@ describe("rest: resources", () => {
         interface Things extends ResourceOperations<Thing, Error> {}
         interface Subthings extends ResourceOperations<Subthing, Error> {}
       }
-      `,
-    );
+    `);
 
     deepStrictEqual(routes, [
       {
@@ -170,8 +157,7 @@ describe("rest: resources", () => {
   });
 
   it("resources: collection action paths are generated correctly", async () => {
-    const routes = await getRoutesFor(
-      `
+    const routes = await getRoutesFor(`
       using Rest.Resource;
 
       model Thing {
@@ -191,8 +177,7 @@ describe("rest: resources", () => {
         @actionSeparator(":")
         op exportThingWithColon2(): {};
       }
-      `,
-    );
+    `);
 
     deepStrictEqual(routes, [
       {
@@ -219,7 +204,7 @@ describe("rest: resources", () => {
         @key("anotherId")
         secondId: string;
       }
-      `);
+    `);
 
     expectDiagnostics(diagnostics, [
       {
@@ -261,7 +246,7 @@ describe("rest: resources", () => {
           subSubthingId: string;
         }
       }
-      `);
+    `);
 
     expectDiagnostics(diagnostics, [
       {
@@ -280,8 +265,7 @@ describe("rest: resources", () => {
   });
 
   it("resources: standard lifecycle operations have expected paths and verbs", async () => {
-    const routes = await getRoutesFor(
-      `
+    const routes = await getRoutesFor(`
       using Rest.Resource;
 
       model Thing {
@@ -294,8 +278,7 @@ describe("rest: resources", () => {
 
       interface Things extends ResourceOperations<Thing, Error>, ResourceCreateOrReplace<Thing, Error> {
       }
-      `,
-    );
+    `);
 
     deepStrictEqual(routes, [
       {
@@ -332,8 +315,7 @@ describe("rest: resources", () => {
   });
 
   it("singleton resource: generates standard operations", async () => {
-    const routes = await getRoutesFor(
-      `
+    const routes = await getRoutesFor(`
       using Rest.Resource;
 
       namespace Things {
@@ -353,8 +335,7 @@ describe("rest: resources", () => {
         interface Things extends ResourceRead<Thing, Error> {}
         interface ThingsSingleton extends SingletonResourceOperations<Singleton, Thing, Error> {}
       }
-      `,
-    );
+    `);
 
     deepStrictEqual(routes, [
       {
@@ -376,8 +357,7 @@ describe("rest: resources", () => {
   });
 
   it("extension resources: generates standard operations for extensions on parent and child resources", async () => {
-    const routes = await getRoutesFor(
-      `
+    const routes = await getRoutesFor(`
       using Rest.Resource;
 
       namespace Things {
@@ -405,8 +385,7 @@ describe("rest: resources", () => {
         interface ThingsExtension extends ExtensionResourceOperations<Exthing, Thing, Error> {}
         interface SubthingsExtension extends ExtensionResourceOperations<Exthing, Subthing, Error> {}
       }
-      `,
-    );
+    `);
 
     deepStrictEqual(routes, [
       {
@@ -463,17 +442,14 @@ describe("rest: resources", () => {
   });
 
   it("emit diagnostic if missing @key decorator on resource", async () => {
-    const runner = await createRestTestRunner();
-    const diagnostics = await runner.diagnose(
-      `
+    const diagnostics = await Tester.diagnose(`
       using Rest.Resource;
 
       interface Dogs extends ResourceOperations<Dog, Error> {}
 
       model Dog {}
       @error model Error {code: string}
-      `,
-    );
+    `);
     expectDiagnostics(diagnostics, {
       code: "@typespec/rest/resource-missing-key",
       message:
@@ -482,9 +458,7 @@ describe("rest: resources", () => {
   });
 
   it("emit diagnostic if missing @error decorator on error", async () => {
-    const runner = await createRestTestRunner();
-    const diagnostics = await runner.diagnose(
-      `
+    const diagnostics = await Tester.diagnose(`
       using Rest.Resource;
 
       interface Dogs extends ResourceOperations<Dog, Error> {}
@@ -493,8 +467,7 @@ describe("rest: resources", () => {
         @key foo: string
       }
       model Error {code: string}
-      `,
-    );
+    `);
     expectDiagnostics(diagnostics, {
       code: "@typespec/rest/resource-missing-error",
       message:

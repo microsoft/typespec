@@ -1,27 +1,27 @@
-import * as ay from "@alloy-js/core";
+import { code, List, refkey, StatementList } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { httpRuntimeTemplateLib } from "../external-packages/ts-http-runtime.js";
 
 export function getRestErrorRefkey() {
-  return ay.refkey("rest-error", "static-helpers", "class");
+  return refkey("rest-error", "static-helpers", "class");
 }
 
 export function getCreateRestErrorRefkey() {
-  return ay.refkey("create-rest-error", "static-helpers", "function");
+  return refkey("create-rest-error", "static-helpers", "function");
 }
 
 export function RestError() {
-  const requestRefkey = ay.refkey("request", "rest-error-class-field");
-  const responseRefkey = ay.refkey("response", "rest-error-class-field");
-  const statusRefkey = ay.refkey("status", "rest-error-class-field");
-  const bodyRefkey = ay.refkey("body", "rest-error-class-field");
-  const headersRefkey = ay.refkey("headers", "rest-error-class-field");
-  const constructorRefkey = ay.refkey("constructor", "rest-error-class-method");
-  const fromHttpResponseRefkey = ay.refkey("from-http-response", "rest-error-class-method");
+  const requestRefkey = refkey("request", "rest-error-class-field");
+  const responseRefkey = refkey("response", "rest-error-class-field");
+  const statusRefkey = refkey("status", "rest-error-class-field");
+  const bodyRefkey = refkey("body", "rest-error-class-field");
+  const headersRefkey = refkey("headers", "rest-error-class-field");
+  const constructorRefkey = refkey("constructor", "rest-error-class-method");
+  const fromHttpResponseRefkey = refkey("from-http-response", "rest-error-class-method");
 
   const restErrorClass = (
     <ts.ClassDeclaration export name="RestError" extends="Error" refkey={getRestErrorRefkey()}>
-      <ay.StatementList>
+      <StatementList>
         <ts.ClassField
           public
           name="request"
@@ -42,9 +42,9 @@ export function RestError() {
           type={httpRuntimeTemplateLib.RawHttpHeaders}
           refkey={headersRefkey}
         />
-      </ay.StatementList>
+      </StatementList>
 
-      <ay.List hardline>
+      <List hardline>
         <ts.ClassMethod
           name="constructor"
           parameters={[
@@ -54,7 +54,7 @@ export function RestError() {
           returnType={null}
           refkey={constructorRefkey}
         >
-          {ay.code`
+          {code`
           // Create an error message that includes relevant details.
           super(\`$\{message\} - HTTP $\{response.status} received for $\{response.request.method} $\{response.request.url}\`);
           this.name = 'RestError';
@@ -75,12 +75,12 @@ export function RestError() {
           returnType={getRestErrorRefkey()}
           refkey={fromHttpResponseRefkey}
         >
-          {ay.code`
+          {code`
           const defaultMessage = \`Unexpected HTTP status code: $\{response.status}\`;
           return new RestError(defaultMessage, response);
         `}
         </ts.ClassMethod>
-      </ay.List>
+      </List>
     </ts.ClassDeclaration>
   );
 
@@ -92,7 +92,7 @@ export function RestError() {
       returnType={getRestErrorRefkey()}
       refkey={getCreateRestErrorRefkey()}
     >
-      {ay.code`
+      {code`
       return ${fromHttpResponseRefkey}(response);
     `}
     </ts.FunctionDeclaration>

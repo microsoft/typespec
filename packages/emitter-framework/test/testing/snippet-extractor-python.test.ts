@@ -2,15 +2,15 @@ import { d } from "@alloy-js/core/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import {
   createPythonExtractorConfig,
-  createSnipperExtractor,
-  SnippetExtractor,
+  createSnippetExtractor,
+  type SnippetExtractor,
 } from "../../src/testing/index.js";
 
 describe("Python Snippet Extractor", () => {
   let extractor: SnippetExtractor;
 
   beforeEach(async () => {
-    extractor = createSnipperExtractor(await createPythonExtractorConfig());
+    extractor = createSnippetExtractor(await createPythonExtractorConfig());
   });
 
   it("should extract a class", () => {

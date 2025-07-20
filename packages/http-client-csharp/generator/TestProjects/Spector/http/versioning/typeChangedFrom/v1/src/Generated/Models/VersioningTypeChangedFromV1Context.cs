@@ -3,9 +3,11 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using Versioning.TypeChangedFrom;
 
 namespace Versioning.TypeChangedFrom.V1
 {
+    [ModelReaderWriterBuildable(typeof(TestModel))]
     public partial class VersioningTypeChangedFromV1Context : ModelReaderWriterContext
     {
     }

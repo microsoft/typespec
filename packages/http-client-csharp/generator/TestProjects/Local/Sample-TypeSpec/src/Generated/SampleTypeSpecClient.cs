@@ -23,6 +23,18 @@ namespace SampleTypeSpec
         /// <summary> A credential used to authenticate to the service. </summary>
         private readonly ApiKeyCredential _keyCredential;
         private const string AuthorizationHeader = "my-api-key";
+        /// <summary> A credential provider used to authenticate to the service. </summary>
+        private readonly AuthenticationTokenProvider _tokenProvider;
+        /// <summary> The OAuth2 flows supported by the service. </summary>
+        private readonly Dictionary<string, object>[] _flows = new Dictionary<string, object>[] 
+        {
+            new Dictionary<string, object>
+            {
+                { GetTokenOptions.ScopesPropertyName, new string[] { "read" } },
+                { GetTokenOptions.AuthorizationUrlPropertyName, "https://api.example.com/oauth2/authorize" },
+                { GetTokenOptions.RefreshUrlPropertyName, "https://api.example.com/oauth2/refresh" }
+            }
+        };
         private readonly string _apiVersion;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClient for mocking. </summary>
@@ -53,6 +65,24 @@ namespace SampleTypeSpec
             _endpoint = endpoint;
             _keyCredential = credential;
             Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(_keyCredential, AuthorizationHeader) }, Array.Empty<PipelinePolicy>());
+            _apiVersion = options.Version;
+        }
+
+        /// <summary> Initializes a new instance of SampleTypeSpecClient. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="tokenProvider"> A credential provider used to authenticate to the service. </param>
+        /// <param name="options"> The options for configuring the client. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="tokenProvider"/> is null. </exception>
+        public SampleTypeSpecClient(Uri endpoint, AuthenticationTokenProvider tokenProvider, SampleTypeSpecClientOptions options)
+        {
+            Argument.AssertNotNull(endpoint, nameof(endpoint));
+            Argument.AssertNotNull(tokenProvider, nameof(tokenProvider));
+
+            options ??= new SampleTypeSpecClientOptions();
+
+            _endpoint = endpoint;
+            _tokenProvider = tokenProvider;
+            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new BearerTokenPolicy(_tokenProvider, _flows) }, Array.Empty<PipelinePolicy>());
             _apiVersion = options.Version;
         }
 
@@ -522,7 +552,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult TopAction2(RequestOptions options)
+        public virtual ClientResult TopAction2(RequestOptions options = null)
         {
             using PipelineMessage message = CreateTopAction2Request(options);
             return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
@@ -539,7 +569,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> TopAction2Async(RequestOptions options)
+        public virtual async Task<ClientResult> TopAction2Async(RequestOptions options = null)
         {
             using PipelineMessage message = CreateTopAction2Request(options);
             return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));

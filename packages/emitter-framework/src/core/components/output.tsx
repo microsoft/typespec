@@ -1,8 +1,12 @@
-import * as ay from "@alloy-js/core";
-import { Program } from "@typespec/compiler";
+import {
+  Output as CoreOutput,
+  splitProps,
+  type OutputProps as CoreOutputProps,
+} from "@alloy-js/core";
+import type { Program } from "@typespec/compiler";
 import { TspContext } from "../context/tsp-context.js";
 
-export interface OutputProps extends ay.OutputProps {
+export interface OutputProps extends CoreOutputProps {
   /**
    * TypeSpec program.
    */
@@ -10,10 +14,10 @@ export interface OutputProps extends ay.OutputProps {
 }
 
 export function Output(props: OutputProps) {
-  const [{ program }, rest] = ay.splitProps(props, ["program"]);
+  const [{ program }, rest] = splitProps(props, ["program"]);
   return (
     <TspContext.Provider value={{ program }}>
-      <ay.Output {...rest} />
+      <CoreOutput {...rest} />
     </TspContext.Provider>
   );
 }

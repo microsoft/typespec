@@ -70,7 +70,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var field = new FieldProvider(
                     FieldModifiers.Private | FieldModifiers.ReadOnly,
                     parameter.Type,
-                    $"_{parameter.Name}",
+                    $"_{parameter.Name.ToVariableName()}",
                     this);
                 fields.Add(field);
                 if (field.Name == "_options")

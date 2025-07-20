@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import versioning.renamedfrom.NewModel;
 import versioning.renamedfrom.RenamedFromServiceVersion;
@@ -32,6 +33,11 @@ public final class NewInterfacesImpl {
     private final RenamedFromClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of NewInterfacesImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -39,6 +45,7 @@ public final class NewInterfacesImpl {
     NewInterfacesImpl(RenamedFromClientImpl client) {
         this.service = NewInterfacesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -90,9 +97,12 @@ public final class NewInterfacesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<NewModel> newOpInNewInterfaceWithResponse(NewModel body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.newOpInNewInterface(this.client.getEndpoint(), this.client.getServiceVersion().getVersion(),
-            contentType, accept, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Versioning.RenamedFrom.NewInterface.newOpInNewInterface",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.newOpInNewInterface(this.client.getEndpoint(),
+                    this.client.getServiceVersion().getVersion(), contentType, accept, body, updatedContext);
+            });
     }
 }

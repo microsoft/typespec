@@ -171,7 +171,11 @@ public class Transformer {
                     request.setParameters(newParameters.collect(Collectors.toList()));
                     Stream<Parameter> newSignatureParameters = Stream
                         .concat(operation.getSignatureParameters().stream(), request.getSignatureParameters().stream());
-                    newSignatureParameters = newSignatureParameters.filter(param -> param.getGroupedBy() == null);
+                    if (!JavaSettings.getInstance().isDataPlaneClient()) {
+                        // For DPG, grouping or flattening has no effect on the protocol method.
+                        // For convenience method, it would be handled in "operation.getConvenienceApi()".
+                        newSignatureParameters = newSignatureParameters.filter(param -> param.getGroupedBy() == null);
+                    }
                     request.setSignatureParameters(newSignatureParameters.collect(Collectors.toList()));
                     for (int i = 0; i < request.getParameters().size(); i++) {
                         Parameter parameter = request.getParameters().get(i);
@@ -362,6 +366,7 @@ public class Transformer {
                 nextOperation.setOperationGroup(operationGroup);
                 nextOperation.set$key(operationName);
                 nextOperation.setLanguage(new Languages());
+                nextOperation.getLanguage().setDefault(operation.getLanguage().getDefault());
                 nextOperation.getLanguage().setJava(new Language());
                 nextOperation.getLanguage().getJava().setName(operationName);
                 nextOperation.getLanguage().getJava().setDescription("Get the next page of items");
@@ -533,8 +538,6 @@ public class Transformer {
                             });
                     }
                 }
-                operation.getExtensions().getXmsPageable().setNextOperation(nextOperation);
-                nextOperation.getExtensions().getXmsPageable().setNextOperation(nextOperation);
                 operationNextPageOperationMap.put(operationSignature, nextOperation);
             } else {
                 // In case the same operation instance is processed more than once(both in "transformOperationGroups"
@@ -542,6 +545,9 @@ public class Transformer {
                 // we share the same next-page operation for the same operation instance.
                 nextOperation = operationNextPageOperationMap.get(operationSignature);
             }
+            operation.getExtensions().getXmsPageable().setNextOperation(nextOperation);
+            nextOperation.getExtensions().getXmsPageable().setNextOperation(nextOperation);
+
             operationGroup.getOperations().add(nextOperation);
         } else {
             Operation nextOperation = operationGroup.getOperations()
@@ -689,9 +695,7 @@ public class Transformer {
 
     private static void renameOdataParameterNames(Request request) {
         List<Parameter> parameters = request.getParameters();
-        ListIterator<Parameter> iter = parameters.listIterator();
-        while (iter.hasNext()) {
-            Parameter parameter = iter.next();
+        for (Parameter parameter : parameters) {
             if (parameter.getProtocol() != null
                 && parameter.getProtocol().getHttp() != null
                 && (parameter.getProtocol().getHttp().getIn() == RequestParameterLocation.QUERY

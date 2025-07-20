@@ -17,8 +17,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildName() => "CodeGenTypeAttribute";
 
-        private protected sealed override NamedTypeSymbolProvider? GetCustomCodeView(string? generatedTypeName = default) => null;
-        private protected sealed override NamedTypeSymbolProvider? GetLastContractView() => null;
+        private protected sealed override NamedTypeSymbolProvider? BuildCustomCodeView(string? generatedTypeName = default) => null;
+        private protected sealed override NamedTypeSymbolProvider? BuildLastContractView() => null;
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() =>
             TypeSignatureModifiers.Internal | TypeSignatureModifiers.Class;
