@@ -83,7 +83,7 @@ class JinjaSerializer(ReaderAndWriter):
         self._regenerate_setup_py()
 
     def _regenerate_setup_py(self):
-        if self.code_model.options["generate-setup-py"]:
+        if self.code_model.options["generate-setup-py"] or self.code_model.options["basic-setup-py"]:
             _PACKAGE_FILES.append("setup.py.jinja2")
             _REGENERATE_FILES.add("setup.py")
         else:
@@ -136,7 +136,7 @@ class JinjaSerializer(ReaderAndWriter):
             exec_path = self.exec_path(client_namespace)
             if client_namespace == "":
                 # remove setup.py file
-                if self.code_model.options.get("generate-setup-py"):
+                if self.code_model.options.get("generate-setup-py") or self.code_model.options.get("basic-setup-py"):
                     # Write the setup file
                     if self.code_model.options["basic-setup-py"]:
                         self.write_file(exec_path / Path("setup.py"), general_serializer.serialize_setup_file())
