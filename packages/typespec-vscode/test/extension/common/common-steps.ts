@@ -126,39 +126,20 @@ export async function selectFolder(file: string = "") {
  * @param page vscode object
  */
 export async function notEmptyFolderContinue(page: Page) {
-  let yesBtn: Locator;
-  await retry(
-    page,
-    5,
-    async () => {
-      yesBtn = page
-        .getByRole("option", { name: "Yes" })
-        .locator("label")
-        .filter({ hasText: "Yes" })
-        .first();
-      const noBtn = page
-        .getByRole("option", { name: "No" })
-        .locator("label")
-        .filter({ hasText: "No" })
-        .first();
-      return (await yesBtn.count()) > 0 && (await noBtn.count()) > 0;
-    },
-    "Failed to find yes/no button",
-    1,
-  );
-  await retry(
-    page,
-    5,
-    async () => {
-      const yesdescriptionBox = page.getByRole("option", { name: "Yes" }).locator("label");
-      const yesdescriptionText = await yesdescriptionBox.textContent();
-      return yesdescriptionText !== null && yesdescriptionText.includes("YesSelected folder");
-    },
-    "Failed to match the description for the non-empty folder cases",
-    1,
-  );
+  try {
+    await page.waitForSelector('role=option[name="No"] >> label:has-text("No")', { timeout: 5000 });
+    await page.waitForSelector('role=option >> label:has-text("Yes")', { timeout: 5000 });
+  } catch (e) {
+    throw new Error(e as string);
+  }
+  try {
+    await page.waitForSelector(`:text("YesSelected folder")`, { timeout: 5000 });
+  } catch (e) {
+    throw new Error("Failed to match the description for the non-empty folder cases");
+  }
   await screenshot(page, "linux", "not_empty_folder_continue");
-  await yesBtn!.click();
+  await page.waitForSelector('a:has-text("Yes")');
+  await page.getByRole("option", { name: /Yes/ }).locator("a").filter({ hasText: /Yes/ }).click();
 }
 
 /**
