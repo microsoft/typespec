@@ -2,6 +2,7 @@
 
 ## Setup
 
+- These setup instructions supercede those from copilot-instructions. There is no need to run any `pnpm` commands when working on http-client-csharp development. There is also no need to add change logs.
 - http-client-csharp code is located under `packages/http-client-csharp`.
 - For any tasks that do not involve changes to the `package.json` file, perform the following steps:
   - Run `npm ci`
