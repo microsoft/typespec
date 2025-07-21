@@ -65,5 +65,26 @@ namespace TestProjects.Local.Tests
                 TestStringExtensibleEnum result = (string?)null!;
             });
         }
+
+        [Test]
+        public void RealWorldScenario_MethodWithNullableEnumParameter()
+        {
+            // This test simulates the real-world scenario mentioned in the issue:
+            // A method that takes a nullable extensible enum parameter should work when null is passed
+            
+            // Simulate a method signature like: void SomeMethod(MyEnum? parameter)
+            void SomeMethod(TestStringExtensibleEnum? parameter)
+            {
+                // Method can handle null parameter gracefully
+                Assert.IsNull(parameter);
+            }
+
+            // This should work without throwing an exception
+            Assert.DoesNotThrow(() => SomeMethod(null));
+            
+            // And when a string null is passed, the nullable implicit operator should handle it
+            string? nullString = null;
+            Assert.DoesNotThrow(() => SomeMethod(nullString));
+        }
     }
 }
