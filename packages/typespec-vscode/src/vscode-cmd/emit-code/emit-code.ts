@@ -419,7 +419,9 @@ async function doEmit(
       generations.push({ emitter: emitter, outputDir: outputDir, codeInfo: codeInfoStr });
     }
     let newYamlContent = configYaml.toString();
-    newYamlContent = newYamlContent.replaceAll("ToBeReplacedWith#", "# ").replaceAll("null", "");
+    newYamlContent = newYamlContent
+      .replaceAll("ToBeReplacedWith#", "# ")
+      .replaceAll("ToBeReplacedWithEmptyValue", "");
     await writeFile(tspConfigFile, newYamlContent);
   } catch (error: any) {
     logger.error(error);
@@ -869,7 +871,7 @@ function getConfigEntriesFromEmitterOptions(
       comment += ` (Options: ${propSchema.enum.join(", ")})`;
     }
 
-    const defaultValue = propSchema.default;
+    const defaultValue = propSchema.default ?? "ToBeReplacedWithEmptyValue";
 
     configEntries[propertyName] = {
       value: defaultValue,
