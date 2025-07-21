@@ -13,8 +13,8 @@ import { screenshot, tempDir, test } from "./common/utils";
 
 enum ImportProjectTriggerType {
   CommandPalette = "CommandPalette",
-  RightClickonFile = "RightClickonFile",
-  RightClickonFolder = "RightClickonFolder",
+  RightClickOnFile = "RightClickOnFile",
+  RightClickOnFolder = "RightClickOnFolder",
 }
 
 type ImportConfigType = {
@@ -40,14 +40,14 @@ ImportCasesConfigList.push(
     expectedResults: ["openapi.3.0.yaml", "ImportTypespecProjectEmptyFolder"],
   },
   {
-    caseName: "ImportTypespecProject-RightClickonFile-NonEmptyFolder",
-    triggerType: ImportProjectTriggerType.RightClickonFile,
+    caseName: "ImportTypespecProject-RightClickOnFile-NonEmptyFolder",
+    triggerType: ImportProjectTriggerType.RightClickOnFile,
     selectFolderEmptyOrNonEmpty: "non-empty",
     expectedResults: ["openapi.3.0.yaml", "main.tsp", "ImportTypespecProjectEmptyFolder"],
   },
   {
-    caseName: "ImportTypespecProject-RightClickonFolder-EmptyFolder",
-    triggerType: ImportProjectTriggerType.RightClickonFolder,
+    caseName: "ImportTypespecProject-RightClickOnFolder-EmptyFolder",
+    triggerType: ImportProjectTriggerType.RightClickOnFolder,
     selectFolderEmptyOrNonEmpty: "empty",
     expectedResults: ["openapi.3.0.yaml", "ImportTypespecProjectEmptyFolder"],
   },
@@ -93,13 +93,13 @@ describe.each(ImportCasesConfigList)("ImportTypespecFromOpenApi3", async (item) 
 
     if (triggerType === "CommandPalette") {
       await startWithCommandPalette(page, "Import Typespec from Openapi 3");
-    } else if (triggerType === "RightClickonFile") {
+    } else if (triggerType === "RightClickOnFile") {
       await startWithRightClick(page, "Import TypeSpec from Openapi 3", "file");
-    } else if (triggerType === "RightClickonFolder" && selectFolderEmptyOrNonEmpty === "empty") {
+    } else if (triggerType === "RightClickOnFolder" && selectFolderEmptyOrNonEmpty === "empty") {
       await startWithRightClick(page, "Import TypeSpec from Openapi 3", "emptyfolder");
     }
 
-    if (selectFolderEmptyOrNonEmpty === "empty" && triggerType !== "RightClickonFolder") {
+    if (selectFolderEmptyOrNonEmpty === "empty" && triggerType !== "RightClickOnFolder") {
       await selectFolder("ImportTypespecProjectEmptyFolder");
       await selectFolder();
     } else if (selectFolderEmptyOrNonEmpty === "non-empty") {

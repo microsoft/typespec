@@ -133,26 +133,29 @@ export async function inputProjectName(page: Page) {
  * @param page vscode project
  */
 export async function inputServiceNameSpace(page: Page) {
-  const titleInfoDescription = "Please provide service namespace in Pascal case: (Press 'Enter' to confirm or 'Escape' to cancel)" 
+  const titleInfoDescription =
+    "Please provide service namespace in Pascal case: (Press 'Enter' to confirm or 'Escape' to cancel)";
   await retry(
     page,
     3,
     async () => {
-      const titleBox = page.locator('div').filter({ hasText: '0 Results0 SelectedPlease' }).nth(2)
-      let titleBoxText = await titleBox.textContent()
+      const titleBox = page.locator("div").filter({ hasText: "0 Results0 SelectedPlease" }).nth(2);
+      let titleBoxText = await titleBox.textContent();
       // Remove the known prefix and suffix noise in the captured lines.
-      titleBoxText = titleBoxText ? titleBoxText.replace(/^0 Results0 Selected/, "").replace(/OK$/, "") : null;
-      if (titleBoxText === titleInfoDescription){
-        return true
+      titleBoxText = titleBoxText
+        ? titleBoxText.replace(/^0 Results0 Selected/, "").replace(/OK$/, "")
+        : null;
+      if (titleBoxText === titleInfoDescription) {
+        return true;
       } else {
         // Description mismatched, expected "${titleInfoDescription}", got "${titleBoxText}".
-        return false
+        return false;
       }
     },
-    "Failed to find the service namespace input box."
-  )
-  await screenshot(page, "linux", "input_service_namespace.png")
-  await page.keyboard.press("Enter")
+    "Failed to find the service namespace input box.",
+  );
+  await screenshot(page, "linux", "input_service_namespace.png");
+  await page.keyboard.press("Enter");
 }
 
 /**
@@ -160,26 +163,29 @@ export async function inputServiceNameSpace(page: Page) {
  * @param page vscode project
  */
 export async function inputARMResourceProviderName(page: Page) {
-  const titleInfoDescription = "Please provide ARM Resource Provider Name in Pascal case, excluding the 'Microsoft.' prefix: (Press 'Enter' to confirm or 'Escape' to cancel)" 
+  const titleInfoDescription =
+    "Please provide ARM Resource Provider Name in Pascal case, excluding the 'Microsoft.' prefix: (Press 'Enter' to confirm or 'Escape' to cancel)";
   await retry(
     page,
     3,
     async () => {
-      const titleBox = page.locator('div').filter({ hasText: '0 Results0 SelectedPlease' }).nth(2)
-      let titleBoxText = await titleBox.textContent()
+      const titleBox = page.locator("div").filter({ hasText: "0 Results0 SelectedPlease" }).nth(2);
+      let titleBoxText = await titleBox.textContent();
       // Remove the known prefix and suffix noise in the captured lines.
-      titleBoxText = titleBoxText ? titleBoxText.replace(/^0 Results0 Selected/, "").replace(/OK$/, "") : null;
-      if (titleBoxText === titleInfoDescription){
-        return true
+      titleBoxText = titleBoxText
+        ? titleBoxText.replace(/^0 Results0 Selected/, "").replace(/OK$/, "")
+        : null;
+      if (titleBoxText === titleInfoDescription) {
+        return true;
       } else {
         // Description mismatched, expected "${titleInfoDescription}", got "${titleBoxText}".
-        return false
+        return false;
       }
     },
-    "Failed to find the ARM Resource Provider name input box."
-  )
-  await screenshot(page, "linux", "input_ARM_Resource_name.png")
-  await page.keyboard.press("Enter")
+    "Failed to find the ARM Resource Provider name input box.",
+  );
+  await screenshot(page, "linux", "input_ARM_Resource_name.png");
+  await page.keyboard.press("Enter");
 }
 
 /**

@@ -30,7 +30,6 @@ type EmitConfigType = {
 
 const EmitTypespecProjectFolderPath = path.resolve(tempDir, "EmitTypespecProject");
 
-const EmitcaseName = "EmitTypespecProject";
 const EmitCasesConfigList: EmitConfigType[] = [
   {
     caseName: "EmitTypespecProject-ClientCode-Python-CommandPallette",
