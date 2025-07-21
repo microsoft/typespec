@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -43,6 +44,20 @@ namespace TestProjects.Local.Tests
 
             Assert.IsNull(value);
             Assert.AreEqual(0, e.GetHashCode());
+        }
+
+        [Test]
+        public void PassingNullArgToNullableExtensibleEnumParameterDoesNotThrow()
+        {
+            Assert.DoesNotThrow(() => NullableExtensibleEnumMethod(null));
+            void NullableExtensibleEnumMethod(StringExtensibleEnum? e) { }
+        }
+
+        [Test]
+        public void PassingNullArgToExtensibleEnumParameterThrows()
+        {
+            Assert.Throws<ArgumentNullException>(() => ExtensibleEnumMethod(null));
+            void ExtensibleEnumMethod(StringExtensibleEnum e) { }
         }
 
         private static object[] ExtensibleEnumData = [
