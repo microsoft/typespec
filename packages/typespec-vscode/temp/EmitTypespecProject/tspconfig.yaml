@@ -1,0 +1,23 @@
+emit:
+  - "@typespec/http-client-java"
+  - "@typespec/openapi3"
+  - "@typespec/http-server-csharp"
+  - "@typespec/http-client-python"
+  - "@typespec/http-client-js"
+  - "@typespec/http-client-csharp"
+  - "@typespec/http-server-js"
+options:
+  "@typespec/http-client-java":
+    emitter-output-dir: "{output-dir}/{emitter-name}"
+  "@typespec/openapi3":
+    emitter-output-dir: "{output-dir}/{emitter-name}"
+  "@typespec/http-server-csharp":
+    emitter-output-dir: "{output-dir}/{emitter-name}"
+  "@typespec/http-client-python":
+    emitter-output-dir: "{output-dir}/{emitter-name}"
+  "@typespec/http-client-js":
+    emitter-output-dir: "{output-dir}/{emitter-name}"
+  "@typespec/http-client-csharp":
+    emitter-output-dir: "{output-dir}/{emitter-name}"
+  "@typespec/http-server-js":
+    emitter-output-dir: "{output-dir}/{emitter-name}"

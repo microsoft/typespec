@@ -273,6 +273,7 @@
     "test:extension": "vitest run --root test/extension"
   },
   "devDependencies": {
+    "@nut-tree-fork/nut-js": "^4.2.6",
     "@types/cross-spawn": "~6.0.6",
     "@types/mocha": "^10.0.9",
     "@types/node": "~24.0.3",
@@ -280,6 +281,9 @@
     "@types/vscode": "~1.100.0",
     "@types/which": "^3.0.4",
     "@typespec/compiler": "workspace:^",
+    "@typespec/http": "workspace:^",
+    "@typespec/openapi": "workspace:^",
+    "@typespec/openapi3": "workspace:^",
     "@typespec/internal-build-utils": "workspace:^",
     "@vscode/test-electron": "^2.3.9",
     "@vitest/coverage-v8": "^3.1.2",

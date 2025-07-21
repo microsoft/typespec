@@ -1,5 +1,6 @@
-import { mkdir, rm } from "fs/promises";
+import { mkdir } from "fs/promises";
 import path from "node:path";
+import { rimraf } from "rimraf";
 import { beforeEach, describe } from "vitest";
 import {
   contrastResult,
@@ -10,7 +11,9 @@ import {
   startWithCommandPalette,
 } from "./common/common-steps";
 import {
+  inputARMResourceProviderName,
   inputProjectName,
+  inputServiceNameSpace,
   selectEmitters,
   selectTemplate,
   startWithClick,
@@ -35,9 +38,9 @@ type CreateConfigType = {
 const CreateTypespecProjectFolderPath = path.resolve(tempDir, "CreateTypespecProject");
 
 const createCase = "CreateTypespecProject";
-const templateName = "Generic Rest API";
-const templateNameDescription = "Create a project representing a generic REST API service.";
-const expectedResults = [
+let templateName = "Generic Rest API";
+let templateNameDescription = "Create a project representing a generic REST API service.";
+let expectedResults = [
   ".gitignore",
   "main.tsp",
   "node_modules",
@@ -57,10 +60,141 @@ const CreateCasesConfigList: CreateConfigType[] = [
   },
 ];
 
+templateName = "Typespec library";
+templateNameDescription =
+  "Build your own TypeSpec library with custom types, decorators or linters.";
+expectedResults = [
+  "lib",
+  "node_modules",
+  "src",
+  "test",
+  ".gitignore",
+  "eslint.config.js",
+  "package.json",
+  "package-lock.json",
+  "prettierrc.yaml",
+  "tsconfig.json",
+];
+
+CreateCasesConfigList.push({
+  triggerType: CreateProjectTriggerType.Click,
+  caseName: `${createCase} ${templateName.replaceAll(" ", "")} Trigger ${CreateProjectTriggerType.Click} EmptyFolder`,
+  templateName,
+  templateNameDescription,
+  isEmptyFolder: true,
+  expectedResults,
+});
+
+templateName = "Typespec emitter";
+templateNameDescription = "Create a new package that emits artifacts from TypeSpec.";
+expectedResults = [
+  "node_modules",
+  "src",
+  "test",
+  ".gitignore",
+  "eslint.config.js",
+  "package.json",
+  "package-lock.json",
+  "prettierrc.yaml",
+  "tsconfig.json",
+];
+
+CreateCasesConfigList.push({
+  triggerType: CreateProjectTriggerType.Command,
+  caseName: `${createCase} ${templateName.replaceAll(" ", "")} Trigger ${CreateProjectTriggerType.Command} NonEmptyFolder`,
+  templateName,
+  templateNameDescription,
+  isEmptyFolder: false,
+  expectedResults,
+});
+
+templateName = "(rest-api-spec repo) Azure Data Plane Service Project";
+templateNameDescription =
+  "Create a project in rest-api-spec repo, representing an Azure service Data Plane API";
+expectedResults = ["examples", ".gitignore", "client.tsp", "main.tsp", "tspconfig.yaml"];
+
+CreateCasesConfigList.push({
+  triggerType: CreateProjectTriggerType.Click,
+  caseName: `${createCase} ${templateName.replaceAll(" ", "")} Trigger ${CreateProjectTriggerType.Click} EmptyFolder`,
+  templateName,
+  templateNameDescription,
+  isEmptyFolder: true,
+  expectedResults,
+});
+
+templateName = "(rest-api-spec repo) Azure Resource Manager Service Project";
+templateNameDescription =
+  "Create a project in rest-api-spec repo, representing an Azure service ARM API";
+expectedResults = ["examples", ".gitignore", "employee.tsp", "main.tsp", "tspconfig.yaml"];
+
+CreateCasesConfigList.push({
+  triggerType: CreateProjectTriggerType.Click,
+  caseName: `${createCase} ${templateName.replaceAll(" ", "")} Trigger ${CreateProjectTriggerType.Click} NonEmptyFolder`,
+  templateName,
+  templateNameDescription,
+  isEmptyFolder: false,
+  expectedResults,
+});
+
+templateName = "(stand alone) Azure Data Plane Service Project";
+templateNameDescription =
+  "Create a stand alone project representing an Azure service Data Plane API";
+expectedResults = [
+  "examples",
+  "node_modules",
+  ".gitignore",
+  "client.tsp",
+  "main.tsp",
+  "package.json",
+  "package-lock.json",
+  "tspconfig.yaml",
+];
+
+CreateCasesConfigList.push({
+  triggerType: CreateProjectTriggerType.Command,
+  caseName: `${createCase} ${templateName.replaceAll(" ", "")} Trigger ${CreateProjectTriggerType.Command} EmptyFolder`,
+  templateName,
+  templateNameDescription,
+  isEmptyFolder: true,
+  expectedResults,
+});
+
+templateName = "(stand alone) Azure Resource Manager Service Project";
+templateNameDescription = "Create a stand alone project representing an Azure service ARM API";
+expectedResults = [
+  "examples",
+  "node_modules",
+  ".gitignore",
+  "employee.tsp",
+  "main.tsp",
+  "package.json",
+  "package-lock.json",
+  "tspconfig.yaml",
+];
+
+CreateCasesConfigList.push({
+  triggerType: CreateProjectTriggerType.Command,
+  caseName: `${createCase} ${templateName.replaceAll(" ", "")} Trigger ${CreateProjectTriggerType.Command} NonEmptyFolder`,
+  templateName,
+  templateNameDescription,
+  isEmptyFolder: false,
+  expectedResults,
+});
+
+const DataPlaneAPIProviderNameTemplates = [
+  "(rest-api-spec repo) Azure Data Plane Service Project",
+  "(stand alone) Azure Data Plane Service Project",
+];
+
+const ARMAPIProviderNameTemplates = [
+  "(rest-api-spec repo) Azure Resource Manager Service Project",
+  "(stand alone) Azure Resource Manager Service Project",
+];
+
 beforeEach(async () => {
   const dir = CreateTypespecProjectFolderPath;
   try {
-    await rm(dir, { recursive: true });
+    await rimraf(dir);
   } catch {}
   await mkdir(dir, { recursive: true });
 });
@@ -101,6 +235,10 @@ describe.each(CreateCasesConfigList)("CreateTypespecProject", async (item) => {
 
     if (templateName === "Generic Rest API") {
       await selectEmitters(page);
+    } else if (DataPlaneAPIProviderNameTemplates.includes(templateName)) {
+      await inputServiceNameSpace(page);
+    } else if (ARMAPIProviderNameTemplates.includes(templateName)) {
+      await inputARMResourceProviderName(page);
     }
 
     await preContrastResult(page, "Project created", "Failed to create project Successful", 150000);

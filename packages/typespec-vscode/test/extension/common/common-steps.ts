@@ -1,8 +1,9 @@
+import { Key, keyboard } from "@nut-tree-fork/nut-js";
 import { rm } from "fs/promises";
 import fs from "node:fs";
 import path from "node:path";
 import { Locator, Page } from "playwright";
-import { imagesPath, retry, screenshot } from "./utils";
+import { imagesPath, retry, screenshot, sleep } from "./utils";
 
 /**
  * Waits for the specified text to appear on the page before proceeding.
@@ -71,6 +72,51 @@ export async function startWithCommandPalette(page: Page, command: string) {
   );
   await screenshot(page, "linux", "input_command");
   await listForCreate!.click();
+}
+
+/**
+ * Start the Project with Right click on the file
+ * @param page vscode object
+ * @param command create, emit or import
+ * @param type specify whether the click is on file, folder or empty folder
+ * command: specify which command to execute to the project
+ */
+export async function startWithRightClick(page: Page, command: string, type?: string) {
+  await page.waitForSelector(".explorer-viewlet");
+  await page.waitForSelector(".letterpress");
+  await page.waitForSelector(".left-items");
+  if (command === "Emit from TypeSpec" || command === "Preview API Documentation") {
+    await page.getByRole("toolbar", { name: "Explorer actions" }).click();
+    const target = page.getByRole("treeitem", { name: "main.tsp" }).locator("a");
+    await target.click({ button: "right" });
+    await screenshot(page, "linux", "click_main");
+    await page.getByRole("menuitem", { name: command }).click();
+    await screenshot(
+      page,
+      "linux",
+      `${command === "Emit from TypeSpec" ? "emit" : "preview"}_typespec.png`,
+    );
+  } else if (command === "Import TypeSpec from Openapi 3") {
+    const targetName =
+      type === "emptyfolder" ? "ImportTypespecProjectEmptyFolder" : "openapi.3.0.yaml";
+    await page.getByRole("toolbar", { name: "Explorer actions" }).click();
+    const target = page.getByRole("treeitem", { name: targetName }).locator("a");
+    await target.click({ button: "right" });
+    await screenshot(page, "linux", "openapi.3.0");
+    await page.getByRole("menuitem", { name: "Import TypeSpec from OpenAPI" }).click();
+    await screenshot(page, "linux", "import_typespec");
+  }
+}
+
+/**
+ * In vscode, when you need to select a folder or a file, call this method
+ * @param file When selecting a file, just pass it in. If you need to select a folder, you do not need to pass this parameter in.
+ */
+export async function selectFolder(file: string = "") {
+  await sleep(5);
+  await keyboard.type(file);
+  await keyboard.pressKey(Key.Enter);
+  await keyboard.releaseKey(Key.Enter);
 }
 
 /**
