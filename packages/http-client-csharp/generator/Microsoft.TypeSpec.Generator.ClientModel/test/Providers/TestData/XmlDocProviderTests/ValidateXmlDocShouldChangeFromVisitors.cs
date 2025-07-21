@@ -22,17 +22,17 @@ namespace Sample
         /// </list>
         /// </summary>
         /// <param name="queryParam_modified"> queryParam description. </param>
-        /// <param name="options_modified"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="queryParam_modified"/> is null. </exception>
         /// <exception cref="global::System.ArgumentException"> <paramref name="queryParam_modified"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.ClientResult Operation(string queryParam_modified, global::System.ClientModel.Primitives.RequestOptions options_modified)
+        public virtual global::System.ClientModel.ClientResult Operation(string queryParam_modified, global::System.ClientModel.Primitives.RequestOptions options)
         {
             global::Sample.Argument.AssertNotNullOrEmpty(queryParam_modified, nameof(queryParam_modified));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateOperationRequest(queryParam_modified, options_modified);
-            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options_modified));
+            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateOperationRequest(queryParam_modified, options);
+            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -44,33 +44,33 @@ namespace Sample
         /// </list>
         /// </summary>
         /// <param name="queryParam_modified"> queryParam description. </param>
-        /// <param name="options_modified"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="queryParam_modified"/> is null. </exception>
         /// <exception cref="global::System.ArgumentException"> <paramref name="queryParam_modified"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> OperationAsync(string queryParam_modified, global::System.ClientModel.Primitives.RequestOptions options_modified)
+        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> OperationAsync(string queryParam_modified, global::System.ClientModel.Primitives.RequestOptions options)
         {
             global::Sample.Argument.AssertNotNullOrEmpty(queryParam_modified, nameof(queryParam_modified));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateOperationRequest(queryParam_modified, options_modified);
-            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options_modified).ConfigureAwait(false));
+            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateOperationRequest(queryParam_modified, options);
+            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Operation description. </summary>
-        /// <param name="cancellationToken_modified"> The cancellation token that can be used to cancel the operation. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.ClientResult Operation(global::System.Threading.CancellationToken cancellationToken_modified = default)
+        public virtual global::System.ClientModel.ClientResult Operation(global::System.Threading.CancellationToken cancellationToken = default)
         {
-            return this.Operation(cancellationToken_modified.CanBeCanceled ? new global::System.ClientModel.Primitives.RequestOptions { CancellationToken = cancellationToken_modified } : null);
+            return this.Operation(cancellationToken.CanBeCanceled ? new global::System.ClientModel.Primitives.RequestOptions { CancellationToken = cancellationToken } : null);
         }
 
         /// <summary> Operation description. </summary>
-        /// <param name="cancellationToken_modified"> The cancellation token that can be used to cancel the operation. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> OperationAsync(global::System.Threading.CancellationToken cancellationToken_modified = default)
+        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> OperationAsync(global::System.Threading.CancellationToken cancellationToken = default)
         {
-            return await this.OperationAsync(cancellationToken_modified.CanBeCanceled ? new global::System.ClientModel.Primitives.RequestOptions { CancellationToken = cancellationToken_modified } : null).ConfigureAwait(false);
+            return await this.OperationAsync(cancellationToken.CanBeCanceled ? new global::System.ClientModel.Primitives.RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
         }
     }
 }

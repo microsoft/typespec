@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
@@ -57,32 +56,21 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
         private class TestVisitor : ScmLibraryVisitor
         {
-            public TestVisitor()
-            {
-                // we have the cache here because some parameters are shared between methods, and in the visitor we need to avoid to modify the same parameter multiple times.
-                _visitedParameters = new HashSet<ParameterProvider>();
-            }
-
             public void DoVisitLibrary(OutputLibrary library)
             {
                 VisitLibrary(library);
             }
-
-            private readonly HashSet<ParameterProvider> _visitedParameters;
 
             protected internal override ScmMethodProvider? VisitMethod(ScmMethodProvider method)
             {
                 // modify the parameter names in-place
                 foreach (var parameter in method.Signature.Parameters)
                 {
-                    if (_visitedParameters.Contains(parameter))
+                    if (parameter.Name == "queryParam")
                     {
-                        // already visited this parameter, skip
-                        continue;
+                        // modify the parameter name
+                        parameter.Update(name: "queryParam_modified");
                     }
-                    _visitedParameters.Add(parameter);
-                    // modify the parameter name
-                    parameter.Update(name: parameter.Name + "_modified");
                 }
                 return method;
             }
