@@ -38,6 +38,9 @@ import {
   PreDefinedEmitterPickItems,
 } from "./emitter.js";
 
+const TO_BE_REPLACED_WITH_HASH = "ToBeReplacedWith#";
+const TO_BE_REPLACED_WITH_EMPTY_VALUE = "ToBeReplacedWithEmptyValue";
+
 interface EmitQuickPickButton extends QuickInputButton {
   uri: string;
 }
@@ -420,8 +423,8 @@ async function doEmit(
     }
     let newYamlContent = configYaml.toString();
     newYamlContent = newYamlContent
-      .replaceAll("ToBeReplacedWith#", "# ")
-      .replaceAll("ToBeReplacedWithEmptyValue", "");
+      .replaceAll(TO_BE_REPLACED_WITH_HASH, "# ")
+      .replaceAll(TO_BE_REPLACED_WITH_EMPTY_VALUE, "");
     await writeFile(tspConfigFile, newYamlContent);
   } catch (error: any) {
     logger.error(error);
@@ -871,7 +874,7 @@ function getConfigEntriesFromEmitterOptions(
       comment += ` (Options: ${propSchema.enum.join(", ")})`;
     }
 
-    const defaultValue = propSchema.default ?? "ToBeReplacedWithEmptyValue";
+    const defaultValue = propSchema.default ?? TO_BE_REPLACED_WITH_EMPTY_VALUE;
 
     configEntries[propertyName] = {
       value: defaultValue,
@@ -906,7 +909,7 @@ async function generateAnnotatedYamlFile(
       const { value, comment } = propertyConfig as { value: any; comment: string };
       // Use a custom key by adding 'ToBeReplacedWith#' to make it easier to later replace 'ToBeReplacedWith#' with '# ',
       // and finally implement adding a commented property under a certain package under option.
-      const key = `ToBeReplacedWith#${propertyName}`;
+      const key = `${TO_BE_REPLACED_WITH_HASH}${propertyName}`;
 
       const keyScalar = configYaml.createNode(key);
       const valueScalar = configYaml.createNode(value);
