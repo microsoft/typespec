@@ -1,4 +1,5 @@
 import {
+  isHttpMetadata,
   SdkArrayType,
   SdkBuiltInType,
   SdkConstantType,
@@ -291,7 +292,7 @@ function emitModel(context: PythonSdkContext, type: SdkModelType): Record<string
   typesMap.set(type, newValue);
   newValue.parents = type.baseModel ? [getType(context, type.baseModel)] : newValue.parents;
   for (const property of type.properties.values()) {
-    if (property.kind === "property") {
+    if (property.kind === "property" && !isHttpMetadata(context, property)) {
       newValue.properties.push(emitProperty(context, property));
       // type for base discriminator returned by TCGC changes from constant to string while
       // autorest treat all discriminator as constant type, so we need to change to constant type here
