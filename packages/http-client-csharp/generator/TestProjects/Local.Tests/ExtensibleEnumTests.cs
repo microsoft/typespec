@@ -60,6 +60,24 @@ namespace TestProjects.Local.Tests
             void ExtensibleEnumMethod(StringExtensibleEnum e) { }
         }
 
+        [Test]
+        public void NoAmbiguityWithExtensibleEnum()
+        {
+            StringExtensibleEnum foo = "foo";
+            Assert.AreEqual("foo", foo.ToString());
+
+            StringExtensibleEnum? nullableFoo = "nullableFoo";
+            Assert.AreEqual("nullableFoo", nullableFoo.ToString());
+
+            StringExtensibleEnum? nullFoo = null;
+            Assert.IsNull(nullFoo);
+
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                StringExtensibleEnum nonNullableFoo = null;
+            });
+        }
+
         private static object[] ExtensibleEnumData = [
             new object[] {
                 new string[]
