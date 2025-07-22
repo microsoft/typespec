@@ -591,8 +591,8 @@ importers:
         specifier: workspace:^
         version: link:../react-components
       '@vitejs/plugin-react':
-        specifier: ~4.4.1
-        version: 4.4.1(vite@7.0.5(@types/node@24.1.0)(tsx@4.20.3)(yaml@2.8.0))
+        specifier: ~4.7.0
+        version: 4.7.0(vite@7.0.5(@types/node@24.1.0)(tsx@4.20.3)(yaml@2.8.0))
       '@vitest/coverage-v8':
         specifier: ^3.1.2
         version: 3.2.4(vitest@3.2.4)
@@ -1410,8 +1410,8 @@ importers:
         specifier: workspace:^
         version: link:../react-components
       '@vitejs/plugin-react':
-        specifier: ~4.4.1
-        version: 4.4.1(vite@7.0.5(@types/node@24.1.0)(tsx@4.20.3)(yaml@2.8.0))
+        specifier: ~4.7.0
+        version: 4.7.0(vite@7.0.5(@types/node@24.1.0)(tsx@4.20.3)(yaml@2.8.0))
       c8:
         specifier: ^10.1.3
         version: 10.1.3
@@ -1522,8 +1522,8 @@ importers:
         specifier: ~5.21.1
         version: 5.21.1
       '@vitejs/plugin-react':
-        specifier: ~4.4.1
-        version: 4.4.1(vite@7.0.5(@types/node@24.1.0)(tsx@4.20.3)(yaml@2.8.0))
+        specifier: ~4.7.0
+        version: 4.7.0(vite@7.0.5(@types/node@24.1.0)(tsx@4.20.3)(yaml@2.8.0))
       '@vitest/coverage-v8':
         specifier: ^3.1.2
         version: 3.2.4(vitest@3.2.4)
@@ -1650,8 +1650,8 @@ importers:
         specifier: ~18.3.0
         version: 18.3.7(@types/react@18.3.23)
       '@vitejs/plugin-react':
-        specifier: ~4.4.1
-        version: 4.4.1(vite@7.0.5(@types/node@24.1.0)(tsx@4.20.3)(yaml@2.8.0))
+        specifier: ~4.7.0
+        version: 4.7.0(vite@7.0.5(@types/node@24.1.0)(tsx@4.20.3)(yaml@2.8.0))
       '@vitest/coverage-v8':
         specifier: ^3.1.2
         version: 3.2.4(vitest@3.2.4)
@@ -1894,8 +1894,8 @@ importers:
         specifier: ~18.3.0
         version: 18.3.7(@types/react@18.3.23)
       '@vitejs/plugin-react':
-        specifier: ~4.4.1
-        version: 4.4.1(vite@7.0.5(@types/node@24.1.0)(tsx@4.20.3)(yaml@2.8.0))
+        specifier: ~4.7.0
+        version: 4.7.0(vite@7.0.5(@types/node@24.1.0)(tsx@4.20.3)(yaml@2.8.0))
       rimraf:
         specifier: ~6.0.1
         version: 6.0.1
@@ -5471,6 +5471,9 @@ packages:
     resolution: {integrity: sha512-Tb5wIMvBf/nLejTQ61krK644/CEMB/cpiaIFXqGApfGqO3GwcR3qnI0DbmkFVCl2OyEp8LnLX3EkucoL0+tbFg==}
     engines: {node: ^v12.20.0 || ^14.13.0 || >=16.0.0}
 
+  '@rolldown/pluginutils@1.0.0-beta.27':
+    resolution: {integrity: sha512-+d0F4MKMCbeVUJwG96uQ4SgAznZNSq93I3V+9NHA4OpvqG8mRCpGdKmK8l/dl02h2CCDHwW2FqilnTyDcAnqjA==}
+
   '@rollup/plugin-babel@6.0.4':
     resolution: {integrity: sha512-YF7Y52kFdFT/xVSuVdjkV5ZdX/3YtmX0QulG+x0taQOtJdHYzVU61aSSkAgVJ7NOv6qPkIYiJSgSWWN/DM5sGw==}
     engines: {node: '>=14.0.0'}
@@ -6266,11 +6269,11 @@ packages:
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
 
-  '@vitejs/plugin-react@4.4.1':
-    resolution: {integrity: sha512-IpEm5ZmeXAP/osiBXVVP5KjFMzbWOonMs0NaQQl+xYnUAcq4oHUBsF2+p4MgKWG4YMmFYJU8A6sxRPuowllm6w==}
+  '@vitejs/plugin-react@4.7.0':
+    resolution: {integrity: sha512-gUu9hwfWvvEDBBmgtAowQCojwZmJ5mcLn3aufeCsitijs3+f2NsrPtlAWIR6OPiqljl96GVCUbLe0HyqIpVaoA==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
-      vite: ^4.2.0 || ^5.0.0 || ^6.0.0
+      vite: ^4.2.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
 
   '@vitest/coverage-v8@3.2.4':
     resolution: {integrity: sha512-EyF9SXU6kS5Ku/U82E259WSnvg6c8KTjppUncuNdm5QHpe17mwREHnjDzozC8x9MZ0xfBUFSaLkRv4TMA75ALQ==}
@@ -13661,7 +13664,7 @@ snapshots:
     dependencies:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
-      '@vitejs/plugin-react': 4.4.1(vite@6.3.5(@types/node@24.1.0)(tsx@4.20.3)(yaml@2.8.0))
+      '@vitejs/plugin-react': 4.7.0(vite@6.3.5(@types/node@24.1.0)(tsx@4.20.3)(yaml@2.8.0))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       ultrahtml: 1.6.0
@@ -17596,6 +17599,8 @@ snapshots:
 
   '@reteps/dockerfmt@0.3.6': {}
 
+  '@rolldown/pluginutils@1.0.0-beta.27': {}
+
   '@rollup/plugin-babel@6.0.4(@babel/core@7.28.0)(@types/babel__core@7.20.5)(rollup@4.45.1)':
     dependencies:
       '@babel/core': 7.28.0
@@ -18528,22 +18533,24 @@ snapshots:
 
   '@ungap/structured-clone@1.3.0': {}
 
-  '@vitejs/plugin-react@4.4.1(vite@6.3.5(@types/node@24.1.0)(tsx@4.20.3)(yaml@2.8.0))':
+  '@vitejs/plugin-react@4.7.0(vite@6.3.5(@types/node@24.1.0)(tsx@4.20.3)(yaml@2.8.0))':
     dependencies:
       '@babel/core': 7.28.0
       '@babel/plugin-transform-react-jsx-self': 7.27.1(@babel/core@7.28.0)
       '@babel/plugin-transform-react-jsx-source': 7.27.1(@babel/core@7.28.0)
+      '@rolldown/pluginutils': 1.0.0-beta.27
       '@types/babel__core': 7.20.5
       react-refresh: 0.17.0
       vite: 6.3.5(@types/node@24.1.0)(tsx@4.20.3)(yaml@2.8.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@vitejs/plugin-react@4.4.1(vite@7.0.5(@types/node@24.1.0)(tsx@4.20.3)(yaml@2.8.0))':
+  '@vitejs/plugin-react@4.7.0(vite@7.0.5(@types/node@24.1.0)(tsx@4.20.3)(yaml@2.8.0))':
     dependencies:
       '@babel/core': 7.28.0
       '@babel/plugin-transform-react-jsx-self': 7.27.1(@babel/core@7.28.0)
       '@babel/plugin-transform-react-jsx-source': 7.27.1(@babel/core@7.28.0)
+      '@rolldown/pluginutils': 1.0.0-beta.27
       '@types/babel__core': 7.20.5
       react-refresh: 0.17.0
       vite: 7.0.5(@types/node@24.1.0)(tsx@4.20.3)(yaml@2.8.0)
