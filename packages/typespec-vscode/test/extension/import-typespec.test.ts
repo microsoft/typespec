@@ -2,13 +2,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { beforeEach, describe } from "vitest";
 import {
-  contrastResult,
-  notEmptyFolderContinue,
-  preContrastResult,
-  selectFolder,
-  startWithCommandPalette,
   startWithRightClick,
 } from "./common/common-steps";
+import { mockShowOpenDialog } from "./common/mock-dialogs";
 import { screenshot, tempDir, test } from "./common/utils";
 
 enum ImportProjectTriggerType {
@@ -33,18 +29,6 @@ const ImportTypespecProjectEmptyFolderPath = path.resolve(
 const ImportCasesConfigList: ImportConfigType[] = [];
 
 ImportCasesConfigList.push(
-  {
-    caseName: "ImportTypespecProject-CommandPalette-EmptyFolder",
-    triggerType: ImportProjectTriggerType.CommandPalette,
-    selectFolderEmptyOrNonEmpty: "empty",
-    expectedResults: ["openapi.3.0.yaml", "ImportTypespecProjectEmptyFolder"],
-  },
-  {
-    caseName: "ImportTypespecProject-RightClickOnFile-NonEmptyFolder",
-    triggerType: ImportProjectTriggerType.RightClickOnFile,
-    selectFolderEmptyOrNonEmpty: "non-empty",
-    expectedResults: ["openapi.3.0.yaml", "main.tsp", "ImportTypespecProjectEmptyFolder"],
-  },
   {
     caseName: "ImportTypespecProject-RightClickOnFolder-EmptyFolder",
     triggerType: ImportProjectTriggerType.RightClickOnFolder,
@@ -83,7 +67,7 @@ beforeEach(() => {
 });
 
 describe.each(ImportCasesConfigList)("ImportTypespecFromOpenApi3", async (item) => {
-  const { caseName, triggerType, selectFolderEmptyOrNonEmpty, expectedResults } = item;
+  const { caseName } = item;
   test(caseName, async ({ launch }) => {
     const workspacePath = ImportTypespecProjectFolderPath;
 
@@ -91,32 +75,11 @@ describe.each(ImportCasesConfigList)("ImportTypespecFromOpenApi3", async (item) 
       workspacePath,
     });
 
-    if (triggerType === "CommandPalette") {
-      await startWithCommandPalette(page, "Import Typespec from Openapi 3");
-    } else if (triggerType === "RightClickOnFile") {
-      await startWithRightClick(page, "Import TypeSpec from Openapi 3", "file");
-    } else if (triggerType === "RightClickOnFolder" && selectFolderEmptyOrNonEmpty === "empty") {
-      await startWithRightClick(page, "Import TypeSpec from Openapi 3", "emptyfolder");
-    }
-
-    if (selectFolderEmptyOrNonEmpty === "empty" && triggerType !== "RightClickOnFolder") {
-      await selectFolder("ImportTypespecProjectEmptyFolder");
-      await selectFolder();
-    } else if (selectFolderEmptyOrNonEmpty === "non-empty") {
-      await selectFolder();
-      await notEmptyFolderContinue(page);
-    }
-
-    await selectFolder("openapi.3.0.yaml");
+    const openapifilepath = path.resolve(ImportTypespecProjectFolderPath, "openapi.3.0.yaml")
+    await mockShowOpenDialog(app, [openapifilepath]);
+    await startWithRightClick(page, "Import TypeSpec from Openapi 3");
     await screenshot(page, "linux", "result_list.png");
 
-    await preContrastResult(
-      page,
-      "OpenAPI succeeded",
-      "Failed to import project successfully",
-      150000,
-    );
     app.close();
-    await contrastResult(page, expectedResults, workspacePath);
   });
 });

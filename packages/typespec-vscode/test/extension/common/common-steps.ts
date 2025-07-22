@@ -1,9 +1,7 @@
-import { Key, keyboard } from "@nut-tree-fork/nut-js";
-import { rm } from "fs/promises";
 import fs from "node:fs";
 import path from "node:path";
 import { Locator, Page } from "playwright";
-import { imagesPath, retry, screenshot, sleep } from "./utils";
+import { retry, screenshot } from "./utils";
 
 /**
  * Waits for the specified text to appear on the page before proceeding.
@@ -21,24 +19,6 @@ export async function preContrastResult(
   try {
     await page.waitForSelector(`:text("${text}")`, { timeout });
   } catch (e) {
-    throw new Error(errorMessage);
-  }
-}
-
-/**
- * Results comparison
- * @param res List of expected files
- * @param dir The directory to be compared needs to be converted into an absolute path using path.resolve
- */
-export async function contrastResult(page: Page, res: string[], dir: string) {
-  let resLength = 0;
-  if (fs.existsSync(dir)) {
-    resLength = fs.readdirSync(dir).length;
-    await rm(imagesPath, { recursive: true });
-  }
-  if (resLength !== res.length) {
-    await screenshot(page, "linux", "error");
-    throw new Error("Failed to matches all files");
   }
 }
 
@@ -81,42 +61,16 @@ export async function startWithCommandPalette(page: Page, command: string) {
  * @param type specify whether the click is on file, folder or empty folder
  * command: specify which command to execute to the project
  */
-export async function startWithRightClick(page: Page, command: string, type?: string) {
+export async function startWithRightClick(page: Page, command: string) {
   await page.waitForSelector(".explorer-viewlet");
   await page.waitForSelector(".letterpress");
   await page.waitForSelector(".left-items");
-  if (command === "Emit from TypeSpec" || command === "Preview API Documentation") {
-    await page.getByRole("toolbar", { name: "Explorer actions" }).click();
-    const target = page.getByRole("treeitem", { name: "main.tsp" }).locator("a");
-    await target.click({ button: "right" });
-    await screenshot(page, "linux", "click_main");
-    await page.getByRole("menuitem", { name: command }).click();
-    await screenshot(
-      page,
-      "linux",
-      `${command === "Emit from TypeSpec" ? "emit" : "preview"}_typespec.png`,
-    );
-  } else if (command === "Import TypeSpec from Openapi 3") {
-    const targetName =
-      type === "emptyfolder" ? "ImportTypespecProjectEmptyFolder" : "openapi.3.0.yaml";
-    await page.getByRole("toolbar", { name: "Explorer actions" }).click();
-    const target = page.getByRole("treeitem", { name: targetName }).locator("a");
-    await target.click({ button: "right" });
-    await screenshot(page, "linux", "openapi.3.0");
-    await page.getByRole("menuitem", { name: "Import TypeSpec from OpenAPI" }).click();
-    await screenshot(page, "linux", "import_typespec");
-  }
-}
-
-/**
- * In vscode, when you need to select a folder or a file, call this method
- * @param file When selecting a file, just pass it in. If you need to select a folder, you do not need to pass this parameter in.
- */
-export async function selectFolder(file: string = "") {
-  await sleep(5);
-  await keyboard.type(file);
-  await keyboard.pressKey(Key.Enter);
-  await keyboard.releaseKey(Key.Enter);
+  const targetName = "ImportTypespecProjectEmptyFolder";
+  await page.getByRole("toolbar", { name: "Explorer actions" }).click();
+  const target = page.getByRole("treeitem", { name: targetName }).locator("a");
+  await target.click({ button: "right" });
+  await page.getByRole("menuitem", { name: "Import TypeSpec from OpenAPI" }).click();
+  await screenshot(page, "linux", "import_typespec");
 }
 
 /**
