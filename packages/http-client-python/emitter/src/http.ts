@@ -12,6 +12,7 @@ import {
   SdkHttpResponse,
   SdkLroPagingServiceMethod,
   SdkLroServiceMethod,
+  SdkMethodParameter,
   SdkModelPropertyType,
   SdkPagingServiceMethod,
   SdkPathParameter,
@@ -99,7 +100,9 @@ function addLroInformation(
   };
 }
 
-function getWireNameFromPropertySegments(segments: SdkModelPropertyType[]): string | undefined {
+function getWireNameFromPropertySegments(
+  segments: (SdkModelPropertyType | SdkMethodParameter | SdkServiceResponseHeader)[],
+): string | undefined {
   if (segments[0].kind === "property") {
     return segments
       .filter((s) => s.kind === "property")
@@ -112,7 +115,7 @@ function getWireNameFromPropertySegments(segments: SdkModelPropertyType[]): stri
 
 function getWireNameWithDiagnostics(
   context: PythonSdkContext,
-  segments: SdkModelPropertyType[] | undefined,
+  segments: (SdkModelPropertyType | SdkServiceResponseHeader)[] | undefined,
   code: "invalid-paging-items" | "invalid-next-link" | "invalid-lro-result",
   method?: SdkServiceMethod<SdkHttpOperation>,
 ): string | undefined {
@@ -135,7 +138,7 @@ function getWireNameWithDiagnostics(
 function buildContinuationToken(
   context: PythonSdkContext,
   method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
-  segments: SdkModelPropertyType[],
+  segments: (SdkModelPropertyType | SdkMethodParameter | SdkServiceResponseHeader)[],
   input: boolean = true,
 ): Record<string, any> {
   if (segments[0].kind === "property") {
