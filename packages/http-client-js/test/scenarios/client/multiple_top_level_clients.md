@@ -5,6 +5,7 @@ Verifies that the emitter can handle correctly when there are 2 root namespaces,
 ## TypeSpec
 
 ```tsp
+@service
 namespace Foo {
   model FooItem {
     name: string;
@@ -13,6 +14,7 @@ namespace Foo {
   op get(): FooItem;
 }
 
+@service
 namespace Bar {
   model BarItem {
     title: string;

@@ -5,6 +5,8 @@ Should generate a Type Alias for each of the utcDateTime taking into account the
 ## TypeSpec
 
 ```tsp
+@service
+namespace Test;
 scalar MyDate extends utcDateTime;
 @encode("rfc3339")
 scalar MyUtcDate extends utcDateTime;

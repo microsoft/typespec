@@ -3,6 +3,8 @@
 ## Typespec
 
 ```tsp
+@service
+namespace Test;
 model Foo {
   my_values: Record<int32>;
 }
@@ -47,6 +49,8 @@ export function jsonFooToApplicationTransform(input_?: any): Foo {
 ## Typespec
 
 ```tsp
+@service
+namespace Test;
 model Bar {
   bar_value: string;
 }
