@@ -958,9 +958,9 @@ function getExactDiagnosticTarget(
   entity: Type | Value | IndeterminateEntity,
   name: string,
 ): DiagnosticTarget {
-  if ("kind" in entity && entity.kind === "Union" && entity.node) {
+  if ("kind" in entity && entity.kind === "Union") {
     return (
-      entity.node.options.find((option) => "value" in option && option.value === name) ?? entity
+      entity.node?.options.find((option) => "value" in option && option.value === name) ?? entity
     );
   }
   return entity;
