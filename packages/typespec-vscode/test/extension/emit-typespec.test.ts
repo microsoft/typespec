@@ -22,7 +22,7 @@ const EmitTypespecProjectFolderPath = path.resolve(tempDir, "EmitTypespecProject
 
 const EmitCasesConfigList: EmitConfigType[] = [
   {
-    caseName: "EmitTypespecProject-ClientCode-Python-CommandPallette",
+    caseName: "EmitTypespecProject ClientCode Python CommandPallette",
     selectType: "Client Code",
     selectTypeLanguage: "Python",
     triggerType: EmitProjectTriggerType.Command,

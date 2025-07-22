@@ -18,8 +18,7 @@ export async function preContrastResult(
 ) {
   try {
     await page.waitForSelector(`:text("${text}")`, { timeout });
-  } catch (e) {
-  }
+  } catch (e) {}
 }
 
 /**

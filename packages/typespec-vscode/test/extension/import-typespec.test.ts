@@ -1,9 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { beforeEach, describe } from "vitest";
-import {
-  startWithRightClick,
-} from "./common/common-steps";
+import { startWithRightClick } from "./common/common-steps";
 import { mockShowOpenDialog } from "./common/mock-dialogs";
 import { screenshot, tempDir, test } from "./common/utils";
 
@@ -28,14 +26,12 @@ const ImportTypespecProjectEmptyFolderPath = path.resolve(
 
 const ImportCasesConfigList: ImportConfigType[] = [];
 
-ImportCasesConfigList.push(
-  {
-    caseName: "ImportTypespecProject-RightClickOnFolder-EmptyFolder",
-    triggerType: ImportProjectTriggerType.RightClickOnFolder,
-    selectFolderEmptyOrNonEmpty: "empty",
-    expectedResults: ["openapi.3.0.yaml", "ImportTypespecProjectEmptyFolder"],
-  },
-);
+ImportCasesConfigList.push({
+  caseName: "ImportTypespecProject RightClickOnFolder EmptyFolder",
+  triggerType: ImportProjectTriggerType.RightClickOnFolder,
+  selectFolderEmptyOrNonEmpty: "empty",
+  expectedResults: ["openapi.3.0.yaml", "ImportTypespecProjectEmptyFolder"],
+});
 
 beforeEach(() => {
   const importTypespec = ImportTypespecProjectFolderPath;
@@ -75,7 +71,7 @@ describe.each(ImportCasesConfigList)("ImportTypespecFromOpenApi3", async (item) 
       workspacePath,
     });
 
-    const openapifilepath = path.resolve(ImportTypespecProjectFolderPath, "openapi.3.0.yaml")
+    const openapifilepath = path.resolve(ImportTypespecProjectFolderPath, "openapi.3.0.yaml");
     await mockShowOpenDialog(app, [openapifilepath]);
     await startWithRightClick(page, "Import TypeSpec from Openapi 3");
     await screenshot(page, "linux", "result_list.png");

@@ -20,7 +20,7 @@ const PreviewCaseName = `PreviewTypespecProject`;
 const PreviewCasesConfigList: PreviewConfigType[] = [];
 
 PreviewCasesConfigList.push({
-  caseName: `${PreviewCaseName}_Trigger_${PreviewProjectTriggerType.Command}`,
+  caseName: `${PreviewCaseName} Trigger ${PreviewProjectTriggerType.Command}`,
   triggerType: PreviewProjectTriggerType.Command,
 });
 

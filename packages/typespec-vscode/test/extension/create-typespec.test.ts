@@ -78,9 +78,7 @@ CreateCasesConfigList.push({
   expectedResults,
 });
 
-const ARMAPIProviderNameTemplates = [
-  "(stand alone) Azure Resource Manager Service Project",
-];
+const ARMAPIProviderNameTemplates = ["(stand alone) Azure Resource Manager Service Project"];
 
 beforeEach(async () => {
   const dir = CreateTypespecProjectFolderPath;
@@ -91,12 +89,7 @@ beforeEach(async () => {
 });
 
 describe.each(CreateCasesConfigList)("CreateTypespecProject", async (item) => {
-  const {
-    caseName,
-    templateName,
-    templateNameDescription,
-    isEmptyFolder,
-  } = item;
+  const { caseName, templateName, templateNameDescription, isEmptyFolder } = item;
 
   test(caseName, async ({ launch }) => {
     const workspacePath = CreateTypespecProjectFolderPath;
