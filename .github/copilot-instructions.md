@@ -20,3 +20,4 @@ This document serves as an index to task-specific instructions for GitHub Copilo
 ## Available Task Instructions
 
 - [Testserver Generation](./prompts/testserver-generation.md): Instructions for generating TypeSpec HTTP spec test servers
+- [http-client-csharp Development](./prompts/http-client-csharp-development.md): Instructions for developing the C# HTTP client

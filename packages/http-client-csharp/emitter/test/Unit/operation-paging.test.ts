@@ -65,7 +65,7 @@ describe("Next link operations", () => {
           items: Foo[];
 
           @nextLink
-          next?: global.Azure.Core.Legacy.parameterizedNextLink<[RequestOptions.includePending, RequestOptions.includeExpired, RequestOptions.etagHeader]>;
+          next?: global.Azure.Core.Legacy.parameterizedNextLink<[RequestOptions.includePending, RequestOptions.includeExpired, RequestOptions.etagHeader, OtherRequestOptions.otherProp]>;
         }
   
         model RequestOptions {
@@ -77,6 +77,11 @@ describe("Next link operations", () => {
 
           @header("ETag")
           etagHeader?: string;
+        }
+
+        model OtherRequestOptions {
+          @query
+          otherProp?: string;
         }
 
         model Foo {
