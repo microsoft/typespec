@@ -2290,6 +2290,9 @@ importers:
       '@typespec/http':
         specifier: workspace:^
         version: link:../http
+      '@typespec/http-client-js':
+        specifier: workspace:^
+        version: link:../http-client-js
       '@typespec/internal-build-utils':
         specifier: workspace:^
         version: link:../internal-build-utils
