@@ -51,19 +51,19 @@
     "@typespec/compiler": "workspace:^"
   },
   "dependencies": {
-    "@fluentui/react-components": "~9.66.1",
+    "@fluentui/react-components": "~9.67.0",
     "@fluentui/react-icons": "^2.0.292",
     "@fluentui/react-list": "^9.1.2",
     "react": "~18.3.1",
     "react-dom": "~18.3.1",
-    "react-hotkeys-hook": "^4.6.1"
+    "react-hotkeys-hook": "^5.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
-    "@types/node": "~24.0.3",
+    "@types/node": "~24.1.0",
     "@types/react": "~18.3.11",
     "@types/react-dom": "~18.3.0",
     "@typespec/compiler": "workspace:^",
@@ -74,10 +74,10 @@
     "c8": "^10.1.3",
     "rimraf": "~6.0.1",
     "typescript": "~5.8.2",
-    "vite": "^6.2.7",
-    "vite-plugin-checker": "^0.9.1",
+    "vite": "^7.0.5",
+    "vite-plugin-checker": "^0.10.1",
     "vite-plugin-dts": "4.5.4",
-    "vite-plugin-node-polyfills": "^0.23.0",
+    "vite-plugin-node-polyfills": "^0.24.0",
     "vitest": "^3.1.2"
   }
 }
