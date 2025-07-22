@@ -189,6 +189,8 @@ export interface ServerCustomCapacities {
 
 export interface ServerInitializeResult extends InitializeResult {
   customCapacities?: ServerCustomCapacities;
+  compilerRootFolder?: string;
+  compilerCliJsPath?: string;
 }
 
 export interface InitProjectContext {
