@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import type.model.inheritance.singlediscriminator.Bird;
 import type.model.inheritance.singlediscriminator.Dinosaur;
@@ -55,13 +56,29 @@ public final class SingleDiscriminatorClientImpl {
     }
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
      * Initializes an instance of SingleDiscriminatorClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
      */
-    public SingleDiscriminatorClientImpl(HttpPipeline httpPipeline, String endpoint) {
+    public SingleDiscriminatorClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
         this.service = SingleDiscriminatorClientService.getNewInstance(this.httpPipeline);
     }
@@ -154,8 +171,11 @@ public final class SingleDiscriminatorClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Bird> getModelWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getModel(this.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.SingleDiscriminator.getModel",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getModel(this.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -170,8 +190,11 @@ public final class SingleDiscriminatorClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putModelWithResponse(Bird input, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.putModel(this.getEndpoint(), contentType, input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.SingleDiscriminator.putModel",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                return service.putModel(this.getEndpoint(), contentType, input, updatedContext);
+            });
     }
 
     /**
@@ -185,8 +208,11 @@ public final class SingleDiscriminatorClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Bird> getRecursiveModelWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getRecursiveModel(this.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.SingleDiscriminator.getRecursiveModel", requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getRecursiveModel(this.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -201,8 +227,11 @@ public final class SingleDiscriminatorClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putRecursiveModelWithResponse(Bird input, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.putRecursiveModel(this.getEndpoint(), contentType, input, requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.SingleDiscriminator.putRecursiveModel", requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                return service.putRecursiveModel(this.getEndpoint(), contentType, input, updatedContext);
+            });
     }
 
     /**
@@ -216,8 +245,11 @@ public final class SingleDiscriminatorClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Bird> getMissingDiscriminatorWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getMissingDiscriminator(this.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.SingleDiscriminator.getMissingDiscriminator", requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getMissingDiscriminator(this.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -231,8 +263,11 @@ public final class SingleDiscriminatorClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Bird> getWrongDiscriminatorWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getWrongDiscriminator(this.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.SingleDiscriminator.getWrongDiscriminator", requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getWrongDiscriminator(this.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -246,7 +281,10 @@ public final class SingleDiscriminatorClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Dinosaur> getLegacyModelWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getLegacyModel(this.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.SingleDiscriminator.getLegacyModel",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getLegacyModel(this.getEndpoint(), accept, updatedContext);
+            });
     }
 }

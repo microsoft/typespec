@@ -122,7 +122,7 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
      * {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<ManagedMaintenanceWindowStatusInner>> getByResourceGroupWithResponseAsync(
+    public Mono<Response<ManagedMaintenanceWindowStatusInner>> getByResourceGroupWithResponseAsync(
         String resourceGroupName, String managedMaintenanceWindowStatusContentName) {
         if (this.client.getEndpoint() == null) {
             return Mono.error(
@@ -159,7 +159,7 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
      * @return a ManagedMaintenanceWindowStatusContent on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<ManagedMaintenanceWindowStatusInner> getByResourceGroupAsync(String resourceGroupName,
+    public Mono<ManagedMaintenanceWindowStatusInner> getByResourceGroupAsync(String resourceGroupName,
         String managedMaintenanceWindowStatusContentName) {
         return getByResourceGroupWithResponseAsync(resourceGroupName, managedMaintenanceWindowStatusContentName)
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
@@ -234,7 +234,7 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<Flux<ByteBuffer>>> deleteWithResponseAsync(String resourceGroupName,
+    public Mono<Response<Flux<ByteBuffer>>> deleteWithResponseAsync(String resourceGroupName,
         String managedMaintenanceWindowStatusContentName, String ifMatch, String ifNoneMatch) {
         if (this.client.getEndpoint() == null) {
             return Mono.error(
@@ -354,7 +354,7 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
      * @return the {@link PollerFlux} for polling of long-running operation.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    private PollerFlux<PollResult<Void>, Void> beginDeleteAsync(String resourceGroupName,
+    public PollerFlux<PollResult<Void>, Void> beginDeleteAsync(String resourceGroupName,
         String managedMaintenanceWindowStatusContentName, String ifMatch, String ifNoneMatch) {
         Mono<Response<Flux<ByteBuffer>>> mono = deleteWithResponseAsync(resourceGroupName,
             managedMaintenanceWindowStatusContentName, ifMatch, ifNoneMatch);
@@ -373,7 +373,7 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
      * @return the {@link PollerFlux} for polling of long-running operation.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    private PollerFlux<PollResult<Void>, Void> beginDeleteAsync(String resourceGroupName,
+    public PollerFlux<PollResult<Void>, Void> beginDeleteAsync(String resourceGroupName,
         String managedMaintenanceWindowStatusContentName) {
         final String ifMatch = null;
         final String ifNoneMatch = null;
@@ -457,7 +457,7 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
      * @return A {@link Mono} that completes when a successful response is received.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Void> deleteAsync(String resourceGroupName, String managedMaintenanceWindowStatusContentName,
+    public Mono<Void> deleteAsync(String resourceGroupName, String managedMaintenanceWindowStatusContentName,
         String ifMatch, String ifNoneMatch) {
         return beginDeleteAsync(resourceGroupName, managedMaintenanceWindowStatusContentName, ifMatch, ifNoneMatch)
             .last()
@@ -475,7 +475,7 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
      * @return A {@link Mono} that completes when a successful response is received.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Void> deleteAsync(String resourceGroupName, String managedMaintenanceWindowStatusContentName) {
+    public Mono<Void> deleteAsync(String resourceGroupName, String managedMaintenanceWindowStatusContentName) {
         final String ifMatch = null;
         final String ifNoneMatch = null;
         return beginDeleteAsync(resourceGroupName, managedMaintenanceWindowStatusContentName, ifMatch, ifNoneMatch)

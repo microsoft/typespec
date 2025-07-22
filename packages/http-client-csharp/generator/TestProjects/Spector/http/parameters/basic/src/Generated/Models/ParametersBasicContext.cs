@@ -3,9 +3,12 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using Parameters.Basic._ExplicitBody;
+using Parameters.Basic._ImplicitBody;
 
 namespace Parameters.Basic
 {
+    [ModelReaderWriterBuildable(typeof(User))]
     public partial class ParametersBasicContext : ModelReaderWriterContext
     {
     }

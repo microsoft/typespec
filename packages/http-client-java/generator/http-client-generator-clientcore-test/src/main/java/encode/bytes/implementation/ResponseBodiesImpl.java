@@ -12,6 +12,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.models.binarydata.BinaryData;
 import io.clientcore.core.utils.Base64Uri;
 import java.lang.reflect.InvocationTargetException;
@@ -31,6 +32,11 @@ public final class ResponseBodiesImpl {
     private final BytesClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of ResponseBodiesImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -38,6 +44,7 @@ public final class ResponseBodiesImpl {
     ResponseBodiesImpl(BytesClientImpl client) {
         this.service = ResponseBodiesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -111,8 +118,11 @@ public final class ResponseBodiesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> defaultMethodWithResponse(RequestContext requestContext) {
-        final String accept = "application/octet-stream";
-        return service.defaultMethod(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.ResponseBody.default", requestContext,
+            updatedContext -> {
+                final String accept = "application/octet-stream";
+                return service.defaultMethod(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -126,8 +136,11 @@ public final class ResponseBodiesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> octetStreamWithResponse(RequestContext requestContext) {
-        final String accept = "application/octet-stream";
-        return service.octetStream(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.ResponseBody.octetStream", requestContext,
+            updatedContext -> {
+                final String accept = "application/octet-stream";
+                return service.octetStream(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -141,8 +154,11 @@ public final class ResponseBodiesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> customContentTypeWithResponse(RequestContext requestContext) {
-        final String accept = "image/png";
-        return service.customContentType(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.ResponseBody.customContentType",
+            requestContext, updatedContext -> {
+                final String accept = "image/png";
+                return service.customContentType(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -156,8 +172,11 @@ public final class ResponseBodiesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<byte[]> base64WithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.base64(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.ResponseBody.base64", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.base64(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -171,7 +190,10 @@ public final class ResponseBodiesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<byte[]> base64urlWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.base64url(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.ResponseBody.base64url", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.base64url(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 }

@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import type.union.EnumsOnlyCases;
 import type.union.GetResponse6;
@@ -32,6 +33,11 @@ public final class EnumsOnliesImpl {
     private final UnionClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of EnumsOnliesImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -39,6 +45,7 @@ public final class EnumsOnliesImpl {
     EnumsOnliesImpl(UnionClientImpl client) {
         this.service = EnumsOnliesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -84,8 +91,11 @@ public final class EnumsOnliesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<GetResponse6> getWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.get(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Union.EnumsOnly.get", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.get(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -100,8 +110,11 @@ public final class EnumsOnliesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> sendWithResponse(EnumsOnlyCases prop, RequestContext requestContext) {
-        final String contentType = "application/json";
-        SendRequest6 sendRequest6 = new SendRequest6(prop);
-        return service.send(this.client.getEndpoint(), contentType, sendRequest6, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Union.EnumsOnly.send", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                SendRequest6 sendRequest6 = new SendRequest6(prop);
+                return service.send(this.client.getEndpoint(), contentType, sendRequest6, updatedContext);
+            });
     }
 }

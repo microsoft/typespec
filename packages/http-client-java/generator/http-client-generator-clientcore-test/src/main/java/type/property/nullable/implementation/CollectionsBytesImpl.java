@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import type.property.nullable.CollectionsByteProperty;
 
@@ -31,6 +32,11 @@ public final class CollectionsBytesImpl {
     private final NullableClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of CollectionsBytesImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -38,6 +44,7 @@ public final class CollectionsBytesImpl {
     CollectionsBytesImpl(NullableClientImpl client) {
         this.service = CollectionsBytesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -104,8 +111,11 @@ public final class CollectionsBytesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<CollectionsByteProperty> getNonNullWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getNonNull(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.CollectionsByte.getNonNull",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getNonNull(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -119,8 +129,11 @@ public final class CollectionsBytesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<CollectionsByteProperty> getNullWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getNull(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.CollectionsByte.getNull",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getNull(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -135,8 +148,11 @@ public final class CollectionsBytesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> patchNonNullWithResponse(CollectionsByteProperty body, RequestContext requestContext) {
-        final String contentType = "application/merge-patch+json";
-        return service.patchNonNull(this.client.getEndpoint(), contentType, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.CollectionsByte.patchNonNull",
+            requestContext, updatedContext -> {
+                final String contentType = "application/merge-patch+json";
+                return service.patchNonNull(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -151,7 +167,10 @@ public final class CollectionsBytesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> patchNullWithResponse(CollectionsByteProperty body, RequestContext requestContext) {
-        final String contentType = "application/merge-patch+json";
-        return service.patchNull(this.client.getEndpoint(), contentType, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.CollectionsByte.patchNull",
+            requestContext, updatedContext -> {
+                final String contentType = "application/merge-patch+json";
+                return service.patchNull(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 }
