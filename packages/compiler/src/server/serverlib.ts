@@ -64,6 +64,8 @@ import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../co
 import {
   ensureTrailingDirectorySeparator,
   getDirectoryPath,
+  joinPaths,
+  normalizePath,
   resolvePath,
 } from "../core/path-utils.js";
 import type { Program } from "../core/program.js";
@@ -311,6 +313,15 @@ export function createServer(
       validateInitProjectTemplate: true,
       internalCompile: true,
     };
+    // the file path is expected to be .../@typespec/compiler/dist/src/server/serverlib.js
+    const curFile = normalizePath(compilerHost.fileURLToPath(import.meta.url));
+    const SERVERLIB_PATH_ENDWITH = "/dist/src/server/serverlib.js";
+    let compilerRootFolder = undefined;
+    if (!curFile.endsWith(SERVERLIB_PATH_ENDWITH)) {
+      // Ignore this could be the playground or standalone cli
+    } else {
+      compilerRootFolder = curFile.slice(0, curFile.length - SERVERLIB_PATH_ENDWITH.length);
+    }
     const result: ServerInitializeResult = {
       serverInfo: {
         name: "TypeSpec Language Server",
@@ -318,6 +329,10 @@ export function createServer(
       },
       capabilities,
       customCapacities,
+      compilerRootFolder,
+      compilerCliJsPath: compilerRootFolder
+        ? joinPaths(compilerRootFolder, "cmd", "tsp.js")
+        : undefined,
     };
     return result;
   }
