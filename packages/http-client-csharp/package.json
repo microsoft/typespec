@@ -79,5 +79,8 @@
     "rimraf": "~6.0.1",
     "typescript": "~5.8.2",
     "vitest": "^3.0.5"
+  },
+  "dependencies": {
+    "@typespec/streams": "^0.72.1"
   }
 }
