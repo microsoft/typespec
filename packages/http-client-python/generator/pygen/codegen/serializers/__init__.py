@@ -153,8 +153,8 @@ class JinjaSerializer(ReaderAndWriter):
             elif client_namespace_type.clients:
                 # add clients folder if there are clients in this namespace
                 self._serialize_client_and_config_files(client_namespace, client_namespace_type.clients, env)
-            else:
-                # add pkgutil init file if no clients in this namespace
+            elif not self.read_file(exec_path / Path("__init__.py")):
+                # add pkgutil init file if no clients in this namespace and no existing __init__.py file
                 self.write_file(
                     exec_path / Path("__init__.py"),
                     general_serializer.serialize_pkgutil_init_file(),
