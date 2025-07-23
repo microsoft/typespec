@@ -4,17 +4,17 @@
 package com.microsoft.typespec.http.client.generator.core.preprocessor.tranformer;
 
 import com.azure.core.util.CoreUtils;
+import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Metadata;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
-import com.microsoft.typespec.http.client.generator.core.preprocessor.Preprocessor;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import java.util.Map;
 import org.slf4j.Logger;
 
 public class SchemaRenamer {
 
-    private static final Logger LOGGER = new PluginLogger(Preprocessor.getPluginInstance(), SchemaRenamer.class);
+    private static final Logger LOGGER = new PluginLogger(Javagen.getPluginInstance(), SchemaRenamer.class);
 
     private final Map<String, String> renameModel;
 

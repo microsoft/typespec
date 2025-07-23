@@ -68,7 +68,7 @@ public class Transformer {
             transformOperationGroups(codeModel.getOperationGroups(), codeModel);
         }
 
-        // process "rename-model"
+        // process "rename-model" option
         codeModel = new SchemaRenamer(JavaSettings.getInstance().getJavaNamesForRenameModel()).process(codeModel);
 
         return codeModel;
