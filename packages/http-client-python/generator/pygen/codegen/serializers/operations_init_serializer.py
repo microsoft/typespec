@@ -11,7 +11,7 @@ from ..models import CodeModel, OperationGroup
 
 def get_pylint_disable(code_model: CodeModel, og: OperationGroup) -> str:
     if og.is_mixin and not code_model.options["multiapi"]:
-        return " pylint: disable=unused-import"
+        return " # pylint: disable=unused-import"
     return ""
 
 
