@@ -5,6 +5,7 @@ reports=no
 
 # PYLINT DIRECTORY BLACKLIST.
 ignore=_generated,samples,examples,test,tests,doc,.tox,generated_samples
+ignore-paths=.*todoapp.*
 
 [MESSAGES CONTROL]
 
