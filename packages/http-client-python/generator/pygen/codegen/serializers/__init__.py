@@ -153,12 +153,14 @@ class JinjaSerializer(ReaderAndWriter):
             elif client_namespace_type.clients:
                 # add clients folder if there are clients in this namespace
                 self._serialize_client_and_config_files(client_namespace, client_namespace_type.clients, env)
-            elif not self.read_file(exec_path / Path("__init__.py")):
-                # add pkgutil init file if no clients in this namespace and no existing __init__.py file
-                self.write_file(
-                    exec_path / Path("__init__.py"),
-                    general_serializer.serialize_pkgutil_init_file(),
+            else:
+                # add/keep pkgutil init file if no clients in this namespace
+                init_path = exec_path / Path("__init__.py")
+                original_init_content = self.read_file(init_path)
+                init_content = (
+                    original_init_content if original_init_content else general_serializer.serialize_pkgutil_init_file()
                 )
+                self.write_file(init_path, init_content)
 
             # _utils/py.typed/_types.py/_validation.py
             # is always put in top level namespace
