@@ -411,12 +411,12 @@ class JinjaSerializer(ReaderAndWriter):
                 )
 
                 # sometimes we need define additional Mixin class for client in _utils.py
-                self._serialize_and_write_utils_folder(env)
+                self._serialize_and_write_utils_folder(env, namespace)
 
-    def _serialize_and_write_utils_folder(self, env: Environment) -> None:
-        root_dir = self.code_model.get_root_dir()
+    def _serialize_and_write_utils_folder(self, env: Environment, namespace: str) -> None:
+        generation_dir = self.code_model.get_generation_dir(namespace)
         general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=False)
-        utils_folder_path = root_dir / Path("_utils")
+        utils_folder_path = generation_dir / Path("_utils")
         if self.code_model.need_utils_folder(async_mode=False, client_namespace=self.code_model.namespace):
             self.write_file(
                 utils_folder_path / Path("__init__.py"),
@@ -444,7 +444,7 @@ class JinjaSerializer(ReaderAndWriter):
     def _serialize_and_write_top_level_folder(self, env: Environment) -> None:
         root_dir = self.code_model.get_root_dir()
         # write _utils folder
-        self._serialize_and_write_utils_folder(env)
+        self._serialize_and_write_utils_folder(env, self.code_model.namespace)
 
         general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=False)
 
