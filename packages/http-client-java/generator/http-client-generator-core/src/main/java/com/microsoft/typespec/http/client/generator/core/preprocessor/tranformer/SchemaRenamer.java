@@ -1,20 +1,20 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.microsoft.typespec.http.client.generator.mgmt.transformer;
+package com.microsoft.typespec.http.client.generator.core.preprocessor.tranformer;
 
 import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Metadata;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
-import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
-import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
+import com.microsoft.typespec.http.client.generator.core.preprocessor.Preprocessor;
+import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import java.util.Map;
 import org.slf4j.Logger;
 
 public class SchemaRenamer {
 
-    private static final Logger LOGGER = new PluginLogger(FluentNamer.getPluginInstance(), SchemaRenamer.class);
+    private static final Logger LOGGER = new PluginLogger(Preprocessor.getPluginInstance(), SchemaRenamer.class);
 
     private final Map<String, String> renameModel;
 
@@ -34,7 +34,7 @@ public class SchemaRenamer {
     }
 
     private static void checkRename(Metadata m, Map<String, String> renameModel) {
-        String name = Utils.getJavaName(m);
+        String name = SchemaUtil.getJavaName(m);
         String newName = renameModel.get(name);
         if (!CoreUtils.isNullOrEmpty(newName)) {
             LOGGER.info("Rename model from '{}' to '{}'", name, newName);
