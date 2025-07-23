@@ -86,6 +86,12 @@ export const PythonEmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = 
       description:
         "Whether to validate the versioning of the package. Defaults to `true`. If set to `false`, we will not validate the versioning of the package.",
     },
+    "generation-subdir": {
+      type: "string",
+      nullable: true,
+      description:
+        "The subdirectory to generate the code in. If not specified, the code will be generated in the root folder. Note: if you're using this flag, you will need to add and maintain the versioning file yourself.",
+    },
   },
   required: [],
 };
