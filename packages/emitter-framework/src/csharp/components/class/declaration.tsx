@@ -66,7 +66,7 @@ function ClassMethods(props: ClassMethodsProps): Children {
   const abstractMethods: Children = [];
   for (const [name, method] of props.type.operations) {
     abstractMethods.push(
-      <cs.ClassMethod
+      <cs.Method
         name={namePolicy.getName(name, "class-method")}
         abstract
         parameters={[...method.parameters.properties.entries()].map(([name, prop]) => {
