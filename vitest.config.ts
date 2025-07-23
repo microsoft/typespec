@@ -1,4 +1,36 @@
 import { defineConfig, mergeConfig } from "vitest/config";
-import { defaultTypeSpecVitestConfig } from "./vitest.workspace.js";
 
-export default mergeConfig(defaultTypeSpecVitestConfig, defineConfig({}));
+/**
+ * Default Config For all TypeSpec projects using vitest.
+ */
+export const defaultTypeSpecVitestConfig = defineConfig({
+  test: {
+    environment: "node",
+    isolate: false,
+    coverage: {
+      reporter: ["cobertura", "json", "text"],
+    },
+    outputFile: {
+      junit: "./test-results.xml",
+    },
+    exclude: ["**/node_modules", "dist/**/*.test.*", "temp/**/*.test.*"],
+  },
+  server: {
+    watch: {
+      ignored: [],
+    },
+  },
+});
+
+export default mergeConfig(
+  defaultTypeSpecVitestConfig,
+  defineConfig({
+    test: {
+      projects: [
+        "packages/*/vitest.config.ts",
+        "packages/*/vitest.config.mts",
+        "eng/vitest.config.ts",
+      ],
+    },
+  }),
+);

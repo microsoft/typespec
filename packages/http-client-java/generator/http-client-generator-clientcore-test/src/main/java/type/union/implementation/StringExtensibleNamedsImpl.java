@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import type.union.GetResponse2;
 import type.union.StringExtensibleNamedUnion;
@@ -32,6 +33,11 @@ public final class StringExtensibleNamedsImpl {
     private final UnionClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of StringExtensibleNamedsImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -39,6 +45,7 @@ public final class StringExtensibleNamedsImpl {
     StringExtensibleNamedsImpl(UnionClientImpl client) {
         this.service = StringExtensibleNamedsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -87,8 +94,11 @@ public final class StringExtensibleNamedsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<GetResponse2> getWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.get(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Union.StringExtensibleNamed.get", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.get(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -103,8 +113,11 @@ public final class StringExtensibleNamedsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> sendWithResponse(StringExtensibleNamedUnion prop, RequestContext requestContext) {
-        final String contentType = "application/json";
-        SendRequest2 sendRequest2 = new SendRequest2(prop);
-        return service.send(this.client.getEndpoint(), contentType, sendRequest2, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Union.StringExtensibleNamed.send", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                SendRequest2 sendRequest2 = new SendRequest2(prop);
+                return service.send(this.client.getEndpoint(), contentType, sendRequest2, updatedContext);
+            });
     }
 }

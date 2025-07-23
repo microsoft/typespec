@@ -1,4 +1,4 @@
-import * as ay from "@alloy-js/core";
+import { Children, code, For, List, NamePolicyContext, useNamePolicy } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { useTransformNamePolicy } from "@typespec/emitter-framework";
 import { HttpOperation, HttpProperty } from "@typespec/http";
@@ -6,13 +6,13 @@ import { getDefaultValue, hasDefaultValue } from "../utils/parameters.jsx";
 import { JsonTransform } from "./transforms/json/json-transform.jsx";
 export interface HttpRequestParametersExpressionProps {
   httpOperation: HttpOperation;
-  optionsParameter: ay.Children;
+  optionsParameter: Children;
   parameters?: HttpProperty[];
-  children?: ay.Children;
+  children?: Children;
 }
 
 export function HttpRequestParametersExpression(props: HttpRequestParametersExpressionProps) {
-  const parameters: ay.Children[] = [];
+  const parameters: Children[] = [];
   const transformNamer = useTransformNamePolicy();
 
   if (props.children || (Array.isArray(props.children) && props.children.length)) {
@@ -27,7 +27,7 @@ export function HttpRequestParametersExpression(props: HttpRequestParametersExpr
 
   const optionsParamRef = props.optionsParameter ?? "options";
   const members = (
-    <ay.For each={props.parameters} line comma>
+    <For each={props.parameters} line comma>
       {(httpProperty) => {
         const defaultValue = getDefaultValue(httpProperty);
         const propertyExpression = buildMemberChainExpression(
@@ -45,14 +45,14 @@ export function HttpRequestParametersExpression(props: HttpRequestParametersExpr
             </>
           );
           return (
-            <ay.NamePolicyContext.Provider value={{ getName: (n) => n }}>
+            <NamePolicyContext.Provider value={{ getName: (n) => n }}>
               <ts.ObjectProperty name={transportParamName} value={paramValue} />
-            </ay.NamePolicyContext.Provider>
+            </NamePolicyContext.Provider>
           );
         }
 
         if (propertyExpression.isNullish) {
-          return ay.code`
+          return code`
         ...(${propertyExpression.fullExpression} && {${(<JsonTransform itemRef={propertyExpression.leadingExpression} type={httpProperty.property} target="transport" />)}})
       `;
         } else {
@@ -65,7 +65,7 @@ export function HttpRequestParametersExpression(props: HttpRequestParametersExpr
           );
         }
       }}
-    </ay.For>
+    </For>
   );
 
   parameters.push(members);
@@ -76,8 +76,8 @@ export function HttpRequestParametersExpression(props: HttpRequestParametersExpr
 interface MemberChainExpression {
   propertyName: string;
   isNullish: boolean;
-  fullExpression: ay.Children;
-  leadingExpression?: ay.Children;
+  fullExpression: Children;
+  leadingExpression?: Children;
 }
 
 /**
@@ -101,11 +101,11 @@ interface MemberChainExpression {
 function buildMemberChainExpression(
   httpOperation: HttpOperation,
   httpProperty: HttpProperty,
-  optionsParamRef?: ay.Children,
+  optionsParamRef?: Children,
 ): MemberChainExpression {
-  const segments: ay.Children[] = [];
+  const segments: Children[] = [];
   let isNullish = httpProperty.property.optional === true;
-  const namePolicy = ay.useNamePolicy();
+  const namePolicy = useNamePolicy();
   const propertyApplicationName = namePolicy.getName(httpProperty.property.name, "property");
 
   // If the property is at the top level, return early
@@ -114,8 +114,8 @@ function buildMemberChainExpression(
       return {
         propertyName: propertyApplicationName,
         isNullish,
-        fullExpression: ay.code`${optionsParamRef}?.${propertyApplicationName}`,
-        leadingExpression: ay.code`${optionsParamRef}`,
+        fullExpression: code`${optionsParamRef}?.${propertyApplicationName}`,
+        leadingExpression: code`${optionsParamRef}`,
       };
     }
     return {
@@ -146,7 +146,7 @@ function buildMemberChainExpression(
 
     // Use direct property access if possible.
     if (isValidIdentifier(parentName)) {
-      segments.unshift(ay.code`${parentName}`);
+      segments.unshift(code`${parentName}`);
     } else {
       // For non-valid identifiers, use bracket notation.
       segments.unshift(`[${JSON.stringify(parentName)}]`);
@@ -158,11 +158,11 @@ function buildMemberChainExpression(
 
   const fullExpression = (
     <>
-      <ay.List children={segments} />
+      <List children={segments} />
       {propertyApplicationName}
     </>
   );
-  const leadingExpression = <ay.List children={segments.slice(0, -1)} />;
+  const leadingExpression = <List children={segments.slice(0, -1)} />;
 
   return {
     propertyName: propertyApplicationName,

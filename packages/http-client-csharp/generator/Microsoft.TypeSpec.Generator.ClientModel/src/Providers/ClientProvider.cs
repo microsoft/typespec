@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -30,6 +31,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string AuthorizationApiKeyPrefixConstName = "AuthorizationApiKeyPrefix";
         private const string ApiKeyCredentialFieldName = "_keyCredential";
         private const string TokenCredentialScopesFieldName = "AuthorizationScopes";
+        private const string TokenCredentialFlowsFieldName = "_flows";
+        private const string TokenProviderFieldName = "_tokenProvider";
         private const string TokenCredentialFieldName = "_tokenCredential";
         private const string EndpointFieldName = "_endpoint";
         private const string ClientSuffix = "Client";
@@ -57,7 +60,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public ParameterProvider? ClientOptionsParameter { get; }
 
-        protected override FormattableString BuildDescription() => DocHelpers.GetFormattableDescription(_inputClient.Summary, _inputClient.Doc) ?? FormattableStringHelpers.Empty;
+        protected override FormattableString BuildDescription()
+        {
+            var description = DocHelpers.GetFormattableDescription(_inputClient.Summary, _inputClient.Doc);
+            if (description != null)
+            {
+                return description;
+            }
+
+            if (_inputClient.Parent is null)
+            {
+                // Clients will always have the Client suffix appended.
+                return $"The {Name}.";
+            }
+
+            return $"The {Name} sub-client.";
+        }
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -104,23 +122,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // skip auth fields for sub-clients
                 _apiKeyAuthFields = ClientOptions is null ? null : new(apiKeyAuthField, authorizationHeaderField, authorizationApiKeyPrefixField);
             }
-            // in this generator, the type of TokenCredential is null therefore these code will never be executed, but it should be invoked in other generators that could support it.
+
             var tokenAuth = _inputAuth?.OAuth2;
             var tokenCredentialType = ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.TokenCredentialType;
             if (tokenAuth != null && tokenCredentialType != null)
             {
+                string tokenCredentialFieldName = TokenCredentialFieldName;
+                FormattableString tokenCredentialDescription = $"A credential used to authenticate to the service.";
+                if (tokenCredentialType.Equals(ClientPipelineProvider.Instance.TokenCredentialType))
+                {
+                    tokenCredentialFieldName = TokenProviderFieldName;
+                    tokenCredentialDescription = $"A credential provider used to authenticate to the service.";
+                }
+
                 var tokenCredentialField = new FieldProvider(
                     FieldModifiers.Private | FieldModifiers.ReadOnly,
                     tokenCredentialType,
-                    TokenCredentialFieldName,
+                    tokenCredentialFieldName,
                     this,
-                    description: $"A credential used to authenticate to the service.");
-                var tokenCredentialScopesField = new FieldProvider(
-                    FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly,
-                    typeof(string[]),
-                    TokenCredentialScopesFieldName,
-                    this,
-                    initializationValue: New.Array(typeof(string), tokenAuth.Scopes.Select(Literal).ToArray()));
+                    description: tokenCredentialDescription);
+
+                var tokenCredentialScopesField = BuildTokenCredentialScopesField(tokenAuth, tokenCredentialType);
+
                 // skip auth fields for sub-clients
                 _oauth2Fields = ClientOptions is null ? null : new(tokenCredentialField, tokenCredentialScopesField);
             }
@@ -479,10 +502,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
 
-            if (authField is not null)
+            if (authField != null)
             {
                 var authParameter = authField.AsParameter;
-                authParameter.Update(name: "credential");
+                if (authField.Name != TokenProviderFieldName)
+                {
+                    authParameter.Update(name: "credential");
+                }
                 requiredParameters.Add(authParameter);
             }
 
@@ -740,6 +766,68 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return parameters;
+        }
+
+        private FieldProvider BuildTokenCredentialScopesField(InputOAuth2Auth oauth2Auth, CSharpType tokenCredentialType)
+        {
+            return tokenCredentialType.Equals(ClientPipelineProvider.Instance.TokenCredentialType)
+                ? BuildTokenCredentialFlowsField(oauth2Auth)
+                : BuildTokenCredentialScopesField(oauth2Auth);
+        }
+
+        private FieldProvider BuildTokenCredentialFlowsField(InputOAuth2Auth oauth2Auth)
+        {
+            List<DictionaryExpression> flows = [];
+            foreach (InputOAuth2Flow flow in oauth2Auth.Flows)
+            {
+                var flowProperties = new Dictionary<ValueExpression, ValueExpression>
+                {
+                    // handle scopes by default
+                    [new MemberExpression(typeof(GetTokenOptions), nameof(GetTokenOptions.ScopesPropertyName))] = New.Array(typeof(string), [.. flow.Scopes.Select(Literal)])
+                };
+
+                if (flow.TokenUrl != null)
+                {
+                    flowProperties[new MemberExpression(typeof(GetTokenOptions), nameof(GetTokenOptions.TokenUrlPropertyName))] = Literal(flow.TokenUrl);
+                }
+                if (flow.AuthorizationUrl != null)
+                {
+                    flowProperties[new MemberExpression(typeof(GetTokenOptions), nameof(GetTokenOptions.AuthorizationUrlPropertyName))] = Literal(flow.AuthorizationUrl);
+                }
+                if (flow.RefreshUrl != null)
+                {
+                    flowProperties[new MemberExpression(typeof(GetTokenOptions), nameof(GetTokenOptions.RefreshUrlPropertyName))] = Literal(flow.RefreshUrl);
+                }
+
+                flows.Add(New.Dictionary(typeof(string), typeof(object), flowProperties));
+            }
+
+            return new FieldProvider(
+                FieldModifiers.Private | FieldModifiers.ReadOnly,
+                typeof(Dictionary<string, object>[]),
+                TokenCredentialFlowsFieldName,
+                this,
+                description: $"The OAuth2 flows supported by the service.",
+                initializationValue: New.Array(typeof(Dictionary<string, object>), false, [.. flows.Select(f => f)]));
+        }
+
+        private FieldProvider BuildTokenCredentialScopesField(InputOAuth2Auth oauth2Auth)
+        {
+            HashSet<string> scopes = [];
+            foreach (InputOAuth2Flow flow in oauth2Auth.Flows)
+            {
+                foreach (var scope in flow.Scopes)
+                {
+                    scopes.Add(scope);
+                }
+            }
+
+            return new FieldProvider(
+                FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly,
+                typeof(string[]),
+                TokenCredentialScopesFieldName,
+                this,
+                initializationValue: New.Array(typeof(string), [.. scopes.Select(Literal)]));
         }
     }
 }

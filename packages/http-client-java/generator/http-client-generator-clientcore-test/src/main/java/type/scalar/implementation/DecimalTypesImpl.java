@@ -14,6 +14,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 
@@ -32,6 +33,11 @@ public final class DecimalTypesImpl {
     private final ScalarClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of DecimalTypesImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -39,6 +45,7 @@ public final class DecimalTypesImpl {
     DecimalTypesImpl(ScalarClientImpl client) {
         this.service = DecimalTypesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -96,8 +103,11 @@ public final class DecimalTypesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BigDecimal> responseBodyWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.responseBody(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Scalar.DecimalType.responseBody", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.responseBody(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -112,8 +122,11 @@ public final class DecimalTypesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> requestBodyWithResponse(BigDecimal body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.requestBody(this.client.getEndpoint(), contentType, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Scalar.DecimalType.requestBody", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.requestBody(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -128,6 +141,9 @@ public final class DecimalTypesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> requestParameterWithResponse(BigDecimal value, RequestContext requestContext) {
-        return service.requestParameter(this.client.getEndpoint(), value, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Scalar.DecimalType.requestParameter", requestContext,
+            updatedContext -> {
+                return service.requestParameter(this.client.getEndpoint(), value, updatedContext);
+            });
     }
 }

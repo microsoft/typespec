@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
-    "@astrojs/starlight": "^0.34.3",
+    "@astrojs/starlight": "^0.35.1",
     "@expressive-code/core": "^0.41.2",
     "@typespec/playground": "workspace:^",
     "astro-expressive-code": "^0.41.2",

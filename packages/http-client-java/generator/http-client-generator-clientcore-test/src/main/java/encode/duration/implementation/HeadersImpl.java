@@ -12,6 +12,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.models.binarydata.BinaryData;
 import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
@@ -33,6 +34,11 @@ public final class HeadersImpl {
     private final DurationClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of HeadersImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -40,6 +46,7 @@ public final class HeadersImpl {
     HeadersImpl(DurationClientImpl client) {
         this.service = HeadersService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -120,7 +127,10 @@ public final class HeadersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> defaultMethodWithResponse(Duration duration, RequestContext requestContext) {
-        return service.defaultMethod(this.client.getEndpoint(), duration, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Header.default", requestContext,
+            updatedContext -> {
+                return service.defaultMethod(this.client.getEndpoint(), duration, updatedContext);
+            });
     }
 
     /**
@@ -135,7 +145,10 @@ public final class HeadersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> iso8601WithResponse(Duration duration, RequestContext requestContext) {
-        return service.iso8601(this.client.getEndpoint(), duration, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Header.iso8601", requestContext,
+            updatedContext -> {
+                return service.iso8601(this.client.getEndpoint(), duration, updatedContext);
+            });
     }
 
     /**
@@ -150,34 +163,37 @@ public final class HeadersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> iso8601ArrayWithResponse(List<Duration> duration, RequestContext requestContext) {
-        String durationConverted = duration.stream().map(paramItemValue -> {
-            if (paramItemValue == null) {
-                return "";
-            } else {
-                String itemValueString = BinaryData.fromObject(paramItemValue).toString();
-                int strLength = itemValueString.length();
-                int startOffset = 0;
-                while (startOffset < strLength) {
-                    if (itemValueString.charAt(startOffset) != '"') {
-                        break;
-                    }
-                    startOffset++;
-                }
-                if (startOffset == strLength) {
-                    return "";
-                }
-                int endOffset = strLength - 1;
-                while (endOffset >= 0) {
-                    if (itemValueString.charAt(endOffset) != '"') {
-                        break;
-                    }
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Header.iso8601Array", requestContext,
+            updatedContext -> {
+                String durationConverted = duration.stream().map(paramItemValue -> {
+                    if (paramItemValue == null) {
+                        return "";
+                    } else {
+                        String itemValueString = BinaryData.fromObject(paramItemValue).toString();
+                        int strLength = itemValueString.length();
+                        int startOffset = 0;
+                        while (startOffset < strLength) {
+                            if (itemValueString.charAt(startOffset) != '"') {
+                                break;
+                            }
+                            startOffset++;
+                        }
+                        if (startOffset == strLength) {
+                            return "";
+                        }
+                        int endOffset = strLength - 1;
+                        while (endOffset >= 0) {
+                            if (itemValueString.charAt(endOffset) != '"') {
+                                break;
+                            }
 
-                    endOffset--;
-                }
-                return itemValueString.substring(startOffset, endOffset + 1);
-            }
-        }).collect(Collectors.joining(","));
-        return service.iso8601Array(this.client.getEndpoint(), durationConverted, requestContext);
+                            endOffset--;
+                        }
+                        return itemValueString.substring(startOffset, endOffset + 1);
+                    }
+                }).collect(Collectors.joining(","));
+                return service.iso8601Array(this.client.getEndpoint(), durationConverted, updatedContext);
+            });
     }
 
     /**
@@ -192,8 +208,11 @@ public final class HeadersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> int32SecondsWithResponse(Duration duration, RequestContext requestContext) {
-        long durationConverted = duration.getSeconds();
-        return service.int32Seconds(this.client.getEndpoint(), durationConverted, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Header.int32Seconds", requestContext,
+            updatedContext -> {
+                long durationConverted = duration.getSeconds();
+                return service.int32Seconds(this.client.getEndpoint(), durationConverted, updatedContext);
+            });
     }
 
     /**
@@ -208,8 +227,11 @@ public final class HeadersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> floatSecondsWithResponse(Duration duration, RequestContext requestContext) {
-        double durationConverted = (double) duration.toNanos() / 1000_000_000L;
-        return service.floatSeconds(this.client.getEndpoint(), durationConverted, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Header.floatSeconds", requestContext,
+            updatedContext -> {
+                double durationConverted = (double) duration.toNanos() / 1000_000_000L;
+                return service.floatSeconds(this.client.getEndpoint(), durationConverted, updatedContext);
+            });
     }
 
     /**
@@ -224,7 +246,10 @@ public final class HeadersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> float64SecondsWithResponse(Duration duration, RequestContext requestContext) {
-        double durationConverted = (double) duration.toNanos() / 1000_000_000L;
-        return service.float64Seconds(this.client.getEndpoint(), durationConverted, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Header.float64Seconds", requestContext,
+            updatedContext -> {
+                double durationConverted = (double) duration.toNanos() / 1000_000_000L;
+                return service.float64Seconds(this.client.getEndpoint(), durationConverted, updatedContext);
+            });
     }
 }

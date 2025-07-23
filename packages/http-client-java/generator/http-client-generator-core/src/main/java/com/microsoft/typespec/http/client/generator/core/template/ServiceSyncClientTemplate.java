@@ -6,6 +6,7 @@ package com.microsoft.typespec.http.client.generator.core.template;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Annotation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.AsyncSyncClient;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientAccessorMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientBuilder;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
@@ -72,6 +73,11 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
 
         Templates.getConvenienceSyncMethodTemplate().addImports(imports, syncClient.getConvenienceMethods());
 
+        if (!JavaSettings.getInstance().isAzureV1()) {
+            ClassType.INSTRUMENTATION.addImportsTo(imports, false);
+            ClassType.SDK_INSTRUMENTATION_OPTIONS.addImportsTo(imports, false);
+        }
+
         javaFile.declareImport(imports);
         javaFile.javadocComment(comment -> comment.description(String
             .format("Initializes a new instance of the synchronous %1$s type.", serviceClient.getInterfaceName())));
@@ -108,23 +114,32 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
             classBlock.privateFinalMemberVariable(methodGroupClient.getClassName(), "serviceClient");
         }
 
+        final boolean writeInstrumentation = !JavaSettings.getInstance().isAzureV1();
+        if (writeInstrumentation) {
+            classBlock.privateFinalMemberVariable(ClassType.INSTRUMENTATION.getName(), "instrumentation");
+        }
+
         // Service Client Constructor
         classBlock.javadocComment(comment -> {
             comment.description(String.format("Initializes an instance of %1$s class.", syncClient.getClassName()));
             comment.param("serviceClient", "the service client implementation.");
+            if (writeInstrumentation) {
+                comment.param("instrumentation", "the instrumentation instance.");
+            }
         });
         addGeneratedAnnotation(classBlock);
-        if (wrapServiceClient) {
-            classBlock.constructor(constructorVisibility, String.format("%1$s(%2$s %3$s)", syncClient.getClassName(),
-                serviceClient.getClassName(), "serviceClient"), constructorBlock -> {
-                    constructorBlock.line("this.serviceClient = serviceClient;");
-                });
-        } else {
-            classBlock.constructor(constructorVisibility, String.format("%1$s(%2$s %3$s)", syncClient.getClassName(),
-                methodGroupClient.getClassName(), "serviceClient"), constructorBlock -> {
-                    constructorBlock.line("this.serviceClient = serviceClient;");
-                });
-        }
+
+        String name = wrapServiceClient ? serviceClient.getClassName() : methodGroupClient.getClassName();
+
+        classBlock.constructor(constructorVisibility,
+            String.format("%1$s(%2$s %3$s%4$s)", syncClient.getClassName(), name, "serviceClient",
+                writeInstrumentation ? ", " + ClassType.INSTRUMENTATION.getName() + " instrumentation" : ""),
+            constructorBlock -> {
+                constructorBlock.line("this.serviceClient = serviceClient;");
+                if (writeInstrumentation) {
+                    constructorBlock.line("this.instrumentation = instrumentation;");
+                }
+            });
 
         ServiceAsyncClientTemplate.writeSubClientAccessors(serviceClient, classBlock, false);
 
