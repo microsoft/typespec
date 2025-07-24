@@ -29,7 +29,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.StartUp
             CommandLineOptions options = new() { GeneratorName = "MockGenerator" };
 
             Assert.DoesNotThrow(() => generatorHandler.SelectGenerator(options));
-            mockGenerator.Verify(p => p.Configure(), Times.Once);
+            mockGenerator.Verify(p => p.Configure(), Times.Never);
         }
 
         [Test]
@@ -82,7 +82,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.StartUp
             generatorHandler.SelectGenerator(options);
 
             mockPlugin.Verify(p => p.Apply(mockGenerator.Object), Times.Once);
-            mockGenerator.Verify(p => p.Configure(), Times.Once);
+            mockGenerator.Verify(p => p.Configure(), Times.Never);
         }
 
         [Test]
