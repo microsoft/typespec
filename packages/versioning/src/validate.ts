@@ -32,10 +32,13 @@ import {
   getVersions,
 } from "./versioning.js";
 
-export const namespaceDependenciesForProgram = new WeakMap<
-  Program,
-  Map<Namespace | undefined, Set<Namespace>>
->();
+const relationCacheKey = Symbol.for("TypeSpec.Versioning.NamespaceRelationCache");
+
+export function getCachedNamespaceDependencies(
+  program: Program,
+): Map<Namespace | undefined, Set<Namespace>> | undefined {
+  return (program as any)[relationCacheKey];
+}
 
 export function $onValidate(program: Program) {
   const namespaceDependencies = new Map<Namespace | undefined, Set<Namespace>>();
@@ -50,7 +53,7 @@ export function $onValidate(program: Program) {
     }
     namespaceDependencies.set(source, set);
   }
-  namespaceDependenciesForProgram.set(program, namespaceDependencies);
+  (program as any)[relationCacheKey] = namespaceDependencies;
 
   navigateProgram(
     program,

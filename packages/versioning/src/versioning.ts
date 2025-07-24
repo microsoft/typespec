@@ -16,7 +16,7 @@ import {
   type VersionMap,
 } from "./decorators.js";
 import type { Version, VersionResolution } from "./types.js";
-import { namespaceDependenciesForProgram } from "./validate.js";
+import { getCachedNamespaceDependencies } from "./validate.js";
 import { TimelineMoment, VersioningTimeline } from "./versioning-timeline.js";
 
 export function getVersionDependencies(
@@ -24,7 +24,8 @@ export function getVersionDependencies(
   namespace: Namespace,
 ): Map<Namespace, Map<Version, Version> | Version> | undefined {
   const explicit = getUseDependencies(program, namespace);
-  const usage = namespaceDependenciesForProgram.get(program)?.get(namespace);
+  const base = getCachedNamespaceDependencies(program);
+  const usage = base?.get(namespace);
   if (usage === undefined) {
     return explicit;
   }
