@@ -483,9 +483,39 @@ namespace Microsoft.TypeSpec.Generator
 
             if (invalidAttributes.Count > 0)
             {
-                // Keep the leading trivia to retain class-level docs. This is reasonably safe because we
-                // don't expect attributes to have leading trivia.
-                cu = cu.RemoveNodes(invalidAttributes, SyntaxRemoveOptions.KeepLeadingTrivia)!;
+                // Check if any invalid attribute has type-level XML docs in its leading trivia
+                var attributeWithDocs = invalidAttributes
+                    .OrderBy(a => a.SpanStart)
+                    .FirstOrDefault(attr => attr.GetLeadingTrivia().Any(t =>
+                        t.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia) ||
+                        t.IsKind(SyntaxKind.MultiLineDocumentationCommentTrivia)));
+
+                SyntaxTriviaList? xmlDocs = null;
+                if (attributeWithDocs != null)
+                {
+                    xmlDocs = attributeWithDocs.GetLeadingTrivia()
+                        .Where(t => t.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia) ||
+                                    t.IsKind(SyntaxKind.MultiLineDocumentationCommentTrivia))
+                        .ToSyntaxTriviaList();
+                }
+
+                // Remove all invalid attributes without keeping trivia
+                cu = cu.RemoveNodes(invalidAttributes, SyntaxRemoveOptions.KeepNoTrivia)!;
+
+                // If we found XML docs, reattach them to the type declaration
+                if (xmlDocs?.Any() == true)
+                {
+                    var typeDecl = cu.DescendantNodes()
+                        .OfType<TypeDeclarationSyntax>()
+                        .FirstOrDefault();
+
+                    if (typeDecl != null)
+                    {
+                        cu = cu.ReplaceNode(typeDecl,
+                            typeDecl.WithLeadingTrivia(xmlDocs.Value.AddRange(typeDecl.GetLeadingTrivia())));
+                    }
+                }
+
                 solution = solution.WithDocumentSyntaxRoot(documentId, cu);
             }
 
