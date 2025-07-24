@@ -154,12 +154,6 @@ export function $onValidate(program: Program) {
                 code: "incompatible-versioned-namespace-use-dependency",
                 target: namespace,
               });
-            } else if (!(value instanceof Map)) {
-              reportDiagnostic(program, {
-                code: "versioned-dependency-record-not-mapping",
-                format: { dependency: getNamespaceFullName(dependencyNs) },
-                target: namespace,
-              });
             }
           } else {
             if (value instanceof Map) {

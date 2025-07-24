@@ -21,12 +21,6 @@ export const $lib = createTypeSpecLibrary({
         default: `Versioned dependency mapping must all point to the same namespace but 2 versions have different namespaces '${"namespace1"}' and '${"namespace2"}'.`,
       },
     },
-    "versioned-dependency-record-not-mapping": {
-      severity: "error",
-      messages: {
-        default: paramMessage`The versionedDependency decorator must provide a model mapping local versions to dependency '${"dependency"}' versions`,
-      },
-    },
     "versioned-dependency-not-picked": {
       severity: "error",
       messages: {
