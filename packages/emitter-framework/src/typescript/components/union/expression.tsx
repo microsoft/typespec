@@ -7,9 +7,9 @@ import {
   type Union,
   type UnionVariant,
 } from "@typespec/compiler";
-import { useTsp } from "../../core/context/tsp-context.js";
-import { efRefkey } from "../utils/refkey.js";
-import { TypeExpression } from "./type-expression.jsx";
+import { useTsp } from "../../../core/context/tsp-context.js";
+import { efRefkey } from "../../utils/refkey.js";
+import { TypeExpression } from "../type-expression.jsx";
 
 export interface UnionExpressionProps {
   type: Union | Enum;

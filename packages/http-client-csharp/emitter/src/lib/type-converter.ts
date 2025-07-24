@@ -167,56 +167,52 @@ function fromSdkModelType(
   sdkContext: CSharpEmitterContext,
   modelType: SdkModelType,
 ): InputModelType {
-  const modelTypeName = modelType.name;
-  let inputModelType = sdkContext.__typeCache.models.get(modelTypeName);
-  if (!inputModelType) {
-    inputModelType = {
-      kind: "model",
-      name: modelTypeName,
-      namespace: modelType.namespace,
-      crossLanguageDefinitionId: modelType.crossLanguageDefinitionId,
-      access: getAccessOverride(sdkContext, modelType.__raw as Model),
-      usage: modelType.usage,
-      deprecation: modelType.deprecation,
-      doc: modelType.doc,
-      summary: modelType.summary,
-      discriminatorValue: modelType.discriminatorValue,
-      decorators: modelType.decorators,
-    } as InputModelType;
+  const inputModelType: InputModelType = {
+    kind: "model",
+    name: modelType.name,
+    namespace: modelType.namespace,
+    crossLanguageDefinitionId: modelType.crossLanguageDefinitionId,
+    access: getAccessOverride(sdkContext, modelType.__raw as Model),
+    usage: modelType.usage,
+    deprecation: modelType.deprecation,
+    doc: modelType.doc,
+    summary: modelType.summary,
+    discriminatorValue: modelType.discriminatorValue,
+    decorators: modelType.decorators,
+  } as InputModelType;
 
-    sdkContext.__typeCache.updateTypeCache(modelType, inputModelType);
+  sdkContext.__typeCache.updateSdkTypeReferences(modelType, inputModelType);
 
-    inputModelType.additionalProperties = modelType.additionalProperties
-      ? fromSdkType(sdkContext, modelType.additionalProperties)
-      : undefined;
+  inputModelType.additionalProperties = modelType.additionalProperties
+    ? fromSdkType(sdkContext, modelType.additionalProperties)
+    : undefined;
 
-    const properties: InputProperty[] = [];
-    for (const property of modelType.properties) {
-      const ourProperty = fromSdkModelProperty(sdkContext, property);
+  const properties: InputProperty[] = [];
+  for (const property of modelType.properties) {
+    const ourProperty = fromSdkModelProperty(sdkContext, property);
 
-      if (ourProperty) {
-        properties.push(ourProperty);
-      }
+    if (ourProperty) {
+      properties.push(ourProperty);
     }
+  }
 
-    inputModelType.discriminatorProperty = modelType.discriminatorProperty
-      ? fromSdkModelProperty(sdkContext, modelType.discriminatorProperty)
-      : undefined;
+  inputModelType.discriminatorProperty = modelType.discriminatorProperty
+    ? fromSdkModelProperty(sdkContext, modelType.discriminatorProperty)
+    : undefined;
 
-    inputModelType.baseModel = modelType.baseModel
-      ? fromSdkType(sdkContext, modelType.baseModel)
-      : undefined;
+  inputModelType.baseModel = modelType.baseModel
+    ? fromSdkType(sdkContext, modelType.baseModel)
+    : undefined;
 
-    inputModelType.properties = properties;
+  inputModelType.properties = properties;
 
-    if (modelType.discriminatedSubtypes) {
-      const discriminatedSubtypes: Record<string, InputModelType> = {};
-      for (const key in modelType.discriminatedSubtypes) {
-        const subtype = modelType.discriminatedSubtypes[key];
-        discriminatedSubtypes[key] = fromSdkType(sdkContext, subtype);
-      }
-      inputModelType.discriminatedSubtypes = discriminatedSubtypes;
+  if (modelType.discriminatedSubtypes) {
+    const discriminatedSubtypes: Record<string, InputModelType> = {};
+    for (const key in modelType.discriminatedSubtypes) {
+      const subtype = modelType.discriminatedSubtypes[key];
+      discriminatedSubtypes[key] = fromSdkType(sdkContext, subtype);
     }
+    inputModelType.discriminatedSubtypes = discriminatedSubtypes;
   }
 
   return inputModelType;
@@ -346,29 +342,26 @@ function fromSdkModelType(
 
 function fromSdkEnumType(sdkContext: CSharpEmitterContext, enumType: SdkEnumType): InputEnumType {
   const enumName = enumType.name;
-  let inputEnumType = sdkContext.__typeCache.enums.get(enumName);
-  if (!inputEnumType) {
-    const values: InputEnumValueType[] = [];
-    inputEnumType = {
-      kind: "enum",
-      name: enumName,
-      crossLanguageDefinitionId: enumType.crossLanguageDefinitionId,
-      valueType: fromSdkType(sdkContext, enumType.valueType) as InputPrimitiveType,
-      values: values,
-      access: getAccessOverride(sdkContext, enumType.__raw as any),
-      namespace: enumType.namespace,
-      deprecation: enumType.deprecation,
-      summary: enumType.summary,
-      doc: enumType.doc,
-      isFixed: enumType.isFixed,
-      isFlags: enumType.isFlags,
-      usage: enumType.usage,
-      decorators: enumType.decorators,
-    };
-    sdkContext.__typeCache.updateTypeCache(enumType, inputEnumType);
-    for (const v of enumType.values) {
-      values.push(fromSdkType(sdkContext, v));
-    }
+  const values: InputEnumValueType[] = [];
+  const inputEnumType: InputEnumType = {
+    kind: "enum",
+    name: enumName,
+    crossLanguageDefinitionId: enumType.crossLanguageDefinitionId,
+    valueType: fromSdkType(sdkContext, enumType.valueType) as InputPrimitiveType,
+    values: values,
+    access: getAccessOverride(sdkContext, enumType.__raw as any),
+    namespace: enumType.namespace,
+    deprecation: enumType.deprecation,
+    summary: enumType.summary,
+    doc: enumType.doc,
+    isFixed: enumType.isFixed,
+    isFlags: enumType.isFlags,
+    usage: enumType.usage,
+    decorators: enumType.decorators,
+  };
+  sdkContext.__typeCache.updateSdkTypeReferences(enumType, inputEnumType);
+  for (const v of enumType.values) {
+    values.push(fromSdkType(sdkContext, v));
   }
 
   return inputEnumType;
@@ -438,12 +431,7 @@ function fromSdkConstantType(
   sdkContext: CSharpEmitterContext,
   constantType: SdkConstantType,
 ): InputLiteralType {
-  let literalType = sdkContext.__typeCache.constants.get(constantType);
-  if (literalType) {
-    return literalType;
-  }
-
-  literalType = {
+  const literalType = {
     kind: constantType.kind,
     name: constantType.name,
     namespace: "", // constantType.namespace, TODO - constant type now does not have namespace. TCGC will add it later
@@ -454,7 +442,7 @@ function fromSdkConstantType(
     decorators: constantType.decorators,
   };
 
-  sdkContext.__typeCache.updateTypeCache(constantType, literalType);
+  sdkContext.__typeCache.updateConstantCache(constantType, literalType);
 
   return literalType;
 }
