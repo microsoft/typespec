@@ -41,7 +41,9 @@
     "lint:fix": "eslint . --fix",
     "format": "pnpm -w format:dir packages/http-client-csharp",
     "extract-api": "npx api-extractor run --local --verbose",
-    "regen-docs": "npm run build:emitter && tspd doc . --enable-experimental --output-dir ../../website/src/content/docs/docs/emitters/clients/http-client-csharp/reference --skip-js"
+    "regen-docs": "npm run build:emitter && tspd doc . --enable-experimental --output-dir ../../website/src/content/docs/docs/emitters/clients/http-client-csharp/reference --skip-js",
+    "add-debug-profile": "node scripts/add-debug-profile.js",
+    "test:add-debug-profile": "node scripts/test-script.js"
   },
   "files": [
     "dist/emitter/src/**",
