@@ -3,10 +3,13 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using Payload.Pageable._ServerDrivenPagination;
+using Payload.Pageable._ServerDrivenPagination.ContinuationToken;
 
 namespace Payload.Pageable
 {
-    public partial class PayloadPageableContext : ModelReaderWriterContext
+        [ModelReaderWriterBuildable(typeof(Pet))]
+                    public partial class PayloadPageableContext : ModelReaderWriterContext
     {
     }
 }

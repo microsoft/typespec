@@ -6,7 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace Authentication.OAuth2
 {
-    public partial class AuthenticationOAuth2Context : ModelReaderWriterContext
+        public partial class AuthenticationOAuth2Context : ModelReaderWriterContext
     {
     }
 }

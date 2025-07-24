@@ -6,7 +6,9 @@ using System.ClientModel.Primitives;
 
 namespace Response.StatusCodeRange
 {
-    public partial class ResponseStatusCodeRangeContext : ModelReaderWriterContext
+    [ModelReaderWriterBuildable(typeof(ErrorInRange))]
+        [ModelReaderWriterBuildable(typeof(NotFoundError))]
+        public partial class ResponseStatusCodeRangeContext : ModelReaderWriterContext
     {
     }
 }
