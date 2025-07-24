@@ -78,6 +78,7 @@ packages/typespec-vscode/swagger-ui/swagger-ui*
 
 # Docs with code
 docs/samples/client/csharp/oauth/readme.md
+packages/http-client-csharp/generator/docs/architecture.md
 
 .gitattributes
 CODEOWNERS
