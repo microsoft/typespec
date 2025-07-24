@@ -1,33 +1,22 @@
 import { ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { describe, it } from "vitest";
 import { Model, Union, UnionVariant } from "../../src/core/types.js";
-import { TestHost, createTestHost, expectTypeEquals, t } from "../../src/testing/index.js";
+import { expectTypeEquals, mockFile, t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
 describe("declarations", () => {
-  let testHost: TestHost;
-
-  beforeEach(async () => {
-    testHost = await createTestHost();
-  });
-
   it("can be declared and decorated", async () => {
     const blues = new WeakSet();
-    testHost.addJsFile("test.js", {
-      $blue(p: any, t: Union | UnionVariant) {
-        blues.add(t);
-      },
-    });
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-      import "./test.js";
-      @test @blue union Foo { @blue x: int32; y: int16 };
-      `,
-    );
+    const { Foo } = await Tester.files({
+      "test.js": mockFile.js({
+        $blue(p: any, t: Union | UnionVariant) {
+          blues.add(t);
+        },
+      }),
+    }).import("./test.js").compile(t.code`
+      @blue union ${t.union("Foo")} { @blue x: int32; y: int16 };
+    `);
 
-    const { Foo } = (await testHost.compile("./")) as { Foo: Union };
-    ok(Foo);
     ok(blues.has(Foo));
     strictEqual(Foo.variants.size, 2);
     const varX = Foo.variants.get("x")!;
@@ -45,26 +34,20 @@ describe("declarations", () => {
 
   it("can omit union variant names", async () => {
     const blues = new WeakSet();
-    testHost.addJsFile("test.js", {
-      $blue(p: any, t: Union | UnionVariant) {
-        blues.add(t);
-      },
-    });
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-      import "./test.js";
-      @test union Foo<T> { 
+    const { Foo } = await Tester.files({
+      "test.js": mockFile.js({
+        $blue(p: any, t: Union | UnionVariant) {
+          blues.add(t);
+        },
+      }),
+    }).import("./test.js").compile(t.code`
+      union Template<T> { 
         @blue x: int32;
         @blue int16;
         @blue T;
       };
-
-      alias T = Foo<string>;
-      `,
-    );
-
-    const { Foo } = (await testHost.compile("./")) as { Foo: Union };
+      alias ${t.union("Foo")} = Template<string>;
+    `);
     const variants = Array.from(Foo.variants.values());
     ok(blues.has(variants[0]));
     ok(blues.has(variants[1]));
@@ -76,16 +59,10 @@ describe("declarations", () => {
   });
 
   it("can be templated", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-      @test union Foo<T> { x: T };
-      alias T = Foo<int32>;
-      `,
-    );
-
-    const { Foo } = (await testHost.compile("./")) as { Foo: Union };
-
+    const { Foo } = await Tester.compile(t.code`
+      union Template<T> { x: T };
+      alias ${t.union("Foo")} = Template<int32>;
+    `);
     const varX = Foo.variants.get("x")!;
     const varXType = (varX as UnionVariant).type as Model;
 
