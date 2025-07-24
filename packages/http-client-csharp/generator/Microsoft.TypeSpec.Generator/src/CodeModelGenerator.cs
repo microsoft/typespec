@@ -157,7 +157,7 @@ namespace Microsoft.TypeSpec.Generator
         /// is not set to 'keepAll', any types referenced by non-root type providers will not automatically be kept.
         /// </summary>
         /// <param name="type">The fully qualified type name.</param>
-        public void AddNonRootTypeProvider(string type) => NonRootTypes.Add(type);
+        public void AddNonRootType(string type) => NonRootTypes.Add(type);
 
         /// <summary>
         /// Adds a type to the list of non-root type providers. Non root type providers are types whose
@@ -165,6 +165,6 @@ namespace Microsoft.TypeSpec.Generator
         /// is not set to 'keepAll', any types referenced by non-root type providers will not automatically be kept.
         /// </summary>
         /// <param name="type">The type provider representing the type</param>
-        public void AddNonRootTypeProvider(TypeProvider type) => NonRootTypes.Add(type.Type.FullyQualifiedName);
+        public void AddNonRootType(TypeProvider type) => NonRootTypes.Add(type.Type.FullyQualifiedName);
     }
 }
