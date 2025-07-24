@@ -12,7 +12,7 @@ import {
 } from "@typespec/compiler";
 import { defineKit, type Typekit } from "@typespec/compiler/typekit";
 import { HttpOperation, isHttpFile } from "@typespec/http";
-import { InternalClient } from "../../interfaces.js";
+import { _InternalClient } from "../../interfaces.js";
 
 /**
  * ClientLibraryKit provides a set of utilities to work with the client library.
@@ -31,7 +31,7 @@ export interface ClientLibraryKit {
    *
    * @param namespace namespace to get the clients of
    */
-  listClients(type: Namespace | InternalClient): InternalClient[];
+  listClients(type: Namespace | _InternalClient): _InternalClient[];
 
   /**
    * List all of the models in a given namespace.
@@ -46,7 +46,7 @@ export interface ClientLibraryKit {
    * @param namespace namespace to get the enums of
    */
   listEnums(namespace: Namespace): Enum[];
-  listDataTypes(namespace: InternalClient): Array<Model | Enum | Union>;
+  listDataTypes(namespace: _InternalClient): Array<Model | Enum | Union>;
 }
 
 interface TypekitExtension {
@@ -126,7 +126,7 @@ defineKit<TypekitExtension>({
     listEnums(namespace) {
       return [...namespace.enums.values()];
     },
-    listDataTypes(client: InternalClient) {
+    listDataTypes(client: _InternalClient) {
       return collectTypes(this, client, { includeTemplateDeclaration: false }).dataTypes;
     },
   },
@@ -139,7 +139,7 @@ export interface TypeCollectorOptions {
 
 export function collectTypes(
   $: Typekit,
-  client: InternalClient,
+  client: _InternalClient,
   options: TypeCollectorOptions = {},
 ) {
   const dataTypes = new Set<Model | Enum | Union>();

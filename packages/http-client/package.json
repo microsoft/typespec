@@ -4,9 +4,11 @@
   "type": "module",
   "main": "dist/src/index.js",
   "license": "MIT",
+  "tspMain": "./lib/main.tsp",
   "exports": {
     ".": {
-      "import": "./dist/src/index.js"
+      "import": "./dist/src/index.js",
+      "typespec": "./lib/main.tsp"
     },
     "./testing": {
       "import": "./dist/src/testing/index.js"
@@ -23,7 +25,8 @@
     "@alloy-js/typescript": "^0.18.0",
     "@typespec/compiler": "workspace:^",
     "@typespec/emitter-framework": "workspace:^",
-    "@typespec/http": "workspace:^"
+    "@typespec/http": "workspace:^",
+    "@typespec/versioning": "workspace:^"
   },
   "devDependencies": {
     "@alloy-js/cli": "^0.18.0",
@@ -34,13 +37,15 @@
     "@typespec/compiler": "workspace:^",
     "@typespec/emitter-framework": "workspace:^",
     "@typespec/http": "workspace:^",
+    "@typespec/tspd": "workspace:^",
     "eslint": "^9.23.0",
     "prettier": "~3.5.3",
     "typescript": "~5.8.2",
     "vitest": "^3.1.2"
   },
   "scripts": {
-    "build": "alloy build",
+    "build": "npm run gen-extern-signature && alloy build",
+    "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "clean": "rimraf ./dist",
     "watch": "alloy build --watch",
     "test": "vitest run",

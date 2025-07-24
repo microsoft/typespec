@@ -1,27 +1,65 @@
 import { Interface, Namespace } from "@typespec/compiler";
-import { HttpOperation } from "@typespec/http";
+import { Authentication, HttpOperation, HttpServer } from "@typespec/http";
 
-export interface InternalClient {
+export interface Client {
+  kind: "client";
+  /**
+   * The name of the client.
+   */
+  name: string;
+  /**
+   * The type that the client is based on, which can be a Namespace or Interface.
+   */
+  type: Namespace | Interface;
+  /**
+   * If this client is a sub-client, the parent client.
+   */
+  parent?: Client;
+  /**
+   * Sub-clients that are part of this client.
+   */
+  subClients: Client[];
+}
+
+export type ClientEndpoint = HttpServer;
+
+export interface ClientInitialization {
+  kind: "ClientInitialization";
+  endpoints: ClientEndpoint[];
+  /**
+   * The authentication to use for the client.
+   * This can be undefined if no authentication is defined for the client or its parents.
+   * The options property means that any of the authentication options can be used to authenticate.
+   * Within options there is an array of auth schemes, ALL of them must be used to authenticate.
+   */
+  authentication?: Authentication;
+}
+
+export type ClientNamePolicy = (client: Client) => string;
+export interface _InternalClient {
   kind: "Client";
   name: string;
   type: Namespace | Interface;
   service: Namespace;
 }
 
-export interface Client extends InternalClient {
-  operations: ClientOperation[];
-  subClients: Client[];
-  parent?: Client;
+/**
+ * Interfaces below will be removed
+ */
+export interface _Client extends _InternalClient {
+  operations: _ClientOperation[];
+  subClients: _Client[];
+  parent?: _Client;
 }
 
-export interface ClientOperation {
+export interface _ClientOperation {
   kind: "ClientOperation";
   name: string;
   httpOperation: HttpOperation;
-  client: Client;
+  client: _Client;
 }
 
-export interface ReferencedType {
+export interface _ReferencedType {
   kind: "ReferencedType";
   name: string;
   library: string;

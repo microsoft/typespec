@@ -1,7 +1,7 @@
 import { ModelProperty, Operation, Type } from "@typespec/compiler";
 import { defineKit } from "@typespec/compiler/typekit";
 import { HttpOperation } from "@typespec/http";
-import { InternalClient as Client } from "../../interfaces.js";
+import { _InternalClient as Client } from "../../interfaces.js";
 import { getConstructors } from "../../utils/client-helpers.js";
 import { clientOperationCache } from "./client.js";
 import { AccessKit, getAccess, getName, NameKit } from "./utils.js";

@@ -661,6 +661,10 @@ importers:
         version: 3.2.4(@types/debug@4.1.12)(@types/node@24.0.10)(@vitest/ui@3.2.4)(happy-dom@17.6.3)(jsdom@25.0.1)(tsx@4.20.3)(yaml@2.8.0)
 
   packages/http-client:
+    dependencies:
+      '@typespec/versioning':
+        specifier: workspace:^
+        version: link:../versioning
     devDependencies:
       '@alloy-js/cli':
         specifier: ^0.18.0
@@ -686,6 +690,9 @@ importers:
       '@typespec/http':
         specifier: workspace:^
         version: link:../http
+      '@typespec/tspd':
+        specifier: workspace:^
+        version: link:../tspd
       eslint:
         specifier: ^9.23.0
         version: 9.30.1

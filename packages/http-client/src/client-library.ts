@@ -2,14 +2,14 @@ import { Enum, Model, Namespace, Program, Union } from "@typespec/compiler";
 import { unsafe_Mutator } from "@typespec/compiler/experimental";
 import { $ } from "@typespec/compiler/typekit";
 import { HttpOperation } from "@typespec/http";
-import { Client, InternalClient } from "./interfaces.js";
+import { _Client, _InternalClient } from "./interfaces.js";
 import { reportDiagnostic } from "./lib.js";
 import { collectDataTypes } from "./utils/type-collector.js";
 
 export interface ClientLibrary {
-  topLevel: Client[];
+  topLevel: _Client[];
   dataTypes: Array<Model | Union | Enum>;
-  getClientForOperation(operation: HttpOperation): Client | undefined;
+  getClientForOperation(operation: HttpOperation): _Client | undefined;
 }
 
 export interface CreateClientLibraryOptions {
@@ -27,9 +27,9 @@ function hasGlobalOperations(program: Program, namespace: Namespace): boolean {
   return false;
 }
 
-function getUserDefinedSubClients(program: Program, namespace: Namespace): InternalClient[] {
+function getUserDefinedSubClients(program: Program, namespace: Namespace): _InternalClient[] {
   const tk = $(program);
-  const clients: InternalClient[] = [];
+  const clients: _InternalClient[] = [];
 
   for (const subNs of namespace.namespaces.values()) {
     if (!tk.type.isUserDefined(subNs)) {
@@ -44,14 +44,14 @@ function getUserDefinedSubClients(program: Program, namespace: Namespace): Inter
   return clients;
 }
 
-function getEffectiveClient(program: Program, namespace: Namespace): InternalClient | undefined {
+function getEffectiveClient(program: Program, namespace: Namespace): _InternalClient | undefined {
   const tk = $(program);
   if (namespace.operations.size > 0 || namespace.interfaces.size > 0) {
     // It has content so it should be a client
     return tk.client.getClient(namespace);
   }
 
-  const effectiveClients: InternalClient[] = [];
+  const effectiveClients: _InternalClient[] = [];
 
   // It has no content so we need to check its children
   for (const subNs of namespace.namespaces.values()) {
@@ -73,7 +73,7 @@ function getEffectiveClient(program: Program, namespace: Namespace): InternalCli
   return undefined;
 }
 
-const operationClientMap = new Map<Program, Map<HttpOperation, Client>>();
+const operationClientMap = new Map<Program, Map<HttpOperation, _Client>>();
 
 export function createClientLibrary(
   program: Program,
@@ -82,10 +82,10 @@ export function createClientLibrary(
   const tk = $(program);
 
   if (!operationClientMap.has(program)) {
-    operationClientMap.set(program, new Map<HttpOperation, Client>());
+    operationClientMap.set(program, new Map<HttpOperation, _Client>());
   }
 
-  let topLevel: InternalClient[] = [];
+  let topLevel: _InternalClient[] = [];
   const dataTypes = new Set<Model | Union | Enum>();
 
   // Need to find out if we need to create a client for the global namespace.
@@ -102,7 +102,7 @@ export function createClientLibrary(
     }
   }
 
-  const topLevelClients: Client[] = [];
+  const topLevelClients: _Client[] = [];
 
   if (topLevel.length === 0) {
     reportDiagnostic(tk.program, { code: "cant-find-client", target: globalNs });
@@ -126,18 +126,18 @@ export function createClientLibrary(
 
 interface VisitClientOptions {
   operationMutators?: unsafe_Mutator[];
-  parentClient?: Client;
+  parentClient?: _Client;
 }
 function visitClient(
   program: Program,
-  client: InternalClient,
+  client: _InternalClient,
   dataTypes: Set<Model | Union | Enum>,
   options?: VisitClientOptions,
-): Client {
+): _Client {
   const tk = $(program);
   // First create a partial `Client` object.
   // We’ll fill in subClients *after* we have `c`.
-  const currentClient: Client = {
+  const currentClient: _Client = {
     ...client,
     operations: [],
     subClients: [],

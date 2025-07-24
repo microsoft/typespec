@@ -2,14 +2,14 @@ import { Refkey, refkey } from "@alloy-js/core";
 import { ModelProperty, Operation, StringLiteral, Type } from "@typespec/compiler";
 import { type Typekit } from "@typespec/compiler/typekit";
 import { getHttpService, resolveAuthentication } from "@typespec/http";
-import { InternalClient } from "../interfaces.js";
+import { _InternalClient } from "../interfaces.js";
 import { authSchemeSymbol, credentialSymbol } from "../types/credential-symbol.js";
 import { getStringValue, getUniqueTypes } from "./helpers.js";
 
 const credentialCache = new Map<Refkey, ModelProperty>();
 export function getCredentialParameter(
   $: Typekit,
-  client: InternalClient,
+  client: _InternalClient,
 ): ModelProperty | undefined {
   const [httpService] = getHttpService($.program, client.service);
 
@@ -50,7 +50,7 @@ function getCredRefkey(credentials: StringLiteral[]): Refkey {
   return refkey(credentials.map((c) => c.value).join());
 }
 
-export function getConstructors($: Typekit, client: InternalClient): Operation[] {
+export function getConstructors($: Typekit, client: _InternalClient): Operation[] {
   const constructors: Operation[] = [];
   const params: ModelProperty[] = [];
   const servers = $.client.listServers(client);
@@ -128,7 +128,7 @@ export function getConstructors($: Typekit, client: InternalClient): Operation[]
 
 export function createBaseConstructor(
   $: Typekit,
-  client: InternalClient,
+  client: _InternalClient,
   constructors: Operation[],
 ): Operation {
   const allParams: Map<string, ModelProperty[]> = new Map();
