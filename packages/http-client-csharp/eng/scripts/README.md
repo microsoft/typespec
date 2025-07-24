@@ -1,6 +1,6 @@
 # Add Debug Profile Script
 
-This script automates the setup for debugging TypeSpec generation for a specific library in the Microsoft TypeSpec Generator (MTG).
+This PowerShell script automates the setup for debugging TypeSpec generation for a specific library in the Microsoft TypeSpec Generator (MTG).
 
 ## Purpose
 
@@ -11,44 +11,49 @@ When developing with TypeSpec, you often need to debug the generation process fo
 3. Running `tsp-client generate --save-inputs` to create the `tspCodeModel.json`
 4. Adding a new debug profile to `launchSettings.json` that targets the DLL (for easier debugging of MTG code)
 
+## Prerequisites
+
+- PowerShell 7.0 or later
+- Node.js and npm
+
 ## Usage
 
 ### Using npm script (recommended)
 
 ```bash
 # From the packages/http-client-csharp directory
-npm run add-debug-profile -- /path/to/sdk/directory
+npm run add-debug-profile -- -SdkDirectory "/path/to/sdk/directory"
 
 # With custom generator
-npm run add-debug-profile -- /path/to/sdk/directory -g StubLibraryGenerator
+npm run add-debug-profile -- -SdkDirectory "/path/to/sdk/directory" -Generator "StubLibraryGenerator"
 ```
 
-### Using node directly
+### Using PowerShell directly
 
-```bash
+```powershell
 # From the packages/http-client-csharp directory
-node scripts/add-debug-profile.js /path/to/sdk/directory
+pwsh eng/scripts/Add-Debug-Profile.ps1 -SdkDirectory "/path/to/sdk/directory"
 
 # With custom generator
-node scripts/add-debug-profile.js /path/to/sdk/directory -g StubLibraryGenerator
+pwsh eng/scripts/Add-Debug-Profile.ps1 -SdkDirectory "/path/to/sdk/directory" -Generator "StubLibraryGenerator"
 ```
 
-## Arguments
+## Parameters
 
-- `SDK_DIRECTORY`: Path to the target SDK service directory (required)
-- `-g, --generator`: Generator name (default: `ScmCodeModelGenerator`)
+- `SdkDirectory`: Path to the target SDK service directory (required)
+- `Generator`: Generator name (default: `ScmCodeModelGenerator`)
 
 ## Examples
 
-```bash
+```powershell
 # Add debug profile for Azure Storage Blobs SDK
-npm run add-debug-profile -- /path/to/azure-sdk-for-net/sdk/storage/Azure.Storage.Blobs
+pwsh eng/scripts/Add-Debug-Profile.ps1 -SdkDirectory "C:\azure-sdk-for-net\sdk\storage\Azure.Storage.Blobs"
 
 # Add debug profile with StubLibraryGenerator for testing
-npm run add-debug-profile -- ./test-project -g StubLibraryGenerator
+pwsh eng/scripts/Add-Debug-Profile.ps1 -SdkDirectory ".\test-project" -Generator "StubLibraryGenerator"
 
-# Show help
-npm run add-debug-profile -- --help
+# Using npm script
+npm run add-debug-profile -- -SdkDirectory "/path/to/azure-sdk-for-net/sdk/storage/Azure.Storage.Blobs"
 ```
 
 ## What it does
@@ -79,4 +84,4 @@ Using the DLL instead of the EXE allows for easier debugging of the MTG (Microso
 - The script will show warnings if the tsp-client commands fail (e.g., if the directory is not a proper TypeSpec SDK directory)
 - The profile name is automatically generated from the SDK directory name
 - If a profile with the same name already exists, it will be overwritten
-- The script requires Node.js and npm to be available
+- The script requires PowerShell 7.0+, Node.js and npm to be available
