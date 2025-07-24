@@ -45,12 +45,6 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`Multiple versions from '${"name"}' resolve to the same value. Version enums must resolve to unique values.`,
       },
     },
-    "using-versioned-library": {
-      severity: "error",
-      messages: {
-        default: paramMessage`Namespace '${"sourceNs"}' is referencing types from versioned namespace '${"targetNs"}' but didn't specify which versions with @useDependency.`,
-      },
-    },
     "invalid-renamed-from-value": {
       severity: "error",
       messages: {
