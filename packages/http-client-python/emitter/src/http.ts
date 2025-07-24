@@ -1,6 +1,7 @@
 import { NoTarget } from "@typespec/compiler";
 
 import {
+  getHttpOperationParameter,
   SdkBasicServiceMethod,
   SdkBodyParameter,
   SdkClientType,
@@ -21,7 +22,7 @@ import {
 } from "@azure-tools/typespec-client-generator-core";
 import { HttpStatusCodeRange } from "@typespec/http";
 import { PythonSdkContext, reportDiagnostic } from "./lib.js";
-import { KnownTypes, getType } from "./types.js";
+import { getType, KnownTypes } from "./types.js";
 import {
   camelToSnakeCase,
   emitParamBase,
@@ -424,7 +425,23 @@ function emitHttpParameters(
   method: SdkServiceMethod<SdkHttpOperation>,
 ): Record<string, any>[] {
   const parameters: Record<string, any>[] = [...context.__endpointPathParameters];
-  for (const parameter of operation.parameters) {
+
+  // handle @override for parameters reorder
+  const httpParameters = method.isOverride
+    ? (() => {
+        const parametersFromMethod = method.parameters
+          .map((param) => getHttpOperationParameter(method, param))
+          .filter((result) => result !== undefined);
+
+        const parametersFromOperation = operation.parameters.filter(
+          (param) => !parametersFromMethod.includes(param),
+        );
+
+        return [...parametersFromMethod, ...parametersFromOperation];
+      })()
+    : operation.parameters;
+
+  for (const parameter of httpParameters) {
     switch (parameter.kind) {
       case "header":
         parameters.push(emitHttpHeaderParameter(context, parameter, method));
@@ -437,6 +454,7 @@ function emitHttpParameters(
         break;
     }
   }
+
   return parameters;
 }
 

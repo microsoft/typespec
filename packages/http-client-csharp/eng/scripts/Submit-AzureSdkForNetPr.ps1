@@ -11,8 +11,8 @@ The URL of the pull request in the TypeSpec repository that triggered this updat
 A GitHub personal access token for authentication.
 .PARAMETER BranchName
 The name of the branch to create in the azure-sdk-for-net repository.
-.PARAMETER TypeSpecSourceDirectory
-The source directory of the TypeSpec repository containing the emitter package artifacts.
+.PARAMETER TypeSpecSourcePackageJsonPath
+The path to the TypeSpec package.json file to use for generating emitter-package.json files.
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -29,7 +29,7 @@ param(
   [string]$BranchName = "typespec/update-http-client-$PackageVersion",
 
   [Parameter(Mandatory = $false)]
-  [string]$TypeSpecSourceDirectory
+  [string]$TypeSpecSourcePackageJsonPath
 )
 
 # Import the Generation module to use the Invoke helper function
@@ -181,29 +181,19 @@ try {
         }
     }
     
-    # Copy emitter-package.json artifacts if they exist in the typespec repo
-    if ($TypeSpecSourceDirectory) {
-        $emitterPackageJsonSource = Join-Path $TypeSpecSourceDirectory "eng/http-client-csharp-emitter-package.json"
-        $emitterPackageLockSource = Join-Path $TypeSpecSourceDirectory "eng/http-client-csharp-emitter-package-lock.json"
-        
-        $emitterPackageJsonDest = Join-Path $tempDir "eng/http-client-csharp-emitter-package.json"
-        $emitterPackageLockDest = Join-Path $tempDir "eng/http-client-csharp-emitter-package-lock.json"
-        
-        if (Test-Path $emitterPackageJsonSource) {
-            Write-Host "Copying emitter-package.json from typespec repo..."
-            Copy-Item $emitterPackageJsonSource $emitterPackageJsonDest -Force
-        } else {
-            Write-Warning "emitter-package.json not found at $emitterPackageJsonSource"
+    # Generate emitter-package.json files using tsp-client if TypeSpec package.json is provided
+    if ($TypeSpecSourcePackageJsonPath -and (Test-Path $TypeSpecSourcePackageJsonPath)) {
+        Write-Host "Generating emitter-package.json files using tsp-client..."
+        $configFilesOutputDir = Join-Path $tempDir "eng"
+        $emitterPackageJsonPath = Join-Path $configFilesOutputDir "http-client-csharp-emitter-package.json"
+
+        Invoke "tsp-client generate-config-files --package-json $TypeSpecSourcePackageJsonPath --emitter-package-json-path $emitterPackageJsonPath --output-dir $configFilesOutputDir" $tempDir
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to generate emitter-package.json files"
         }
-        
-        if (Test-Path $emitterPackageLockSource) {
-            Write-Host "Copying emitter-package-lock.json from typespec repo..."
-            Copy-Item $emitterPackageLockSource $emitterPackageLockDest -Force
-        } else {
-            Write-Warning "emitter-package-lock.json not found at $emitterPackageLockSource"
-        }
+        Write-Host "Successfully generated emitter-package.json files"
     } else {
-        Write-Warning "TypeSpecSourceDirectory parameter not provided. Cannot copy emitter-package files."
+        Write-Warning "TypeSpecSourcePackageJsonPath not provided or file doesn't exist. Skipping emitter-package.json generation."
     }
     
     # Check if there are changes to commit

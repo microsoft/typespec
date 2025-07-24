@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import type.dictionary.InnerModel;
@@ -32,6 +33,11 @@ public final class RecursiveModelValuesImpl {
     private final DictionaryClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of RecursiveModelValuesImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -39,6 +45,7 @@ public final class RecursiveModelValuesImpl {
     RecursiveModelValuesImpl(DictionaryClientImpl client) {
         this.service = RecursiveModelValuesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -87,8 +94,11 @@ public final class RecursiveModelValuesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Map<String, InnerModel>> getWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.get(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Dictionary.RecursiveModelValue.get", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.get(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -103,7 +113,10 @@ public final class RecursiveModelValuesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(Map<String, InnerModel> body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.put(this.client.getEndpoint(), contentType, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Dictionary.RecursiveModelValue.put", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.put(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 }

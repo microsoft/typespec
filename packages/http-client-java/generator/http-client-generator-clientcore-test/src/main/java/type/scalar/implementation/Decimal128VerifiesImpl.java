@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.List;
@@ -32,6 +33,11 @@ public final class Decimal128VerifiesImpl {
     private final ScalarClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of Decimal128VerifiesImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -39,6 +45,7 @@ public final class Decimal128VerifiesImpl {
     Decimal128VerifiesImpl(ScalarClientImpl client) {
         this.service = Decimal128VerifiesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -87,8 +94,11 @@ public final class Decimal128VerifiesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<List<BigDecimal>> prepareVerifyWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.prepareVerify(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Scalar.Decimal128Verify.prepareVerify", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.prepareVerify(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -103,7 +113,10 @@ public final class Decimal128VerifiesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> verifyWithResponse(BigDecimal body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.verify(this.client.getEndpoint(), contentType, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Scalar.Decimal128Verify.verify", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.verify(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 }

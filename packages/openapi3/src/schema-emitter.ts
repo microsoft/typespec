@@ -305,12 +305,6 @@ export class OpenAPI3SchemaEmitterBase<
     return this.#createDeclaration(array, name, this.applyConstraints(array, schema as any));
   }
 
-  arrayDeclarationReferenceContext(array: Model, name: string, elementType: Type): Context {
-    return {
-      visibility: this.#getVisibilityContext() | Visibility.Item,
-    };
-  }
-
   arrayLiteral(array: Model, elementType: Type): EmitterOutput<object> {
     return this.#inlineType(
       array,

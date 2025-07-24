@@ -4,170 +4,152 @@
 
 package tsptest.armresourceprovider.models;
 
+import com.azure.core.annotation.Immutable;
+import com.azure.core.management.ProxyResource;
 import com.azure.core.management.SystemData;
-import com.azure.core.util.Context;
-import tsptest.armresourceprovider.fluent.models.NginxConfigurationResponseInner;
+import com.azure.json.JsonReader;
+import com.azure.json.JsonToken;
+import com.azure.json.JsonWriter;
+import java.io.IOException;
 
 /**
- * An immutable client-side representation of NginxConfigurationResponse.
+ * Concrete proxy resource types can be created by aliasing this type using a specific property type.
  */
-public interface NginxConfigurationResponse {
-    /**
-     * Gets the id property: Fully qualified resource Id for the resource.
-     * 
-     * @return the id value.
+@Immutable
+public final class NginxConfigurationResponse extends ProxyResource {
+    /*
+     * The resource-specific properties for this resource.
      */
-    String id();
+    private NginxConfigurationResponseProperties properties;
+
+    /*
+     * Azure Resource Manager metadata containing createdBy and modifiedBy information.
+     */
+    private SystemData systemData;
+
+    /*
+     * The type of the resource.
+     */
+    private String type;
+
+    /*
+     * The name of the resource.
+     */
+    private String name;
+
+    /*
+     * Fully qualified resource Id for the resource.
+     */
+    private String id;
 
     /**
-     * Gets the name property: The name of the resource.
-     * 
-     * @return the name value.
+     * Creates an instance of NginxConfigurationResponse class.
      */
-    String name();
+    private NginxConfigurationResponse() {
+    }
 
     /**
-     * Gets the type property: The type of the resource.
-     * 
-     * @return the type value.
-     */
-    String type();
-
-    /**
-     * Gets the properties property: The resource-specific properties for this resource.
+     * Get the properties property: The resource-specific properties for this resource.
      * 
      * @return the properties value.
      */
-    NginxConfigurationResponseProperties properties();
+    public NginxConfigurationResponseProperties properties() {
+        return this.properties;
+    }
 
     /**
-     * Gets the systemData property: Azure Resource Manager metadata containing createdBy and modifiedBy information.
+     * Get the systemData property: Azure Resource Manager metadata containing createdBy and modifiedBy information.
      * 
      * @return the systemData value.
      */
-    SystemData systemData();
-
-    /**
-     * Gets the name of the resource group.
-     * 
-     * @return the name of the resource group.
-     */
-    String resourceGroupName();
-
-    /**
-     * Gets the inner tsptest.armresourceprovider.fluent.models.NginxConfigurationResponseInner object.
-     * 
-     * @return the inner object.
-     */
-    NginxConfigurationResponseInner innerModel();
-
-    /**
-     * The entirety of the NginxConfigurationResponse definition.
-     */
-    interface Definition
-        extends DefinitionStages.Blank, DefinitionStages.WithResourceGroup, DefinitionStages.WithCreate {
+    public SystemData systemData() {
+        return this.systemData;
     }
 
     /**
-     * The NginxConfigurationResponse definition stages.
+     * Get the type property: The type of the resource.
+     * 
+     * @return the type value.
      */
-    interface DefinitionStages {
-        /**
-         * The first stage of the NginxConfigurationResponse definition.
-         */
-        interface Blank extends WithResourceGroup {
-        }
+    @Override
+    public String type() {
+        return this.type;
+    }
 
-        /**
-         * The stage of the NginxConfigurationResponse definition allowing to specify parent resource.
-         */
-        interface WithResourceGroup {
-            /**
-             * Specifies resourceGroupName.
-             * 
-             * @param resourceGroupName The name of the resource group. The name is case insensitive.
-             * @return the next definition stage.
-             */
-            WithCreate withExistingResourceGroup(String resourceGroupName);
-        }
+    /**
+     * Get the name property: The name of the resource.
+     * 
+     * @return the name value.
+     */
+    @Override
+    public String name() {
+        return this.name;
+    }
 
-        /**
-         * The stage of the NginxConfigurationResponse definition which contains all the minimum required properties for
-         * the resource to be created, but also allows for any other optional properties to be specified.
-         */
-        interface WithCreate extends DefinitionStages.WithRootFile {
-            /**
-             * Executes the create request.
-             * 
-             * @return the created resource.
-             */
-            NginxConfigurationResponse create();
+    /**
+     * Get the id property: Fully qualified resource Id for the resource.
+     * 
+     * @return the id value.
+     */
+    @Override
+    public String id() {
+        return this.id;
+    }
 
-            /**
-             * Executes the create request.
-             * 
-             * @param context The context to associate with this operation.
-             * @return the created resource.
-             */
-            NginxConfigurationResponse create(Context context);
-        }
-
-        /**
-         * The stage of the NginxConfigurationResponse definition allowing to specify rootFile.
-         */
-        interface WithRootFile {
-            /**
-             * Specifies the rootFile property: The rootFile property..
-             * 
-             * @param rootFile The rootFile property.
-             * @return the next definition stage.
-             */
-            WithCreate withRootFile(String rootFile);
+    /**
+     * Validates the instance.
+     * 
+     * @throws IllegalArgumentException thrown if the instance is not valid.
+     */
+    public void validate() {
+        if (properties() != null) {
+            properties().validate();
         }
     }
 
     /**
-     * Begins update for the NginxConfigurationResponse resource.
-     * 
-     * @return the stage of resource update.
+     * {@inheritDoc}
      */
-    NginxConfigurationResponse.Update update();
-
-    /**
-     * The template for NginxConfigurationResponse update.
-     */
-    interface Update extends UpdateStages.WithRootFile {
-        /**
-         * Executes the update request.
-         * 
-         * @return the updated resource.
-         */
-        NginxConfigurationResponse apply();
-
-        /**
-         * Executes the update request.
-         * 
-         * @param context The context to associate with this operation.
-         * @return the updated resource.
-         */
-        NginxConfigurationResponse apply(Context context);
+    @Override
+    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
+        jsonWriter.writeStartObject();
+        jsonWriter.writeJsonField("properties", this.properties);
+        return jsonWriter.writeEndObject();
     }
 
     /**
-     * The NginxConfigurationResponse update stages.
+     * Reads an instance of NginxConfigurationResponse from the JsonReader.
+     * 
+     * @param jsonReader The JsonReader being read.
+     * @return An instance of NginxConfigurationResponse if the JsonReader was pointing to an instance of it, or null if
+     * it was pointing to JSON null.
+     * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
+     * @throws IOException If an error occurs while reading the NginxConfigurationResponse.
      */
-    interface UpdateStages {
-        /**
-         * The stage of the NginxConfigurationResponse update allowing to specify rootFile.
-         */
-        interface WithRootFile {
-            /**
-             * Specifies the rootFile property: The rootFile property..
-             * 
-             * @param rootFile The rootFile property.
-             * @return the next definition stage.
-             */
-            Update withRootFile(String rootFile);
-        }
+    public static NginxConfigurationResponse fromJson(JsonReader jsonReader) throws IOException {
+        return jsonReader.readObject(reader -> {
+            NginxConfigurationResponse deserializedNginxConfigurationResponse = new NginxConfigurationResponse();
+            while (reader.nextToken() != JsonToken.END_OBJECT) {
+                String fieldName = reader.getFieldName();
+                reader.nextToken();
+
+                if ("id".equals(fieldName)) {
+                    deserializedNginxConfigurationResponse.id = reader.getString();
+                } else if ("name".equals(fieldName)) {
+                    deserializedNginxConfigurationResponse.name = reader.getString();
+                } else if ("type".equals(fieldName)) {
+                    deserializedNginxConfigurationResponse.type = reader.getString();
+                } else if ("properties".equals(fieldName)) {
+                    deserializedNginxConfigurationResponse.properties
+                        = NginxConfigurationResponseProperties.fromJson(reader);
+                } else if ("systemData".equals(fieldName)) {
+                    deserializedNginxConfigurationResponse.systemData = SystemData.fromJson(reader);
+                } else {
+                    reader.skipChildren();
+                }
+            }
+
+            return deserializedNginxConfigurationResponse;
+        });
     }
 }

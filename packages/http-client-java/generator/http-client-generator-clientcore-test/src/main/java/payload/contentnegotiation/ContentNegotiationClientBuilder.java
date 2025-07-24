@@ -14,13 +14,17 @@ import io.clientcore.core.http.pipeline.HttpRedirectOptions;
 import io.clientcore.core.http.pipeline.HttpRedirectPolicy;
 import io.clientcore.core.http.pipeline.HttpRetryOptions;
 import io.clientcore.core.http.pipeline.HttpRetryPolicy;
+import io.clientcore.core.instrumentation.Instrumentation;
+import io.clientcore.core.instrumentation.SdkInstrumentationOptions;
 import io.clientcore.core.traits.ConfigurationTrait;
 import io.clientcore.core.traits.EndpointTrait;
 import io.clientcore.core.traits.HttpTrait;
 import io.clientcore.core.traits.ProxyTrait;
+import io.clientcore.core.utils.CoreUtils;
 import io.clientcore.core.utils.configuration.Configuration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import payload.contentnegotiation.implementation.ContentNegotiationClientImpl;
 
@@ -36,6 +40,10 @@ public final class ContentNegotiationClientBuilder
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES
+        = CoreUtils.getProperties("payload-contentnegotiation.properties");
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
@@ -181,7 +189,17 @@ public final class ContentNegotiationClientBuilder
     private ContentNegotiationClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        ContentNegotiationClientImpl client = new ContentNegotiationClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        ContentNegotiationClientImpl client
+            = new ContentNegotiationClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -215,7 +233,8 @@ public final class ContentNegotiationClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public SameBodyClient buildSameBodyClient() {
-        return new SameBodyClient(buildInnerClient().getSameBodies());
+        ContentNegotiationClientImpl innerClient = buildInnerClient();
+        return new SameBodyClient(innerClient.getSameBodies(), innerClient.getInstrumentation());
     }
 
     /**
@@ -225,6 +244,7 @@ public final class ContentNegotiationClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public DifferentBodyClient buildDifferentBodyClient() {
-        return new DifferentBodyClient(buildInnerClient().getDifferentBodies());
+        ContentNegotiationClientImpl innerClient = buildInnerClient();
+        return new DifferentBodyClient(innerClient.getDifferentBodies(), innerClient.getInstrumentation());
     }
 }

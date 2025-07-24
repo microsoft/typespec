@@ -1,6 +1,7 @@
 package specialwords.implementation;
 
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 
 /**
  * Initializes a new instance of the SpecialWordsClient type.
@@ -32,6 +33,20 @@ public final class SpecialWordsClientImpl {
      */
     public HttpPipeline getHttpPipeline() {
         return this.httpPipeline;
+    }
+
+    /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
     }
 
     /**
@@ -94,10 +109,12 @@ public final class SpecialWordsClientImpl {
      * Initializes an instance of SpecialWordsClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
      */
-    public SpecialWordsClientImpl(HttpPipeline httpPipeline, String endpoint) {
+    public SpecialWordsClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
         this.models = new ModelsImpl(this);
         this.modelProperties = new ModelPropertiesImpl(this);

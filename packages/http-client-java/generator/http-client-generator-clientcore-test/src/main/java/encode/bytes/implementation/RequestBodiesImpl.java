@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.models.binarydata.BinaryData;
 import io.clientcore.core.utils.Base64Uri;
 import java.lang.reflect.InvocationTargetException;
@@ -32,6 +33,11 @@ public final class RequestBodiesImpl {
     private final BytesClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of RequestBodiesImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -39,6 +45,7 @@ public final class RequestBodiesImpl {
     RequestBodiesImpl(BytesClientImpl client) {
         this.service = RequestBodiesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -118,8 +125,12 @@ public final class RequestBodiesImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> defaultMethodWithResponse(BinaryData value, long contentLength,
         RequestContext requestContext) {
-        final String contentType = "application/octet-stream";
-        return service.defaultMethod(this.client.getEndpoint(), contentType, value, contentLength, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.RequestBody.default", requestContext,
+            updatedContext -> {
+                final String contentType = "application/octet-stream";
+                return service.defaultMethod(this.client.getEndpoint(), contentType, value, contentLength,
+                    updatedContext);
+            });
     }
 
     /**
@@ -135,8 +146,12 @@ public final class RequestBodiesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> octetStreamWithResponse(BinaryData value, long contentLength, RequestContext requestContext) {
-        final String contentType = "application/octet-stream";
-        return service.octetStream(this.client.getEndpoint(), contentType, value, contentLength, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.RequestBody.octetStream", requestContext,
+            updatedContext -> {
+                final String contentType = "application/octet-stream";
+                return service.octetStream(this.client.getEndpoint(), contentType, value, contentLength,
+                    updatedContext);
+            });
     }
 
     /**
@@ -153,8 +168,12 @@ public final class RequestBodiesImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> customContentTypeWithResponse(BinaryData value, long contentLength,
         RequestContext requestContext) {
-        final String contentType = "image/png";
-        return service.customContentType(this.client.getEndpoint(), contentType, value, contentLength, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.RequestBody.customContentType", requestContext,
+            updatedContext -> {
+                final String contentType = "image/png";
+                return service.customContentType(this.client.getEndpoint(), contentType, value, contentLength,
+                    updatedContext);
+            });
     }
 
     /**
@@ -169,8 +188,11 @@ public final class RequestBodiesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> base64WithResponse(byte[] value, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.base64(this.client.getEndpoint(), contentType, value, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.RequestBody.base64", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.base64(this.client.getEndpoint(), contentType, value, updatedContext);
+            });
     }
 
     /**
@@ -185,8 +207,11 @@ public final class RequestBodiesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> base64urlWithResponse(byte[] value, RequestContext requestContext) {
-        final String contentType = "application/json";
-        Base64Uri valueConverted = Base64Uri.encode(value);
-        return service.base64url(this.client.getEndpoint(), contentType, valueConverted, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.RequestBody.base64url", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                Base64Uri valueConverted = Base64Uri.encode(value);
+                return service.base64url(this.client.getEndpoint(), contentType, valueConverted, updatedContext);
+            });
     }
 }

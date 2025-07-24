@@ -34,7 +34,6 @@ class OperationGroup(BaseModel):
     ) -> None:
         super().__init__(yaml_data, code_model)
         self.client = client
-        self.class_name: str = yaml_data["className"]
         self.identify_name: str = yaml_data["identifyName"]
         self.property_name: str = yaml_data["propertyName"]
         self.operations = operations
@@ -50,6 +49,13 @@ class OperationGroup(BaseModel):
         self.has_parent_operation_group: bool = False
         for og in self.operation_groups:
             og.has_parent_operation_group = True
+
+    @property
+    def class_name(self) -> str:
+        """The class name of the operation group."""
+        if self.is_mixin and not self.code_model.options["multiapi"]:
+            return "_" + self.yaml_data["className"]
+        return self.yaml_data["className"]
 
     @property
     def has_abstract_operations(self) -> bool:
@@ -89,7 +95,7 @@ class OperationGroup(BaseModel):
             retval = add_to_pylint_disable(retval, "abstract-class-instantiated")
         if len(self.operations) > 20:
             retval = add_to_pylint_disable(retval, "too-many-public-methods")
-        if len(self.class_name) > NAME_LENGTH_LIMIT:
+        if len(self.class_name) > NAME_LENGTH_LIMIT and self.class_name[0] != "_":
             retval = add_to_pylint_disable(retval, "name-too-long")
         if len(self.operation_groups) > 6:
             retval = add_to_pylint_disable(retval, "too-many-instance-attributes")
