@@ -8,8 +8,8 @@ using Payload.Pageable._ServerDrivenPagination.ContinuationToken;
 
 namespace Payload.Pageable
 {
-        [ModelReaderWriterBuildable(typeof(Pet))]
-                    public partial class PayloadPageableContext : ModelReaderWriterContext
+    [ModelReaderWriterBuildable(typeof(Pet))]
+    public partial class PayloadPageableContext : ModelReaderWriterContext
     {
     }
 }

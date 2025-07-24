@@ -9,7 +9,7 @@ using Parameters.Spread._Model;
 namespace Parameters.Spread
 {
     [ModelReaderWriterBuildable(typeof(BodyParameter))]
-                            public partial class ParametersSpreadContext : ModelReaderWriterContext
+    public partial class ParametersSpreadContext : ModelReaderWriterContext
     {
     }
 }

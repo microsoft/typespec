@@ -8,7 +8,7 @@ namespace Payload.JsonMergePatch
 {
     [ModelReaderWriterBuildable(typeof(Resource))]
     [ModelReaderWriterBuildable(typeof(InnerModel))]
-        public partial class PayloadJsonMergePatchContext : ModelReaderWriterContext
+    public partial class PayloadJsonMergePatchContext : ModelReaderWriterContext
     {
     }
 }
