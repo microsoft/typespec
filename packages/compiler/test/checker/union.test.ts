@@ -1,9 +1,10 @@
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { Model, Union, UnionVariant } from "../../src/core/types.js";
-import { TestHost, createTestHost } from "../../src/testing/index.js";
+import { TestHost, createTestHost, expectTypeEquals, t } from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
-describe("compiler: union declarations", () => {
+describe("declarations", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
@@ -92,52 +93,45 @@ describe("compiler: union declarations", () => {
     strictEqual(varXType.kind, "Scalar");
     strictEqual(varXType.name, "int32");
   });
+});
 
+describe("expressions", () => {
   it("reduces union expressions and gives them symbol keys", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-      @test model Foo<T, U> { x: T | U };
-      alias T = Foo<int16 | int32, string | int8>;
-      `,
-    );
+    const { Foo } = await Tester.compile(t.code`
+      alias Temp<T, U> = T | U;
+      alias ${t.union("Foo")} = Temp<int16 | int32, string | int8>;
+    `);
 
-    const { Foo } = (await testHost.compile("./")) as { Foo: Model };
-    const type = Foo.properties.get("x")!.type as Union;
-    strictEqual(type.variants.size, 4);
-    for (const key of type.variants.keys()) {
+    strictEqual(Foo.variants.size, 4);
+    for (const key of Foo.variants.keys()) {
       strictEqual(typeof key, "symbol");
     }
   });
 
   it("doesn't reduce union statements", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-      @test model Foo<T, U> { x: T | U };
+    const { Foo } = await Tester.compile(t.code`
+      alias Temp<T, U> = T | U;
       union Bar { x: int16, y: int32 };
-      alias T = Foo<Bar, string | int8>;
-      `,
-    );
-
-    const { Foo } = (await testHost.compile("./")) as { Foo: Model };
-    const type = Foo.properties.get("x")!.type as Union;
-    strictEqual(type.variants.size, 3);
-    for (const key of type.variants.keys()) {
+      alias ${t.union("Foo")} = Temp<Bar, string | int8>;
+    `);
+    strictEqual(Foo.variants.size, 3);
+    for (const key of Foo.variants.keys()) {
       strictEqual(typeof key, "symbol");
     }
   });
 
   it("reduces nevers", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-      @test model Foo { x: int32 | never };
-      `,
-    );
+    const { Foo } = await Tester.compile(t.code`
+      alias ${t.union("Foo")} = string | never;  
+    `);
+    strictEqual(Foo.variants.size, 1);
+  });
 
-    const { Foo } = (await testHost.compile("./")) as { Foo: Model };
-    const type = Foo.properties.get("x")!.type as Union;
-    strictEqual(type.variants.size, 1);
+  it("set namespace", async () => {
+    const { Foo, MyNs } = await Tester.compile(t.code`
+      namespace ${t.namespace("MyNs")};
+      alias ${t.union("Foo")} = string | int32;  
+    `);
+    expectTypeEquals(Foo.namespace, MyNs);
   });
 });
