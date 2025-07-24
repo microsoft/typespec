@@ -57,9 +57,12 @@ grammars/
 # auto generated code model files
 **/tspCodeModel.json
 
+# C# Client generated files
+packages/http-client-csharp/generator/**/TestProjects/**/*.json
+
 # auto generated api view properties files
-packages/http-client-java/generator/http-client-generator-test/src/main/**/*.json
-packages/http-client-java/generator/http-client-generator-clientcore-test/src/main/**/*.json
+packages/http-client-java/generator/http-client-generator-test/**/*.json
+packages/http-client-java/generator/http-client-generator-clientcore-test/**/*.json
 
 # Files with invalid sh syntax
 packages/http-client-java/**/*.properties
