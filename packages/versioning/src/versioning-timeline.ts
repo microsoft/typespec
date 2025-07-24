@@ -98,7 +98,6 @@ export class VersioningTimeline {
         }
       }
     }
-    console.log("Timeline", this.prettySerialize());
   }
 
   prettySerialize() {
