@@ -28,17 +28,15 @@ export function getVersionDependencies(
   if (usage === undefined) {
     return explicit;
   }
-  const result = new Map<Namespace, Map<Version, Version> | Version>();
+  const result = new Map<Namespace, Map<Version, Version> | Version>(explicit);
 
   for (const dep of usage) {
-    const explicitUseForDep = explicit?.get(dep);
-    if (explicitUseForDep !== undefined) {
-      result.set(dep, explicitUseForDep);
-    }
-    const version = getVersion(program, dep);
-    if (version) {
-      const depVersions = version.getVersions();
-      result.set(dep, depVersions[depVersions.length - 1]);
+    if (!explicit?.has(dep)) {
+      const version = getVersion(program, dep);
+      if (version) {
+        const depVersions = version.getVersions();
+        result.set(dep, depVersions[depVersions.length - 1]);
+      }
     }
   }
   return result;
