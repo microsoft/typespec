@@ -4,7 +4,7 @@ import { InitTemplatesUrlSetting } from "./vscode-cmd/create-tsp-project.js";
 export const enum SettingName {
   TspServerPath = "typespec.tsp-server.path",
   InitTemplatesUrls = "typespec.initTemplatesUrls",
-  CompileEntrypoint = "typespec.compile.entrypoint",
+  CompileEntrypoint = "typespec.entrypoint",
 }
 
 export const enum CommandName {

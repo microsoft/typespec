@@ -333,7 +333,7 @@ export function createCompileService({
     const options = { allowFileNotFound: true };
 
     // This takes priority over default main.tsp or package.json
-    const entrypoints = clientConfigsProvider?.config?.compile?.entrypoint;
+    const entrypoints = clientConfigsProvider?.config?.entrypoint;
     if (entrypoints && entrypoints.length > 0) {
       while (true) {
         for (const entrypoint of entrypoints) {

@@ -6,13 +6,9 @@ interface LSPConfig {
   emit?: string[];
 }
 
-interface EntrypointConfig {
-  entrypoint?: string[];
-}
-
 interface Config {
   lsp?: LSPConfig;
-  compile?: EntrypointConfig;
+  entrypoint?: string[];
 }
 
 /**
