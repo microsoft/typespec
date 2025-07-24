@@ -29,7 +29,7 @@ param(
     [string]$SdkDirectory,
     
     [Parameter(Mandatory = $false)]
-    [string]$Generator = "ScmCodeModelGenerator"
+    [string]$Generator = "AzureClientGenerator"
 )
 
 # Helper function to run commands and get output
