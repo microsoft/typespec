@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Microsoft.TypeSpec.Generator.Expressions;
+using System.Collections.Generic;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -11,7 +13,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     public class ScmMethodProvider : MethodProvider
     {
         public InputServiceMethod? ServiceMethod { get; }
-        public TypeProvider? CollectionDefinition { get; }
+        public TypeProvider? CollectionDefinition { get; private set; }
         public bool IsProtocolMethod { get; }
 
         public ScmMethodProvider(
@@ -27,6 +29,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             CollectionDefinition = collectionDefinition;
             IsProtocolMethod = isProtocolMethod;
             ServiceMethod = serviceMethod;
+        }
+
+        public void Update(TypeProvider? collectionDefinition = null)
+        {
+            if (collectionDefinition != null)
+            {
+                CollectionDefinition = collectionDefinition;
+            }
         }
     }
 }
