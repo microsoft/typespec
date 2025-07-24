@@ -20,6 +20,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         private ScmOutputLibrary? _scmOutputLibrary;
         public override OutputLibrary OutputLibrary => _scmOutputLibrary ??= new();
 
+        internal ModelReaderWriterContextDefinition MrwContextDefinition { get; } = new ModelReaderWriterContextDefinition();
+
         public override ScmTypeFactory TypeFactory { get; }
 
         [ImportingConstructor]
@@ -36,7 +38,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(ClientResult).Assembly.Location));
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(BinaryData).Assembly.Location));
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(JsonSerializer).Assembly.Location));
-            AddTypeToKeepPublic(ModelReaderWriterContextDefinition.s_name);
+            AddTypeToKeepPublic(MrwContextDefinition);
+            AddNonRootTypeProvider(MrwContextDefinition);
         }
     }
 }
