@@ -5,4 +5,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Prioritize processing the user-defined entrypoint file during compilation
+[LSP] Allow configuring which file names to use as entrypoints
