@@ -3,6 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
+from pathlib import Path
 from typing import List, Dict, Any, Set, Union, Literal, Optional, cast
 
 from .base import BaseType
@@ -452,3 +453,38 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
             return self.yaml_data.get("licenseInfo", {}).get("company", "")
         # typespec azure case without custom license and swagger case
         return "Microsoft Corporation"
+    
+    def get_root_dir(self) -> Path:
+      if self.options["no-namespace-folders"] and not self.options["multiapi"]:
+          # when output folder contains parts different from the namespace, we fall back to current folder directly.
+          # (e.g. https://github.com/Azure/azure-sdk-for-python/blob/main/sdk/communication/azure-communication-callautomation/swagger/SWAGGER.md)
+          return Path(".")
+      return Path(*self.namespace.split("."))
+
+    def get_generation_dir(self, namespace: str) -> Path:
+      """The directory to generate the code in. If 'generation-subdir' is specified, it will be used as a subdirectory."""
+      root_dir = self.get_root_dir()
+      return self._get_relative_generation_dir(root_dir, namespace)
+    
+    def get_samples_folder_generation_dir(self, namespace: str) -> Path:
+        # Same logic as get_generation_dir, but doesn't take `no-namespace-folders` into account
+        root_dir = Path(*self.namespace.split("."))
+        return self._get_relative_generation_dir(root_dir, namespace)
+
+    def _get_relative_generation_dir(self, root_dir: Path, namespace: str) -> Path:
+        if self.options.get("generation-subdir"):
+          # For the main namespace, return root_dir + generation-subdir
+          if namespace == self.namespace:
+              return root_dir / self.options['generation-subdir']
+          
+          # For subnamespaces, extract the subnamespace part and append it to generation-subdir
+          if namespace.startswith(self.namespace + "."):
+              subnamespace_parts = namespace[len(self.namespace) + 1:].split(".")
+              return root_dir / self.options['generation-subdir'] / Path(*subnamespace_parts)
+          
+          # If namespace doesn't start with self.namespace, fall back to namespace path
+          namespace_path = Path(*namespace.split("."))
+          return namespace_path / self.options['generation-subdir']
+      
+        # No generation-subdir specified, use the namespace path directly
+        return Path(*namespace.split("."))

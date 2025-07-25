@@ -39,6 +39,7 @@ class OptionsDict(MutableMapping):
         "polymorphic-examples": 5,
         "validate-versioning": True,
         "version-tolerant": True,
+        "generation-subdir": None,  # subdirectory to generate the code in
     }
 
     def __init__(self, options: Optional[Dict[str, Any]] = None) -> None:
