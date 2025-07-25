@@ -83,7 +83,7 @@ $failingSpecs = @(
     Join-Path 'http' 'type' 'model' 'templated'
     Join-Path 'http' 'client' 'naming' # pending until https://github.com/microsoft/typespec/issues/5653 is resolved
     Join-Path 'http' 'streaming' 'jsonl'
-    Join-Path 'http' 'payload' 'pageable'
+    Join-Path 'http' 'payload' 'pageable' # pending until https://github.com/microsoft/typespec/issues/8009 is resolved
 )
 
 $azureAllowSpecs = @(
