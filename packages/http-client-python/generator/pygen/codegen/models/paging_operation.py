@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import Dict, List, Any, Optional, Union, TYPE_CHECKING, cast, TypeVar
+from typing import Any, Optional, Union, TYPE_CHECKING, cast, TypeVar
 
 from .operation import Operation, OperationBase
 from .response import PagingResponse, LROPagingResponse, Response
@@ -28,16 +28,16 @@ PagingResponseType = TypeVar("PagingResponseType", bound=Union[PagingResponse, L
 class PagingOperationBase(OperationBase[PagingResponseType]):
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         client: "Client",
         name: str,
         request_builder: RequestBuilder,
         parameters: ParameterList,
-        responses: List[PagingResponseType],
-        exceptions: List[Response],
+        responses: list[PagingResponseType],
+        exceptions: list[Response],
         *,
-        overloads: Optional[List[Operation]] = None,
+        overloads: Optional[list[Operation]] = None,
         override_success_response_to_200: bool = False,
     ) -> None:
         super().__init__(
@@ -59,8 +59,8 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
         self.override_success_response_to_200 = override_success_response_to_200
         self.pager_sync: str = yaml_data.get("pagerSync") or f"{self.code_model.core_library}.paging.ItemPaged"
         self.pager_async: str = yaml_data.get("pagerAsync") or f"{self.code_model.core_library}.paging.AsyncItemPaged"
-        self.continuation_token: Dict[str, Any] = yaml_data.get("continuationToken", {})
-        self.next_link_reinjected_parameters: List[Parameter] = [
+        self.continuation_token: dict[str, Any] = yaml_data.get("continuationToken", {})
+        self.next_link_reinjected_parameters: list[Parameter] = [
             Parameter.from_yaml(p, code_model) for p in yaml_data.get("nextLinkReInjectedParameters", [])
         ]
 
