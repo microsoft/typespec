@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { beforeEach, describe } from "vitest";
-import { preContrastResult, startWithCommandPalette, deleteTspConfigFile, createTspConfigFile } from "./common/common-steps";
+import { preContrastResult, startWithCommandPalette, deleteTspConfigFile } from "./common/common-steps";
 import { emiChooseEmitter, emitSelectLanguage, emitSelectType } from "./common/emit-steps";
 import { screenshot, tempDir, test } from "./common/utils";
 
@@ -27,7 +27,7 @@ const EmitCasesConfigList: EmitConfigType[] = [
     selectType: "Client Code",
     selectTypeLanguage: "Python",
     triggerType: EmitProjectTriggerType.Command,
-    hasTspConfig: false,
+    hasTspConfig: true,
     expectedResults: ["http-client-python"],
   },
   {
@@ -35,7 +35,7 @@ const EmitCasesConfigList: EmitConfigType[] = [
     selectType: "Client Code",
     selectTypeLanguage: "Python",
     triggerType: EmitProjectTriggerType.Command,
-    hasTspConfig: true,
+    hasTspConfig: false,
     expectedResults: ["http-client-python"],
   },
 ];
@@ -59,8 +59,6 @@ describe.each(EmitCasesConfigList)("EmitTypespecProject", async (item) => {
     });
     if (!hasTspConfig) {
       deleteTspConfigFile(workspacePath);
-    } else if (hasTspConfig) {
-      createTspConfigFile(workspacePath);
     }
     await startWithCommandPalette(page, "Emit from Typespec");
     if (hasTspConfig){
