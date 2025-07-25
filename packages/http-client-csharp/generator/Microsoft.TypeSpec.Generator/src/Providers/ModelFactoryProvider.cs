@@ -345,7 +345,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     if (IsNonReadOnlyMemoryList(factoryParam))
                     {
-                        expressions.Add(factoryParam.NullConditional().ToList());
+                        // non-ReadOnlyMemory lists are already initialized to a non-null value
+                        expressions.Add(factoryParam.ToList());
                     }
                     else if (IsEnumDiscriminator(ctorParam))
                     {
