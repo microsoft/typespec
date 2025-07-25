@@ -4,7 +4,7 @@ import { $ } from "@typespec/compiler/typekit";
 import { assert, describe, expect, it } from "vitest";
 
 // Activate  Http TypeKit augmentation
-import "../../../src/experimental/typekit/index.js";
+import "../../src/experimental/typekit/index.js";
 
 describe("httpOperation:getResponses", () => {
   it("should get responses", async () => {
