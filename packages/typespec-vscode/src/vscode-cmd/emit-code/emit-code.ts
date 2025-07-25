@@ -17,6 +17,7 @@ import { ResultCode } from "../../types.js";
 import {
   formatDiagnostic,
   getEntrypointTspFile,
+  loadEmitterOptions,
   TraverseMainTspFileInWorkspace,
 } from "../../typespec-utils.js";
 import {
@@ -36,6 +37,9 @@ import {
   getRegisterEmitterTypes,
   PreDefinedEmitterPickItems,
 } from "./emitter.js";
+
+const TO_BE_REPLACED_WITH_HASH = "ToBeReplacedWith#";
+const TO_BE_REPLACED_WITH_EMPTY_VALUE = "ToBeReplacedWithEmptyValue";
 
 interface EmitQuickPickButton extends QuickInputButton {
   uri: string;
@@ -391,12 +395,16 @@ async function doEmit(
       } else {
         configYaml.set("emit", [emitter.package]);
       }
-      const emitOutputDir = configYaml.getIn(["options", emitter.package, "emitter-output-dir"]);
+
+      const defaultEmitKey = "emitter-output-dir";
+      const emitOutputDir = configYaml.getIn(["options", emitter.package, defaultEmitKey]);
       if (!emitOutputDir) {
         configYaml.setIn(
-          ["options", emitter.package, "emitter-output-dir"],
+          ["options", emitter.package, defaultEmitKey],
           defaultEmitOutputDirInConfig,
         );
+
+        await generateAnnotatedYamlFile(configYaml, emitter.package, baseDir);
       } else {
         outputDir = emitOutputDir as string;
       }
@@ -413,7 +421,10 @@ async function doEmit(
         .replace("{emitter-name}", emitter.package);
       generations.push({ emitter: emitter, outputDir: outputDir, codeInfo: codeInfoStr });
     }
-    const newYamlContent = configYaml.toString();
+    let newYamlContent = configYaml.toString();
+    newYamlContent = newYamlContent
+      .replaceAll(TO_BE_REPLACED_WITH_HASH, "# ")
+      .replaceAll(TO_BE_REPLACED_WITH_EMPTY_VALUE, "");
     await writeFile(tspConfigFile, newYamlContent);
   } catch (error: any) {
     logger.error(error);
@@ -835,4 +846,84 @@ async function isCompilerSupport(client: TspLanguageClient): Promise<boolean> {
     return false;
   }
   return true;
+}
+
+function getConfigEntriesFromEmitterOptions(
+  emitterOptions: Record<string, any>,
+  configYamlContent: string,
+): Record<string, any> {
+  const configEntries: Record<string, any> = {};
+  if (!emitterOptions.properties) {
+    return configEntries;
+  }
+
+  for (const [propertyName, propertySchema] of Object.entries(emitterOptions.properties)) {
+    if (configYamlContent.includes(propertyName)) {
+      continue;
+    }
+
+    const propSchema = propertySchema as any;
+    let comment = "";
+    if (propSchema.description) {
+      comment = propSchema.description;
+    }
+    if (propSchema.type) {
+      comment += ` (Type: ${propSchema.type})`;
+    }
+    if (propSchema.enum) {
+      comment += ` (Options: ${propSchema.enum.join(", ")})`;
+    }
+
+    const defaultValue = propSchema.default ?? TO_BE_REPLACED_WITH_EMPTY_VALUE;
+
+    configEntries[propertyName] = {
+      value: defaultValue,
+      comment: comment,
+    };
+  }
+
+  return configEntries;
+}
+
+async function generateAnnotatedYamlFile(
+  configYaml: Document,
+  packageName: string,
+  baseDir: string,
+): Promise<void> {
+  try {
+    const emitterOptions = await loadEmitterOptions(baseDir, packageName);
+    if (emitterOptions === undefined) {
+      logger.debug(
+        `No emitter options schema found for package ${packageName}, skipping annotation generation`,
+      );
+      return;
+    }
+
+    const configEntries = getConfigEntriesFromEmitterOptions(emitterOptions, configYaml.toString());
+    if (Object.keys(configEntries).length === 0) {
+      logger.debug(`No configuration entries found for ${packageName}`);
+      return;
+    }
+
+    for (const [propertyName, propertyConfig] of Object.entries(configEntries)) {
+      const { value, comment } = propertyConfig as { value: any; comment: string };
+      // Use a custom key by adding 'ToBeReplacedWith#' to make it easier to later replace 'ToBeReplacedWith#' with '# ',
+      // and finally implement adding a commented property under a certain package under option.
+      const key = `${TO_BE_REPLACED_WITH_HASH}${propertyName}`;
+
+      const keyScalar = configYaml.createNode(key);
+      const valueScalar = configYaml.createNode(value);
+      const parentMap = configYaml.getIn(["options", packageName], true);
+      if (parentMap && typeof parentMap === "object" && "items" in parentMap) {
+        const newPair = configYaml.createPair(keyScalar, valueScalar);
+        (parentMap as any).items.push(newPair);
+
+        if (comment && newPair.value) {
+          newPair.value.comment = ` ${comment}`;
+        }
+      }
+    }
+  } catch (error) {
+    logger.error(`Error generating annotated yaml file content for ${packageName}:`, [error]);
+  }
 }
