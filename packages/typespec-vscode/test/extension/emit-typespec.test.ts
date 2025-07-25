@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { beforeEach, describe } from "vitest";
-import { preContrastResult, startWithCommandPalette } from "./common/common-steps";
+import { preContrastResult, startWithCommandPalette, deleteTspConfigFile, createTspConfigFile } from "./common/common-steps";
 import { emiChooseEmitter, emitSelectLanguage, emitSelectType } from "./common/emit-steps";
 import { screenshot, tempDir, test } from "./common/utils";
 
@@ -15,6 +15,7 @@ type EmitConfigType = {
   selectType: string;
   selectTypeLanguage: string;
   triggerType: EmitProjectTriggerType;
+  hasTspConfig?: boolean;
   expectedResults: string[];
 };
 
@@ -26,6 +27,15 @@ const EmitCasesConfigList: EmitConfigType[] = [
     selectType: "Client Code",
     selectTypeLanguage: "Python",
     triggerType: EmitProjectTriggerType.Command,
+    hasTspConfig: false,
+    expectedResults: ["http-client-python"],
+  },
+  {
+    caseName: "EmitTypespecProject ClientCode Python CommandPallette",
+    selectType: "Client Code",
+    selectTypeLanguage: "Python",
+    triggerType: EmitProjectTriggerType.Command,
+    hasTspConfig: true,
     expectedResults: ["http-client-python"],
   },
 ];
@@ -41,15 +51,21 @@ beforeEach(() => {
 });
 
 describe.each(EmitCasesConfigList)("EmitTypespecProject", async (item) => {
-  const { caseName, selectType, selectTypeLanguage } = item;
+  const { caseName, selectType, selectTypeLanguage, hasTspConfig } = item;
   test(caseName, async ({ launch }) => {
     const workspacePath = EmitTypespecProjectFolderPath;
     const { page, app } = await launch({
       workspacePath,
     });
-
+    if (!hasTspConfig) {
+      deleteTspConfigFile(workspacePath);
+    } else if (hasTspConfig) {
+      createTspConfigFile(workspacePath);
+    }
     await startWithCommandPalette(page, "Emit from Typespec");
-    await emiChooseEmitter(page);
+    if (hasTspConfig){
+      await emiChooseEmitter(page);
+    }
     await emitSelectType(page, selectType);
     await emitSelectLanguage(page, selectTypeLanguage, selectType);
 
