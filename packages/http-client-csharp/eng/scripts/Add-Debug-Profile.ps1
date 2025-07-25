@@ -169,7 +169,7 @@ function Build-LocalGeneratorSolution {
         return $false
     }
     
-    Write-Host "Rebuilding local generator solution to ensure fresh DLLs... 🧑‍🍳" -ForegroundColor Yellow
+    Write-Host "Rebuilding local generator solution to ensure fresh DLLs..." -ForegroundColor Yellow
     
     try {
         $result = & dotnet build $solutionPath --configuration Release 2>&1
