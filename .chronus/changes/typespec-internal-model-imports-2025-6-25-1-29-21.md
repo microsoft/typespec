@@ -5,4 +5,4 @@ packages:
   - "@typespec/http-client-python"
 ---
 
-[Python] Ensure necessary typing imports for internal models
+Ensure necessary typing imports for internal models
