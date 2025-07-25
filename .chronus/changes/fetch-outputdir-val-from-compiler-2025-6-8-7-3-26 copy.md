@@ -5,4 +5,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Adjust the content related to the `resolveCompilerOptions` function for easier use in `typespec-vscode`
+[API] `resolveCompilerOptions` now only takes a `SystemHost` instead of `CompilerHost`
