@@ -158,6 +158,34 @@ function Test-IsManagementSdk {
     return $dirName -like "*ResourceManager*"
 }
 
+# Rebuild the local generator solution to ensure fresh DLLs
+function Build-LocalGeneratorSolution {
+    param([string]$PackageRoot)
+    
+    $solutionPath = Join-Path $PackageRoot "generator/Microsoft.TypeSpec.Generator.sln"
+    
+    if (-not (Test-Path $solutionPath)) {
+        Write-Warning "Solution file not found at: $solutionPath"
+        return $false
+    }
+    
+    Write-Host "Rebuilding local generator solution to ensure fresh DLLs..." -ForegroundColor Yellow
+    
+    try {
+        $result = & dotnet build $solutionPath --configuration Release 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warning "Build failed with exit code $LASTEXITCODE : $result"
+            return $false
+        }
+        Write-Host "Build completed successfully." -ForegroundColor Green
+        return $true
+    }
+    catch {
+        Write-Warning "Build failed: $($_.Exception.Message)"
+        return $false
+    }
+}
+
 # Copy local generator DLLs to the SDK's node_modules location
 function Copy-LocalGeneratorDlls {
     param(
@@ -170,6 +198,12 @@ function Copy-LocalGeneratorDlls {
     $sourceDir = Join-Path $packageRoot "dist/generator"
     
     $targetDir = Join-Path $SdkPath "TempTypeSpecFiles/node_modules/@azure-typespec/$PackageName/dist/generator"
+    
+    # Rebuild the solution first to ensure fresh DLLs
+    $buildSuccess = Build-LocalGeneratorSolution $packageRoot
+    if (-not $buildSuccess) {
+        Write-Warning "Build failed, but continuing with existing DLLs..."
+    }
     
     # Ensure target directory exists
     if (-not (Test-Path $targetDir)) {
