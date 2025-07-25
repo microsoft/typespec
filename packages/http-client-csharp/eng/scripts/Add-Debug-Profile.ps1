@@ -14,14 +14,14 @@
 .PARAMETER SdkDirectory
     Path to the target SDK service directory
 
-.PARAMETER Generator
-    Generator name (default: ScmCodeModelGenerator)
+.PARAMETER UseMgmt
+    Switch to use Management Client Generator instead of Azure Client Generator (default: false)
 
 .EXAMPLE
     .\Add-Debug-Profile.ps1 -SdkDirectory "C:\path\to\azure-sdk-for-net\sdk\storage\Azure.Storage.Blobs"
 
 .EXAMPLE
-    .\Add-Debug-Profile.ps1 -SdkDirectory ".\local-sdk-dir" -Generator "StubLibraryGenerator"
+    .\Add-Debug-Profile.ps1 -SdkDirectory ".\local-sdk-dir" -UseMgmt
 #>
 
 param(
@@ -29,7 +29,7 @@ param(
     [string]$SdkDirectory,
     
     [Parameter(Mandatory = $false)]
-    [string]$Generator = "AzureClientGenerator"
+    [switch]$UseMgmt
 )
 
 # Helper function to run commands and get output
@@ -160,16 +160,28 @@ function Get-ProfileName {
 function Add-DebugProfile {
     param(
         [string]$SdkPath,
-        [string]$GeneratorName
+        [bool]$UseManagement
     )
     
     $launchSettings = Get-LaunchSettings
     $profileName = Get-ProfileName $SdkPath
     $resolvedSdkPath = Resolve-Path $SdkPath
     
+    # Determine the package and generator based on UseManagement flag
+    if ($UseManagement) {
+        $packageName = "http-client-csharp-mgmt"
+        $generatorName = "ManagementClientGenerator"
+    } else {
+        $packageName = "http-client-csharp"
+        $generatorName = "AzureClientGenerator"
+    }
+    
+    # Construct the DLL path according to the new structure
+    $dllPath = "`"$resolvedSdkPath/TempTypeSpecFiles/node_modules/@azure-typespec/$packageName/dist/generator/Microsoft.TypeSpec.Generator.dll`""
+    
     # Create the new profile
     $newProfile = @{
-        commandLineArgs = "`$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.dll `"$resolvedSdkPath`" -g $GeneratorName"
+        commandLineArgs = "$dllPath `"$resolvedSdkPath`" -g $generatorName"
         commandName = "Executable"
         executablePath = "dotnet"
     }
@@ -182,7 +194,9 @@ function Add-DebugProfile {
     Write-Host "Added debug profile '$profileName' to launchSettings.json" -ForegroundColor Green
     Write-Host "Profile configuration:" -ForegroundColor Cyan
     Write-Host "  - Executable: dotnet" -ForegroundColor White
-    Write-Host "  - Arguments: `$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.dll `"$resolvedSdkPath`" -g $GeneratorName" -ForegroundColor White
+    Write-Host "  - Arguments: $dllPath `"$resolvedSdkPath`" -g $generatorName" -ForegroundColor White
+    Write-Host "  - Package: $packageName" -ForegroundColor White
+    Write-Host "  - Generator: $generatorName" -ForegroundColor White
     
     return $profileName
 }
@@ -217,7 +231,7 @@ try {
     Invoke-TspClientCommands $sdkPath
     
     # Add debug profile
-    $profileName = Add-DebugProfile $sdkPath $Generator
+    $profileName = Add-DebugProfile $sdkPath $UseMgmt.IsPresent
     
     Write-Host "`nSetup completed successfully!" -ForegroundColor Green
     Write-Host "You can now debug the '$profileName' profile in Visual Studio or VS Code." -ForegroundColor Cyan
