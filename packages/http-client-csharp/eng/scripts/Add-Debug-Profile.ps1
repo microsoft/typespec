@@ -158,6 +158,48 @@ function Test-IsManagementSdk {
     return $dirName -like "*ResourceManager*"
 }
 
+# Copy local generator DLLs to the SDK's node_modules location
+function Copy-LocalGeneratorDlls {
+    param(
+        [string]$SdkPath,
+        [string]$PackageName
+    )
+    
+    $scriptDir = Split-Path $MyInvocation.PSCommandPath -Parent
+    $packageRoot = Split-Path (Split-Path $scriptDir -Parent) -Parent
+    $sourceDir = Join-Path $packageRoot "dist/generator"
+    
+    $targetDir = Join-Path $SdkPath "TempTypeSpecFiles/node_modules/@azure-typespec/$PackageName/dist/generator"
+    
+    # Ensure target directory exists
+    if (-not (Test-Path $targetDir)) {
+        New-Item -Path $targetDir -ItemType Directory -Force | Out-Null
+    }
+    
+    # List of DLLs to copy
+    $dllsToCopy = @(
+        "Microsoft.TypeSpec.Generator.dll",
+        "Microsoft.TypeSpec.Generator.ClientModel.dll", 
+        "Microsoft.TypeSpec.Generator.Input.dll"
+    )
+    
+    Write-Host "Copying local generator DLLs to node_modules location..." -ForegroundColor Yellow
+    
+    foreach ($dll in $dllsToCopy) {
+        $sourcePath = Join-Path $sourceDir $dll
+        $targetPath = Join-Path $targetDir $dll
+        
+        if (Test-Path $sourcePath) {
+            Copy-Item $sourcePath $targetPath -Force
+            Write-Host "  Copied: $dll" -ForegroundColor Green
+        } else {
+            Write-Warning "Source DLL not found: $sourcePath"
+        }
+    }
+    
+    Write-Host "DLL copying completed." -ForegroundColor Green
+}
+
 # Add or update a debug profile in launchSettings.json
 function Add-DebugProfile {
     param(
@@ -171,19 +213,20 @@ function Add-DebugProfile {
     # Automatically determine if this is a management SDK
     $isManagementSdk = Test-IsManagementSdk $SdkPath
     
-    # Determine the generator based on auto-detected management flag
+    # Determine the package and generator based on auto-detected management flag
     if ($isManagementSdk) {
+        $packageName = "http-client-csharp-mgmt"
         $generatorName = "ManagementClientGenerator"
     } else {
+        $packageName = "http-client-csharp"
         $generatorName = "AzureClientGenerator"
     }
     
-    # Get the script location and calculate the generator path
-    $scriptDir = Split-Path $MyInvocation.PSCommandPath -Parent
-    $packageRoot = Split-Path (Split-Path $scriptDir -Parent) -Parent
+    # Copy local DLLs to the node_modules location
+    Copy-LocalGeneratorDlls $resolvedSdkPath $packageName
     
-    # Use local dist folder path (consistent with existing debug profiles)
-    $dllPath = "`"$packageRoot/dist/generator/Microsoft.TypeSpec.Generator.dll`""
+    # Use the node_modules DLL path
+    $dllPath = "`"$resolvedSdkPath/TempTypeSpecFiles/node_modules/@azure-typespec/$packageName/dist/generator/Microsoft.TypeSpec.Generator.dll`""
     
     # Create the new profile
     $newProfile = @{
@@ -202,6 +245,7 @@ function Add-DebugProfile {
     Write-Host "  - Executable: dotnet" -ForegroundColor White
     Write-Host "  - Arguments: $dllPath `"$resolvedSdkPath`" -g $generatorName" -ForegroundColor White
     Write-Host "  - Generator: $generatorName (auto-detected: management=$isManagementSdk)" -ForegroundColor White
+    Write-Host "  - Package: $packageName" -ForegroundColor White
     
     return $profileName
 }
