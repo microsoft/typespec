@@ -29,6 +29,7 @@ class OptionsDict(MutableMapping):
         "flavor": "azure",  # need to default to azure in shared code so we don't break swagger generation
         "from-typespec": False,
         "generate-sample": False,
+        "generate-setup-py": False,
         "generate-test": False,
         "head-as-boolean": True,
         "keep-version-file": False,
@@ -226,6 +227,14 @@ class ReaderAndWriter:
             Path.mkdir(self.output_folder / file_folder, parents=True)
         with open(self.output_folder / Path(filename), "w", encoding="utf-8") as fd:
             fd.write(file_content)
+
+    def remove_file(self, filename: Union[str, Path]) -> None:
+        try:
+            file_path = self.output_folder / Path(filename)
+            if file_path.is_file():
+                file_path.unlink()
+        except FileNotFoundError:
+            pass
 
     def list_file(self) -> List[str]:
         return [str(f.relative_to(self.output_folder)) for f in self.output_folder.glob("**/*") if f.is_file()]
