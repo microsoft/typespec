@@ -37,7 +37,7 @@ describe("Explicit Client Resolution", () => {
         @service(#{
           title: "Single Root Client Service",
         })
-        @client(#{name: "CustomClientName", scopeFilter: "myEmitter"})
+        @client(#{name: "CustomClientName", emitterScope: "myEmitter"})
         namespace SingleRoot {
           op getItems(): unknown[];
         }
