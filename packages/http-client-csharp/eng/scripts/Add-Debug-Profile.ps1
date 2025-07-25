@@ -14,22 +14,16 @@
 .PARAMETER SdkDirectory
     Path to the target SDK service directory
 
-.PARAMETER UseMgmt
-    Switch to use Management Client Generator instead of Azure Client Generator (default: false)
-
 .EXAMPLE
     .\Add-Debug-Profile.ps1 -SdkDirectory "C:\path\to\azure-sdk-for-net\sdk\storage\Azure.Storage.Blobs"
 
 .EXAMPLE
-    .\Add-Debug-Profile.ps1 -SdkDirectory ".\local-sdk-dir" -UseMgmt
+    .\Add-Debug-Profile.ps1 -SdkDirectory ".\local-sdk-dir"
 #>
 
 param(
     [Parameter(Mandatory = $true)]
-    [string]$SdkDirectory,
-    
-    [Parameter(Mandatory = $false)]
-    [switch]$UseMgmt
+    [string]$SdkDirectory
 )
 
 # Helper function to run commands and get output
@@ -156,19 +150,29 @@ function Get-ProfileName {
     return $dirName -replace '[^a-zA-Z0-9\-_.]', '-'
 }
 
+# Determine if management mode should be used based on SDK path
+function Test-IsManagementSdk {
+    param([string]$SdkPath)
+    
+    $dirName = Split-Path $SdkPath -Leaf
+    return $dirName -like "*ResourceManager*"
+}
+
 # Add or update a debug profile in launchSettings.json
 function Add-DebugProfile {
     param(
-        [string]$SdkPath,
-        [bool]$UseManagement
+        [string]$SdkPath
     )
     
     $launchSettings = Get-LaunchSettings
     $profileName = Get-ProfileName $SdkPath
     $resolvedSdkPath = Resolve-Path $SdkPath
     
-    # Determine the generator based on UseManagement flag
-    if ($UseManagement) {
+    # Automatically determine if this is a management SDK
+    $isManagementSdk = Test-IsManagementSdk $SdkPath
+    
+    # Determine the generator based on auto-detected management flag
+    if ($isManagementSdk) {
         $generatorName = "ManagementClientGenerator"
     } else {
         $generatorName = "AzureClientGenerator"
@@ -197,7 +201,7 @@ function Add-DebugProfile {
     Write-Host "Profile configuration:" -ForegroundColor Cyan
     Write-Host "  - Executable: dotnet" -ForegroundColor White
     Write-Host "  - Arguments: $dllPath `"$resolvedSdkPath`" -g $generatorName" -ForegroundColor White
-    Write-Host "  - Generator: $generatorName" -ForegroundColor White
+    Write-Host "  - Generator: $generatorName (auto-detected: management=$isManagementSdk)" -ForegroundColor White
     
     return $profileName
 }
@@ -232,7 +236,7 @@ try {
     Invoke-TspClientCommands $sdkPath
     
     # Add debug profile
-    $profileName = Add-DebugProfile $sdkPath $UseMgmt.IsPresent
+    $profileName = Add-DebugProfile $sdkPath
     
     Write-Host "`nSetup completed successfully!" -ForegroundColor Green
     Write-Host "You can now debug the '$profileName' profile in Visual Studio or VS Code." -ForegroundColor Cyan
