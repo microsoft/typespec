@@ -156,6 +156,70 @@ function Get-ProfileName {
     return $dirName -replace '[^a-zA-Z0-9\-_.]', '-'
 }
 
+# Copy local generator DLLs to the target node_modules location
+function Copy-LocalGeneratorDlls {
+    param(
+        [string]$SdkPath,
+        [string]$PackageName
+    )
+    
+    # Get the script location and calculate the generator path
+    $scriptDir = Split-Path $MyInvocation.PSCommandPath -Parent
+    $packageRoot = Split-Path (Split-Path $scriptDir -Parent) -Parent
+    $generatorRoot = Join-Path $packageRoot "generator"
+    
+    # Project names and their corresponding DLL names
+    $projects = @(
+        @{ ProjectPath = "Microsoft.TypeSpec.Generator\src"; DllName = "Microsoft.TypeSpec.Generator.dll" }
+        @{ ProjectPath = "Microsoft.TypeSpec.Generator.ClientModel\src"; DllName = "Microsoft.TypeSpec.Generator.ClientModel.dll" }
+        @{ ProjectPath = "Microsoft.TypeSpec.Generator.Input\src"; DllName = "Microsoft.TypeSpec.Generator.Input.dll" }
+    )
+    
+    # Define target directory in node_modules
+    $targetDir = Join-Path $SdkPath "TempTypeSpecFiles\node_modules\@azure-typespec\$PackageName\dist\generator"
+    
+    # Create target directory if it doesn't exist
+    if (-not (Test-Path $targetDir)) {
+        New-Item -Path $targetDir -ItemType Directory -Force | Out-Null
+        Write-Host "Created directory: $targetDir" -ForegroundColor Yellow
+    }
+    
+    # Try to find and copy local DLLs
+    foreach ($project in $projects) {
+        $projectDir = Join-Path $generatorRoot $project.ProjectPath
+        $dllName = $project.DllName
+        
+        # Possible locations for the DLL (in order of preference)
+        $possiblePaths = @(
+            # Standard dotnet build output paths
+            Join-Path $projectDir "bin\Debug\net8.0\$dllName"
+            Join-Path $projectDir "bin\Release\net8.0\$dllName"
+            # Custom artifacts build output paths
+            Join-Path $packageRoot "artifacts\bin\$($project.ProjectPath.Split('\')[0])\Debug\$dllName"
+            Join-Path $packageRoot "artifacts\bin\$($project.ProjectPath.Split('\')[0])\Release\$dllName"
+        )
+        
+        $dllFound = $false
+        foreach ($dllPath in $possiblePaths) {
+            if (Test-Path $dllPath) {
+                $targetPath = Join-Path $targetDir $dllName
+                Copy-Item $dllPath $targetPath -Force
+                Write-Host "Copied $dllName to node_modules (from $dllPath)" -ForegroundColor Green
+                $dllFound = $true
+                break
+            }
+        }
+        
+        if (-not $dllFound) {
+            Write-Warning "Local DLL not found: $dllName. Make sure the generator project is built."
+            Write-Warning "  Searched in:"
+            foreach ($path in $possiblePaths) {
+                Write-Warning "    $path"
+            }
+        }
+    }
+}
+
 # Add or update a debug profile in launchSettings.json
 function Add-DebugProfile {
     param(
@@ -175,6 +239,9 @@ function Add-DebugProfile {
         $packageName = "http-client-csharp"
         $generatorName = "AzureClientGenerator"
     }
+    
+    # Copy local generator DLLs to the node_modules location for debugging
+    Copy-LocalGeneratorDlls -SdkPath $resolvedSdkPath -PackageName $packageName
     
     # Construct the DLL path according to the new structure
     $dllPath = "`"$resolvedSdkPath/TempTypeSpecFiles/node_modules/@azure-typespec/$packageName/dist/generator/Microsoft.TypeSpec.Generator.dll`""
