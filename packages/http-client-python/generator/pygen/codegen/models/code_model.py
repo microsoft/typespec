@@ -474,17 +474,13 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
     def _get_relative_generation_dir(self, root_dir: Path, namespace: str) -> Path:
         if self.options.get("generation-subdir"):
           # For the main namespace, return root_dir + generation-subdir
-          if namespace == self.namespace:
+          if namespace == "" or namespace == self.namespace:
               return root_dir / self.options['generation-subdir']
           
           # For subnamespaces, extract the subnamespace part and append it to generation-subdir
           if namespace.startswith(self.namespace + "."):
               subnamespace_parts = namespace[len(self.namespace) + 1:].split(".")
               return root_dir / self.options['generation-subdir'] / Path(*subnamespace_parts)
-          
-          # If namespace doesn't start with self.namespace, fall back to namespace path
-          namespace_path = Path(*namespace.split("."))
-          return namespace_path / self.options['generation-subdir']
       
         # No generation-subdir specified, use the namespace path directly
         return Path(*namespace.split("."))

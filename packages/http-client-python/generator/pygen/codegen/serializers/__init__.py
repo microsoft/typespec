@@ -128,7 +128,7 @@ class JinjaSerializer(ReaderAndWriter):
 
                 # add packaging files in root namespace (e.g. setup.py, README.md, etc.)
                 if self.code_model.options.get("package-mode"):
-                    self._serialize_and_write_package_files(client_namespace)
+                    self._serialize_and_write_package_files()
 
                 # write apiview-properties.json
                 if self.code_model.options.get("emit-cross-language-definition-file"):
@@ -198,7 +198,7 @@ class JinjaSerializer(ReaderAndWriter):
                     general_serializer.serialize_pkgutil_init_file(),
                 )
 
-    def _serialize_and_write_package_files(self, client_namespace: str) -> None:
+    def _serialize_and_write_package_files(self) -> None:
         root_of_sdk = Path(".")
         if self.code_model.options["package-mode"] in VALID_PACKAGE_MODE:
             env = Environment(
