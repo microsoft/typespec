@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -24,6 +26,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
     /// <param name="GenericParameterConstraints">The generic parameter constraints of the method.</param>
     /// <param name="ExplicitInterface">The explicit interface of the method.</param>
     /// <param name="NonDocumentComment">The non-document comment of the method.</param>
+    [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
     public sealed class MethodSignature(string Name, FormattableString? Description, MethodSignatureModifiers Modifiers, CSharpType? ReturnType, FormattableString? ReturnDescription, IReadOnlyList<ParameterProvider> Parameters, IReadOnlyList<AttributeStatement>? Attributes = null, IReadOnlyList<CSharpType>? GenericArguments = null, IReadOnlyList<WhereExpression>? GenericParameterConstraints = null, CSharpType? ExplicitInterface = null, string? NonDocumentComment = null)
         : MethodSignatureBase(Name, Description, NonDocumentComment, Modifiers, Parameters, Attributes ?? Array.Empty<AttributeStatement>(), ReturnType)
     {
@@ -84,6 +87,11 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             {
                 return HashCode.Combine(obj.Name, obj.ReturnType);
             }
+        }
+
+        private string GetDebuggerDisplay()
+        {
+            return $"{ReturnType?.FullyQualifiedName ?? "void"} {Name}({string.Join(", ", Parameters.Select(p => $"{p.Type.FullyQualifiedName} {p.Name}"))})";
         }
     }
 }
