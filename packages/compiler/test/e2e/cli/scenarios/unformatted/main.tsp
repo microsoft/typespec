@@ -1,0 +1,4 @@
+model 
+  Foo {
+  badFormat: string;
+}
