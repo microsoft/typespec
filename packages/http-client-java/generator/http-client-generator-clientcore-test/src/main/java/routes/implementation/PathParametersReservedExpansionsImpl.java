@@ -12,6 +12,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -29,6 +30,11 @@ public final class PathParametersReservedExpansionsImpl {
     private final RoutesClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of PathParametersReservedExpansionsImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -36,6 +42,7 @@ public final class PathParametersReservedExpansionsImpl {
     PathParametersReservedExpansionsImpl(RoutesClientImpl client) {
         this.service = PathParametersReservedExpansionsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -85,7 +92,10 @@ public final class PathParametersReservedExpansionsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> templateWithResponse(String param, RequestContext requestContext) {
-        return service.template(this.client.getEndpoint(), param, requestContext);
+        return this.instrumentation.instrumentWithResponse("Routes.PathParameters.ReservedExpansion.template",
+            requestContext, updatedContext -> {
+                return service.template(this.client.getEndpoint(), param, updatedContext);
+            });
     }
 
     /**
@@ -100,6 +110,9 @@ public final class PathParametersReservedExpansionsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> annotationWithResponse(String param, RequestContext requestContext) {
-        return service.annotation(this.client.getEndpoint(), param, requestContext);
+        return this.instrumentation.instrumentWithResponse("Routes.PathParameters.ReservedExpansion.annotation",
+            requestContext, updatedContext -> {
+                return service.annotation(this.client.getEndpoint(), param, updatedContext);
+            });
     }
 }

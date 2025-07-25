@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.models.binarydata.BinaryData;
 import java.lang.reflect.InvocationTargetException;
 
@@ -31,6 +32,11 @@ public final class BasicsImpl {
     private final JsonlClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of BasicsImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -38,6 +44,7 @@ public final class BasicsImpl {
     BasicsImpl(JsonlClientImpl client) {
         this.service = BasicsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -88,8 +95,11 @@ public final class BasicsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> sendWithResponse(BinaryData body, long contentLength, RequestContext requestContext) {
-        final String contentType = "application/jsonl";
-        return service.send(this.client.getEndpoint(), contentType, body, contentLength, requestContext);
+        return this.instrumentation.instrumentWithResponse("Streaming.Jsonl.Basic.send", requestContext,
+            updatedContext -> {
+                final String contentType = "application/jsonl";
+                return service.send(this.client.getEndpoint(), contentType, body, contentLength, updatedContext);
+            });
     }
 
     /**
@@ -103,7 +113,10 @@ public final class BasicsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> receiveWithResponse(RequestContext requestContext) {
-        final String accept = "application/jsonl";
-        return service.receive(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Streaming.Jsonl.Basic.receive", requestContext,
+            updatedContext -> {
+                final String accept = "application/jsonl";
+                return service.receive(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 }

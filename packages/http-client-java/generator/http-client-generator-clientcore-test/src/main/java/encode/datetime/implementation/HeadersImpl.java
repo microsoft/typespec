@@ -12,6 +12,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.models.binarydata.BinaryData;
 import io.clientcore.core.utils.DateTimeRfc1123;
 import java.lang.reflect.InvocationTargetException;
@@ -34,6 +35,11 @@ public final class HeadersImpl {
     private final DatetimeClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of HeadersImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -41,6 +47,7 @@ public final class HeadersImpl {
     HeadersImpl(DatetimeClientImpl client) {
         this.service = HeadersService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -113,8 +120,11 @@ public final class HeadersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> defaultMethodWithResponse(OffsetDateTime value, RequestContext requestContext) {
-        DateTimeRfc1123 valueConverted = new DateTimeRfc1123(value);
-        return service.defaultMethod(this.client.getEndpoint(), valueConverted, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.Header.default", requestContext,
+            updatedContext -> {
+                DateTimeRfc1123 valueConverted = new DateTimeRfc1123(value);
+                return service.defaultMethod(this.client.getEndpoint(), valueConverted, updatedContext);
+            });
     }
 
     /**
@@ -129,7 +139,10 @@ public final class HeadersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> rfc3339WithResponse(OffsetDateTime value, RequestContext requestContext) {
-        return service.rfc3339(this.client.getEndpoint(), value, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.Header.rfc3339", requestContext,
+            updatedContext -> {
+                return service.rfc3339(this.client.getEndpoint(), value, updatedContext);
+            });
     }
 
     /**
@@ -144,8 +157,11 @@ public final class HeadersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> rfc7231WithResponse(OffsetDateTime value, RequestContext requestContext) {
-        DateTimeRfc1123 valueConverted = new DateTimeRfc1123(value);
-        return service.rfc7231(this.client.getEndpoint(), valueConverted, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.Header.rfc7231", requestContext,
+            updatedContext -> {
+                DateTimeRfc1123 valueConverted = new DateTimeRfc1123(value);
+                return service.rfc7231(this.client.getEndpoint(), valueConverted, updatedContext);
+            });
     }
 
     /**
@@ -160,8 +176,11 @@ public final class HeadersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> unixTimestampWithResponse(OffsetDateTime value, RequestContext requestContext) {
-        long valueConverted = value.toEpochSecond();
-        return service.unixTimestamp(this.client.getEndpoint(), valueConverted, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.Header.unixTimestamp", requestContext,
+            updatedContext -> {
+                long valueConverted = value.toEpochSecond();
+                return service.unixTimestamp(this.client.getEndpoint(), valueConverted, updatedContext);
+            });
     }
 
     /**
@@ -176,38 +195,41 @@ public final class HeadersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> unixTimestampArrayWithResponse(List<OffsetDateTime> value, RequestContext requestContext) {
-        String valueConverted = value.stream()
-            .map(paramItemValue -> paramItemValue.toEpochSecond())
-            .collect(Collectors.toList())
-            .stream()
-            .map(paramItemValue -> {
-                if (paramItemValue == null) {
-                    return "";
-                } else {
-                    String itemValueString = BinaryData.fromObject(paramItemValue).toString();
-                    int strLength = itemValueString.length();
-                    int startOffset = 0;
-                    while (startOffset < strLength) {
-                        if (itemValueString.charAt(startOffset) != '"') {
-                            break;
-                        }
-                        startOffset++;
-                    }
-                    if (startOffset == strLength) {
-                        return "";
-                    }
-                    int endOffset = strLength - 1;
-                    while (endOffset >= 0) {
-                        if (itemValueString.charAt(endOffset) != '"') {
-                            break;
-                        }
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.Header.unixTimestampArray", requestContext,
+            updatedContext -> {
+                String valueConverted = value.stream()
+                    .map(paramItemValue -> paramItemValue.toEpochSecond())
+                    .collect(Collectors.toList())
+                    .stream()
+                    .map(paramItemValue -> {
+                        if (paramItemValue == null) {
+                            return "";
+                        } else {
+                            String itemValueString = BinaryData.fromObject(paramItemValue).toString();
+                            int strLength = itemValueString.length();
+                            int startOffset = 0;
+                            while (startOffset < strLength) {
+                                if (itemValueString.charAt(startOffset) != '"') {
+                                    break;
+                                }
+                                startOffset++;
+                            }
+                            if (startOffset == strLength) {
+                                return "";
+                            }
+                            int endOffset = strLength - 1;
+                            while (endOffset >= 0) {
+                                if (itemValueString.charAt(endOffset) != '"') {
+                                    break;
+                                }
 
-                        endOffset--;
-                    }
-                    return itemValueString.substring(startOffset, endOffset + 1);
-                }
-            })
-            .collect(Collectors.joining(","));
-        return service.unixTimestampArray(this.client.getEndpoint(), valueConverted, requestContext);
+                                endOffset--;
+                            }
+                            return itemValueString.substring(startOffset, endOffset + 1);
+                        }
+                    })
+                    .collect(Collectors.joining(","));
+                return service.unixTimestampArray(this.client.getEndpoint(), valueConverted, updatedContext);
+            });
     }
 }

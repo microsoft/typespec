@@ -1,5 +1,17 @@
 # Change Log - @typespec/openapi3
 
+## 1.2.0
+
+### Bump dependencies
+
+- [#7674](https://github.com/microsoft/typespec/pull/7674) Upgrade dependencies
+
+### Bug Fixes
+
+- [#7750](https://github.com/microsoft/typespec/pull/7750) Prepends namespace name to array declarations in nested namespaces.
+- [#7864](https://github.com/microsoft/typespec/pull/7864) Fixed a bug that caused `model M is T[]` declarations to be renamed to `MItem` incorrectly.
+
+
 ## 1.1.0
 
 ### Features

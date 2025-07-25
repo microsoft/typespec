@@ -12,6 +12,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.models.binarydata.BinaryData;
 import java.lang.reflect.InvocationTargetException;
 
@@ -30,6 +31,11 @@ public final class SameBodiesImpl {
     private final ContentNegotiationClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of SameBodiesImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -37,6 +43,7 @@ public final class SameBodiesImpl {
     SameBodiesImpl(ContentNegotiationClientImpl client) {
         this.service = SameBodiesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -84,8 +91,11 @@ public final class SameBodiesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getAvatarAsPngWithResponse(RequestContext requestContext) {
-        final String accept = "image/png";
-        return service.getAvatarAsPng(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Payload.ContentNegotiation.SameBody.getAvatarAsPng",
+            requestContext, updatedContext -> {
+                final String accept = "image/png";
+                return service.getAvatarAsPng(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -99,7 +109,10 @@ public final class SameBodiesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getAvatarAsJpegWithResponse(RequestContext requestContext) {
-        final String accept = "image/jpeg";
-        return service.getAvatarAsJpeg(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Payload.ContentNegotiation.SameBody.getAvatarAsJpeg",
+            requestContext, updatedContext -> {
+                final String accept = "image/jpeg";
+                return service.getAvatarAsJpeg(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 }

@@ -8,6 +8,7 @@ on:
       - "packages/http-client-java/**"
       - "packages/http-client-python/**"
       - "website/**"
+      - "docs/**"
   # Allow manual triggering
   workflow_dispatch:
 
@@ -31,7 +32,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24.x # Using current LTS
+          node-version: lts/*
 
       - name: Checkout Azure/typespec-azure repo
         uses: actions/checkout@v4

@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import type.property.optional.PlainDateProperty;
 
@@ -31,6 +32,11 @@ public final class PlainDatesImpl {
     private final OptionalClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of PlainDatesImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -38,6 +44,7 @@ public final class PlainDatesImpl {
     PlainDatesImpl(OptionalClientImpl client) {
         this.service = PlainDatesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -102,8 +109,11 @@ public final class PlainDatesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<PlainDateProperty> getAllWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getAll(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.PlainDate.getAll", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.getAll(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -117,8 +127,11 @@ public final class PlainDatesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<PlainDateProperty> getDefaultWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getDefault(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.PlainDate.getDefault",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getDefault(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -133,8 +146,11 @@ public final class PlainDatesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putAllWithResponse(PlainDateProperty body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.putAll(this.client.getEndpoint(), contentType, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.PlainDate.putAll", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.putAll(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -149,7 +165,10 @@ public final class PlainDatesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putDefaultWithResponse(PlainDateProperty body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.putDefault(this.client.getEndpoint(), contentType, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Property.Optional.PlainDate.putDefault",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                return service.putDefault(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 }

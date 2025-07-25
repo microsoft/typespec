@@ -12,6 +12,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -29,6 +30,11 @@ public final class PathParametersImpl {
     private final RoutesClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of PathParametersImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -36,6 +42,7 @@ public final class PathParametersImpl {
     PathParametersImpl(RoutesClientImpl client) {
         this.service = PathParametersService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -93,7 +100,10 @@ public final class PathParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> templateOnlyWithResponse(String param, RequestContext requestContext) {
-        return service.templateOnly(this.client.getEndpoint(), param, requestContext);
+        return this.instrumentation.instrumentWithResponse("Routes.PathParameters.templateOnly", requestContext,
+            updatedContext -> {
+                return service.templateOnly(this.client.getEndpoint(), param, updatedContext);
+            });
     }
 
     /**
@@ -108,7 +118,10 @@ public final class PathParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> explicitWithResponse(String param, RequestContext requestContext) {
-        return service.explicit(this.client.getEndpoint(), param, requestContext);
+        return this.instrumentation.instrumentWithResponse("Routes.PathParameters.explicit", requestContext,
+            updatedContext -> {
+                return service.explicit(this.client.getEndpoint(), param, updatedContext);
+            });
     }
 
     /**
@@ -123,6 +136,9 @@ public final class PathParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> annotationOnlyWithResponse(String param, RequestContext requestContext) {
-        return service.annotationOnly(this.client.getEndpoint(), param, requestContext);
+        return this.instrumentation.instrumentWithResponse("Routes.PathParameters.annotationOnly", requestContext,
+            updatedContext -> {
+                return service.annotationOnly(this.client.getEndpoint(), param, updatedContext);
+            });
     }
 }

@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import type.model.empty.EmptyInput;
 import type.model.empty.EmptyInputOutput;
@@ -56,13 +57,29 @@ public final class EmptyClientImpl {
     }
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
      * Initializes an instance of EmptyClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
      */
-    public EmptyClientImpl(HttpPipeline httpPipeline, String endpoint) {
+    public EmptyClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
         this.service = EmptyClientService.getNewInstance(this.httpPipeline);
     }
@@ -122,8 +139,11 @@ public final class EmptyClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putEmptyWithResponse(EmptyInput input, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.putEmpty(this.getEndpoint(), contentType, input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Empty.putEmpty", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.putEmpty(this.getEndpoint(), contentType, input, updatedContext);
+            });
     }
 
     /**
@@ -137,8 +157,11 @@ public final class EmptyClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<EmptyOutput> getEmptyWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getEmpty(this.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Empty.getEmpty", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.getEmpty(this.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -154,8 +177,11 @@ public final class EmptyClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<EmptyInputOutput> postRoundTripEmptyWithResponse(EmptyInputOutput body,
         RequestContext requestContext) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.postRoundTripEmpty(this.getEndpoint(), contentType, accept, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Empty.postRoundTripEmpty", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.postRoundTripEmpty(this.getEndpoint(), contentType, accept, body, updatedContext);
+            });
     }
 }

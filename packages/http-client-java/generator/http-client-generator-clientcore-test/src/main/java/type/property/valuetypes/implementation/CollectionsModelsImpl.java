@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import type.property.valuetypes.CollectionsModelProperty;
 
@@ -31,6 +32,11 @@ public final class CollectionsModelsImpl {
     private final ValueTypesClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of CollectionsModelsImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -38,6 +44,7 @@ public final class CollectionsModelsImpl {
     CollectionsModelsImpl(ValueTypesClientImpl client) {
         this.service = CollectionsModelsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -86,8 +93,11 @@ public final class CollectionsModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<CollectionsModelProperty> getWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.get(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Property.ValueTypes.CollectionsModel.get",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.get(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -102,7 +112,10 @@ public final class CollectionsModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(CollectionsModelProperty body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.put(this.client.getEndpoint(), contentType, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Property.ValueTypes.CollectionsModel.put",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                return service.put(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 }

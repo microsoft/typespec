@@ -53,7 +53,11 @@ public class TypeSpecFluentPlugin extends FluentGen {
             SETTINGS_MAP.put("generate-tests", emitterOptions.getGenerateTests());
         }
         if (emitterOptions.getArm()) {
-            SETTINGS_MAP.put("fluent", "lite");
+            if (emitterOptions.getPremium()) {
+                SETTINGS_MAP.put("fluent", "premium");
+            } else {
+                SETTINGS_MAP.put("fluent", "lite");
+            }
         }
         if (emitterOptions.getPackageVersion() != null) {
             SETTINGS_MAP.put("package-version", emitterOptions.getPackageVersion());
@@ -66,8 +70,25 @@ public class TypeSpecFluentPlugin extends FluentGen {
         SETTINGS_MAP.put("uuid-as-string", true);
         SETTINGS_MAP.put("stream-style-serialization", emitterOptions.getStreamStyleSerialization());
         SETTINGS_MAP.put("use-object-for-unknown", emitterOptions.getUseObjectForUnknown());
+
+        // mgmt
         if (emitterOptions.getRenameModel() != null) {
             SETTINGS_MAP.put("rename-model", emitterOptions.getRenameModel());
+        }
+        if (emitterOptions.getAddInner() != null) {
+            SETTINGS_MAP.put("add-inner", emitterOptions.getAddInner());
+        }
+        if (emitterOptions.getRemoveInner() != null) {
+            SETTINGS_MAP.put("remove-inner", emitterOptions.getRemoveInner());
+        }
+        if (emitterOptions.getPreserveModel() != null) {
+            SETTINGS_MAP.put("preserve-model", emitterOptions.getPreserveModel());
+        }
+        if (emitterOptions.getGenerateAsyncMethods() != null) {
+            SETTINGS_MAP.put("generate-async-methods", emitterOptions.getGenerateAsyncMethods());
+        }
+        if (emitterOptions.getResourceCollectionAssociations() != null) {
+            SETTINGS_MAP.put("resource-collection-associations", emitterOptions.getResourceCollectionAssociations());
         }
 
         JavaSettingsAccessor.setHost(this);

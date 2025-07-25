@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import type.model.usage.InputOutputRecord;
 import type.model.usage.InputRecord;
@@ -56,13 +57,29 @@ public final class UsageClientImpl {
     }
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
      * Initializes an instance of UsageClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
      */
-    public UsageClientImpl(HttpPipeline httpPipeline, String endpoint) {
+    public UsageClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
         this.service = UsageClientService.getNewInstance(this.httpPipeline);
     }
@@ -122,8 +139,10 @@ public final class UsageClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> inputWithResponse(InputRecord input, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.input(this.getEndpoint(), contentType, input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Usage.input", requestContext, updatedContext -> {
+            final String contentType = "application/json";
+            return service.input(this.getEndpoint(), contentType, input, updatedContext);
+        });
     }
 
     /**
@@ -137,8 +156,11 @@ public final class UsageClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<OutputRecord> outputWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.output(this.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Usage.output", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.output(this.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -154,8 +176,11 @@ public final class UsageClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<InputOutputRecord> inputAndOutputWithResponse(InputOutputRecord body,
         RequestContext requestContext) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.inputAndOutput(this.getEndpoint(), contentType, accept, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Usage.inputAndOutput", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.inputAndOutput(this.getEndpoint(), contentType, accept, body, updatedContext);
+            });
     }
 }
