@@ -22,8 +22,8 @@
     "tsptest.naming.models.RequestParameters": "TspTest.Naming.Request.parameters.anonymous",
     "tsptest.naming.models.RequestParametersType": "TspTest.Naming.Request.parameters.type.anonymous",
     "tsptest.naming.models.RunObject": "TspTest.Naming.RunObject",
-    "tsptest.naming.models.RunObjectLastError1": "TspTest.Naming.RunObject.last_error.anonymous",
-    "tsptest.naming.models.RunObjectLastErrorCode": "TspTest.Naming.RunObject.last_error.code.anonymous",
+    "tsptest.naming.models.RunObjectLastErrorCodeRenamed": "TspTest.Naming.RunObject.last_error.code.anonymous",
+    "tsptest.naming.models.RunObjectLastErrorRenamed": "TspTest.Naming.RunObject.last_error.anonymous",
     "tsptest.naming.models.TypesModel": "TspTest.Naming.TypesModel"
   }
 }

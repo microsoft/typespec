@@ -199,6 +199,7 @@ public class TypeSpecPlugin extends Javagen {
     public TypeSpecPlugin(EmitterOptions options, boolean sdkIntegration) {
         super(new MockConnection(), "dummy", "dummy");
         this.emitterOptions = options;
+
         SETTINGS_MAP.put("namespace", options.getNamespace());
         if (!CoreUtils.isNullOrEmpty(options.getOutputDir())) {
             SETTINGS_MAP.put("output-folder", options.getOutputDir());
@@ -258,6 +259,10 @@ public class TypeSpecPlugin extends Javagen {
         if (options.getUseDefaultHttpStatusCodeToExceptionTypeMapping() != null) {
             SETTINGS_MAP.put("use-default-http-status-code-to-exception-type-mapping",
                 options.getUseDefaultHttpStatusCodeToExceptionTypeMapping());
+        }
+
+        if (options.getRenameModel() != null) {
+            SETTINGS_MAP.put("rename-model", options.getRenameModel());
         }
 
         if (options.getFlavor() != null) {
