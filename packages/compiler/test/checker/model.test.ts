@@ -15,7 +15,9 @@ import {
   expectDiagnosticEmpty,
   expectDiagnostics,
   extractCursor,
+  t,
 } from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
 describe("compiler: models", () => {
   let testHost: TestHost;
@@ -861,6 +863,34 @@ describe("compiler: models", () => {
       const { A } = (await testHost.compile("main.tsp")) as { A: Model };
       ok(isArrayModelType(testHost.program, A));
       strictEqual(A.indexer.value.kind, "Union");
+    });
+
+    // https://github.com/microsoft/typespec/issues/2826
+    describe("ensure the target model is completely resolved before spreading", () => {
+      it("declared before", async () => {
+        const { B } = await Tester.compile(t.code`
+          model ${t.model("B")} is A;
+          model A {
+            b: B;
+            prop: string;
+          }
+        
+        `);
+        expect(B.properties.has("b")).toBe(true);
+        expect(B.properties.has("prop")).toBe(true);
+      });
+
+      it("declared after", async () => {
+        const { B } = await Tester.compile(t.code`
+          model A {
+            b: B;
+            prop: string;
+          }
+          model ${t.model("B")} is A;
+        `);
+        expect(B.properties.has("b")).toBe(true);
+        expect(B.properties.has("prop")).toBe(true);
+      });
     });
 
     it("model is array cannot have properties", async () => {
