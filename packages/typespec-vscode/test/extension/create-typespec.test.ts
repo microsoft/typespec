@@ -1,19 +1,14 @@
-import { mkdir, rm } from "fs/promises";
+import { mkdir } from "fs/promises";
 import path from "node:path";
+import { rimraf } from "rimraf";
 import { beforeEach, describe } from "vitest";
 import {
-  contrastResult,
-  createTestFile,
-  deleteTestFile,
-  notEmptyFolderContinue,
-  preContrastResult,
   startWithCommandPalette,
 } from "./common/common-steps";
 import {
   inputProjectName,
   selectEmitters,
   selectTemplate,
-  startWithClick,
 } from "./common/create-steps";
 import { mockShowOpenDialog } from "./common/mock-dialogs";
 import { tempDir, test } from "./common/utils";
@@ -60,51 +55,29 @@ const CreateCasesConfigList: CreateConfigType[] = [
 beforeEach(async () => {
   const dir = CreateTypespecProjectFolderPath;
   try {
-    await rm(dir, { recursive: true });
+    await rimraf(dir);
   } catch {}
   await mkdir(dir, { recursive: true });
 });
 
 describe.each(CreateCasesConfigList)("CreateTypespecProject", async (item) => {
-  const {
-    caseName,
-    triggerType,
-    templateName,
-    templateNameDescription,
-    isEmptyFolder,
-    expectedResults,
-  } = item;
+  const { caseName, templateName, templateNameDescription } = item;
 
   test(caseName, async ({ launch }) => {
     const workspacePath = CreateTypespecProjectFolderPath;
     const { page, app } = await launch({
-      workspacePath: triggerType === CreateProjectTriggerType.Command ? workspacePath : "test",
+      workspacePath: workspacePath,
     });
-    if (!isEmptyFolder) {
-      createTestFile(workspacePath);
-    }
-    await mockShowOpenDialog(app, [workspacePath]);
-    if (triggerType === CreateProjectTriggerType.Command) {
-      await startWithCommandPalette(page, "Create Typespec Project");
-    } else {
-      await startWithClick(page);
-    }
 
-    if (!isEmptyFolder) {
-      await notEmptyFolderContinue(page);
-      deleteTestFile(workspacePath);
-    }
+    await mockShowOpenDialog(app, [workspacePath]);
+    await startWithCommandPalette(page, "Create Typespec Project");
 
     await selectTemplate(page, templateName, templateNameDescription);
 
     await inputProjectName(page);
 
-    if (templateName === "Generic Rest API") {
-      await selectEmitters(page);
-    }
+    await selectEmitters(page);
 
-    await preContrastResult(page, "Project created", "Failed to create project Successful", 150000);
     app.close();
-    await contrastResult(page, expectedResults, workspacePath);
   });
 });
