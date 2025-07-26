@@ -77,7 +77,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 new BinaryContentHelperDefinition(),
                 new PipelineRequestHeadersExtensionsDefinition(),
                 .. GetMultipartFormDataBinaryContentDefinition(),
-                ScmCodeModelGenerator.Instance.MrwContextDefinition
+                new ModelReaderWriterContextDefinition()
             ];
         }
 

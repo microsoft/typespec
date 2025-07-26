@@ -15,9 +15,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
     internal class ModelReaderWriterContextDefinition : TypeProvider
     {
-        private static readonly string _name = $"{RemovePeriods(ScmCodeModelGenerator.Instance.TypeFactory.PrimaryNamespace)}Context";
+        internal static readonly string s_name = $"{RemovePeriods(ScmCodeModelGenerator.Instance.TypeFactory.PrimaryNamespace)}Context";
 
-        protected override string BuildName() => _name;
+        protected override string BuildName() => s_name;
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 

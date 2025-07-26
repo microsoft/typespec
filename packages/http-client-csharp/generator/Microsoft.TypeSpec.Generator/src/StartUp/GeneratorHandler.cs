@@ -156,6 +156,7 @@ namespace Microsoft.TypeSpec.Generator
                         }
                     }
 
+                    CodeModelGenerator.Instance.Configure();
                     loaded = true;
                     break;
                 }
