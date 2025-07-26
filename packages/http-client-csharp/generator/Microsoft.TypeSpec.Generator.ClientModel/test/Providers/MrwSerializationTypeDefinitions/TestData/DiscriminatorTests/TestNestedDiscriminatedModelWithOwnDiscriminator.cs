@@ -96,5 +96,10 @@ namespace Sample.Models
         }
 
         string global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Tree>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
+
+        internal static global::Sample.Models.Tree DeserializeTree(global::System.Text.Json.JsonElement element)
+        {
+            return global::Sample.Models.Tree.DeserializeTree(element, global::Sample.ModelSerializationExtensions.WireOptions);
+        }
     }
 }

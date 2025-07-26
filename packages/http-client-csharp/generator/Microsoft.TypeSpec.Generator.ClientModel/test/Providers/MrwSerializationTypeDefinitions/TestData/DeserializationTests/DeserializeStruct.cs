@@ -34,5 +34,10 @@ namespace Sample.Models
             }
             return new global::Sample.Models.TestModel(stringProperty, additionalBinaryDataProperties);
         }
+
+        internal static global::Sample.Models.TestModel DeserializeTestModel(global::System.Text.Json.JsonElement element)
+        {
+            return global::Sample.Models.TestModel.DeserializeTestModel(element, global::Sample.ModelSerializationExtensions.WireOptions);
+        }
     }
 }
