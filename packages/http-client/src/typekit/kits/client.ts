@@ -17,27 +17,27 @@ import {
   resolveAuthentication,
 } from "@typespec/http";
 import "@typespec/http/experimental/typekit";
-import { InternalClient } from "../../interfaces.js";
+import { _InternalClient } from "../../interfaces.js";
 import { reportDiagnostic } from "../../lib.js";
 import { createBaseConstructor, getConstructors } from "../../utils/client-helpers.js";
 import { getStringValue } from "../../utils/helpers.js";
 import { NameKit } from "./utils.js";
 
-interface ClientKit extends NameKit<InternalClient> {
+interface ClientKit extends NameKit<_InternalClient> {
   /**
    * Get the parent of a client
    * @param type The client to get the parent of
    */
-  getParent(type: InternalClient | Namespace | Interface): InternalClient | undefined;
+  getParent(type: _InternalClient | Namespace | Interface): _InternalClient | undefined;
   /**
    * Flatten a client into a list of clients. This will include the client and all its sub clients recursively.
    * @param client The client to flatten
    */
-  flat(client: InternalClient): InternalClient[];
+  flat(client: _InternalClient): _InternalClient[];
   /**
    * Get a client from a single namespace / interface
    */
-  getClient(namespace: Namespace | Interface): InternalClient;
+  getClient(namespace: Namespace | Interface): _InternalClient;
   /**
    * Get the constructor for a client. Will return the base intersection of all possible constructors.
    *
@@ -45,40 +45,40 @@ interface ClientKit extends NameKit<InternalClient> {
    *
    * @param client The client we're getting constructors for
    */
-  getConstructor(client: InternalClient): Operation;
+  getConstructor(client: _InternalClient): Operation;
 
   /**
    * Whether the client can be initialized publicly
    */
-  isPubliclyInitializable(client: InternalClient): boolean;
+  isPubliclyInitializable(client: _InternalClient): boolean;
 
   /**
    * Return the methods on the client
    *
    * @param client the client to get the methods for
    */
-  listHttpOperations(client: InternalClient): HttpOperation[];
+  listHttpOperations(client: _InternalClient): HttpOperation[];
 
   /**
    * Get the url template of a client, given its constructor as well */
   getUrlTemplate(
-    client: InternalClient,
+    client: _InternalClient,
     constructor?: Operation,
   ): { url: string; parameters: ModelProperty[] };
   /**
    * Determines is both clients have the same constructor
    */
-  haveSameConstructor(a: InternalClient, b: InternalClient): boolean;
+  haveSameConstructor(a: _InternalClient, b: _InternalClient): boolean;
   /**
    * Resolves the authentication schemes for a client
    * @param client
    */
-  getAuth(client: InternalClient): HttpServiceAuthentication;
+  getAuth(client: _InternalClient): HttpServiceAuthentication;
   /**
    * Lists servers for a client or its closest parent's sever
    * @param client client to check for servers
    */
-  listServers(client: InternalClient): HttpServer[] | undefined;
+  listServers(client: _InternalClient): HttpServer[] | undefined;
 }
 
 interface TypekitExtension {
@@ -93,8 +93,8 @@ function getClientName(name: string): string {
   return name.endsWith("Client") ? name : `${name}Client`;
 }
 
-export const clientCache = new Map<Namespace | Interface, InternalClient>();
-export const clientOperationCache = new Map<InternalClient, HttpOperation[]>();
+export const clientCache = new Map<Namespace | Interface, _InternalClient>();
+export const clientOperationCache = new Map<_InternalClient, HttpOperation[]>();
 
 defineKit<TypekitExtension>({
   client: {
@@ -108,7 +108,7 @@ defineKit<TypekitExtension>({
     },
     flat(client) {
       const clientStack = [client];
-      const clients: InternalClient[] = [];
+      const clients: _InternalClient[] = [];
       while (clientStack.length > 0) {
         const currentClient = clientStack.pop();
         if (currentClient) {
@@ -134,7 +134,7 @@ defineKit<TypekitExtension>({
         name: getClientName(namespace.name),
         service: namespace,
         type: namespace,
-      } as InternalClient;
+      } as _InternalClient;
 
       clientCache.set(namespace, client);
       return client;
