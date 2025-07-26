@@ -1084,15 +1084,20 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             indent = "        " if builder.non_default_errors else "    "
             if builder.non_default_errors:
                 retval.append("    else:")
-            if self.code_model.options["models-mode"] == "dpg":
-                retval.append(
-                    f"{indent}error = _failsafe_deserialize({builder.default_error_deserialization},  response.json())"
-                )
-            else:
-                retval.append(
-                    f"{indent}error = self._deserialize.failsafe_deserialize({builder.default_error_deserialization}, "
-                    "pipeline_response)"
-                )
+
+            # If the default error model is internal, we add pylint suppression.
+            pylint_disable = ""
+            default_error_model = builder.default_error_model
+            if default_error_model and default_error_model.internal:
+                pylint_disable = "  # pylint: disable=protected-access"
+
+            value = "response.json()" if self.code_model.options["models-mode"] == "dpg" else "pipeline_response"
+            retval.append(
+                f"{indent}error = _failsafe_deserialize(\n"
+                f"{indent}    {builder.default_error_deserialization},  {value}{pylint_disable}\n"
+                f"{indent})"
+            )
+
         retval.append(
             "    raise HttpResponseError(response=response{}{})".format(
                 error_model,
