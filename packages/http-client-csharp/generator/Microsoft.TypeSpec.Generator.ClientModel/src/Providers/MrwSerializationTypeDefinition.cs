@@ -145,6 +145,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 BuildJsonModelCreateMethod(),
                 BuildJsonModelCreateCoreMethod(),
                 BuildDeserializationMethod(),
+                BuildJsonElementDeserializationMethod(),
                 // Add PersistableModel serialization methods
                 BuildPersistableModelWriteMethod(),
                 BuildPersistableModelWriteCoreMethod(),
@@ -457,6 +458,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
               _inputModel.DiscriminatedSubtypes.Count > 0 ? BuildDiscriminatedModelDeserializationMethodBody() : BuildDeserializationMethodBody(),
               this
             );
+        }
+
+        /// <summary>
+        /// Builds the JsonElement deserialization method for the model.
+        /// </summary>
+        internal MethodProvider BuildJsonElementDeserializationMethod()
+        {
+            var methodName = $"Deserialize{_model.Name}";
+            var signatureModifiers = MethodSignatureModifiers.Internal | MethodSignatureModifiers.Static;
+
+            // internal static T DeserializeT(JsonElement element)
+            return new MethodProvider
+            (
+              new MethodSignature(methodName, null, signatureModifiers, _model.Type, null, [_jsonElementDeserializationParam]),
+              BuildJsonElementDeserializationMethodBody(),
+              this
+            );
+        }
+
+        private MethodBodyStatement[] BuildJsonElementDeserializationMethodBody()
+        {
+            // Call the main deserialization method with default ModelReaderWriterOptions
+            return
+            [
+                Return(Static(_model.Type).Invoke($"Deserialize{_model.Name}", [_jsonElementDeserializationParam, ModelSerializationExtensionsSnippets.Wire]))
+            ];
         }
 
         private MethodBodyStatement[] BuildDiscriminatedModelDeserializationMethodBody()
