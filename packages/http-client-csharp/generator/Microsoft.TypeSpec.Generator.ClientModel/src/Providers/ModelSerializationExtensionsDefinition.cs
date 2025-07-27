@@ -49,7 +49,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 name: _jsonDocumentOptionsName,
                 initializationValue: New.Instance(typeof(JsonDocumentOptions), new Dictionary<ValueExpression, ValueExpression>
                 {
-                    [Literal("MaxDepth")] = Int(256)
+                    [Identifier("MaxDepth")] = Int(256)
                 }),
                 enclosingType: this);
         }
