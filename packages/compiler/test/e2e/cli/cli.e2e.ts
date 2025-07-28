@@ -102,6 +102,15 @@ describe("info", () => {
   });
 });
 
+describe("format", () => {
+  it("--check returns non zero exit code for unformatted files", async () => {
+    const { stderr } = await execCliFail(["format", "--check", "."], {
+      cwd: getScenarioDir("unformatted"),
+    });
+    expect(stderr).toContain(`⚠ 1 need format`);
+  });
+});
+
 describe("compile", () => {
   describe("compiling spec with warning", () => {
     it("logs warning and succeed", async () => {

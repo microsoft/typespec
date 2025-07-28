@@ -16,18 +16,18 @@ namespace Microsoft.TypeSpec.Generator
     internal class PostProcessor
     {
         private readonly string? _modelFactoryFullName;
-        private readonly string? _aspExtensionClassName;
+        private readonly IEnumerable<string>? _additionalNonRootTypeFullNames;
         private readonly HashSet<string> _typesToKeep;
         private INamedTypeSymbol? _modelFactorySymbol;
 
         public PostProcessor(
             HashSet<string> typesToKeep,
             string? modelFactoryFullName = null,
-            string? aspExtensionClassName = null)
+            IEnumerable<string>? additionalNonRootTypeFullNames = null)
         {
             _typesToKeep = typesToKeep;
             _modelFactoryFullName = modelFactoryFullName;
-            _aspExtensionClassName = aspExtensionClassName;
+            _additionalNonRootTypeFullNames = additionalNonRootTypeFullNames;
         }
 
         private record TypeSymbols(
@@ -54,10 +54,22 @@ namespace Microsoft.TypeSpec.Generator
             var documentCache = new Dictionary<Document, HashSet<INamedTypeSymbol>>();
 
             if (_modelFactoryFullName != null)
+            {
                 _modelFactorySymbol = compilation.GetTypeByMetadataName(_modelFactoryFullName);
-            INamedTypeSymbol? aspDotNetExtensionSymbol = null;
-            if (_aspExtensionClassName != null)
-                aspDotNetExtensionSymbol = compilation.GetTypeByMetadataName(_aspExtensionClassName);
+            }
+
+            var additionalNonRootTypeSymbols = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+            if (_additionalNonRootTypeFullNames != null)
+            {
+                foreach (var typeFullName in _additionalNonRootTypeFullNames)
+                {
+                    var typeSymbol = compilation.GetTypeByMetadataName(typeFullName);
+                    if (typeSymbol != null)
+                    {
+                        additionalNonRootTypeSymbols.Add(typeSymbol);
+                    }
+                }
+            }
 
             foreach (var document in project.Documents)
             {
@@ -83,8 +95,10 @@ namespace Microsoft.TypeSpec.Generator
 
                         // we do not add the model factory and aspDotNetExtension symbol to the declared symbol list so that it will never be included in any process of internalization or removal
                         if (!SymbolEqualityComparer.Default.Equals(symbol, _modelFactorySymbol)
-                            && !SymbolEqualityComparer.Default.Equals(symbol, aspDotNetExtensionSymbol))
+                            && !additionalNonRootTypeSymbols.Contains(symbol))
+                        {
                             result.Add(symbol);
+                        }
 
                         AddInList(declarationCache, symbol, typeDeclaration);
                         AddInList(documentCache, document, symbol,
@@ -469,7 +483,39 @@ namespace Microsoft.TypeSpec.Generator
 
             if (invalidAttributes.Count > 0)
             {
+                // Check if any invalid attribute has type-level XML docs in its leading trivia
+                var attributeWithDocs = invalidAttributes
+                    .OrderBy(a => a.SpanStart)
+                    .FirstOrDefault(attr => attr.GetLeadingTrivia().Any(t =>
+                        t.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia) ||
+                        t.IsKind(SyntaxKind.MultiLineDocumentationCommentTrivia)));
+
+                SyntaxTriviaList? xmlDocs = null;
+                if (attributeWithDocs != null)
+                {
+                    xmlDocs = attributeWithDocs.GetLeadingTrivia()
+                        .Where(t => t.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia) ||
+                                    t.IsKind(SyntaxKind.MultiLineDocumentationCommentTrivia))
+                        .ToSyntaxTriviaList();
+                }
+
+                // Remove all invalid attributes without keeping trivia
                 cu = cu.RemoveNodes(invalidAttributes, SyntaxRemoveOptions.KeepNoTrivia)!;
+
+                // If we found XML docs, reattach them to the type declaration
+                if (xmlDocs?.Any() == true)
+                {
+                    var typeDecl = cu.DescendantNodes()
+                        .OfType<TypeDeclarationSyntax>()
+                        .FirstOrDefault();
+
+                    if (typeDecl != null)
+                    {
+                        cu = cu.ReplaceNode(typeDecl,
+                            typeDecl.WithLeadingTrivia(xmlDocs.Value.AddRange(typeDecl.GetLeadingTrivia())));
+                    }
+                }
+
                 solution = solution.WithDocumentSyntaxRoot(documentId, cu);
             }
 
