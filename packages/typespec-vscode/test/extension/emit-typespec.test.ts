@@ -81,5 +81,4 @@ describe.each(EmitCasesConfigList)("EmitTypespecProject", async (item) => {
     }
     app.close();
   });
-
 });
