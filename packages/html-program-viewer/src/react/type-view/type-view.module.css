@@ -19,7 +19,17 @@
 .header {
   display: flex;
   align-items: center;
+  width: 100%;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
   gap: 10px;
+}
+
+.header-spacer {
+  margin-left: auto;
 }
 
 .doc {

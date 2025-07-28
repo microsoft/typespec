@@ -14,22 +14,16 @@
 .PARAMETER SdkDirectory
     Path to the target SDK service directory
 
-.PARAMETER Generator
-    Generator name (default: ScmCodeModelGenerator)
-
 .EXAMPLE
     .\Add-Debug-Profile.ps1 -SdkDirectory "C:\path\to\azure-sdk-for-net\sdk\storage\Azure.Storage.Blobs"
 
 .EXAMPLE
-    .\Add-Debug-Profile.ps1 -SdkDirectory ".\local-sdk-dir" -Generator "StubLibraryGenerator"
+    .\Add-Debug-Profile.ps1 -SdkDirectory ".\local-sdk-dir"
 #>
 
 param(
     [Parameter(Mandatory = $true)]
-    [string]$SdkDirectory,
-    
-    [Parameter(Mandatory = $false)]
-    [string]$Generator = "AzureClientGenerator"
+    [string]$SdkDirectory
 )
 
 # Helper function to run commands and get output
@@ -156,20 +150,121 @@ function Get-ProfileName {
     return $dirName -replace '[^a-zA-Z0-9\-_.]', '-'
 }
 
+# Determine if management mode should be used based on SDK path
+function Test-IsManagementSdk {
+    param([string]$SdkPath)
+    
+    $dirName = Split-Path $SdkPath -Leaf
+    return $dirName -like "*ResourceManager*"
+}
+
+# Rebuild the local generator solution to ensure fresh DLLs
+function Build-LocalGeneratorSolution {
+    param([string]$PackageRoot)
+    
+    $solutionPath = Join-Path $PackageRoot "generator/Microsoft.TypeSpec.Generator.sln"
+    
+    if (-not (Test-Path $solutionPath)) {
+        Write-Warning "Solution file not found at: $solutionPath"
+        return $false
+    }
+    
+    Write-Host "Rebuilding local generator solution to ensure fresh DLLs..." -ForegroundColor Yellow
+    
+    try {
+        $result = & dotnet build $solutionPath --configuration Release 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warning "Build failed with exit code $LASTEXITCODE : $result"
+            return $false
+        }
+        Write-Host "Build completed successfully." -ForegroundColor Green
+        return $true
+    }
+    catch {
+        Write-Warning "Build failed: $($_.Exception.Message)"
+        return $false
+    }
+}
+
+# Copy local generator DLLs to the SDK's node_modules location
+function Copy-LocalGeneratorDlls {
+    param(
+        [string]$SdkPath,
+        [string]$PackageName
+    )
+    
+    $scriptDir = Split-Path $MyInvocation.PSCommandPath -Parent
+    $packageRoot = Split-Path (Split-Path $scriptDir -Parent) -Parent
+    $sourceDir = Join-Path $packageRoot "dist/generator"
+    
+    $targetDir = Join-Path $SdkPath "TempTypeSpecFiles/node_modules/@azure-typespec/$PackageName/dist/generator"
+    
+    # Rebuild the solution first to ensure fresh DLLs
+    $buildSuccess = Build-LocalGeneratorSolution $packageRoot
+    if (-not $buildSuccess) {
+        Write-Warning "Build failed, but continuing with existing DLLs..."
+    }
+    
+    # Ensure target directory exists
+    if (-not (Test-Path $targetDir)) {
+        New-Item -Path $targetDir -ItemType Directory -Force | Out-Null
+    }
+    
+    # List of DLLs to copy
+    $dllsToCopy = @(
+        "Microsoft.TypeSpec.Generator.dll",
+        "Microsoft.TypeSpec.Generator.ClientModel.dll", 
+        "Microsoft.TypeSpec.Generator.Input.dll"
+    )
+    
+    Write-Host "Copying local generator DLLs to node_modules location..." -ForegroundColor Yellow
+    
+    foreach ($dll in $dllsToCopy) {
+        $sourcePath = Join-Path $sourceDir $dll
+        $targetPath = Join-Path $targetDir $dll
+        
+        if (Test-Path $sourcePath) {
+            Copy-Item $sourcePath $targetPath -Force
+            Write-Host "  Copied: $dll" -ForegroundColor Green
+        } else {
+            Write-Warning "Source DLL not found: $sourcePath"
+        }
+    }
+    
+    Write-Host "DLL copying completed." -ForegroundColor Green
+}
+
 # Add or update a debug profile in launchSettings.json
 function Add-DebugProfile {
     param(
-        [string]$SdkPath,
-        [string]$GeneratorName
+        [string]$SdkPath
     )
     
     $launchSettings = Get-LaunchSettings
     $profileName = Get-ProfileName $SdkPath
     $resolvedSdkPath = Resolve-Path $SdkPath
     
+    # Automatically determine if this is a management SDK
+    $isManagementSdk = Test-IsManagementSdk $SdkPath
+    
+    # Determine the package and generator based on auto-detected management flag
+    if ($isManagementSdk) {
+        $packageName = "http-client-csharp-mgmt"
+        $generatorName = "ManagementClientGenerator"
+    } else {
+        $packageName = "http-client-csharp"
+        $generatorName = "AzureClientGenerator"
+    }
+    
+    # Copy local DLLs to the node_modules location
+    Copy-LocalGeneratorDlls $resolvedSdkPath $packageName
+    
+    # Use the node_modules DLL path
+    $dllPath = "`"$resolvedSdkPath/TempTypeSpecFiles/node_modules/@azure-typespec/$packageName/dist/generator/Microsoft.TypeSpec.Generator.dll`""
+    
     # Create the new profile
     $newProfile = @{
-        commandLineArgs = "`$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.dll `"$resolvedSdkPath`" -g $GeneratorName"
+        commandLineArgs = "$dllPath `"$resolvedSdkPath`" -g $generatorName"
         commandName = "Executable"
         executablePath = "dotnet"
     }
@@ -182,7 +277,9 @@ function Add-DebugProfile {
     Write-Host "Added debug profile '$profileName' to launchSettings.json" -ForegroundColor Green
     Write-Host "Profile configuration:" -ForegroundColor Cyan
     Write-Host "  - Executable: dotnet" -ForegroundColor White
-    Write-Host "  - Arguments: `$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.dll `"$resolvedSdkPath`" -g $GeneratorName" -ForegroundColor White
+    Write-Host "  - Arguments: $dllPath `"$resolvedSdkPath`" -g $generatorName" -ForegroundColor White
+    Write-Host "  - Generator: $generatorName (auto-detected: management=$isManagementSdk)" -ForegroundColor White
+    Write-Host "  - Package: $packageName" -ForegroundColor White
     
     return $profileName
 }
@@ -217,7 +314,7 @@ try {
     Invoke-TspClientCommands $sdkPath
     
     # Add debug profile
-    $profileName = Add-DebugProfile $sdkPath $Generator
+    $profileName = Add-DebugProfile $sdkPath
     
     Write-Host "`nSetup completed successfully!" -ForegroundColor Green
     Write-Host "You can now debug the '$profileName' profile in Visual Studio or VS Code." -ForegroundColor Cyan
