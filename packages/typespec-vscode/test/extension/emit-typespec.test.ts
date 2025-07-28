@@ -20,7 +20,7 @@ type EmitConfigType = {
   selectType: string;
   selectTypeLanguage: string;
   triggerType: EmitProjectTriggerType;
-  hasTspConfig?: boolean;
+  TspConfigHasEmit?: boolean;
   expectedResults: string[];
 };
 
@@ -28,19 +28,19 @@ const EmitTypespecProjectFolderPath = path.resolve(tempDir, "EmitTypespecProject
 
 const EmitCasesConfigList: EmitConfigType[] = [
   {
-    caseName: "EmitTypespecProject ClientCode Python CommandPallette HasTspconfig",
+    caseName: "EmitTypespecProject ClientCode Python CommandPallette TspconfigHasEmit",
     selectType: "Client Code",
     selectTypeLanguage: "Python",
     triggerType: EmitProjectTriggerType.Command,
-    hasTspConfig: true,
+    TspConfigHasEmit: true,
     expectedResults: ["http-client-python"],
   },
   {
-    caseName: "EmitTypespecProject ClientCode Python CommandPallette NoTspconfig",
+    caseName: "EmitTypespecProject ClientCode Python CommandPallette TspconfigNoEmit",
     selectType: "Client Code",
     selectTypeLanguage: "Python",
     triggerType: EmitProjectTriggerType.Command,
-    hasTspConfig: false,
+    TspConfigHasEmit: false,
     expectedResults: ["http-client-python"],
   },
 ];
@@ -56,11 +56,11 @@ beforeEach(() => {
 });
 
 describe.each(EmitCasesConfigList)("EmitTypespecProject", async (item) => {
-  const { caseName, selectType, selectTypeLanguage, hasTspConfig } = item;
+  const { caseName, selectType, selectTypeLanguage, TspConfigHasEmit } = item;
   test(caseName, async ({ launch }) => {
     const workspacePath = EmitTypespecProjectFolderPath;
     let removedLines: string[] | undefined = undefined;
-    if (!hasTspConfig) {
+    if (!TspConfigHasEmit) {
       const result = readTspConfigFile(workspacePath);
       removedLines = result.removedLines;
     }
@@ -68,7 +68,7 @@ describe.each(EmitCasesConfigList)("EmitTypespecProject", async (item) => {
       workspacePath,
     });
     await startWithCommandPalette(page, "Emit from Typespec");
-    if (hasTspConfig) {
+    if (TspConfigHasEmit) {
       await emiChooseEmitter(page);
     }
 
@@ -78,7 +78,7 @@ describe.each(EmitCasesConfigList)("EmitTypespecProject", async (item) => {
     const contrastMessage = selectTypeLanguage;
     await preContrastResult(page, contrastMessage, "Failed to emit project Successful", 150000);
     await screenshot(page, "linux", "emit_result");
-    if (!hasTspConfig && removedLines !== undefined) {
+    if (!TspConfigHasEmit && removedLines !== undefined) {
       restoreTspConfigFile(workspacePath, removedLines);
     }
     app.close();

@@ -58,18 +58,6 @@ export const test = baseTest.extend<{
         ].filter((v): v is string => !!v),
       });
       const page = await app.firstWindow();
-      const userSettingsPath = path.join(tempDir, "user-data", "User", "settings.json");
-      fs.writeFileSync(
-        userSettingsPath,
-        JSON.stringify({
-          "typespec.initTemplatesUrls": [
-            {
-              name: "Azure",
-              url: "https://aka.ms/typespec/azure-init",
-            },
-          ],
-        }),
-      );
       const tracePath = join(projectRoot, "test-results", task.name, "trace.zip");
       const artifactsDir = join(tempDir, "playwright-artifacts");
       await fs.promises.mkdir(artifactsDir, { recursive: true }); // make sure the directory exists

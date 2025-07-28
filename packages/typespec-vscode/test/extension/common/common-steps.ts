@@ -1,7 +1,8 @@
+import { rm } from "fs/promises";
 import fs from "node:fs";
 import path from "node:path";
 import { Locator, Page } from "playwright";
-import { retry, screenshot } from "./utils";
+import { imagesPath, retry, screenshot } from "./utils";
 
 /**
  * Waits for the specified text to appear on the page before proceeding.
@@ -18,7 +19,26 @@ export async function preContrastResult(
 ) {
   try {
     await page.waitForSelector(`:text("${text}")`, { timeout });
-  } catch (e) {}
+  } catch (e) {
+    throw new Error(errorMessage);
+  }
+}
+
+/**
+ * Results comparison
+ * @param res List of expected files
+ * @param dir The directory to be compared needs to be converted into an absolute path using path.resolve
+ */
+export async function contrastResult(page: Page, res: string[], dir: string) {
+  let resLength = 0;
+  if (fs.existsSync(dir)) {
+    resLength = fs.readdirSync(dir).length;
+    await rm(imagesPath, { recursive: true });
+  }
+  if (resLength !== res.length) {
+    await screenshot(page, "linux", "error");
+    throw new Error("Failed to matches all files");
+  }
 }
 
 /**

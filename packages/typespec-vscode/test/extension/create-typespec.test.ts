@@ -2,7 +2,7 @@ import { mkdir } from "fs/promises";
 import path from "node:path";
 import { rimraf } from "rimraf";
 import { beforeEach, describe } from "vitest";
-import { startWithCommandPalette } from "./common/common-steps";
+import { contrastResult, startWithCommandPalette, preContrastResult } from "./common/common-steps";
 import { inputProjectName, selectEmitters, selectTemplate } from "./common/create-steps";
 import { mockShowOpenDialog } from "./common/mock-dialogs";
 import { tempDir, test } from "./common/utils";
@@ -71,7 +71,8 @@ describe.each(CreateCasesConfigList)("CreateTypespecProject", async (item) => {
     await inputProjectName(page);
 
     await selectEmitters(page);
-
+    await preContrastResult(page, "Project created", "Failed to create project Successful", 150000);
     app.close();
+    await contrastResult(page, expectedResults, workspacePath);
   });
 });
