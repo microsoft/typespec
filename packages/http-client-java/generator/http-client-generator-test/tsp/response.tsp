@@ -81,9 +81,8 @@ model OperationDetails2 {
   lroResult?: Resource;
 }
 
-@pagedResult
 model StringsList {
-  @items
+  @pageItems
   @clientName("items", "java")
   @encodedName("application/json", "items_value")
   value: string[];
@@ -94,15 +93,13 @@ model StringsList {
   next?: string;
 }
 
-@pagedResult
 model Int32sList {
-  @items
+  @pageItems
   value: int32[];
 }
 
-@pagedResult
 model DateTimesList {
-  @items
+  @pageItems
   value: utcDateTime[];
 }
 
@@ -194,12 +191,15 @@ interface ResponseOp {
   >;
 
   @route("/paged-string")
+  @list
   listStrings(): StringsList;
 
   @route("/paged-int32")
+  @list
   listIntegers(): Int32sList;
 
   // @route("/paged-datetime")
+  // @list
   // listDateTimes(): DateTimesList;
 
   @route("/json-utf8-response")
