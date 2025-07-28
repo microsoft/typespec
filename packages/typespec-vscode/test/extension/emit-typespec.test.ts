@@ -60,13 +60,13 @@ describe.each(EmitCasesConfigList)("EmitTypespecProject", async (item) => {
   test(caseName, async ({ launch }) => {
     const workspacePath = EmitTypespecProjectFolderPath;
     let removedLines: string[] | undefined = undefined;
-    const { page, app } = await launch({
-      workspacePath,
-    });
     if (!hasTspConfig) {
       const result = readTspConfigFile(workspacePath);
       removedLines = result.removedLines;
     }
+    const { page, app } = await launch({
+      workspacePath,
+    });
     await startWithCommandPalette(page, "Emit from Typespec");
     if (hasTspConfig) {
       await emiChooseEmitter(page);
