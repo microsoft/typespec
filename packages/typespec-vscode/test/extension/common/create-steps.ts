@@ -127,17 +127,3 @@ export async function inputProjectName(page: Page) {
   await screenshot(page, "linux", "input_project_name");
   await page.keyboard.press("Enter");
 }
-
-/**
- * When creating, start with click
- */
-export async function startWithClick(page: Page) {
-  const explorer_open = page.getByRole("heading", { name: "Explorer" });
-  if ((await explorer_open.count()) === 0) {
-    await page.getByLabel("Explorer (Ctrl+Shift+E) - 1").nth(2).click();
-  }
-  await screenshot(page, "linux", "start_with_click");
-  const button = page.getByRole("button", { name: "Create TypeSpec Project" });
-  await button.waitFor();
-  await button.click();
-}

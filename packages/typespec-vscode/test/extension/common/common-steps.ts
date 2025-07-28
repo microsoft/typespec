@@ -73,70 +73,27 @@ export async function startWithRightClick(page: Page, command: string) {
 }
 
 /**
- * If the current folder is not empty, sometimes a pop-up will appear
- * asking "Do you want to continue selecting the current folder as the root directory?".
- * In this method, select "yes" because selecting "no" does not make sense.
- * @param page vscode object
- */
-export async function notEmptyFolderContinue(page: Page) {
-  try {
-    await page.waitForSelector('role=option[name="No"] >> label:has-text("No")', { timeout: 5000 });
-    await page.waitForSelector('role=option >> label:has-text("Yes")', { timeout: 5000 });
-  } catch (e) {
-    throw new Error(e as string);
-  }
-  try {
-    await page.waitForSelector(`:text("YesSelected folder")`, { timeout: 5000 });
-  } catch (e) {
-    throw new Error("Failed to match the description for the non-empty folder cases");
-  }
-  await screenshot(page, "linux", "not_empty_folder_continue");
-  await page.waitForSelector('a:has-text("Yes")');
-  await page.getByRole("option", { name: /Yes/ }).locator("a").filter({ hasText: /Yes/ }).click();
-}
-
-/**
- * If the current scenario is: the folder is not empty, you need to call this method
- * @param page vscode project
+ * Tspconfig file, read and delete the first three lines
  * @param folderName The name of the folder that needs to be selected.
  */
-export function createTestFile(folderName: string) {
-  const filePath = path.join(folderName, "test.txt");
-  fs.writeFileSync(filePath, "test");
-}
-
-/**
- * Placeholder file, need to be deleted
- * @param folderName The name of the folder that needs to be selected.
- */
-export function deleteTestFile(folderName: string) {
-  const filePath = path.join(folderName, "test.txt");
-  fs.rmSync(filePath);
-}
-
-/**
- * Tspconfig file, need to be deleted when needed
- * @param folderName The name of the folder that needs to be selected.
- */
-export function deleteTspConfigFile(folderName: string) {
+export function readTspConfigFile(folderName: string) {
   const filePath = path.join(folderName, "tspconfig.yaml");
-  fs.rmSync(filePath);
+  const content = fs.readFileSync(filePath, "utf-8");
+  const lines = content.split(/\r?\n/);
+  const removedLines = lines.slice(0, 3);
+  const newLines = lines.slice(3);
+  fs.writeFileSync(filePath, newLines.join("\n"), "utf-8");
+  return { removedLines, newLines };
 }
 
 /**
- * Tspconfig file, need to be created
- * @param folderName The name of the folder that needs to be selected.
+ * Add the deleted three lines back to the beginning of the tspconfig.yaml file.
+ * @param folderName The folder name that needs to be operated on.
+ * @param lines The three lines of content (array) to be restored for @ param lines.
  */
-export function createTspConfigFile(folderName: string) {
+export function restoreTspConfigFile(folderName: string, lines: string[]) {
   const filePath = path.join(folderName, "tspconfig.yaml");
-  const file_content = `emit:
-  - "@typespec/openapi3"
-  - "@typespec/http-client-python"
-options:
-  "@typespec/openapi3":
-    emitter-output-dir: "{output-dir}/{emitter-name}"
-  "@typespec/http-client-python":
-    emitter-output-dir: "{output-dir}/{emitter-name}"
-`;
-  fs.writeFileSync(filePath, file_content);
+  const currentContent = fs.readFileSync(filePath, "utf-8");
+  const newContent = lines.join("\n") + (currentContent ? "\n" + currentContent : "");
+  fs.writeFileSync(filePath, newContent, "utf-8");
 }

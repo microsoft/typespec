@@ -2,9 +2,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { beforeEach, describe } from "vitest";
 import {
-  createTspConfigFile,
-  deleteTspConfigFile,
   preContrastResult,
+  readTspConfigFile,
+  restoreTspConfigFile,
   startWithCommandPalette,
 } from "./common/common-steps";
 import { emiChooseEmitter, emitSelectLanguage, emitSelectType } from "./common/emit-steps";
@@ -28,7 +28,7 @@ const EmitTypespecProjectFolderPath = path.resolve(tempDir, "EmitTypespecProject
 
 const EmitCasesConfigList: EmitConfigType[] = [
   {
-    caseName: "EmitTypespecProject ClientCode Python CommandPallette hastspconfig",
+    caseName: "EmitTypespecProject ClientCode Python CommandPallette HasTspconfig",
     selectType: "Client Code",
     selectTypeLanguage: "Python",
     triggerType: EmitProjectTriggerType.Command,
@@ -36,7 +36,7 @@ const EmitCasesConfigList: EmitConfigType[] = [
     expectedResults: ["http-client-python"],
   },
   {
-    caseName: "EmitTypespecProject ClientCode Python CommandPallette not hastspconfig",
+    caseName: "EmitTypespecProject ClientCode Python CommandPallette NoTspconfig",
     selectType: "Client Code",
     selectTypeLanguage: "Python",
     triggerType: EmitProjectTriggerType.Command,
@@ -59,11 +59,13 @@ describe.each(EmitCasesConfigList)("EmitTypespecProject", async (item) => {
   const { caseName, selectType, selectTypeLanguage, hasTspConfig } = item;
   test(caseName, async ({ launch }) => {
     const workspacePath = EmitTypespecProjectFolderPath;
+    let removedLines: string[] | undefined = undefined;
     const { page, app } = await launch({
       workspacePath,
     });
     if (!hasTspConfig) {
-      deleteTspConfigFile(workspacePath);
+      const result = readTspConfigFile(workspacePath);
+      removedLines = result.removedLines;
     }
     await startWithCommandPalette(page, "Emit from Typespec");
     if (hasTspConfig) {
@@ -76,8 +78,8 @@ describe.each(EmitCasesConfigList)("EmitTypespecProject", async (item) => {
     const contrastMessage = selectTypeLanguage;
     await preContrastResult(page, contrastMessage, "Failed to emit project Successful", 150000);
     await screenshot(page, "linux", "emit_result");
-    if (!hasTspConfig) {
-      createTspConfigFile(workspacePath);
+    if (!hasTspConfig && removedLines !== undefined) {
+      restoreTspConfigFile(workspacePath, removedLines);
     }
     app.close();
   });
