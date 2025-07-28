@@ -115,10 +115,28 @@ export function deleteTestFile(folderName: string) {
 }
 
 /**
- * Placeholder file, need to be deleted
+ * Tspconfig file, need to be deleted when needed
  * @param folderName The name of the folder that needs to be selected.
  */
 export function deleteTspConfigFile(folderName: string) {
   const filePath = path.join(folderName, "tspconfig.yaml");
   fs.rmSync(filePath);
+}
+
+/**
+ * Tspconfig file, need to be created
+ * @param folderName The name of the folder that needs to be selected.
+ */
+export function createTspConfigFile(folderName: string) {
+  const filePath = path.join(folderName, "tspconfig.yaml");
+  const file_content = `emit:
+  - "@typespec/openapi3"
+  - "@typespec/http-client-python"
+options:
+  "@typespec/openapi3":
+    emitter-output-dir: "{output-dir}/{emitter-name}"
+  "@typespec/http-client-python":
+    emitter-output-dir: "{output-dir}/{emitter-name}"
+`;
+  fs.writeFileSync(filePath, file_content);
 }

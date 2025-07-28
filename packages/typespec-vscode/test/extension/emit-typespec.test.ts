@@ -1,7 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
 import { beforeEach, describe } from "vitest";
-import { preContrastResult, startWithCommandPalette, deleteTspConfigFile } from "./common/common-steps";
+import {
+  createTspConfigFile,
+  deleteTspConfigFile,
+  preContrastResult,
+  startWithCommandPalette,
+} from "./common/common-steps";
 import { emiChooseEmitter, emitSelectLanguage, emitSelectType } from "./common/emit-steps";
 import { screenshot, tempDir, test } from "./common/utils";
 
@@ -61,8 +66,11 @@ describe.each(EmitCasesConfigList)("EmitTypespecProject", async (item) => {
       deleteTspConfigFile(workspacePath);
     }
     await startWithCommandPalette(page, "Emit from Typespec");
-    if (hasTspConfig){
+    if (hasTspConfig) {
       await emiChooseEmitter(page);
+    }
+    if (!hasTspConfig) {
+      createTspConfigFile(workspacePath);
     }
     await emitSelectType(page, selectType);
     await emitSelectLanguage(page, selectTypeLanguage, selectType);

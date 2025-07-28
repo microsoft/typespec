@@ -2,14 +2,8 @@ import { mkdir } from "fs/promises";
 import path from "node:path";
 import { rimraf } from "rimraf";
 import { beforeEach, describe } from "vitest";
-import {
-  startWithCommandPalette,
-} from "./common/common-steps";
-import {
-  inputProjectName,
-  selectEmitters,
-  selectTemplate,
-} from "./common/create-steps";
+import { startWithCommandPalette } from "./common/common-steps";
+import { inputProjectName, selectEmitters, selectTemplate } from "./common/create-steps";
 import { mockShowOpenDialog } from "./common/mock-dialogs";
 import { tempDir, test } from "./common/utils";
 
