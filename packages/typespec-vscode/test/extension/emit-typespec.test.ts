@@ -2,12 +2,13 @@ import fs from "node:fs";
 import path from "node:path";
 import { beforeEach, describe } from "vitest";
 import {
+  contrastResult,
   preContrastResult,
   readTspConfigFile,
   restoreTspConfigFile,
   startWithCommandPalette,
 } from "./common/common-steps";
-import { emiChooseEmitter, emitSelectLanguage, emitSelectType } from "./common/emit-steps";
+import { emiChooseEmitter, emitSelectLanguage, emitSelectType, emitInstallPackages } from "./common/emit-steps";
 import { screenshot, tempDir, test } from "./common/utils";
 
 enum EmitProjectTriggerType {
@@ -56,7 +57,7 @@ beforeEach(() => {
 });
 
 describe.each(EmitCasesConfigList)("EmitTypespecProject", async (item) => {
-  const { caseName, selectType, selectTypeLanguage, TspConfigHasEmit } = item;
+  const { caseName, selectType, selectTypeLanguage, TspConfigHasEmit, expectedResults } = item;
   test(caseName, async ({ launch }) => {
     const workspacePath = EmitTypespecProjectFolderPath;
     let removedLines: string[] | undefined = undefined;
@@ -74,7 +75,7 @@ describe.each(EmitCasesConfigList)("EmitTypespecProject", async (item) => {
 
     await emitSelectType(page, selectType);
     await emitSelectLanguage(page, selectTypeLanguage, selectType);
-
+    await emitInstallPackages(page, selectTypeLanguage, selectType);
     const contrastMessage = selectTypeLanguage;
     await preContrastResult(page, contrastMessage, "Failed to emit project Successful", 150000);
     await screenshot(page, "linux", "emit_result");
@@ -82,5 +83,7 @@ describe.each(EmitCasesConfigList)("EmitTypespecProject", async (item) => {
       restoreTspConfigFile(workspacePath, removedLines);
     }
     app.close();
+    const resultFilePath = path.resolve(workspacePath, "./tsp-output/@typespec");
+    await contrastResult(page, expectedResults, resultFilePath);
   });
 });

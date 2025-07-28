@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { beforeEach, describe } from "vitest";
 import { startWithCommandPalette } from "./common/common-steps";
-import { tempDir, test } from "./common/utils";
+import { retry, tempDir, test } from "./common/utils";
 
 export enum PreviewProjectTriggerType {
   Command = "Command",
@@ -53,6 +53,16 @@ describe.each(PreviewCasesConfigList)("PreviewAPIDocument", async (item) => {
     });
     await page.getByRole("treeitem", { name: "main.tsp" }).locator("a").click();
     await startWithCommandPalette(page, "Preview API Documentation");
+    await retry(
+      page,
+      10,
+      async () => {
+        const previewContent = page.locator("iframe").contentFrame().locator("html").first();
+        return (await previewContent.count()) > 0;
+      },
+      "Failed to compilation completed successfully",
+      3,
+    );
     app.close();
   });
 });
