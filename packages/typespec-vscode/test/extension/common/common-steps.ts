@@ -28,7 +28,6 @@ export async function preContrastResult(
  */
 export async function startWithCommandPalette(page: Page, command: string) {
   await page.waitForSelector(".explorer-viewlet");
-  await page.waitForSelector(".letterpress");
   await page.waitForSelector(".left-items");
   await page.keyboard.press("ControlOrMeta+Shift+P");
   await page.waitForSelector('input[aria-label="Type the name of a command to run."]', {
