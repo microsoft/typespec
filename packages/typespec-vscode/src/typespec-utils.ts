@@ -13,13 +13,14 @@ import { isFile, loadPackageJsonFile, spawnExecutionAndLogToOutput } from "./uti
 export async function getEntrypointTspFile(tspPath: string): Promise<string | undefined> {
   const isFilePath = await isFile(tspPath);
   let baseDir = isFilePath ? getDirectoryPath(tspPath) : tspPath;
-
-  // This takes priority over default main.tsp or package.json
   const configEntrypoints = vscode.workspace
     .getConfiguration()
     .get<string[] | null>(SettingName.CompileEntrypoint);
-  if (configEntrypoints && configEntrypoints.length > 0) {
-    while (true) {
+  let fallbackCandidate: string | undefined;
+
+  while (true) {
+    if (configEntrypoints && configEntrypoints.length > 0) {
+      // Check for client provided entrypoints (highest priority)
       for (const entrypoint of configEntrypoints) {
         const mainTspFile = path.resolve(baseDir, entrypoint);
         if (await isFile(mainTspFile)) {
@@ -27,44 +28,43 @@ export async function getEntrypointTspFile(tspPath: string): Promise<string | un
           return mainTspFile;
         }
       }
-
-      const parentDir = getDirectoryPath(baseDir);
-      if (parentDir === baseDir) {
-        break;
-      }
-      baseDir = parentDir;
     }
-  }
 
-  while (true) {
-    const pkgPath = path.resolve(baseDir, "package.json");
-    if (await isFile(pkgPath)) {
-      /* get the tspMain from package.json. */
-      try {
-        const data = await readFile(pkgPath, { encoding: "utf-8" });
-        const packageJson = JSON.parse(data);
-        const tspMain = packageJson.tspMain;
-        if (typeof tspMain === "string") {
-          const tspMainFile = path.resolve(baseDir, tspMain);
-          if (await isFile(tspMainFile)) {
-            logger.debug(`tspMain file ${tspMainFile} selected as entrypoint file.`);
-            return tspMainFile;
+    if (!fallbackCandidate) {
+      const pkgPath = path.resolve(baseDir, "package.json");
+      if (await isFile(pkgPath)) {
+        /* get the tspMain from package.json. */
+        try {
+          const data = await readFile(pkgPath, { encoding: "utf-8" });
+          const packageJson = JSON.parse(data);
+          const tspMain = packageJson.tspMain;
+          if (typeof tspMain === "string") {
+            const tspMainFile = path.resolve(baseDir, tspMain);
+            if (await isFile(tspMainFile)) {
+              logger.debug(`tspMain file ${tspMainFile} selected as entrypoint file.`);
+              return tspMainFile;
+            }
           }
+        } catch (error) {
+          logger.error(`An error occurred while reading the package.json file ${pkgPath}`, [error]);
         }
-      } catch (error) {
-        logger.error(`An error occurred while reading the package.json file ${pkgPath}`, [error]);
+      }
+
+      const mainTspFile = path.resolve(baseDir, StartFileName);
+      if (await isFile(mainTspFile)) {
+        fallbackCandidate = mainTspFile;
       }
     }
 
-    const mainTspFile = path.resolve(baseDir, StartFileName);
-    if (await isFile(mainTspFile)) {
-      return mainTspFile;
-    }
     const parentDir = getDirectoryPath(baseDir);
     if (parentDir === baseDir) {
       break;
     }
     baseDir = parentDir;
+  }
+
+  if (fallbackCandidate) {
+    return fallbackCandidate;
   }
 
   return undefined;

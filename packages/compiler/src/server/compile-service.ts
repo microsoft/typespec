@@ -331,11 +331,12 @@ export function createCompileService({
 
     let dir = getDirectoryPath(path);
     const options = { allowFileNotFound: true };
-
-    // This takes priority over default main.tsp or package.json
     const entrypoints = clientConfigsProvider?.config?.entrypoint;
-    if (entrypoints && entrypoints.length > 0) {
-      while (true) {
+    let fallbackCandidate: string | undefined;
+
+    while (true) {
+      if (entrypoints && entrypoints.length > 0) {
+        // Check for client provided entrypoints (highest priority)
         for (const entrypoint of entrypoints) {
           const candidate = joinPaths(dir, entrypoint);
           const stat = await doIO(
@@ -353,58 +354,48 @@ export function createCompileService({
             return candidate;
           }
         }
-
-        const parentDir = getDirectoryPath(dir);
-        if (parentDir === dir) {
-          break;
-        }
-        log({
-          level: "debug",
-          message: `main file not found in ${dir}, search in parent directory ${parentDir}`,
-        });
-        dir = parentDir;
       }
-    }
 
-    while (true) {
-      let mainFile = "main.tsp";
-      let pkg: any;
-      const pkgPath = joinPaths(dir, "package.json");
-      const cached = await fileSystemCache.get(pkgPath);
+      if (!fallbackCandidate) {
+        let mainFile = "main.tsp";
+        let pkg: any;
+        const pkgPath = joinPaths(dir, "package.json");
+        const cached = await fileSystemCache.get(pkgPath);
 
-      if (cached?.data) {
-        pkg = cached.data;
-      } else {
-        [pkg] = await loadFile(
-          compilerHost,
-          pkgPath,
-          JSON.parse,
+        if (cached?.data) {
+          pkg = cached.data;
+        } else {
+          [pkg] = await loadFile(
+            compilerHost,
+            pkgPath,
+            JSON.parse,
+            logMainFileSearchDiagnostic,
+            options,
+          );
+          await fileSystemCache.setData(pkgPath, pkg ?? {});
+        }
+
+        const tspMain = resolveTspMain(pkg);
+        if (typeof tspMain === "string") {
+          log({
+            level: "debug",
+            message: `tspMain resolved from package.json (${pkgPath}) as ${tspMain}`,
+          });
+          mainFile = tspMain;
+        }
+
+        const candidate = joinPaths(dir, mainFile);
+        const stat = await doIO(
+          () => compilerHost.stat(candidate),
+          candidate,
           logMainFileSearchDiagnostic,
           options,
         );
-        await fileSystemCache.setData(pkgPath, pkg ?? {});
-      }
 
-      const tspMain = resolveTspMain(pkg);
-      if (typeof tspMain === "string") {
-        log({
-          level: "debug",
-          message: `tspMain resolved from package.json (${pkgPath}) as ${tspMain}`,
-        });
-        mainFile = tspMain;
-      }
-
-      const candidate = joinPaths(dir, mainFile);
-      const stat = await doIO(
-        () => compilerHost.stat(candidate),
-        candidate,
-        logMainFileSearchDiagnostic,
-        options,
-      );
-
-      if (stat?.isFile()) {
-        log({ level: "debug", message: `main file found as ${candidate}` });
-        return candidate;
+        if (stat?.isFile()) {
+          log({ level: "debug", message: `main file found as ${candidate}` });
+          fallbackCandidate = candidate;
+        }
       }
 
       const parentDir = getDirectoryPath(dir);
@@ -416,6 +407,10 @@ export function createCompileService({
         message: `main file not found in ${dir}, search in parent directory ${parentDir}`,
       });
       dir = parentDir;
+    }
+
+    if (fallbackCandidate) {
+      return fallbackCandidate;
     }
 
     log({ level: "debug", message: `reached directory root, using ${path} as main file` });

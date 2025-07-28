@@ -5,4 +5,4 @@ packages:
   - typespec-vscode
 ---
 
-Setting up custom entrypoint file for compilation
+Allow configuring which file names to use as entrypoints
