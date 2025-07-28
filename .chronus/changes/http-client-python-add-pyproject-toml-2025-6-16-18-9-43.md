@@ -4,4 +4,4 @@ packages:
   - "@typespec/http-client-python"
 ---
 
-Adding pyproject.toml generation and optional generate-setup-py flag
+Adding pyproject.toml generation and optional keep-setup-py flag
