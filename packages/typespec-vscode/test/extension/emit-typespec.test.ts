@@ -8,7 +8,12 @@ import {
   restoreTspConfigFile,
   startWithCommandPalette,
 } from "./common/common-steps";
-import { emiChooseEmitter, emitSelectLanguage, emitSelectType, emitInstallPackages } from "./common/emit-steps";
+import {
+  emiChooseEmitter,
+  emitInstallPackages,
+  emitSelectLanguage,
+  emitSelectType,
+} from "./common/emit-steps";
 import { screenshot, tempDir, test } from "./common/utils";
 
 enum EmitProjectTriggerType {
@@ -76,7 +81,7 @@ describe.each(EmitCasesConfigList)("EmitTypespecProject", async (item) => {
     await emitSelectType(page, selectType);
     await emitSelectLanguage(page, selectTypeLanguage, selectType);
     await emitInstallPackages(page, selectTypeLanguage, selectType);
-    const contrastMessage = selectTypeLanguage;
+    const contrastMessage = selectTypeLanguage + "...Succeeded";
     await preContrastResult(page, contrastMessage, "Failed to emit project Successful", 150000);
     await screenshot(page, "linux", "emit_result");
     if (!TspConfigHasEmit && removedLines !== undefined) {

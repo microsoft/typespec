@@ -194,13 +194,12 @@ export async function emitSelectLanguage(page: Page, language: string = "", type
  **/
 export async function emitInstallPackages(page: Page, language: string = "", types: string = "") {
   try {
-    await page.waitForSelector('role=option >> label:has-text("OK")', { timeout: 5000 });
+    await page.waitForSelector('button:has-text("OK")', { timeout: 5000 });
   } catch (e) {
     throw new Error(e as string);
   }
   await screenshot(page, "linux", "emit_install_packages.png");
-  await page.waitForSelector('a:has-text("OK")');
-  await page.getByRole("option", { name: /OK/ }).locator("a").filter({ hasText: /OK/ }).click();
+  await page.getByRole("button", { name: /OK/ }).click();
 }
 
 /**

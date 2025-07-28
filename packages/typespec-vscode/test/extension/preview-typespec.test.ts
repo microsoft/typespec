@@ -53,16 +53,13 @@ describe.each(PreviewCasesConfigList)("PreviewAPIDocument", async (item) => {
     });
     await page.getByRole("treeitem", { name: "main.tsp" }).locator("a").click();
     await startWithCommandPalette(page, "Preview API Documentation");
-    await retry(
-      page,
-      10,
-      async () => {
-        const previewContent = page.locator("iframe").contentFrame().locator("html").first();
-        return (await previewContent.count()) > 0;
-      },
-      "Failed to compilation completed successfully",
-      3,
-    );
+    await page.waitForSelector("iframe", { timeout: 10000 });
+    const iframeElementHandle = await page.$("iframe");
+    const iframe = await iframeElementHandle!.contentFrame();
+    if (!iframe) {
+      throw new Error("Failed to get iframe content frame");
+    }
+    await iframe.waitForSelector("html", { timeout: 10000 });
     app.close();
   });
 });
