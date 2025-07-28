@@ -163,7 +163,7 @@ class JinjaSerializer(ReaderAndWriter):
             # _utils/py.typed/_types.py/_validation.py
             # is always put in top level namespace
             if self.code_model.is_top_namespace(client_namespace):
-                self._serialize_and_write_top_level_folder(env=env)
+                self._serialize_and_write_top_level_folder(env=env, namespace=client_namespace)
 
             # add models folder if there are models in this namespace
             if (
@@ -188,7 +188,7 @@ class JinjaSerializer(ReaderAndWriter):
                     client_namespace_type.operation_groups, env=env, namespace=client_namespace
                 )
                 if self.code_model.options["multiapi"]:
-                    self._serialize_and_write_metadata(env=env)
+                    self._serialize_and_write_metadata(env=env, namespace=client_namespace)
 
             # if there are only operations under this namespace, we need to add general __init__.py into `aio` folder
             # to make sure all generated files could be packed into .zip/.whl/.tgz package
@@ -441,7 +441,7 @@ class JinjaSerializer(ReaderAndWriter):
                 general_serializer.serialize_model_base_file(),
             )
 
-    def _serialize_and_write_top_level_folder(self, env: Environment) -> None:
+    def _serialize_and_write_top_level_folder(self, env: Environment, namespace: str) -> None:
         root_dir = self.code_model.get_root_dir()
         # write _utils folder
         self._serialize_and_write_utils_folder(env, self.code_model.namespace)
@@ -452,7 +452,11 @@ class JinjaSerializer(ReaderAndWriter):
         self._serialize_and_write_version_file(general_serializer)
 
         # write the empty py.typed file
-        self.write_file(root_dir / Path("py.typed"), "# Marker file for PEP 561.")
+        pytyped_value = "# Marker file for PEP 561."
+        # TODO: remove this when we remove legacy multiapi generation
+        if self.code_model.options["multiapi"]:
+            return self.write_file(self.code_model.get_generation_dir(namespace) / Path("py.typed"), pytyped_value)
+        self.write_file(root_dir / Path("py.typed"), pytyped_value)
 
         # write _validation.py
         if any(og for client in self.code_model.clients for og in client.operation_groups if og.need_validation):
@@ -468,9 +472,9 @@ class JinjaSerializer(ReaderAndWriter):
                 TypesSerializer(code_model=self.code_model, env=env).serialize(),
             )
 
-    def _serialize_and_write_metadata(self, env: Environment) -> None:
+    def _serialize_and_write_metadata(self, env: Environment, namespace: str) -> None:
         metadata_serializer = MetadataSerializer(self.code_model, env)
-        self.write_file(self.code_model.get_root_dir() / Path("_metadata.json"), metadata_serializer.serialize())
+        self.write_file(self.code_model.get_generation_dir(namespace) / Path("_metadata.json"), metadata_serializer.serialize())
 
     # pylint: disable=line-too-long
     @property

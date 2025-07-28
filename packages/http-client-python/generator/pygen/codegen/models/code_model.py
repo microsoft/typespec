@@ -464,7 +464,12 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
     def get_generation_dir(self, namespace: str) -> Path:
       """The directory to generate the code in. If 'generation-subdir' is specified, it will be used as a subdirectory."""
       root_dir = self.get_root_dir()
-      return self._get_relative_generation_dir(root_dir, namespace)
+      retval = self._get_relative_generation_dir(root_dir, namespace)
+      # TODO: remove when we remove legacy multiapi generation
+      if self.options["multiapi"]:
+          compensation = Path("../" * (self.namespace.count(".") + 1))
+          return compensation / retval
+      return retval
     
     def get_samples_folder_generation_dir(self, namespace: str) -> Path:
         # Same logic as get_generation_dir, but doesn't take `no-namespace-folders` into account
