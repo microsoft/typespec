@@ -23,7 +23,7 @@ if (-not $LaunchOnly) {
 
         Write-Host "Installing SampleTypeSpec plugins" -ForegroundColor Cyan
 
-        Invoke "npm install" $sampleDir
+        Invoke "npm install --force" $sampleDir
 
         Write-Host "Generating SampleTypeSpec using plugins" -ForegroundColor Cyan
 

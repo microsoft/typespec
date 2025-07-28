@@ -160,6 +160,7 @@ function* emitToJson(
         const propertyName = keywordSafe(parseCase(property.name).camelCase);
 
         let expr: string = access("input", propertyName);
+        const primitiveExpr = expr;
 
         const encoding = getEncode(ctx.program, property);
 
@@ -192,6 +193,9 @@ function* emitToJson(
           expr = transposeExpressionToJson(ctx, property.type, expr, module);
         }
 
+        if (property.optional && requiresJsonSerialization(ctx, module, property.type)) {
+          expr = `(${primitiveExpr}) !== undefined ? ${expr} : undefined`;
+        }
         yield `  ${objectLiteralProperty(encodedName)}: ${expr},`;
       }
 
@@ -393,6 +397,7 @@ function* emitFromJson(
           resolveEncodedName(ctx.program, property, "application/json") ?? property.name;
 
         let expr = access("input", encodedName);
+        const primitiveExpr = expr;
 
         const encoding = getEncode(ctx.program, property);
 
@@ -428,6 +433,10 @@ function* emitFromJson(
         }
 
         const propertyName = keywordSafe(parseCase(property.name).camelCase);
+
+        if (property.optional && requiresJsonSerialization(ctx, module, property.type)) {
+          expr = `(${primitiveExpr}) !== undefined ? ${expr} : undefined`;
+        }
 
         yield `  ${propertyName}: ${expr},`;
       }

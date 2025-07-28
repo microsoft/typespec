@@ -20,6 +20,7 @@ import io.clientcore.core.instrumentation.logging.ClientLogger;
 import java.lang.reflect.InvocationTargetException;
 import payload.pageable.Pet;
 import payload.pageable.serverdrivenpagination.implementation.LinkResponse;
+import payload.pageable.serverdrivenpagination.implementation.NestedLinkResponse;
 
 /**
  * An instance of this class provides access to all the operations defined in ServerDrivenPaginations.
@@ -77,9 +78,23 @@ public final class ServerDrivenPaginationsImpl {
         Response<LinkResponse> link(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
             RequestContext requestContext);
 
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/payload/pageable/server-driven-pagination/nested-link",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<NestedLinkResponse> nestedLink(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
+
         @HttpRequestInformation(method = HttpMethod.GET, path = "{nextLink}", expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
         Response<LinkResponse> linkNext(@PathParam(value = "nextLink", encoded = true) String nextLink,
+            @HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(method = HttpMethod.GET, path = "{nextLink}", expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<NestedLinkResponse> nestedLinkNext(@PathParam(value = "nextLink", encoded = true) String nextLink,
             @HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
             RequestContext requestContext);
     }
@@ -166,6 +181,95 @@ public final class ServerDrivenPaginationsImpl {
     }
 
     /**
+     * The nestedLink operation.
+     * 
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<Pet> nestedLinkSinglePage() {
+        return this.instrumentation.instrumentWithResponse("Payload.Pageable.ServerDrivenPagination.nestedLink",
+            RequestContext.none(), updatedContext -> {
+                final String accept = "application/json";
+                Response<NestedLinkResponse> res
+                    = service.nestedLink(this.client.getEndpoint(), accept, updatedContext);
+                return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
+                    res.getValue().getNestedItems().getPets(), null,
+                    res.getValue().getNestedNext() != null && res.getValue().getNestedNext().getNext() != null
+                        ? res.getValue().getNestedNext().getNext()
+                        : null,
+                    null, null, null);
+            });
+    }
+
+    /**
+     * The nestedLink operation.
+     * 
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<Pet> nestedLinkSinglePage(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Payload.Pageable.ServerDrivenPagination.nestedLink",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                Response<NestedLinkResponse> res
+                    = service.nestedLink(this.client.getEndpoint(), accept, updatedContext);
+                return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
+                    res.getValue().getNestedItems().getPets(), null,
+                    res.getValue().getNestedNext() != null && res.getValue().getNestedNext().getNext() != null
+                        ? res.getValue().getNestedNext().getNext()
+                        : null,
+                    null, null, null);
+            });
+    }
+
+    /**
+     * The nestedLink operation.
+     * 
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> nestedLink(RequestContext requestContext) {
+        RequestContext requestContextForNextPage = requestContext != null ? requestContext : RequestContext.none();
+        return new PagedIterable<>((pagingOptions) -> {
+            if (pagingOptions.getOffset() != null) {
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "offset")
+                    .addKeyValue("methodName", "nestedLink")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
+            }
+            if (pagingOptions.getPageSize() != null) {
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageSize")
+                    .addKeyValue("methodName", "nestedLink")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
+            }
+            if (pagingOptions.getPageIndex() != null) {
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageIndex")
+                    .addKeyValue("methodName", "nestedLink")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
+            }
+            if (pagingOptions.getContinuationToken() != null) {
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "continuationToken")
+                    .addKeyValue("methodName", "nestedLink")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
+            }
+            return nestedLinkSinglePage(requestContext);
+        }, (pagingOptions, nextLink) -> nestedLinkNextSinglePage(nextLink, requestContextForNextPage));
+    }
+
+    /**
      * Get the next page of items.
      * 
      * @param nextLink The URL to get the next list of items.
@@ -206,6 +310,57 @@ public final class ServerDrivenPaginationsImpl {
                     = service.linkNext(nextLink, this.client.getEndpoint(), accept, updatedContext);
                 return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
                     res.getValue().getPets(), null, res.getValue().getNext() != null ? res.getValue().getNext() : null,
+                    null, null, null);
+            });
+    }
+
+    /**
+     * Get the next page of items.
+     * 
+     * @param nextLink The URL to get the next list of items.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<Pet> nestedLinkNextSinglePage(String nextLink) {
+        return this.instrumentation.instrumentWithResponse("Payload.Pageable.ServerDrivenPagination.nestedLink",
+            RequestContext.none(), updatedContext -> {
+                final String accept = "application/json";
+                Response<NestedLinkResponse> res
+                    = service.nestedLinkNext(nextLink, this.client.getEndpoint(), accept, updatedContext);
+                return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
+                    res.getValue().getNestedItems().getPets(), null,
+                    res.getValue().getNestedNext() != null && res.getValue().getNestedNext().getNext() != null
+                        ? res.getValue().getNestedNext().getNext()
+                        : null,
+                    null, null, null);
+            });
+    }
+
+    /**
+     * Get the next page of items.
+     * 
+     * @param nextLink The URL to get the next list of items.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<Pet> nestedLinkNextSinglePage(String nextLink, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Payload.Pageable.ServerDrivenPagination.nestedLink",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                Response<NestedLinkResponse> res
+                    = service.nestedLinkNext(nextLink, this.client.getEndpoint(), accept, updatedContext);
+                return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
+                    res.getValue().getNestedItems().getPets(), null,
+                    res.getValue().getNestedNext() != null && res.getValue().getNestedNext().getNext() != null
+                        ? res.getValue().getNestedNext().getNext()
+                        : null,
                     null, null, null);
             });
     }
