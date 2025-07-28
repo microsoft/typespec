@@ -318,7 +318,7 @@ export function createServer(
     const SERVERLIB_PATH_ENDWITH = "/dist/src/server/serverlib.js";
     let compilerRootFolder = undefined;
     if (!curFile.endsWith(SERVERLIB_PATH_ENDWITH)) {
-      log({ level: "warning", message: `Unexpected path for serverlib found: ${curFile}` });
+      // Ignore this could be the playground or standalone cli
     } else {
       compilerRootFolder = curFile.slice(0, curFile.length - SERVERLIB_PATH_ENDWITH.length);
     }

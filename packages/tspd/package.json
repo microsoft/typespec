@@ -64,7 +64,7 @@
     "@microsoft/tsdoc-config": "^0.17.1",
     "@typespec/compiler": "workspace:^",
     "picocolors": "~1.1.1",
-    "prettier": "~3.5.3",
+    "prettier": "~3.6.2",
     "typedoc": "^0.28.1",
     "typedoc-plugin-markdown": "^4.5.2",
     "yaml": "~2.8.0",
@@ -73,7 +73,7 @@
   "devDependencies": {
     "@alloy-js/cli": "^0.18.0",
     "@alloy-js/rollup-plugin": "^0.1.0",
-    "@types/node": "~24.0.3",
+    "@types/node": "~24.1.0",
     "@types/yargs": "~17.0.33",
     "@typespec/compiler": "workspace:^",
     "@typespec/prettier-plugin-typespec": "workspace:^",
