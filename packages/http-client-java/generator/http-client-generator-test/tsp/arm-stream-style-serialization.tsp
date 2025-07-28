@@ -254,12 +254,12 @@ interface Priorities {
 interface Items {
   // op of LRO + pageable
   @get
+  @list
   list(): ListResult & ArmLroLocationHeader;
 }
 
-@pagedResult
 model ListResult {
-  @items
+  @pageItems
   items: Result[];
 
   @nextLink

@@ -239,7 +239,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual(
                 "listProp ??= new global::Sample.ChangeTrackingList<string>();\n" +
                 "dictProp ??= new global::Sample.ChangeTrackingDictionary<string, string>();\n\n" +
-                "return new global::Sample.Models.PublicModel1(stringProp, modelProp, listProp?.ToList(), dictProp, additionalBinaryDataProperties: null);\n",
+                "return new global::Sample.Models.PublicModel1(stringProp, modelProp, listProp.ToList(), dictProp, additionalBinaryDataProperties: null);\n",
                 result);
 
             body = model2BackCompatMethod!.BodyStatements;
@@ -248,7 +248,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual(
                 "listProp ??= new global::Sample.ChangeTrackingList<string>();\n" +
                 "dictProp ??= new global::Sample.ChangeTrackingDictionary<string, string>();\n\n" +
-                "return new global::Sample.Models.PublicModel2(stringProp, modelProp, listProp?.ToList(), dictProp, additionalBinaryDataProperties: null);\n",
+                "return new global::Sample.Models.PublicModel2(stringProp, modelProp, listProp.ToList(), dictProp, additionalBinaryDataProperties: null);\n",
                 result);
         }
 

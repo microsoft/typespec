@@ -35,10 +35,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             _valueField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, EnumUnderlyingType, "_value", this);
-            DeclaringTypeProvider = declaringType;
+            _declaringType = declaringType;
         }
 
         private readonly FieldProvider _valueField;
+
+        protected override TypeProvider? BuildDeclaringTypeProvider() => _declaringType;
+        private readonly TypeProvider? _declaringType;
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => _modifiers;
 
@@ -156,6 +159,27 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 Parameters: [valueParameter]);
 
             methods.Add(new(castSignature, New.Instance(Type, valueParameter), this));
+
+            // Add nullable implicit operator for string extensible enums
+            if (IsStringValueType)
+            {
+                var nullableValueParameter = new ParameterProvider("value", $"The value.", EnumUnderlyingType);
+                var nullableCastSignature = new MethodSignature(
+                    Name: string.Empty,
+                    Description: $"Converts a string to a {Type:C}",
+                    Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Implicit | MethodSignatureModifiers.Operator,
+                    ReturnType: Type.WithNullable(true),
+                    ReturnDescription: null,
+                    Parameters: [nullableValueParameter]);
+
+                // Create method body: if (value == null) return null; return new MyEnum(value);
+                var nullCheck = new TernaryConditionalExpression(
+                    nullableValueParameter.As<bool>().Equal(Null),
+                    Null,
+                    New.Instance(Type, nullableValueParameter));
+
+                methods.Add(new(nullableCastSignature, nullCheck, this));
+            }
 
             var objParameter = new ParameterProvider("obj", $"The object to compare.", typeof(object));
             var equalsSignature = new MethodSignature(

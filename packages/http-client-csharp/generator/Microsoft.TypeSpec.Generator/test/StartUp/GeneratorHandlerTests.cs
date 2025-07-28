@@ -29,6 +29,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.StartUp
             CommandLineOptions options = new() { GeneratorName = "MockGenerator" };
 
             Assert.DoesNotThrow(() => generatorHandler.SelectGenerator(options));
+
+            // Configure must be called on the selected generator
             mockGenerator.Verify(p => p.Configure(), Times.Once);
         }
 
