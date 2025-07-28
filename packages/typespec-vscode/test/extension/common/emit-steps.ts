@@ -194,7 +194,7 @@ export async function emitSelectLanguage(page: Page, language: string = "", type
  **/
 export async function emitInstallPackages(page: Page, language: string = "", types: string = "") {
   try {
-    await page.waitForSelector('button:has-text("OK")', { timeout: 5000 });
+    await page.waitForSelector('[role="button"][aria-label="OK"]');
   } catch (e) {
     throw new Error(e as string);
   }

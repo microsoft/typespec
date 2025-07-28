@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { beforeEach, describe } from "vitest";
 import { startWithCommandPalette } from "./common/common-steps";
-import { retry, tempDir, test } from "./common/utils";
+import { tempDir, test, retry } from "./common/utils";
 
 export enum PreviewProjectTriggerType {
   Command = "Command",
@@ -53,13 +53,16 @@ describe.each(PreviewCasesConfigList)("PreviewAPIDocument", async (item) => {
     });
     await page.getByRole("treeitem", { name: "main.tsp" }).locator("a").click();
     await startWithCommandPalette(page, "Preview API Documentation");
-    await page.waitForSelector("iframe", { timeout: 10000 });
-    const iframeElementHandle = await page.$("iframe");
-    const iframe = await iframeElementHandle!.contentFrame();
-    if (!iframe) {
-      throw new Error("Failed to get iframe content frame");
-    }
-    await iframe.waitForSelector("html", { timeout: 10000 });
+    await retry(
+      page,
+      10,
+      async () => {
+        const previewContent = page.locator('iframe').contentFrame().locator('iframe').contentFrame().getByRole('heading', { name: 'Widget Service 0.0.0 OAS' })
+        return (await previewContent.count()) > 0;
+      },
+      "Failed to compilation completed successfully",
+      3,
+    );
     app.close();
   });
 });
