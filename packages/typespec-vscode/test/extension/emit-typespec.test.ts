@@ -28,7 +28,7 @@ const EmitTypespecProjectFolderPath = path.resolve(tempDir, "EmitTypespecProject
 
 const EmitCasesConfigList: EmitConfigType[] = [
   {
-    caseName: "EmitTypespecProject ClientCode Python CommandPallette",
+    caseName: "EmitTypespecProject ClientCode Python CommandPallette hastspconfig",
     selectType: "Client Code",
     selectTypeLanguage: "Python",
     triggerType: EmitProjectTriggerType.Command,
@@ -36,7 +36,7 @@ const EmitCasesConfigList: EmitConfigType[] = [
     expectedResults: ["http-client-python"],
   },
   {
-    caseName: "EmitTypespecProject ClientCode Python CommandPallette",
+    caseName: "EmitTypespecProject ClientCode Python CommandPallette not hastspconfig",
     selectType: "Client Code",
     selectTypeLanguage: "Python",
     triggerType: EmitProjectTriggerType.Command,
@@ -69,16 +69,17 @@ describe.each(EmitCasesConfigList)("EmitTypespecProject", async (item) => {
     if (hasTspConfig) {
       await emiChooseEmitter(page);
     }
-    if (!hasTspConfig) {
-      createTspConfigFile(workspacePath);
-    }
+
     await emitSelectType(page, selectType);
     await emitSelectLanguage(page, selectTypeLanguage, selectType);
 
     const contrastMessage = selectTypeLanguage;
     await preContrastResult(page, contrastMessage, "Failed to emit project Successful", 150000);
     await screenshot(page, "linux", "emit_result");
-
+    if (!hasTspConfig) {
+      createTspConfigFile(workspacePath);
+    }
     app.close();
   });
+
 });
