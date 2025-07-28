@@ -101,13 +101,15 @@ class JinjaSerializer(ReaderAndWriter):
             return True
         # If the version file is already there and the version is greater than the current version, keep it.
         try:
-            serialized_version_file = self.read_file(self.code_model.get_generation_dir(self.code_model.namespace) / "_version.py")
+            serialized_version_file = self.read_file(
+                self.code_model.get_generation_dir(self.code_model.namespace) / "_version.py"
+            )
             match = re.search(r'VERSION\s*=\s*"([^"]+)"', str(serialized_version_file))
             serialized_version = match.group(1) if match else ""
         except (FileNotFoundError, IndexError):
             serialized_version = ""
         return serialized_version > self.code_model.options.get("package-version", "")
-    
+
     def serialize(self) -> None:
         env = Environment(
             loader=PackageLoader("pygen.codegen", "templates"),
@@ -413,7 +415,7 @@ class JinjaSerializer(ReaderAndWriter):
                 # sometimes we need define additional Mixin class for client in _utils.py
                 self._serialize_and_write_utils_folder(env, namespace)
 
-    def _serialize_and_write_utils_folder(self, env: Environment, namespace: str) -> None:
+    def _serialize_and_write_utils_folder(self, env: Environment, namespace: str):
         generation_dir = self.code_model.get_generation_dir(namespace)
         general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=False)
         utils_folder_path = generation_dir / Path("_utils")
@@ -474,7 +476,9 @@ class JinjaSerializer(ReaderAndWriter):
 
     def _serialize_and_write_metadata(self, env: Environment, namespace: str) -> None:
         metadata_serializer = MetadataSerializer(self.code_model, env)
-        self.write_file(self.code_model.get_generation_dir(namespace) / Path("_metadata.json"), metadata_serializer.serialize())
+        self.write_file(
+            self.code_model.get_generation_dir(namespace) / Path("_metadata.json"), metadata_serializer.serialize()
+        )
 
     # pylint: disable=line-too-long
     @property
