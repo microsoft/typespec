@@ -43,6 +43,9 @@ namespace Microsoft.TypeSpec.Generator
                 await customCodeWorkspace.GetCompilationAsync(),
                 await GeneratedCodeWorkspace.LoadBaselineContract());
 
+            // Configure must be called after the SourceInputModel is set.
+            CodeModelGenerator.Instance.Configure();
+
             GeneratedCodeWorkspace generatedCodeWorkspace = await GeneratedCodeWorkspace.Create();
 
             var output = CodeModelGenerator.Instance.OutputLibrary;

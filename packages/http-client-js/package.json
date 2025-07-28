@@ -56,7 +56,7 @@
     "@alloy-js/typescript": "^0.18.0",
     "@typespec/emitter-framework": "workspace:^",
     "@typespec/http-client": "workspace:^",
-    "prettier": "~3.5.3"
+    "prettier": "~3.6.2"
   },
   "devDependencies": {
     "@alloy-js/cli": "^0.18.0",
@@ -65,7 +65,7 @@
     "@typespec/http": "workspace:^",
     "@typespec/http-specs": "workspace:^",
     "@typespec/spector": "workspace:^",
-    "@typespec/ts-http-runtime": "0.2.3",
+    "@typespec/ts-http-runtime": "0.3.0",
     "@typespec/tspd": "workspace:^",
     "@typespec/versioning": "workspace:^",
     "@vitest/ui": "^3.1.2",

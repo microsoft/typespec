@@ -5,7 +5,7 @@ import { declarationRefkeys } from "../utils/refkey.js";
 import { EnumDeclaration } from "./enum-declaration.js";
 import { InterfaceDeclaration } from "./interface-declaration.jsx";
 import { TypeAliasDeclaration } from "./type-alias-declaration.jsx";
-import { UnionDeclaration } from "./union-declaration.jsx";
+import { UnionDeclaration } from "./union/declaration.jsx";
 
 export interface TypeDeclarationProps extends Omit<ts.TypeDeclarationProps, "name"> {
   name?: string;
