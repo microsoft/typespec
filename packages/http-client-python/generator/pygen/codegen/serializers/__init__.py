@@ -457,8 +457,9 @@ class JinjaSerializer(ReaderAndWriter):
         pytyped_value = "# Marker file for PEP 561."
         # TODO: remove this when we remove legacy multiapi generation
         if self.code_model.options["multiapi"]:
-            return self.write_file(self.code_model.get_generation_dir(namespace) / Path("py.typed"), pytyped_value)
-        self.write_file(root_dir / Path("py.typed"), pytyped_value)
+            self.write_file(self.code_model.get_generation_dir(namespace) / Path("py.typed"), pytyped_value)
+        else:
+            self.write_file(root_dir / Path("py.typed"), pytyped_value)
 
         # write _validation.py
         if any(og for client in self.code_model.clients for og in client.operation_groups if og.need_validation):
