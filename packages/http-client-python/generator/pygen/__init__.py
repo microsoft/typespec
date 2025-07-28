@@ -135,6 +135,10 @@ class OptionsDict(MutableMapping):
                 "We are working on creating a new multiapi SDK for version tolerant and it is not available yet."
             )
 
+        # If multiapi, do not generate default pyproject.toml
+        if self.get("multiapi"):
+            self["keep-setup-py"] = True
+
         if self.get("client-side-validation") and self.get("version-tolerant"):
             raise ValueError("Can not generate version tolerant with --client-side-validation. ")
 
