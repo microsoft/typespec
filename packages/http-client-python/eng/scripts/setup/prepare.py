@@ -25,7 +25,7 @@ def main():
     assert venv_preexists  # Otherwise install was not done
 
     venv_context = create_venv_with_package_manager(venv_path)
-    
+
     try:
         install_packages(["-r", f"{_ROOT_DIR}/generator/dev_requirements.txt"], venv_context)
     except FileNotFoundError as e:

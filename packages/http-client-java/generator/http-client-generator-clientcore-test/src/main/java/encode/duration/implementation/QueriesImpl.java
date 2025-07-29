@@ -12,6 +12,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.models.binarydata.BinaryData;
 import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
@@ -33,6 +34,11 @@ public final class QueriesImpl {
     private final DurationClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of QueriesImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -40,6 +46,7 @@ public final class QueriesImpl {
     QueriesImpl(DurationClientImpl client) {
         this.service = QueriesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -120,7 +127,10 @@ public final class QueriesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> defaultMethodWithResponse(Duration input, RequestContext requestContext) {
-        return service.defaultMethod(this.client.getEndpoint(), input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Query.default", requestContext,
+            updatedContext -> {
+                return service.defaultMethod(this.client.getEndpoint(), input, updatedContext);
+            });
     }
 
     /**
@@ -135,7 +145,10 @@ public final class QueriesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> iso8601WithResponse(Duration input, RequestContext requestContext) {
-        return service.iso8601(this.client.getEndpoint(), input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Query.iso8601", requestContext,
+            updatedContext -> {
+                return service.iso8601(this.client.getEndpoint(), input, updatedContext);
+            });
     }
 
     /**
@@ -150,8 +163,11 @@ public final class QueriesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> int32SecondsWithResponse(Duration input, RequestContext requestContext) {
-        long inputConverted = input.getSeconds();
-        return service.int32Seconds(this.client.getEndpoint(), inputConverted, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Query.int32Seconds", requestContext,
+            updatedContext -> {
+                long inputConverted = input.getSeconds();
+                return service.int32Seconds(this.client.getEndpoint(), inputConverted, updatedContext);
+            });
     }
 
     /**
@@ -166,8 +182,11 @@ public final class QueriesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> floatSecondsWithResponse(Duration input, RequestContext requestContext) {
-        double inputConverted = (double) input.toNanos() / 1000_000_000L;
-        return service.floatSeconds(this.client.getEndpoint(), inputConverted, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Query.floatSeconds", requestContext,
+            updatedContext -> {
+                double inputConverted = (double) input.toNanos() / 1000_000_000L;
+                return service.floatSeconds(this.client.getEndpoint(), inputConverted, updatedContext);
+            });
     }
 
     /**
@@ -182,8 +201,11 @@ public final class QueriesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> float64SecondsWithResponse(Duration input, RequestContext requestContext) {
-        double inputConverted = (double) input.toNanos() / 1000_000_000L;
-        return service.float64Seconds(this.client.getEndpoint(), inputConverted, requestContext);
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Query.float64Seconds", requestContext,
+            updatedContext -> {
+                double inputConverted = (double) input.toNanos() / 1000_000_000L;
+                return service.float64Seconds(this.client.getEndpoint(), inputConverted, updatedContext);
+            });
     }
 
     /**
@@ -198,38 +220,41 @@ public final class QueriesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> int32SecondsArrayWithResponse(List<Duration> input, RequestContext requestContext) {
-        String inputConverted = input.stream()
-            .map(paramItemValue -> paramItemValue.getSeconds())
-            .collect(Collectors.toList())
-            .stream()
-            .map(paramItemValue -> {
-                if (paramItemValue == null) {
-                    return "";
-                } else {
-                    String itemValueString = BinaryData.fromObject(paramItemValue).toString();
-                    int strLength = itemValueString.length();
-                    int startOffset = 0;
-                    while (startOffset < strLength) {
-                        if (itemValueString.charAt(startOffset) != '"') {
-                            break;
-                        }
-                        startOffset++;
-                    }
-                    if (startOffset == strLength) {
-                        return "";
-                    }
-                    int endOffset = strLength - 1;
-                    while (endOffset >= 0) {
-                        if (itemValueString.charAt(endOffset) != '"') {
-                            break;
-                        }
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Query.int32SecondsArray", requestContext,
+            updatedContext -> {
+                String inputConverted = input.stream()
+                    .map(paramItemValue -> paramItemValue.getSeconds())
+                    .collect(Collectors.toList())
+                    .stream()
+                    .map(paramItemValue -> {
+                        if (paramItemValue == null) {
+                            return "";
+                        } else {
+                            String itemValueString = BinaryData.fromObject(paramItemValue).toString();
+                            int strLength = itemValueString.length();
+                            int startOffset = 0;
+                            while (startOffset < strLength) {
+                                if (itemValueString.charAt(startOffset) != '"') {
+                                    break;
+                                }
+                                startOffset++;
+                            }
+                            if (startOffset == strLength) {
+                                return "";
+                            }
+                            int endOffset = strLength - 1;
+                            while (endOffset >= 0) {
+                                if (itemValueString.charAt(endOffset) != '"') {
+                                    break;
+                                }
 
-                        endOffset--;
-                    }
-                    return itemValueString.substring(startOffset, endOffset + 1);
-                }
-            })
-            .collect(Collectors.joining(","));
-        return service.int32SecondsArray(this.client.getEndpoint(), inputConverted, requestContext);
+                                endOffset--;
+                            }
+                            return itemValueString.substring(startOffset, endOffset + 1);
+                        }
+                    })
+                    .collect(Collectors.joining(","));
+                return service.int32SecondsArray(this.client.getEndpoint(), inputConverted, updatedContext);
+            });
     }
 }

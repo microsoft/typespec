@@ -19,3 +19,4 @@ export {
   renderReactPlayground,
 } from "./standalone.js";
 export type * from "./types.js";
+export { usePlaygroundState, type PlaygroundState } from "./use-playground-state.js";

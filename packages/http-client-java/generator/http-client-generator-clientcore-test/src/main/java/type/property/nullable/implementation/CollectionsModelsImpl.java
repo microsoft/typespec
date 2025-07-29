@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import type.property.nullable.CollectionsModelProperty;
 
@@ -31,6 +32,11 @@ public final class CollectionsModelsImpl {
     private final NullableClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of CollectionsModelsImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -38,6 +44,7 @@ public final class CollectionsModelsImpl {
     CollectionsModelsImpl(NullableClientImpl client) {
         this.service = CollectionsModelsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -104,8 +111,11 @@ public final class CollectionsModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<CollectionsModelProperty> getNonNullWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getNonNull(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.CollectionsModel.getNonNull",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getNonNull(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -119,8 +129,11 @@ public final class CollectionsModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<CollectionsModelProperty> getNullWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getNull(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.CollectionsModel.getNull",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getNull(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -135,8 +148,11 @@ public final class CollectionsModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> patchNonNullWithResponse(CollectionsModelProperty body, RequestContext requestContext) {
-        final String contentType = "application/merge-patch+json";
-        return service.patchNonNull(this.client.getEndpoint(), contentType, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.CollectionsModel.patchNonNull",
+            requestContext, updatedContext -> {
+                final String contentType = "application/merge-patch+json";
+                return service.patchNonNull(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -151,7 +167,10 @@ public final class CollectionsModelsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> patchNullWithResponse(CollectionsModelProperty body, RequestContext requestContext) {
-        final String contentType = "application/merge-patch+json";
-        return service.patchNull(this.client.getEndpoint(), contentType, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.CollectionsModel.patchNull",
+            requestContext, updatedContext -> {
+                final String contentType = "application/merge-patch+json";
+                return service.patchNull(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 }

@@ -34,7 +34,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             }
             else
             {
-                using var scope = writer.Scope();
+                using var scope = writer.ScopeRaw(newLine: false);
                 WriteItem(writer, iterator.Current);
                 while (iterator.MoveNext())
                 {

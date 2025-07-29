@@ -97,7 +97,7 @@ _always_reserved = [
     "int",
 ]
 
-RESERVED_MODEL_PROPERTIES = [
+RESERVED_TSP_MODEL_PROPERTIES = [
     "keys",
     "items",
     "values",
@@ -109,6 +109,8 @@ RESERVED_MODEL_PROPERTIES = [
     "get",
     "copy",
     "as_dict",
+    # following are reserved special words for TSP models
+    "datetime",
 ]
 
 RESERVED_WORDS = {
@@ -187,7 +189,7 @@ RESERVED_WORDS = {
 
 TSP_RESERVED_WORDS = {
     PadType.PARAMETER: ["stream"],
-    PadType.PROPERTY: RESERVED_MODEL_PROPERTIES,
+    PadType.PROPERTY: RESERVED_TSP_MODEL_PROPERTIES,
 }
 
 REDEFINED_BUILTINS = [  # we don't pad, but we need to do lint ignores

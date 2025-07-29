@@ -27,7 +27,7 @@
     {% endif %}
 """
 def main():
-    client = {{ code_model.clients[0].name }}(
+    client = {{ client.name }}(
         {% for key,value in client_params.items() %}
         {{ key }}={{ value }},
         {% endfor %}

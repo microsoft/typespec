@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import type.model.inheritance.enumdiscriminator.Dog;
 import type.model.inheritance.enumdiscriminator.Snake;
@@ -55,13 +56,29 @@ public final class EnumDiscriminatorClientImpl {
     }
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
      * Initializes an instance of EnumDiscriminatorClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
      */
-    public EnumDiscriminatorClientImpl(HttpPipeline httpPipeline, String endpoint) {
+    public EnumDiscriminatorClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
         this.service = EnumDiscriminatorClientService.getNewInstance(this.httpPipeline);
     }
@@ -163,8 +180,11 @@ public final class EnumDiscriminatorClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Dog> getExtensibleModelWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getExtensibleModel(this.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.EnumDiscriminator.getExtensibleModel", requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getExtensibleModel(this.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -179,8 +199,11 @@ public final class EnumDiscriminatorClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putExtensibleModelWithResponse(Dog input, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.putExtensibleModel(this.getEndpoint(), contentType, input, requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.EnumDiscriminator.putExtensibleModel", requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                return service.putExtensibleModel(this.getEndpoint(), contentType, input, updatedContext);
+            });
     }
 
     /**
@@ -194,8 +217,12 @@ public final class EnumDiscriminatorClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Dog> getExtensibleModelMissingDiscriminatorWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getExtensibleModelMissingDiscriminator(this.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.EnumDiscriminator.getExtensibleModelMissingDiscriminator", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.getExtensibleModelMissingDiscriminator(this.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -209,8 +236,12 @@ public final class EnumDiscriminatorClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Dog> getExtensibleModelWrongDiscriminatorWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getExtensibleModelWrongDiscriminator(this.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.EnumDiscriminator.getExtensibleModelWrongDiscriminator", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.getExtensibleModelWrongDiscriminator(this.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -224,8 +255,11 @@ public final class EnumDiscriminatorClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Snake> getFixedModelWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getFixedModel(this.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.EnumDiscriminator.getFixedModel",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getFixedModel(this.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -240,8 +274,11 @@ public final class EnumDiscriminatorClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putFixedModelWithResponse(Snake input, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.putFixedModel(this.getEndpoint(), contentType, input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.EnumDiscriminator.putFixedModel",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                return service.putFixedModel(this.getEndpoint(), contentType, input, updatedContext);
+            });
     }
 
     /**
@@ -255,8 +292,12 @@ public final class EnumDiscriminatorClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Snake> getFixedModelMissingDiscriminatorWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getFixedModelMissingDiscriminator(this.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.EnumDiscriminator.getFixedModelMissingDiscriminator", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.getFixedModelMissingDiscriminator(this.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -270,7 +311,11 @@ public final class EnumDiscriminatorClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Snake> getFixedModelWrongDiscriminatorWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getFixedModelWrongDiscriminator(this.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.EnumDiscriminator.getFixedModelWrongDiscriminator", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.getFixedModelWrongDiscriminator(this.getEndpoint(), accept, updatedContext);
+            });
     }
 }

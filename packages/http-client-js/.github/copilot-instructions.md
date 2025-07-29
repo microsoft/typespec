@@ -8,13 +8,11 @@
   We are building a TypeSpec Emitter that generates JavaScript (TypeScript) HTTP clients.
 
 - **Language & Modules**
-
   - Always generate TypeScript using **ES Modules**.
   - Do **not** use `require` or `__dirname`.
   - Do **not** introduce new dependencies or frameworks without explicit approval.
 
 - **Core Stack**
-
   1. **TypeSpec Compiler & Libraries**
      - `@typespec/compiler`, `@typespec/http`, `@typespec/emitter-framework`, `@typespec/http-client`
      - Activate typekits by importing:
@@ -29,7 +27,6 @@
      - Alloy-JS syntax **resembles** React but is implemented independently. Don’t import React libraries.
 
 - **Emitter Implementation**
-
   - Implement `$onEmit` to hook into TypeSpec’s compiler. For example:
     ```ts
     export async function $onEmit(program: Program, emitterOptions: MyEmitterOptions) {
@@ -51,7 +48,6 @@
 ## 2. Test Generation Instructions
 
 - **Test Format**
-
   - Use **literate tests** in Markdown files under `test/scenarios/**/*.md`.
   - Each test file typically has:
     1. `# [TestTitle]`: High-level description of the scenario being tested.
@@ -83,7 +79,6 @@
   ```
 
 - **Implementation**
-
   - Use the `@typespec/emitter-framework` test harness to process these `.md` files and validate generated outputs.
   - Do **not** add extra test libraries (e.g., Jest, Mocha). The built-in harness is sufficient.
 
@@ -97,7 +92,6 @@
 ## 3. Code Review Instructions
 
 - **Review Criteria**
-
   - Confirm ES Module usage (no `require`).
   - Check that code remains **SOLID** and not over-engineered.
   - Ensure public functions are documented with JSDoc.
@@ -118,12 +112,10 @@
   ```
 
   Examples:
-
   - `feat(emitter): add support for generating query parameters`
   - `fix(api): handle empty model in TypeSpec`
 
 - **Scopes**
-
   - `emitter` for changes in emitter code
   - `compiler` for changes in TypeSpec compiler logic
   - `test` for changes to the literate tests
@@ -139,7 +131,6 @@
 - **Title**
   - Same format as commits: `<type>(<scope>): <description>`.
 - **Body**
-
   1. **Why** this change is needed
   2. **What** has changed
   3. **How** to test or verify (if relevant)
@@ -158,7 +149,6 @@
   - Periodically generate concise summaries of progress or changes.
   - Write or append these summaries to `.github/context/[timestamp]-context-summary.md`.
 - **No Additional Dependencies**
-
   - Implement emoji generation or summary logic with built-in JS features only.
 
   ***
@@ -166,14 +156,12 @@
   ## 7. Debugging and Troubleshooting
 
 - **TypeSpec Type System**
-
   - When investigating issues, understand that TypeSpec has a complex type system with these key concepts:
     - **Type References**: Types can reference other types (e.g., `ModelProperty` can reference another `ModelProperty`)
     - **Type Unpacking**: Many types need to be "unpacked" to get their underlying type (e.g., `HttpPart`, `ModelProperty`, etc.)
     - **Typekits**: Use `$` from `@typespec/compiler/experimental/typekit` to check type kinds (e.g., `$.modelProperty.is()`)
 
 - **Common Transformation Patterns**
-
   - Transforms like `JsonTransform` have this general flow:
     1. Check for a declared transform reference
     2. Switch on the type kind (Model, Union, ModelProperty, etc.)
@@ -181,7 +169,6 @@
     4. Generate code with property accessors
 
 - **Debugging Strategies**
-
   - **Type Inspection**: For type-related bugs, check what the actual TypeSpec type is at each step
   - **Transform Chain**: Follow the transformation chain from root component to leaf components
   - **Recursive Handling**: Pay special attention to places where types are handled recursively

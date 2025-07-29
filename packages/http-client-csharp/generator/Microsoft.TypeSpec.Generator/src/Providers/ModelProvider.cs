@@ -123,7 +123,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace :
             CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(_inputModel.Namespace);
 
-        protected override CSharpType? GetBaseType()
+        protected override CSharpType? BuildBaseType()
         {
             return BaseModelProvider?.Type;
         }

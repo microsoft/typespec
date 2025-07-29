@@ -26,16 +26,18 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 reader.Read();
             }
-            IReadOnlyList<string>? scopes = null;
+            IReadOnlyList<InputOAuth2Flow>? flows = null;
+
             while (reader.TokenType != JsonTokenType.EndObject)
             {
-                var isKnownProperty = reader.TryReadComplexType("scopes", options, ref scopes);
+                var isKnownProperty = reader.TryReadComplexType("flows", options, ref flows);
+
                 if (!isKnownProperty)
                 {
                     reader.SkipProperty();
                 }
             }
-            var result = new InputOAuth2Auth(scopes ?? []);
+            var result = new InputOAuth2Auth(flows ?? []);
 
             return result;
         }

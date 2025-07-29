@@ -12,6 +12,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,11 @@ public final class PathParametersMatrixExpansionExplodesImpl {
     private final RoutesClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of PathParametersMatrixExpansionExplodesImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -40,6 +46,7 @@ public final class PathParametersMatrixExpansionExplodesImpl {
     PathParametersMatrixExpansionExplodesImpl(RoutesClientImpl client) {
         this.service = PathParametersMatrixExpansionExplodesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -99,7 +106,10 @@ public final class PathParametersMatrixExpansionExplodesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> primitiveWithResponse(String param, RequestContext requestContext) {
-        return service.primitive(this.client.getEndpoint(), param, requestContext);
+        return this.instrumentation.instrumentWithResponse("Routes.PathParameters.MatrixExpansion.Explode.primitive",
+            requestContext, updatedContext -> {
+                return service.primitive(this.client.getEndpoint(), param, updatedContext);
+            });
     }
 
     /**
@@ -114,10 +124,13 @@ public final class PathParametersMatrixExpansionExplodesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> arrayWithResponse(List<String> param, RequestContext requestContext) {
-        String paramConverted = param.stream()
-            .map(paramItemValue -> Objects.toString(paramItemValue, ""))
-            .collect(Collectors.joining(","));
-        return service.array(this.client.getEndpoint(), paramConverted, requestContext);
+        return this.instrumentation.instrumentWithResponse("Routes.PathParameters.MatrixExpansion.Explode.array",
+            requestContext, updatedContext -> {
+                String paramConverted = param.stream()
+                    .map(paramItemValue -> Objects.toString(paramItemValue, ""))
+                    .collect(Collectors.joining(","));
+                return service.array(this.client.getEndpoint(), paramConverted, updatedContext);
+            });
     }
 
     /**
@@ -132,6 +145,9 @@ public final class PathParametersMatrixExpansionExplodesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> recordWithResponse(Map<String, Integer> param, RequestContext requestContext) {
-        return service.record(this.client.getEndpoint(), param, requestContext);
+        return this.instrumentation.instrumentWithResponse("Routes.PathParameters.MatrixExpansion.Explode.record",
+            requestContext, updatedContext -> {
+                return service.record(this.client.getEndpoint(), param, updatedContext);
+            });
     }
 }
