@@ -42,6 +42,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 name: _wireOptionsName,
                 initializationValue: New.Instance(typeof(ModelReaderWriterOptions), Literal("W")),
                 enclosingType: this);
+
+            _jsonDocumentOptionsField = new FieldProvider(
+                modifiers: FieldModifiers.Internal | FieldModifiers.Static | FieldModifiers.ReadOnly,
+                type: typeof(JsonDocumentOptions),
+                name: _jsonDocumentOptionsName,
+                initializationValue: New.Instance(typeof(JsonDocumentOptions), new Dictionary<ValueExpression, ValueExpression>
+                {
+                    [Identifier("MaxDepth")] = Int(256)
+                }),
+                enclosingType: this);
         }
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
@@ -51,6 +61,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private const string _wireOptionsName = "WireOptions";
         private readonly FieldProvider _wireOptionsField;
+        private const string _jsonDocumentOptionsName = "JsonDocumentOptions";
+        private readonly FieldProvider _jsonDocumentOptionsField;
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
@@ -58,7 +70,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override FieldProvider[] BuildFields()
         {
-            return [_wireOptionsField];
+            return [_wireOptionsField, _jsonDocumentOptionsField];
         }
 
         protected override MethodProvider[] BuildMethods()
