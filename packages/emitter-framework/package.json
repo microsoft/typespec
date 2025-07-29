@@ -54,7 +54,7 @@
   "description": "",
   "peerDependencies": {
     "@alloy-js/core": "^0.19.0",
-    "@alloy-js/csharp": "^0.18.0",
+    "@alloy-js/csharp": "^0.19.0",
     "@alloy-js/typescript": "^0.19.0",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",

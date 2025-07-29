@@ -411,8 +411,8 @@ importers:
   packages/emitter-framework:
     dependencies:
       '@alloy-js/csharp':
-        specifier: ^0.18.0
-        version: 0.18.0
+        specifier: ^0.19.0
+        version: 0.19.0
     devDependencies:
       '@alloy-js/cli':
         specifier: ^0.19.0
@@ -2702,14 +2702,11 @@ packages:
     engines: {node: '>=18.0.0'}
     hasBin: true
 
-  '@alloy-js/core@0.18.2':
-    resolution: {integrity: sha512-8HFuexKdlhzrrKCqisgQPeCmhmxzWas7sLHj3h2f7eb/RK6u/lfjJHYpL/ycsYqaGHmQ18gRMQp/yJXec2n6GQ==}
-
   '@alloy-js/core@0.19.0':
     resolution: {integrity: sha512-Od92r7UgX7kRLJWfGD3+lLZBhrRQ5M2pV5Fqm1CuCKhFUV5CrfoW46DQy2gdSDLD4AE+N7oPo6DTkLqrxACHFA==}
 
-  '@alloy-js/csharp@0.18.0':
-    resolution: {integrity: sha512-y/Xex8Mjw1kbMSt9G3FhrT5925N6zFyX2TVVCnHJ06UAwD19UemrvWuvh5hLsLTpszF+4q5d2NRn7BGQxIi4ug==}
+  '@alloy-js/csharp@0.19.0':
+    resolution: {integrity: sha512-1y2HZjU/AWhRxTjf1o5skMX/zE466QfFcih591pew3mhWZGU5q/OujP8hW3eLC4RrrKsD7m4BVl20uPlgKp6ig==}
 
   '@alloy-js/markdown@0.19.0':
     resolution: {integrity: sha512-IKwzO6+ggXtl+bVy33wa5iBJx6KkMD7lzN3RJrKTvBPml7iuP21TwLjhUa1rmRQLekUZlbRuTYWaeWVEyrPYyw==}
@@ -13633,14 +13630,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@alloy-js/core@0.18.2':
-    dependencies:
-      '@vue/reactivity': 3.5.18
-      cli-table3: 0.6.5
-      pathe: 2.0.3
-      picocolors: 1.1.1
-      prettier: 3.6.2
-
   '@alloy-js/core@0.19.0':
     dependencies:
       '@vue/reactivity': 3.5.18
@@ -13649,9 +13638,9 @@ snapshots:
       picocolors: 1.1.1
       prettier: 3.6.2
 
-  '@alloy-js/csharp@0.18.0':
+  '@alloy-js/csharp@0.19.0':
     dependencies:
-      '@alloy-js/core': 0.18.2
+      '@alloy-js/core': 0.19.0
       change-case: 5.4.4
       marked: 15.0.12
       pathe: 2.0.3

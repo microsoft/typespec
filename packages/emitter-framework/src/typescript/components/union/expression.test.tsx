@@ -1,5 +1,6 @@
 import { Output } from "#core/index.js";
 import { Tester } from "#test/test-host.js";
+import { InterfaceDeclaration, InterfaceMember } from "@alloy-js/typescript";
 import { t } from "@typespec/compiler/testing";
 import { expect, it } from "vitest";
 import { UnionExpression } from "./expression.jsx";
@@ -29,14 +30,20 @@ it("renders a union expression without conflicting names", async () => {
 
   expect(
     <Output program={program}>
-      <UnionExpression type={TestUnion} />
+      <InterfaceDeclaration name="Test">
+        <InterfaceMember name="prop">
+          <UnionExpression type={TestUnion} />
+        </InterfaceMember>
+      </InterfaceDeclaration>
     </Output>,
   ).toRenderTo(`
-    {
-      common: "one";
-    } | {
-      common: "one";
-      two: "two";
+    interface Test {
+      prop: {
+        common: "one";
+      } | {
+        common: "one";
+        two: "two";
+      }
     }
   `);
 });
