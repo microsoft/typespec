@@ -481,22 +481,14 @@ namespace Microsoft.TypeSpec.Generator
                     attribute.ArgumentList?.Arguments.Any(arg =>
                         arg.Expression is TypeOfExpressionSyntax typeOfExpr &&
                         model.GetTypeInfo(typeOfExpr.Type).Type?.TypeKind == TypeKind.Error) == true))
-                .ToList();
+                .ToHashSet();
 
             if (invalidAttributes.Count > 0)
             {
-                // Remove all invalid attributes without keeping trivia if the first attribute is not invalid
-                if (!invalidAttributes.Contains(firstAttribute!))
-                {
-                    cu = cu.RemoveNodes(invalidAttributes, SyntaxRemoveOptions.KeepNoTrivia)!;
-                }
-                else
-                {
-                    // Keep the leading trivia of the first attribute as this may contain class docs
-                    cu = cu.RemoveNodes(
-                        invalidAttributes.Where(attr => attr != firstAttribute),
-                        SyntaxRemoveOptions.KeepNoTrivia)!;
+                cu = cu.RemoveNodes(invalidAttributes, SyntaxRemoveOptions.KeepNoTrivia)!;
 
+                if (invalidAttributes.Contains(firstAttribute!))
+                {
                     var leadingTrivia = firstAttribute!.GetLeadingTrivia();
                     // Find where XML docs end and indentation begins
                     var xmlDocTrivia = new List<SyntaxTrivia>();
@@ -526,7 +518,6 @@ namespace Microsoft.TypeSpec.Generator
                             xmlDocTrivia.Add(leadingTrivia[lastXmlIndex + 1]);
                         }
                     }
-                    cu = cu.RemoveNode(firstAttribute, SyntaxRemoveOptions.KeepNoTrivia)!;
 
                     // Find the updated type and add the XML docs to it
                     var updatedType = cu.DescendantNodes()
