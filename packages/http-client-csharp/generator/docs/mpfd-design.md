@@ -61,20 +61,21 @@ but with the intention to provide support for both unbranded and azure branded l
 A new type can be added to facilitate building multipart/form-data requests and provide a streamlined API for clients that need to send multipart payloads. This type eliminates the need for manual boundary management and complex multipart construction while maintaining full control over content types and part metadata.
 
 ```c#
-public partial class MultiPartFormDataBinaryContent : System.ClientModel.BinaryContent
+public partial class MultiPartFormContent : System.ClientModel.BinaryContent
 {
-    public MultiPartFormDataBinaryContent() { }
-    public MultiPartFormDataBinaryContent(string boundary) { }
-    public void Add(string name, System.BinaryData content, string? mediaType = null) { }
-    public void Add(string name, bool content, string? mediaType = null) { }
-    public void Add(string name, byte[] content, string? mediaType = null) { }
+    public MultiPartFormContent() { }
+    public MultiPartFormContent(string boundary) { }
+    public void Add(string name, System.BinaryData content) { }
+    public void Add(string name, bool content, string? mediaType = "text/plain") { }
+    public void Add(string name, byte[] content, string? mediaType = "application/octet-stream") { }
     public void Add(string name, System.ClientModel.FileBinaryContent fileContent) { }
-    public void Add(string name, decimal content, string? mediaType = null) { }
-    public void Add(string name, double content, string? mediaType = null) { }
-    public void Add(string name, int content, string? mediaType = null) { }
-    public void Add(string name, long content, string? mediaType = null) { }
-    public void Add(string name, float content, string? mediaType = null) { }
-    public void Add(string name, string content, string? mediaType = null) { }
+    public void Add(string name, decimal content, string? mediaType = "text/plain") { }
+    public void Add(string name, double content, string? mediaType = "text/plain") { }
+    public void Add(string name, int content, string? mediaType = "text/plain") { }
+    public void Add(string name, long content, string? mediaType = "text/plain") { }
+    public void Add(string name, float content, string? mediaType = "text/plain") { }
+    public void Add(string name, string content, string? mediaType = "text/plain") { }
+    public void Add<T>(string name, System.ClientModel.Primitives.IPersistableModel<T> model) { }
     public void Add<T>(string name, System.ClientModel.Primitives.IPersistableModel<T> model, System.ClientModel.Primitives.ModelReaderWriterOptions? options = null, System.ClientModel.Primitives.ModelReaderWriterContext? context = null, string? mediaType = null) { }
     public override void Dispose() { }
     public override bool TryComputeLength(out long length) { throw null; }
@@ -156,7 +157,7 @@ public virtual async Task<ClientResult> UploadDogAsync(Dog body, CancellationTok
 {
     Argument.AssertNotNull(body, nameof(body));
 
-    using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+    using MultiPartFormContent content = body.ToMultipartContent();
     return await UploadDogAsync(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
 }
 
@@ -164,7 +165,7 @@ public virtual ClientResult UploadDog(Dog body, CancellationToken cancellationTo
 {
     Argument.AssertNotNull(body, nameof(body));
 
-    using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+    using MultiPartFormContent content = body.ToMultipartContent();
     return UploadDog(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
 }
 ```
@@ -233,9 +234,9 @@ public partial class Dog
     public partial class Dog
     {
 
-        internal MultiPartFormDataBinaryContent ToMultipartContent()
+        internal MultiPartFormContent ToMultipartContent()
         {
-            MultiPartFormDataBinaryContent content = new();
+            MultiPartFormContent content = new();
             content.Add("id", Id);
             content.Add("profileImage", ProfileImage);
             
@@ -266,7 +267,7 @@ ClientResult response = await client.UploadDogAsync(dog);
 ```csharp
  PetStoreClient client = new PetStoreClient();
 
- using MultiPartFormDataBinaryContent content = new();
+ using MultiPartFormContent content = new();
  content.Add("id", "123");
  content.Add("profileImage", new FileBinaryContent("C:\\myDog.jpg"));
 
@@ -330,7 +331,7 @@ public virtual ClientResult UploadCat(Cat body, CancellationToken cancellationTo
 {
     Argument.AssertNotNull(body, nameof(body));
 
-    using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+    using MultiPartFormContent content = body.ToMultipartContent();
     return UploadCat(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
 }
 
@@ -338,7 +339,7 @@ public virtual async Task<ClientResult> UploadCatAsync(Cat body, CancellationTok
 {
     Argument.AssertNotNull(body, nameof(body));
 
-    using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+    using MultiPartFormContent content = body.ToMultipartContent();
     return await UploadCatAsync(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
 }
 ```
@@ -407,9 +408,9 @@ public partial class Cat
     {
     }
 
-    internal MultiPartFormDataBinaryContent ToMultipartContent()
+    internal MultiPartFormContent ToMultipartContent()
     {
-        MultiPartFormDataBinaryContent content = new();
+        MultiPartFormContent content = new();
         content.Add("id", Id);
         content.Add("profileImage", ProfileImage);
 
@@ -438,7 +439,7 @@ public partial class Cat
 ```csharp
  PetStoreClient client = new PetStoreClient();
 
- using MultiPartFormDataBinaryContent content = new();
+ using MultiPartFormContent content = new();
  content.Add("id", "123");
  content.Add("profileImage",
      new FileBinaryContent("C:\\myCat.jpg", "image/jpeg")
@@ -507,7 +508,7 @@ public virtual ClientResult UploadPetDetails(PetDetails body, CancellationToken 
 {
     Argument.AssertNotNull(body, nameof(body));
 
-    using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+    using MultiPartFormContent content = body.ToMultipartContent();
     return UploadPetDetails(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
 }
 
@@ -515,7 +516,7 @@ public virtual async Task<ClientResult> UploadPetDetailsAsync(PetDetails body, C
 {
     Argument.AssertNotNull(body, nameof(body));
 
-    using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+    using MultiPartFormContent content = body.ToMultipartContent();
     return await UploadPetDetailsAsync(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
 }
 ```
@@ -627,9 +628,9 @@ public partial class PetDetails
     {
     }
 
-    internal MultiPartFormDataBinaryContent ToMultipartContent()
+    internal MultiPartFormContent ToMultipartContent()
     {
-        MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
+        MultiPartFormContent content = new MultiPartFormContent();
         content.Add("id", Id);
         content.Add("ownerName", OwnerName);
         content.Add("petName", PetName);
@@ -667,7 +668,7 @@ var response = await client.UploadPetDetailsAsync(petDetails);
 ```csharp
  PetStoreClient client = new PetStoreClient();
 
-using MultiPartFormDataBinaryContent content = new();
+using MultiPartFormContent content = new();
 content.Add("id", "123");
 content.Add("ownerName", "John Doe");
 content.Add("petName", "Winston");
