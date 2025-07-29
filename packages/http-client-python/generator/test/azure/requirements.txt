@@ -1,6 +1,6 @@
 -r ../dev_requirements.txt
 -e ../../
-azure-mgmt-core==1.5.0
+azure-mgmt-core==1.6.0
 
 # only for azure
 -e ./generated/azure-client-generator-core-access
