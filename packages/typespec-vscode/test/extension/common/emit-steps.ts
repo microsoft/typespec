@@ -193,11 +193,16 @@ export async function emitSelectLanguage(page: Page, language: string = "", type
  * @param types emitter types (Client Code, Server Stub, OpenAPI Document)
  **/
 export async function emitInstallPackages(page: Page, language: string = "", types: string = "") {
-  try {
-    await page.waitForSelector('[role="button"][aria-label="OK"]');
-  } catch (e) {
-    throw new Error(e as string);
-  }
+  await retry(
+    page,
+    10,
+    async () => {
+      const okBtn = page.getByRole('button', { name: 'OK' })
+      return (await okBtn.count()) > 0;
+    },
+    "Failed to locate okBtn successfully",
+    3,
+  );
   await screenshot(page, "linux", "emit_install_packages.png");
   await page.getByRole("button", { name: /OK/ }).click();
 }
