@@ -51,7 +51,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
         public Task BasicProtocol() => Test(async (host) =>
         {
             await using var imageStream = File.OpenRead(SampleJpgPath);
-            using MultiPartFormDataBinaryContent content = new();
+            using MultiPartFormContent content = new();
             content.Add("profileImage", new FileBinaryContent(imageStream) { Filename = "profileImage" });
             content.Add("id", "123");
 
@@ -136,7 +136,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
         //[SpectorTest]
         //public Task CheckFileNameAndContentType() => Test(async (host) =>
         //{
-        //    using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
+        //    using MultiPartFormContent content = new MultiPartFormContent();
         //    content.Add("123", "id");
 
         //    await using var imageStream = File.OpenRead(SampleJpgPath);
@@ -187,7 +187,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
         [SpectorTest]
         public Task FileArrayAndBasicProtocol() => Test(async (host) =>
         {
-            using MultiPartFormDataBinaryContent content = new();
+            using MultiPartFormContent content = new();
             content.Add("id", "123");
             content.Add("address", new Address("X"), ModelSerializationExtensions.WireOptions, new PayloadMultiPartContext());
             await using var imageStream1 = File.OpenRead(SampleJpgPath);
@@ -252,7 +252,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
                 Filename = "hello.jpg",
             };
 
-            using MultiPartFormDataBinaryContent content = new();
+            using MultiPartFormContent content = new();
             content.Add("profileImage", profileImage);
 
             var response = await new MultiPartClient(host, null).GetFormDataClient()
@@ -278,7 +278,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
         //[SpectorTest]
         //public Task HttpPartsOptionalContentType() => Test(async (host) =>
         //{
-        //    using MultiPartFormDataBinaryContent contentWithNoContentType = new MultiPartFormDataBinaryContent();
+        //    using MultiPartFormContent contentWithNoContentType = new MultiPartFormContent();
         //    await using var imageStream1 = File.OpenRead(SampleJpgPath);
         //    contentWithNoContentType.Add(imageStream1, "profileImage", "hello.jpg");
 
@@ -289,7 +289,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
 
         //    Assert.AreEqual(204, response.GetRawResponse().Status);
 
-        //    using MultiPartFormDataBinaryContent contentWithContentType = new MultiPartFormDataBinaryContent();
+        //    using MultiPartFormContent contentWithContentType = new MultiPartFormContent();
         //    await using var imageStream2 = File.OpenRead(SampleJpgPath);
         //    contentWithContentType.Add(imageStream2, "profileImage", "hello.jpg", "application/octet-stream");
 
@@ -370,7 +370,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
         [SpectorTest]
         public Task HttpPartsJsonArrayAndFileArrayProtocol() => Test(async (host) =>
         {
-            using MultiPartFormDataBinaryContent content = new();
+            using MultiPartFormContent content = new();
             content.Add("id", "123");
             content.Add("address", new Address("X"), ModelSerializationExtensions.WireOptions, new PayloadMultiPartContext());
 
@@ -474,7 +474,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
         //[SpectorTest]
         //public Task BinaryArrayParts() => Test(async (host) =>
         //{
-        //    using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
+        //    using MultiPartFormContent content = new MultiPartFormContent();
         //    content.Add("123", "id");
         //    await using var imageStream1 = File.OpenRead(SamplePngPath);
         //    content.Add(imageStream1, "pictures", "pictures", "application/octet-stream");

@@ -59,7 +59,7 @@ namespace Payload.MultiPart._FormData.HttpParts
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+            using MultiPartFormContent content = body.ToMultipartContent();
             return JsonArrayAndFileArray(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
 
@@ -68,7 +68,7 @@ namespace Payload.MultiPart._FormData.HttpParts
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+            using MultiPartFormContent content = body.ToMultipartContent();
             return await JsonArrayAndFileArrayAsync(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
         }
 

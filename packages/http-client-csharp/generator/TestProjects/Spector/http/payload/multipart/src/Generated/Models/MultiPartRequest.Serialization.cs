@@ -158,9 +158,9 @@ namespace Payload.MultiPart.Models
             return BinaryContent.Create(multiPartRequest, ModelSerializationExtensions.WireOptions);
         }
 
-        internal virtual MultiPartFormDataBinaryContent ToMultipartContent()
+        internal virtual MultiPartFormContent ToMultipartContent()
         {
-            MultiPartFormDataBinaryContent content = new();
+            MultiPartFormContent content = new();
             content.Add("id", Id);
             content.Add("profileImage", ProfileImage);
 

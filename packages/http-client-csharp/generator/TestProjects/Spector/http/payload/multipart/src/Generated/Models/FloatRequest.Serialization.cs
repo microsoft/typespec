@@ -17,9 +17,9 @@ namespace Payload.MultiPart.Models
         {
         }
 
-        internal virtual MultiPartFormDataBinaryContent ToMultipartContent()
+        internal virtual MultiPartFormContent ToMultipartContent()
         {
-            MultiPartFormDataBinaryContent content = new();
+            MultiPartFormContent content = new();
             content.Add("temperature", Temperature, "text/plain");
 
             return content;

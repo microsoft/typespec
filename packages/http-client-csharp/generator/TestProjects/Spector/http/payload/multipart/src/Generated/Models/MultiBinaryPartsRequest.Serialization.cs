@@ -14,9 +14,9 @@ namespace Payload.MultiPart.Models
     {
         internal MultiBinaryPartsRequest() { }
 
-        internal virtual MultiPartFormDataBinaryContent ToMultipartContent()
+        internal virtual MultiPartFormContent ToMultipartContent()
         {
-            MultiPartFormDataBinaryContent content = new();
+            MultiPartFormContent content = new();
             content.Add("profileImage", ProfileImage);
             if (Optional.IsDefined(Picture))
             {

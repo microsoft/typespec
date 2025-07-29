@@ -14,9 +14,9 @@ namespace Payload.MultiPart.Models
     public partial class AnonymousModelRequest
     {
         internal AnonymousModelRequest() { }
-        internal virtual MultiPartFormDataBinaryContent ToMultipartContent()
+        internal virtual MultiPartFormContent ToMultipartContent()
         {
-            MultiPartFormDataBinaryContent content = new();
+            MultiPartFormContent content = new();
             content.Add("profileImage", ProfileImage);
 
             return content;

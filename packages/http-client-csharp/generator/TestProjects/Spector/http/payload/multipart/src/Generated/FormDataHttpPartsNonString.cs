@@ -55,7 +55,7 @@ namespace Payload.MultiPart._FormData.HttpParts.NonString
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+            using MultiPartFormContent content = body.ToMultipartContent();
             return Float(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
 
@@ -64,7 +64,7 @@ namespace Payload.MultiPart._FormData.HttpParts.NonString
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+            using MultiPartFormContent content = body.ToMultipartContent();
             return await FloatAsync(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
     }
