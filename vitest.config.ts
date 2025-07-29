@@ -14,6 +14,7 @@ export const defaultTypeSpecVitestConfig = defineConfig({
       junit: "./test-results.xml",
     },
     exclude: ["**/node_modules", "dist/**/*.test.*", "temp/**/*.test.*"],
+    hideSkippedTests: true,
   },
   server: {
     watch: {

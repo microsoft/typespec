@@ -16,9 +16,7 @@ export {
   $post,
   $put,
   $query,
-  $route,
   $server,
-  $sharedRoute,
   $statusCode,
   $useAuth,
   getAuthentication,
@@ -47,6 +45,8 @@ export {
   setAuthentication,
   type HttpServer,
 } from "./decorators.js";
+export { $route, setRoute } from "./decorators/route.js";
+export { $sharedRoute, isSharedRoute, setSharedRoute } from "./decorators/shared-route.js";
 export { $lib } from "./lib.js";
 export { $linter } from "./linter.js";
 /** @internal */
@@ -87,10 +87,7 @@ export {
   getRouteOptionsForNamespace,
   getRoutePath,
   getUriTemplatePathParam,
-  isSharedRoute,
   joinPathSegments,
-  setRoute,
-  setSharedRoute,
 } from "./route.js";
 
 export type {

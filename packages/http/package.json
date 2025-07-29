@@ -47,6 +47,9 @@
       "import": "./dist/src/experimental/merge-patch/index.js"
     }
   },
+  "imports": {
+    "#test/*": "./test/*"
+  },
   "engines": {
     "node": ">=20.0.0"
   },

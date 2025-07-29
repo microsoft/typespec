@@ -47,6 +47,7 @@ export function printDebugInfo() {
   console.info(" - `compiler`: The TypeSpec compiler API.");
   console.info(" - `$$`: A Typekit instance bound to the current program.");
   console.info(" - `libs`: A map of all loaded TypeSpec libraries.");
+  console.info(" - `vars`: Types bookmarked in the type graph.");
 }
 
 /**

@@ -1,8 +1,10 @@
-import { t } from "@typespec/compiler/testing";
+import { Tester } from "#test/test-host.js";
+import { expectDiagnostics, t } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
-import { describe, expect, it } from "vitest";
+import { assert, describe, expect, it } from "vitest";
+
+// Activate  Http TypeKit augmentation
 import "../../src/experimental/typekit/index.js";
-import { Tester } from "./../test-host.js";
 
 describe("httpOperation:getResponses", () => {
   it("should get responses", async () => {
@@ -24,10 +26,9 @@ describe("httpOperation:getResponses", () => {
       @get
       op ${t.op("getFoo")}(): Foo | Error;
     `);
-    const tk = $(program);
 
-    const httpOperation = tk.httpOperation.get(getFoo);
-    const responses = tk.httpOperation.flattenResponses(httpOperation);
+    const httpOperation = $(program).httpOperation.get(getFoo);
+    const responses = $(program).httpOperation.flattenResponses(httpOperation);
     expect(responses).toHaveLength(2);
     expect(responses[0].statusCode).toBe(200);
     expect(responses[0].contentType).toBe("application/json");
@@ -48,10 +49,9 @@ describe("httpOperation:getResponses", () => {
       @get
       op ${t.op("getFoo")}(): Foo | void;
     `);
-    const tk = $(program);
 
-    const httpOperation = tk.httpOperation.get(getFoo);
-    const responses = tk.httpOperation.flattenResponses(httpOperation);
+    const httpOperation = $(program).httpOperation.get(getFoo);
+    const responses = $(program).httpOperation.flattenResponses(httpOperation);
     expect(responses).toHaveLength(2);
     expect(responses[0].statusCode).toBe(200);
     expect(responses[0].contentType).toBe("application/json");
@@ -78,10 +78,9 @@ describe("httpOperation:getResponses", () => {
       @get
       op ${t.op("getFoo")}(): Foo | {...Foo, @header contentType: "text/plain"} | Error;
     `);
-    const tk = $(program);
 
-    const httpOperation = tk.httpOperation.get(getFoo);
-    const responses = tk.httpOperation.flattenResponses(httpOperation);
+    const httpOperation = $(program).httpOperation.get(getFoo);
+    const responses = $(program).httpOperation.flattenResponses(httpOperation);
     expect(responses).toHaveLength(3);
     expect(responses[0].statusCode).toBe(200);
     expect(responses[0].contentType).toBe("application/json");
@@ -89,5 +88,22 @@ describe("httpOperation:getResponses", () => {
     expect(responses[1].contentType).toBe("text/plain");
     expect(responses[2].statusCode).toBe("*");
     expect(responses[2].contentType).toBe("application/json");
+  });
+});
+
+it("should get diagnostics from httpOperation.get", async () => {
+  const [{ getFoo, program }, _] = await Tester.compileAndDiagnose(t.code`
+    @route("/foo/{missing-param}")
+    @get
+    op ${t.op("getFoo")}(): void;
+  `);
+
+  assert.ok(getFoo.kind === "Operation");
+
+  const [httpOperation, diagnostics] = $(program).httpOperation.get.withDiagnostics(getFoo);
+
+  expect(httpOperation).toBeDefined();
+  expectDiagnostics(diagnostics, {
+    code: "@typespec/http/missing-uri-param",
   });
 });
