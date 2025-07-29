@@ -408,9 +408,7 @@ async function doEmit(
       }
     }
     let newYamlContent = configYaml.toString();
-    newYamlContent = newYamlContent
-      .replaceAll(TO_BE_REPLACED_WITH_HASH, "# ")
-      .replaceAll(TO_BE_REPLACED_WITH_EMPTY_VALUE, "");
+    newYamlContent = alignTspConfigComments(newYamlContent);
     await writeFile(tspConfigFile, newYamlContent);
 
     const [tspConfigOptions, diagnostics] = await resolveCompilerOptions(NodeSystemHost, {
@@ -944,4 +942,37 @@ async function generateAnnotatedYamlFile(
   } catch (error) {
     logger.error(`Error generating annotated yaml file content for ${packageName}:`, [error]);
   }
+}
+
+function alignTspConfigComments(yamlContent: string): string {
+  const lines = yamlContent.split("\n");
+
+  let maxKeyValueLength = 0;
+  const commentLines: { index: number; keyValuePart: string; comment: string }[] = [];
+
+  lines.forEach((line, index) => {
+    const commentMatch = line.match(/^(\s*)(# )?([^:]+):\s*([^#]*)\s*(# .+)?$/);
+    if (commentMatch && commentMatch[5]) {
+      const [, indent, commentPrefix, key, value, comment] = commentMatch;
+      const keyValuePart = `${indent}${commentPrefix || ""}${key}: ${value.trim()}`;
+      maxKeyValueLength = Math.max(maxKeyValueLength, keyValuePart.length);
+
+      commentLines.push({
+        index,
+        keyValuePart,
+        comment: comment.trim(),
+      });
+    }
+  });
+
+  const commentAlignmentSpacing = 10;
+  commentLines.map(({ index, keyValuePart, comment }) => {
+    const padding = maxKeyValueLength - keyValuePart.length + commentAlignmentSpacing;
+    lines[index] = `${keyValuePart}${" ".repeat(padding)}${comment}`;
+  });
+
+  return lines
+    .join("\n")
+    .replaceAll(TO_BE_REPLACED_WITH_HASH, "# ")
+    .replaceAll(TO_BE_REPLACED_WITH_EMPTY_VALUE, "");
 }
