@@ -3,6 +3,13 @@ import path from "node:path";
 import { beforeEach, describe } from "vitest";
 import { startWithCommandPalette } from "./common/common-steps";
 import { tempDir, test, retry } from "./common/utils";
+import { execSync } from "child_process";
+
+try {
+  execSync("npm install @typespec/http", { stdio: "inherit" });
+} catch (e) {
+  process.exit(1);
+}
 
 export enum PreviewProjectTriggerType {
   Command = "Command",

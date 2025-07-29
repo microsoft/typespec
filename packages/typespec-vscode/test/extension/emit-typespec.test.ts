@@ -15,6 +15,13 @@ import {
   emitSelectType,
 } from "./common/emit-steps";
 import { screenshot, tempDir, test } from "./common/utils";
+import { execSync } from "child_process";
+
+try {
+  execSync("npm install @typespec/http", { stdio: "inherit" });
+} catch (e) {
+  process.exit(1);
+}
 
 enum EmitProjectTriggerType {
   Command = "Command",
