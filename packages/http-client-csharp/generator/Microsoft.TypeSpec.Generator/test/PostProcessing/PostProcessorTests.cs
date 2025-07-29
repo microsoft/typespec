@@ -142,26 +142,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
             var root = await doc.GetSyntaxRootAsync();
             var compilation = (CompilationUnitSyntax)root!;
 
-            var type = compilation
+            var namespaceDeclaration = compilation
                 .DescendantNodes()
-                .OfType<BaseTypeDeclarationSyntax>()
-                .SingleOrDefault(t => t.Identifier.Text == "KeepMe");
-            Assert.IsNotNull(type, "The class 'KeepMe' should still exist.");
+                .OfType<NamespaceDeclarationSyntax>()
+                .SingleOrDefault(t => t.Name.ToString() == "Sample");
+            var output = namespaceDeclaration!.ToString();
 
-            var attributes = type!.AttributeLists.SelectMany(a => a.Attributes).Select(al => al.ToString()).ToList();
-
-            // The invalid attribute should be removed
-            CollectionAssert.DoesNotContain(attributes, "ModelReaderWriterBuildable");
-
-            // The class documentation should be preserved
-            var classDocumentation = compilation.DescendantNodes()
-                .OfType<ClassDeclarationSyntax>()
-                .Single(c => c.Identifier.Text == "KeepMe")
-                .GetLeadingTrivia()
-                .Select(t => t.ToString())
-                .SingleOrDefault(t => t.Trim().Contains("<summary>"));
-
-            StringAssert.Contains("Class docs that should be kept.", classDocumentation);
+            Assert.AreEqual(Helpers.GetExpectedFromFile().TrimEnd(), output, "The output should match the expected content.");
         }
 
         [Test]
@@ -247,26 +234,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
             var root = await doc.GetSyntaxRootAsync();
             var compilation = (CompilationUnitSyntax)root!;
 
-            var type = compilation
+            var namespaceDeclaration = compilation
                 .DescendantNodes()
-                .OfType<BaseTypeDeclarationSyntax>()
-                .SingleOrDefault(t => t.Identifier.Text == "KeepMe");
-            Assert.IsNotNull(type, "The class 'KeepMe' should still exist.");
+                .OfType<NamespaceDeclarationSyntax>()
+                .SingleOrDefault(t => t.Name.ToString() == "Sample");
+            var output = namespaceDeclaration!.ToString();
 
-            var attributes = type!.AttributeLists.SelectMany(a => a.Attributes).Select(al => al.ToString().Trim()).ToList();
-
-            // The valid attribute should be retained
-            CollectionAssert.Contains(attributes, "ModelReaderWriterBuildable(typeof(Model))");
-
-            // The class documentation should be preserved
-            var classDocumentation = compilation.DescendantNodes()
-                .OfType<ClassDeclarationSyntax>()
-                .Single(c => c.Identifier.Text == "KeepMe")
-                .GetLeadingTrivia()
-                .Select(t => t.ToString())
-                .SingleOrDefault(t => t.Trim().Contains("<summary>"));
-
-            StringAssert.Contains("Class docs that should be kept.", classDocumentation);
+            Assert.AreEqual(Helpers.GetExpectedFromFile().TrimEnd(), output, "The output should match the expected content.");
         }
 
         private class TestPostProcessor : PostProcessor
