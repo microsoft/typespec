@@ -17,10 +17,14 @@ export function useStateMap<K extends Type, V>(
 
 type StateSetGetter<K extends Type> = (program: Program, type: K) => boolean;
 type StateSetSetter<K extends Type> = (program: Program, type: K) => void;
+type StateSetMapGetter<K extends Type> = (program: Program) => Set<K>;
 
-export function useStateSet<K extends Type>(key: symbol): [StateSetGetter<K>, StateSetSetter<K>] {
+export function useStateSet<K extends Type>(
+  key: symbol,
+): [StateSetGetter<K>, StateSetSetter<K>, StateSetMapGetter<K>] {
   const getter = (program: Program, target: K) => program.stateSet(key).has(target);
   const setter = (program: Program, target: K) => program.stateSet(key).add(target);
+  const setGetter = (program: Program) => program.stateSet(key);
 
-  return [getter, setter];
+  return [getter, setter, setGetter as any];
 }

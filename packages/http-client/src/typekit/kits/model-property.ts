@@ -1,7 +1,7 @@
 import { BaseType, ModelProperty, Value } from "@typespec/compiler";
 import { defineKit } from "@typespec/compiler/typekit";
 import { HttpAuth } from "@typespec/http";
-import { InternalClient as Client } from "../../interfaces.js";
+import { _InternalClient as Client } from "../../interfaces.js";
 import { authSchemeSymbol, credentialSymbol } from "../../types/credential-symbol.js";
 import { AccessKit, getAccess, getName, NameKit } from "./utils.js";
 

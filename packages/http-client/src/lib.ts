@@ -32,6 +32,28 @@ export const $lib = createTypeSpecLibrary({
       description:
         "Can't find any clients in the spec. This can happen when there are no operations defined in the spec.",
     },
+    "multiple-services": {
+      severity: "warning",
+      messages: {
+        default:
+          "Multiple services found. Only the first service will be used; others will be ignored.",
+      },
+    },
+    "no-client-defined": {
+      severity: "warning",
+      messages: {
+        default: "No client defined in the spec. To define a client see TODO: add link to docs",
+      },
+      description:
+        "No client defined for the operation. This can happen when there are no operations defined in the spec or when the operations are not grouped under a client.",
+    },
+    "client-without-service": {
+      severity: "error",
+      messages: {
+        default: `Client "${"clientName"}" does not have an associated service.`,
+      },
+      description: `Client "${"clientName"}" does not have an associated service. Make sure the client is defined under a service.`,
+    },
   },
   // Defined state keys for storing metadata in decorator.
   state: {
@@ -39,4 +61,4 @@ export const $lib = createTypeSpecLibrary({
   },
 });
 
-export const { reportDiagnostic, createDiagnostic, stateKeys: StateKeys } = $lib;
+export const { reportDiagnostic, createDiagnostic, stateKeys: StateKeys, createStateSymbol } = $lib;

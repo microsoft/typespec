@@ -4,12 +4,12 @@ import { $ } from "@typespec/compiler/typekit";
 import { ok } from "assert";
 import { beforeEach, describe, expect, it } from "vitest";
 import "../../src/typekit/index.js";
-import { createTypespecHttpClientLibraryTestRunner } from "../test-host.js";
+import { createTypespecHttpClientTestRunner } from "../test-host.js";
 
 let runner: BasicTestRunner;
 
 beforeEach(async () => {
-  runner = await createTypespecHttpClientLibraryTestRunner();
+  runner = await createTypespecHttpClientTestRunner();
 });
 
 describe("getCredentialAuth", () => {
