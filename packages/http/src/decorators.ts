@@ -38,13 +38,10 @@ import {
   PutDecorator,
   QueryDecorator,
   QueryOptions,
-  RouteDecorator,
   ServerDecorator,
-  SharedRouteDecorator,
   StatusCodeDecorator,
 } from "../generated-defs/TypeSpec.Http.js";
 import { HttpStateKeys, createDiagnostic, reportDiagnostic } from "./lib.js";
-import { setRoute, setSharedRoute } from "./route.js";
 import { getStatusCodesFromType } from "./status-codes.js";
 import {
   Authentication,
@@ -654,41 +651,3 @@ export function getAuthentication(
 ): Authentication | undefined {
   return program.stateMap(HttpStateKeys.authentication).get(entity);
 }
-
-/**
- * `@route` defines the relative route URI for the target operation
- *
- * The first argument should be a URI fragment that may contain one or more path parameter fields.
- * If the namespace or interface that contains the operation is also marked with a `@route` decorator,
- * it will be used as a prefix to the route URI of the operation.
- *
- * `@route` can only be applied to operations, namespaces, and interfaces.
- */
-export const $route: RouteDecorator = (
-  context: DecoratorContext,
-  entity: Type,
-  path: string,
-  parameters?: Type,
-) => {
-  validateDecoratorUniqueOnNode(context, entity, $route);
-
-  setRoute(context, entity, {
-    path,
-    shared: false,
-  });
-};
-
-/**
- * `@sharedRoute` marks the operation as sharing a route path with other operations.
- *
- * When an operation is marked with `@sharedRoute`, it enables other operations to share the same
- * route path as long as those operations are also marked with `@sharedRoute`.
- *
- * `@sharedRoute` can only be applied directly to operations.
- */
-export const $sharedRoute: SharedRouteDecorator = (
-  context: DecoratorContext,
-  entity: Operation,
-) => {
-  setSharedRoute(context.program, entity);
-};
