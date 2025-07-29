@@ -148,23 +148,15 @@ namespace Microsoft.TypeSpec.Generator
         /// <summary>
         /// Adds a type to the list of types to keep as public.
         /// </summary>
-        /// <param name="type">The type provider representing the type.</param>
-        public void AddTypeToKeepPublic(TypeProvider type) => TypesToKeepPublic.Add(type.Type.FullyQualifiedName);
+        /// <param name="typeName">Either a fully qualified type name or simple type name.</param>
+        public void AddTypeToKeepPublic(string typeName) => TypesToKeepPublic.Add(typeName);
 
         /// <summary>
         /// Adds a type to the list of non-root type providers. Non root type providers are types whose
         /// references do not contribute to usages of the generated code. Therefore if the 'unreferenced-types-handling' property
         /// is not set to 'keepAll', any types referenced by non-root type providers will not automatically be kept.
         /// </summary>
-        /// <param name="type">The fully qualified type name.</param>
-        public void AddNonRootType(string type) => NonRootTypes.Add(type);
-
-        /// <summary>
-        /// Adds a type to the list of non-root type providers. Non root type providers are types whose
-        /// references do not contribute to usages of the generated code. Therefore if the 'unreferenced-types-handling' property
-        /// is not set to 'keepAll', any types referenced by non-root type providers will not automatically be kept.
-        /// </summary>
-        /// <param name="type">The type provider representing the type</param>
-        public void AddNonRootType(TypeProvider type) => NonRootTypes.Add(type.Type.FullyQualifiedName);
+        /// <param name="typeName">Either a fully qualified type name or simple type name.</param>
+        public void AddNonRootType(string typeName) => NonRootTypes.Add(typeName);
     }
 }
