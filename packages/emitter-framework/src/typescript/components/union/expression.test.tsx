@@ -1,6 +1,5 @@
-import { Output } from "#core/index.js";
 import { Tester } from "#test/test-host.js";
-import { InterfaceDeclaration, InterfaceMember } from "@alloy-js/typescript";
+import { TestFile } from "#test/typescript/utils.jsx";
 import { t } from "@typespec/compiler/testing";
 import { expect, it } from "vitest";
 import { UnionExpression } from "./expression.jsx";
@@ -14,9 +13,9 @@ it("renders a union expression", async () => {
   `);
 
   expect(
-    <Output program={program}>
+    <TestFile program={program}>
       <UnionExpression type={TestUnion} />
-    </Output>,
+    </TestFile>,
   ).toRenderTo(`"one" | "two"`);
 });
 
@@ -29,21 +28,15 @@ it("renders a union expression without conflicting names", async () => {
   `);
 
   expect(
-    <Output program={program}>
-      <InterfaceDeclaration name="Test">
-        <InterfaceMember name="prop">
-          <UnionExpression type={TestUnion} />
-        </InterfaceMember>
-      </InterfaceDeclaration>
-    </Output>,
+    <TestFile program={program}>
+      <UnionExpression type={TestUnion} />
+    </TestFile>,
   ).toRenderTo(`
-    interface Test {
-      prop: {
-        common: "one";
-      } | {
-        common: "one";
-        two: "two";
-      }
+    {
+      common: "one";
+    } | {
+      common: "one";
+      two: "two";
     }
   `);
 });
