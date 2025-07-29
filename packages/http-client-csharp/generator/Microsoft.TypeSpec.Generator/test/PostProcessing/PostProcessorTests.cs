@@ -165,6 +165,52 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
         }
 
         [Test]
+        public async Task RemovesInvalidAttributesAndKeepsValidAttributes()
+        {
+            MockHelpers.LoadMockGenerator();
+            var workspace = new AdhocWorkspace();
+            var projectInfo = ProjectInfo.Create(
+                    ProjectId.CreateNewId(),
+                    VersionStamp.Create(),
+                    name: "TestProj",
+                    assemblyName: "TestProj",
+                    language: LanguageNames.CSharp)
+                .WithMetadataReferences(new[]
+                {
+                    MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+                    MetadataReference.CreateFromFile(typeof(ModelReaderWriterBuildableAttribute).Assembly.Location)
+                });
+
+            var project = workspace.AddProject(projectInfo);
+            var folder = Helpers.GetAssetFileOrDirectoryPath(false);
+            const string removesInvalidAttributesFileName = "RemovesInvalidAttributesAndKeepsValidAttributes.cs";
+            project = project.AddDocument(
+                removesInvalidAttributesFileName,
+                File.ReadAllText(Path.Join(folder, removesInvalidAttributesFileName))).Project;
+            project = project.AddDocument(
+                "Model.cs",
+                File.ReadAllText(Path.Join(folder, "Model.cs"))).Project;
+            project = project.AddDocument(
+                "RootClass.cs",
+                File.ReadAllText(Path.Join(folder, "RootClass.cs"))).Project;
+            var postProcessor = new TestPostProcessor("RootClass.cs", nonRootTypes: ["Sample.KeepMe"]);
+
+            var resultProject = await postProcessor.RemoveAsync(project);
+            var doc= resultProject.Documents
+                .Single(d => d.Name == removesInvalidAttributesFileName);
+            var root = await doc.GetSyntaxRootAsync();
+            var compilation = (CompilationUnitSyntax)root!;
+
+            var namespaceDeclaration = compilation
+                .DescendantNodes()
+                .OfType<NamespaceDeclarationSyntax>()
+                .SingleOrDefault(t => t.Name.ToString() == "Sample");
+            var output = namespaceDeclaration!.ToString();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile().TrimEnd(), output, "The output should match the expected content.");
+        }
+
+        [Test]
         public async Task DoesNotRemoveValidAttributes()
         {
             MockHelpers.LoadMockGenerator();
