@@ -195,13 +195,20 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
         return any(response.headers for response in self.responses)
 
     @property
-    def default_error_deserialization(self) -> Optional[str]:
+    def default_error_model(self) -> Optional["ModelType"]:
         default_exceptions = [e for e in self.exceptions if "default" in e.status_codes and e.type]
         if not default_exceptions:
             return None
         exception_schema = default_exceptions[0].type
         if isinstance(exception_schema, ModelType):
-            return exception_schema.type_annotation(skip_quote=True)
+            return exception_schema
+        return None
+
+    @property
+    def default_error_deserialization(self) -> Optional[str]:
+        error_model = self.default_error_model
+        if error_model:
+            return error_model.type_annotation(skip_quote=True)
         return None if self.code_model.options["models-mode"] == "dpg" else "'object'"
 
     @property
