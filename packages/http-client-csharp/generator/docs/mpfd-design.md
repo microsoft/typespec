@@ -91,9 +91,9 @@ To support generating a convenience layer for file parts in multipart/form-data 
 ```csharp
 public partial class FileBinaryContent : System.ClientModel.BinaryContent
 {
-    public FileBinaryContent(System.BinaryData data, string? mediaType = null) { }
-    public FileBinaryContent(System.IO.Stream stream, string? mediaType = null) { }
-    public FileBinaryContent(string path, string? mediaType = null) { }
+    public FileBinaryContent(System.BinaryData data, string? mediaType = "application/octet-stream") { }
+    public FileBinaryContent(System.IO.Stream stream, string? mediaType = "application/octet-stream") { }
+    public FileBinaryContent(string path, string? mediaType = "application/octet-stream") { }
     public string? Filename { get { throw null; } set { } }
     public override void Dispose() { }
     public override bool TryComputeLength(out long length) { throw null; }
