@@ -7,6 +7,7 @@ import { execSync } from "child_process";
 
 try {
   execSync("pnpm install @typespec/http", { stdio: "inherit" });
+  execSync("pnpm install @typespec/openapi3", { stdio: "inherit" });
 } catch (e) {
   process.exit(1);
 }
