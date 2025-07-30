@@ -67,45 +67,6 @@ export async function emitSelectType(page: Page, type: string) {
 }
 
 /**
- * If the emit type is `OpenApiDocument`, the language will be selected next. Call this method to select
- * @param page vscode project
- */
-export async function emitSelectLanguageForOpenapi(page: Page) {
-  await screenshot(page, "linux", "select_language_openapi");
-  const expectedName = "OpenAPI3";
-  let selectLangName;
-  const expectedDescription =
-    "Emit openapi code for OpenAPI3 by TypeSpec library @typespec/openapi3.";
-  let selectLangDescription;
-  await retry(
-    page,
-    3,
-    async () => {
-      selectLangName = page.locator("a").filter({ hasText: /^OpenAPI3$/ });
-      return (await selectLangName.count()) > 0;
-    },
-    "Failed to find the openapi3 language for code emitting.",
-  );
-  await retry(
-    page,
-    3,
-    async () => {
-      const emiSelectLangBox = page.locator("label");
-      const emiSelectLangBoxDescriptionArr = await emiSelectLangBox.allTextContents();
-      selectLangDescription = emiSelectLangBoxDescriptionArr[0].slice(expectedName.length);
-      if (selectLangDescription === expectedDescription) {
-        return true;
-      } else {
-        // Description mismatched, expected "${expectedDescription}", got "${selectLangDescription}".`,
-        return false;
-      }
-    },
-    `Failed to find the openapi3 language for code emitting description.`,
-  );
-  await selectLangName!.click();
-}
-
-/**
  * If the emit type is chosen, the language will be selected next. Call this method to select
  * @param page vscode project
  * @param language language name (OpenAPI3, Python, Java, .NET, JavaScript)
