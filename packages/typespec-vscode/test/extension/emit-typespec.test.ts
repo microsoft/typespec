@@ -22,6 +22,9 @@ try {
   execSync("pnpm install @typespec/openapi3", { stdio: "inherit" });
   execSync("pnpm install @typespec/http-client-python", { stdio: "inherit" });
   execSync("pnpm list", { stdio: "inherit" });
+  execSync("sudo apt update", { stdio: "inherit" });
+  execSync("sudo apt install python3", { stdio: "inherit" });
+  execSync("python3 --version", { stdio: "inherit" });
 } catch (e) {
   process.exit(1);
 }
