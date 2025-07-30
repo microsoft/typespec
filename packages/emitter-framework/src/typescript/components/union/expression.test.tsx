@@ -1,5 +1,5 @@
-import { Output } from "#core/index.js";
 import { Tester } from "#test/test-host.js";
+import { TestFile } from "#test/typescript/utils.jsx";
 import { t } from "@typespec/compiler/testing";
 import { expect, it } from "vitest";
 import { UnionExpression } from "./expression.jsx";
@@ -13,9 +13,9 @@ it("renders a union expression", async () => {
   `);
 
   expect(
-    <Output program={program}>
+    <TestFile program={program}>
       <UnionExpression type={TestUnion} />
-    </Output>,
+    </TestFile>,
   ).toRenderTo(`"one" | "two"`);
 });
 
@@ -28,9 +28,9 @@ it("renders a union expression without conflicting names", async () => {
   `);
 
   expect(
-    <Output program={program}>
+    <TestFile program={program}>
       <UnionExpression type={TestUnion} />
-    </Output>,
+    </TestFile>,
   ).toRenderTo(`
     {
       common: "one";
