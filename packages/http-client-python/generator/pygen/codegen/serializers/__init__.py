@@ -247,7 +247,7 @@ class JinjaSerializer(ReaderAndWriter):
                 if self.keep_version_file and file == "setup.py":
                     # don't regenerate setup.py file if the version file is more up to date
                     continue
-                file_path = self.output_folder / Path(output_name)
+                file_path = self.get_output_folder() / Path(output_name)
                 self.write_file(
                     output_name,
                     serializer.serialize_package_file(template_name, file_path, **params),
