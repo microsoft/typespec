@@ -215,7 +215,7 @@ class ReaderAndWriter:
             _LOGGER.warning("Loading python.json file. This behavior will be depreacted")
         self.options.update(python_json)
 
-    def get_output_folder(self) -> str:
+    def get_output_folder(self) -> Path:
         return self.output_folder
 
     def read_file(self, path: Union[str, Path]) -> str:
