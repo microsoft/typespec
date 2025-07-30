@@ -19,9 +19,18 @@ if (-not (Test-Path $coverageDir)) {
     New-Item -ItemType Directory -Path $coverageDir | Out-Null
 }
 
+$failingSpecs = @(
+    Join-Path 'http' 'payload' 'pageable' # pending until https://github.com/microsoft/typespec/issues/8009 is resolved
+)
+
 # generate all
 foreach ($directory in $directories) {
     if (-not (IsGenerated $directory.FullName)) {
+        continue
+    }
+    
+    if ($failingSpecs.Contains($subPath)) {
+        Write-Host "Skipping $subPath" -ForegroundColor Yellow
         continue
     }
 

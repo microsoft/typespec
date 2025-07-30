@@ -45,8 +45,7 @@
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\payload\json-merge-patch\src\Payload.JsonMergePatch.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\payload\media-type\src\Payload.MediaType.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\payload\multipart\src\Payload.MultiPart.csproj" />
-    <!-- TODO: restore this when https://github.com/microsoft/typespec/issues/8009 is resolved -->
-    <!-- <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\payload\pageable\src\Payload.Pageable.csproj" /> -->
+    <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\payload\pageable\src\Payload.Pageable.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\resiliency\srv-driven\v1\src\Resiliency.SrvDriven.V1.csproj" Aliases="SrvDrivenV1" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\resiliency\srv-driven\v2\src\Resiliency.SrvDriven.V2.csproj" Aliases="SrvDrivenV2" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\response\status-code-range\src\Response.StatusCodeRange.csproj" />
