@@ -148,27 +148,6 @@ export async function emitSelectLanguage(page: Page, language: string = "", type
 }
 
 /**
- * If the emit language is chosen, a UI will pop up to check packages to be installed. Call this method to select
- * @param page vscode project
- * @param language language name (OpenAPI3, Python, Java, .NET, JavaScript)
- * @param types emitter types (Client Code, Server Stub, OpenAPI Document)
- **/
-export async function emitInstallPackages(page: Page, language: string = "", types: string = "") {
-  await retry(
-    page,
-    10,
-    async () => {
-      const okBtn = page.getByRole('button', { name: 'OK' })
-      return (await okBtn.count()) > 0;
-    },
-    "Failed to locate okBtn successfully",
-    3,
-  );
-  await screenshot(page, "linux", "emit_install_packages.png");
-  await page.getByRole("button", { name: /OK/ }).click();
-}
-
-/**
  * When emitting, choose emitters.
  * @param page vscode project
  * @param emitter emitter name

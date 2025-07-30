@@ -95,6 +95,41 @@ export async function startWithRightClick(page: Page, command: string) {
 }
 
 /**
+ * A UI will pop up to check packages to be installed. Call this method to select
+ * @param page vscode project
+ * @param operation in which scenario is it called (EmitTypeSpec, ImportTypeSpec)
+ **/
+export async function InstallPackages(page: Page, operation: string) {
+  if (operation === "EmitTypeSpec"){
+    await retry(
+      page,
+      10,
+      async () => {
+        const okBtn = page.getByRole('button', { name: 'OK' })
+        const packageList = page.getByRole('checkbox', { name: /@typespec\/http-client-python/ });
+        return (await okBtn.count()) > 0 && (await packageList.count()) > 0;
+      },
+      "Failed to locate okBtn and package list successfully",
+      3,
+    );
+  } else if (operation === "ImportTypeSpec") {
+    await retry(
+      page,
+      10,
+      async () => {
+        const okBtn = page.getByRole('button', { name: 'OK' })
+        const packageList = page.getByRole('checkbox', { name: /@typespec\/openapi3/ });
+        return (await okBtn.count()) > 0 && (await packageList.count()) > 0;
+      },
+      "Failed to locate okBtn and package list successfully",
+      3,
+    );    
+  }
+  await screenshot(page, "linux", "install_packages.png");
+  await page.getByRole("button", { name: /OK/ }).click();
+}
+
+/**
  * Tspconfig file, read and delete the first three lines
  * @param folderName The name of the folder that needs to be selected.
  */

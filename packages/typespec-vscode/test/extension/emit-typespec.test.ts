@@ -5,12 +5,12 @@ import {
   contrastResult,
   preContrastResult,
   readTspConfigFile,
+  InstallPackages,
   restoreTspConfigFile,
   startWithCommandPalette,
 } from "./common/common-steps";
 import {
   emiChooseEmitter,
-  emitInstallPackages,
   emitSelectLanguage,
   emitSelectType,
 } from "./common/emit-steps";
@@ -80,7 +80,7 @@ describe.each(EmitCasesConfigList)("EmitTypespecProject", async (item) => {
 
     await emitSelectType(page, selectType);
     await emitSelectLanguage(page, selectTypeLanguage, selectType);
-    await emitInstallPackages(page, selectTypeLanguage, selectType);
+    await InstallPackages(page, "EmitTypeSpec");
     const contrastMessage = selectTypeLanguage + "...Succeeded";
     await preContrastResult(page, contrastMessage, "Failed to emit project Successful", 150000);
     await screenshot(page, "linux", "emit_result");
