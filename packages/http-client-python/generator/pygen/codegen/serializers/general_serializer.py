@@ -19,14 +19,14 @@ from .base_serializer import BaseSerializer
 VERSION_MAP = {
     "msrest": "0.7.1",
     "isodate": "0.6.1",
-    "azure-mgmt-core": "1.5.0",
-    "azure-core": "1.30.0",
+    "azure-mgmt-core": "1.6.0",
+    "azure-core": "1.35.0",
     "typing-extensions": "4.6.0",
     "corehttp": "1.0.0b6",
 }
 
 MIN_PYTHON_VERSION = "3.9"
-MAX_PYTHON_VERSION = "3.12"
+MAX_PYTHON_VERSION = "3.13"
 
 
 class GeneralSerializer(BaseSerializer):

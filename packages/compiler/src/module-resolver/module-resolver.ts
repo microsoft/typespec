@@ -320,7 +320,7 @@ export async function resolveModule(
       type: "module",
       mainFile: resolved,
       manifest: pkg,
-      path: pkgDir,
+      path: await realpath(pkgDir),
     };
   }
 

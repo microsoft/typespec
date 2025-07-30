@@ -1,4 +1,4 @@
-import { Block, type Children, For, mapJoin } from "@alloy-js/core";
+import { type Children, For, mapJoin } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import {
   type Interface,
@@ -73,9 +73,9 @@ export interface InterfaceExpressionProps extends ts.InterfaceExpressionProps {
 
 export function InterfaceExpression(props: InterfaceExpressionProps) {
   return (
-    <Block>
+    <ts.InterfaceExpression>
       <InterfaceBody {...props} />
-    </Block>
+    </ts.InterfaceExpression>
   );
 }
 
