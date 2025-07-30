@@ -25,6 +25,9 @@ try {
   execSync("sudo apt update", { stdio: "inherit" });
   execSync("sudo apt install python3", { stdio: "inherit" });
   execSync("python3 --version", { stdio: "inherit" });
+  execSync("sudo apt install python3-pip", { stdio: "inherit" });  
+  execSync("pip3 --version", { stdio: "inherit" });
+  execSync("python3 -m pip --version", { stdio: "inherit" });
 } catch (e) {
   process.exit(1);
 }
