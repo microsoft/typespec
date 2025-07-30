@@ -1,26 +1,31 @@
 import { isDefined } from "../../utils/misc.js";
+import { Checker } from "../checker.js";
 import { isTemplateInstance, isType, isValue } from "../type-utils.js";
-import type {
-  Entity,
-  Enum,
-  Interface,
-  Model,
-  ModelProperty,
-  ModelStatementNode,
-  Namespace,
-  Operation,
-  Scalar,
-  StringTemplate,
-  Type,
-  Union,
-  Value,
+import {
+  Expression,
+  type Entity,
+  type Enum,
+  type Interface,
+  type Model,
+  type ModelProperty,
+  type ModelStatementNode,
+  type Namespace,
+  type Operation,
+  type Scalar,
+  type StringTemplate,
+  type Type,
+  type Union,
+  type Value,
 } from "../types.js";
 import { printIdentifier } from "./syntax-utils.js";
+
+const expressionDefaultCache = new Map<Expression, string>();
 
 export interface TypeNameOptions {
   namespaceFilter?: (ns: Namespace) => boolean;
   printable?: boolean;
   nameOnly?: boolean;
+  checker?: Checker;
 }
 
 export function getTypeName(type: Type, options?: TypeNameOptions): string {
@@ -179,7 +184,7 @@ function getModelName(model: Model, options: TypeNameOptions | undefined) {
   } else if ((model.node as ModelStatementNode)?.templateParameters?.length > 0) {
     // template
     const params = (model.node as ModelStatementNode).templateParameters.map((t) =>
-      getIdentifierName(t.id.sv, options),
+      getIdentifierName(t.id.sv, options, t.default),
     );
     return `${modelName}<${params.join(", ")}>`;
   } else {
@@ -248,8 +253,23 @@ function getOperationName(op: Operation, options: TypeNameOptions | undefined) {
   }
 }
 
-function getIdentifierName(name: string, options: TypeNameOptions | undefined) {
-  return options?.printable ? printIdentifier(name) : name;
+function getIdentifierName(
+  name: string,
+  options: TypeNameOptions | undefined,
+  defaults: Expression | undefined = undefined,
+) {
+  let defaultValue: string | undefined;
+  if (options && options.checker && defaults) {
+    if (expressionDefaultCache.has(defaults)) {
+      defaultValue = expressionDefaultCache.get(defaults);
+    } else {
+      const nodeType = options.checker.getTypeForNode(defaults);
+      defaultValue = getEntityName(nodeType, options);
+      expressionDefaultCache.set(defaults, defaultValue);
+    }
+  }
+  const baseName = options?.printable ? printIdentifier(name) : name;
+  return defaultValue ? `${baseName} = ${defaultValue}` : baseName;
 }
 
 function getStringTemplateName(type: StringTemplate): string {
