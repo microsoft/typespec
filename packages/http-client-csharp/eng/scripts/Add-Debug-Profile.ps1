@@ -137,8 +137,8 @@ function Set-LaunchSettings {
     param([object]$LaunchSettings)
     
     $launchSettingsPath = Get-LaunchSettingsPath
-    $content = $LaunchSettings | ConvertTo-Json -Depth 10
-    Set-Content $launchSettingsPath $content
+    $content = $LaunchSettings | ConvertTo-Json | ForEach-Object { ($_ -replace "`r`n", "`n") + "`n" }
+    Set-Content $launchSettingsPath $content -NoNewLine
 }
 
 # Generate a profile name from the SDK directory
