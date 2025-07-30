@@ -12,12 +12,6 @@ try {
   process.exit(1);
 }
 
-try {
-  execSync("pnpm list", { stdio: "inherit" });
-} catch (e) {
-  process.exit(1);
-}
-
 export enum PreviewProjectTriggerType {
   Command = "Command",
   Click = "Click",
