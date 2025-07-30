@@ -1,13 +1,12 @@
 import {
   normalizePath,
   NoTarget,
-  printTypeSpecNode,
   type CompilerHost,
   type Diagnostic,
   type Statement,
 } from "@typespec/compiler";
 import {
-  createSourceLoader,
+  printTypeSpecNode,
   SyntaxKind,
   visitChildren,
   type IdentifierNode,
@@ -16,6 +15,7 @@ import {
   type TypeSpecScriptNode,
   type UsingStatementNode,
 } from "@typespec/compiler/ast";
+import { unsafe_createSourceLoader } from "@typespec/compiler/experimental";
 
 export interface ImportResult {
   /** TypeSpec Content */
@@ -40,7 +40,7 @@ export async function combineProjectIntoFile(
       ? rawEntrypoint
       : normalizePath(rawEntrypoint);
 
-  const loader = await createSourceLoader(host, {
+  const loader = await unsafe_createSourceLoader(host, {
     parseOptions: {
       docs: true,
       comments: true,

@@ -11,6 +11,7 @@
 
 export { NodeFlags, SyntaxKind } from "../core/types.js";
 
+export { printTypeSpecNode } from "../core/formatter.js";
 export {
   exprIsBareIdentifier,
   getFirstAncestor,
@@ -25,7 +26,6 @@ export {
   visitChildren,
   type NodeCallback,
 } from "../core/parser.js";
-export { createSourceLoader } from "../core/source-loader.js";
 export type {
   AliasStatementNode,
   AnyKeywordNode,

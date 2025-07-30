@@ -45,7 +45,7 @@ export {
   type WriteLine,
 } from "./core/diagnostics.js";
 export { emitFile, type EmitFileOptions, type NewLine } from "./core/emitter-utils.js";
-export { checkFormatTypeSpec, formatTypeSpec, printTypeSpecNode } from "./core/formatter.js";
+export { checkFormatTypeSpec, formatTypeSpec } from "./core/formatter.js";
 export {
   DiscriminatedUnion,
   DiscriminatedUnionLegacy,

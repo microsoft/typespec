@@ -5,7 +5,11 @@ import * as typespecPrettierPlugin from "../formatter/index.js";
 import { getAnyExtensionFromPath } from "./path-utils.js";
 import type { Node } from "./types.js";
 
-// TODO: is this the right place, should it be exported in /ast instead.
+/**
+ * Print the given TypeSpec AST node with the TypeSpec formatter.
+ * @param node TypeSpec AST node to print.
+ * @returns Printed TypeSpec.
+ */
 export function printTypeSpecNode(node: Node): Promise<string> {
   return prettierFormat(".", {
     parser: "typespec",
