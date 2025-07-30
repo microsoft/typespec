@@ -17,9 +17,23 @@ export async function preContrastResult(
   errorMessage: string,
   timeout: number = 10000,
 ) {
-  try {
-    await page.waitForSelector(`:text("${text}")`, { timeout });
-  } catch (e) {
+  const interval = 5000; // 5 seconds
+  const start = Date.now();
+  let found = false;
+  let lastError: any = null;
+
+  while (Date.now() - start < timeout) {
+    try {
+      await page.waitForSelector(`:text("${text}")`, { timeout: Math.min(interval, timeout - (Date.now() - start)) });
+      found = true;
+      break;
+    } catch (e) {
+      lastError = e;
+      await screenshot(page, "linux", `wait_for_${text.replace(/\W/g, "_")}_${Math.floor((Date.now() - start) / 1000)}s`);
+    }
+  }
+
+  if (!found) {
     throw new Error(errorMessage);
   }
 }
