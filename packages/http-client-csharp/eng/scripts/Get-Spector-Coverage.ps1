@@ -20,7 +20,7 @@ if (-not (Test-Path $coverageDir)) {
 }
 
 $failingSpecs = @(
-    Join-Path 'http' 'payload' 'pageable' # pending until https://github.com/microsoft/typespec/issues/8009 is resolved
+    Join-Path 'payload' 'pageable' # pending until https://github.com/microsoft/typespec/issues/8009 is resolved
 )
 
 # generate all
@@ -29,13 +29,13 @@ foreach ($directory in $directories) {
         continue
     }
     
+    $outputDir = $directory.FullName.Substring(0, $directory.FullName.IndexOf("src") - 1)
+    $subPath = $outputDir.Substring($spectorRoot.Length + 1)
+    
     if ($failingSpecs.Contains($subPath)) {
         Write-Host "Skipping $subPath" -ForegroundColor Yellow
         continue
     }
-
-    $outputDir = $directory.FullName.Substring(0, $directory.FullName.IndexOf("src") - 1)
-    $subPath = $outputDir.Substring($spectorRoot.Length + 1)
 
     Write-Host "Regenerating $subPath" -ForegroundColor Cyan
 
