@@ -50,6 +50,7 @@ eng/feeds/
 # Skip formatting tsp files
 
 *.noformat.tsp
+packages/compiler/test/e2e/cli/scenarios/unformatted/
 
 # Tm Grammars generated files
 grammars/

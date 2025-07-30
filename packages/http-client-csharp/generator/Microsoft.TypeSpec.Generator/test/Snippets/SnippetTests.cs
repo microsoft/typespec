@@ -62,7 +62,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Snippets
         {
             using CodeWriter writer = new CodeWriter();
             New.Anonymous(Identifier("key"), Literal(1)).Write(writer);
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), $"{writer.ToString(false)}\n");
         }
 
         [Test]
@@ -74,7 +74,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Snippets
                 { Identifier("key"), Literal(1) },
                 { Identifier("value"), Literal(2) }
             }).Write(writer);
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), $"{writer.ToString(false)}\n");
         }
 
         [Test]
@@ -87,7 +87,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Snippets
                 { Identifier("X"), Literal(100) },
                 { Identifier("Y"), Literal(200) }
             }).Write(writer);
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), $"{writer.ToString(false)}\n");
         }
 
         [Test]
@@ -100,7 +100,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Snippets
             {
                 { Identifier("Y"), Literal(200) }
             }).Write(writer);
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), $"{writer.ToString(false)}\n");
         }
 
         [Test]
@@ -112,7 +112,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Snippets
                 { Identifier("X"), Literal(100) },
                 { Identifier("Y"), Literal(200) }
             }).Write(writer);
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), $"{writer.ToString(false)}\n");
         }
 
         [Test]
@@ -132,7 +132,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Snippets
                 { Identifier("X"), Literal(100) },
                 { Identifier("Y"), Literal(200) }
             }).Write(writer);
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), $"{writer.ToString(false)}\n");
         }
 
         [Test]

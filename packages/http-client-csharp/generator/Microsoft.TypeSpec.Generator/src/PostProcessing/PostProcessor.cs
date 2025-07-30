@@ -473,46 +473,62 @@ namespace Microsoft.TypeSpec.Generator
             if (root is not CompilationUnitSyntax cu || model == null)
                 return solution;
 
-            var invalidAttributes = cu.DescendantNodes()
-                .OfType<AttributeListSyntax>()
+            var attributes = cu.DescendantNodes().OfType<AttributeListSyntax>();
+            var firstAttribute = attributes.FirstOrDefault();
+
+            var invalidAttributes = attributes
                 .Where(attr => attr.Attributes.Any(attribute =>
                     attribute.ArgumentList?.Arguments.Any(arg =>
                         arg.Expression is TypeOfExpressionSyntax typeOfExpr &&
                         model.GetTypeInfo(typeOfExpr.Type).Type?.TypeKind == TypeKind.Error) == true))
-                .ToList();
+                .ToHashSet();
 
             if (invalidAttributes.Count > 0)
             {
-                // Check if any invalid attribute has type-level XML docs in its leading trivia
-                var attributeWithDocs = invalidAttributes
-                    .OrderBy(a => a.SpanStart)
-                    .FirstOrDefault(attr => attr.GetLeadingTrivia().Any(t =>
-                        t.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia) ||
-                        t.IsKind(SyntaxKind.MultiLineDocumentationCommentTrivia)));
-
-                SyntaxTriviaList? xmlDocs = null;
-                if (attributeWithDocs != null)
-                {
-                    xmlDocs = attributeWithDocs.GetLeadingTrivia()
-                        .Where(t => t.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia) ||
-                                    t.IsKind(SyntaxKind.MultiLineDocumentationCommentTrivia))
-                        .ToSyntaxTriviaList();
-                }
-
-                // Remove all invalid attributes without keeping trivia
                 cu = cu.RemoveNodes(invalidAttributes, SyntaxRemoveOptions.KeepNoTrivia)!;
 
-                // If we found XML docs, reattach them to the type declaration
-                if (xmlDocs?.Any() == true)
+                if (invalidAttributes.Contains(firstAttribute!))
                 {
-                    var typeDecl = cu.DescendantNodes()
+                    var leadingTrivia = firstAttribute!.GetLeadingTrivia();
+                    // Find where XML docs end and indentation begins
+                    var xmlDocTrivia = new List<SyntaxTrivia>();
+                    var lastXmlIndex = -1;
+
+                    for (int i = 0; i < leadingTrivia.Count; i++)
+                    {
+                        var trivia = leadingTrivia[i];
+                        if (trivia.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia))
+                        {
+                            lastXmlIndex = i;
+                        }
+                    }
+
+                    // Collect trivia up to and including the last XML doc line's newline
+                    if (lastXmlIndex >= 0)
+                    {
+                        for (int i = 0; i <= lastXmlIndex; i++)
+                        {
+                            xmlDocTrivia.Add(leadingTrivia[i]);
+                        }
+
+                        // Include the newline after the last XML doc if present
+                        if (lastXmlIndex + 1 < leadingTrivia.Count &&
+                            leadingTrivia[lastXmlIndex + 1].IsKind(SyntaxKind.EndOfLineTrivia))
+                        {
+                            xmlDocTrivia.Add(leadingTrivia[lastXmlIndex + 1]);
+                        }
+                    }
+
+                    // Find the updated type and add the XML docs to it
+                    var updatedType = cu.DescendantNodes()
                         .OfType<TypeDeclarationSyntax>()
                         .FirstOrDefault();
 
-                    if (typeDecl != null)
+                    if (updatedType != null && xmlDocTrivia.Any())
                     {
-                        cu = cu.ReplaceNode(typeDecl,
-                            typeDecl.WithLeadingTrivia(xmlDocs.Value.AddRange(typeDecl.GetLeadingTrivia())));
+                        var existingTrivia = updatedType.GetLeadingTrivia();
+                        cu = cu.ReplaceNode(updatedType,
+                            updatedType.WithLeadingTrivia(xmlDocTrivia.Concat(existingTrivia)));
                     }
                 }
 

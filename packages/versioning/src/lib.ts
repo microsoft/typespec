@@ -21,12 +21,6 @@ export const $lib = createTypeSpecLibrary({
         default: `Versioned dependency mapping must all point to the same namespace but 2 versions have different namespaces '${"namespace1"}' and '${"namespace2"}'.`,
       },
     },
-    "versioned-dependency-record-not-mapping": {
-      severity: "error",
-      messages: {
-        default: paramMessage`The versionedDependency decorator must provide a model mapping local versions to dependency '${"dependency"}' versions`,
-      },
-    },
     "versioned-dependency-not-picked": {
       severity: "error",
       messages: {
@@ -43,12 +37,6 @@ export const $lib = createTypeSpecLibrary({
       severity: "error",
       messages: {
         default: paramMessage`Multiple versions from '${"name"}' resolve to the same value. Version enums must resolve to unique values.`,
-      },
-    },
-    "using-versioned-library": {
-      severity: "error",
-      messages: {
-        default: paramMessage`Namespace '${"sourceNs"}' is referencing types from versioned namespace '${"targetNs"}' but didn't specify which versions with @useDependency.`,
       },
     },
     "invalid-renamed-from-value": {

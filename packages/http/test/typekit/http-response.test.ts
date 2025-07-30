@@ -1,10 +1,10 @@
+import { Tester } from "#test/test-host.js";
 import { t } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { expect, it } from "vitest";
-import { Tester } from "./../../test-host.js";
 
 // Activate  Http TypeKit augmentation
-import "../../../src/experimental/typekit/index.js";
+import "../../src/experimental/typekit/index.js";
 
 it("should return true for an error response", async () => {
   const { getFoo, program } = await Tester.compile(t.code`
