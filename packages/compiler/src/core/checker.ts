@@ -1758,6 +1758,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         return Array.from(this.variants.values()).map((v) => v.type);
       },
       expression: true,
+      namespace: getParentNamespaceType(node),
       variants: createRekeyableMap(),
       decorators: [],
     });
@@ -2139,6 +2140,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       | ScalarStatementNode
       | NamespaceStatementNode
       | JsNamespaceDeclarationNode
+      | UnionExpressionNode
       | OperationStatementNode
       | EnumStatementNode
       | InterfaceStatementNode
@@ -2152,7 +2154,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     if (
       node.kind === SyntaxKind.ModelExpression ||
-      node.kind === SyntaxKind.IntersectionExpression
+      node.kind === SyntaxKind.IntersectionExpression ||
+      node.kind === SyntaxKind.UnionExpression
     ) {
       let parent: Node | undefined = node.parent;
       while (parent !== undefined) {
@@ -2165,7 +2168,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           parent.kind === SyntaxKind.InterfaceStatement ||
           parent.kind === SyntaxKind.UnionStatement ||
           parent.kind === SyntaxKind.ModelExpression ||
-          parent.kind === SyntaxKind.IntersectionExpression
+          parent.kind === SyntaxKind.IntersectionExpression ||
+          parent.kind === SyntaxKind.UnionExpression
         ) {
           return getParentNamespaceType(parent);
         } else {
