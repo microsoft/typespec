@@ -174,7 +174,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 [
                     InputFactory.Property("IntProperty", InputPrimitiveType.Int32, wireName: "intProperty"),
                     InputFactory.Property("StringProperty", InputPrimitiveType.String, wireName: "stringProperty"),
-                    new InputModelProperty("NullWireInfoProperty", null, null, InputPrimitiveType.String, false, false, null, false, "NullWireInfoProperty", new InputSerializationOptions())
+                    new InputModelProperty("NullWireInfoProperty", null, null, InputPrimitiveType.String, false, false, null, false, "NullWireInfoProperty", false, new InputSerializationOptions())
                 ];
                 return InputFactory.Model("TestName", "Sample.Models", properties: properties);
             }
@@ -190,9 +190,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 return
                 [
                     // customized by the NamedSymbol
-                    new PropertyProvider($"Int property", MethodSignatureModifiers.Public, typeof(int), "IntProperty", new AutoPropertyBody(true), this, wireInfo: new PropertyWireInformation(SerializationFormat.Default, true, true, true, false, "intProperty")),
+                    new PropertyProvider($"Int property", MethodSignatureModifiers.Public, typeof(int), "IntProperty", new AutoPropertyBody(true), this, wireInfo: new PropertyWireInformation(SerializationFormat.Default, true, true, true, false, "intProperty", false)),
                     // not customized by the NamedSymbol
-                    new PropertyProvider($"Spec property", MethodSignatureModifiers.Public, typeof(string), "SpecProperty", new AutoPropertyBody(false), this, wireInfo: new PropertyWireInformation(SerializationFormat.Default, true, true, true, false, "stringProperty")),
+                    new PropertyProvider($"Spec property", MethodSignatureModifiers.Public, typeof(string), "SpecProperty", new AutoPropertyBody(false), this, wireInfo: new PropertyWireInformation(SerializationFormat.Default, true, true, true, false, "stringProperty", false)),
                     // customized by the NamedSymbol with null wire info
                     new PropertyProvider($"Null Wire Info property", MethodSignatureModifiers.Public, typeof(string), "NullWireInfo", new AutoPropertyBody(false), this, wireInfo: new PropertyWireInformation(nullInputWireInfo))
                 ];

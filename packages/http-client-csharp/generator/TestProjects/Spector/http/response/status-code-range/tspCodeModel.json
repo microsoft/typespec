@@ -68,7 +68,8 @@
             "json": {
               "name": "code"
             }
-          }
+          },
+          "isHttpMetadata": false
         },
         {
           "$id": "8",
@@ -92,7 +93,8 @@
             "json": {
               "name": "message"
             }
-          }
+          },
+          "isHttpMetadata": false
         }
       ]
     },
@@ -127,7 +129,8 @@
             "json": {
               "name": "code"
             }
-          }
+          },
+          "isHttpMetadata": false
         }
       ]
     },
@@ -162,7 +165,8 @@
             "json": {
               "name": "code"
             }
-          }
+          },
+          "isHttpMetadata": false
         },
         {
           "$id": "16",
@@ -186,7 +190,8 @@
             "json": {
               "name": "resourceId"
             }
-          }
+          },
+          "isHttpMetadata": false
         }
       ]
     },
@@ -221,7 +226,8 @@
             "json": {
               "name": "code"
             }
-          }
+          },
+          "isHttpMetadata": false
         }
       ]
     }
@@ -286,7 +292,7 @@
             {
               "$id": "25",
               "name": "accept",
-              "nameInRequest": "accept",
+              "nameInRequest": "Accept",
               "type": {
                 "$ref": "1"
               },
@@ -359,7 +365,7 @@
             {
               "$id": "29",
               "name": "accept",
-              "nameInRequest": "accept",
+              "nameInRequest": "Accept",
               "type": {
                 "$ref": "3"
               },

@@ -11,16 +11,16 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         public bool IsReadOnly { get; }
         public bool IsNullable { get; }
         public bool IsDiscriminator { get; }
-        public PropertyLocation Location { get; }
+        public bool IsHttpMetadata { get; }
 
-        public PropertyWireInformation(SerializationFormat serializationFormat, bool isRequired, bool isReadOnly, bool isNullable, bool isDiscriminator, string serializedName, PropertyLocation location = PropertyLocation.Unknown)
+        public PropertyWireInformation(SerializationFormat serializationFormat, bool isRequired, bool isReadOnly, bool isNullable, bool isDiscriminator, string serializedName, bool isHttpMetadata)
             : base(serializationFormat, serializedName)
         {
             IsRequired = isRequired;
             IsReadOnly = isReadOnly;
             IsNullable = isNullable;
             IsDiscriminator = isDiscriminator;
-            Location = location;
+            IsHttpMetadata = isHttpMetadata;
         }
 
         /// <summary>
@@ -31,21 +31,12 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             : base(CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputProperty.Type), inputProperty.SerializedName)
         // TODO -- this is only temporary because we do not support other type of serialization, improvement tracking https://github.com/microsoft/typespec/issues/5861
         {
+            InputModelProperty? modelProperty = inputProperty as InputModelProperty;
             IsRequired = inputProperty.IsRequired;
             IsReadOnly = inputProperty.IsReadOnly;
+            IsHttpMetadata = modelProperty != null && modelProperty.IsHttpMetadata;
             IsNullable = inputProperty.Type is InputNullableType;
-            IsDiscriminator = inputProperty is InputModelProperty modelProperty && modelProperty.IsDiscriminator;
-            Location = ToPropertyLocation(inputProperty);
+            IsDiscriminator = modelProperty != null && modelProperty.IsDiscriminator;
         }
-
-        private static PropertyLocation ToPropertyLocation(InputProperty inputProperty)
-            => inputProperty switch
-            {
-                InputHeaderParameter => PropertyLocation.Header,
-                InputModelProperty => PropertyLocation.Body,
-                InputQueryParameter => PropertyLocation.Query,
-                InputPathParameter => PropertyLocation.Path,
-                _ => PropertyLocation.Unknown,
-            };
     }
 }
