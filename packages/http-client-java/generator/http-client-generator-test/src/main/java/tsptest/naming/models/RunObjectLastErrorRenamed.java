@@ -13,23 +13,23 @@ import com.azure.json.JsonWriter;
 import java.io.IOException;
 
 /**
- * The RunObjectLastError1 model.
+ * The RunObjectLastErrorRenamed model.
  */
 @Immutable
-public final class RunObjectLastError1 implements JsonSerializable<RunObjectLastError1> {
+public final class RunObjectLastErrorRenamed implements JsonSerializable<RunObjectLastErrorRenamed> {
     /*
      * The code property.
      */
     @Generated
-    private final RunObjectLastErrorCode code;
+    private final RunObjectLastErrorCodeRenamed code;
 
     /**
-     * Creates an instance of RunObjectLastError1 class.
+     * Creates an instance of RunObjectLastErrorRenamed class.
      * 
      * @param code the code value to set.
      */
     @Generated
-    private RunObjectLastError1(RunObjectLastErrorCode code) {
+    private RunObjectLastErrorRenamed(RunObjectLastErrorCodeRenamed code) {
         this.code = code;
     }
 
@@ -39,7 +39,7 @@ public final class RunObjectLastError1 implements JsonSerializable<RunObjectLast
      * @return the code value.
      */
     @Generated
-    public RunObjectLastErrorCode getCode() {
+    public RunObjectLastErrorCodeRenamed getCode() {
         return this.code;
     }
 
@@ -55,29 +55,29 @@ public final class RunObjectLastError1 implements JsonSerializable<RunObjectLast
     }
 
     /**
-     * Reads an instance of RunObjectLastError1 from the JsonReader.
+     * Reads an instance of RunObjectLastErrorRenamed from the JsonReader.
      * 
      * @param jsonReader The JsonReader being read.
-     * @return An instance of RunObjectLastError1 if the JsonReader was pointing to an instance of it, or null if it was
-     * pointing to JSON null.
+     * @return An instance of RunObjectLastErrorRenamed if the JsonReader was pointing to an instance of it, or null if
+     * it was pointing to JSON null.
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
-     * @throws IOException If an error occurs while reading the RunObjectLastError1.
+     * @throws IOException If an error occurs while reading the RunObjectLastErrorRenamed.
      */
     @Generated
-    public static RunObjectLastError1 fromJson(JsonReader jsonReader) throws IOException {
+    public static RunObjectLastErrorRenamed fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
-            RunObjectLastErrorCode code = null;
+            RunObjectLastErrorCodeRenamed code = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
                 if ("code".equals(fieldName)) {
-                    code = RunObjectLastErrorCode.fromString(reader.getString());
+                    code = RunObjectLastErrorCodeRenamed.fromString(reader.getString());
                 } else {
                     reader.skipChildren();
                 }
             }
-            return new RunObjectLastError1(code);
+            return new RunObjectLastErrorRenamed(code);
         });
     }
 }
