@@ -15,21 +15,6 @@ import {
   emitSelectType,
 } from "./common/emit-steps";
 import { screenshot, tempDir, test } from "./common/utils";
-import { execSync } from "child_process";
-
-try {
-  execSync("pnpm install @typespec/http", { stdio: "inherit" });
-  execSync("pnpm install @typespec/openapi3", { stdio: "inherit" });
-  execSync("pnpm list", { stdio: "inherit" });
-  execSync("sudo apt update", { stdio: "inherit" });
-  execSync("sudo apt install python3", { stdio: "inherit" });
-  execSync("python3 --version", { stdio: "inherit" });
-  execSync("sudo apt install python3-pip", { stdio: "inherit" });  
-  execSync("pip3 --version", { stdio: "inherit" });
-  execSync("python3 -m pip --version", { stdio: "inherit" });
-} catch (e) {
-  process.exit(1);
-}
 
 enum EmitProjectTriggerType {
   Command = "Command",
