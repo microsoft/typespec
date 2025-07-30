@@ -252,7 +252,6 @@ it("emit diagnostic saying js files are not suppoorted", async () => {
     message: "Importer doesn't support JS files in project: /test/foo.js",
   });
   expect(result.content).toEqual(d`
-    import "./foo.js";
     model Main {}
 
   `);
