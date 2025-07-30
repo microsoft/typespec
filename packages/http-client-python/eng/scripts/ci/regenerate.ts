@@ -27,6 +27,7 @@ const PLUGIN_DIR = argv.values.pluginDir
   : resolve(fileURLToPath(import.meta.url), "../../../../");
 const AZURE_HTTP_SPECS = resolve(PLUGIN_DIR, "node_modules/@azure-tools/azure-http-specs/specs");
 const HTTP_SPECS = resolve(PLUGIN_DIR, "node_modules/@typespec/http-specs/specs");
+const SMOKE = resolve(PLUGIN_DIR, "node_modules/@typespec/http-specs/smoke");
 const GENERATED_FOLDER = argv.values.generatedFolder
   ? resolve(argv.values.generatedFolder)
   : resolve(PLUGIN_DIR, "generator");
@@ -249,8 +250,15 @@ function toPosix(dir: string): string {
   return dir.replace(/\\/g, "/");
 }
 
+function getSpecDir(spec: string): string {
+  if (spec.includes("azure")) return AZURE_HTTP_SPECS;
+  if (spec.includes("smoke")) return SMOKE;
+
+  return HTTP_SPECS;
+}
+
 function getEmitterOption(spec: string, flavor: string): Record<string, string>[] {
-  const specDir = spec.includes("azure") ? AZURE_HTTP_SPECS : HTTP_SPECS;
+  const specDir = getSpecDir(spec);
   const relativeSpec = toPosix(relative(specDir, spec));
   const key = relativeSpec.includes("resiliency/srv-driven/old.tsp")
     ? relativeSpec
@@ -351,7 +359,7 @@ async function getSubdirectories(baseDir: string, flags: RegenerateFlags): Promi
 }
 
 function defaultPackageName(spec: string): string {
-  const specDir = spec.includes("azure") ? AZURE_HTTP_SPECS : HTTP_SPECS;
+  const specDir = getSpecDir(spec);
   return toPosix(relative(specDir, dirname(spec)))
     .replace(/\//g, "-")
     .toLowerCase();
@@ -435,10 +443,11 @@ async function regenerate(flags: RegenerateFlagsInput): Promise<void> {
     const flagsResolved = { debug: false, flavor: flags.flavor, ...flags };
     const subdirectoriesForAzure = await getSubdirectories(AZURE_HTTP_SPECS, flagsResolved);
     const subdirectoriesForNonAzure = await getSubdirectories(HTTP_SPECS, flagsResolved);
+    const subdirectoriesForSmoke = await getSubdirectories(SMOKE, flagsResolved);
     const subdirectories =
       flags.flavor === "azure"
-        ? [...subdirectoriesForAzure, ...subdirectoriesForNonAzure]
-        : subdirectoriesForNonAzure;
+        ? [...subdirectoriesForAzure, ...subdirectoriesForNonAzure, ...subdirectoriesForSmoke]
+        : [...subdirectoriesForNonAzure, ...subdirectoriesForSmoke];
     const cmdList: TspCommand[] = subdirectories.flatMap((subdirectory) =>
       _getCmdList(subdirectory, flagsResolved),
     );
