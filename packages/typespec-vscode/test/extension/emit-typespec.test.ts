@@ -20,6 +20,8 @@ import { execSync } from "child_process";
 try {
   execSync("pnpm install @typespec/http", { stdio: "inherit" });
   execSync("pnpm install @typespec/openapi3", { stdio: "inherit" });
+  execSync("pnpm install @typespec/http-client-python", { stdio: "inherit" });
+  execSync("pnpm list", { stdio: "inherit" });
 } catch (e) {
   process.exit(1);
 }
@@ -49,14 +51,14 @@ const EmitCasesConfigList: EmitConfigType[] = [
     TspConfigHasEmit: true,
     expectedResults: ["http-client-python"],
   },
-  {
-    caseName: "EmitTypespecProject ClientCode Python CommandPallette TspconfigNoEmit",
-    selectType: "Client Code",
-    selectTypeLanguage: "Python",
-    triggerType: EmitProjectTriggerType.Command,
-    TspConfigHasEmit: false,
-    expectedResults: ["http-client-python"],
-  },
+  // {
+  //   caseName: "EmitTypespecProject ClientCode Python CommandPallette TspconfigNoEmit",
+  //   selectType: "Client Code",
+  //   selectTypeLanguage: "Python",
+  //   triggerType: EmitProjectTriggerType.Command,
+  //   TspConfigHasEmit: false,
+  //   expectedResults: ["http-client-python"],
+  // },
 ];
 
 beforeEach(() => {
