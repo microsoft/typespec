@@ -6,7 +6,13 @@ import { tempDir, test, retry } from "./common/utils";
 import { execSync } from "child_process";
 
 try {
-  execSync("npm install @typespec/http", { stdio: "inherit" });
+  execSync("pnpm install @typespec/http", { stdio: "inherit" });
+} catch (e) {
+  process.exit(1);
+}
+
+try {
+  execSync("pnpm list", { stdio: "inherit" });
 } catch (e) {
   process.exit(1);
 }
