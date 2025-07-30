@@ -5,6 +5,7 @@ import {
   expectDiagnostics,
   type MockFile,
   mockFile,
+  resolveVirtualPath,
 } from "@typespec/compiler/testing";
 import { ok } from "assert";
 import { describe, expect, it } from "vitest";
@@ -249,7 +250,7 @@ it("emit diagnostic saying js files are not suppoorted", async () => {
   });
   expectDiagnostics(result.diagnostics, {
     code: "no-js",
-    message: "Importer doesn't support JS files in project: /test/foo.js",
+    message: `Importer doesn't support JS files in project: ${resolveVirtualPath("foo.js")}`,
   });
   expect(result.content).toEqual(d`
     model Main {}
