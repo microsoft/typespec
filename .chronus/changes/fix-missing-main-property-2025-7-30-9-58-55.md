@@ -5,4 +5,4 @@ packages:
   - "@typespec/http-client-js"
 ---
 
-fix missing property `main` for package.json
+Fix the missing `main` field issue in package.json
