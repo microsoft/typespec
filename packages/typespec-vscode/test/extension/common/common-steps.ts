@@ -44,6 +44,8 @@ export async function preContrastResult(
   );
   await page.getByRole("button", { name: /View details in Output/ }).click();
   await page.waitForSelector(`:text("${text}")`, { timeout: Math.min(interval, timeout - (Date.now() - start)) });
+  await page.getByRole('checkbox', { name: 'Maximize Panel Size' }).click();
+  await page.waitForSelector(`:text("${text}")`, { timeout: Math.min(interval, timeout - (Date.now() - start)) });
   if (!found) {
     throw new Error(errorMessage);
   }
