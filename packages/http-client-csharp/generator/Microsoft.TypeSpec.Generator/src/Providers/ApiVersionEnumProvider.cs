@@ -116,8 +116,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             allMembers.Sort((x, y) =>
             {
                 // Extract base names and version types
-                var (xBase, xType) = ParseVersionInfo(x.Name);
-                var (yBase, yType) = ParseVersionInfo(y.Name);
+                var (xBase, xType, xPrereleaseNumber) = ParseVersionInfo(x.Name);
+                var (yBase, yType, yPreReleaseNumber) = ParseVersionInfo(y.Name);
 
                 // First compare base names
                 int baseComparison = string.Compare(xBase, yBase, StringComparison.OrdinalIgnoreCase);
@@ -126,11 +126,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     return baseComparison;
                 }
 
-                // If base names are equal, order by version type
+                // If base names are equal, and version types are equal, compare prerelease numbers
+                if (xType == yType)
+                {
+                    return xPrereleaseNumber.CompareTo(yPreReleaseNumber);
+                }
+
                 return xType.CompareTo(yType);
             });
 
-            static (string BaseName, VersionType VersionType) ParseVersionInfo(string name)
+            static (string BaseName, VersionType VersionType, int PrereleaseNumber) ParseVersionInfo(string name)
             {
                 // Common patterns for Beta/Preview versions
                 string[] versionIndicators = ["_Beta", "_Preview"];
@@ -141,12 +146,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     if (index >= 0)
                     {
                         string baseName = name.Substring(0, index).Trim('_');
-                        return (baseName, Enum.Parse<VersionType>(indicator.TrimStart('_')));
+                        return (baseName, Enum.Parse<VersionType>(indicator.TrimStart('_')),
+                            int.TryParse(name.Substring(index + indicator.Length).Trim('_'), out int prereleaseNumber) ? prereleaseNumber : 0);
                     }
                 }
 
                 // No version indicator found, it's a GA version
-                return (name, VersionType.GA);
+                return (name, VersionType.GA, 0);
             }
         }
 

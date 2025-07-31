@@ -59,13 +59,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.EnumProviders
             Assert.IsNotNull(provider);
             Assert.That(provider.Name, Is.EqualTo("ServiceVersion"));
             Assert.That(provider.EnumValues.Count, Is.EqualTo(6));
-            Assert.IsTrue(provider.EnumValues.Select(v => v.Name).SequenceEqual(["V1_0_0", "V2023_10_01_Beta", "V2023_11_01_Beta", "V2023_11_01", "V2024_01_01_Beta", "V2024_01_01"]));
+            Assert.IsTrue(provider.EnumValues.Select(v => v.Name).SequenceEqual(["V1_0_0", "V2023_10_01_Beta_1", "V2023_10_01_Beta_2", "V2023_11_01", "V2024_01_01_Beta", "V2024_01_01"]));
         }
 
         [Test]
         public async Task BackCompat_PreviewAndGAApiVersionsAdded()
         {
-            string[] apiVersions = ["1.0.0"];
+            string[] apiVersions = ["1.0.0", "V2023_10_01_Preview_2"];
             var input = InputFactory.Int32Enum(
                 "mockInputEnum",
                 apiVersions.Select((a, index) => (a, index)),
@@ -83,7 +83,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.EnumProviders
             Assert.IsNotNull(provider);
             Assert.That(provider.Name, Is.EqualTo("ServiceVersion"));
             Assert.That(provider.EnumValues.Count, Is.EqualTo(6));
-            Assert.IsTrue(provider.EnumValues.Select(v => v.Name).SequenceEqual(["V1_0_0", "V2023_10_01_Preview", "V2023_11_01_Preview", "V2023_11_01", "V2024_01_01_Preview", "V2024_01_01"]));
+            Assert.IsTrue(provider.EnumValues.Select(v => v.Name).SequenceEqual(["V1_0_0", "V2023_10_01_Preview_1", "V2023_10_01_Preview_2", "V2023_11_01", "V2024_01_01_Preview", "V2024_01_01"]));
         }
 
         [Test]

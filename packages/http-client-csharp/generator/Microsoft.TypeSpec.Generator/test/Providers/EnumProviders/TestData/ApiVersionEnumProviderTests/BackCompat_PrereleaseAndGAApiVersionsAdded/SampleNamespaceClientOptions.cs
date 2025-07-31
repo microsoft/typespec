@@ -13,8 +13,8 @@ namespace SampleNamespace
         {
             Version = version switch
             {
-                ServiceVersion.V2023_10_01_beta_1 => "2023-10-01-beta",
-                ServiceVersion.V2023_11_01_beta_2 => "2023-11-01-beta",
+                ServiceVersion.V2023_10_01_Beta_1 => "2023-10-01-beta-1",
+                ServiceVersion.V2023_10_01_Beta_2 => "2023-10-01-beta-2",
                 ServiceVersion.V2023_11_01 => "2023-11-01",
                 ServiceVersion.V2024_01_01_Beta => "2024-01-01-beta",
                 ServiceVersion.V2024_01_01 => "2024-01-01",
@@ -28,8 +28,8 @@ namespace SampleNamespace
         /// <summary> The version of the service to use. </summary>
         public enum ServiceVersion
         {
-            V2023_10_01_Beta = 1,
-            V2023_11_01_Beta = 2,
+            V2023_10_01_Beta_1 = 1,
+            V2023_10_01_Beta_2 = 2,
             V2023_11_01 = 3,
             V2024_01_01_Beta = 4,
             V2024_01_01 = 5
