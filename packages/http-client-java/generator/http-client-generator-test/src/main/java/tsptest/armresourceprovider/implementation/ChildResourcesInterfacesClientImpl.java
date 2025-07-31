@@ -141,7 +141,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             @HeaderParam("Accept") String accept, @BodyParam("application/json") ChildResourceUpdate properties,
             Context context);
 
-        @Headers({ "Content-Type: application/json" })
+        @Headers({ "Accept: application/json;q=0.9", "Content-Type: application/json" })
         @Delete("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childResources/{childResourceName}")
         @ExpectedResponses({ 200, 202, 204 })
         @UnexpectedResponseExceptionType(ManagementException.class)
@@ -149,10 +149,9 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("resourceGroupName") String resourceGroupName,
             @PathParam("topLevelArmResourceName") String topLevelArmResourceName,
-            @PathParam("childResourceName") String childResourceName, @HeaderParam("Accept") String accept,
-            Context context);
+            @PathParam("childResourceName") String childResourceName, Context context);
 
-        @Headers({ "Content-Type: application/json" })
+        @Headers({ "Accept: application/json;q=0.9", "Content-Type: application/json" })
         @Delete("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childResources/{childResourceName}")
         @ExpectedResponses({ 200, 202, 204 })
         @UnexpectedResponseExceptionType(ManagementException.class)
@@ -160,8 +159,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("resourceGroupName") String resourceGroupName,
             @PathParam("topLevelArmResourceName") String topLevelArmResourceName,
-            @PathParam("childResourceName") String childResourceName, @HeaderParam("Accept") String accept,
-            Context context);
+            @PathParam("childResourceName") String childResourceName, Context context);
 
         @Headers({ "Content-Type: application/json" })
         @Get("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childResources")
@@ -183,7 +181,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             @PathParam("topLevelArmResourceName") String topLevelArmResourceName, @HeaderParam("Accept") String accept,
             Context context);
 
-        @Headers({ "Content-Type: application/json" })
+        @Headers({ "Accept: application/json;q=0.9", "Content-Type: application/json" })
         @Post("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childResources/{childResourceName}/actionWithoutBody")
         @ExpectedResponses({ 202, 204 })
         @UnexpectedResponseExceptionType(ManagementException.class)
@@ -191,10 +189,9 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("resourceGroupName") String resourceGroupName,
             @PathParam("topLevelArmResourceName") String topLevelArmResourceName,
-            @PathParam("childResourceName") String childResourceName, @HeaderParam("Accept") String accept,
-            Context context);
+            @PathParam("childResourceName") String childResourceName, Context context);
 
-        @Headers({ "Content-Type: application/json" })
+        @Headers({ "Accept: application/json;q=0.9", "Content-Type: application/json" })
         @Post("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childResources/{childResourceName}/actionWithoutBody")
         @ExpectedResponses({ 202, 204 })
         @UnexpectedResponseExceptionType(ManagementException.class)
@@ -202,8 +199,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("resourceGroupName") String resourceGroupName,
             @PathParam("topLevelArmResourceName") String topLevelArmResourceName,
-            @PathParam("childResourceName") String childResourceName, @HeaderParam("Accept") String accept,
-            Context context);
+            @PathParam("childResourceName") String childResourceName, Context context);
 
         @Headers({ "Content-Type: application/json" })
         @Get("{nextLink}")
@@ -787,11 +783,8 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             return Mono
                 .error(new IllegalArgumentException("Parameter childResourceName is required and cannot be null."));
         }
-        final String accept = "application/json";
-        return FluxUtil
-            .withContext(context -> service.delete(this.client.getEndpoint(), this.client.getApiVersion(),
-                this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, childResourceName, accept,
-                context))
+        return FluxUtil.withContext(context -> service.delete(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, childResourceName, context))
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
 
@@ -831,9 +824,8 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             throw LOGGER.atError()
                 .log(new IllegalArgumentException("Parameter childResourceName is required and cannot be null."));
         }
-        final String accept = "application/json";
         return service.deleteSync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, childResourceName, accept,
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, childResourceName,
             Context.NONE);
     }
 
@@ -874,10 +866,8 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             throw LOGGER.atError()
                 .log(new IllegalArgumentException("Parameter childResourceName is required and cannot be null."));
         }
-        final String accept = "application/json";
         return service.deleteSync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, childResourceName, accept,
-            context);
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, childResourceName, context);
     }
 
     /**
@@ -1196,10 +1186,9 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             return Mono
                 .error(new IllegalArgumentException("Parameter childResourceName is required and cannot be null."));
         }
-        final String accept = "application/json";
         return FluxUtil
             .withContext(context -> service.actionWithoutBody(this.client.getEndpoint(), this.client.getApiVersion(),
-                this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, childResourceName, accept,
+                this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, childResourceName,
                 context))
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
@@ -1240,9 +1229,8 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             throw LOGGER.atError()
                 .log(new IllegalArgumentException("Parameter childResourceName is required and cannot be null."));
         }
-        final String accept = "application/json";
         return service.actionWithoutBodySync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, childResourceName, accept,
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, childResourceName,
             Context.NONE);
     }
 
@@ -1283,10 +1271,8 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             throw LOGGER.atError()
                 .log(new IllegalArgumentException("Parameter childResourceName is required and cannot be null."));
         }
-        final String accept = "application/json";
         return service.actionWithoutBodySync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, childResourceName, accept,
-            context);
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, childResourceName, context);
     }
 
     /**
