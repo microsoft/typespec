@@ -467,8 +467,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         """
         root_dir = self.get_root_dir()
         retval = self._get_relative_generation_dir(root_dir, namespace)
-        # TODO: remove when we remove legacy multiapi generation
-        if self.options["multiapi"]:
+        if self.options["no-namespace-folders"]:
             compensation = Path("../" * (self.namespace.count(".") + 1))
             return compensation / retval
         return retval
