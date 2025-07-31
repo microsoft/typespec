@@ -228,8 +228,8 @@ class JinjaSerializer(ReaderAndWriter):
             file = template_name.replace(".jinja2", "")
             output_name = root_of_sdk / file
             if not self.read_file(output_name) or file in _REGENERATE_FILES:
-                if self.keep_version_file and file == "setup.py":
-                    # don't regenerate setup.py file if the version file is more up to date
+                if self.keep_version_file and file == "setup.py" and not self.code_model.options["azure-arm"]:
+                    # don't regenerate setup.py file if the version file is more up to date for data-plane
                     continue
                 self.write_file(
                     output_name,
@@ -487,7 +487,11 @@ class JinjaSerializer(ReaderAndWriter):
 
     # pylint: disable=line-too-long
     def exec_path(self, namespace: str) -> Path:
-        if self.code_model.options["no-namespace-folders"] and not self.code_model.options["multiapi"]:
+        if (
+            self.code_model.options["no-namespace-folders"]
+            and not self.code_model.options["multiapi"]
+            and not self.code_model.options["azure-arm"]
+        ):
             # when output folder contains parts different from the namespace, we fall back to current folder directly.
             # (e.g. https://github.com/Azure/azure-sdk-for-python/blob/main/sdk/communication/azure-communication-callautomation/swagger/SWAGGER.md)
             return Path(".")
