@@ -2282,11 +2282,11 @@ importers:
         specifier: ^3.0.4
         version: 3.0.4
       '@typespec/compiler':
-        specifier: workspace:^
-        version: link:../compiler
+        specifier: ^1.2.1
+        version: 1.2.1(@types/node@24.1.0)
       '@typespec/internal-build-utils':
-        specifier: workspace:^
-        version: link:../internal-build-utils
+        specifier: ^0.72.1
+        version: 0.72.1(@pnpm/logger@1001.0.0)
       '@vitest/coverage-v8':
         specifier: ^3.1.2
         version: 3.2.4(vitest@3.2.4)
@@ -6261,6 +6261,16 @@ packages:
   '@typescript-eslint/visitor-keys@8.38.0':
     resolution: {integrity: sha512-pWrTcoFNWuwHlA9CvlfSsGWs14JxfN1TH25zM5L7o0pRLhsoZkDnTsXfQRJBEWJoV5DL0jf+Z+sxiud+K0mq1g==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@typespec/compiler@1.2.1':
+    resolution: {integrity: sha512-lUdHCRBPtianNN6QKt0G9qyyuSu7azbqKcYNimNLYQwrEIDcgSfQAUnoja9s+gtzCQQRzfbUZ8WLBC2b9cC81Q==}
+    engines: {node: '>=20.0.0'}
+    hasBin: true
+
+  '@typespec/internal-build-utils@0.72.1':
+    resolution: {integrity: sha512-Ql8i29JvhExjdLBcwqxYWlJh3l5SgvjK1YO4RBUjxTdLORbN5C6n8pmesJuUI6tnTfzh9sTSUYJy5Zs3SM3Iqg==}
+    engines: {node: '>=20.0.0'}
+    hasBin: true
 
   '@typespec/ts-http-runtime@0.3.0':
     resolution: {integrity: sha512-sOx1PKSuFwnIl7z4RN0Ls7N9AQawmR9r66eI5rFCzLDIs8HTIYrIpH9QjYWoX0lkgGrkLxXhi4QnK7MizPRrIg==}
@@ -10963,6 +10973,11 @@ packages:
   prettier@2.8.7:
     resolution: {integrity: sha512-yPngTo3aXUUmyuTjeTUT75txrf+aMh9FiD7q9ZE/i6r0bPb22g4FsE6Y338PQX1bmfy08i9QQCB7/rcUAVntfw==}
     engines: {node: '>=10.13.0'}
+    hasBin: true
+
+  prettier@3.5.3:
+    resolution: {integrity: sha512-QQtaxnoDJeAkDvDKWCLiwIXkTgRhwYDEQCghU9Z6q03iyek/rxRh/2lC3HB7P8sWT2xC/y5JDctPLBIGzHKbhw==}
+    engines: {node: '>=14'}
     hasBin: true
 
   prettier@3.6.2:
@@ -18523,6 +18538,43 @@ snapshots:
       '@typescript-eslint/types': 8.38.0
       eslint-visitor-keys: 4.2.1
 
+  '@typespec/compiler@1.2.1(@types/node@24.1.0)':
+    dependencies:
+      '@babel/code-frame': 7.27.1
+      '@inquirer/prompts': 7.7.1(@types/node@24.1.0)
+      ajv: 8.17.1
+      change-case: 5.4.4
+      env-paths: 3.0.0
+      globby: 14.1.0
+      is-unicode-supported: 2.1.0
+      mustache: 4.2.0
+      picocolors: 1.1.1
+      prettier: 3.5.3
+      semver: 7.7.2
+      tar: 7.4.3
+      temporal-polyfill: 0.3.0
+      vscode-languageserver: 9.0.1
+      vscode-languageserver-textdocument: 1.0.12
+      yaml: 2.8.0
+      yargs: 18.0.0
+    transitivePeerDependencies:
+      - '@types/node'
+
+  '@typespec/internal-build-utils@0.72.1(@pnpm/logger@1001.0.0)':
+    dependencies:
+      '@pnpm/workspace.find-packages': 1000.0.29(@pnpm/logger@1001.0.0)(@pnpm/worker@1000.1.9(@pnpm/logger@1001.0.0)(@types/node@24.1.0))(typanion@3.14.0)
+      cross-spawn: 7.0.6
+      cspell: 9.2.0
+      semver: 7.7.2
+      strip-json-comments: 5.0.2
+      yargs: 18.0.0
+    transitivePeerDependencies:
+      - '@pnpm/logger'
+      - '@pnpm/worker'
+      - domexception
+      - supports-color
+      - typanion
+
   '@typespec/ts-http-runtime@0.3.0':
     dependencies:
       http-proxy-agent: 7.0.2
@@ -24625,6 +24677,8 @@ snapshots:
 
   prettier@2.8.7:
     optional: true
+
+  prettier@3.5.3: {}
 
   prettier@3.6.2: {}
 
