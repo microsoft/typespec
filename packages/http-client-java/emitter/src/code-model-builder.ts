@@ -1139,7 +1139,7 @@ export class CodeModelBuilder {
             }
           }
         } else if (continuationTokenResponseSegment?.kind === "property") {
-          // continuationToken is repsonse body property
+          // continuationToken is response body property
           continuationTokenResponseProperty = findResponsePropertySegments(
             op,
             sdkMethod.pagingMetadata.continuationTokenResponseSegments,
@@ -1529,7 +1529,7 @@ export class CodeModelBuilder {
     request.parameters = [];
     request.signatureParameters = [];
 
-    const tihsSdkContext = this.sdkContext;
+    const thisSdkContext = this.sdkContext;
     function findOperationParameter(
       parameter: SdkHttpOperationParameterType | SdkBodyParameter | SdkModelPropertyType,
     ): Parameter | undefined {
@@ -1539,7 +1539,7 @@ export class CodeModelBuilder {
         if (parameter.kind === "body") {
           // there should be only 1 body parameter
           opParameter = requestParameters.find((it) => it.protocol.http?.in === "body");
-        } else if (parameter.kind === "property" && !isHttpMetadata(tihsSdkContext, parameter)) {
+        } else if (parameter.kind === "property" && !isHttpMetadata(thisSdkContext, parameter)) {
           // body property
           // if body property appears on method signature, it should already be flattened, hence the check on VirtualParameter
           opParameter = requestParameters.find(
