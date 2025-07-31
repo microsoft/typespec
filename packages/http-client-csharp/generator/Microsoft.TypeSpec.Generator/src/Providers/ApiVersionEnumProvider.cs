@@ -153,6 +153,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private enum VersionType
         {
             Beta,
+            // Beta and Preview should never occur in the same enum, but handle it gracefully
             Preview,
             GA
         }
