@@ -93,7 +93,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return currentApiVersions;
             }
 
-            allMembers.Sort(static (x, y) => string.Compare(x.Name, y.Name, StringComparison.OrdinalIgnoreCase));
+            SortApiVersions(allMembers);
+
             for (int i = 0; i < allMembers.Count; i++)
             {
                 var member = allMembers[i];
@@ -108,6 +109,52 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return allMembers;
+        }
+
+        private static void SortApiVersions(List<EnumTypeMember> allMembers)
+        {
+            allMembers.Sort((x, y) =>
+            {
+                // Extract base names and version types
+                var (xBase, xType) = ParseVersionInfo(x.Name);
+                var (yBase, yType) = ParseVersionInfo(y.Name);
+
+                // First compare base names
+                int baseComparison = string.Compare(xBase, yBase, StringComparison.OrdinalIgnoreCase);
+                if (baseComparison != 0)
+                {
+                    return baseComparison;
+                }
+
+                // If base names are equal, order by version type
+                return xType.CompareTo(yType);
+            });
+
+            static (string BaseName, VersionType VersionType) ParseVersionInfo(string name)
+            {
+                // Common patterns for Beta/Preview versions
+                string[] versionIndicators = ["_Beta", "_Preview"];
+
+                foreach (var indicator in versionIndicators)
+                {
+                    int index = name.IndexOf(indicator, StringComparison.OrdinalIgnoreCase);
+                    if (index >= 0)
+                    {
+                        string baseName = name.Substring(0, index).Trim('_');
+                        return (baseName, Enum.Parse<VersionType>(indicator.TrimStart('_')));
+                    }
+                }
+
+                // No version indicator found, it's a GA version
+                return (name, VersionType.GA);
+            }
+        }
+
+        private enum VersionType
+        {
+            Beta,
+            Preview,
+            GA
         }
 
         private static (string? Prefix, char? Separator) ExtractVersionFormatInfo(string previousVersion, List<EnumTypeMember> currentApiVersions)
