@@ -868,7 +868,12 @@ function getConfigEntriesFromEmitterOptions(
   }
 
   for (const [propertyName, propertySchema] of Object.entries(emitterOptions.properties)) {
-    const { description = "", type, enum: enumValues, default: defaultValue } = propertySchema as any;
+    const {
+      description = "",
+      type,
+      enum: enumValues,
+      default: defaultValue,
+    } = propertySchema as any;
 
     const commentParts: string[] = [];
     if (description) commentParts.push(description);
@@ -938,15 +943,13 @@ async function generateAnnotatedYamlFile(
       const maxValueLength = Math.max(...packageNodeOptions.map((x) => String(x.value).length));
       const commentAlignmentSpacing = 10;
       parentMap.comment = packageNodeOptions
-        .map(
-          (x) =>{
-            const nameValuePart = ` ${x.name}: ${x.value}`;
-            const totalPadding = maxNameLength + maxValueLength + 3 + commentAlignmentSpacing; // 3 for ": " and space
-            const currentLength = nameValuePart.length;
-            const spacesToAdd = Math.max(commentAlignmentSpacing, totalPadding - currentLength);
-            return `${nameValuePart}${" ".repeat(spacesToAdd)}# ${x.comment}`;
-          }
-        )
+        .map((x) => {
+          const nameValuePart = ` ${x.name}: ${x.value}`;
+          const totalPadding = maxNameLength + maxValueLength + 3 + commentAlignmentSpacing; // 3 for ": " and space
+          const currentLength = nameValuePart.length;
+          const spacesToAdd = Math.max(commentAlignmentSpacing, totalPadding - currentLength);
+          return `${nameValuePart}${" ".repeat(spacesToAdd)}# ${x.comment}`;
+        })
         .join("\n");
       configYaml.setIn(["options", packageName], parentMap);
     }
