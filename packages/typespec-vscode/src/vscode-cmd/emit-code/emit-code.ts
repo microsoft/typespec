@@ -38,10 +38,6 @@ import {
   getRegisterEmitterTypes,
   PreDefinedEmitterPickItems,
 } from "./emitter.js";
-
-const TO_BE_REPLACED_WITH_HASH = "ToBeReplacedWith#";
-const TO_BE_REPLACED_WITH_EMPTY_VALUE = "ToBeReplacedWithEmptyValue";
-
 interface EmitQuickPickButton extends QuickInputButton {
   uri: string;
 }
@@ -407,8 +403,7 @@ async function doEmit(
         await generateAnnotatedYamlFile(configYaml, emitter.package, baseDir);
       }
     }
-    let newYamlContent = configYaml.toString();
-    newYamlContent = alignTspConfigComments(newYamlContent);
+    const newYamlContent = configYaml.toString();
     await writeFile(tspConfigFile, newYamlContent);
 
     const [tspConfigOptions, diagnostics] = await resolveCompilerOptions(NodeSystemHost, {
@@ -866,7 +861,6 @@ async function isCompilerSupport(client: TspLanguageClient): Promise<boolean> {
 
 function getConfigEntriesFromEmitterOptions(
   emitterOptions: Record<string, any>,
-  configYamlContent: string,
 ): Record<string, any> {
   const configEntries: Record<string, any> = {};
   if (!emitterOptions.properties) {
@@ -874,28 +868,39 @@ function getConfigEntriesFromEmitterOptions(
   }
 
   for (const [propertyName, propertySchema] of Object.entries(emitterOptions.properties)) {
-    if (configYamlContent.includes(propertyName)) {
-      continue;
+    const { description = "", type, enum: enumValues, default: defaultValue } = propertySchema as any;
+
+    const commentParts: string[] = [];
+    if (description) commentParts.push(description);
+    if (type) commentParts.push(`Type: ${type}`);
+    if (Array.isArray(enumValues)) commentParts.push(`Options: ${enumValues.join(", ")}`);
+    const comment = commentParts.join(" ");
+
+    let value = defaultValue;
+    if (value === undefined) {
+      // If there is no default value; provide default values according to the following implementations based on the type.
+      switch (type) {
+        case "string":
+          value = `""`;
+          break;
+        case "int":
+        case "number":
+          value = 0;
+          break;
+        case "object":
+          value = `{}`;
+          break;
+        case "bool":
+        case "boolean":
+          value = false;
+          break;
+        case "array":
+          value = [];
+          break;
+      }
     }
 
-    const propSchema = propertySchema as any;
-    let comment = "";
-    if (propSchema.description) {
-      comment = propSchema.description;
-    }
-    if (propSchema.type) {
-      comment += ` (Type: ${propSchema.type})`;
-    }
-    if (propSchema.enum) {
-      comment += ` (Options: ${propSchema.enum.join(", ")})`;
-    }
-
-    const defaultValue = propSchema.default ?? TO_BE_REPLACED_WITH_EMPTY_VALUE;
-
-    configEntries[propertyName] = {
-      value: defaultValue,
-      comment: comment,
-    };
+    configEntries[propertyName] = { value, comment };
   }
 
   return configEntries;
@@ -915,64 +920,37 @@ async function generateAnnotatedYamlFile(
       return;
     }
 
-    const configEntries = getConfigEntriesFromEmitterOptions(emitterOptions, configYaml.toString());
+    const configEntries = getConfigEntriesFromEmitterOptions(emitterOptions);
     if (Object.keys(configEntries).length === 0) {
       logger.debug(`No configuration entries found for ${packageName}`);
       return;
     }
 
+    const packageNodeOptions: { name: string; value: string; comment: string }[] = [];
     for (const [propertyName, propertyConfig] of Object.entries(configEntries)) {
       const { value, comment } = propertyConfig as { value: any; comment: string };
-      // Use a custom key by adding 'ToBeReplacedWith#' to make it easier to later replace 'ToBeReplacedWith#' with '# ',
-      // and finally implement adding a commented property under a certain package under option.
-      const key = `${TO_BE_REPLACED_WITH_HASH}${propertyName}`;
+      packageNodeOptions.push({ name: propertyName, value, comment });
+    }
 
-      const keyScalar = configYaml.createNode(key);
-      const valueScalar = configYaml.createNode(value);
-      const parentMap = configYaml.getIn(["options", packageName], true);
-      if (parentMap && typeof parentMap === "object" && "items" in parentMap) {
-        const newPair = configYaml.createPair(keyScalar, valueScalar);
-        (parentMap as any).items.push(newPair);
-
-        if (comment && newPair.value) {
-          newPair.value.comment = ` ${comment}`;
-        }
-      }
+    const parentMap = configYaml.getIn(["options", packageName], true) as any;
+    if (parentMap) {
+      const maxNameLength = Math.max(...packageNodeOptions.map((x) => x.name.length));
+      const maxValueLength = Math.max(...packageNodeOptions.map((x) => String(x.value).length));
+      const commentAlignmentSpacing = 10;
+      parentMap.comment = packageNodeOptions
+        .map(
+          (x) =>{
+            const nameValuePart = ` ${x.name}: ${x.value}`;
+            const totalPadding = maxNameLength + maxValueLength + 3 + commentAlignmentSpacing; // 3 for ": " and space
+            const currentLength = nameValuePart.length;
+            const spacesToAdd = Math.max(commentAlignmentSpacing, totalPadding - currentLength);
+            return `${nameValuePart}${" ".repeat(spacesToAdd)}# ${x.comment}`;
+          }
+        )
+        .join("\n");
+      configYaml.setIn(["options", packageName], parentMap);
     }
   } catch (error) {
     logger.error(`Error generating annotated yaml file content for ${packageName}:`, [error]);
   }
-}
-
-function alignTspConfigComments(yamlContent: string): string {
-  const lines = yamlContent.split("\n");
-
-  let maxKeyValueLength = 0;
-  const commentLines: { index: number; keyValuePart: string; comment: string }[] = [];
-
-  lines.forEach((line, index) => {
-    const commentMatch = line.match(/^(\s*)(# )?([^:]+):\s*([^#]*)\s*(# .+)?$/);
-    if (commentMatch && commentMatch[5]) {
-      const [, indent, commentPrefix, key, value, comment] = commentMatch;
-      const keyValuePart = `${indent}${commentPrefix || ""}${key}: ${value.trim()}`;
-      maxKeyValueLength = Math.max(maxKeyValueLength, keyValuePart.length);
-
-      commentLines.push({
-        index,
-        keyValuePart,
-        comment: comment.trim(),
-      });
-    }
-  });
-
-  const commentAlignmentSpacing = 10;
-  commentLines.map(({ index, keyValuePart, comment }) => {
-    const padding = maxKeyValueLength - keyValuePart.length + commentAlignmentSpacing;
-    lines[index] = `${keyValuePart}${" ".repeat(padding)}${comment}`;
-  });
-
-  return lines
-    .join("\n")
-    .replaceAll(TO_BE_REPLACED_WITH_HASH, "# ")
-    .replaceAll(TO_BE_REPLACED_WITH_EMPTY_VALUE, "");
 }
