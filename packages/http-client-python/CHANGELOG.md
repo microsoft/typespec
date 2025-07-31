@@ -18,7 +18,6 @@
 ### Features
 
 - [#7924](https://github.com/microsoft/typespec/pull/7924) Support @override to reorder operation parameters
-- [#7829](https://github.com/microsoft/typespec/pull/7829) [http-client-python] add pyproject toml
 
 ### Bump dependencies
 
