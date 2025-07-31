@@ -32,7 +32,18 @@ export async function preContrastResult(
       await screenshot(page, "linux", `wait_for_${text.replace(/\W/g, "_")}_${Math.floor((Date.now() - start) / 1000)}s`);
     }
   }
-
+  await retry(
+    page,
+    3,
+    async () => {
+      const viewDetailBtn = page.getByRole('button', { name: 'View details in Output' })
+      return (await viewDetailBtn.count()) > 0;
+    },
+    "Failed to locate viewDetailBtn successfully",
+    2,
+  );
+  await page.getByRole("button", { name: /View details in Output/ }).click();
+  await page.waitForSelector(`:text("${text}")`, { timeout: Math.min(interval, timeout - (Date.now() - start)) });
   if (!found) {
     throw new Error(errorMessage);
   }
