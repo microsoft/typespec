@@ -5,9 +5,9 @@
 package tsptest.naming.models;
 
 /**
- * Defines values for RunObjectLastErrorCode.
+ * Defines values for RunObjectLastErrorCodeRenamed.
  */
-public enum RunObjectLastErrorCode {
+public enum RunObjectLastErrorCodeRenamed {
     /**
      * Enum value server_error.
      */
@@ -24,26 +24,26 @@ public enum RunObjectLastErrorCode {
     INVALID_PROMPT("invalid_prompt");
 
     /**
-     * The actual serialized value for a RunObjectLastErrorCode instance.
+     * The actual serialized value for a RunObjectLastErrorCodeRenamed instance.
      */
     private final String value;
 
-    RunObjectLastErrorCode(String value) {
+    RunObjectLastErrorCodeRenamed(String value) {
         this.value = value;
     }
 
     /**
-     * Parses a serialized value to a RunObjectLastErrorCode instance.
+     * Parses a serialized value to a RunObjectLastErrorCodeRenamed instance.
      * 
      * @param value the serialized value to parse.
-     * @return the parsed RunObjectLastErrorCode object, or null if unable to parse.
+     * @return the parsed RunObjectLastErrorCodeRenamed object, or null if unable to parse.
      */
-    public static RunObjectLastErrorCode fromString(String value) {
+    public static RunObjectLastErrorCodeRenamed fromString(String value) {
         if (value == null) {
             return null;
         }
-        RunObjectLastErrorCode[] items = RunObjectLastErrorCode.values();
-        for (RunObjectLastErrorCode item : items) {
+        RunObjectLastErrorCodeRenamed[] items = RunObjectLastErrorCodeRenamed.values();
+        for (RunObjectLastErrorCodeRenamed item : items) {
             if (item.toString().equalsIgnoreCase(value)) {
                 return item;
             }

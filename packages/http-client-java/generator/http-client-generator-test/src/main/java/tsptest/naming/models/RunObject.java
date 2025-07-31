@@ -21,7 +21,7 @@ public final class RunObject implements JsonSerializable<RunObject> {
      * The last_error property.
      */
     @Generated
-    private final RunObjectLastError1 lastError;
+    private final RunObjectLastErrorRenamed lastError;
 
     /**
      * Creates an instance of RunObject class.
@@ -29,7 +29,7 @@ public final class RunObject implements JsonSerializable<RunObject> {
      * @param lastError the lastError value to set.
      */
     @Generated
-    private RunObject(RunObjectLastError1 lastError) {
+    private RunObject(RunObjectLastErrorRenamed lastError) {
         this.lastError = lastError;
     }
 
@@ -39,7 +39,7 @@ public final class RunObject implements JsonSerializable<RunObject> {
      * @return the lastError value.
      */
     @Generated
-    public RunObjectLastError1 getLastError() {
+    public RunObjectLastErrorRenamed getLastError() {
         return this.lastError;
     }
 
@@ -66,13 +66,13 @@ public final class RunObject implements JsonSerializable<RunObject> {
     @Generated
     public static RunObject fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
-            RunObjectLastError1 lastError = null;
+            RunObjectLastErrorRenamed lastError = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
                 if ("last_error".equals(fieldName)) {
-                    lastError = RunObjectLastError1.fromJson(reader);
+                    lastError = RunObjectLastErrorRenamed.fromJson(reader);
                 } else {
                     reader.skipChildren();
                 }

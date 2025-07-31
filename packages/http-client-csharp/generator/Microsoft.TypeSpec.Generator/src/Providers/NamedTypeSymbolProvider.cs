@@ -27,7 +27,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private protected sealed override NamedTypeSymbolProvider? BuildCustomCodeView(string? generatedTypeName = default) => null;
-        private protected sealed override TypeProvider? BuildLastContractView() => null;
+        private protected sealed override TypeProvider? BuildLastContractView(string? generatedTypeName = default) => null;
 
         protected override string BuildRelativeFilePath() => throw new InvalidOperationException("This type should not be writing in generation");
 

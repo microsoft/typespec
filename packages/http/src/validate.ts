@@ -9,9 +9,9 @@ import {
   isMultipartBodyProperty,
   isStatusCode,
 } from "./decorators.js";
+import { isSharedRoute } from "./decorators/shared-route.js";
 import { HttpStateKeys, reportDiagnostic } from "./lib.js";
 import { getAllHttpServices } from "./operations.js";
-import { isSharedRoute } from "./route.js";
 import { HttpOperation, HttpService } from "./types.js";
 
 export function $onValidate(program: Program) {
