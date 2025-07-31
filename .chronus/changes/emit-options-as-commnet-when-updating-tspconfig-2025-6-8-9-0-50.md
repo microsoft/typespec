@@ -5,4 +5,4 @@ packages:
   - typespec-vscode
 ---
 
-Emitter's options as comment when updating tspconfig file
+Prefill all available emitter options as comments when adding a new emitter
