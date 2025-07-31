@@ -288,6 +288,10 @@ class GeneratedModelType(ModelType):
             module_name = f"{model_alias}."
         file_name = f"{self.code_model.models_filename}." if self.internal else ""
         retval = module_name + file_name + self.name
+        if "_models.ConfidentialLedgerError" in retval:
+            print(retval)
+        if "_models2.LedgerIdentityInformation" in retval:
+            print(retval)
         return retval if is_operation_file or skip_quote else f'"{retval}"'
 
     def docstring_type(self, **kwargs: Any) -> str:
