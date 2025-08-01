@@ -86,6 +86,7 @@ describe.each(PreviewCasesConfigList)("PreviewAPIDocument", async (item) => {
 
 try {
   execSync("git restore .", { stdio: "inherit" });
+  execSync("git restore ../../pnpm-lock.yaml", { stdio: "inherit" });
 } catch (e) {
   process.exit(1);
 }
