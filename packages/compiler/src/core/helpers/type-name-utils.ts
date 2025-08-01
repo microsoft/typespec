@@ -18,9 +18,6 @@ import {
   type Value,
 } from "../types.js";
 import { printIdentifier } from "./syntax-utils.js";
-
-const expressionDefaultCache = new Map<Expression, string>();
-
 export interface TypeNameOptions {
   namespaceFilter?: (ns: Namespace) => boolean;
   printable?: boolean;
@@ -260,13 +257,8 @@ function getIdentifierName(
 ) {
   let defaultValue: string | undefined;
   if (options && options.checker && defaults) {
-    if (expressionDefaultCache.has(defaults)) {
-      defaultValue = expressionDefaultCache.get(defaults);
-    } else {
-      const nodeType = options.checker.getTypeForNode(defaults);
-      defaultValue = getEntityName(nodeType, options);
-      expressionDefaultCache.set(defaults, defaultValue);
-    }
+    const nodeType = options.checker.getTypeForNode(defaults);
+    defaultValue = getEntityName(nodeType, options);
   }
   const baseName = options?.printable ? printIdentifier(name) : name;
   return defaultValue ? `${baseName} = ${defaultValue}` : baseName;
