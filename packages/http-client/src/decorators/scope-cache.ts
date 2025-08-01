@@ -1,4 +1,4 @@
-import { Program } from "@typespec/compiler";
+// import { Program } from "@typespec/compiler";
 
 export interface EmitterFilter {
   includedEmitters: string[];
@@ -11,44 +11,48 @@ export interface ScopedValue<T> {
   value: T;
 }
 
-const clientStateMap = new WeakMap<Program, Map<symbol, Map<any, ScopedValue<any>>>>();
+// const clientStateMap = new Map<Program, Map<symbol, Map<any, ScopedValue<any>>>>();
 
-export function useClientStateMap<K, V>(
-  symbol: symbol,
-): [
-  get: (program: Program, key: K) => ScopedValue<V> | undefined,
-  set: (program: Program, key: K, value: ScopedValue<V>) => Map<K, ScopedValue<V>>,
-  entries: (program: Program) => IterableIterator<[K, ScopedValue<V>]>,
-] {
-  type InnerMap = Map<K, ScopedValue<V>>;
-  // Ensure we have a map for this program & symbol
-  function getInnerMap(program: Program): InnerMap {
-    let stateMap = clientStateMap.get(program);
-    if (!stateMap) {
-      stateMap = new Map<symbol, InnerMap>();
-      clientStateMap.set(program, stateMap);
-    }
+// const x = new Set();
 
-    if (!stateMap.has(symbol)) {
-      stateMap.set(symbol, new Map<V, ScopedValue<K>>());
-    }
-    return stateMap.get(symbol)!;
-  }
+// export function useClientStateMap<K, V>(
+//   symbol: symbol,
+// ): [
+//   get: (program: Program, key: K) => ScopedValue<V> | undefined,
+//   set: (program: Program, key: K, value: ScopedValue<V>) => Map<K, ScopedValue<V>>,
+//   entries: (program: Program) => IterableIterator<[K, ScopedValue<V>]>,
+// ] {
+//   type InnerMap = Map<K, ScopedValue<V>>;
+//   // Ensure we have a map for this program & symbol
+//   function getInnerMap(program: Program): InnerMap {
+//     x.add(program);
 
-  const get = (program: Program, key: K): ScopedValue<V> | undefined => {
-    return getInnerMap(program).get(key);
-  };
+//     let stateMap = clientStateMap.get(program);
+//     if (!stateMap) {
+//       stateMap = new Map<symbol, InnerMap>();
+//       clientStateMap.set(program, stateMap);
+//     }
 
-  const set = (program: Program, key: K, value: ScopedValue<V>): Map<K, ScopedValue<V>> => {
-    return getInnerMap(program).set(key, value);
-  };
+//     if (!stateMap.has(symbol)) {
+//       stateMap.set(symbol, new Map<V, ScopedValue<K>>());
+//     }
+//     return stateMap.get(symbol)!;
+//   }
 
-  const entries = (program: Program): IterableIterator<[K, ScopedValue<V>]> => {
-    return getInnerMap(program).entries();
-  };
+//   const get = (program: Program, key: K): ScopedValue<V> | undefined => {
+//     return getInnerMap(program).get(key);
+//   };
 
-  return [get, set, entries];
-}
+//   const set = (program: Program, key: K, value: ScopedValue<V>): Map<K, ScopedValue<V>> => {
+//     return getInnerMap(program).set(key, value);
+//   };
+
+//   const entries = (program: Program): IterableIterator<[K, ScopedValue<V>]> => {
+//     return getInnerMap(program).entries();
+//   };
+
+//   return [get, set, entries];
+// }
 
 export function parseScopeFilter(string: string | undefined): EmitterFilter {
   if (!string) {

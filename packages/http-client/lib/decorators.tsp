@@ -1,10 +1,10 @@
-import "@typespec/compiler";
 import "./common.tsp";
+import "../dist/src/tsp-index.js";
 
 namespace TypeSpec.HttpClient;
 
 enum FeatureLifecycle {
-  Stable: "stable",
+  Experimental,
 }
 
 model FeatureLifecycleOptions {

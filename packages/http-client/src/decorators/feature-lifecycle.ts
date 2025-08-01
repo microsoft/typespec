@@ -1,17 +1,17 @@
 import { Program, Type } from "@typespec/compiler";
+import { useStateMap } from "@typespec/compiler/utils";
 import { FeatureLifecycleDecorator } from "../../generated-defs/TypeSpec.HttpClient.js";
 import { createStateSymbol } from "../lib.js";
-import { parseScopeFilter, useClientStateMap } from "./scope-cache.js";
+import { parseScopeFilter, ScopedValue } from "./scope-cache.js";
 
 const featureLifecycleStateSymbol = createStateSymbol("featureLifecycleState");
 
-const [getFeatureLifecycleState, setFeatureLifecycleState] = useClientStateMap<Type, string>(
+const [getFeatureLifecycleState, setFeatureLifecycleState] = useStateMap<Type, ScopedValue<string>>(
   featureLifecycleStateSymbol,
 );
 
 export const $featureLifecycle: FeatureLifecycleDecorator = (context, target, value, options) => {
   const scopeFilter = parseScopeFilter(options?.emitterScope);
-
   setFeatureLifecycleState(context.program, target, {
     emitterFilter: scopeFilter,
     value: (value.value && String(value.value)) || value.name,
@@ -34,6 +34,10 @@ export function getClientFeatureLifecycle(
 
   const emitterScope = options.emitterName;
   const lifecycleValue = lifecycle.value;
+
+  if (lifecycle.emitterFilter.isUnscoped) {
+    return lifecycle.value;
+  }
 
   if (!emitterScope) {
     return lifecycle?.emitterFilter.isUnscoped ? lifecycleValue : undefined;
