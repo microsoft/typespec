@@ -194,14 +194,13 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
     def any_response_has_headers(self) -> bool:
         return any(response.headers for response in self.responses)
 
-    @property
-    def default_error_deserialization(self) -> Optional[str]:
+    def default_error_deserialization(self, serialize_namespace: str) -> Optional[str]:
         default_exceptions = [e for e in self.exceptions if "default" in e.status_codes and e.type]
         if not default_exceptions:
             return None
         exception_schema = default_exceptions[0].type
         if isinstance(exception_schema, ModelType):
-            return exception_schema.type_annotation(skip_quote=True)
+            return exception_schema.type_annotation(skip_quote=True, serialize_namespace=serialize_namespace)
         return None if self.code_model.options["models-mode"] == "dpg" else "'object'"
 
     @property
@@ -469,7 +468,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
                 file_import.add_submodule_import(relative_path, "_deserialize_xml", ImportType.LOCAL)
             elif self.need_deserialize:
                 file_import.add_submodule_import(relative_path, "_deserialize", ImportType.LOCAL)
-            if self.default_error_deserialization or self.non_default_errors:
+            if self.default_error_deserialization(serialize_namespace) or self.non_default_errors:
                 file_import.add_submodule_import(relative_path, "_failsafe_deserialize", ImportType.LOCAL)
         return file_import
 

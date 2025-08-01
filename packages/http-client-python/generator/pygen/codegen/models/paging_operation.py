@@ -173,7 +173,7 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
                 serialize_namespace, module_name="_utils.model_base"
             )
             file_import.merge(self.item_type.imports(**kwargs))
-            if self.default_error_deserialization or self.need_deserialize:
+            if self.default_error_deserialization(serialize_namespace) or self.need_deserialize:
                 file_import.add_submodule_import(relative_path, "_deserialize", ImportType.LOCAL)
         return file_import
 
