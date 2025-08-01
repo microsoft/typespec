@@ -676,7 +676,6 @@ export function differentiateModelTypes(
   let arrayVariant: Model | undefined = undefined;
 
   for (const model of models) {
-
     if (isArrayModelType(ctx.program, model) && model.properties.size === 0 && !arrayVariant) {
       arrayVariant = model;
       continue;
@@ -785,8 +784,8 @@ export function differentiateModelTypes(
         kind: "is-array",
         expr: SUBJECT,
       },
-      body: { kind: "result", type: arrayVariant }
-    })
+      body: { kind: "result", type: arrayVariant },
+    });
   }
 
   for (const [model, unique] of uniqueProps) {

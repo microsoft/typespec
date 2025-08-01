@@ -638,7 +638,7 @@ function* emitResultProcessingForType(
       yield `${names.ctx}.response.end(globalThis.JSON.stringify(${names.result}.${bodyCase.camelCase}));`;
     }
   } else if (isArrayModelType(ctx.program, target)) {
-    const itemType =target.indexer.value;
+    const itemType = target.indexer.value;
 
     const serializationRequired = isSerializationRequired(
       ctx,
