@@ -1,5 +1,12 @@
-import { createTestHost, createTestWrapper } from "@typespec/compiler/testing";
+import { resolvePath } from "@typespec/compiler";
+import { createTestHost, createTestWrapper, createTester } from "@typespec/compiler/testing";
 import { HttpTestLibrary } from "@typespec/http/testing";
+
+export const Tester = createTester(resolvePath(import.meta.dirname, ".."), {
+  libraries: ["@typespec/http", "@typespec/http-client"],
+})
+  .importLibraries()
+  .using("HttpClient");
 
 export async function createTypespecHttpClientLibraryTestHost() {
   return createTestHost({
