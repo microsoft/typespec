@@ -127,10 +127,12 @@ export async function InstallPackages(page: Page, operation: string, cs: CaseScr
     await waitForInstallDialog(page, /@typespec\/http-client-python/, cs);
     await page.getByRole("button", { name: /OK/ }).click();
   } else if (operation === "ImportTypeSpec") {
-    await page.getByRole('option', { name: 'Install @typespec/openapi3,' }).locator('label').click();
+    await page
+      .getByRole("option", { name: "Install @typespec/openapi3," })
+      .locator("label")
+      .click();
   }
   await cs.screenshot(page, "install_packages.png");
-
 }
 
 /**

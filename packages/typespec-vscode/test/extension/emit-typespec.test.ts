@@ -1,15 +1,18 @@
+import { execSync } from "child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { beforeEach, describe } from "vitest";
 import {
+  contrastResult,
   InstallPackages,
   preContrastResult,
+  preparePackageJson,
   readTspConfigFile,
   restoreTspConfigFile,
   startWithCommandPalette,
 } from "./common/common-steps";
 import { emiChooseEmitter, emitSelectLanguage, emitSelectType } from "./common/emit-steps";
-import { CaseScreenshot, tempDir, test } from "./common/utils";
+import { CaseScreenshot, projectRoot, tempDir, test } from "./common/utils";
 
 enum EmitProjectTriggerType {
   Command = "Command",
@@ -57,7 +60,7 @@ beforeEach(() => {
 });
 
 describe.each(EmitCasesConfigList)("EmitTypespecProject", async (item) => {
-  const { caseName, selectType, selectTypeLanguage, TspConfigHasEmit } = item;
+  const { caseName, selectType, selectTypeLanguage, TspConfigHasEmit, expectedResults } = item;
   test(caseName, async ({ launch }) => {
     const cs = new CaseScreenshot(caseName);
     const workspacePath = EmitTypespecProjectFolderPath;
@@ -76,13 +79,25 @@ describe.each(EmitCasesConfigList)("EmitTypespecProject", async (item) => {
 
     await emitSelectType(page, selectType, cs);
     await emitSelectLanguage(page, selectTypeLanguage, selectType, cs);
-    await InstallPackages(page, "EmitTypeSpec", cs);
-    const contrastMessage = "Installing packages...";
+    if (TspConfigHasEmit) {
+      preparePackageJson(projectRoot);
+      await InstallPackages(page, "EmitTypeSpec", cs);
+    }
+    const contrastMessage = "...Succeeded";
     await preContrastResult(page, contrastMessage, "Failed to emit project Successful", 150000);
     await cs.screenshot(page, "emit_result");
     if (!TspConfigHasEmit && removedLines !== undefined) {
       restoreTspConfigFile(workspacePath, removedLines);
     }
     app.close();
+    const resultFilePath = path.resolve(workspacePath, "./tsp-output/@typespec");
+    await contrastResult(page, expectedResults, resultFilePath, cs);
+
+    try {
+      execSync("git restore ./package.json", { stdio: "inherit" });
+      execSync("git restore ../../pnpm-lock.yaml", { stdio: "inherit" });
+    } catch (e) {
+      process.exit(1);
+    }
   });
 });
