@@ -92,6 +92,17 @@ export async function startWithRightClick(page: Page, command: string, cs: CaseS
   await page.getByRole("toolbar", { name: "Explorer actions" }).click();
   const target = page.getByRole("treeitem", { name: targetName }).locator("a");
   await target.click({ button: "right" });
+  await retry(
+    page,
+    10,
+    async () => {
+      const ImportBtn = page.getByRole("menuitem", { name: "Import TypeSpec from OpenAPI" });
+      return (await ImportBtn.count()) > 0;
+    },
+    "Failed to locate ImportBtn successfully",
+    2,
+    cs,
+  );
   await page.getByRole("menuitem", { name: "Import TypeSpec from OpenAPI" }).click();
   await cs.screenshot(page, "import_typespec");
 }
