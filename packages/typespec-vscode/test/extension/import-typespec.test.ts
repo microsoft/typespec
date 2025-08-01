@@ -2,9 +2,15 @@ import { execSync } from "child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { beforeEach, describe } from "vitest";
-import { startWithRightClick, preContrastResult, contrastResult, preparePackageJson, InstallPackages } from "./common/common-steps";
+import {
+  contrastResult,
+  InstallPackages,
+  preContrastResult,
+  preparePackageJson,
+  startWithRightClick,
+} from "./common/common-steps";
 import { mockShowOpenDialog } from "./common/mock-dialogs";
-import { CaseScreenshot, tempDir, test, projectRoot } from "./common/utils";
+import { CaseScreenshot, projectRoot, tempDir, test } from "./common/utils";
 
 enum ImportProjectTriggerType {
   CommandPalette = "CommandPalette",
@@ -79,10 +85,14 @@ describe.each(ImportCasesConfigList)("ImportTypespecFromOpenApi3", async (item) 
     preparePackageJson(projectRoot);
     await InstallPackages(page, "ImportTypeSpec", cs);
 
-    await preContrastResult(page, "Importing from OpenAPI succeeded.", "Failed to create project Successful", 150000);
+    await preContrastResult(
+      page,
+      "Importing from OpenAPI succeeded.",
+      "Failed to Import project Successful",
+      150000,
+    );
     app.close();
     await contrastResult(page, expectedResults, workspacePath, cs);
-
   });
 });
 
