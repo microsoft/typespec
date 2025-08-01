@@ -1,16 +1,4 @@
-import type {
-  DecoratorContext,
-  Enum,
-  EnumMember,
-  Interface,
-  Model,
-  ModelProperty,
-  Namespace,
-  Operation,
-  Scalar,
-  Union,
-  UnionVariant,
-} from "@typespec/compiler";
+import type { DecoratorContext, EnumMember, Type } from "@typespec/compiler";
 
 export interface FeatureLifecycleOptions {
   readonly emitterScope?: string;
@@ -18,17 +6,7 @@ export interface FeatureLifecycleOptions {
 
 export type FeatureLifecycleDecorator = (
   context: DecoratorContext,
-  target:
-    | Model
-    | ModelProperty
-    | Operation
-    | Interface
-    | Namespace
-    | Union
-    | UnionVariant
-    | Enum
-    | EnumMember
-    | Scalar,
+  target: Type,
   value: EnumMember,
   options?: FeatureLifecycleOptions,
 ) => void;
