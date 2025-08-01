@@ -264,11 +264,18 @@ model NginxConfigurationRequest {
   rootFile?: string;
 }
 
+model ChildResourcePageable is Azure.Core.Page<ChildResource>;
+
 //----------------------- Paths -----------------------
 @armResourceOperations
 interface ChildResourcesInterface
   extends ResourceInstanceOperations<ChildResource, ChildResourceProperties> {
-  listByTopLevelArmResource is ArmResourceListByParent<ChildResource>;
+  listByTopLevelArmResource is ArmResourceListByParent<
+    ChildResource,
+    Response = ArmResponse<ChildResourcePageable & {
+      @header("ETag") eTag: string;
+    }>
+  >;
   actionWithoutBody is ArmResourceActionAsync<ChildResource, void, void>;
 }
 
