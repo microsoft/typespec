@@ -12,17 +12,7 @@ model FeatureLifecycleOptions {
 }
 
 extern dec featureLifecycle(
-  target:
-    | Reflection.Model
-    | Reflection.ModelProperty
-    | Reflection.Operation
-    | Reflection.Interface
-    | Reflection.Namespace
-    | Reflection.Union
-    | Reflection.UnionVariant
-    | Reflection.Enum
-    | Reflection.EnumMember
-    | Reflection.Scalar,
+  target: unknown,
   value: Reflection.EnumMember,
   options?: valueof FeatureLifecycleOptions
 );
