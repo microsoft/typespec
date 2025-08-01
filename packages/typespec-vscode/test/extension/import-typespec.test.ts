@@ -1,9 +1,10 @@
+import { execSync } from "child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { beforeEach, describe } from "vitest";
-import { startWithRightClick } from "./common/common-steps";
+import { startWithRightClick, preContrastResult, contrastResult, preparePackageJson, InstallPackages } from "./common/common-steps";
 import { mockShowOpenDialog } from "./common/mock-dialogs";
-import { CaseScreenshot, tempDir, test } from "./common/utils";
+import { CaseScreenshot, tempDir, test, projectRoot } from "./common/utils";
 
 enum ImportProjectTriggerType {
   CommandPalette = "CommandPalette",
@@ -63,7 +64,7 @@ beforeEach(() => {
 });
 
 describe.each(ImportCasesConfigList)("ImportTypespecFromOpenApi3", async (item) => {
-  const { caseName } = item;
+  const { caseName, expectedResults } = item;
   test(caseName, async ({ launch }) => {
     const cs = new CaseScreenshot(caseName);
     const workspacePath = ImportTypespecProjectFolderPath;
@@ -71,12 +72,23 @@ describe.each(ImportCasesConfigList)("ImportTypespecFromOpenApi3", async (item) 
     const { page, app } = await launch({
       workspacePath,
     });
-
     const openapifilepath = path.resolve(ImportTypespecProjectFolderPath, "openapi.3.0.yaml");
     await mockShowOpenDialog(app, [openapifilepath]);
     await startWithRightClick(page, "Import TypeSpec from Openapi 3", cs);
     await cs.screenshot(page, "result_list");
+    preparePackageJson(projectRoot);
+    await InstallPackages(page, "ImportTypeSpec", cs);
 
+    await preContrastResult(page, "Importing from OpenAPI succeeded.", "Failed to create project Successful", 150000);
     app.close();
+    await contrastResult(page, expectedResults, workspacePath, cs);
+
   });
 });
+
+try {
+  execSync("git restore .", { stdio: "inherit" });
+  execSync("git restore ../../pnpm-lock.yaml", { stdio: "inherit" });
+} catch (e) {
+  process.exit(1);
+}

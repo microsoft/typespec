@@ -125,11 +125,12 @@ async function waitForInstallDialog(page: Page, packagePattern: RegExp, cs: Case
 export async function InstallPackages(page: Page, operation: string, cs: CaseScreenshot) {
   if (operation === "EmitTypeSpec") {
     await waitForInstallDialog(page, /@typespec\/http-client-python/, cs);
+    await page.getByRole("button", { name: /OK/ }).click();
   } else if (operation === "ImportTypeSpec") {
-    await waitForInstallDialog(page, /@typespec\/openapi3/, cs);
+    await page.getByRole('option', { name: 'Install @typespec/openapi3,' }).locator('label').click();
   }
   await cs.screenshot(page, "install_packages.png");
-  await page.getByRole("button", { name: /OK/ }).click();
+
 }
 
 /**
@@ -156,4 +157,25 @@ export function restoreTspConfigFile(folderName: string, lines: string[]) {
   const currentContent = fs.readFileSync(filePath, "utf-8");
   const newContent = lines.join("\n") + (currentContent ? "\n" + currentContent : "");
   fs.writeFileSync(filePath, newContent, "utf-8");
+}
+
+/**
+ * Remove the "devDependencies" section from package.json and add specific dependencies.
+ * @param folderName The folder containing the package.json file.
+ */
+export function preparePackageJson(folderName: string) {
+  const filePath = path.join(folderName, "package.json");
+  const content = fs.readFileSync(filePath, "utf-8");
+  const pkg = JSON.parse(content);
+
+  // Remove devDependencies
+  delete pkg.devDependencies;
+
+  // Add required devDependencies
+  pkg.devDependencies = {
+    "@typespec/compiler": "~1.2.1",
+    "@typespec/internal-build-utils": "~0.72.1",
+  };
+
+  fs.writeFileSync(filePath, JSON.stringify(pkg, null, 2), "utf-8");
 }
