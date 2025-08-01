@@ -26,6 +26,8 @@ param(
     [string]$SdkDirectory
 )
 
+Import-Module "$PSScriptRoot\Generation.psm1" -DisableNameChecking -Force;
+
 # Helper function to run commands and get output
 function Invoke-Command-Safe {
     param(
@@ -130,15 +132,6 @@ function Get-LaunchSettings {
     $launchSettingsPath = Get-LaunchSettingsPath
     $content = Get-Content $launchSettingsPath -Raw
     return $content | ConvertFrom-Json
-}
-
-# Write launchSettings.json
-function Set-LaunchSettings {
-    param([object]$LaunchSettings)
-    
-    $launchSettingsPath = Get-LaunchSettingsPath
-    $content = $LaunchSettings | ConvertTo-Json -Depth 10
-    Set-Content $launchSettingsPath $content
 }
 
 # Generate a profile name from the SDK directory

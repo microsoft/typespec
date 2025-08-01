@@ -233,8 +233,8 @@ class JinjaSerializer(ReaderAndWriter):
             file = template_name.replace(".jinja2", "")
             output_name = root_of_sdk / file
             if not self.read_file(output_name) or file in _REGENERATE_FILES:
-                if self.keep_version_file and file == "setup.py":
-                    # don't regenerate setup.py file if the version file is more up to date
+                if self.keep_version_file and file == "setup.py" and not self.code_model.options["azure-arm"]:
+                    # don't regenerate setup.py file if the version file is more up to date for data-plane
                     continue
                 self.write_file(
                     output_name,

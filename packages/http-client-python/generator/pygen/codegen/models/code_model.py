@@ -455,7 +455,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         return "Microsoft Corporation"
 
     def get_root_dir(self) -> Path:
-        if self.options["no-namespace-folders"] and not self.options["multiapi"]:
+        if self.options["no-namespace-folders"] and not self.options["multiapi"] and not self.options["azure-arm"]:
             # when output folder contains parts different from the namespace, we fall back to current folder directly.
             return Path(".")
         return Path(*self.namespace.split("."))
