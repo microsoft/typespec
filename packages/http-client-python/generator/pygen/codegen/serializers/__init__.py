@@ -202,6 +202,9 @@ class JinjaSerializer(ReaderAndWriter):
 
     def _serialize_and_write_package_files(self) -> None:
         root_of_sdk = Path(".")
+        if self.code_model.options["no-namespace-folders"]:
+            compensation = Path("../" * (self.code_model.namespace.count(".") + 1))
+            root_of_sdk = root_of_sdk / compensation
         if self.code_model.options["package-mode"] in VALID_PACKAGE_MODE:
             env = Environment(
                 loader=PackageLoader("pygen.codegen", "templates/packaging_templates"),
