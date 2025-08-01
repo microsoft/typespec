@@ -391,7 +391,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                 false,
                                 p.Type is InputNullableType,
                                 false,
-                                p.NameInRequest));
+                                p.NameInRequest,
+                                false));
                         if (p.IsApiVersion)
                         {
                             _apiVersionField = field;
