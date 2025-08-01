@@ -129,11 +129,17 @@ export function jsonFishToTransportDiscriminator(input_?: Fish): any {
   }
   const discriminatorValue = input_.kind;
   if (discriminatorValue === "shark") {
-    return jsonSharkToTransportTransform(input_ as any)!;
+    return {
+      kind: "shark",
+      ...jsonSharkToTransportTransform(input_ as any)!,
+    };
   }
 
   if (discriminatorValue === "salmon") {
-    return jsonSalmonToTransportTransform(input_ as any)!;
+    return {
+      kind: "salmon",
+      ...jsonSalmonToTransportTransform(input_ as any)!,
+    };
   }
   console.warn(`Received unknown kind: ` + discriminatorValue);
   return input_ as any;
@@ -154,11 +160,17 @@ export function jsonFishToApplicationDiscriminator(input_?: any): Fish {
   }
   const discriminatorValue = input_.kind;
   if (discriminatorValue === "shark") {
-    return jsonSharkToApplicationTransform(input_ as any)!;
+    return {
+      kind: "shark",
+      ...jsonSharkToApplicationTransform(input_ as any)!,
+    };
   }
 
   if (discriminatorValue === "salmon") {
-    return jsonSalmonToApplicationTransform(input_ as any)!;
+    return {
+      kind: "salmon",
+      ...jsonSalmonToApplicationTransform(input_ as any)!,
+    };
   }
   console.warn(`Received unknown kind: ` + discriminatorValue);
   return input_ as any;
@@ -179,11 +191,17 @@ export function jsonSharkToTransportDiscriminator(input_?: Shark): any {
   }
   const discriminatorValue = input_.sharktype;
   if (discriminatorValue === "saw") {
-    return jsonSawSharkToTransportTransform(input_ as any)!;
+    return {
+      sharktype: "saw",
+      ...jsonSawSharkToTransportTransform(input_ as any)!,
+    };
   }
 
   if (discriminatorValue === "goblin") {
-    return jsonGoblinSharkToTransportTransform(input_ as any)!;
+    return {
+      sharktype: "goblin",
+      ...jsonGoblinSharkToTransportTransform(input_ as any)!,
+    };
   }
   console.warn(`Received unknown kind: ` + discriminatorValue);
   return input_ as any;
@@ -205,11 +223,17 @@ export function jsonSharkToApplicationDiscriminator(input_?: any): Shark {
   }
   const discriminatorValue = input_.sharktype;
   if (discriminatorValue === "saw") {
-    return jsonSawSharkToApplicationTransform(input_ as any)!;
+    return {
+      sharktype: "saw",
+      ...jsonSawSharkToApplicationTransform(input_ as any)!,
+    };
   }
 
   if (discriminatorValue === "goblin") {
-    return jsonGoblinSharkToApplicationTransform(input_ as any)!;
+    return {
+      sharktype: "goblin",
+      ...jsonGoblinSharkToApplicationTransform(input_ as any)!,
+    };
   }
   console.warn(`Received unknown kind: ` + discriminatorValue);
   return input_ as any;

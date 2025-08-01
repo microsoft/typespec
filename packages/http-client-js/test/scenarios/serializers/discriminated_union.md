@@ -56,11 +56,17 @@ export function jsonWidgetDataToTransportDiscriminator(input_?: WidgetData): any
   }
   const discriminatorValue = input_.kind;
   if (discriminatorValue === "kind0") {
-    return jsonWidgetData0ToTransportTransform(input_ as any)!;
+    return {
+      kind: "kind0",
+      ...jsonWidgetData0ToTransportTransform(input_ as any)!,
+    };
   }
 
   if (discriminatorValue === "kind1") {
-    return jsonWidgetData1ToTransportTransform(input_ as any)!;
+    return {
+      kind: "kind1",
+      ...jsonWidgetData1ToTransportTransform(input_ as any)!,
+    };
   }
   console.warn(`Received unknown kind: ` + discriminatorValue);
   return input_ as any;
@@ -74,11 +80,17 @@ export function jsonWidgetDataToApplicationDiscriminator(input_?: any): WidgetDa
   }
   const discriminatorValue = input_.kind;
   if (discriminatorValue === "kind0") {
-    return jsonWidgetData0ToApplicationTransform(input_ as any)!;
+    return {
+      kind: "kind0",
+      ...jsonWidgetData0ToApplicationTransform(input_ as any)!,
+    };
   }
 
   if (discriminatorValue === "kind1") {
-    return jsonWidgetData1ToApplicationTransform(input_ as any)!;
+    return {
+      kind: "kind1",
+      ...jsonWidgetData1ToApplicationTransform(input_ as any)!,
+    };
   }
   console.warn(`Received unknown kind: ` + discriminatorValue);
   return input_ as any;
