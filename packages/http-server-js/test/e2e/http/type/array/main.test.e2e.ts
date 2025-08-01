@@ -4,13 +4,15 @@ import { startServer, testRouterOptions } from "../../../helpers.js";
 import { runScenario } from "../../../spector.js";
 
 import { Temporal } from "temporal-polyfill";
-import { HTTP_RESPONDER, HttpResponder } from "../../../../../src/helpers/http.js";
 import { HttpContext } from "../../../../../src/http/index.js";
 
 class ArrayImpl<T> {
   #assert: (l: T, r: T) => void;
 
-  constructor(public readonly value: T[], assert: (l: T, r: T) => void = (l, r) => l === r) {
+  constructor(
+    public readonly value: T[],
+    assert: (l: T, r: T) => void = (l, r) => l === r,
+  ) {
     this.#assert = assert;
   }
 
@@ -41,7 +43,7 @@ describe("Type.Array", () => {
   it("passes all scenarios", async () => {
     const router = createArrayRouter(
       new ArrayImpl([1, 2]),
-      new ArrayImpl([0x7FFFFFFFFFFFFFFFn, -0x7FFFFFFFFFFFFFFFn]),
+      new ArrayImpl([0x7fffffffffffffffn, -0x7fffffffffffffffn]),
       new ArrayImpl([true, false]),
       new ArrayImpl(["hello", ""]),
       new ArrayImpl([43.125]),
@@ -51,17 +53,18 @@ describe("Type.Array", () => {
       new ArrayImpl([Temporal.Duration.from("P123DT22H14M12.011S")], (l, r) => {
         assert.equal(l.toString(), r.toString());
       }),
-      // TODO: this impl is not correct, and the tester does not handle it correctly either, because it is a hybrid 
+      // TODO: this impl is not correct, and the tester does not handle it correctly either, because it is a hybrid
       // array with additional string properties. It should probably be serialized as `{"0":1,"1":"hello","k3":null}`
+      // but this would violate our constraints about objects that extend arrays.
       new ArrayImpl([1, "hello", null]),
-      new ArrayImpl([{property: "hello"}, {property: "world"}], (l, r) => {
+      new ArrayImpl([{ property: "hello" }, { property: "world" }], (l, r) => {
         assert.equal(l.property, r.property);
       }),
       new ArrayImpl([1.25, null, 3.0]),
       new ArrayImpl([1, null, 3]),
       new ArrayImpl([true, null, false]),
       new ArrayImpl(["hello", null, "world"]),
-      new ArrayImpl([{property: "hello"}, null, {property: "world"}], (l, r) => {
+      new ArrayImpl([{ property: "hello" }, null, { property: "world" }], (l, r) => {
         if (l === null) {
           assert.equal(r, null);
         } else {

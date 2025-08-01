@@ -343,15 +343,16 @@ const BIGINT: ScalarInfo = {
         decodeTemplate: "globalThis.BigInt({})",
       },
       clamped: {
-        encodeTemplate: "(({}) > globalThis.Number.MAX_SAFE_INTEGER) ? globalThis.Number.MAX_SAFE_INTEGER : (({}) < globalThis.Number.MIN_SAFE_INTEGER) ? globalThis.Number.MIN_SAFE_INTEGER : globalThis.Number({})",
+        encodeTemplate:
+          "(({}) > globalThis.Number.MAX_SAFE_INTEGER) ? globalThis.Number.MAX_SAFE_INTEGER : (({}) < globalThis.Number.MIN_SAFE_INTEGER) ? globalThis.Number.MIN_SAFE_INTEGER : globalThis.Number({})",
         decodeTemplate: "globalThis.BigInt({})",
-      }
-    }
+      },
+    },
   },
   defaultEncodings: {
     byMimeType: {
       "application/json": ["TypeSpec.safeint", "clamped"],
-    }
+    },
   },
   isJsonCompatible: false,
 };
