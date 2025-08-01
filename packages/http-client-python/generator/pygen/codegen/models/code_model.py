@@ -455,7 +455,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         return "Microsoft Corporation"
 
     def get_root_dir(self) -> Path:
-        if self.options["no-namespace-folders"] and not self.options["multiapi"] and not self.options["azure-arm"]:
+        if self.options["no-namespace-folders"]:
             # when output folder contains parts different from the namespace, we fall back to current folder directly.
             return Path(".")
         return Path(*self.namespace.split("."))
@@ -467,9 +467,6 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         """
         root_dir = self.get_root_dir()
         retval = self._get_relative_generation_dir(root_dir, namespace)
-        if self.options["no-namespace-folders"]:
-            compensation = Path("../" * (self.namespace.count(".") + 1))
-            return compensation / retval
         return retval
 
     def get_samples_folder_generation_dir(self, namespace: str) -> Path:
@@ -478,6 +475,8 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         return Path("../" * (self.namespace.count(".") + 1)) / self._get_relative_generation_dir(root_dir, namespace)
 
     def _get_relative_generation_dir(self, root_dir: Path, namespace: str) -> Path:
+        if self.options["no-namespace-folders"]:
+            return Path(".")
         if self.options.get("generation-subdir"):
             # For the main namespace, return root_dir + generation-subdir
             if namespace in ("", self.namespace):
