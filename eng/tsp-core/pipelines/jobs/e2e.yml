@@ -54,12 +54,5 @@ jobs:
         displayName: Publish trace results
         condition: ne(variables['Agent.OS'], 'Windows_NT')
 
-      - task: 1ES.PublishPipelineArtifact@1
-        inputs:
-          path: /home/cloudtest/.npm/_logs
-          artifact: "npm-error-logs"
-        displayName: Publish npm error logs
-        condition: ne(variables['Agent.OS'], 'Windows_NT')
-
       - script: node eng/common/scripts/check-for-changed-files.js
         displayName: Check Git Status For Changed Files

@@ -17,40 +17,9 @@ export async function preContrastResult(
   errorMessage: string,
   timeout: number = 10000,
 ) {
-  const interval = 5000; // 5 seconds
-  const start = Date.now();
-  let found = false;
-  let lastError: any = null;
-
-  while (Date.now() - start < timeout) {
-    try {
-      await page.waitForSelector(`:text("${text}")`, { timeout: Math.min(interval, timeout - (Date.now() - start)) });
-      found = true;
-      break;
-    } catch (e) {
-      lastError = e;
-      await screenshot(page, "linux", `wait_for_${text.replace(/\W/g, "_")}_${Math.floor((Date.now() - start) / 1000)}s`);
-    }
-  }
-  await retry(
-    page,
-    3,
-    async () => {
-      const viewDetailBtn = page.getByRole('button', { name: 'View details in Output' })
-      return (await viewDetailBtn.count()) > 0;
-    },
-    "Failed to locate viewDetailBtn successfully",
-    2,
-  );
-  await page.getByRole("button", { name: /View details in Output/ }).click();
   try {
-    await page.waitForSelector(`:text("${text}")`, { timeout: 5000 });
-  } catch (e) {}
-  await page.getByRole('checkbox', { name: 'Maximize Panel Size' }).click();
-  try {
-    await page.waitForSelector(`:text("${text}")`, { timeout: 5000 });
-  } catch (e) {}
-  if (!found) {
+    await page.waitForSelector(`:text("${text}")`, { timeout });
+  } catch (e) {
     throw new Error(errorMessage);
   }
 }
@@ -126,35 +95,35 @@ export async function startWithRightClick(page: Page, command: string) {
 }
 
 /**
+ * Wait for the installation dependency pop-up to appear and confirm that the specified package checkbox and OK button have been rendered.
+ * @param page Playwright Page object, representing the current VSCode page
+ * @param packagePattern Regular expression used to match package checkbox
+ * @returns Promise<void> Resolve when both the OK button and the specified package checkbox appear, otherwise throw an exception after multiple retries
+ */
+async function waitForInstallDialog(page: Page, packagePattern: RegExp) {
+  await retry(
+    page,
+    10,
+    async () => {
+      const okBtn = page.getByRole("button", { name: "OK" });
+      const packageList = page.getByRole("checkbox", { name: packagePattern });
+      return (await okBtn.count()) > 0 && (await packageList.count()) > 0;
+    },
+    "Failed to locate okBtn and package list successfully",
+    3,
+  );
+}
+
+/**
  * A UI will pop up to check packages to be installed. Call this method to select
  * @param page vscode project
  * @param operation in which scenario is it called (EmitTypeSpec, ImportTypeSpec)
  **/
 export async function InstallPackages(page: Page, operation: string) {
-  if (operation === "EmitTypeSpec"){
-    await retry(
-      page,
-      10,
-      async () => {
-        const okBtn = page.getByRole('button', { name: 'OK' })
-        const packageList = page.getByRole('checkbox', { name: /@typespec\/http-client-python/ });
-        return (await okBtn.count()) > 0 && (await packageList.count()) > 0;
-      },
-      "Failed to locate okBtn and package list successfully",
-      3,
-    );
+  if (operation === "EmitTypeSpec") {
+    await waitForInstallDialog(page, /@typespec\/http-client-python/);
   } else if (operation === "ImportTypeSpec") {
-    await retry(
-      page,
-      10,
-      async () => {
-        const okBtn = page.getByRole('button', { name: 'OK' })
-        const packageList = page.getByRole('checkbox', { name: /@typespec\/openapi3/ });
-        return (await okBtn.count()) > 0 && (await packageList.count()) > 0;
-      },
-      "Failed to locate okBtn and package list successfully",
-      3,
-    );    
+    await waitForInstallDialog(page, /@typespec\/openapi3/);
   }
   await screenshot(page, "linux", "install_packages.png");
   await page.getByRole("button", { name: /OK/ }).click();
