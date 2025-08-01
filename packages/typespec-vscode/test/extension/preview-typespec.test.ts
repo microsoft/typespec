@@ -1,9 +1,10 @@
 import { execSync } from "child_process";
+import { rm } from "fs/promises";
 import fs from "node:fs";
 import path from "node:path";
 import { beforeEach, describe } from "vitest";
 import { startWithCommandPalette } from "./common/common-steps";
-import { CaseScreenshot, retry, tempDir, test } from "./common/utils";
+import { CaseScreenshot, imagesPath, retry, tempDir, test } from "./common/utils";
 
 try {
   execSync("pnpm install @typespec/http", { stdio: "inherit" });
@@ -78,6 +79,13 @@ describe.each(PreviewCasesConfigList)("PreviewAPIDocument", async (item) => {
       3,
       cs,
     );
+    await rm(imagesPath, { recursive: true });
     app.close();
   });
 });
+
+try {
+  execSync("git restore .", { stdio: "inherit" });
+} catch (e) {
+  process.exit(1);
+}
