@@ -1,18 +1,20 @@
+import { execSync } from "child_process";
+import { rm } from "fs/promises";
 import fs from "node:fs";
 import path from "node:path";
 import { beforeEach, describe } from "vitest";
 import { startWithCommandPalette } from "./common/common-steps";
-import { tempDir, test, retry } from "./common/utils";
-import { execSync } from "child_process";
+import { CaseScreenshot, retry, tempDir, test } from "./common/utils";
 
 try {
+  execSync("pnpm install @typespec/http", { stdio: "inherit" });
   execSync("pnpm install @typespec/openapi3", { stdio: "inherit" });
 } catch (e) {
   process.exit(1);
 }
 
 export enum PreviewProjectTriggerType {
-  Command = "Command",
+  Command = "CommandPalette",
   Click = "Click",
 }
 
@@ -54,22 +56,36 @@ beforeEach(() => {
 describe.each(PreviewCasesConfigList)("PreviewAPIDocument", async (item) => {
   const { caseName } = item;
   test(caseName, async ({ launch }) => {
+    const cs = new CaseScreenshot(caseName);
     const workspacePath = PreviewTypespecProjectFolderPath;
     const { page, app } = await launch({
       workspacePath,
     });
     await page.getByRole("treeitem", { name: "main.tsp" }).locator("a").click();
-    await startWithCommandPalette(page, "Preview API Documentation");
+    await startWithCommandPalette(page, "Preview API Documentation", cs);
     await retry(
       page,
       10,
       async () => {
-        const previewContent = page.locator('iframe').contentFrame().locator('iframe').contentFrame().getByRole('heading', { name: 'Widget Service 0.0.0 OAS' })
+        const previewContent = page
+          .locator("iframe")
+          .contentFrame()
+          .locator("iframe")
+          .contentFrame()
+          .getByRole("heading", { name: "Widget Service 0.0.0 OAS" });
         return (await previewContent.count()) > 0;
       },
       "Failed to compilation completed successfully",
       3,
+      cs,
     );
+    await rm(cs.caseDir, { recursive: true });
     app.close();
+    try {
+      execSync("git restore ./package.json", { stdio: "inherit" });
+      execSync("git restore ../../pnpm-lock.yaml", { stdio: "inherit" });
+    } catch (e) {
+      process.exit(1);
+    }
   });
 });

@@ -1,25 +1,12 @@
 import { Page } from "playwright";
-import { retry, screenshot } from "./utils";
-
-/**
- * When emitting a select project event, it will select the project with the given name.
- * @param page vscode project
- * @param text project name
- */
-export async function emitSelectProject(page: Page, text: string) {
-  await page
-    .getByRole("option", { name: new RegExp(text) })
-    .locator("a")
-    .click();
-}
+import { CaseScreenshot, retry } from "./utils";
 
 /**
  * When emitting a select emit type.
  * @param page vscode project
  * @param type emit type
  */
-export async function emitSelectType(page: Page, type: string) {
-  await screenshot(page, "linux", "select_emitter_type");
+export async function emitSelectType(page: Page, type: string, cs: CaseScreenshot) {
   const expectedDescriptionConfig = [
     { name: "OpenAPI Document", description: "Emitting OpenAPI3 Document from TypeSpec files." },
     {
@@ -50,7 +37,10 @@ export async function emitSelectType(page: Page, type: string) {
       }
     },
     "Failed to find the emitSelectType description.",
+    2,
+    cs,
   );
+  await cs.screenshot(page, "select_emitter_type");
   if (type === "OpenAPI Document" || type === "DefaultEmitterType") {
     await page.locator("a").filter({ hasText: type }).click();
   } else if (type === "Client Code") {
@@ -61,7 +51,7 @@ export async function emitSelectType(page: Page, type: string) {
       .filter({ hasText: /^Server Stub$/ })
       .click();
   } else {
-    await screenshot(page, "linux", "select_emitter_type_error");
+    await cs.screenshot(page, "select_emitter_type_error");
     throw new Error("Unsupported emit type");
   }
 }
@@ -72,8 +62,12 @@ export async function emitSelectType(page: Page, type: string) {
  * @param language language name (OpenAPI3, Python, Java, .NET, JavaScript)
  * @param types emitter types (Client Code, Server Stub, OpenAPI Document)
  **/
-export async function emitSelectLanguage(page: Page, language: string = "", types: string = "") {
-  await screenshot(page, "linux", "select_language_" + language + ".png");
+export async function emitSelectLanguage(
+  page: Page,
+  language: string = "",
+  types: string = "",
+  cs: CaseScreenshot,
+) {
   let selectLangConfig: { name: string; description: string }[] = [];
   if (types === "Client Code") {
     selectLangConfig = [
@@ -119,6 +113,8 @@ export async function emitSelectLanguage(page: Page, language: string = "", type
       return (await languageName.count()) > 0;
     },
     `Failed to find the language for code emitting.`,
+    2,
+    cs,
   );
   await retry(
     page,
@@ -137,12 +133,15 @@ export async function emitSelectLanguage(page: Page, language: string = "", type
       }
     },
     "Failed to find the language for code emitting description.",
+    2,
+    cs,
   );
+  await cs.screenshot(page, "select_language_" + language);
   const languageList = ["OpenAPI3", "Python", "Java", ".NET", "JavaScript"];
   if (languageList.indexOf(language) !== -1) {
     await page.locator("a").filter({ hasText: language }).first().click();
   } else {
-    await screenshot(page, "linux", "select_emitter_type_error");
+    await cs.screenshot(page, "select_emitter_type_error");
     throw new Error("Unsupported language");
   }
 }
@@ -153,7 +152,7 @@ export async function emitSelectLanguage(page: Page, language: string = "", type
  * @param emitter emitter name
  * @description If the emitter name is not passed, it will choose "Choose another emitter".
  */
-export async function emiChooseEmitter(page: Page, emitter: string = "") {
+export async function emiChooseEmitter(page: Page, cs: CaseScreenshot) {
   const chooseEmitterExpectedDescription = "Choose another emitter for code emitting";
   const chooseEmitterExpectedName = "Choose another emitter";
   let chooseEmitterName;
@@ -169,6 +168,8 @@ export async function emiChooseEmitter(page: Page, emitter: string = "") {
       return (await chooseEmitterName.count()) > 0;
     },
     `Failed to find the "Choose another emitter" button.`,
+    2,
+    cs,
   );
   await retry(
     page,
@@ -187,6 +188,9 @@ export async function emiChooseEmitter(page: Page, emitter: string = "") {
       }
     },
     "Failed to find the Choose another emitter description.",
+    2,
+    cs,
   );
+  await cs.screenshot(page, "choose_another_emitter");
   await chooseEmitterName!.click();
 }

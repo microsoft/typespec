@@ -2,7 +2,7 @@ import { rm } from "fs/promises";
 import fs from "node:fs";
 import path from "node:path";
 import { Locator, Page } from "playwright";
-import { imagesPath, retry, screenshot } from "./utils";
+import { CaseScreenshot, retry } from "./utils";
 
 /**
  * Waits for the specified text to appear on the page before proceeding.
@@ -16,41 +16,14 @@ export async function preContrastResult(
   text: string,
   errorMessage: string,
   timeout: number = 10000,
+  cs: CaseScreenshot,
+  app?: any,
 ) {
-  const interval = 5000; // 5 seconds
-  const start = Date.now();
-  let found = false;
-  let lastError: any = null;
-
-  while (Date.now() - start < timeout) {
-    try {
-      await page.waitForSelector(`:text("${text}")`, { timeout: Math.min(interval, timeout - (Date.now() - start)) });
-      found = true;
-      break;
-    } catch (e) {
-      lastError = e;
-      await screenshot(page, "linux", `wait_for_${text.replace(/\W/g, "_")}_${Math.floor((Date.now() - start) / 1000)}s`);
-    }
-  }
-  await retry(
-    page,
-    3,
-    async () => {
-      const viewDetailBtn = page.getByRole('button', { name: 'View details in Output' })
-      return (await viewDetailBtn.count()) > 0;
-    },
-    "Failed to locate viewDetailBtn successfully",
-    2,
-  );
-  await page.getByRole("button", { name: /View details in Output/ }).click();
   try {
-    await page.waitForSelector(`:text("${text}")`, { timeout: 5000 });
-  } catch (e) {}
-  await page.getByRole('checkbox', { name: 'Maximize Panel Size' }).click();
-  try {
-    await page.waitForSelector(`:text("${text}")`, { timeout: 5000 });
-  } catch (e) {}
-  if (!found) {
+    await page.waitForSelector(`:text("${text}")`, { timeout });
+  } catch (e) {
+    await cs.screenshot(page, "error");
+    app.close();
     throw new Error(errorMessage);
   }
 }
@@ -60,14 +33,14 @@ export async function preContrastResult(
  * @param res List of expected files
  * @param dir The directory to be compared needs to be converted into an absolute path using path.resolve
  */
-export async function contrastResult(page: Page, res: string[], dir: string) {
+export async function contrastResult(page: Page, res: string[], dir: string, cs: CaseScreenshot) {
   let resLength = 0;
   if (fs.existsSync(dir)) {
     resLength = fs.readdirSync(dir).length;
-    await rm(imagesPath, { recursive: true });
+    await rm(cs.caseDir, { recursive: true });
   }
   if (resLength !== res.length) {
-    await screenshot(page, "linux", "error");
+    await cs.screenshot(page, "error");
     throw new Error("Failed to matches all files");
   }
 }
@@ -77,14 +50,14 @@ export async function contrastResult(page: Page, res: string[], dir: string) {
  * @param page vscode object
  * @param command After the top input box pops up, the command to be executed
  */
-export async function startWithCommandPalette(page: Page, command: string) {
+export async function startWithCommandPalette(page: Page, command: string, cs: CaseScreenshot) {
   await page.waitForSelector(".explorer-viewlet");
   await page.waitForSelector(".left-items");
   await page.keyboard.press("ControlOrMeta+Shift+P");
   await page.waitForSelector('input[aria-label="Type the name of a command to run."]', {
     state: "visible",
   });
-  await screenshot(page, "linux", "open_top_panel");
+  await cs.screenshot(page, "open_top_panel");
   await page
     .getByRole("textbox", { name: "Type the name of a command to run." })
     .first()
@@ -101,8 +74,14 @@ export async function startWithCommandPalette(page: Page, command: string) {
       return (await listForCreate.count()) > 0;
     },
     "Failed to find the specified option",
+    1,
+    cs,
   );
-  await screenshot(page, "linux", "input_command");
+  if (command.includes("Emit")) {
+    await cs.screenshot(page, "trigger_emit_typespec");
+  } else {
+    await cs.screenshot(page, "trigger_create_typespec");
+  }
   await listForCreate!.click();
 }
 
@@ -113,7 +92,7 @@ export async function startWithCommandPalette(page: Page, command: string) {
  * @param type specify whether the click is on file, folder or empty folder
  * command: specify which command to execute to the project
  */
-export async function startWithRightClick(page: Page, command: string) {
+export async function startWithRightClick(page: Page, command: string, cs: CaseScreenshot) {
   await page.waitForSelector(".explorer-viewlet");
   await page.waitForSelector(".letterpress");
   await page.waitForSelector(".left-items");
@@ -121,43 +100,19 @@ export async function startWithRightClick(page: Page, command: string) {
   await page.getByRole("toolbar", { name: "Explorer actions" }).click();
   const target = page.getByRole("treeitem", { name: targetName }).locator("a");
   await target.click({ button: "right" });
+  await retry(
+    page,
+    10,
+    async () => {
+      const ImportBtn = page.getByRole("menuitem", { name: "Import TypeSpec from OpenAPI" });
+      return (await ImportBtn.count()) > 0;
+    },
+    "Failed to locate ImportBtn successfully",
+    2,
+    cs,
+  );
+  await cs.screenshot(page, "trigger_import_typespec");
   await page.getByRole("menuitem", { name: "Import TypeSpec from OpenAPI" }).click();
-  await screenshot(page, "linux", "import_typespec");
-}
-
-/**
- * A UI will pop up to check packages to be installed. Call this method to select
- * @param page vscode project
- * @param operation in which scenario is it called (EmitTypeSpec, ImportTypeSpec)
- **/
-export async function InstallPackages(page: Page, operation: string) {
-  if (operation === "EmitTypeSpec"){
-    await retry(
-      page,
-      10,
-      async () => {
-        const okBtn = page.getByRole('button', { name: 'OK' })
-        const packageList = page.getByRole('checkbox', { name: /@typespec\/http-client-python/ });
-        return (await okBtn.count()) > 0 && (await packageList.count()) > 0;
-      },
-      "Failed to locate okBtn and package list successfully",
-      3,
-    );
-  } else if (operation === "ImportTypeSpec") {
-    await retry(
-      page,
-      10,
-      async () => {
-        const okBtn = page.getByRole('button', { name: 'OK' })
-        const packageList = page.getByRole('checkbox', { name: /@typespec\/openapi3/ });
-        return (await okBtn.count()) > 0 && (await packageList.count()) > 0;
-      },
-      "Failed to locate okBtn and package list successfully",
-      3,
-    );    
-  }
-  await screenshot(page, "linux", "install_packages.png");
-  await page.getByRole("button", { name: /OK/ }).click();
 }
 
 /**
@@ -168,20 +123,17 @@ export function readTspConfigFile(folderName: string) {
   const filePath = path.join(folderName, "tspconfig.yaml");
   const content = fs.readFileSync(filePath, "utf-8");
   const lines = content.split(/\r?\n/);
-  const removedLines = lines.slice(0, 3);
   const newLines = lines.slice(3);
   fs.writeFileSync(filePath, newLines.join("\n"), "utf-8");
-  return { removedLines, newLines };
+  return { content, newLines };
 }
 
 /**
  * Add the deleted three lines back to the beginning of the tspconfig.yaml file.
  * @param folderName The folder name that needs to be operated on.
- * @param lines The three lines of content (array) to be restored for @ param lines.
+ * @param content The full content to restore into tspconfig.yaml.
  */
-export function restoreTspConfigFile(folderName: string, lines: string[]) {
+export function restoreTspConfigFile(folderName: string, lines: string) {
   const filePath = path.join(folderName, "tspconfig.yaml");
-  const currentContent = fs.readFileSync(filePath, "utf-8");
-  const newContent = lines.join("\n") + (currentContent ? "\n" + currentContent : "");
-  fs.writeFileSync(filePath, newContent, "utf-8");
+  fs.writeFileSync(filePath, lines, "utf-8");
 }

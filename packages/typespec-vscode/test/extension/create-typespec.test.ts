@@ -2,10 +2,10 @@ import { mkdir } from "fs/promises";
 import path from "node:path";
 import { rimraf } from "rimraf";
 import { beforeEach, describe } from "vitest";
-import { contrastResult, startWithCommandPalette, preContrastResult } from "./common/common-steps";
+import { contrastResult, preContrastResult, startWithCommandPalette } from "./common/common-steps";
 import { inputProjectName, selectEmitters, selectTemplate } from "./common/create-steps";
 import { mockShowOpenDialog } from "./common/mock-dialogs";
-import { tempDir, test } from "./common/utils";
+import { CaseScreenshot, tempDir, test } from "./common/utils";
 
 enum CreateProjectTriggerType {
   Click = "RightClick",
@@ -58,21 +58,29 @@ describe.each(CreateCasesConfigList)("CreateTypespecProject", async (item) => {
   const { caseName, templateName, templateNameDescription } = item;
 
   test(caseName, async ({ launch }) => {
+    const cs = new CaseScreenshot(caseName);
     const workspacePath = CreateTypespecProjectFolderPath;
     const { page, app } = await launch({
       workspacePath: workspacePath,
     });
-
+    await cs.screenshot(page, "after_launch");
     await mockShowOpenDialog(app, [workspacePath]);
-    await startWithCommandPalette(page, "Create Typespec Project");
+    await startWithCommandPalette(page, "Create Typespec Project", cs);
+    await cs.screenshot(page, "after_start_command");
+    await selectTemplate(page, templateName, templateNameDescription, cs);
 
-    await selectTemplate(page, templateName, templateNameDescription);
+    await inputProjectName(page, cs);
 
-    await inputProjectName(page);
-
-    await selectEmitters(page);
-    await preContrastResult(page, "Project created", "Failed to create project Successful", 150000);
+    await selectEmitters(page, cs);
+    await preContrastResult(
+      page,
+      "Project created",
+      "Failed to create project Successful",
+      150000,
+      cs,
+      app,
+    );
     app.close();
-    await contrastResult(page, expectedResults, workspacePath);
+    await contrastResult(page, expectedResults, workspacePath, cs);
   });
 });
