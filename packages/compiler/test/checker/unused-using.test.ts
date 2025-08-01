@@ -332,14 +332,14 @@ describe("compiler: unused using statements", () => {
       "b.tsp",
       `
       using Xyz;
-      @test model Y { ... Xyz.X, ... Z }
+      @test model Y { x: Xyz.X, z: Z }
       `,
     );
     testHost.addTypeSpecFile(
       "c.tsp",
       `
       using Xyz;
-      @test model Z { ... X }
+      @test model Z {x: X }
       `,
     );
 
