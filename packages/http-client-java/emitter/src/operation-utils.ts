@@ -3,6 +3,7 @@ import {
   SdkHttpOperation,
   SdkLroServiceMetadata,
   SdkModelPropertyType,
+  SdkServiceResponseHeader,
 } from "@azure-tools/typespec-client-generator-core";
 import { Operation, Program, Type, Union } from "@typespec/compiler";
 import { HttpOperation } from "@typespec/http";
@@ -194,7 +195,7 @@ export function cloneOperationParameter(parameter: Parameter): Parameter {
  */
 export function findResponsePropertySegments(
   op: CodeModelOperation,
-  propertySegments: SdkModelPropertyType[] | undefined,
+  propertySegments: (SdkServiceResponseHeader | SdkModelPropertyType)[] | undefined,
 ): Property[] | undefined {
   if (op.responses && op.responses.length > 0 && op.responses[0] instanceof SchemaResponse) {
     const schema = op.responses[0].schema;

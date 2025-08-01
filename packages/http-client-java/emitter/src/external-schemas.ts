@@ -9,7 +9,6 @@ import {
 } from "@autorest/codemodel";
 import { KnownMediaType } from "@azure-tools/codegen";
 import {
-  SdkBodyModelPropertyType,
   SdkModelPropertyType,
   SdkModelType,
   SdkType,
@@ -292,7 +291,7 @@ function addContentTypeProperty(
 }
 
 export function getFileDetailsSchema(
-  property: SdkBodyModelPropertyType,
+  property: SdkModelPropertyType,
   namespace: string,
   javaNamespace: string | undefined,
   schemas: Schemas,

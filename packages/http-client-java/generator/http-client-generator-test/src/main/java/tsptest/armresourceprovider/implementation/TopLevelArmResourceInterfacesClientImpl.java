@@ -136,25 +136,23 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
             @BodyParam("application/json") TopLevelArmResourceUpdate properties, Context context);
 
-        @Headers({ "Content-Type: application/json" })
+        @Headers({ "Accept: application/json;q=0.9", "Content-Type: application/json" })
         @Delete("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}")
         @ExpectedResponses({ 200, 202, 204 })
         @UnexpectedResponseExceptionType(ManagementException.class)
         Mono<Response<Flux<ByteBuffer>>> delete(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("resourceGroupName") String resourceGroupName,
-            @PathParam("topLevelArmResourceName") String topLevelArmResourceName, @HeaderParam("Accept") String accept,
-            Context context);
+            @PathParam("topLevelArmResourceName") String topLevelArmResourceName, Context context);
 
-        @Headers({ "Content-Type: application/json" })
+        @Headers({ "Accept: application/json;q=0.9", "Content-Type: application/json" })
         @Delete("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}")
         @ExpectedResponses({ 200, 202, 204 })
         @UnexpectedResponseExceptionType(ManagementException.class)
         Response<BinaryData> deleteSync(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("resourceGroupName") String resourceGroupName,
-            @PathParam("topLevelArmResourceName") String topLevelArmResourceName, @HeaderParam("Accept") String accept,
-            Context context);
+            @PathParam("topLevelArmResourceName") String topLevelArmResourceName, Context context);
 
         @Headers({ "Content-Type: application/json" })
         @Get("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/topLevelArmResources")
@@ -762,10 +760,9 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
             return Mono.error(
                 new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
         }
-        final String accept = "application/json";
         return FluxUtil
             .withContext(context -> service.delete(this.client.getEndpoint(), this.client.getApiVersion(),
-                this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, accept, context))
+                this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, context))
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
 
@@ -799,9 +796,8 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
             throw LOGGER.atError()
                 .log(new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
         }
-        final String accept = "application/json";
         return service.deleteSync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, accept, Context.NONE);
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, Context.NONE);
     }
 
     /**
@@ -836,9 +832,8 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
             throw LOGGER.atError()
                 .log(new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
         }
-        final String accept = "application/json";
         return service.deleteSync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, accept, context);
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, context);
     }
 
     /**
