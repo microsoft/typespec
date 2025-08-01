@@ -52,8 +52,8 @@ class SdkTypeCache {
   clients: Map<SdkClientType<SdkHttpOperation>, InputClient>;
   methods: Map<SdkServiceMethod<SdkHttpOperation>, InputServiceMethod>;
   operations: Map<SdkHttpOperation, InputOperation>;
-  methodParmeters: Map<SdkMethodParameter, InputParameter>; // TODO -- in the near future, we should replace `InputParameter` with those `InputQueryParameter`, etc.
-  operationParameters: Map<SdkHttpParameter | SdkModelPropertyType, InputParameter>; // TODO -- in the near future, we should replace `InputParameter` with those `InputQueryParameter`, etc.
+  methodParmeters: Map<SdkMethodParameter, InputParameter>; // TODO -- in the near future, we should replace `InputParameter` with those `InputQueryParameter`, etc. https://github.com/microsoft/typespec/issues/8085
+  operationParameters: Map<SdkHttpParameter | SdkModelPropertyType, InputParameter>; // TODO -- in the near future, we should replace `InputParameter` with those `InputQueryParameter`, etc. https://github.com/microsoft/typespec/issues/8085
   properties: Map<SdkModelPropertyType, InputModelProperty>;
   responses: Map<SdkHttpResponse, OperationResponse>;
   types: Map<SdkType, InputType>;

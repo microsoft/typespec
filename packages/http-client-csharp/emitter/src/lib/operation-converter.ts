@@ -294,7 +294,7 @@ function updateMethodParameter(
   rootApiVersions: string[],
 ): void {
   methodParameter.nameInRequest = getNameInRequest(operationHttpParameter);
-  methodParameter.isContentType = isContentTypeParameter(operationHttpParameter);
+  methodParameter.isContentType = isContentType(operationHttpParameter);
   methodParameter.arraySerializationDelimiter =
     getArraySerializationDelimiter(operationHttpParameter);
   methodParameter.location = getParameterLocation(operationHttpParameter);
@@ -304,7 +304,7 @@ function updateMethodParameter(
     rootApiVersions.length > 0,
   );
   if (operationHttpParameter.kind !== "property") {
-    methodParameter.explode = isExplodedParameter(operationHttpParameter);
+    methodParameter.explode = isExploded(operationHttpParameter);
   }
   if (methodParameter.location === RequestLocation.Body) {
     // Convert constants to enums
@@ -373,9 +373,9 @@ export function fromParameter(
     location: getParameterLocation(p),
     isApiVersion:
       p.name.toLocaleLowerCase() === "apiversion" || p.name.toLocaleLowerCase() === "api-version", // TODO -- we should use `isApiVersionParam` instead
-    isContentType: isContentTypeParameter(p),
+    isContentType: isContentType(p),
     isEndpoint: false,
-    explode: isExplodedParameter(p),
+    explode: isExploded(p),
     arraySerializationDelimiter: getArraySerializationDelimiter(p),
     isRequired: !p.optional,
     kind: getParameterKind(p, parameterType, rootApiVersions.length > 0),
@@ -729,11 +729,11 @@ function normalizeHeaderName(name: string): string {
   }
 }
 
-function isExplodedParameter(p: SdkHttpParameter | SdkModelPropertyType): boolean {
+function isExploded(p: SdkHttpParameter | SdkModelPropertyType): boolean {
   return (p.kind === "path" || p.kind === "query") && p.explode === true;
 }
 
-function isContentTypeParameter(p: SdkHttpParameter | SdkModelPropertyType): boolean {
+function isContentType(p: SdkHttpParameter | SdkModelPropertyType): boolean {
   return p.kind === "header" && p.serializedName.toLocaleLowerCase() === "content-type";
 }
 
