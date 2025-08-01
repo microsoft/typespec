@@ -861,8 +861,8 @@ async function isCompilerSupport(client: TspLanguageClient): Promise<boolean> {
 
 function getConfigEntriesFromEmitterOptions(
   emitterOptions: Record<string, any>,
-): Record<string, any> {
-  const configEntries: Record<string, any> = {};
+): Record<string, { value: string; comment: string }> {
+  const configEntries: Record<string, { value: string; comment: string }> = {};
   if (!emitterOptions.properties) {
     return configEntries;
   }
@@ -890,17 +890,17 @@ function getConfigEntriesFromEmitterOptions(
           break;
         case "int":
         case "number":
-          value = 0;
+          value = `0`;
           break;
         case "object":
           value = `{}`;
           break;
         case "bool":
         case "boolean":
-          value = false;
+          value = `false`;
           break;
         case "array":
-          value = [];
+          value = `[]`;
           break;
       }
     }
@@ -947,7 +947,7 @@ async function generateAnnotatedYamlFile(
           const nameValuePart = ` ${x.name}: ${x.value}`;
           const totalPadding = maxNameLength + maxValueLength + 3 + commentAlignmentSpacing; // 3 for ": " and space
           const currentLength = nameValuePart.length;
-          const spacesToAdd = Math.max(commentAlignmentSpacing, totalPadding - currentLength);
+          const spacesToAdd = totalPadding - currentLength;
           return `${nameValuePart}${" ".repeat(spacesToAdd)}# ${x.comment}`;
         })
         .join("\n");
