@@ -2,7 +2,7 @@ import { rm } from "fs/promises";
 import fs from "node:fs";
 import path from "node:path";
 import { Locator, Page } from "playwright";
-import { imagesPath, retry, screenshot } from "./utils";
+import { CaseScreenshot, imagesPath, retry } from "./utils";
 
 /**
  * Waits for the specified text to appear on the page before proceeding.
@@ -29,14 +29,14 @@ export async function preContrastResult(
  * @param res List of expected files
  * @param dir The directory to be compared needs to be converted into an absolute path using path.resolve
  */
-export async function contrastResult(page: Page, res: string[], dir: string) {
+export async function contrastResult(page: Page, res: string[], dir: string, cs: CaseScreenshot) {
   let resLength = 0;
   if (fs.existsSync(dir)) {
     resLength = fs.readdirSync(dir).length;
     await rm(imagesPath, { recursive: true });
   }
   if (resLength !== res.length) {
-    await screenshot(page, "linux", "error");
+    await cs.screenshot(page, "error");
     throw new Error("Failed to matches all files");
   }
 }
@@ -46,14 +46,14 @@ export async function contrastResult(page: Page, res: string[], dir: string) {
  * @param page vscode object
  * @param command After the top input box pops up, the command to be executed
  */
-export async function startWithCommandPalette(page: Page, command: string) {
+export async function startWithCommandPalette(page: Page, command: string, cs: CaseScreenshot) {
   await page.waitForSelector(".explorer-viewlet");
   await page.waitForSelector(".left-items");
   await page.keyboard.press("ControlOrMeta+Shift+P");
   await page.waitForSelector('input[aria-label="Type the name of a command to run."]', {
     state: "visible",
   });
-  await screenshot(page, "linux", "open_top_panel");
+  await cs.screenshot(page, "open_top_panel");
   await page
     .getByRole("textbox", { name: "Type the name of a command to run." })
     .first()
@@ -70,8 +70,10 @@ export async function startWithCommandPalette(page: Page, command: string) {
       return (await listForCreate.count()) > 0;
     },
     "Failed to find the specified option",
+    1,
+    cs,
   );
-  await screenshot(page, "linux", "input_command");
+  await cs.screenshot(page, "input_command");
   await listForCreate!.click();
 }
 
@@ -82,7 +84,7 @@ export async function startWithCommandPalette(page: Page, command: string) {
  * @param type specify whether the click is on file, folder or empty folder
  * command: specify which command to execute to the project
  */
-export async function startWithRightClick(page: Page, command: string) {
+export async function startWithRightClick(page: Page, command: string, cs: CaseScreenshot) {
   await page.waitForSelector(".explorer-viewlet");
   await page.waitForSelector(".letterpress");
   await page.waitForSelector(".left-items");
@@ -91,7 +93,7 @@ export async function startWithRightClick(page: Page, command: string) {
   const target = page.getByRole("treeitem", { name: targetName }).locator("a");
   await target.click({ button: "right" });
   await page.getByRole("menuitem", { name: "Import TypeSpec from OpenAPI" }).click();
-  await screenshot(page, "linux", "import_typespec");
+  await cs.screenshot(page, "import_typespec");
 }
 
 /**
@@ -100,7 +102,7 @@ export async function startWithRightClick(page: Page, command: string) {
  * @param packagePattern Regular expression used to match package checkbox
  * @returns Promise<void> Resolve when both the OK button and the specified package checkbox appear, otherwise throw an exception after multiple retries
  */
-async function waitForInstallDialog(page: Page, packagePattern: RegExp) {
+async function waitForInstallDialog(page: Page, packagePattern: RegExp, cs: CaseScreenshot) {
   await retry(
     page,
     10,
@@ -111,6 +113,7 @@ async function waitForInstallDialog(page: Page, packagePattern: RegExp) {
     },
     "Failed to locate okBtn and package list successfully",
     3,
+    cs,
   );
 }
 
@@ -119,13 +122,13 @@ async function waitForInstallDialog(page: Page, packagePattern: RegExp) {
  * @param page vscode project
  * @param operation in which scenario is it called (EmitTypeSpec, ImportTypeSpec)
  **/
-export async function InstallPackages(page: Page, operation: string) {
+export async function InstallPackages(page: Page, operation: string, cs: CaseScreenshot) {
   if (operation === "EmitTypeSpec") {
-    await waitForInstallDialog(page, /@typespec\/http-client-python/);
+    await waitForInstallDialog(page, /@typespec\/http-client-python/, cs);
   } else if (operation === "ImportTypeSpec") {
-    await waitForInstallDialog(page, /@typespec\/openapi3/);
+    await waitForInstallDialog(page, /@typespec\/openapi3/, cs);
   }
-  await screenshot(page, "linux", "install_packages.png");
+  await cs.screenshot(page, "install_packages.png");
   await page.getByRole("button", { name: /OK/ }).click();
 }
 

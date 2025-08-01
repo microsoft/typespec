@@ -3,7 +3,7 @@ import path from "node:path";
 import { beforeEach, describe } from "vitest";
 import { startWithRightClick } from "./common/common-steps";
 import { mockShowOpenDialog } from "./common/mock-dialogs";
-import { screenshot, tempDir, test } from "./common/utils";
+import { CaseScreenshot, tempDir, test } from "./common/utils";
 
 enum ImportProjectTriggerType {
   CommandPalette = "CommandPalette",
@@ -65,6 +65,7 @@ beforeEach(() => {
 describe.each(ImportCasesConfigList)("ImportTypespecFromOpenApi3", async (item) => {
   const { caseName } = item;
   test(caseName, async ({ launch }) => {
+    const cs = new CaseScreenshot(caseName);
     const workspacePath = ImportTypespecProjectFolderPath;
 
     const { page, app } = await launch({
@@ -73,8 +74,8 @@ describe.each(ImportCasesConfigList)("ImportTypespecFromOpenApi3", async (item) 
 
     const openapifilepath = path.resolve(ImportTypespecProjectFolderPath, "openapi.3.0.yaml");
     await mockShowOpenDialog(app, [openapifilepath]);
-    await startWithRightClick(page, "Import TypeSpec from Openapi 3");
-    await screenshot(page, "linux", "result_list.png");
+    await startWithRightClick(page, "Import TypeSpec from Openapi 3", cs);
+    await cs.screenshot(page, "result_list");
 
     app.close();
   });

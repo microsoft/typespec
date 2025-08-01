@@ -9,7 +9,7 @@ import {
   startWithCommandPalette,
 } from "./common/common-steps";
 import { emiChooseEmitter, emitSelectLanguage, emitSelectType } from "./common/emit-steps";
-import { screenshot, tempDir, test } from "./common/utils";
+import { CaseScreenshot, tempDir, test } from "./common/utils";
 
 enum EmitProjectTriggerType {
   Command = "Command",
@@ -57,8 +57,9 @@ beforeEach(() => {
 });
 
 describe.each(EmitCasesConfigList)("EmitTypespecProject", async (item) => {
-  const { caseName, selectType, selectTypeLanguage, TspConfigHasEmit, expectedResults } = item;
+  const { caseName, selectType, selectTypeLanguage, TspConfigHasEmit } = item;
   test(caseName, async ({ launch }) => {
+    const cs = new CaseScreenshot(caseName);
     const workspacePath = EmitTypespecProjectFolderPath;
     let removedLines: string[] | undefined = undefined;
     if (!TspConfigHasEmit) {
@@ -68,17 +69,17 @@ describe.each(EmitCasesConfigList)("EmitTypespecProject", async (item) => {
     const { page, app } = await launch({
       workspacePath,
     });
-    await startWithCommandPalette(page, "Emit from Typespec");
+    await startWithCommandPalette(page, "Emit from Typespec", cs);
     if (TspConfigHasEmit) {
-      await emiChooseEmitter(page);
+      await emiChooseEmitter(page, cs);
     }
 
-    await emitSelectType(page, selectType);
-    await emitSelectLanguage(page, selectTypeLanguage, selectType);
-    await InstallPackages(page, "EmitTypeSpec");
+    await emitSelectType(page, selectType, cs);
+    await emitSelectLanguage(page, selectTypeLanguage, selectType, cs);
+    await InstallPackages(page, "EmitTypeSpec", cs);
     const contrastMessage = "Installing packages...";
     await preContrastResult(page, contrastMessage, "Failed to emit project Successful", 150000);
-    await screenshot(page, "linux", "emit_result");
+    await cs.screenshot(page, "emit_result");
     if (!TspConfigHasEmit && removedLines !== undefined) {
       restoreTspConfigFile(workspacePath, removedLines);
     }

@@ -1,12 +1,12 @@
 import { Page } from "playwright";
-import { retry, screenshot } from "./utils";
+import { CaseScreenshot, retry } from "./utils";
 
 /**
  * When creating, select emitters
  * @param page vscode project
  * @param emitters The emitters that need to be selected. If you need to select all, just do not transmit them.
  */
-export async function selectEmitters(page: Page, emitters?: string[]) {
+export async function selectEmitters(page: Page, cs: CaseScreenshot, emitters?: string[]) {
   const emittersConfig = [
     { name: "OpenAPI 3.1 document", description: "@typespec/openapi3" },
     { name: "C# client", description: "@typespec/http-client-csharp" },
@@ -48,9 +48,11 @@ export async function selectEmitters(page: Page, emitters?: string[]) {
       return checks.every((result) => result);
     },
     "Failed to find the selectEmitter box.",
+    2,
+    cs,
   );
   await page.getByRole("checkbox", { name: "Toggle all checkboxes" }).check();
-  await screenshot(page, "linux", "select_emitter");
+  await cs.screenshot(page, "select_emitter");
   await page.keyboard.press("Enter");
 }
 
@@ -64,6 +66,7 @@ export async function selectTemplate(
   page: Page,
   templateName: string,
   templateNameDescription: string,
+  cs: CaseScreenshot,
 ) {
   let templateListName;
   let templateListDescription;
@@ -77,6 +80,8 @@ export async function selectTemplate(
       return (await templateListName.count()) > 0;
     },
     `Failed to find the following template: "${templateName}".`,
+    2,
+    cs,
   );
   await retry(
     page,
@@ -93,8 +98,10 @@ export async function selectTemplate(
       }
     },
     "Failed to find the selectTemplate box.",
+    2,
+    cs,
   );
-  await screenshot(page, "linux", "select_template");
+  await cs.screenshot(page, "select_template");
   await templateListName!.first().click();
 }
 
@@ -102,7 +109,7 @@ export async function selectTemplate(
  * When creating, verify the description below, then input project name
  * @param page vscode project
  */
-export async function inputProjectName(page: Page) {
+export async function inputProjectName(page: Page, cs: CaseScreenshot) {
   const titleInfoDescription =
     "Please input the project name (Press 'Enter' to confirm or 'Escape' to cancel)";
   await retry(
@@ -123,7 +130,9 @@ export async function inputProjectName(page: Page) {
       }
     },
     "Failed to find the project name input box.",
+    2,
+    cs,
   );
-  await screenshot(page, "linux", "input_project_name");
+  await cs.screenshot(page, "input_project_name");
   await page.keyboard.press("Enter");
 }
