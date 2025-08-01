@@ -1,5 +1,12 @@
 # Change Log - @typespec/http-client-python
 
+## 0.14.2
+
+### Bug Fixes
+
+- [#8058](https://github.com/microsoft/typespec/pull/8058) fix outputfolder of packaging files for arm sdk
+
+
 ## 0.14.1
 
 ### Bump dependencies

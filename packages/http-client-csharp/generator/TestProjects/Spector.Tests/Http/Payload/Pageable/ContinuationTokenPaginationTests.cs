@@ -14,6 +14,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
     public class ContinuationTokenPaginationTests : SpectorTestBase
     {
         [SpectorTest]
+        [Ignore("https://github.com/microsoft/typespec/issues/8009")]
         public Task RequestHeaderResponseBodyConvenienceMethod() => Test(async (host) =>
         {
             var client = new PageableClient(host, null);
@@ -24,6 +25,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
         });
 
         [SpectorTest]
+        [Ignore("https://github.com/microsoft/typespec/issues/8009")]
         public Task RequestHeaderResponseBodyProtocolMethod() => Test(async (host) =>
         {
             var client = new PageableClient(host, null);
@@ -34,6 +36,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
         });
 
         [SpectorTest]
+        [Ignore("https://github.com/microsoft/typespec/issues/8009")]
         public Task RequestHeaderResponseHeaderConvenienceMethod() => Test(async (host) =>
         {
             var client = new PageableClient(host, null);
@@ -44,6 +47,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
         });
 
         [SpectorTest]
+        [Ignore("https://github.com/microsoft/typespec/issues/8009")]
         public Task RequestHeaderResponseHeaderProtocolMethod() => Test(async (host) =>
         {
             var client = new PageableClient(host, null);
@@ -54,6 +58,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
         });
 
         [SpectorTest]
+        [Ignore("https://github.com/microsoft/typespec/issues/8009")]
         public Task RequestQueryResponseBodyConvenienceMethod() => Test(async (host) =>
         {
             var client = new PageableClient(host, null);
@@ -64,6 +69,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
         });
 
         [SpectorTest]
+        [Ignore("https://github.com/microsoft/typespec/issues/8009")]
         public Task RequestQueryResponseBodyProtocolMethod() => Test(async (host) =>
         {
             var client = new PageableClient(host, null);
@@ -74,6 +80,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
         });
 
         [SpectorTest]
+        [Ignore("https://github.com/microsoft/typespec/issues/8009")]
         public Task RequestQueryResponseHeaderConvenienceMethod() => Test(async (host) =>
         {
             var client = new PageableClient(host, null);
@@ -84,6 +91,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
         });
 
         [SpectorTest]
+        [Ignore("https://github.com/microsoft/typespec/issues/8009")]
         public Task RequestQueryResponseHeaderProtocolMethod() => Test(async (host) =>
         {
             var client = new PageableClient(host, null);
@@ -94,6 +102,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
         });
 
         [SpectorTest]
+        [Ignore("https://github.com/microsoft/typespec/issues/8009")]
         public Task RequestHeaderResponseBodyConvenienceMethodSync() => Test((host) =>
         {
             var client = new PageableClient(host, null);
@@ -119,6 +128,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
         });
 
         [SpectorTest]
+        [Ignore("https://github.com/microsoft/typespec/issues/8009")]
         public Task RequestHeaderResponseBodyProtocolMethodSync() => Test((host) =>
         {
             var client = new PageableClient(host, null);

@@ -13,6 +13,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
     public class NextLinkPaginationTests : SpectorTestBase
     {
         [SpectorTest]
+        [Ignore("https://github.com/microsoft/typespec/issues/8009")]
         public Task ConvenienceMethod() => Test(async (host) =>
         {
             var client = new PageableClient(host, null);
@@ -34,6 +35,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
         });
 
         [SpectorTest]
+        [Ignore("https://github.com/microsoft/typespec/issues/8009")]
         public Task ConvenienceMethodSync() => Test((host) =>
         {
             var client = new PageableClient(host, null);
@@ -56,6 +58,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
         });
 
         [SpectorTest]
+        [Ignore("https://github.com/microsoft/typespec/issues/8009")]
         public Task ProtocolMethod() => Test(async (host) =>
         {
             var client = new PageableClient(host, null);
@@ -83,6 +86,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
         });
 
         [SpectorTest]
+        [Ignore("https://github.com/microsoft/typespec/issues/8009")]
         public Task ProtocolMethodSync() => Test((host) =>
         {
             var client = new PageableClient(host, null);
