@@ -674,5 +674,35 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 Namespace = @namespace;
             }
         }
+
+        internal static readonly IEqualityComparer<CSharpType> IgnoreNullableComparer = new CSharpTypeIgnoreNullableComparer();
+
+        private class CSharpTypeIgnoreNullableComparer : IEqualityComparer<CSharpType>
+        {
+            public bool Equals(CSharpType? x, CSharpType? y)
+            {
+                if (x is null && y is null)
+                {
+                    return true;
+                }
+                if (x is null || y is null)
+                {
+                    return false;
+                }
+
+                return x.Equals(y, ignoreNullable: true);
+            }
+
+            public int GetHashCode(CSharpType obj)
+            {
+                HashCode hashCode = new HashCode();
+                hashCode.Add(obj.Namespace);
+                hashCode.Add(obj.Name);
+                hashCode.Add(obj.IsValueType);
+                hashCode.Add(obj.IsEnum);
+                hashCode.Add(obj.IsStruct);
+                return hashCode.ToHashCode();
+            }
+        }
     }
 }

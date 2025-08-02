@@ -455,23 +455,23 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
         }
 
         public static InputPagingServiceMetadata NextLinkPagingMetadata(
-            string itemPropertyName,
-            string nextLinkName,
+            IReadOnlyList<string> itemSegments,
+            IReadOnlyList<string> nextLinkSegments,
             InputResponseLocation nextLinkLocation,
             IReadOnlyList<InputParameter>? reinjectedParameters = null)
         {
             return PagingMetadata(
-                [itemPropertyName],
-                new InputNextLink(null, [nextLinkName], nextLinkLocation, reinjectedParameters),
+                itemSegments,
+                new InputNextLink(null, nextLinkSegments, nextLinkLocation, reinjectedParameters),
                 null);
         }
 
-        public static InputPagingServiceMetadata ContinuationTokenPagingMetadata(InputParameter parameter, string itemPropertyName, string continuationTokenName, InputResponseLocation continuationTokenLocation)
+        public static InputPagingServiceMetadata ContinuationTokenPagingMetadata(InputParameter parameter, IReadOnlyList<string> itemSegments, IReadOnlyList<string> continuationTokenSegments, InputResponseLocation continuationTokenLocation)
         {
             return new InputPagingServiceMetadata(
-                [itemPropertyName],
+                itemSegments,
                 null,
-                continuationToken: new InputContinuationToken(parameter, [continuationTokenName], continuationTokenLocation));
+                continuationToken: new InputContinuationToken(parameter, continuationTokenSegments, continuationTokenLocation));
         }
 
         public static InputOperationResponse OperationResponse(
