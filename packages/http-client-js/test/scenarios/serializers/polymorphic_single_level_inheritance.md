@@ -53,19 +53,31 @@ export function jsonBirdToTransportDiscriminator(input_?: Bird): any {
   }
   const discriminatorValue = input_.kind;
   if (discriminatorValue === "seagull") {
-    return jsonSeaGullToTransportTransform(input_ as any)!;
+    return {
+      kind: "seagull",
+      ...jsonSeaGullToTransportTransform(input_ as any)!,
+    };
   }
 
   if (discriminatorValue === "sparrow") {
-    return jsonSparrowToTransportTransform(input_ as any)!;
+    return {
+      kind: "sparrow",
+      ...jsonSparrowToTransportTransform(input_ as any)!,
+    };
   }
 
   if (discriminatorValue === "goose") {
-    return jsonGooseToTransportTransform(input_ as any)!;
+    return {
+      kind: "goose",
+      ...jsonGooseToTransportTransform(input_ as any)!,
+    };
   }
 
   if (discriminatorValue === "eagle") {
-    return jsonEagleToTransportTransform(input_ as any)!;
+    return {
+      kind: "eagle",
+      ...jsonEagleToTransportTransform(input_ as any)!,
+    };
   }
   console.warn(`Received unknown kind: ` + discriminatorValue);
   return input_ as any;
