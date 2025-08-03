@@ -1380,7 +1380,7 @@ namespace SampleTypeSpec
         }
 
         /// <summary>
-        /// [Protocol Method] List things with string nextlink
+        /// [Protocol Method] List things with nextlink
         /// <list type="bullet">
         /// <item>
         /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
@@ -1396,7 +1396,7 @@ namespace SampleTypeSpec
         }
 
         /// <summary>
-        /// [Protocol Method] List things with string nextlink
+        /// [Protocol Method] List things with nextlink
         /// <list type="bullet">
         /// <item>
         /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
@@ -1411,7 +1411,7 @@ namespace SampleTypeSpec
             return new SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResult(this, options);
         }
 
-        /// <summary> List things with string nextlink. </summary>
+        /// <summary> List things with nextlink. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual CollectionResult<Thing> GetWithStringNextLink(CancellationToken cancellationToken = default)
@@ -1419,7 +1419,7 @@ namespace SampleTypeSpec
             return new SampleTypeSpecClientGetWithStringNextLinkCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
 
-        /// <summary> List things with string nextlink. </summary>
+        /// <summary> List things with nextlink. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual AsyncCollectionResult<Thing> GetWithStringNextLinkAsync(CancellationToken cancellationToken = default)

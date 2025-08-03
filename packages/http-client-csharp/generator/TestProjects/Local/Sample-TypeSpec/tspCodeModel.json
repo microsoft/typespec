@@ -6083,12 +6083,12 @@
             "2024-07-16-preview",
             "2024-08-16-preview"
           ],
-          "doc": "List things with string nextlink",
+          "doc": "List things with nextlink",
           "operation": {
             "$id": "445",
             "name": "ListWithStringNextLink",
             "resourceName": "SampleTypeSpec",
-            "doc": "List things with string nextlink",
+            "doc": "List things with nextlink",
             "accessibility": "public",
             "parameters": [
               {
@@ -6126,7 +6126,7 @@
             ],
             "httpMethod": "GET",
             "uri": "{sampleTypeSpecUrl}",
-            "path": "/stringlink",
+            "path": "/linkString",
             "bufferResponse": true,
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,

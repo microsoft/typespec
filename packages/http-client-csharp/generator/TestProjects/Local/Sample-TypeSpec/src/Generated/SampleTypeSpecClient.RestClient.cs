@@ -373,7 +373,7 @@ namespace SampleTypeSpec
             request.Method = "GET";
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
-            uri.AppendPath("/stringlink", false);
+            uri.AppendPath("/linkString", false);
             request.Uri = uri.ToUri();
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
