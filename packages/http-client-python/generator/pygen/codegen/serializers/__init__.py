@@ -503,7 +503,7 @@ class JinjaSerializer(ReaderAndWriter):
         return Path("")
 
     def _serialize_and_write_sample(self, env: Environment, namespace: str):
-        out_path = self.code_model.get_samples_folder_generation_dir(namespace) / Path("generated_samples")
+        out_path = self.code_model.get_generation_dir(namespace) / Path("generated_samples")
         for client in self.code_model.clients:
             for op_group in client.operation_groups:
                 for operation in op_group.operations:
@@ -537,7 +537,7 @@ class JinjaSerializer(ReaderAndWriter):
 
     def _serialize_and_write_test(self, env: Environment, namespace: str):
         self.code_model.for_test = True
-        out_path = self.code_model.get_samples_folder_generation_dir(namespace) / Path("generated_tests")
+        out_path = self.code_model.get_generation_dir(namespace) / Path("generated_tests")
         general_serializer = TestGeneralSerializer(code_model=self.code_model, env=env)
         self.write_file(out_path / "conftest.py", general_serializer.serialize_conftest())
         if not self.code_model.options["azure-arm"]:

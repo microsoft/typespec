@@ -469,11 +469,6 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         retval = self._get_relative_generation_dir(root_dir, namespace)
         return retval
 
-    def get_samples_folder_generation_dir(self, namespace: str) -> Path:
-        # Same logic as get_generation_dir, but doesn't take `no-namespace-folders` into account
-        root_dir = Path(*self.namespace.split("."))
-        return Path("../" * (self.namespace.count(".") + 1)) / self._get_relative_generation_dir(root_dir, namespace)
-
     def _get_relative_generation_dir(self, root_dir: Path, namespace: str) -> Path:
         if self.options["no-namespace-folders"]:
             return Path(".")
