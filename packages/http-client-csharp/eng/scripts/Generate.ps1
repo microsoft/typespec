@@ -15,16 +15,16 @@ if (-not $LaunchOnly) {
 
     if ($null -eq $filter -or $filter -eq "Sample-TypeSpec") {
 
-#        Write-Host "Building logging plugin" -ForegroundColor Cyan
-#        $pluginDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'plugins' 'logging' 'Logging.Plugin' 'src'
-#        Invoke "dotnet build" $pluginDir
-#
-#        $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
-#
-#        Write-Host "Installing SampleTypeSpec plugins" -ForegroundColor Cyan
-#
-#        Invoke "npm install --force" $sampleDir
-#
+        Write-Host "Building logging plugin" -ForegroundColor Cyan
+        $pluginDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'plugins' 'logging' 'Logging.Plugin' 'src'
+        Invoke "dotnet build" $pluginDir
+
+        $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
+
+        Write-Host "Installing SampleTypeSpec plugins" -ForegroundColor Cyan
+
+        Invoke "npm install --force" $sampleDir
+
 #        Write-Host "Generating SampleTypeSpec using plugins" -ForegroundColor Cyan
 #
 #        Invoke "npx tsp compile . --trace @typespec/http-client-csharp" $sampleDir
