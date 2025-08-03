@@ -1380,6 +1380,54 @@ namespace SampleTypeSpec
         }
 
         /// <summary>
+        /// [Protocol Method] List things with string nextlink
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual CollectionResult GetWithStringNextLink(RequestOptions options)
+        {
+            return new SampleTypeSpecClientGetWithStringNextLinkCollectionResult(this, options);
+        }
+
+        /// <summary>
+        /// [Protocol Method] List things with string nextlink
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual AsyncCollectionResult GetWithStringNextLinkAsync(RequestOptions options)
+        {
+            return new SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResult(this, options);
+        }
+
+        /// <summary> List things with string nextlink. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual CollectionResult<Thing> GetWithStringNextLink(CancellationToken cancellationToken = default)
+        {
+            return new SampleTypeSpecClientGetWithStringNextLinkCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+        }
+
+        /// <summary> List things with string nextlink. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual AsyncCollectionResult<Thing> GetWithStringNextLinkAsync(CancellationToken cancellationToken = default)
+        {
+            return new SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+        }
+
+        /// <summary>
         /// [Protocol Method] List things with continuation token
         /// <list type="bullet">
         /// <item>

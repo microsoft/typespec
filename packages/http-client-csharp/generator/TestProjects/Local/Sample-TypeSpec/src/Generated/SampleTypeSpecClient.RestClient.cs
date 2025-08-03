@@ -365,6 +365,35 @@ namespace SampleTypeSpec
             return message;
         }
 
+        internal PipelineMessage CreateGetWithStringNextLinkRequest(RequestOptions options)
+        {
+            PipelineMessage message = Pipeline.CreateMessage();
+            message.ResponseClassifier = PipelineMessageClassifier200;
+            PipelineRequest request = message.Request;
+            request.Method = "GET";
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/stringlink", false);
+            request.Uri = uri.ToUri();
+            request.Headers.Set("Accept", "application/json");
+            message.Apply(options);
+            return message;
+        }
+
+        internal PipelineMessage CreateNextGetWithStringNextLinkRequest(Uri nextPage, RequestOptions options)
+        {
+            PipelineMessage message = Pipeline.CreateMessage();
+            message.ResponseClassifier = PipelineMessageClassifier200;
+            PipelineRequest request = message.Request;
+            request.Method = "GET";
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(nextPage);
+            request.Uri = uri.ToUri();
+            request.Headers.Set("Accept", "application/json");
+            message.Apply(options);
+            return message;
+        }
+
         internal PipelineMessage CreateGetWithContinuationTokenRequest(string token, RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();

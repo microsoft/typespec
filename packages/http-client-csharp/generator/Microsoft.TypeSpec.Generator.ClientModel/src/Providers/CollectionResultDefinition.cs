@@ -33,6 +33,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected FieldProvider RequestOptionsField => _requestOptionsField ??= RequestFields
             .First(f => f.Name == RequestOptionsFieldName);
+        private FieldProvider? _requestOptionsField;
+        protected virtual string RequestOptionsFieldName => "_options";
 
         protected IReadOnlyList<FieldProvider> RequestFields { get; }
 
@@ -40,21 +42,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected CSharpType ResponseType { get; }
 
         protected virtual CSharpType? ItemModelType { get; }
+        protected FieldProvider? NextTokenField { get; }
 
-        private FieldProvider? _requestOptionsField;
-
-        protected virtual string RequestOptionsFieldName => "_options";
+        protected CSharpType NextPagePropertyType { get; }
 
         protected IReadOnlyList<string> NextPagePropertySegments { get; }
 
-        private readonly InputResponseLocation? _nextPageLocation;
+        protected InputResponseLocation? NextPageLocation { get; }
 
         private static readonly ParameterProvider PageParameter =
             new("page", FormattableStringHelpers.Empty, new CSharpType(typeof(ClientResult)));
 
         private readonly IReadOnlyList<ParameterProvider> _createRequestParameters;
         private readonly string _createRequestMethodName;
-        private readonly int? _nextTokenParameterIndex;
 
         public CollectionResultDefinition(ClientProvider client, InputPagingServiceMethod serviceMethod, CSharpType? itemModelType, bool isAsync)
         {
@@ -81,22 +81,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             for (int paramIndex = 0; paramIndex < _createRequestParameters.Count; paramIndex++)
             {
                 var parameter = _createRequestParameters[paramIndex];
-                if (parameter.Name == Paging.ContinuationToken?.Parameter.Name)
-                {
-                    _nextTokenParameterIndex = paramIndex;
-                }
                 var field = new FieldProvider(
                     FieldModifiers.Private | FieldModifiers.ReadOnly,
                     parameter.Type,
                     $"_{parameter.Name.ToVariableName()}",
                     this);
                 fields.Add(field);
+                if (parameter.Name == Paging.ContinuationToken?.Parameter.Name)
+                {
+                    NextTokenField = field;
+                }
             }
 
             RequestFields = fields;
 
-            _nextPageLocation = Paging.NextLink?.ResponseLocation ?? Paging.ContinuationToken?.ResponseLocation;
+            NextPageLocation = Paging.NextLink?.ResponseLocation ?? Paging.ContinuationToken?.ResponseLocation;
             NextPagePropertySegments = Paging.NextLink?.ResponseSegments ?? Paging.ContinuationToken?.ResponseSegments ?? [];
+
+            NextPagePropertyType = GetNextPagePropertyType();
 
             if (Paging.ItemPropertySegments.Count == 0)
             {
@@ -106,6 +108,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Operation.CrossLanguageDefinitionId,
                     EmitterDiagnosticSeverity.Error);
             }
+        }
+
+        private CSharpType GetNextPagePropertyType()
+        {
+            if (NextPageLocation != InputResponseLocation.Body)
+            {
+                return typeof(string);
+            }
+
+            TypeProvider model = ResponseModel;
+            PropertyProvider? property = null;
+            for (int i = 0; i < NextPagePropertySegments.Count; i++)
+            {
+                property = model.Properties.First(p => p.WireInfo!.SerializedName == NextPagePropertySegments[i]);
+
+                if (i < NextPagePropertySegments.Count - 1)
+                {
+                    model = ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[property.Type]!;
+                }
+            }
+
+            return property!.Type;
         }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
@@ -276,11 +300,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             CSharpType nextPageType = Paging.NextLink != null
-                ? new CSharpType(typeof(Uri))
-                : RequestFields[_nextTokenParameterIndex!.Value].Type;
+                ? NextPagePropertyType
+                : NextTokenField!.Type;
             var nextPageVariable = new VariableExpression(nextPageType, "nextPage");
             var nextPagePropertySegments = Paging.NextLink?.ResponseSegments ?? Paging.ContinuationToken?.ResponseSegments;
-            switch (_nextPageLocation)
+            switch (NextPageLocation)
             {
                 case InputResponseLocation.Body:
                     var resultExpression = BuildGetPropertyExpression(nextPagePropertySegments!, PageParameter.AsExpression());
@@ -355,13 +379,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement[] BuildGetRawPagesForContinuationToken()
         {
-            var nextTokenVariable = new VariableExpression(RequestFields[_nextTokenParameterIndex!.Value].Type, "nextToken");
+            var nextTokenVariable = new VariableExpression(NextTokenField!.Type, "nextToken");
             return
             [
                 // Declare the initial request message
                 Declare(
                     "message",
-                    InvokeCreateRequestForContinuationToken(RequestFields[_nextTokenParameterIndex!.Value]),
+                    InvokeCreateRequestForContinuationToken(NextTokenField!),
                     out ScopedApi<PipelineMessage> message),
 
                 // Declare nextToken variable
@@ -411,19 +435,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ];
         }
 
-        private MethodBodyStatement[] AssignAndCheckNextPageVariable(ClientResponseApi result, VariableExpression nextPage)
+        protected MethodBodyStatement[] AssignAndCheckNextPageVariable(ClientResponseApi result, VariableExpression nextPage)
         {
-            switch (_nextPageLocation)
+            switch (NextPageLocation)
             {
                 case InputResponseLocation.Body:
                     var resultExpression = BuildGetPropertyExpression(NextPagePropertySegments, result);
+                    if (Paging.ContinuationToken != null || NextPagePropertyType.Equals(typeof(Uri)))
+                    {
+                        return
+                        [
+                            nextPage.Assign(resultExpression).Terminate(),
+                            new IfStatement(nextPage.Equal(Null))
+                            {
+                                YieldBreak()
+                            }
+                        ];
+                    }
                     return
                     [
-                        nextPage.Assign(resultExpression).Terminate(),
-                        new IfStatement(nextPage.Equal(Null))
+                        Declare("nextPageString", resultExpression.As<string>(), out ScopedApi<string> nextPageString),
+                        new IfStatement(nextPageString.Equal(Null))
                         {
                             YieldBreak()
                         },
+                        nextPage.Assign(New.Instance<Uri>(nextPageString)).Terminate()
                     ];
                 case InputResponseLocation.Header:
                     return
@@ -455,10 +491,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private ScopedApi<PipelineMessage> InvokeCreateRequestForContinuationToken(ValueExpression nextToken)
         {
-            ValueExpression[] arguments = RequestFields.Select(f => f.AsValueExpression).ToArray();
-
             // Replace the nextToken field with the nextToken variable
-            arguments[_nextTokenParameterIndex!.Value] = nextToken;
+            var arguments = RequestFields.Select(f => f == NextTokenField ? nextToken : f.AsValueExpression);
 
             return ClientField.Invoke(_createRequestMethodName, arguments).As<PipelineMessage>();
         }
