@@ -351,24 +351,6 @@ namespace SampleTypeSpec
             return message;
         }
 
-        internal PipelineMessage CreateListWithStringNextLinkRequest(Uri nextPage, RequestOptions options)
-        {
-            PipelineMessage message = Pipeline.CreateMessage();
-            message.ResponseClassifier = PipelineMessageClassifier200;
-            PipelineRequest request = message.Request;
-            request.Method = "GET";
-            ClientUriBuilder uri = new ClientUriBuilder();
-            uri.Reset(nextPage ?? _endpoint);
-            if (nextPage == null)
-            {
-                uri.AppendPath("/stringlink", false);
-            }
-            request.Uri = uri.ToUri();
-            request.Headers.Set("Accept", "application/json");
-            message.Apply(options);
-            return message;
-        }
-
         internal PipelineMessage CreateListWithContinuationTokenRequest(string token, RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
