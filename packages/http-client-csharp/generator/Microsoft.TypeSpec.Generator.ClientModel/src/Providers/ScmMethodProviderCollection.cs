@@ -457,9 +457,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             // Extract non-body properties from the body model
             var nonBodyProperties = bodyModel.CanonicalView.Properties
-                .Where(p => p.WireInfo != null &&
-                          p.WireInfo.Location != PropertyLocation.Unknown &&
-                          p.WireInfo.Location != PropertyLocation.Body)
+                .Where(p => p.WireInfo?.IsHttpMetadata == true)
                 .ToDictionary(p => p.WireInfo!.SerializedName, p => p);
 
             if (nonBodyProperties.Count == 0)
@@ -472,7 +470,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var protocolParameter in ProtocolMethodParameters)
             {
                 if (protocolParameter.Location != ParameterLocation.Body &&
-                    nonBodyProperties.TryGetValue(protocolParameter.WireInfo.SerializedName, out var nonBodyProperty))
+                    (nonBodyProperties.TryGetValue(protocolParameter.WireInfo.SerializedName, out var nonBodyProperty) ||
+                    nonBodyProperties.TryGetValue(protocolParameter.Name, out nonBodyProperty)))
                 {
                     var conversion = bodyParam.Property(nonBodyProperty.Name);
                     if (protocolParameter.DefaultValue != null)

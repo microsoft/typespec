@@ -49,7 +49,7 @@
   ],
   "peerDependencies": {
     "@azure-tools/typespec-azure-core": ">=0.58.0 <0.59.0 || ~0.59.0-0",
-    "@azure-tools/typespec-client-generator-core": ">=0.58.0 <0.59.0 || ~0.59.0-0",
+    "@azure-tools/typespec-client-generator-core": ">=0.58.1 <0.59.0 || ~0.59.0-0",
     "@typespec/compiler": "^1.2.1",
     "@typespec/http": "^1.2.1",
     "@typespec/openapi": "^1.2.1",
@@ -58,9 +58,9 @@
     "@typespec/versioning": ">=0.72.1 <0.73.0 || ~0.73.0-0"
   },
   "devDependencies": {
-    "@azure-tools/azure-http-specs": "0.1.0-alpha.23",
+    "@azure-tools/azure-http-specs": "0.1.0-alpha.24",
     "@azure-tools/typespec-azure-core": "0.58.0",
-    "@azure-tools/typespec-client-generator-core": "0.58.0",
+    "@azure-tools/typespec-client-generator-core": "0.58.1",
     "@microsoft/api-extractor": "^7.52.2",
     "@types/node": "~22.12.0",
     "@typespec/compiler": "1.2.1",

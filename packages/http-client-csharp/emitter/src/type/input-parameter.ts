@@ -7,6 +7,7 @@ import { InputParameterKind } from "./input-parameter-kind.js";
 import { InputType } from "./input-type.js";
 import { RequestLocation } from "./request-location.js";
 
+// TO-DO: we should replace `InputParameter` with those `InputQueryParameter`, etc. https://github.com/microsoft/typespec/issues/8085
 export interface InputParameter {
   name: string;
   nameInRequest: string;
