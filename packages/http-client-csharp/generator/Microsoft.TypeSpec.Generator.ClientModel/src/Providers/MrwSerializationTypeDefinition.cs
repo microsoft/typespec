@@ -641,6 +641,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     var variableRef = property.AsVariableExpression;
                     if (property.IsAdditionalProperties)
                     {
+                        if (variableRef.Type.IsReadOnlyDictionary)
+                        {
+                            variableRef.Update(type: variableRef.Type.PropertyInitializationType);
+                        }
                         // IDictionary<string, T> additionalTProperties = new Dictionary<string, T>();
                         propertyDeclarationStatements.Add(Declare(variableRef, new DictionaryExpression(property.Type, New.Instance(property.Type.PropertyInitializationType))));
                     }
@@ -755,7 +759,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (!propertyProvider.Type.IsFrameworkType || propertyProvider.IsAdditionalProperties)
             {
-                return propertyProvider.AsVariableExpression;
+                return propertyProvider.Type.IsReadOnlyDictionary
+                    ? New.ReadOnlyDictionary(propertyProvider.Type.Arguments[0], propertyProvider.Type.ElementType, propertyProvider.AsVariableExpression)
+                    : propertyProvider.AsVariableExpression;
             }
             else if (!isRequired)
             {

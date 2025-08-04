@@ -45,7 +45,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         internal bool IsReadOnlyList => _isReadOnlyList ??= TypeIsReadOnlyList();
         internal bool IsReadWriteList => _isReadWriteList ??= TypeIsReadWriteList();
         public bool IsDictionary => _isDictionary ??= TypeIsDictionary();
-        internal bool IsReadOnlyDictionary => _isReadOnlyDictionary ??= TypeIsReadOnlyDictionary();
+        public bool IsReadOnlyDictionary => _isReadOnlyDictionary ??= TypeIsReadOnlyDictionary();
         internal bool IsReadWriteDictionary => _isReadWriteDictionary ??= TypeIsReadWriteDictionary();
         internal bool IsIEnumerableOfT => _isIEnumerableOfT ??= TypeIsIEnumerableOfT();
         internal bool IsIAsyncEnumerableOfT => _isIAsyncEnumerableOfT ??= TypeIsIAsyncEnumerableOfT();
