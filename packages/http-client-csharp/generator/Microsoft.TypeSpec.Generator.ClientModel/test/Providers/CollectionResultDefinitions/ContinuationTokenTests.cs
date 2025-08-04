@@ -187,7 +187,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             [
                 InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
             ]);
-            var parameter = InputFactory.Parameter("myToken", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query);
+            var parameter = InputFactory.QueryParameter("myToken", InputPrimitiveType.String, isRequired: true);
             var pagingMetadata = isNested ?
                 InputFactory.ContinuationTokenPagingMetadata(parameter, ["nestedItems", "cats"], ["nestedNext", "nextPage"], responseLocation)
                 : InputFactory.ContinuationTokenPagingMetadata(parameter, ["cats"], ["nextPage"], responseLocation);
