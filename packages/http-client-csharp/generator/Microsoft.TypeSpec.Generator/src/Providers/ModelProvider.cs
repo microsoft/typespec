@@ -616,7 +616,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 foreach (var property in AdditionalPropertyProperties)
                 {
-                    constructorParameters.Add(property.AsParameter);
+                    ParameterProvider apParameter = property.AsParameter;
+                    if (apParameter.Type.IsReadOnlyDictionary)
+                    {
+                        apParameter.Update(type: new CSharpType(typeof(IDictionary<,>), apParameter.Type.Arguments[0], apParameter.Type.Arguments[1]));
+                    }
+                    constructorParameters.Add(apParameter);
                 }
 
                 // only add the raw data field if it has not already been added as a parameter for BinaryData additional properties
