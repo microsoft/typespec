@@ -35,7 +35,7 @@ class RecordImpl<T> {
   }
 }
 
-describe("Type.Array", () => {
+describe("Type.Record", () => {
   let serverAbortController: AbortController;
   beforeEach(() => {
     serverAbortController = new AbortController();
