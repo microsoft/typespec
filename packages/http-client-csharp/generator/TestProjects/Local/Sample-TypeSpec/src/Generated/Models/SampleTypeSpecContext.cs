@@ -21,6 +21,7 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(RenamedModelCustom))]
     [ModelReaderWriterBuildable(typeof(ReturnsAnonymousModelResponse))]
     [ModelReaderWriterBuildable(typeof(ListWithNextLinkResponse))]
+    [ModelReaderWriterBuildable(typeof(ListWithStringNextLinkResponse))]
     [ModelReaderWriterBuildable(typeof(ListWithContinuationTokenResponse))]
     [ModelReaderWriterBuildable(typeof(ListWithContinuationTokenHeaderResponseResponse))]
     [ModelReaderWriterBuildable(typeof(PageThing))]

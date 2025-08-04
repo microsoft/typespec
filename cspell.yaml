@@ -219,6 +219,7 @@ words:
   - safeint
   - sdkcore
   - segmentof
+  - setuppy
   - serde
   - sfixed
   - shiki

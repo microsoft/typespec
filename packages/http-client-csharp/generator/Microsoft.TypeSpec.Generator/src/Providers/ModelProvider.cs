@@ -473,7 +473,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     $"Initializes a new instance of {Type:C}",
                     accessibility,
                     constructorParameters,
-                    Initializer: constructorInitializer),
+                    initializer: constructorInitializer),
                 bodyStatements: new MethodBodyStatement[]
                 {
                     GetPropertyInitializers(true, parameters: constructorParameters)
@@ -502,7 +502,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     $"Initializes a new instance of {Type:C}",
                     MethodSignatureModifiers.Internal,
                     ctorParameters,
-                    Initializer: ctorInitializer),
+                    initializer: ctorInitializer),
                 bodyStatements: new MethodBodyStatement[]
                 {
                     GetPropertyInitializers(false)
