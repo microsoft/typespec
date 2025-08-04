@@ -47,7 +47,7 @@ class OptionsDict(MutableMapping):
         self._data = options.copy() if options else {}
         self._validate_combinations()
 
-    def __getitem__(self, key: str) -> Any:
+    def __getitem__(self, key: str) -> Any: # pylint: disable=too-many-return-statements
         if key == "head-as-boolean" and self.get("azure-arm"):
             # override to always true if azure-arm is set
             return True
