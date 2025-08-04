@@ -62,6 +62,15 @@ class OptionsDict(MutableMapping):
         if key == "package-mode" and self._data.get("packaging-files-dir"):
             # if packaging-files-dir is set, use it as package-mode
             return self._data["packaging-files-dir"]
+        if key == "generation-subdir":
+            data = self._data.get("generation-subdir")
+            if data:
+                # Remove leading dot or ./ from generation-subdir
+                if data.startswith("./"):
+                    data = data[2:]
+                elif data.startswith("."):
+                    data = data[1:]
+            return data
         return self._get_default(key)
 
     def __setitem__(self, key: str, value: Any) -> None:
