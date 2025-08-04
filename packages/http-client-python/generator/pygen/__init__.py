@@ -25,7 +25,6 @@ class OptionsDict(MutableMapping):
         "azure-arm": False,
         "basic-setup-py": False,
         "client-side-validation": False,
-        "emit-cross-language-definition-file": False,
         "flavor": "azure",  # need to default to azure in shared code so we don't break swagger generation
         "from-typespec": False,
         "generate-sample": False,
@@ -108,6 +107,8 @@ class OptionsDict(MutableMapping):
                 models_mode_default = "dpg"
             # switch to falsy value for easier code writing
             return models_mode_default
+        if key == "emit-cross-language-definition-file":
+            return self.get("flavor") == "azure"
         return self.DEFAULTS[key]
 
     def _validate_combinations(self) -> None:
