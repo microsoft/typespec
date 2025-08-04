@@ -6,7 +6,9 @@ import {
   SdkConstantType,
   SdkContext,
   SdkHttpOperation,
+  SdkHttpParameter,
   SdkHttpResponse,
+  SdkMethodParameter,
   SdkModelPropertyType,
   SdkServiceMethod,
   SdkType,
@@ -17,7 +19,7 @@ import { CSharpEmitterOptions } from "./options.js";
 import { InputOperation } from "./type/input-operation.js";
 import { InputParameter } from "./type/input-parameter.js";
 import { InputServiceMethod } from "./type/input-service-method.js";
-import { InputClient, InputLiteralType, InputProperty, InputType } from "./type/input-type.js";
+import { InputClient, InputLiteralType, InputModelProperty, InputType } from "./type/input-type.js";
 import { OperationResponse } from "./type/operation-response.js";
 
 /**
@@ -50,7 +52,9 @@ class SdkTypeCache {
   clients: Map<SdkClientType<SdkHttpOperation>, InputClient>;
   methods: Map<SdkServiceMethod<SdkHttpOperation>, InputServiceMethod>;
   operations: Map<SdkHttpOperation, InputOperation>;
-  properties: Map<SdkModelPropertyType, InputParameter | InputProperty>; // TODO -- in the near future, we should replace `InputParameter` with those `InputQueryParameter`, etc.
+  methodParmeters: Map<SdkMethodParameter, InputParameter>; // TODO -- in the near future, we should replace `InputParameter` with those `InputQueryParameter`, etc. https://github.com/microsoft/typespec/issues/8085
+  operationParameters: Map<SdkHttpParameter | SdkModelPropertyType, InputParameter>; // TODO -- in the near future, we should replace `InputParameter` with those `InputQueryParameter`, etc. https://github.com/microsoft/typespec/issues/8085
+  properties: Map<SdkModelPropertyType, InputModelProperty>;
   responses: Map<SdkHttpResponse, OperationResponse>;
   types: Map<SdkType, InputType>;
   constants: Map<SdkConstantType, InputLiteralType>;
@@ -60,7 +64,9 @@ class SdkTypeCache {
     this.clients = new Map<SdkClientType<SdkHttpOperation>, InputClient>();
     this.methods = new Map<SdkServiceMethod<SdkHttpOperation>, InputServiceMethod>();
     this.operations = new Map<SdkHttpOperation, InputOperation>();
-    this.properties = new Map<SdkModelPropertyType, InputParameter | InputProperty>();
+    this.methodParmeters = new Map<SdkMethodParameter, InputParameter>();
+    this.operationParameters = new Map<SdkHttpParameter, InputParameter>();
+    this.properties = new Map<SdkModelPropertyType, InputModelProperty>();
     this.responses = new Map<SdkHttpResponse, OperationResponse>();
     this.types = new Map<SdkType, InputType>();
     this.constants = new Map<SdkConstantType, InputLiteralType>();
@@ -86,10 +92,29 @@ class SdkTypeCache {
 
   updateSdkPropertyReferences(
     sdkProperty: SdkModelPropertyType,
-    inputProperty: InputParameter | InputProperty,
+    inputProperty: InputModelProperty,
   ) {
     this.properties.set(sdkProperty, inputProperty);
     this.crossLanguageDefinitionIds.set(sdkProperty.crossLanguageDefinitionId, sdkProperty.__raw);
+  }
+
+  updateSdkOperationParameterReferences(
+    sdkParameter: SdkHttpParameter | SdkModelPropertyType,
+    inputParameter: InputParameter,
+  ) {
+    this.operationParameters.set(sdkParameter, inputParameter);
+    this.crossLanguageDefinitionIds.set(sdkParameter.crossLanguageDefinitionId, sdkParameter.__raw);
+  }
+
+  updateSdkMethodParameterReferences(
+    sdkMethodParameter: SdkMethodParameter,
+    inputParameter: InputParameter,
+  ) {
+    this.methodParmeters.set(sdkMethodParameter, inputParameter);
+    this.crossLanguageDefinitionIds.set(
+      sdkMethodParameter.crossLanguageDefinitionId,
+      sdkMethodParameter.__raw,
+    );
   }
 
   updateSdkResponseReferences(sdkResponse: SdkHttpResponse, response: OperationResponse) {
