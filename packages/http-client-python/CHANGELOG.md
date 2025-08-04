@@ -1,5 +1,25 @@
 # Change Log - @typespec/http-client-python
 
+## 0.14.2
+
+### Bug Fixes
+
+- [#8058](https://github.com/microsoft/typespec/pull/8058) fix outputfolder of packaging files for arm sdk
+
+
+## 0.14.1
+
+### Bump dependencies
+
+- [#7820](https://github.com/microsoft/typespec/pull/7820) Bump min dep of generated sdks on `azure-core` to `1.35.0` for backcompat serialization methods
+
+### Bug Fixes
+
+- [#7992](https://github.com/microsoft/typespec/pull/7992) Import mixins from operations init file to get patch changes
+- [#8039](https://github.com/microsoft/typespec/pull/8039) Don't hardcode client in sample to first client in list
+- [#7939](https://github.com/microsoft/typespec/pull/7939) Pad `datetime` as a model property for typespec
+
+
 ## 0.14.0
 
 ### Features

@@ -35,13 +35,11 @@ TypeSpec 1.0 GA includes a foundation of fully supported, production-ready compo
 These components are now officially production-ready:
 
 - **Compiler and core libraries**
-
   - [@typespec/compiler](https://www.npmjs.com/package/@typespec/compiler): The TypeSpec language compiler
   - [@typespec/http](https://www.npmjs.com/package/@typespec/http): HTTP protocol support
   - [@typespec/openapi](https://www.npmjs.com/package/@typespec/openapi): OpenAPI support
 
 - **IDE support**
-
   - [typespec-vscode](https://marketplace.visualstudio.com/items?itemName=typespec.typespec-vscode): VS Code extension
 
 - **Stable emitters**
@@ -53,11 +51,9 @@ These components are now officially production-ready:
 We're continuing to develop and refine these components based on your feedback:
 
 - **Protocol emitters**
-
   - [@typespec/protobuf](https://www.npmjs.com/package/@typespec/protobuf): Protocol Buffer definitions
 
 - **Libraries**
-
   - [@typespec/events](https://www.npmjs.com/package/@typespec/events)
   - [@typespec/rest](https://www.npmjs.com/package/@typespec/rest)
   - [@typespec/sse](https://www.npmjs.com/package/@typespec/sse)
@@ -66,7 +62,6 @@ We're continuing to develop and refine these components based on your feedback:
   - [@typespec/xml](https://www.npmjs.com/package/@typespec/xml)
 
 - **Client/server code generation**
-
   - [@typespec/http-client-csharp](https://www.npmjs.com/package/@typespec/http-client-csharp)
   - [@typespec/http-client-js](https://www.npmjs.com/package/@typespec/http-client-js)
   - [@typespec/http-client-java](https://www.npmjs.com/package/@typespec/http-client-java)

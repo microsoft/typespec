@@ -16,18 +16,18 @@ namespace Microsoft.TypeSpec.Generator
     internal class PostProcessor
     {
         private readonly string? _modelFactoryFullName;
-        private readonly string? _aspExtensionClassName;
+        private readonly IEnumerable<string>? _additionalNonRootTypeFullNames;
         private readonly HashSet<string> _typesToKeep;
         private INamedTypeSymbol? _modelFactorySymbol;
 
         public PostProcessor(
             HashSet<string> typesToKeep,
             string? modelFactoryFullName = null,
-            string? aspExtensionClassName = null)
+            IEnumerable<string>? additionalNonRootTypeFullNames = null)
         {
             _typesToKeep = typesToKeep;
             _modelFactoryFullName = modelFactoryFullName;
-            _aspExtensionClassName = aspExtensionClassName;
+            _additionalNonRootTypeFullNames = additionalNonRootTypeFullNames;
         }
 
         private record TypeSymbols(
@@ -54,10 +54,22 @@ namespace Microsoft.TypeSpec.Generator
             var documentCache = new Dictionary<Document, HashSet<INamedTypeSymbol>>();
 
             if (_modelFactoryFullName != null)
+            {
                 _modelFactorySymbol = compilation.GetTypeByMetadataName(_modelFactoryFullName);
-            INamedTypeSymbol? aspDotNetExtensionSymbol = null;
-            if (_aspExtensionClassName != null)
-                aspDotNetExtensionSymbol = compilation.GetTypeByMetadataName(_aspExtensionClassName);
+            }
+
+            var additionalNonRootTypeSymbols = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+            if (_additionalNonRootTypeFullNames != null)
+            {
+                foreach (var typeFullName in _additionalNonRootTypeFullNames)
+                {
+                    var typeSymbol = compilation.GetTypeByMetadataName(typeFullName);
+                    if (typeSymbol != null)
+                    {
+                        additionalNonRootTypeSymbols.Add(typeSymbol);
+                    }
+                }
+            }
 
             foreach (var document in project.Documents)
             {
@@ -83,8 +95,10 @@ namespace Microsoft.TypeSpec.Generator
 
                         // we do not add the model factory and aspDotNetExtension symbol to the declared symbol list so that it will never be included in any process of internalization or removal
                         if (!SymbolEqualityComparer.Default.Equals(symbol, _modelFactorySymbol)
-                            && !SymbolEqualityComparer.Default.Equals(symbol, aspDotNetExtensionSymbol))
+                            && !additionalNonRootTypeSymbols.Contains(symbol))
+                        {
                             result.Add(symbol);
+                        }
 
                         AddInList(declarationCache, symbol, typeDeclaration);
                         AddInList(documentCache, document, symbol,
@@ -459,17 +473,65 @@ namespace Microsoft.TypeSpec.Generator
             if (root is not CompilationUnitSyntax cu || model == null)
                 return solution;
 
-            var invalidAttributes = cu.DescendantNodes()
-                .OfType<AttributeListSyntax>()
+            var attributes = cu.DescendantNodes().OfType<AttributeListSyntax>();
+            var firstAttribute = attributes.FirstOrDefault();
+
+            var invalidAttributes = attributes
                 .Where(attr => attr.Attributes.Any(attribute =>
                     attribute.ArgumentList?.Arguments.Any(arg =>
                         arg.Expression is TypeOfExpressionSyntax typeOfExpr &&
                         model.GetTypeInfo(typeOfExpr.Type).Type?.TypeKind == TypeKind.Error) == true))
-                .ToList();
+                .ToHashSet();
 
             if (invalidAttributes.Count > 0)
             {
                 cu = cu.RemoveNodes(invalidAttributes, SyntaxRemoveOptions.KeepNoTrivia)!;
+
+                if (invalidAttributes.Contains(firstAttribute!))
+                {
+                    var leadingTrivia = firstAttribute!.GetLeadingTrivia();
+                    // Find where XML docs end and indentation begins
+                    var xmlDocTrivia = new List<SyntaxTrivia>();
+                    var lastXmlIndex = -1;
+
+                    for (int i = 0; i < leadingTrivia.Count; i++)
+                    {
+                        var trivia = leadingTrivia[i];
+                        if (trivia.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia))
+                        {
+                            lastXmlIndex = i;
+                        }
+                    }
+
+                    // Collect trivia up to and including the last XML doc line's newline
+                    if (lastXmlIndex >= 0)
+                    {
+                        for (int i = 0; i <= lastXmlIndex; i++)
+                        {
+                            xmlDocTrivia.Add(leadingTrivia[i]);
+                        }
+
+                        // Include the newline after the last XML doc if present
+                        if (lastXmlIndex + 1 < leadingTrivia.Count &&
+                            leadingTrivia[lastXmlIndex + 1].IsKind(SyntaxKind.EndOfLineTrivia))
+                        {
+                            xmlDocTrivia.Add(leadingTrivia[lastXmlIndex + 1]);
+                        }
+                    }
+
+                    // Find the updated type and add the XML docs to it
+                    var updatedType = cu.DescendantNodes()
+                        .OfType<TypeDeclarationSyntax>()
+                        .FirstOrDefault();
+
+                    if (updatedType != null && xmlDocTrivia.Any())
+                    {
+                        var existingTrivia = updatedType.GetLeadingTrivia();
+                        cu = cu.ReplaceNode(updatedType,
+                            updatedType.WithLeadingTrivia(xmlDocTrivia.Concat(existingTrivia)));
+                    }
+                }
+
                 solution = solution.WithDocumentSyntaxRoot(documentId, cu);
             }
 

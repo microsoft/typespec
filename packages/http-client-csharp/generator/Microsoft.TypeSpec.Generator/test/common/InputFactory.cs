@@ -223,6 +223,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             bool isRequired = false,
             bool isReadOnly = false,
             bool isDiscriminator = false,
+            bool isHttpMetadata = false,
             string? wireName = null,
             string? summary = null,
             string? serializedName = null,
@@ -235,6 +236,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 type: type,
                 isRequired: isRequired,
                 isReadOnly: isReadOnly,
+                isHttpMetadata: isHttpMetadata,
                 access: null,
                 isDiscriminator: isDiscriminator,
                 serializedName: serializedName ?? wireName ?? name.ToVariableName(),
@@ -316,7 +318,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string @namespace = "Sample.Models",
             string access = "public",
             InputModelTypeUsage usage = InputModelTypeUsage.Output | InputModelTypeUsage.Input | InputModelTypeUsage.Json,
-            IEnumerable<InputProperty>? properties = null,
+            IEnumerable<InputModelProperty>? properties = null,
             InputModelType? baseModel = null,
             bool modelAsStruct = false,
             string? discriminatedKind = null,
@@ -324,7 +326,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             IDictionary<string, InputModelType>? discriminatedModels = null,
             IEnumerable<InputModelType>? derivedModels = null)
         {
-            IEnumerable<InputProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
+            IEnumerable<InputModelProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
 
             var model = new InputModelType(
                 name,

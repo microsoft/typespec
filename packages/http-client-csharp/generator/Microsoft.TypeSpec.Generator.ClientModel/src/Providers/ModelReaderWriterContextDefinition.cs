@@ -15,7 +15,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
     internal class ModelReaderWriterContextDefinition : TypeProvider
     {
-        internal static string s_name = $"{RemovePeriods(ScmCodeModelGenerator.Instance.TypeFactory.PrimaryNamespace)}Context";
+        internal static readonly string s_name = $"{RemovePeriods(ScmCodeModelGenerator.Instance.TypeFactory.PrimaryNamespace)}Context";
 
         protected override string BuildName() => s_name;
 

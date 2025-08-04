@@ -56,6 +56,27 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("p1", signature.Parameters[0].Name);
         }
 
+        [Test]
+        public async Task LastContractViewLoadedForRenamedType()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var typeProvider = new TestTypeProvider(name: "TestLoadLastContractView");
+            var lastContractView = typeProvider.LastContractView;
+
+            Assert.IsNull(lastContractView);
+
+            typeProvider.Update(name: "RenamedType");
+            lastContractView = typeProvider.LastContractView;
+            Assert.IsNotNull(lastContractView);
+
+            var methods = lastContractView!.Methods;
+            Assert.AreEqual(1, methods.Count);
+
+            var signature = methods[0].Signature;
+            Assert.AreEqual("Foo", signature.Name);
+            Assert.AreEqual("p1", signature.Parameters[0].Name);
+        }
+
         [TestCase(false)]
         [TestCase(true)]
         public async Task TestCustomizeNestedTypes(bool isNestedTypeAnEnum)
