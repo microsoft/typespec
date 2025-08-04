@@ -152,6 +152,7 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
   }
   if (resolvedOptions["generate-packaging-files"]) {
     commandArgs["package-mode"] = sdkContext.arm ? "azure-mgmt" : "azure-dataplane";
+    commandArgs["keep-setup-py"] = resolvedOptions["keep-setup-py"] === true ? "true" : "false";
   }
   if (sdkContext.arm === true) {
     commandArgs["azure-arm"] = "true";

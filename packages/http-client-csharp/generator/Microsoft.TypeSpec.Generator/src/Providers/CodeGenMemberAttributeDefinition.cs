@@ -45,7 +45,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         null,
                         MethodSignatureModifiers.Public,
                         [parameter],
-                        Initializer: new ConstructorInitializer(IsBase: true, [parameter])),
+                        initializer: new ConstructorInitializer(IsBase: true, [parameter])),
                     MethodBodyStatement.Empty,
                 this)
             ];

@@ -16,8 +16,9 @@ namespace Microsoft.TypeSpec.Generator
 
         private ChangeTrackingDictionaryDefinition ChangeTrackingDictionaryProvider { get; } = new();
 
-        private Dictionary<InputModelType, ModelProvider?> CSharpToModelProvider { get; } = [];
+        private Dictionary<InputModelType, ModelProvider?> InputTypeToModelProvider { get; } = [];
 
+        public IDictionary<CSharpType, TypeProvider?> CSharpTypeMap { get; } = new Dictionary<CSharpType, TypeProvider?>(CSharpType.IgnoreNullableComparer);
         private Dictionary<EnumCacheKey, EnumProvider?> EnumCache { get; } = [];
 
         private Dictionary<InputType, CSharpType?> TypeCache { get; } = [];
@@ -26,8 +27,6 @@ namespace Microsoft.TypeSpec.Generator
 
         private IReadOnlyList<LibraryVisitor> Visitors => CodeModelGenerator.Instance.Visitors;
         private Dictionary<InputType, IReadOnlyList<TypeProvider>> SerializationsCache { get; } = [];
-
-        private Dictionary<InputLiteralType, InputType> LiteralValueTypeCache { get; } = [];
 
         internal HashSet<string> UnionVariantTypesToKeep { get; } = [];
 
@@ -146,7 +145,7 @@ namespace Microsoft.TypeSpec.Generator
         /// <returns>An instance of <see cref="TypeProvider"/>.</returns>
         public ModelProvider? CreateModel(InputModelType model)
         {
-            if (CSharpToModelProvider.TryGetValue(model, out var modelProvider))
+            if (InputTypeToModelProvider.TryGetValue(model, out var modelProvider))
                 return modelProvider;
 
             modelProvider = CreateModelCore(model);
@@ -156,7 +155,12 @@ namespace Microsoft.TypeSpec.Generator
                 modelProvider = visitor.PreVisitModel(model, modelProvider);
             }
 
-            CSharpToModelProvider.Add(model, modelProvider);
+            InputTypeToModelProvider.Add(model, modelProvider);
+
+            if (modelProvider != null)
+            {
+                CSharpTypeMap[modelProvider.Type] = modelProvider;
+            }
             return modelProvider;
         }
 
@@ -182,6 +186,12 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             EnumCache.Add(enumCacheKey, enumProvider);
+
+            if (enumProvider != null)
+            {
+                CSharpTypeMap[enumProvider.Type] = enumProvider;
+            }
+
             return enumProvider;
         }
 
