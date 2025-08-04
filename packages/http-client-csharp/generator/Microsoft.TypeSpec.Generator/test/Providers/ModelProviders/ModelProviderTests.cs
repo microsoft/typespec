@@ -151,10 +151,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(1, parameters.Count);
             var parameter = parameters.First();
             Assert.AreEqual("additionalProperties", parameter.Name);
-            Assert.AreEqual(new CSharpType(typeof(IDictionary<string, BinaryData>)), parameter.Type);
+            Assert.IsTrue(parameter.Type.IsReadOnlyDictionary);
 
             var body = serializationCtor.BodyStatements!.ToDisplayString();
-            Assert.IsTrue(body.Contains("_additionalBinaryDataProperties = additionalProperties;"));
+            Assert.IsTrue(body.Contains("_additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>(additionalProperties);"));
         }
 
         [Test]

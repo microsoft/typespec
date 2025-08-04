@@ -616,12 +616,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 foreach (var property in AdditionalPropertyProperties)
                 {
-                    ParameterProvider apParameter = property.AsParameter;
-                    if (apParameter.Type.IsReadOnlyDictionary)
-                    {
-                        apParameter.Update(type: new CSharpType(typeof(IDictionary<,>), apParameter.Type.Arguments[0], apParameter.Type.Arguments[1]));
-                    }
-                    constructorParameters.Add(apParameter);
+                    constructorParameters.Add(property.AsParameter);
                 }
 
                 // only add the raw data field if it has not already been added as a parameter for BinaryData additional properties
@@ -790,9 +785,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var backingField = property.BackingField;
                 if (backingField != null)
                 {
-                    var assignment = isPrimaryConstructor
-                       ? backingField.Assign(New.Instance(backingField.Type.PropertyInitializationType))
-                       : backingField.Assign(property.AsParameter);
+                    AssignmentExpression assignment = backingField.Assign(property.AsParameter);
+                    if (isPrimaryConstructor)
+                    {
+                        assignment = backingField.Assign(New.Instance(backingField.Type.PropertyInitializationType));
+                    }
+                    else if (property.Type.IsReadOnlyDictionary)
+                    {
+                        assignment = backingField.Assign(New.Instance(backingField.Type.PropertyInitializationType, property.AsParameter));
+                    }
 
                     methodBodyStatements.Add(assignment.Terminate());
                 }
