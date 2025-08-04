@@ -159,7 +159,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public override int GetHashCode()
         {
-            // we must override the GetHashCode method because we overrided Equals
+            // we must override the GetHashCode method because we overrode Equals
             // but we really do not want to change the behavior of GetHashCode to keep it immutable per instance
             // therefore we use this implementation
             return RuntimeHelpers.GetHashCode(this); // gets the hash code based on object reference
