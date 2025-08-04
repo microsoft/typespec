@@ -351,13 +351,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     {
                         expressions.Add(ctorParam.Type.ToEnum(factoryParam));
                     }
-                    else if (ctorParam.Type.IsReadOnlyDictionary)
-                    {
-                        expressions.Add(New.ReadOnlyDictionary(
-                            factoryParam.Type.Arguments[0],
-                            factoryParam.Type.ElementType,
-                            factoryParam));
-                    }
                     else
                     {
                         expressions.Add(factoryParam);

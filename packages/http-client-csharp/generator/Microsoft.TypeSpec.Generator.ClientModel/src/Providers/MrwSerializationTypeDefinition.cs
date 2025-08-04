@@ -643,7 +643,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     {
                         if (variableRef.Type.IsReadOnlyDictionary)
                         {
-                            variableRef.Update(type: variableRef.Type.InputType);
+                            variableRef.Update(type: variableRef.Type.PropertyInitializationType);
                         }
                         // IDictionary<string, T> additionalTProperties = new Dictionary<string, T>();
                         propertyDeclarationStatements.Add(Declare(variableRef, new DictionaryExpression(property.Type, New.Instance(property.Type.PropertyInitializationType))));
