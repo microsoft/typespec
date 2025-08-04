@@ -142,9 +142,9 @@ class JinjaSerializer(ReaderAndWriter):
                 # add generated samples and generated tests
                 if self.code_model.options["show-operations"] and self.code_model.has_operations:
                     if self.code_model.options["generate-sample"]:
-                        self._serialize_and_write_sample(env, namespace=client_namespace)
+                        self._serialize_and_write_sample(env)
                     if self.code_model.options["generate-test"]:
-                        self._serialize_and_write_test(env, namespace=client_namespace)
+                        self._serialize_and_write_test(env)
 
                 # add _metadata.json
                 if self.code_model.metadata:
@@ -502,8 +502,8 @@ class JinjaSerializer(ReaderAndWriter):
             return Path("/".join(namespace_config.split(".")[num_of_package_namespace:]))
         return Path("")
 
-    def _serialize_and_write_sample(self, env: Environment, namespace: str):
-        out_path = self.code_model.get_generation_dir(namespace) / Path("generated_samples")
+    def _serialize_and_write_sample(self, env: Environment):
+        out_path = Path("./generated_samples")
         for client in self.code_model.clients:
             for op_group in client.operation_groups:
                 for operation in op_group.operations:
@@ -535,9 +535,9 @@ class JinjaSerializer(ReaderAndWriter):
                             log_error = f"error happens in sample {file}: {e}"
                             _LOGGER.error(log_error)
 
-    def _serialize_and_write_test(self, env: Environment, namespace: str):
+    def _serialize_and_write_test(self, env: Environment):
         self.code_model.for_test = True
-        out_path = self.code_model.get_generation_dir(namespace) / Path("generated_tests")
+        out_path = Path("./generated_tests")
         general_serializer = TestGeneralSerializer(code_model=self.code_model, env=env)
         self.write_file(out_path / "conftest.py", general_serializer.serialize_conftest())
         if not self.code_model.options["azure-arm"]:
