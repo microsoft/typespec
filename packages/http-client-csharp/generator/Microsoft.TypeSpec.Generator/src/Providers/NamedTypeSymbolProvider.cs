@@ -164,7 +164,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     GetSymbolXmlDoc(constructorSymbol, "summary"),
                     GetAccessModifier(constructorSymbol.DeclaredAccessibility),
                     [.. constructorSymbol.Parameters.Select(p => ConvertToParameterProvider(constructorSymbol, p))],
-                    Initializer: initializer);
+                    initializer: initializer);
                 constructors.Add(new ConstructorProvider(signature, MethodBodyStatement.Empty, this));
             }
             return [.. constructors];
