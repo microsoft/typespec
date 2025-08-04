@@ -272,12 +272,9 @@ namespace Microsoft.TypeSpec.Generator
                 docs.Summary.Write(this);
             }
 
-            if (docs.Parameters is not null)
+            foreach (var statement in docs.Parameters)
             {
-                foreach (var statement in docs.Parameters)
-                {
-                    statement.Write(this);
-                }
+                statement.Write(this);
             }
 
             foreach (var exception in docs.Exceptions)
@@ -683,7 +680,7 @@ namespace Microsoft.TypeSpec.Generator
 
         private CodeWriter AppendRaw(ReadOnlySpan<char> span)
         {
-            if (span.Length == 0 )
+            if (span.Length == 0)
                 return this;
 
             AddSpaces(span);
