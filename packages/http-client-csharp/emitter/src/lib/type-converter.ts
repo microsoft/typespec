@@ -17,10 +17,8 @@ import {
   UsageFlags,
   getAccessOverride,
   isHttpMetadata,
-  isReadOnly as tcgcIsReadOnly,
 } from "@azure-tools/typespec-client-generator-core";
 import { Model, NoTarget } from "@typespec/compiler";
-import { Visibility } from "@typespec/http";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import {
   InputArrayType,
@@ -37,6 +35,7 @@ import {
   InputType,
   InputUnionType,
 } from "../type/input-type.js";
+import { isReadOnly } from "./utils.js";
 
 // we have this complicated type here to let the caller of fromSdkType could infer the real return type of this function.
 type InputReturnType<T extends SdkType> = T extends { kind: "nullable" }
@@ -406,16 +405,4 @@ function fromSdkEndpointType(): InputPrimitiveType {
     name: "string",
     crossLanguageDefinitionId: "TypeSpec.string",
   };
-}
-
-function isReadOnly(prop: SdkModelPropertyType): boolean {
-  if (prop.kind === "property") {
-    return tcgcIsReadOnly(prop);
-  }
-
-  if (prop.visibility?.includes(Visibility.Read) && prop.visibility.length === 1) {
-    return true;
-  } else {
-    return false;
-  }
 }

@@ -18,12 +18,12 @@ namespace Microsoft.TypeSpec.Generator.Input
         }
 
         public override InputBodyParameter Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            => reader.ReadReferenceAndResolve<InputBodyParameter>(_referenceHandler.CurrentResolver) ?? ReadInputBodyParameter(ref reader, null, null, options, _referenceHandler.CurrentResolver);
+            => reader.ReadReferenceAndResolve<InputBodyParameter>(_referenceHandler.CurrentResolver) ?? ReadInputBodyParameter(ref reader, null, options, _referenceHandler.CurrentResolver);
 
         public override void Write(Utf8JsonWriter writer, InputBodyParameter value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        internal static InputBodyParameter ReadInputBodyParameter(ref Utf8JsonReader reader, string? id, string? name, JsonSerializerOptions options, ReferenceResolver resolver)
+        internal static InputBodyParameter ReadInputBodyParameter(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options, ReferenceResolver resolver)
         {
             if (id == null)
             {
@@ -32,8 +32,7 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             id = id ?? throw new JsonException();
 
-            // create an empty model property to resolve circular references
-            var property = new InputBodyParameter(
+            var parameter = new InputBodyParameter(
                 name: null!,
                 summary: null,
                 doc: null,
@@ -42,14 +41,20 @@ namespace Microsoft.TypeSpec.Generator.Input
                 isReadOnly: false,
                 access: null,
                 serializedName: null!,
+                isApiVersion: false,
+                defaultValue: null,
+                kind: default,
                 contentTypes: null!,
                 defaultContentType: null!);
-            resolver.AddReference(id, property);
+            resolver.AddReference(id, parameter);
 
-            string? kind = null;
+            string? name = null;
             string? summary = null;
             string? doc = null;
             string? serializedName = null;
+            bool isApiVersion = false;
+            InputConstant? defaultValue = null;
+            string? kind = null;
             InputType? type = null;
             bool isReadOnly = false;
             bool isOptional = false;
@@ -62,7 +67,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref id)
                     || reader.TryReadString("name", ref name)
-                    || reader.TryReadString("kind", ref kind)
                     || reader.TryReadString("summary", ref summary)
                     || reader.TryReadString("doc", ref doc)
                     || reader.TryReadComplexType("type", options, ref type)
@@ -70,6 +74,9 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadBoolean("optional", ref isOptional)
                     || reader.TryReadString("access", ref access)
                     || reader.TryReadString("serializedName", ref serializedName)
+                    || reader.TryReadBoolean("isApiVersion", ref isApiVersion)
+                    || reader.TryReadComplexType("defaultValue", options, ref defaultValue)
+                    || reader.TryReadString("parameterKind", ref kind)
                     || reader.TryReadComplexType("contentTypes",options, ref contentTypes)
                     || reader.TryReadComplexType("defaultContentType", options, ref defaultContentType)
                     || reader.TryReadComplexType("decorators", options, ref decorators);
@@ -80,18 +87,33 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
             }
 
-            property.Name = name ?? throw new JsonException($"{nameof(InputBodyParameter)} must have a name.");
-            property.Summary = summary;
-            property.Doc = doc;
-            property.Type = type ?? throw new JsonException($"{nameof(InputBodyParameter)} must have a type.");
-            property.IsRequired = !isOptional;
-            property.IsReadOnly = isReadOnly;
-            property.Access = access;
-            property.Decorators = decorators ?? [];
-            property.SerializedName = serializedName ?? throw new JsonException($"{nameof(InputBodyParameter)} must have a serializedName.");
-            property.ContentTypes = contentTypes ?? throw new JsonException($"{nameof(InputBodyParameter)} must have a contentTypes.");
-            property.DefaultContentType = defaultContentType ?? throw new JsonException($"{nameof(InputBodyParameter)} must have a defaultContentType.");
-            return property;
+            parameter.Name = name ?? throw new JsonException($"{nameof(InputBodyParameter)} must have a name.");
+            parameter.Summary = summary;
+            parameter.Doc = doc;
+            parameter.Type = type ?? throw new JsonException($"{nameof(InputBodyParameter)} must have a type.");
+            parameter.IsRequired = !isOptional;
+            parameter.IsReadOnly = isReadOnly;
+            parameter.Access = access;
+            parameter.Decorators = decorators ?? [];
+            parameter.SerializedName = serializedName ?? throw new JsonException($"{nameof(InputBodyParameter)} must have a serializedName.");
+            parameter.IsApiVersion = isApiVersion;
+            parameter.DefaultValue = defaultValue;
+
+            if (kind == null)
+            {
+                throw new JsonException("Parameter must have kind");
+            }
+            Enum.TryParse<InputParameterKind>(kind, ignoreCase: true, out var parameterKind);
+
+            if (parameterKind == InputParameterKind.Constant && type is not InputLiteralType)
+            {
+                throw new JsonException($"Parameter '{name}' is constant, but its type is '{type.Name}'.");
+            }
+            parameter.Kind = parameterKind;
+            parameter.ContentTypes = contentTypes ?? throw new JsonException($"{nameof(InputBodyParameter)} must have a contentTypes.");
+            parameter.DefaultContentType = defaultContentType ?? throw new JsonException($"{nameof(InputBodyParameter)} must have a defaultContentType.");
+
+            return parameter;
         }
     }
 }

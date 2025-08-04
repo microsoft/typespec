@@ -67,8 +67,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     ParameterValidationType.AssertNotNullOrEmpty :
                     ParameterValidationType.AssertNotNull
                 : ParameterValidationType.None;
-            WireInfo = new WireInformation(CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputParameter.Type), inputParameter.NameInRequest);
-            Location = inputParameter.Location.ToParameterLocation();
+            WireInfo = new WireInformation(CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputParameter.Type), inputParameter.SerializedName);
+            Location = inputParameter.ToParameterLocation();
             Attributes = [];
         }
 

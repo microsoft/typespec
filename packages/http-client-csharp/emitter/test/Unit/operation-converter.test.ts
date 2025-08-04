@@ -73,19 +73,19 @@ describe("Operation Converter", () => {
         const bodyParam = operation.parameters.find((p) => p.name === "options");
         ok(bodyParam);
         strictEqual(bodyParam.type.kind, "model");
-        strictEqual(bodyParam.location, RequestLocation.Body);
+        strictEqual(bodyParam.kind, "body");
 
         // header parameter in request model
         const headerParam = operation.parameters.find((p) => p.name === "foo");
         ok(headerParam);
         strictEqual(headerParam.type.kind, "string");
-        strictEqual(headerParam.location, RequestLocation.Header);
+        strictEqual(headerParam.kind, "header");
 
         // header parameter in service method
         const headerParam2 = operation.parameters.find((p) => p.name === "p1");
         ok(headerParam2);
         strictEqual(headerParam2.type.kind, "string");
-        strictEqual(headerParam2.location, RequestLocation.Header);
+        strictEqual(headerParam2.kind, "header");
       });
     });
 
@@ -145,13 +145,13 @@ describe("Operation Converter", () => {
         const bodyParam = operation.parameters.find((p) => p.name === "options");
         ok(bodyParam);
         strictEqual(bodyParam.type.kind, "model");
-        strictEqual(bodyParam.location, RequestLocation.Body);
+        strictEqual(bodyParam.kind, "body");
 
         // header parameter in request model
         const headerParam = operation.parameters.find((p) => p.name === "foo");
         ok(headerParam);
         strictEqual(headerParam.type.kind, "string");
-        strictEqual(headerParam.location, RequestLocation.Query);
+        strictEqual(headerParam.kind, "query");
       });
     });
   });

@@ -301,14 +301,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         private Lazy<string?> _endpointParameterName;
-        private InputParameter? _inputEndpointParam;
+        private InputEndpointParameter? _inputEndpointParam;
         internal string? EndpointParameterName => _endpointParameterName.Value;
 
         private string? GetEndpointParameterName()
         {
             foreach (var param in _inputClient.Parameters)
             {
-                if (param.IsEndpoint)
+                if (param is InputEndpointParameter)
                 {
                     //this will be the beginning of the url string so we will skip it when creating the uri builder
                     return $"{{{param.Name}}}";
@@ -372,7 +372,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Add optional client parameters as fields
             foreach (var p in _allClientParameters)
             {
-                if (!p.IsEndpoint)
+                if (p is not InputEndpointParameter || p is InputEndpointParameter endpointParameter && !endpointParameter.IsEndpoint)
                 {
                     var type = p is { IsApiVersion: true, Type: InputEnumType enumType }
                         ? ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(enumType.ValueType)
@@ -391,7 +391,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                 false,
                                 p.Type is InputNullableType,
                                 false,
-                                p.NameInRequest,
+                                p.SerializedName,
                                 false));
                         if (p.IsApiVersion)
                         {
@@ -493,7 +493,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (var parameter in _allClientParameters)
             {
-                if (parameter.IsRequired && !parameter.IsEndpoint && !parameter.IsApiVersion)
+                if (parameter.IsRequired && !parameter.IsApiVersion &&
+                    (parameter is not InputEndpointParameter ||
+                     parameter is InputEndpointParameter endpointParameter && !endpointParameter.IsEndpoint))
                 {
                     ParameterProvider? currentParam = CreateParameter(parameter);
                     if (currentParam != null)
@@ -705,7 +707,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private ParameterProvider BuildClientEndpointParameter()
         {
-            _inputEndpointParam = _inputClient.Parameters.FirstOrDefault(p => p.IsEndpoint);
+            _inputEndpointParam = _inputClient.Parameters
+                .FirstOrDefault(p => p is InputEndpointParameter endpointParameter && endpointParameter.IsEndpoint) as InputEndpointParameter;
             if (_inputEndpointParam == null)
             {
                 return KnownParameters.Endpoint;
