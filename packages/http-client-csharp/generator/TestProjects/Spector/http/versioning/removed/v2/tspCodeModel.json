@@ -247,7 +247,8 @@
             "json": {
               "name": "prop"
             }
-          }
+          },
+          "isHttpMetadata": false
         },
         {
           "$id": "24",
@@ -267,7 +268,8 @@
             "json": {
               "name": "enumProp"
             }
-          }
+          },
+          "isHttpMetadata": false
         },
         {
           "$id": "25",
@@ -307,7 +309,8 @@
             "json": {
               "name": "unionProp"
             }
-          }
+          },
+          "isHttpMetadata": false
         }
       ]
     },
@@ -342,7 +345,8 @@
             "json": {
               "name": "id"
             }
-          }
+          },
+          "isHttpMetadata": false
         },
         {
           "$id": "32",
@@ -362,7 +366,8 @@
             "json": {
               "name": "enumProp"
             }
-          }
+          },
+          "isHttpMetadata": false
         }
       ]
     }
@@ -492,14 +497,14 @@
             {
               "$id": "40",
               "name": "contentType",
-              "nameInRequest": "contentType",
+              "nameInRequest": "Content-Type",
               "doc": "Body parameter's content type. Known values are application/json",
               "type": {
                 "$ref": "13"
               },
               "location": "Header",
               "isApiVersion": false,
-              "isContentType": false,
+              "isContentType": true,
               "isEndpoint": false,
               "explode": false,
               "isRequired": true,
@@ -510,7 +515,7 @@
             {
               "$id": "41",
               "name": "accept",
-              "nameInRequest": "accept",
+              "nameInRequest": "Accept",
               "type": {
                 "$ref": "15"
               },
@@ -654,14 +659,14 @@
             {
               "$id": "48",
               "name": "contentType",
-              "nameInRequest": "contentType",
+              "nameInRequest": "Content-Type",
               "doc": "Body parameter's content type. Known values are application/json",
               "type": {
                 "$ref": "17"
               },
               "location": "Header",
               "isApiVersion": false,
-              "isContentType": false,
+              "isContentType": true,
               "isEndpoint": false,
               "explode": false,
               "isRequired": true,
@@ -672,7 +677,7 @@
             {
               "$id": "49",
               "name": "accept",
-              "nameInRequest": "accept",
+              "nameInRequest": "Accept",
               "type": {
                 "$ref": "19"
               },

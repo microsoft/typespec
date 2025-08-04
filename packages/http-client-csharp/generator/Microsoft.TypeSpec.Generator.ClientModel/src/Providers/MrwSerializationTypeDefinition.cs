@@ -806,7 +806,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                     // By default, we should only deserialize properties with wire info that are payload properties.
                     // Those properties without wire info indicate they are not spec properties.
-                    if (wireInfo?.Location != PropertyLocation.Body)
+                    if (wireInfo == null || wireInfo.IsHttpMetadata == true)
                     {
                         continue;
                     }
@@ -1385,7 +1385,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Those properties without wireinfo indicate they are not spec properties.
             foreach (var property in _model.CanonicalView.Properties)
             {
-                if (property.WireInfo?.Location != PropertyLocation.Body)
+                if (property.WireInfo == null || property.WireInfo.IsHttpMetadata)
                 {
                     continue;
                 }
@@ -1395,7 +1395,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (var field in _model.CanonicalView.Fields)
             {
-                if (field.WireInfo?.Location != PropertyLocation.Body)
+                if (field.WireInfo == null || field.WireInfo.IsHttpMetadata)
                 {
                     continue;
                 }
