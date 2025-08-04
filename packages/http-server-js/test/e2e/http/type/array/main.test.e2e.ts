@@ -48,14 +48,11 @@ describe("Type.Array", () => {
       new ArrayImpl(["hello", ""]),
       new ArrayImpl([43.125]),
       new ArrayImpl([Temporal.Instant.from("2022-08-26T18:38:00Z")], (l, r) => {
-        assert.equal(l.toString(), r.toString());
+        assert.equal(Temporal.Instant.compare(l, r), 0);
       }),
       new ArrayImpl([Temporal.Duration.from("P123DT22H14M12.011S")], (l, r) => {
-        assert.equal(l.toString(), r.toString());
+        assert.equal(Temporal.Duration.compare(l, r), 0);
       }),
-      // TODO: this impl is not correct, and the tester does not handle it correctly either, because it is a hybrid
-      // array with additional string properties. It should probably be serialized as `{"0":1,"1":"hello","k3":null}`
-      // but this would violate our constraints about objects that extend arrays.
       new ArrayImpl([1, "hello", null]),
       new ArrayImpl([{ property: "hello" }, { property: "world" }], (l, r) => {
         assert.equal(l.property, r.property);
