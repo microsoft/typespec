@@ -38,6 +38,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // Use the full attribute type name to ensure proper compilation
                 var attributeType = new CSharpType(typeof(ModelReaderWriterBuildableAttribute));
                 var attributeStatement = new AttributeStatement(attributeType, TypeOf(type));
+
+                // If the type is experimental, we add a suppression for it
                 if (ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(type, out var model))
                 {
                     var experimentalAttribute =
@@ -56,7 +58,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // A dependency model - need to use reflection to get the attribute data
                 else if (type.IsFrameworkType)
                 {
-                    // If the type is experimental, we add a suppression for it
                     var experimentalAttr = type.FrameworkType.GetCustomAttributes(typeof(ExperimentalAttribute), false)
                         .FirstOrDefault();
                     if (experimentalAttr != null)
