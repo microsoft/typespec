@@ -40,6 +40,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var attributeStatement = new AttributeStatement(attributeType, TypeOf(type));
 
                 // If the type is experimental, we add a suppression for it
+                string justification = $"{type} is experimental and may change in future versions.";
                 if (ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(type, out var model))
                 {
                     var experimentalAttribute =
@@ -47,8 +48,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     if (experimentalAttribute != null)
                     {
                         var key = experimentalAttribute.Arguments[0];
-                        attributes.Add(new SuppressionStatement(attributeStatement, key,
-                            $"{type} is experimental and may change in future versions."));
+                        attributes.Add(new SuppressionStatement(attributeStatement, key, justification));
                     }
                     else
                     {
@@ -63,8 +63,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     if (experimentalAttr != null)
                     {
                         var key = experimentalAttr.GetType().GetProperty("DiagnosticId")?.GetValue(experimentalAttr);
-                        attributes.Add(new SuppressionStatement(attributeStatement, Literal(key),
-                            $"{type} is experimental and may change in future versions."));
+                        attributes.Add(new SuppressionStatement(attributeStatement, Literal(key), justification));
                     }
                     else
                     {
