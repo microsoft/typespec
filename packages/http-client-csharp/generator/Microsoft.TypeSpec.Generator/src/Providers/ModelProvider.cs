@@ -55,7 +55,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private readonly bool _isAbstract;
 
         private readonly CSharpType _additionalBinaryDataPropsFieldType = typeof(IDictionary<string, BinaryData>);
-        private readonly CSharpType _additionalPropertiesType = new CSharpType(typeof(object)); // TODO: Replace with AdditionalProperties when available
+        // TODO: Replace with typeof(System.ClientModel.Primitives.AdditionalProperties) when System.ClientModel 1.6.0-alpha.20250804.4 becomes available
+        private readonly CSharpType _additionalPropertiesType = new CSharpType(typeof(object));
         private readonly Type _additionalPropsUnknownType = typeof(BinaryData);
         private readonly Lazy<TypeProvider?>? _baseTypeProvider;
         private FieldProvider? _rawDataField;
