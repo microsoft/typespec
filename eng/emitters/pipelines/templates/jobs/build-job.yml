@@ -54,8 +54,22 @@ parameters:
     type: string
     default: "3.12"
 
+  - name: RunSDLTools
+    type: boolean
+    default: false
+
 jobs:
   - job: Build_${{ parameters.Os }}_${{ split(parameters.NodeVersion, '.')[0] }}
+    # Only run SDL tools on the main internal builds
+    ${{ if and(parameters.RunSDLTools, eq(variables['System.TeamProject'], 'internal')) }}:
+      templateContext:
+        sdl:
+          componentgovernance:
+            enabled: true
+          codeql:
+            compiled:
+              enabled: false
+
     ${{ if eq(parameters.Os, 'linux') }}:
       pool:
         name: $(LINUXPOOL)
