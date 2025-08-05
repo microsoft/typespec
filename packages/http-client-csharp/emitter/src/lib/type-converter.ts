@@ -22,6 +22,7 @@ import {
 import { Model, NoTarget } from "@typespec/compiler";
 import { Visibility } from "@typespec/http";
 import { CSharpEmitterContext } from "../sdk-context.js";
+import { isDynamicModel } from "./decorators.js";
 import {
   InputArrayType,
   InputDateTimeType,
@@ -172,6 +173,7 @@ function fromSdkModelType(
     summary: modelType.summary,
     discriminatorValue: modelType.discriminatorValue,
     decorators: modelType.decorators,
+    isDynamicModel: isDynamicModel(sdkContext, modelType.__raw as Model),
   } as InputModelType;
 
   sdkContext.__typeCache.updateSdkTypeReferences(modelType, inputModelType);

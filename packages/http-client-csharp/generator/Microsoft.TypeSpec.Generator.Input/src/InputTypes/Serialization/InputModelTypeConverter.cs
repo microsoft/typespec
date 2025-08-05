@@ -67,6 +67,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             IReadOnlyList<InputModelProperty>? properties = null;
             IReadOnlyDictionary<string, InputModelType>? discriminatedSubtypes = null;
             bool modelAsStruct = false;
+            bool isDynamicModel = false;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             InputSerializationOptions? serializationOptions = null;
 
@@ -89,7 +90,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadComplexType("discriminatedSubtypes", options, ref discriminatedSubtypes)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
                     || reader.TryReadComplexType("serializationOptions", options, ref serializationOptions)
-                    || reader.TryReadBoolean(nameof(InputModelType.ModelAsStruct), ref modelAsStruct); // TODO -- change this to fetch from the decorator list instead when the decorator is ready
+                    || reader.TryReadBoolean(nameof(InputModelType.ModelAsStruct), ref modelAsStruct) // TODO -- change this to fetch from the decorator list instead when the decorator is ready
+                    || reader.TryReadBoolean(nameof(InputModelType.IsDynamicModel), ref isDynamicModel);
 
                 if (!isKnownProperty)
                 {
@@ -124,6 +126,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                 model.DiscriminatedSubtypes = new Dictionary<string, InputModelType>();
             }
             model.ModelAsStruct = modelAsStruct;
+            model.IsDynamicModel = isDynamicModel;
             if (decorators != null)
             {
                 model.Decorators = decorators;

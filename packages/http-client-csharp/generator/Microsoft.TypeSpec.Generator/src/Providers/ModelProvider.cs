@@ -55,9 +55,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private readonly bool _isAbstract;
 
         private readonly CSharpType _additionalBinaryDataPropsFieldType = typeof(IDictionary<string, BinaryData>);
+        private readonly CSharpType _additionalPropertiesType = new CSharpType(typeof(object)); // TODO: Replace with AdditionalProperties when available
         private readonly Type _additionalPropsUnknownType = typeof(BinaryData);
         private readonly Lazy<TypeProvider?>? _baseTypeProvider;
         private FieldProvider? _rawDataField;
+        private PropertyProvider? _patchProperty;
         private List<FieldProvider>? _additionalPropertyFields;
         private List<PropertyProvider>? _additionalPropertyProperties;
         private ModelProvider? _baseModelProvider;
@@ -113,6 +115,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public ModelProvider? BaseModelProvider
             => _baseModelProvider ??= (_baseTypeProvider?.Value is ModelProvider baseModelProvider ? baseModelProvider : null);
         private FieldProvider? RawDataField => _rawDataField ??= BuildRawDataField();
+        private PropertyProvider? PatchProperty => _patchProperty ??= BuildPatchProperty();
         private List<FieldProvider> AdditionalPropertyFields => _additionalPropertyFields ??= BuildAdditionalPropertyFields();
         private List<PropertyProvider> AdditionalPropertyProperties => _additionalPropertyProperties ??= BuildAdditionalPropertyProperties();
         internal bool SupportsBinaryDataAdditionalProperties => AdditionalPropertyProperties.Any(p => p.Type.ElementType.Equals(_additionalPropsUnknownType));
@@ -427,6 +430,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (AdditionalPropertyProperties.Count > 0)
             {
                 properties.AddRange(AdditionalPropertyProperties);
+            }
+
+            // Add Patch property for dynamic models
+            if (_inputModel.IsDynamicModel && PatchProperty != null)
+            {
+                properties.Add(PatchProperty);
             }
 
             return [.. properties];
@@ -885,10 +894,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         /// <summary>
         /// Builds the raw data field for the model to be used for serialization.
+        /// For dynamic models, this will return null as they use the Patch property instead.
         /// </summary>
         /// <returns>The constructed <see cref="FieldProvider"/> if the model should generate the field.</returns>
         private FieldProvider? BuildRawDataField()
         {
+            // Dynamic models use AdditionalProperties struct instead of raw data field
+            if (_inputModel.IsDynamicModel)
+            {
+                return null;
+            }
+
             // check if there is a raw data field on any of the base models, if so, we do not have to have one here.
             var baseModelProvider = BaseModelProvider;
             while (baseModelProvider != null)
@@ -915,6 +931,40 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 enclosingType: this);
 
             return rawDataField;
+        }
+
+        /// <summary>
+        /// Builds the Patch property for dynamic models to be used for AdditionalProperties-based serialization.
+        /// </summary>
+        /// <returns>The constructed <see cref="PropertyProvider"/> if the model is dynamic.</returns>
+        private PropertyProvider? BuildPatchProperty()
+        {
+            // Only dynamic models get the Patch property
+            if (!_inputModel.IsDynamicModel)
+            {
+                return null;
+            }
+
+            // Check if there is a patch property on any of the base models, if so, we do not have to have one here.
+            var baseModelProvider = BaseModelProvider;
+            while (baseModelProvider != null)
+            {
+                if (baseModelProvider.PatchProperty != null)
+                {
+                    return null;
+                }
+                baseModelProvider = baseModelProvider.BaseModelProvider;
+            }
+
+            var patchProperty = new PropertyProvider(
+                description: FormattableStringHelpers.FromString("Gets or sets additional properties for the model."),
+                modifiers: MethodSignatureModifiers.Public,
+                type: _additionalPropertiesType,
+                name: "Patch",
+                body: new AutoPropertyBody(true),
+                enclosingType: this);
+
+            return patchProperty;
         }
 
         /// <summary>

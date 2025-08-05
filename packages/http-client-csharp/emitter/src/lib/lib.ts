@@ -115,6 +115,8 @@ export const $lib = createTypeSpecLibrary({
   },
 });
 
+export { $dynamicModel } from "./decorators.js";
+
 /**
  * Reports a diagnostic. Defined in the core compiler.
  * @beta
