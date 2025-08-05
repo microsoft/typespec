@@ -1,5 +1,19 @@
 # Change Log - @typespec/http-client-python
 
+## 0.15.0
+
+### Features
+
+- [#7829](https://github.com/microsoft/typespec/pull/7829) Adding pyproject.toml generation and optional keep-setup-py flag
+- [#7994](https://github.com/microsoft/typespec/pull/7994) add `generation-subdir` flag
+
+### Bug Fixes
+
+- [#8070](https://github.com/microsoft/typespec/pull/8070) fix import for error model in multi namespace
+- [#8091](https://github.com/microsoft/typespec/pull/8091) Don't hardcode `emit-cross-language-definition-file` as `true` for azure generations
+- [#8006](https://github.com/microsoft/typespec/pull/8006) Ensure necessary typing imports for internal models
+
+
 ## 0.14.2
 
 ### Bug Fixes
