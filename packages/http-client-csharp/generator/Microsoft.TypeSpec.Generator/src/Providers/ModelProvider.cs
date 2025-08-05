@@ -785,9 +785,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var backingField = property.BackingField;
                 if (backingField != null)
                 {
-                    var assignment = isPrimaryConstructor
-                       ? backingField.Assign(New.Instance(backingField.Type.PropertyInitializationType))
-                       : backingField.Assign(property.AsParameter);
+                    AssignmentExpression assignment = backingField.Assign(property.AsParameter);
+                    if (isPrimaryConstructor)
+                    {
+                        assignment = backingField.Assign(New.Instance(backingField.Type.PropertyInitializationType));
+                    }
+                    else if (property.Type.IsReadOnlyDictionary)
+                    {
+                        assignment = backingField.Assign(New.Instance(backingField.Type.PropertyInitializationType, property.AsParameter));
+                    }
 
                     methodBodyStatements.Add(assignment.Terminate());
                 }
