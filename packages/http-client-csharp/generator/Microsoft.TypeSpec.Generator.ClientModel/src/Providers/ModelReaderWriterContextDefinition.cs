@@ -54,7 +54,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                 }
                 // A dependency model - need to use reflection to get the attribute data
-                else if (type.IsFrameworkType && type.FrameworkType.GetCustomAttributes(typeof(ExperimentalAttribute), false).Length != 0)
+                else if (type.IsFrameworkType)
                 {
                     // If the type is experimental, we add a suppression for it
                     var experimentalAttr = type.FrameworkType.GetCustomAttributes(typeof(ExperimentalAttribute), false)
