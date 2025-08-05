@@ -157,9 +157,6 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
   if (sdkContext.arm === true) {
     commandArgs["azure-arm"] = "true";
   }
-  if ((resolvedOptions as any).flavor === "azure") {
-    commandArgs["emit-cross-language-definition-file"] = "true";
-  }
   commandArgs["from-typespec"] = "true";
   commandArgs["models-mode"] = (resolvedOptions as any)["models-mode"] ?? "dpg";
 
