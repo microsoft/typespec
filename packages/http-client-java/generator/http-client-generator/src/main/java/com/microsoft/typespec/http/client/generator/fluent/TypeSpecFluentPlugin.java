@@ -88,6 +88,9 @@ public class TypeSpecFluentPlugin extends FluentGen {
         if (options.getGenerateAsyncMethods() != null) {
             SETTINGS_MAP.put("generate-async-methods", options.getGenerateAsyncMethods());
         }
+        if (options.getPropertyIncludeAlways() != null) {
+            SETTINGS_MAP.put("property-include-always", options.getPropertyIncludeAlways());
+        }
         if (options.getResourceCollectionAssociations() != null) {
             SETTINGS_MAP.put("resource-collection-associations", options.getResourceCollectionAssociations());
         }
