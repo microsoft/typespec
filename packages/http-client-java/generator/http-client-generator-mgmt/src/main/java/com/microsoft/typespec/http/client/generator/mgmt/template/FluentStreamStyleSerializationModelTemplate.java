@@ -101,7 +101,7 @@ public class FluentStreamStyleSerializationModelTemplate extends StreamSerializa
 
             if (fromSuperType && clientType != wireType && clientType.isNullable()) {
                 // If the property is from a super type and the client type is different from the wire type then a
-                // null heck is required to prevent a NullPointerException when converting the value.
+                // null check is required to prevent a NullPointerException when converting the value.
                 if (propertyAllowNull) {
                     writeNullableField(methodBlock, property, serializedName, fieldSerializationMethod);
                 } else {

@@ -776,7 +776,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
             IType wireType = property.getWireType();
             if (fromSuperType && clientType != wireType && clientType.isNullable()) {
                 // If the property is from a super type and the client type is different from the wire type then a
-                // null heck is required to prevent a NullPointerException when converting the value.
+                // null check is required to prevent a NullPointerException when converting the value.
                 methodBlock.ifBlock(property.getGetterName() + "() != null",
                     ifAction -> ifAction.line(fieldSerializationMethod + ";"));
             } else {
