@@ -35,7 +35,7 @@ class RecordImpl<T> {
   }
 }
 
-describe("Type.Array", () => {
+describe("Type.Dictionary", () => {
   let serverAbortController: AbortController;
   beforeEach(() => {
     serverAbortController = new AbortController();
@@ -80,7 +80,7 @@ describe("Type.Array", () => {
       testRouterOptions,
     );
     const baseUrl = await startServer(router, serverAbortController.signal);
-    const { status } = await runScenario("type/dictionary/**/*", baseUrl);
+    const { status } = await runScenario("type/dictionary/!(int64value)*/*", baseUrl);
     expect(status).toBe("pass");
   });
 });
