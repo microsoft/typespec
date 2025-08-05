@@ -234,8 +234,28 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProviders();
 
-        private IReadOnlyList<AttributeStatement>? _attributes;
-        public IReadOnlyList<AttributeStatement> Attributes => _attributes ??= BuildAttributes();
+        private IReadOnlyList<AttributeStatement>? _attributeStatements;
+        private IReadOnlyList<MethodBodyStatement>? _attributes;
+
+        public IReadOnlyList<AttributeStatement> Attributes
+        {
+            get
+            {
+                _attributes ??= BuildAttributes();
+                _attributeStatements ??= _attributes
+                    .Select(a => a switch
+                    {
+                        SuppressionStatement suppression => suppression.AsStatement<AttributeStatement>() ??
+                                                            throw new InvalidOperationException(
+                                                                $"Unexpected suppression statement in {Name}."),
+                        AttributeStatement attribute => attribute,
+                        _ => throw new InvalidOperationException($"Unexpected attribute type {a.GetType()} in {Name}.")
+                    }).ToList();
+                return _attributeStatements;
+            }
+        }
+
+        internal IReadOnlyList<MethodBodyStatement> GetAttributes() => _attributes ??= BuildAttributes();
 
         protected virtual CSharpType[] GetTypeArguments() => [];
 
@@ -356,7 +376,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected virtual CSharpType BuildEnumUnderlyingType() => throw new InvalidOperationException("Not an EnumProvider type");
 
-        protected virtual IReadOnlyList<AttributeStatement> BuildAttributes() => [];
+        protected virtual IReadOnlyList<MethodBodyStatement> BuildAttributes() => [];
 
         private CSharpType? _enumUnderlyingType;
 
