@@ -264,13 +264,55 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.IsNotNull(codeFile);
             var content = codeFile.Content;
 
-            // Verify pragma warnings are generated
+            // Verify pragma warnings are generated and positioned correctly
             Assert.IsTrue(content.Contains("#pragma warning disable TYPESPEC001"), 
                 "Should contain pragma warning disable for experimental model");
             Assert.IsTrue(content.Contains("#pragma warning restore TYPESPEC001"), 
                 "Should contain pragma warning restore for experimental model");
             Assert.IsTrue(content.Contains("ModelReaderWriterBuildableAttribute"), 
                 "Should contain the buildable attribute");
+            
+            // Validate that the disable/restore surrounds the correct line
+            var lines = content.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            bool foundPragmaDisable = false;
+            bool foundAttribute = false;
+            bool foundPragmaRestore = false;
+            bool correctSequence = false;
+            
+            for (int i = 0; i < lines.Length; i++)
+            {
+                var line = lines[i].Trim();
+                
+                if (line.Contains("#pragma warning disable TYPESPEC001"))
+                {
+                    foundPragmaDisable = true;
+                    foundAttribute = false;
+                    foundPragmaRestore = false;
+                }
+                else if (foundPragmaDisable && !foundAttribute && 
+                         line.Contains("ModelReaderWriterBuildableAttribute") && 
+                         line.Contains("ExperimentalModel"))
+                {
+                    foundAttribute = true;
+                }
+                else if (foundPragmaDisable && foundAttribute && !foundPragmaRestore && 
+                         line.Contains("#pragma warning restore TYPESPEC001"))
+                {
+                    foundPragmaRestore = true;
+                    correctSequence = true;
+                    break; // Found complete sequence
+                }
+                else if (foundPragmaDisable && line.Trim().Length > 0 && 
+                         !line.Contains("ModelReaderWriterBuildableAttribute") &&
+                         !line.Contains("#pragma warning"))
+                {
+                    // Reset if we find other content between disable and attribute
+                    foundPragmaDisable = false;
+                }
+            }
+            
+            Assert.IsTrue(correctSequence, 
+                "Pragma warning disable/restore should surround the ModelReaderWriterBuildableAttribute for ExperimentalModel");
         }
 
         private class DependencyModel : IJsonModel<DependencyModel>
