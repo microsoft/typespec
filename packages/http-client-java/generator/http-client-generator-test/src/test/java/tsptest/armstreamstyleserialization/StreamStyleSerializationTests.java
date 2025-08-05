@@ -91,7 +91,8 @@ public class StreamStyleSerializationTests {
     @SuppressWarnings("unchecked")
     public void testPropertyWithNullValue() {
         FunctionConfiguration functionConfiguration = new FunctionConfiguration();
-        Map<String, Object> jsonDict = (Map<String, Object>) BinaryData.fromObject(functionConfiguration).toObject(Map.class);
+        Map<String, Object> jsonDict
+            = (Map<String, Object>) BinaryData.fromObject(functionConfiguration).toObject(Map.class);
         Assertions.assertTrue(jsonDict.containsKey("input"));
         Assertions.assertNull(jsonDict.get("input"));
         Assertions.assertFalse(jsonDict.containsKey("output"));
