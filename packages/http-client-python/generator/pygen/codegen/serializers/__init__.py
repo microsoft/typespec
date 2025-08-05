@@ -165,7 +165,7 @@ class JinjaSerializer(ReaderAndWriter):
                 # add _metadata.json
                 if self.code_model.metadata:
                     self.write_file(
-                        generation_path / Path("_metadata.json"),
+                        Path("./_metadata.json"),
                         json.dumps(self.code_model.metadata, indent=2),
                     )
             elif client_namespace_type.clients:
