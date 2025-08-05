@@ -496,6 +496,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected virtual IReadOnlyList<EnumTypeMember> BuildEnumValues() => throw new InvalidOperationException("Not an EnumProvider type");
 
+        /// <summary>
+        /// Resets the cached enum values, forcing them to be rebuilt on next access.
+        /// This method is intended for use by derived classes that need to update enum values.
+        /// </summary>
+        protected void ResetEnumValues()
+        {
+            _enumValues = null;
+        }
+
         internal void EnsureBuilt()
         {
             _ = Methods;

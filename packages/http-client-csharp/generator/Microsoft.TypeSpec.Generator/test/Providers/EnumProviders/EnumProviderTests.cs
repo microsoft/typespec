@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -339,6 +340,102 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(
                 "global::System.ComponentModel.EditorBrowsableState.Never",
                 getHashCodeMethod.Signature.Attributes[0].Arguments[0].ToDisplayString());
+        }
+
+        // Tests for the new Update method functionality
+        [TestCase]
+        public void Update_WithEnumValues_UpdatesEnumValues()
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(int));
+
+            var input = InputFactory.Int32Enum("mockInputEnum", [
+                ("One", 1),
+                ("Two", 2)
+            ]);
+            var enumType = EnumProvider.Create(input);
+
+            // Create new enum values for update
+            var newEnumValues = new[]
+            {
+                new EnumTypeMember("Three", 
+                    new FieldProvider(FieldModifiers.Public | FieldModifiers.Static, typeof(int), "Three", enumType, $"Three value"), 
+                    3),
+                new EnumTypeMember("Four", 
+                    new FieldProvider(FieldModifiers.Public | FieldModifiers.Static, typeof(int), "Four", enumType, $"Four value"), 
+                    4)
+            };
+
+            // Verify initial values
+            Assert.AreEqual(2, enumType.EnumValues.Count);
+            Assert.AreEqual("One", enumType.EnumValues[0].Name);
+            Assert.AreEqual("Two", enumType.EnumValues[1].Name);
+
+            // Update enum values
+            enumType.Update(enumValues: newEnumValues);
+
+            // Access the protected property through reflection for testing
+            var updatedEnumValuesProperty = typeof(EnumProvider).GetProperty("UpdatedEnumValues", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var updatedValues = (IReadOnlyList<EnumTypeMember>?)updatedEnumValuesProperty?.GetValue(enumType);
+
+            // Verify the updated values are stored
+            Assert.IsNotNull(updatedValues);
+            Assert.AreEqual(2, updatedValues!.Count);
+            Assert.AreEqual("Three", updatedValues[0].Name);
+            Assert.AreEqual("Four", updatedValues[1].Name);
+        }
+
+        [TestCase]
+        public void Update_WithOtherProperties_CallsBaseUpdate()
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(string));
+
+            var input = InputFactory.StringEnum("mockInputEnum", [
+                ("Value1", "val1"),
+                ("Value2", "val2")
+            ]);
+            var enumType = EnumProvider.Create(input);
+
+            // Create new methods for update
+            var newMethod = new MethodProvider(
+                new MethodSignature("TestMethod", $"Test method", MethodSignatureModifiers.Public, typeof(void), null, []),
+                Microsoft.TypeSpec.Generator.Snippets.Snippet.Return(),
+                enumType);
+
+            // Update with methods
+            enumType.Update(methods: [newMethod]);
+
+            // Verify the method was added
+            Assert.IsTrue(enumType.Methods.Any(m => m.Signature.Name == "TestMethod"));
+        }
+
+        [TestCase]
+        public void Update_WithNullEnumValues_DoesNotChangeValues()
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(int));
+
+            var input = InputFactory.Int32Enum("mockInputEnum", [
+                ("One", 1),
+                ("Two", 2)
+            ]);
+            var enumType = EnumProvider.Create(input);
+
+            // Get initial values
+            var initialCount = enumType.EnumValues.Count;
+            var initialFirstName = enumType.EnumValues[0].Name;
+
+            // Update with null enum values (should not change anything)
+            enumType.Update(enumValues: null);
+
+            // Verify values are unchanged
+            Assert.AreEqual(initialCount, enumType.EnumValues.Count);
+            Assert.AreEqual(initialFirstName, enumType.EnumValues[0].Name);
+
+            // Verify UpdatedEnumValues is null
+            var updatedEnumValuesProperty = typeof(EnumProvider).GetProperty("UpdatedEnumValues", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var updatedValues = updatedEnumValuesProperty?.GetValue(enumType);
+            Assert.IsNull(updatedValues);
         }
     }
 }
