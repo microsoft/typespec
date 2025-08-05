@@ -194,7 +194,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Test]
-        public void ModelReaderWriterDependencyModelBuildableAttributesHaveExperimentalSuppressions()
+        public void ExperimentalDependencyModelHaveAttributeSuppressions()
         {
             // Create a model with a property that references a model from a dependency library
             // The dependency model won't have a model provider in the current library
@@ -235,7 +235,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Test]
-        public void ModelReaderWriterExperimentalBuildableAttributesHaveSuppression()
+        public void ExperimentalModelsHaveAttributeSuppression()
         {
             var mockGenerator = MockHelpers.LoadMockGenerator(
                 inputModels: () => new List<InputModelType>
@@ -267,7 +267,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Test]
-        public async Task ModelReaderWriterCustomizedModelBuildableAttributesHaveExperimentalSuppressions()
+        public async Task CustomizedExperimentalModelsHaveAttributeSuppressions()
         {
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
