@@ -68,7 +68,7 @@ jobs:
             enabled: true
           codeql:
             compiled:
-              enabled: false
+              enabled: true
 
     ${{ if eq(parameters.Os, 'linux') }}:
       pool:
