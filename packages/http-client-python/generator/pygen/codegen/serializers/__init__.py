@@ -7,7 +7,7 @@ import logging
 import json
 from collections import namedtuple
 import re
-from typing import List, Any, Union
+from typing import List, Any, Union, Optional
 from pathlib import Path
 from packaging.version import parse as parse_version
 from jinja2 import PackageLoader, Environment, FileSystemLoader, StrictUndefined
@@ -376,8 +376,12 @@ class JinjaSerializer(ReaderAndWriter):
     def _serialize_and_write_version_file(
         self,
         general_serializer: GeneralSerializer,
+        namespace: Optional[str] = None,
     ):
-        generation_path = self.code_model.get_root_dir()
+        if namespace:
+            generation_path = self.code_model.get_generation_dir(namespace)
+        else:
+            generation_path = self.code_model.get_root_dir()
 
         def _read_version_file(original_version_file_name: str) -> str:
             return self.read_file(generation_path / original_version_file_name)
@@ -472,6 +476,9 @@ class JinjaSerializer(ReaderAndWriter):
 
         # write _version.py
         self._serialize_and_write_version_file(general_serializer)
+        # if there's a subdir, we need to write another version file in the subdir
+        if self.code_model.options.get("generation-subdir"):
+            self._serialize_and_write_version_file(general_serializer, namespace)
 
         # write the empty py.typed file
         pytyped_value = "# Marker file for PEP 561."
