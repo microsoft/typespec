@@ -77,6 +77,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
 
+        /// <summary>
+        /// Checks if the model has the @dynamicModel decorator
+        /// </summary>
+        private bool IsDynamicModel => _inputModel.Decorators.Any(d => d.Name == "dynamicModel");
+
         public bool IsUnknownDiscriminatorModel => _inputModel.IsUnknownDiscriminatorModel;
 
         public string? DiscriminatorValue => _inputModel.DiscriminatorValue;
@@ -433,7 +438,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             // Add Patch property for dynamic models
-            if (_inputModel.IsDynamicModel && PatchProperty != null)
+            if (IsDynamicModel && PatchProperty != null)
             {
                 properties.Add(PatchProperty);
             }
@@ -900,7 +905,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private FieldProvider? BuildRawDataField()
         {
             // Dynamic models use AdditionalProperties struct instead of raw data field
-            if (_inputModel.IsDynamicModel)
+            if (IsDynamicModel)
             {
                 return null;
             }
@@ -940,7 +945,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private PropertyProvider? BuildPatchProperty()
         {
             // Only dynamic models get the Patch property
-            if (!_inputModel.IsDynamicModel)
+            if (!IsDynamicModel)
             {
                 return null;
             }

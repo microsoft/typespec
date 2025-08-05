@@ -133,7 +133,6 @@ export interface InputModelType extends InputTypeBase {
   discriminatorProperty?: InputModelProperty;
   baseModel?: InputModelType;
   serializationOptions: SerializationOptions;
-  isDynamicModel?: boolean;
 }
 
 export interface InputPropertyTypeBase extends DecoratedType {
