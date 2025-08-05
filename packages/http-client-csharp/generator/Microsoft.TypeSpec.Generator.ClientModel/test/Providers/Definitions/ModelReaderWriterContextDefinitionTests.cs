@@ -315,6 +315,152 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                 "Pragma warning disable/restore should surround the ModelReaderWriterBuildableAttribute for ExperimentalModel");
         }
 
+        [Test]
+        public void ValidateMultipleExperimentalAndRegularModelsContextGeneration()
+        {
+            // Create multiple experimental models with different experimental keys
+            var experimentalModel1 = InputFactory.Model("ExperimentalModel1", properties:
+            [
+                InputFactory.Property("Value1", InputPrimitiveType.String)
+            ]);
+
+            var experimentalModel2 = InputFactory.Model("ExperimentalModel2", properties:
+            [
+                InputFactory.Property("Value2", InputPrimitiveType.String)
+            ]);
+
+            // Create multiple regular models
+            var regularModel1 = InputFactory.Model("RegularModel1", properties:
+            [
+                InputFactory.Property("RegularValue1", InputPrimitiveType.String)
+            ]);
+
+            var regularModel2 = InputFactory.Model("RegularModel2", properties:
+            [
+                InputFactory.Property("RegularValue2", InputPrimitiveType.String)
+            ]);
+
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [experimentalModel1, experimentalModel2, regularModel1, regularModel2]);
+
+            // Add experimental attributes to the experimental models with different keys
+            var experimentalModelProvider1 = mockGenerator.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .First(mp => mp.Name == "ExperimentalModel1");
+
+            var experimentalAttribute1 = new AttributeStatement(
+                new CSharpType(typeof(ExperimentalAttribute)), 
+                Literal("TYPESPEC001"));
+            
+            experimentalModelProvider1.Update(attributes: [experimentalAttribute1]);
+
+            var experimentalModelProvider2 = mockGenerator.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .First(mp => mp.Name == "ExperimentalModel2");
+
+            var experimentalAttribute2 = new AttributeStatement(
+                new CSharpType(typeof(ExperimentalAttribute)), 
+                Literal("TYPESPEC002"));
+            
+            experimentalModelProvider2.Update(attributes: [experimentalAttribute2]);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var writer = new ModelReaderWriterContextWriter(contextDefinition);
+            var codeFile = writer.Write();
+
+            Assert.IsNotNull(codeFile);
+            var content = codeFile.Content;
+
+            // Verify that both experimental pragma warnings are generated
+            Assert.IsTrue(content.Contains("#pragma warning disable TYPESPEC001"), 
+                "Should contain pragma warning disable for first experimental model");
+            Assert.IsTrue(content.Contains("#pragma warning restore TYPESPEC001"), 
+                "Should contain pragma warning restore for first experimental model");
+            Assert.IsTrue(content.Contains("#pragma warning disable TYPESPEC002"), 
+                "Should contain pragma warning disable for second experimental model");
+            Assert.IsTrue(content.Contains("#pragma warning restore TYPESPEC002"), 
+                "Should contain pragma warning restore for second experimental model");
+
+            // Verify all models have their attributes
+            Assert.IsTrue(content.Contains("ExperimentalModel1"), 
+                "Should contain reference to ExperimentalModel1");
+            Assert.IsTrue(content.Contains("ExperimentalModel2"), 
+                "Should contain reference to ExperimentalModel2");
+            Assert.IsTrue(content.Contains("RegularModel1"), 
+                "Should contain reference to RegularModel1");
+            Assert.IsTrue(content.Contains("RegularModel2"), 
+                "Should contain reference to RegularModel2");
+
+            // Verify regular models don't have pragma warnings
+            var lines = content.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            
+            // Check that regular models don't have surrounding pragma warnings
+            for (int i = 0; i < lines.Length; i++)
+            {
+                var line = lines[i].Trim();
+                
+                if (line.Contains("ModelReaderWriterBuildableAttribute") && 
+                    (line.Contains("RegularModel1") || line.Contains("RegularModel2")))
+                {
+                    // Check the line before and after for pragma warnings
+                    var prevLine = i > 0 ? lines[i - 1].Trim() : "";
+                    var nextLine = i < lines.Length - 1 ? lines[i + 1].Trim() : "";
+                    
+                    Assert.IsFalse(prevLine.Contains("#pragma warning disable"), 
+                        $"Regular model attribute should not have pragma disable before it: {line}");
+                    Assert.IsFalse(nextLine.Contains("#pragma warning restore"), 
+                        $"Regular model attribute should not have pragma restore after it: {line}");
+                }
+            }
+
+            // Verify that experimental models DO have surrounding pragma warnings
+            ValidateExperimentalModelHasPragmaWarnings(lines, "ExperimentalModel1", "TYPESPEC001");
+            ValidateExperimentalModelHasPragmaWarnings(lines, "ExperimentalModel2", "TYPESPEC002");
+        }
+
+        private void ValidateExperimentalModelHasPragmaWarnings(string[] lines, string modelName, string experimentalKey)
+        {
+            bool foundPragmaDisable = false;
+            bool foundAttribute = false;
+            bool foundPragmaRestore = false;
+            bool correctSequence = false;
+            
+            for (int i = 0; i < lines.Length; i++)
+            {
+                var line = lines[i].Trim();
+                
+                if (line.Contains($"#pragma warning disable {experimentalKey}"))
+                {
+                    foundPragmaDisable = true;
+                    foundAttribute = false;
+                    foundPragmaRestore = false;
+                }
+                else if (foundPragmaDisable && !foundAttribute && 
+                         line.Contains("ModelReaderWriterBuildableAttribute") && 
+                         line.Contains(modelName))
+                {
+                    foundAttribute = true;
+                }
+                else if (foundPragmaDisable && foundAttribute && !foundPragmaRestore && 
+                         line.Contains($"#pragma warning restore {experimentalKey}"))
+                {
+                    foundPragmaRestore = true;
+                    correctSequence = true;
+                    break; // Found complete sequence
+                }
+                else if (foundPragmaDisable && line.Trim().Length > 0 && 
+                         !line.Contains("ModelReaderWriterBuildableAttribute") &&
+                         !line.Contains("#pragma warning"))
+                {
+                    // Reset if we find other content between disable and attribute
+                    foundPragmaDisable = false;
+                }
+            }
+            
+            Assert.IsTrue(correctSequence, 
+                $"Pragma warning disable/restore should surround the ModelReaderWriterBuildableAttribute for {modelName}");
+        }
+
         private class DependencyModel : IJsonModel<DependencyModel>
         {
             DependencyModel? IJsonModel<DependencyModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
