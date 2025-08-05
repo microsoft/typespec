@@ -7,6 +7,8 @@ using System.ComponentModel.Composition;
 using System.Text.Json;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
+using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Providers;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel
 {
@@ -38,6 +40,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(JsonSerializer).Assembly.Location));
             AddTypeToKeepPublic(ModelReaderWriterContextDefinition.s_name);
             AddNonRootType(ModelReaderWriterContextDefinition.s_name);
+        }
+
+        public override TypeProviderWriter GetWriter(TypeProvider provider)
+        {
+            if (provider is ModelReaderWriterContextDefinition contextDefinition)
+            {
+                return new ModelReaderWriterContextWriter(contextDefinition);
+            }
+            return base.GetWriter(provider);
         }
     }
 }

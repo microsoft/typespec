@@ -4,13 +4,17 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.Json;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
+using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
 {
@@ -186,6 +190,87 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             // one for ParentModel and one for the dependency model
             var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute));
             Assert.AreEqual(2, buildableAttributes.Count(), "Exactly two ModelReaderWriterBuildableAttributes should be generated for models with dependency references");
+        }
+
+        [Test]
+        public void ValidateExperimentalModelAttributesAreTracked()
+        {
+            // Create an experimental model with ExperimentalAttribute
+            var experimentalModel = InputFactory.Model("ExperimentalModel", properties:
+            [
+                InputFactory.Property("Value", InputPrimitiveType.String)
+            ]);
+
+            var normalModel = InputFactory.Model("NormalModel", properties:
+            [
+                InputFactory.Property("Value", InputPrimitiveType.String)
+            ]);
+
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [experimentalModel, normalModel]);
+
+            // Add experimental attribute to the experimental model's provider
+            var experimentalModelProvider = mockGenerator.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .First(mp => mp.Name == "ExperimentalModel");
+
+            // Simulate the experimental attribute
+            var experimentalAttribute = new AttributeStatement(
+                new CSharpType(typeof(ExperimentalAttribute)), 
+                Literal("TYPESPEC001"));
+            
+            experimentalModelProvider.Update(attributes: [experimentalAttribute]);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+            Assert.AreEqual(2, attributes.Count, "Should have attributes for both models");
+
+            // Check that experimental info is tracked
+            Assert.AreEqual(1, contextDefinition._experimentalAttributeInfo.Count, 
+                "Should track one experimental attribute");
+            Assert.IsTrue(contextDefinition._experimentalAttributeInfo.ContainsValue("TYPESPEC001"),
+                "Should track the experimental key TYPESPEC001");
+        }
+
+        [Test]
+        public void ValidateExperimentalModelContextGeneratesWithPragmaWarnings()
+        {
+            // Create an experimental model
+            var experimentalModel = InputFactory.Model("ExperimentalModel", properties:
+            [
+                InputFactory.Property("Value", InputPrimitiveType.String)
+            ]);
+
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [experimentalModel]);
+
+            // Add experimental attribute to the model's provider
+            var experimentalModelProvider = mockGenerator.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .First(mp => mp.Name == "ExperimentalModel");
+
+            var experimentalAttribute = new AttributeStatement(
+                new CSharpType(typeof(ExperimentalAttribute)), 
+                Literal("TYPESPEC001"));
+            
+            experimentalModelProvider.Update(attributes: [experimentalAttribute]);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var writer = new ModelReaderWriterContextWriter(contextDefinition);
+            var codeFile = writer.Write();
+
+            Assert.IsNotNull(codeFile);
+            var content = codeFile.Content;
+
+            // Verify pragma warnings are generated
+            Assert.IsTrue(content.Contains("#pragma warning disable TYPESPEC001"), 
+                "Should contain pragma warning disable for experimental model");
+            Assert.IsTrue(content.Contains("#pragma warning restore TYPESPEC001"), 
+                "Should contain pragma warning restore for experimental model");
+            Assert.IsTrue(content.Contains("ModelReaderWriterBuildableAttribute"), 
+                "Should contain the buildable attribute");
         }
 
         private class DependencyModel : IJsonModel<DependencyModel>

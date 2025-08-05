@@ -4,8 +4,10 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -32,14 +34,64 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // Add ModelReaderWriterBuildableAttribute for all IPersistableModel types
             var buildableTypes = CollectBuildableTypes();
+            var experimentalTypesInfo = CollectExperimentalTypesInfo(buildableTypes);
+            
             foreach (var type in buildableTypes)
             {
                 // Use the full attribute type name to ensure proper compilation
                 var attributeType = new CSharpType(typeof(ModelReaderWriterBuildableAttribute));
-                attributes.Add(new AttributeStatement(attributeType, TypeOf(type)));
+                var attribute = new AttributeStatement(attributeType, TypeOf(type));
+                
+                // Store experimental info for later use in custom writer
+                if (experimentalTypesInfo.TryGetValue(type, out var experimentalKey))
+                {
+                    // Mark this attribute as experimental using a custom property
+                    _experimentalAttributeInfo[attribute] = experimentalKey;
+                }
+                
+                attributes.Add(attribute);
             }
 
             return attributes;
+        }
+
+        // Dictionary to store experimental attribute information
+        internal readonly Dictionary<AttributeStatement, string> _experimentalAttributeInfo = new();
+
+        /// <summary>
+        /// Collects information about experimental types and their warning keys.
+        /// </summary>
+        private Dictionary<CSharpType, string> CollectExperimentalTypesInfo(HashSet<CSharpType> buildableTypes)
+        {
+            var experimentalTypes = new Dictionary<CSharpType, string>(new CSharpTypeNameComparer());
+            
+            // Get all model providers from the output library
+            var modelProviders = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .ToDictionary(mp => mp.Type, mp => mp, new CSharpTypeNameComparer());
+
+            foreach (var type in buildableTypes)
+            {
+                if (modelProviders.TryGetValue(type, out var modelProvider))
+                {
+                    // Check if this model has an ExperimentalAttribute
+                    var experimentalAttribute = modelProvider.Attributes
+                        .FirstOrDefault(attr => attr.Type.IsFrameworkType && 
+                                               attr.Type.FrameworkType == typeof(ExperimentalAttribute));
+                    
+                    if (experimentalAttribute != null && experimentalAttribute.Arguments.Any())
+                    {
+                        // Extract the experimental key from the first argument
+                        var firstArg = experimentalAttribute.Arguments.First();
+                        if (firstArg is LiteralExpression literal && literal.Literal is string key)
+                        {
+                            experimentalTypes[type] = key;
+                        }
+                    }
+                }
+            }
+
+            return experimentalTypes;
         }
 
         /// <summary>
@@ -170,6 +222,77 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 hashCode.Add(obj.Namespace);
                 hashCode.Add(obj.Name);
                 return hashCode.ToHashCode();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Custom writer for ModelReaderWriterContextDefinition that handles pragma warnings for experimental attributes.
+    /// </summary>
+    internal class ModelReaderWriterContextWriter : TypeProviderWriter
+    {
+        private readonly ModelReaderWriterContextDefinition _contextDefinition;
+
+        public ModelReaderWriterContextWriter(ModelReaderWriterContextDefinition provider) : base(provider)
+        {
+            _contextDefinition = provider;
+        }
+
+        public override CodeFile Write()
+        {
+            using var writer = new CodeWriter();
+            using (var ns = writer.SetNamespace(_provider.Type.Namespace))
+            {
+                WriteTypeWithExperimentalHandling(writer);
+            }
+            return new CodeFile(writer.ToString(), _provider.RelativeFilePath);
+        }
+
+        private void WriteTypeWithExperimentalHandling(CodeWriter writer)
+        {
+            // Write XML docs
+            writer.WriteXmlDocsNoScope(_provider.XmlDocs);
+
+            // Write attributes with pragma warning handling
+            foreach (var attribute in _provider.Attributes)
+            {
+                if (_contextDefinition._experimentalAttributeInfo.TryGetValue(attribute, out var experimentalKey))
+                {
+                    // Write pragma warning disable before experimental attribute
+                    writer.WriteLine($"#pragma warning disable {experimentalKey}");
+                    attribute.Write(writer);
+                    writer.WriteLine($"#pragma warning restore {experimentalKey}");
+                }
+                else
+                {
+                    // Write normal attribute
+                    attribute.Write(writer);
+                }
+            }
+
+            // Write class declaration
+            writer.WriteTypeModifiers(_provider.DeclarationModifiers);
+            writer.Append($"{_provider.Type:D}")
+                .AppendRawIf(" : ", _provider.Type.BaseType != null || _provider.Implements.Any())
+                .AppendIf($"{_provider.Type.BaseType}", _provider.Type.BaseType != null);
+
+            writer.AppendRawIf(", ", _provider.Type.BaseType != null && _provider.Implements.Count > 0);
+
+            for (int i = 0; i < _provider.Implements.Count; i++)
+            {
+                writer.Append($"{_provider.Implements[i]:D}");
+                if (i < _provider.Implements.Count - 1)
+                {
+                    writer.AppendRaw(", ");
+                }
+            }
+
+            writer.WriteLine();
+
+            // Write class body (empty for context class)
+            using (writer.Scope())
+            {
+                // Context classes are typically empty as they're filled by source generation
             }
         }
     }
