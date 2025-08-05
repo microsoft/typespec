@@ -17,7 +17,6 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(Thing))]
     [ModelReaderWriterBuildable(typeof(RoundTripModel))]
     [ModelReaderWriterBuildable(typeof(ModelWithRequiredNullableProperties))]
-    [ModelReaderWriterBuildable(typeof(Friend))]
     [ModelReaderWriterBuildable(typeof(RenamedModelCustom))]
     [ModelReaderWriterBuildable(typeof(ReturnsAnonymousModelResponse))]
     [ModelReaderWriterBuildable(typeof(ListWithNextLinkResponse))]

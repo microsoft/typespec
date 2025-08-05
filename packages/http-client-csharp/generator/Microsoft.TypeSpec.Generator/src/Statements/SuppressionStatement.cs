@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.TypeSpec.Generator.Expressions;
+using Microsoft.TypeSpec.Generator.Snippets;
 
 namespace Microsoft.TypeSpec.Generator.Statements
 {
@@ -22,9 +23,15 @@ namespace Microsoft.TypeSpec.Generator.Statements
 
         internal override void Write(CodeWriter writer)
         {
-            writer.WriteRawLine($"# pragma warning disable {Code} {Justification}");
+            var code = Code switch
+            {
+                LiteralExpression literal => literal.Literal,
+                ScopedApi<string> { Original: LiteralExpression literal } => literal.Literal,
+                _ => Code.ToString()
+            };
+            writer.WriteLine($"#pragma warning disable {code} // {Justification}");
             Inner.Write(writer);
-            writer.WriteRawLine($"# pragma warning restore {Code} {Justification}");
+            writer.WriteLine($"#pragma warning restore {code} // {Justification}");
         }
     }
 }

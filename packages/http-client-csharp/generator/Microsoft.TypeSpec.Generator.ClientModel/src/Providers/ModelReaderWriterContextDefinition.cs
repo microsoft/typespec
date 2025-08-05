@@ -41,7 +41,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(type, out var model))
                 {
                     var experimentalAttribute =
-                        model?.Attributes.FirstOrDefault(a => a.Type.Equals(typeof(ExperimentalAttribute)));
+                        model?.CanonicalView.Attributes.FirstOrDefault(a => a.Type.Equals(typeof(ExperimentalAttribute)));
                     if (experimentalAttribute != null)
                     {
                         var key = experimentalAttribute.Arguments[0];

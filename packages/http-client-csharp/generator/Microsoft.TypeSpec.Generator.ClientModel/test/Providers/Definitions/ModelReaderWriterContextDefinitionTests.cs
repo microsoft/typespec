@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -257,7 +258,38 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.IsNotNull(attributes);
             Assert.IsTrue(attributes.Count > 0);
 
-            // Check that exactly one ModelReaderWriterBuildableAttribute exists since TestModel has only primitive properties
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute));
+            Assert.AreEqual(2, buildableAttributes.Count());
+
+            var writer = new TypeProviderWriter(contextDefinition);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task ModelReaderWriterCustomizedModelBuildableAttributesHaveExperimentalSuppressions()
+        {
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                inputModels: () => new List<InputModelType>
+                {
+                    InputFactory.Model("CustomizedExperimentalModel", properties:
+                    [
+                        InputFactory.Property("StringProperty", InputPrimitiveType.String),
+                        InputFactory.Property("IntProperty", InputPrimitiveType.Int32)
+                    ]),
+                    InputFactory.Model("RegularModel", properties:
+                    [
+                        InputFactory.Property("StringProperty", InputPrimitiveType.String)
+                    ])
+                });
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+            Assert.IsTrue(attributes.Count > 0);
+
             var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute));
             Assert.AreEqual(2, buildableAttributes.Count());
 
