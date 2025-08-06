@@ -82,4 +82,17 @@ public class JsonMergePatchHelper {
     public static SharkAccessor getSharkAccessor() {
         return sharkAccessor;
     }
+
+    private static SalmonAccessor salmonAccessor;
+
+    public interface SalmonAccessor {
+    }
+
+    public static void setSalmonAccessor(SalmonAccessor accessor) {
+        salmonAccessor = accessor;
+    }
+
+    public static SalmonAccessor getSalmonAccessor() {
+        return salmonAccessor;
+    }
 }
