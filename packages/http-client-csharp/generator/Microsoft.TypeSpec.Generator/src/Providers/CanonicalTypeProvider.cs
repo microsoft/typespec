@@ -17,15 +17,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private readonly TypeProvider _generatedTypeProvider;
         private readonly Dictionary<string, InputModelProperty> _specPropertiesMap;
         private readonly Dictionary<string, string?> _serializedNameMap;
+        private readonly Dictionary<InputModelProperty, PropertyProvider> _propertyProviderMap = new();
         private readonly HashSet<string> _renamedProperties;
         private readonly HashSet<string> _renamedFields;
+        private readonly IReadOnlyList<InputModelProperty> _specProperties;
 
         public CanonicalTypeProvider(TypeProvider generatedTypeProvider, InputType? inputType)
         {
             _generatedTypeProvider = generatedTypeProvider;
             var inputModel = inputType as InputModelType;
-            var specProperties = inputModel?.Properties ?? [];
-            _specPropertiesMap = specProperties.ToDictionary(p => p.Name.ToIdentifierName(), p => p);
+            _specProperties = inputModel?.Properties ?? [];
+            _specPropertiesMap = _specProperties.ToDictionary(p => p.Name.ToIdentifierName(), p => p);
             _serializedNameMap = BuildSerializationNameMap();
             _renamedProperties = (_generatedTypeProvider.CustomCodeView?.Properties ?? [])
                 .Where(p => p.OriginalName != null).Select(p => p.OriginalName!).ToHashSet();
@@ -67,17 +69,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     generatedProperty.WireInfo!.SerializedName = serializedName;
                 }
+
+                if (generatedProperty.InputProperty is InputModelProperty specProperty)
+                {
+                    _propertyProviderMap[specProperty] = generatedProperty;
+                }
             }
 
             foreach (var customProperty in customProperties)
             {
-                InputProperty? specProperty = null;
+                InputModelProperty? specProperty = null;
 
-                if (TryGetCandidateSpecProperty(customProperty, out var candidateSpecProperty))
+                if (TryGetSpecProperty(customProperty, out var candidateSpecProperty))
                 {
                     specProperty = candidateSpecProperty;
                     customProperty.WireInfo = new PropertyWireInformation(specProperty);
                     customProperty.IsDiscriminator = customProperty.WireInfo.IsDiscriminator;
+                    _propertyProviderMap[specProperty] = customProperty;
                 }
 
                 string? serializedName = specProperty?.SerializedName;
@@ -115,6 +123,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 customProperty.Type = EnsureCorrectTypeRepresentation(specProperty, customProperty.Type);
             }
 
+            if (_specProperties.Count > 0)
+            {
+                return
+                [
+                    // Include properties that are in the spec, ordered by the spec
+                    .._specProperties.Select(p => _propertyProviderMap[p]),
+                    // Include generated properties that are not in the spec
+                    ..generatedProperties.Where(p => !_specPropertiesMap.ContainsKey(p.Name)),
+                    // Include the custom properties that are not in the spec
+                    ..customProperties.Where(p => !_specPropertiesMap.ContainsKey(p.Name) && (p.OriginalName == null || !_specPropertiesMap.ContainsKey(p.OriginalName)))
+                ];
+            }
+
+            // For other types, there is no canonical order, so we can just return generated followed by custom properties.
             return [..generatedProperties, ..customProperties];
         }
 
@@ -136,7 +158,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 InputProperty? specProperty = null;
 
-                if (TryGetCandidateSpecProperty(customField, out var candidateSpecProperty))
+                if (TryGetSpecProperty(customField, out var candidateSpecProperty))
                 {
                     specProperty = candidateSpecProperty;
                     customField.WireInfo = new PropertyWireInformation(specProperty);
@@ -177,6 +199,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 customField.Type = EnsureCorrectTypeRepresentation(specProperty, customField.Type);
             }
 
+            // Order is not important for fields, so we can just return generated followed by custom fields
             return [..generatedFields, ..customFields];
         }
 
@@ -312,7 +335,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             };
         }
 
-        private bool TryGetCandidateSpecProperty(
+        private bool TryGetSpecProperty(
             PropertyProvider customProperty,
             [NotNullWhen(true)] out InputModelProperty? candidateSpecProperty)
         {
@@ -332,7 +355,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return false;
         }
 
-        private bool TryGetCandidateSpecProperty(FieldProvider customField, [NotNullWhen(true)] out InputModelProperty? candidateSpecProperty)
+        private bool TryGetSpecProperty(FieldProvider customField, [NotNullWhen(true)] out InputModelProperty? candidateSpecProperty)
         {
             if (customField.OriginalName != null && _specPropertiesMap.TryGetValue(customField.OriginalName, out candidateSpecProperty))
             {

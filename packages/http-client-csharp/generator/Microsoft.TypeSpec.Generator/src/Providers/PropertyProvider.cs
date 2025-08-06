@@ -20,7 +20,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
     {
         private VariableExpression? _variable;
         private Lazy<ParameterProvider> _parameter;
-        private readonly InputProperty? _inputProperty;
+        internal InputProperty? InputProperty { get; }
+
         private readonly SerializationFormat _serializationFormat;
         private FormattableString? _customDescription;
 
@@ -79,7 +80,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private PropertyProvider(InputProperty inputProperty, CSharpType propertyType, TypeProvider enclosingType)
         {
-            _inputProperty = inputProperty;
+            InputProperty = inputProperty;
             if (!inputProperty.IsRequired && !propertyType.IsCollection)
             {
                 propertyType = propertyType.WithNullable(true);
@@ -133,9 +134,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private void BuildDocs()
         {
-            if (_inputProperty != null)
+            if (InputProperty != null)
             {
-                Description = DocHelpers.GetFormattableDescription(_inputProperty.Summary, _inputProperty.Doc) ??
+                Description = DocHelpers.GetFormattableDescription(InputProperty.Summary, InputProperty.Doc) ??
                               PropertyDescriptionBuilder.CreateDefaultPropertyDescription(Name, !Body.HasSetter);
                 XmlDocs = new XmlDocProvider(PropertyDescriptionBuilder.BuildPropertyDescription(
                     Type,
