@@ -69,6 +69,9 @@ class OptionsDict(MutableMapping):
                     data = data[2:]
                 elif data.startswith("."):
                     data = data[1:]
+                # Remove trailing slashes
+                if data.endswith("/") or data.endswith("\\"):
+                    data = data[:-1]
             return data
         return self._get_default(key)
 
