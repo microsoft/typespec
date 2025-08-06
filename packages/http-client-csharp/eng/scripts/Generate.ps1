@@ -7,6 +7,9 @@ param(
 
 Import-Module "$PSScriptRoot\Generation.psm1" -DisableNameChecking -Force;
 
+# Start overall timer
+$totalStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+
 $packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
 $solutionDir = Join-Path $packageRoot 'generator'
 
@@ -212,3 +215,10 @@ if ($null -eq $filter) {
     # Write the launch settings to the launchSettings.json file
     Set-LaunchSettings $sortedLaunchSettings
 }
+
+# Stop total timer
+$totalStopwatch.Stop()
+
+# Display timing summary
+Write-Host "`n==================== TIMING SUMMARY ====================" -ForegroundColor Cyan
+Write-Host "Total execution time: $($totalStopwatch.Elapsed.ToString('hh\:mm\:ss\.ff'))" -ForegroundColor Yellow
