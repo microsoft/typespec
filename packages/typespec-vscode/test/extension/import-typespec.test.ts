@@ -91,8 +91,8 @@ describe.each(ImportCasesConfigList)("ImportTypespecFromOpenApi3", async (item) 
       cs,
       app,
     );
+    await contrastResult(expectedResults, workspacePath, cs);
     app.close();
-    await contrastResult(page, expectedResults, workspacePath, cs);
     try {
       execSync("git restore ./package.json", { stdio: "inherit" });
       execSync("git restore ../../pnpm-lock.yaml", { stdio: "inherit" });

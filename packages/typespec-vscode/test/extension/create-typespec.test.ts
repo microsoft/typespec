@@ -80,7 +80,7 @@ describe.each(CreateCasesConfigList)("CreateTypespecProject", async (item) => {
       cs,
       app,
     );
+    await contrastResult(expectedResults, workspacePath, cs);
     app.close();
-    await contrastResult(page, expectedResults, workspacePath, cs);
   });
 });

@@ -97,9 +97,9 @@ describe.each(EmitCasesConfigList)("EmitTypespecProject", async (item) => {
     if (!TspConfigHasEmit && content !== undefined) {
       restoreTspConfigFile(workspacePath, content);
     }
-    app.close();
     const resultFilePath = path.resolve(workspacePath, "./tsp-output/@typespec");
-    await contrastResult(page, expectedResults, resultFilePath, cs);
+    await contrastResult(expectedResults, resultFilePath, cs);
+    app.close();
 
     try {
       execSync("git restore ./package.json", { stdio: "inherit" });

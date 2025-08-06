@@ -33,14 +33,13 @@ export async function preContrastResult(
  * @param res List of expected files
  * @param dir The directory to be compared needs to be converted into an absolute path using path.resolve
  */
-export async function contrastResult(page: Page, res: string[], dir: string, cs: CaseScreenshot) {
+export async function contrastResult(res: string[], dir: string, cs: CaseScreenshot) {
   let resLength = 0;
   if (fs.existsSync(dir)) {
     resLength = fs.readdirSync(dir).length;
     await rm(cs.caseDir, { recursive: true });
   }
   if (resLength !== res.length) {
-    await cs.screenshot(page, "error");
     throw new Error("Failed to matches all files");
   }
 }
