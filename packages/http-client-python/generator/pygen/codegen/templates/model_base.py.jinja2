@@ -329,7 +329,7 @@ def _get_type_alias_type(module_name: str, alias_name: str):
 def _get_model(module_name: str, model_name: str):
     models = {k: v for k, v in sys.modules[module_name].__dict__.items() if isinstance(v, type)}
     module_end = module_name.rsplit(".", 1)[0]
-    models |= {k: v for k, v in sys.modules[module_end].__dict__.items() if isinstance(v, type)}
+    models.update({k: v for k, v in sys.modules[module_end].__dict__.items() if isinstance(v, type)})
     if isinstance(model_name, str):
         model_name = model_name.split(".")[-1]
     if model_name not in models:
@@ -594,19 +594,21 @@ class Model(_MyMutableMapping):
                     if e.tag not in existed_attr_keys:
                         dict_to_pass[e.tag] = _convert_element(e)
             else:
-                dict_to_pass |= {
-                    k: _create_value(_get_rest_field(self._attr_to_rest_field, k), v) for k, v in args[0].items()
-                }
+                dict_to_pass.update(
+                    {k: _create_value(_get_rest_field(self._attr_to_rest_field, k), v) for k, v in args[0].items()}
+                )
         else:
             non_attr_kwargs = [k for k in kwargs if k not in self._attr_to_rest_field]
             if non_attr_kwargs:
                 # actual type errors only throw the first wrong keyword arg they see, so following that.
                 raise TypeError(f"{class_name}.__init__() got an unexpected keyword argument '{non_attr_kwargs[0]}'")
-            dict_to_pass |= {
-                self._attr_to_rest_field[k]._rest_name: _create_value(self._attr_to_rest_field[k], v)
-                for k, v in kwargs.items()
-                if v is not None
-            }
+            dict_to_pass.update(
+                {
+                    self._attr_to_rest_field[k]._rest_name: _create_value(self._attr_to_rest_field[k], v)
+                    for k, v in kwargs.items()
+                    if v is not None
+                }
+            )
         super().__init__(dict_to_pass)
 
     def copy(self) -> "Model":
@@ -1215,7 +1217,7 @@ def _convert_element(e: ET.Element):
                     dict_result[child.tag] = [dict_result[child.tag], _convert_element(child)]
             else:
                 dict_result[child.tag] = _convert_element(child)
-        dict_result |= e.attrib
+        dict_result.update(e.attrib)
         return dict_result
     # array case
     if len(e) > 0:
