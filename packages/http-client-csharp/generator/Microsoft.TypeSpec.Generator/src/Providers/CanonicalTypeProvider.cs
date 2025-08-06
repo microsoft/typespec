@@ -145,8 +145,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 foreach (var prop in customProperties)
                 {
                     // Check if custom property is in spec
-                    if (_specPropertiesMap.TryGetValue(prop.Name, out var specProp) ||
-                        prop.OriginalName != null && _specPropertiesMap.TryGetValue(prop.OriginalName, out specProp))
+                    if ((_specPropertiesMap.TryGetValue(prop.Name, out var specProp) ||
+                        (prop.OriginalName != null && _specPropertiesMap.TryGetValue(prop.OriginalName, out specProp))) &&
+                        !inputProperties.Contains(specProp))
                     {
                         inputProperties.Add(specProp);
                     }
@@ -156,10 +157,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     }
                 }
 
-                // Build final array with exact size
                 var specCount = _specProperties.Count(p => inputProperties.Contains(p));
-                var result = new PropertyProvider[specCount + nonSpecProperties.Count];
-                var index = 0;
+                var result = new List<PropertyProvider>(specCount + nonSpecProperties.Count);
 
                 // Add spec properties in order
                 foreach (var specProp in _specProperties)
@@ -167,14 +166,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     if (inputProperties.Contains(specProp) &&
                         _propertyProviderMap.TryGetValue(specProp, out var provider))
                     {
-                        result[index++] = provider;
+                        result.Add(provider);
                     }
                 }
 
-                // Copy non-spec properties
-                nonSpecProperties.CopyTo(result, index);
+                // Add non-spec properties
+                result.AddRange(nonSpecProperties);
 
-                return result;
+                return [..result];
             }
 
             // For other types, there is no canonical order, so we can just return generated followed by custom properties.
