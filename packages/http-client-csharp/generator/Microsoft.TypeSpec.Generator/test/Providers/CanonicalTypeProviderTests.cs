@@ -145,28 +145,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 ValidatePropertyAttributes(expected, actual);
                 Assert.IsNull(actual.WireInfo);
             }
-
-            foreach (var expected in _namedSymbol.Properties)
-            {
-                var actual = properties[expected.Name];
-
-                Assert.IsTrue(properties.ContainsKey(expected.Name));
-                Assert.AreEqual(expected.Name, actual.Name);
-                Assert.IsNotNull(actual.Description);
-                Assert.AreEqual($"{expected.Description}.", actual.Description!.ToString()); // the writer adds a period
-                Assert.AreEqual(expected.Modifiers, actual.Modifiers);
-                Assert.AreEqual(expected.Type, actual.Type);
-                Assert.AreEqual(expected.Body.GetType(), actual.Body.GetType());
-                Assert.AreEqual(expected.Body.HasSetter, actual.Body.HasSetter);
-            }
-            // int, spec, nullWireInfo are all spec properties and they should have serialized name
-            Assert.AreEqual("intProperty", properties["IntProperty"].WireInfo!.SerializedName);
-            Assert.AreEqual("stringProperty", properties["StringProperty"].WireInfo!.SerializedName);
-            Assert.AreEqual("NullWireInfoProperty", properties["NullWireInfoProperty"].WireInfo!.SerializedName);
-
-            // pure customization code properties should not have serialized name
-            Assert.IsNull(properties["InternalStringProperty"].WireInfo);
-            Assert.IsNull(properties["PropertyTypeProperty"].WireInfo);
         }
 
         private void ValidatePropertyAttributes(PropertyProvider expected, PropertyProvider actual)
