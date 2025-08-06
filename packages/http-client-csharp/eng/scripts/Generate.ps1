@@ -18,32 +18,32 @@ if (-not $LaunchOnly) {
 
     if ($null -eq $filter -or $filter -eq "Sample-TypeSpec") {
 
-        Write-Host "Building logging plugin" -ForegroundColor Cyan
-        $pluginDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'plugins' 'logging' 'Logging.Plugin' 'src'
-        Invoke "dotnet build" $pluginDir
+       Write-Host "Building logging plugin" -ForegroundColor Cyan
+       $pluginDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'plugins' 'logging' 'Logging.Plugin' 'src'
+       Invoke "dotnet build" $pluginDir
 
-        $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
+       $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
 
-        Write-Host "Installing SampleTypeSpec plugins" -ForegroundColor Cyan
+       Write-Host "Installing SampleTypeSpec plugins" -ForegroundColor Cyan
 
-        Invoke "npm install --force" $sampleDir
+       Invoke "npm install --force" $sampleDir
 
-#        Write-Host "Generating SampleTypeSpec using plugins" -ForegroundColor Cyan
-#
-#        Invoke "npx tsp compile . --trace @typespec/http-client-csharp" $sampleDir
-#
-#        # exit if the generation failed
-#        if ($LASTEXITCODE -ne 0) {
-#          exit $LASTEXITCODE
-#        }
+       Write-Host "Generating SampleTypeSpec using plugins" -ForegroundColor Cyan
 
-#        Write-Host "Building SampleTypeSpec plugin library" -ForegroundColor Cyan
-#        Invoke "dotnet build $sampleDir/SampleClient/src/SampleTypeSpec.csproj"
-#
-#        # exit if the generation failed
-#        if ($LASTEXITCODE -ne 0) {
-#          exit $LASTEXITCODE
-#        }
+       Invoke "npx tsp compile . --trace @typespec/http-client-csharp --option @typespec/http-client-csharp.new-project=true" $sampleDir
+
+       # exit if the generation failed
+       if ($LASTEXITCODE -ne 0) {
+         exit $LASTEXITCODE
+       }
+
+       Write-Host "Building SampleTypeSpec plugin library" -ForegroundColor Cyan
+       Invoke "dotnet build $sampleDir/SampleClient/src/SampleTypeSpec.csproj"
+
+       # exit if the generation failed
+       if ($LASTEXITCODE -ne 0) {
+         exit $LASTEXITCODE
+       }
 
         Write-Host "Generating SampleTypeSpec" -ForegroundColor Cyan
         $testProjectsLocalDir = Join-Path $packageRoot 'generator' 'TestProjects' 'Local'
@@ -51,7 +51,7 @@ if (-not $LaunchOnly) {
         $SampleTypeSpecTestProject = Join-Path $testProjectsLocalDir "Sample-TypeSpec"
         $SampleTypeSpecTestProject = $SampleTypeSpecTestProject
 
-        Invoke (Get-TspCommand "$SampleTypeSpecTestProject/Sample-TypeSpec.tsp" $SampleTypeSpecTestProject -newProject $false)
+        Invoke (Get-TspCommand "$SampleTypeSpecTestProject/Sample-TypeSpec.tsp" $SampleTypeSpecTestProject)
 
         # exit if the generation failed
         if ($LASTEXITCODE -ne 0) {
