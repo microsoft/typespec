@@ -1630,13 +1630,17 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     args: (Type | Value | IndeterminateEntity)[],
     source: TypeMapper["source"],
     parentMapper: TypeMapper | undefined,
-    instantiateTempalates = true,
+    instantiateTemplates = true,
   ): Type {
     const symbolLinks =
       templateNode.kind === SyntaxKind.OperationStatement &&
       templateNode.parent!.kind === SyntaxKind.InterfaceStatement
         ? getSymbolLinksForMember(templateNode as MemberNode)
-        : getSymbolLinks(templateNode.symbol);
+        : getSymbolLinks(
+            templateNode.kind === SyntaxKind.AliasStatement
+              ? getMergedSymbol(templateNode.symbol)
+              : templateNode.symbol,
+          );
 
     compilerAssert(
       symbolLinks,
@@ -1661,7 +1665,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (cached) {
       return cached;
     }
-    if (instantiateTempalates) {
+    if (instantiateTemplates) {
       return instantiateTemplate(symbolLinks.instantiations, templateNode, params, mapper);
     } else {
       return errorType;
@@ -3510,7 +3514,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    */
   function checkTemplateDeclaration(node: TemplateableNode, mapper: TypeMapper | undefined) {
     // If mapper is undefined it means we are checking the declaration of the template.
-    if (mapper === undefined) {
+    if (mapper === undefined && node.templateParameters) {
       for (const templateParameter of node.templateParameters) {
         checkTemplateParameterDeclaration(templateParameter, undefined);
       }
@@ -5150,7 +5154,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         createDiagnostic({
           code: "augment-decorator-target",
           messageId:
-            aliasNode.value.kind === SyntaxKind.UnionExpression ? "noUnionExpression" : "default",
+            aliasNode.value?.kind === SyntaxKind.UnionExpression ? "noUnionExpression" : "default",
           target: node.targetType,
         }),
       );
@@ -5361,43 +5365,92 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node: AliasStatementNode,
     mapper: TypeMapper | undefined,
   ): Type | IndeterminateEntity {
-    const links = getSymbolLinks(node.symbol);
+    const symbol = getMergedSymbol(node.symbol);
+    const links = getSymbolLinks(symbol);
 
     if (links.declaredType && mapper === undefined) {
+      // We are not instantiating this alias and it's already checked.
       return links.declaredType;
     }
     checkTemplateDeclaration(node, mapper);
 
     const aliasSymId = getNodeSym(node);
-    if (pendingResolutions.has(aliasSymId, ResolutionKind.Type)) {
-      if (mapper === undefined) {
+
+    const isExtern = node.modifiers & ModifierFlags.Extern;
+
+    if (isExtern && node.value) {
+      // Illegal combination. Extern aliases cannot have a value.
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "alias-extern-value",
+          target: node.value,
+          format: { typeName: symbol.name },
+        }),
+      );
+    } else if (!isExtern && !node.value) {
+      // Illegal combination. Non-extern aliases must have a value.
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "alias-no-value",
+          target: node,
+          format: { typeName: symbol.name },
+        }),
+      );
+    }
+
+    if (isExtern) {
+      pendingResolutions.start(aliasSymId, ResolutionKind.Type);
+      let type: Type;
+      if (symbol.value === undefined) {
         reportCheckerDiagnostic(
           createDiagnostic({
-            code: "circular-alias-type",
-            format: { typeName: node.id.sv },
+            code: "alias-extern-no-impl",
             target: node,
+            format: { typeName: symbol.name },
           }),
         );
+        type = errorType;
+      } else {
+        if (mapper) type = symbol.value(program, mapper);
+        // We are checking the template itself, so we will just put a never type here
+        else type = neverType;
       }
-      links.declaredType = errorType;
-      return errorType;
-    }
+      links.declaredType = type;
+      linkType(links, type, mapper);
+      pendingResolutions.finish(aliasSymId, ResolutionKind.Type);
+      return type;
+    } else {
+      if (pendingResolutions.has(aliasSymId, ResolutionKind.Type)) {
+        if (mapper === undefined) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "circular-alias-type",
+              format: { typeName: symbol.name },
+              target: node,
+            }),
+          );
+        }
+        links.declaredType = errorType;
+        return errorType;
+      }
 
-    pendingResolutions.start(aliasSymId, ResolutionKind.Type);
-    const type = checkNode(node.value, mapper);
-    if (type === null) {
-      links.declaredType = errorType;
-      return errorType;
-    }
-    if (isValue(type)) {
-      reportCheckerDiagnostic(createDiagnostic({ code: "value-in-type", target: node.value }));
-      links.declaredType = errorType;
-      return errorType;
-    }
-    linkType(links, type as any, mapper);
-    pendingResolutions.finish(aliasSymId, ResolutionKind.Type);
+      pendingResolutions.start(aliasSymId, ResolutionKind.Type);
 
-    return type;
+      const type = checkNode(node.value!, mapper);
+      if (type === null) {
+        links.declaredType = errorType;
+        return errorType;
+      }
+      if (isValue(type)) {
+        reportCheckerDiagnostic(createDiagnostic({ code: "value-in-type", target: node.value! }));
+        links.declaredType = errorType;
+        return errorType;
+      }
+      linkType(links, type as any, mapper);
+      pendingResolutions.finish(aliasSymId, ResolutionKind.Type);
+
+      return type;
+    }
   }
 
   function checkConst(node: ConstStatementNode): Value | null {

@@ -3,3 +3,7 @@ import "./types.tsp";
 import "./decorators.tsp";
 import "./reflection.tsp";
 import "./visibility.tsp";
+
+namespace TypeSpec {
+extern alias Example<T>;
+}

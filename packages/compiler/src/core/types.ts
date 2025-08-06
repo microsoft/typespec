@@ -53,6 +53,10 @@ export interface DecoratorFunction {
   namespace?: string;
 }
 
+export interface TemplateFunction {
+  (program: TemplateContext, mapper: TypeMapper): void;
+}
+
 export interface BaseType {
   readonly entityKind: "Type";
   kind: string;
@@ -1454,8 +1458,9 @@ export interface EnumSpreadMemberNode extends BaseNode {
 
 export interface AliasStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.AliasStatement;
-  readonly value: Expression;
+  readonly value?: Expression;
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
+  readonly modifiers: ModifierFlags;
 }
 
 export interface ConstStatementNode extends BaseNode, DeclarationNode {
@@ -2309,6 +2314,12 @@ export interface DecoratorImplementations {
   };
 }
 
+export interface TemplateImplementations {
+  readonly [namespace: string]: {
+    readonly [name: string]: TemplateFunction;
+  };
+}
+
 export interface PackageFlags {}
 
 export interface LinterDefinition {
@@ -2453,6 +2464,10 @@ export interface DecoratorContext {
     target: T,
     ...args: A
   ): R;
+}
+
+export interface TemplateContext {
+  program: Program;
 }
 
 export interface EmitContext<TOptions extends object = Record<string, never>> {

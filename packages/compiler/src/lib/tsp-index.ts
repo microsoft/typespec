@@ -1,4 +1,7 @@
 import { TypeSpecDecorators } from "../../generated-defs/TypeSpec.js";
+import { Program } from "../core/program.js";
+import { Type, TypeMapper } from "../core/types.js";
+import { $ } from "../typekit/index.js";
 import {
   $discriminator,
   $doc,
@@ -121,6 +124,25 @@ export const $decorators = {
     firstLink: firstLinkDecorator,
     lastLink: lastLinkDecorator,
   } satisfies TypeSpecDecorators,
+};
+
+let COUNTER = 0;
+
+export const $templates = {
+  TypeSpec: {
+    Example(program: Program, mapper: TypeMapper): Type {
+      const argEntity = mapper.args[0];
+
+      if (argEntity.entityKind === "Value") {
+        throw new Error("Example template must be used with a type argument.");
+      }
+
+      const argType = argEntity.entityKind === "Indeterminate" ? argEntity.type : argEntity;
+      return $(program).array.create(
+        $(program).tuple.create([$(program).literal.create(COUNTER++), argType]),
+      );
+    },
+  },
 };
 
 export const namespace = "TypeSpec";

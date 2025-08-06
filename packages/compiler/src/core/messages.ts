@@ -1014,6 +1014,27 @@ const diagnostics = {
     },
   },
 
+  "alias-no-value": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Alias type '${"typeName"}' must have a value or be marked as 'extern'.`,
+    },
+  },
+
+  "alias-extern-value": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Alias type '${"typeName"}' cannot have a value when marked as 'extern'.`,
+    },
+  },
+
+  "alias-extern-no-impl": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Alias type '${"typeName"}' marked as 'extern' must have an associated JS implementation.`,
+    },
+  },
+
   // #region Visibility
   "visibility-sealed": {
     severity: "error",

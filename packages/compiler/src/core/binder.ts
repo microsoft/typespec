@@ -33,6 +33,7 @@ import {
   SymbolFlags,
   SymbolTable,
   SyntaxKind,
+  TemplateImplementations,
   TemplateParameterDeclarationNode,
   TypeSpecScriptNode,
   UnionStatementNode,
@@ -133,7 +134,7 @@ export function createBinder(program: Program): Binder {
 
     for (const [key, member] of Object.entries(sourceFile.esmExports)) {
       let name: string;
-      let kind: "decorator" | "function";
+      let kind: "decorator" | "function" | "template";
       if (key === "$flags") {
         const context = getLocationContext(program, sourceFile);
         if (context.type === "library" || context.type === "project") {
@@ -148,6 +149,19 @@ export function createBinder(program: Program): Binder {
               "decorator",
               decoratorName,
               decorator,
+              sourceFile,
+            );
+          }
+        }
+      } else if (key === "$templates") {
+        const value: TemplateImplementations = member as any;
+        for (const [namespaceName, templates] of Object.entries(value)) {
+          for (const [templateName, template] of Object.entries(templates)) {
+            bindFunctionImplementation(
+              namespaceName === "" ? [] : namespaceName.split("."),
+              "template",
+              templateName,
+              template,
               sourceFile,
             );
           }
@@ -182,7 +196,7 @@ export function createBinder(program: Program): Binder {
 
   function bindFunctionImplementation(
     nsParts: string[],
-    kind: "decorator" | "function",
+    kind: "decorator" | "function" | "template",
     name: string,
     fn: (...args: any[]) => any,
     sourceFile: JsSourceFileNode,
@@ -238,6 +252,14 @@ export function createBinder(program: Program): Binder {
         sourceFile,
         "@" + name,
         SymbolFlags.Decorator | SymbolFlags.Declaration | SymbolFlags.Implementation,
+        containerSymbol,
+      );
+    } else if (kind === "template") {
+      tracer.trace("template", `Bound template "${name}" in namespace "${nsParts.join(".")}".`);
+      sym = createSymbol(
+        sourceFile,
+        name,
+        SymbolFlags.Alias | SymbolFlags.Declaration | SymbolFlags.Implementation,
         containerSymbol,
       );
     } else {

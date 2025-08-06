@@ -456,10 +456,6 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         case Token.EnumKeyword:
           item = parseEnumStatement(pos, decorators);
           break;
-        case Token.AliasKeyword:
-          reportInvalidDecorators(decorators, "alias statement");
-          item = parseAliasStatement(pos);
-          break;
         case Token.ConstKeyword:
           reportInvalidDecorators(decorators, "const statement");
           item = parseConstStatement(pos);
@@ -476,7 +472,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         case Token.ExternKeyword:
         case Token.FnKeyword:
         case Token.DecKeyword:
-          item = parseDeclaration(pos);
+        case Token.AliasKeyword:
+          item = parseDeclaration(pos, decorators);
           break;
         default:
           item = parseInvalidStatement(pos, decorators);
@@ -556,10 +553,6 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         case Token.EnumKeyword:
           item = parseEnumStatement(pos, decorators);
           break;
-        case Token.AliasKeyword:
-          reportInvalidDecorators(decorators, "alias statement");
-          item = parseAliasStatement(pos);
-          break;
         case Token.ConstKeyword:
           reportInvalidDecorators(decorators, "const statement");
           item = parseConstStatement(pos);
@@ -571,7 +564,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         case Token.ExternKeyword:
         case Token.FnKeyword:
         case Token.DecKeyword:
-          item = parseDeclaration(pos);
+        case Token.AliasKeyword:
+          item = parseDeclaration(pos, decorators);
           break;
         case Token.EndOfFile:
           parseExpected(Token.CloseBrace);
@@ -1222,22 +1216,37 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
-  function parseAliasStatement(pos: number): AliasStatementNode {
+  function parseAliasStatement(pos: number, modifiers: Modifier[]): AliasStatementNode {
+    const modifierFlags = modifiersToFlags(modifiers);
     parseExpected(Token.AliasKeyword);
     const id = parseIdentifier();
     const { items: templateParameters, range: templateParametersRange } =
       parseTemplateParameterList();
-    parseExpected(Token.Equals);
-    const value = parseExpression();
-    parseExpected(Token.Semicolon);
-    return {
-      kind: SyntaxKind.AliasStatement,
-      id,
-      templateParameters,
-      templateParametersRange,
-      value,
-      ...finishNode(pos),
-    };
+
+    const nextTok = parseExpectedOneOf(Token.Equals, Token.Semicolon);
+
+    if (nextTok === Token.Semicolon) {
+      return {
+        kind: SyntaxKind.AliasStatement,
+        id,
+        templateParameters,
+        templateParametersRange,
+        modifiers: modifierFlags,
+        ...finishNode(pos),
+      };
+    } else {
+      const value = parseExpression();
+      parseExpected(Token.Semicolon);
+      return {
+        kind: SyntaxKind.AliasStatement,
+        id,
+        templateParameters,
+        templateParametersRange,
+        value,
+        modifiers: modifierFlags,
+        ...finishNode(pos),
+      };
+    }
   }
 
   function parseConstStatement(pos: number): ConstStatementNode {
@@ -1985,13 +1994,21 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
   function parseDeclaration(
     pos: number,
-  ): DecoratorDeclarationStatementNode | FunctionDeclarationStatementNode | InvalidStatementNode {
+    decorators: DecoratorExpressionNode[],
+  ):
+    | DecoratorDeclarationStatementNode
+    | FunctionDeclarationStatementNode
+    | AliasStatementNode
+    | InvalidStatementNode {
     const modifiers = parseModifiers();
     switch (token()) {
       case Token.DecKeyword:
         return parseDecoratorDeclarationStatement(pos, modifiers);
       case Token.FnKeyword:
         return parseFunctionDeclarationStatement(pos, modifiers);
+      case Token.AliasKeyword:
+        reportInvalidDecorators(decorators, "alias statement");
+        return parseAliasStatement(pos, modifiers);
     }
     return parseInvalidStatement(pos, []);
   }

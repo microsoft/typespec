@@ -592,7 +592,7 @@ export function createResolver(program: Program): NameResolver {
       };
     }
 
-    if (node.value.kind === SyntaxKind.TypeReference) {
+    if (node.value?.kind === SyntaxKind.TypeReference) {
       const result = resolveTypeReference(node.value);
       if (result.finalSymbol && result.finalSymbol.flags & SymbolFlags.Alias) {
         const aliasLinks = getSymbolLinks(result.finalSymbol);
@@ -610,7 +610,7 @@ export function createResolver(program: Program): NameResolver {
         resolutionResult: slinks.aliasResolutionResult,
         isTemplateInstantiation: result.isTemplateInstantiation,
       };
-    } else if (node.value.symbol) {
+    } else if (node.value?.symbol) {
       // a type literal
       slinks.aliasedSymbol = node.value.symbol;
       slinks.aliasResolutionResult = ResolutionResultFlags.Resolved;
@@ -1100,6 +1100,8 @@ export function createResolver(program: Program): NameResolver {
         mergeDeclarationOrImplementation(key, sourceBinding, target, SymbolFlags.Decorator);
       } else if (sourceBinding.flags & SymbolFlags.Function) {
         mergeDeclarationOrImplementation(key, sourceBinding, target, SymbolFlags.Function);
+      } else if (sourceBinding.flags & SymbolFlags.Alias) {
+        mergeDeclarationOrImplementation(key, sourceBinding, target, SymbolFlags.Alias);
       } else {
         target.set(key, sourceBinding);
       }
@@ -1117,6 +1119,7 @@ export function createResolver(program: Program): NameResolver {
       target.set(key, sourceBinding);
       return;
     }
+
     const isSourceImplementation = sourceBinding.flags & SymbolFlags.Implementation;
     const isTargetImplementation = targetBinding.flags & SymbolFlags.Implementation;
     if (!isTargetImplementation && isSourceImplementation) {
