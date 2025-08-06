@@ -151,6 +151,11 @@ try {
         $ErrorActionPreference = "Continue"
         try {
             Invoke "npm install" $httpClientDir
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warning "npm install failed with exit code $LASTEXITCODE, skipping generation."
+                Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+                $installSucceeded = $false
+            }
         } catch {
             Write-Warning "npm install failed: $($_.Exception.Message), skipping generation."
             $installSucceeded = $false
@@ -195,7 +200,7 @@ try {
     }
     
     # Generate emitter-package.json files using tsp-client if TypeSpec package.json is provided
-    if ($TypeSpecSourcePackageJsonPath -and $installSucceeded -and (Test-Path $TypeSpecSourcePackageJsonPath)) {
+    if ($TypeSpecSourcePackageJsonPath -and (Test-Path $TypeSpecSourcePackageJsonPath)) {
         Write-Host "Generating emitter-package.json files using tsp-client..."
         $configFilesOutputDir = Join-Path $tempDir "eng"
         $emitterPackageJsonPath = Join-Path $configFilesOutputDir "http-client-csharp-emitter-package.json"
