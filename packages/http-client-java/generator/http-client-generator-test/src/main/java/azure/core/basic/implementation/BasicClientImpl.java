@@ -250,8 +250,8 @@ public final class BasicClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<Void>> delete(@HostParam("endpoint") String endpoint,
-            @QueryParam("api-version") String apiVersion, @PathParam("id") int id, @HeaderParam("Accept") String accept,
-            RequestOptions requestOptions, Context context);
+            @QueryParam("api-version") String apiVersion, @PathParam("id") int id, RequestOptions requestOptions,
+            Context context);
 
         @Delete("/azure/core/basic/users/{id}")
         @ExpectedResponses({ 204 })
@@ -260,8 +260,7 @@ public final class BasicClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> deleteSync(@HostParam("endpoint") String endpoint, @QueryParam("api-version") String apiVersion,
-            @PathParam("id") int id, @HeaderParam("Accept") String accept, RequestOptions requestOptions,
-            Context context);
+            @PathParam("id") int id, RequestOptions requestOptions, Context context);
 
         @Post("/azure/core/basic/users/{id}:export")
         @ExpectedResponses({ 200 })
@@ -919,9 +918,8 @@ public final class BasicClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> deleteWithResponseAsync(int id, RequestOptions requestOptions) {
-        final String accept = "application/json";
         return FluxUtil.withContext(context -> service.delete(this.getEndpoint(), this.getServiceVersion().getVersion(),
-            id, accept, requestOptions, context));
+            id, requestOptions, context));
     }
 
     /**
@@ -939,8 +937,7 @@ public final class BasicClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> deleteWithResponse(int id, RequestOptions requestOptions) {
-        final String accept = "application/json";
-        return service.deleteSync(this.getEndpoint(), this.getServiceVersion().getVersion(), id, accept, requestOptions,
+        return service.deleteSync(this.getEndpoint(), this.getServiceVersion().getVersion(), id, requestOptions,
             Context.NONE);
     }
 

@@ -4,7 +4,6 @@ import authentication.oauth2.InvalidAuth;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
@@ -111,8 +110,7 @@ public final class OAuth2ClientImpl {
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail(statusCode = { 403 }, exceptionBodyClass = InvalidAuth.class)
         @UnexpectedResponseExceptionDetail
-        Response<Void> invalid(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
+        Response<Void> invalid(@HostParam("endpoint") String endpoint, RequestContext requestContext);
     }
 
     /**
@@ -145,8 +143,7 @@ public final class OAuth2ClientImpl {
     public Response<Void> invalidWithResponse(RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Authentication.OAuth2.invalid", requestContext,
             updatedContext -> {
-                final String accept = "application/json";
-                return service.invalid(this.getEndpoint(), accept, updatedContext);
+                return service.invalid(this.getEndpoint(), updatedContext);
             });
     }
 }
