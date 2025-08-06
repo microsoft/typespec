@@ -60,11 +60,11 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? summary = null;
             string? doc = null;
             string? usageString = null;
-            InputProperty? discriminatorProperty = null;
+            InputModelProperty? discriminatorProperty = null;
             string? discriminatorValue = null;
             InputType? additionalProperties = null;
             InputModelType? baseModel = null;
-            IReadOnlyList<InputProperty>? properties = null;
+            IReadOnlyList<InputModelProperty>? properties = null;
             IReadOnlyDictionary<string, InputModelType>? discriminatedSubtypes = null;
             bool modelAsStruct = false;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;

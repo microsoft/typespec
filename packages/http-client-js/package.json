@@ -1,9 +1,10 @@
 {
   "name": "@typespec/http-client-js",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "type": "module",
   "homepage": "https://typespec.io",
   "readme": "https://github.com/microsoft/typespec/blob/main/packages/http-client-js/README.md",
+  "main": "dist/src/index.js",
   "scripts": {
     "build": "alloy build",
     "clean": "rimraf ./dist",
@@ -52,20 +53,20 @@
     "@typespec/rest": "workspace:^"
   },
   "dependencies": {
-    "@alloy-js/core": "^0.18.2",
-    "@alloy-js/typescript": "^0.18.0",
+    "@alloy-js/core": "^0.19.0",
+    "@alloy-js/typescript": "^0.19.0",
     "@typespec/emitter-framework": "workspace:^",
     "@typespec/http-client": "workspace:^",
-    "prettier": "~3.5.3"
+    "prettier": "~3.6.2"
   },
   "devDependencies": {
-    "@alloy-js/cli": "^0.18.0",
+    "@alloy-js/cli": "^0.19.0",
     "@alloy-js/rollup-plugin": "^0.1.0",
     "@types/yargs": "~17.0.33",
     "@typespec/http": "workspace:^",
     "@typespec/http-specs": "workspace:^",
     "@typespec/spector": "workspace:^",
-    "@typespec/ts-http-runtime": "0.2.3",
+    "@typespec/ts-http-runtime": "0.3.0",
     "@typespec/tspd": "workspace:^",
     "@typespec/versioning": "workspace:^",
     "@vitest/ui": "^3.1.2",

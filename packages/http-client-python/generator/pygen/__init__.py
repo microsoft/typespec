@@ -25,10 +25,10 @@ class OptionsDict(MutableMapping):
         "azure-arm": False,
         "basic-setup-py": False,
         "client-side-validation": False,
-        "emit-cross-language-definition-file": False,
         "flavor": "azure",  # need to default to azure in shared code so we don't break swagger generation
         "from-typespec": False,
         "generate-sample": False,
+        "keep-setup-py": False,
         "generate-test": False,
         "head-as-boolean": True,
         "keep-version-file": False,
@@ -39,13 +39,14 @@ class OptionsDict(MutableMapping):
         "polymorphic-examples": 5,
         "validate-versioning": True,
         "version-tolerant": True,
+        "generation-subdir": None,  # subdirectory to generate the code in
     }
 
     def __init__(self, options: Optional[Dict[str, Any]] = None) -> None:
         self._data = options.copy() if options else {}
         self._validate_combinations()
 
-    def __getitem__(self, key: str) -> Any:
+    def __getitem__(self, key: str) -> Any: # pylint: disable=too-many-return-statements
         if key == "head-as-boolean" and self.get("azure-arm"):
             # override to always true if azure-arm is set
             return True
@@ -60,6 +61,15 @@ class OptionsDict(MutableMapping):
         if key == "package-mode" and self._data.get("packaging-files-dir"):
             # if packaging-files-dir is set, use it as package-mode
             return self._data["packaging-files-dir"]
+        if key == "generation-subdir":
+            data = self._data.get("generation-subdir")
+            if data:
+                # Remove leading dot or ./ from generation-subdir
+                if data.startswith("./"):
+                    data = data[2:]
+                elif data.startswith("."):
+                    data = data[1:]
+            return data
         return self._get_default(key)
 
     def __setitem__(self, key: str, value: Any) -> None:
@@ -106,6 +116,8 @@ class OptionsDict(MutableMapping):
                 models_mode_default = "dpg"
             # switch to falsy value for easier code writing
             return models_mode_default
+        if key == "emit-cross-language-definition-file":
+            return self.get("flavor") == "azure"
         return self.DEFAULTS[key]
 
     def _validate_combinations(self) -> None:
@@ -133,6 +145,10 @@ class OptionsDict(MutableMapping):
                 "Can not currently generate version tolerant multiapi SDKs. "
                 "We are working on creating a new multiapi SDK for version tolerant and it is not available yet."
             )
+
+        # If multiapi, do not generate default pyproject.toml
+        if self.get("multiapi"):
+            self["keep-setup-py"] = True
 
         if self.get("client-side-validation") and self.get("version-tolerant"):
             raise ValueError("Can not generate version tolerant with --client-side-validation. ")
@@ -210,6 +226,9 @@ class ReaderAndWriter:
             _LOGGER.warning("Loading python.json file. This behavior will be depreacted")
         self.options.update(python_json)
 
+    def get_output_folder(self) -> Path:
+        return self.output_folder
+
     def read_file(self, path: Union[str, Path]) -> str:
         """Directly reading from disk"""
         # make path relative to output folder
@@ -226,6 +245,14 @@ class ReaderAndWriter:
             Path.mkdir(self.output_folder / file_folder, parents=True)
         with open(self.output_folder / Path(filename), "w", encoding="utf-8") as fd:
             fd.write(file_content)
+
+    def remove_file(self, filename: Union[str, Path]) -> None:
+        try:
+            file_path = self.output_folder / Path(filename)
+            if file_path.is_file():
+                file_path.unlink()
+        except FileNotFoundError:
+            pass
 
     def list_file(self) -> List[str]:
         return [str(f.relative_to(self.output_folder)) for f in self.output_folder.glob("**/*") if f.is_file()]

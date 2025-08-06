@@ -6,6 +6,9 @@ using System.ClientModel.Primitives;
 
 namespace _Type.Model.Usage
 {
+    [ModelReaderWriterBuildable(typeof(InputRecord))]
+    [ModelReaderWriterBuildable(typeof(OutputRecord))]
+    [ModelReaderWriterBuildable(typeof(InputOutputRecord))]
     public partial class _TypeModelUsageContext : ModelReaderWriterContext
     {
     }

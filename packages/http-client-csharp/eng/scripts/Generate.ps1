@@ -7,6 +7,9 @@ param(
 
 Import-Module "$PSScriptRoot\Generation.psm1" -DisableNameChecking -Force;
 
+# Start overall timer
+$totalStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+
 $packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
 $solutionDir = Join-Path $packageRoot 'generator'
 
@@ -23,24 +26,24 @@ if (-not $LaunchOnly) {
 
         Write-Host "Installing SampleTypeSpec plugins" -ForegroundColor Cyan
 
-        Invoke "npm install" $sampleDir
+        Invoke "npm install --force" $sampleDir
 
-        Write-Host "Generating SampleTypeSpec using plugins" -ForegroundColor Cyan
+#        Write-Host "Generating SampleTypeSpec using plugins" -ForegroundColor Cyan
+#
+#        Invoke "npx tsp compile . --trace @typespec/http-client-csharp" $sampleDir
+#
+#        # exit if the generation failed
+#        if ($LASTEXITCODE -ne 0) {
+#          exit $LASTEXITCODE
+#        }
 
-        Invoke "npx tsp compile . --trace @typespec/http-client-csharp" $sampleDir
-
-        # exit if the generation failed
-        if ($LASTEXITCODE -ne 0) {
-          exit $LASTEXITCODE
-        }
-
-        Write-Host "Building SampleTypeSpec plugin library" -ForegroundColor Cyan
-        Invoke "dotnet build $sampleDir/SampleClient/src/SampleTypeSpec.csproj"
-
-        # exit if the generation failed
-        if ($LASTEXITCODE -ne 0) {
-          exit $LASTEXITCODE
-        }
+#        Write-Host "Building SampleTypeSpec plugin library" -ForegroundColor Cyan
+#        Invoke "dotnet build $sampleDir/SampleClient/src/SampleTypeSpec.csproj"
+#
+#        # exit if the generation failed
+#        if ($LASTEXITCODE -ne 0) {
+#          exit $LASTEXITCODE
+#        }
 
         Write-Host "Generating SampleTypeSpec" -ForegroundColor Cyan
         $testProjectsLocalDir = Join-Path $packageRoot 'generator' 'TestProjects' 'Local'
@@ -210,7 +213,12 @@ if ($null -eq $filter) {
     }
 
     # Write the launch settings to the launchSettings.json file
-    $launchSettingsPath = Join-Path $solutionDir "Microsoft.TypeSpec.Generator" "src" "Properties" "launchSettings.json"
-    # Write the settings to JSON and normalize line endings to Unix style (LF)
-    $sortedLaunchSettings | ConvertTo-Json | ForEach-Object { ($_ -replace "`r`n", "`n") + "`n" } | Set-Content -NoNewLine $launchSettingsPath
+    Set-LaunchSettings $sortedLaunchSettings
 }
+
+# Stop total timer
+$totalStopwatch.Stop()
+
+# Display timing summary
+Write-Host "`n==================== TIMING SUMMARY ====================" -ForegroundColor Cyan
+Write-Host "Total execution time: $($totalStopwatch.Elapsed.ToString('hh\:mm\:ss\.ff'))" -ForegroundColor Yellow

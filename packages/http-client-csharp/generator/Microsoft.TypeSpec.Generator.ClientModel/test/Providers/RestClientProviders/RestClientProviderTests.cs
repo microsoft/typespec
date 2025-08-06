@@ -541,7 +541,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             [
                 InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
             ]);
-            var pagingMetadata = InputFactory.NextLinkPagingMetadata("cats", "nextCat", InputResponseLocation.Header);
+            var pagingMetadata = InputFactory.NextLinkPagingMetadata(["cats"], ["nextCat"], InputResponseLocation.Header);
             var response = InputFactory.OperationResponse(
                 [200],
                 InputFactory.Model(
@@ -583,7 +583,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             [
                 InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
             ]);
-            var pagingMetadata = InputFactory.NextLinkPagingMetadata("cats", "nextCat", InputResponseLocation.Header, [p1, p2, p3]);
+            var pagingMetadata = InputFactory.NextLinkPagingMetadata(["cats"], ["nextCat"], InputResponseLocation.Header, [p1, p2, p3]);
             var response = InputFactory.OperationResponse(
                 [200],
                 InputFactory.Model(

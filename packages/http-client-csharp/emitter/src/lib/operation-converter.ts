@@ -3,12 +3,15 @@
 
 import {
   getHttpOperationParameter,
+  isHttpMetadata,
   SdkBuiltInKinds,
   SdkContext,
   SdkHttpOperation,
+  SdkHttpParameter,
   SdkHttpResponse,
   SdkLroPagingServiceMethod,
   SdkLroServiceMethod,
+  SdkMethodParameter,
   SdkMethodResponse,
   SdkModelPropertyType,
   SdkPagingServiceMethod,
@@ -263,7 +266,7 @@ function fromSdkServiceMethodParameters(
   const parameters: InputParameter[] = [];
 
   for (const p of method.parameters) {
-    const methodInputParameter = fromParameter(sdkContext, p, rootApiVersions);
+    const methodInputParameter = fromMethodParameter(sdkContext, p);
     const operationHttpParameter = getHttpOperationParameter(method, p);
 
     if (!operationHttpParameter) {
@@ -272,7 +275,12 @@ function fromSdkServiceMethodParameters(
     }
 
     // post-process the method parameter with information from the operation parameter
-    updateMethodParameter(sdkContext, methodInputParameter, operationHttpParameter);
+    updateMethodParameter(
+      sdkContext,
+      methodInputParameter,
+      operationHttpParameter,
+      rootApiVersions,
+    );
     parameters.push(methodInputParameter);
   }
 
@@ -282,10 +290,22 @@ function fromSdkServiceMethodParameters(
 function updateMethodParameter(
   sdkContext: CSharpEmitterContext,
   methodParameter: InputParameter,
-  operationHttpParameter: SdkModelPropertyType,
+  operationHttpParameter: SdkHttpParameter | SdkModelPropertyType,
+  rootApiVersions: string[],
 ): void {
-  // Update the location based on the operation parameter
+  methodParameter.nameInRequest = getNameInRequest(operationHttpParameter);
+  methodParameter.isContentType = isContentType(operationHttpParameter);
+  methodParameter.arraySerializationDelimiter =
+    getArraySerializationDelimiter(operationHttpParameter);
   methodParameter.location = getParameterLocation(operationHttpParameter);
+  methodParameter.kind = getParameterKind(
+    operationHttpParameter,
+    methodParameter.type,
+    rootApiVersions.length > 0,
+  );
+  if (operationHttpParameter.kind !== "property") {
+    methodParameter.explode = isExploded(operationHttpParameter);
+  }
   if (methodParameter.location === RequestLocation.Body) {
     // Convert constants to enums
     if (methodParameter.type.kind === "constant") {
@@ -334,42 +354,29 @@ function fromSdkOperationParameters(
 
 export function fromParameter(
   sdkContext: CSharpEmitterContext,
-  p: SdkModelPropertyType,
+  p: SdkHttpParameter | SdkModelPropertyType,
   rootApiVersions: string[],
 ): InputParameter {
-  let retVar = sdkContext.__typeCache.properties.get(p);
+  let retVar = sdkContext.__typeCache.operationParameters.get(p);
   if (retVar) {
     return retVar as InputParameter;
   }
 
-  const isContentType =
-    p.kind === "header" && p.serializedName.toLocaleLowerCase() === "content-type";
   const parameterType = fromSdkType(sdkContext, p.type);
-  const format = p.kind === "header" || p.kind === "query" ? p.collectionFormat : undefined;
-
-  // use serializedName if available, but fallback to name
-  // special case for body as the name is incorrectly set to "body" https://github.com/Azure/typespec-azure/issues/2292
-  const serializedName =
-    "serializedName" in p && p.kind !== "body" ? (p.serializedName ?? p.name) : p.name;
-
-  // TODO: In addition to checking if a path parameter is exploded, we should consider capturing the delimiter for
-  // any path expansion to ensure the parameter values are delimited correctly during serialization.
-  // https://github.com/microsoft/typespec/issues/5561
-  const explode = isExplodedParameter(p);
 
   retVar = {
     name: p.name,
-    nameInRequest: p.kind === "header" ? normalizeHeaderName(serializedName) : serializedName,
+    nameInRequest: getNameInRequest(p),
     summary: p.summary,
     doc: p.doc,
     type: parameterType,
     location: getParameterLocation(p),
     isApiVersion:
       p.name.toLocaleLowerCase() === "apiversion" || p.name.toLocaleLowerCase() === "api-version", // TODO -- we should use `isApiVersionParam` instead
-    isContentType: isContentType,
+    isContentType: isContentType(p),
     isEndpoint: false,
-    explode: explode,
-    arraySerializationDelimiter: format ? collectionFormatToDelimMap[format] : undefined,
+    explode: isExploded(p),
+    arraySerializationDelimiter: getArraySerializationDelimiter(p),
     isRequired: !p.optional,
     kind: getParameterKind(p, parameterType, rootApiVersions.length > 0),
     defaultValue: getParameterDefaultValue(sdkContext, p.clientDefaultValue, parameterType),
@@ -377,7 +384,42 @@ export function fromParameter(
     skipUrlEncoding: p.kind === "path" ? p.allowReserved : false,
   };
 
-  sdkContext.__typeCache.updateSdkPropertyReferences(p, retVar);
+  sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
+  return retVar;
+}
+
+export function fromMethodParameter(
+  sdkContext: CSharpEmitterContext,
+  p: SdkMethodParameter,
+): InputParameter {
+  let retVar = sdkContext.__typeCache.methodParmeters.get(p);
+  if (retVar) {
+    return retVar as InputParameter;
+  }
+
+  const parameterType = fromSdkType(sdkContext, p.type);
+  const serializedName = p.name;
+
+  retVar = {
+    name: p.name,
+    nameInRequest: serializedName,
+    summary: p.summary,
+    doc: p.doc,
+    type: parameterType,
+    location: RequestLocation.None,
+    isApiVersion: p.isApiVersionParam,
+    isContentType: false,
+    isEndpoint: false,
+    explode: false,
+    arraySerializationDelimiter: undefined,
+    isRequired: !p.optional,
+    kind: InputParameterKind.Method,
+    defaultValue: getParameterDefaultValue(sdkContext, p.clientDefaultValue, parameterType),
+    decorators: p.decorators,
+    skipUrlEncoding: false,
+  };
+
+  sdkContext.__typeCache.updateSdkMethodParameterReferences(p, retVar);
   return retVar;
 }
 
@@ -396,7 +438,7 @@ function loadLongRunningMetadata(
           ? fromSdkType(sdkContext, method.lroMetadata.finalResponse.envelopeResult)
           : undefined,
     } as OperationResponse,
-    resultPath: method.lroMetadata.finalResponse?.resultPath,
+    resultPath: method.lroMetadata.finalResultPath,
   };
 }
 
@@ -527,13 +569,15 @@ function loadPagingServiceMetadata(
     ) {
       const nextLinkReInjectedParameters = [];
       for (const parameterSegments of method.pagingMetadata.nextLinkReInjectedParametersSegments) {
-        const lastParameterSegment = parameterSegments[
-          parameterSegments.length - 1
-        ] as SdkModelPropertyType;
-        const operationParameter = getHttpOperationParameter(method, lastParameterSegment);
-        if (operationParameter) {
-          const parameter = fromParameter(context, operationParameter, rootApiVersions);
-          nextLinkReInjectedParameters.push(parameter);
+        if (parameterSegments?.length > 0) {
+          const lastParameterSegment = parameterSegments[
+            parameterSegments.length - 1
+          ] as SdkModelPropertyType;
+          const operationParameter = getHttpOperationParameter(method, lastParameterSegment);
+          if (operationParameter) {
+            const parameter = fromParameter(context, operationParameter, rootApiVersions);
+            nextLinkReInjectedParameters.push(parameter);
+          }
         }
       }
       nextLink.reInjectedParameters = nextLinkReInjectedParameters;
@@ -575,36 +619,43 @@ function loadPagingServiceMetadata(
   };
 }
 
-function getResponseSegmentName(segment: SdkModelPropertyType): string {
-  return segment.kind === "responseheader" || segment.kind === "body"
-    ? segment.serializedName
-    : segment.name;
+function getResponseSegmentName(segment: SdkServiceResponseHeader | SdkModelPropertyType): string {
+  if (segment.kind === "responseheader") {
+    return segment.serializedName;
+  }
+  const serializedName =
+    segment.serializationOptions?.json?.name ??
+    segment.serializationOptions?.xml?.name ??
+    segment.serializationOptions?.multipart?.name;
+
+  return serializedName ?? segment.name;
 }
 
 function getResponseLocation(
   context: CSharpEmitterContext,
   method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
-  p: SdkModelPropertyType,
+  p: SdkServiceResponseHeader | SdkModelPropertyType,
 ): ResponseLocation {
-  switch (p?.kind) {
-    case "responseheader":
-      return ResponseLocation.Header;
-    case "property":
-      return ResponseLocation.Body;
-    default:
-      context.logger.reportDiagnostic({
-        code: "unsupported-continuation-location",
-        format: {
-          crossLanguageDefinitionId: method.crossLanguageDefinitionId,
-        },
-        target: NoTarget,
-      });
-      return ResponseLocation.None;
+  if (p.kind === "responseheader") {
+    return ResponseLocation.Header;
   }
+
+  if (isHttpMetadata(context, p)) {
+    context.logger.reportDiagnostic({
+      code: "unsupported-continuation-location",
+      format: {
+        crossLanguageDefinitionId: method.crossLanguageDefinitionId,
+      },
+      target: NoTarget,
+    });
+    return ResponseLocation.None;
+  }
+
+  return ResponseLocation.Body;
 }
 
 // TODO: https://github.com/Azure/typespec-azure/issues/1441
-function getParameterLocation(p: SdkModelPropertyType): RequestLocation {
+function getParameterLocation(p: SdkHttpParameter | SdkModelPropertyType): RequestLocation {
   switch (p?.kind) {
     case "path":
       return RequestLocation.Path;
@@ -621,7 +672,7 @@ function getParameterLocation(p: SdkModelPropertyType): RequestLocation {
 }
 
 function getParameterKind(
-  p: SdkModelPropertyType,
+  p: SdkHttpParameter | SdkModelPropertyType,
   type: InputType,
   hasGlobalApiVersion: boolean,
 ): InputParameterKind {
@@ -678,6 +729,32 @@ function normalizeHeaderName(name: string): string {
   }
 }
 
-function isExplodedParameter(p: SdkModelPropertyType): boolean {
+function isExploded(p: SdkHttpParameter | SdkModelPropertyType): boolean {
   return (p.kind === "path" || p.kind === "query") && p.explode === true;
+}
+
+function isContentType(p: SdkHttpParameter | SdkModelPropertyType): boolean {
+  return p.kind === "header" && p.serializedName.toLocaleLowerCase() === "content-type";
+}
+
+function getCollectionFormat(p: SdkHttpParameter | SdkModelPropertyType): string | undefined {
+  return p.kind === "header" || p.kind === "query" ? p.collectionFormat : undefined;
+}
+
+function getSerializedName(p: SdkHttpParameter | SdkModelPropertyType): string {
+  // use serializedName if available, but fallback to name
+  // special case for body as the name is incorrectly set to "body" https://github.com/Azure/typespec-azure/issues/2292
+  return "serializedName" in p && p.kind !== "body" ? (p.serializedName ?? p.name) : p.name;
+}
+
+function getNameInRequest(p: SdkHttpParameter | SdkModelPropertyType): string {
+  const serializedName = getSerializedName(p);
+  return p.kind === "header" ? normalizeHeaderName(serializedName) : serializedName;
+}
+
+function getArraySerializationDelimiter(
+  p: SdkHttpParameter | SdkModelPropertyType,
+): string | undefined {
+  const format = getCollectionFormat(p);
+  return format ? collectionFormatToDelimMap[format] : undefined;
 }

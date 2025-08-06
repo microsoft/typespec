@@ -18,7 +18,7 @@ function Invoke($command, $executePath=$packageRoot)
         Pop-Location
     }
 
-    if ($LastExitCode -ne 0)
+    if($LastExitCode -ne 0)
     {
         Write-Error "Command failed to execute: $command"
     }
@@ -174,6 +174,14 @@ function Generate-Versioning {
     }
 }
 
+function Set-LaunchSettings {
+  param([object]$LaunchSettings)
+
+  $packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
+  $launchSettingsPath = Join-Path $packageRoot 'generator' 'Microsoft.TypeSpec.Generator' 'src' 'Properties' 'launchSettings.json'
+  $content = $LaunchSettings | ConvertTo-Json | ForEach-Object { ($_ -replace "`r`n", "`n") + "`n" }
+  Set-Content $launchSettingsPath $content -NoNewLine
+}
 
 Export-ModuleMember -Function "Invoke"
 Export-ModuleMember -Function "Get-TspCommand"
@@ -181,3 +189,4 @@ Export-ModuleMember -Function "Refresh-Build"
 Export-ModuleMember -Function "Compare-Paths"
 Export-ModuleMember -Function "Generate-Srv-Driven"
 Export-ModuleMember -Function "Generate-Versioning"
+Export-ModuleMember -Function "Set-LaunchSettings"
