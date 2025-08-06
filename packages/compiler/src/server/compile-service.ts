@@ -16,7 +16,7 @@ import { parse } from "../core/parser.js";
 import { getDirectoryPath } from "../core/path-utils.js";
 import { compile as compileProgram, Program } from "../core/program.js";
 import type { CompilerHost, TypeSpecScriptNode } from "../core/types.js";
-import { getEntrypointFile } from "../internals/entry-point-file.js";
+import { resolveEntrypointFile } from "./entry-point-resolve.js";
 import { getLocationInYamlScript } from "../yaml/diagnostics.js";
 import { parseYaml } from "../yaml/parser.js";
 import { ClientConfigProvider } from "./client-config-provider.js";
@@ -307,10 +307,10 @@ export function createCompileService({
    * change to the file at the given path. This is necessary because different
    * results can be obtained from compiling the same file with different entry
    * points.
-   * 
-   * Priority is given to processing user-defined files as the entry point, 
+   *
+   * Priority is given to processing user-defined files as the entry point,
    * and it has the highest priority.
-   * 
+   *
    * Walk directory structure upwards looking for package.json with tspMain or
    * main.tsp file. Stop search when reaching a workspace root. If a root is
    * reached without finding an entry point, use the given path as its own
@@ -327,6 +327,9 @@ export function createCompileService({
     }
 
     const entrypoints = clientConfigsProvider?.config?.entrypoint;
-    return getEntrypointFile(entrypoints, path, log);
+    const logAdapter = (logInfo: { level: string; message: string; detail?: unknown }) => {
+      log({ level: logInfo.level as any, message: logInfo.message, detail: logInfo.detail });
+    };
+    return resolveEntrypointFile(entrypoints, path, logAdapter);
   }
 }

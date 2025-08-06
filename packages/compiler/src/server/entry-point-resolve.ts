@@ -1,29 +1,29 @@
 import { NodeSystemHost } from "../core/node-system-host.js";
 import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
-import { ServerLog } from "../server/types.js";
 import { resolveTspMain } from "../utils/misc.js";
 
-export async function getEntrypointFile(
+export async function resolveEntrypointFile(
   entrypoints: string[] | undefined,
   path: string,
-  log: undefined | ((log: ServerLog) => void) = undefined,
+  log: (log: {level:string, message:string, detail?: unknown}) => void
 ): Promise<string> {
   let dir = getDirectoryPath(path);
   let packageJsonEntrypoint: string | undefined;
-  let defaultEntrypoint: string | undefined;
 
   while (true) {
-    if (entrypoints && entrypoints.length > 0) {
+    if (entrypoints) {
       // Check for client provided entrypoints (highest priority)
+      if (entrypoints.length > 0) {
+        entrypoints.push("main.tsp"); // add default entrypoint
+      }
+
       for (const entrypoint of entrypoints) {
         const candidate = await existingFile(dir, entrypoint);
         if (candidate) {
-          if (log) {
-            log({
-              level: "debug",
-              message: `main file found using client provided entrypoint: ${candidate}`,
-            });
-          }
+          log({
+            level: "debug",
+            message: `main file found using client provided entrypoint: ${candidate}`,
+          });
           return candidate;
         }
       }
@@ -35,23 +35,14 @@ export async function getEntrypointFile(
       const pkg = JSON.parse(content.text);
       const tspMain = resolveTspMain(pkg);
       if (typeof tspMain === "string") {
-        if (log) {
-          log({
-            level: "debug",
-            message: `tspMain resolved from package.json (${pkgPath}) as ${tspMain}`,
-          });
-        }
+        log({
+          level: "debug",
+          message: `tspMain resolved from package.json (${pkgPath}) as ${tspMain}`,
+        });
         packageJsonEntrypoint = await existingFile(dir, tspMain);
-        if (packageJsonEntrypoint && log) {
+        if (packageJsonEntrypoint) {
           log({ level: "debug", message: `main file found as ${packageJsonEntrypoint}` });
         }
-      }
-    }
-
-    if (!defaultEntrypoint) {
-      defaultEntrypoint = await existingFile(dir, "main.tsp");
-      if (defaultEntrypoint && log) {
-        log({ level: "debug", message: `main file found as ${defaultEntrypoint}` });
       }
     }
 
@@ -67,13 +58,7 @@ export async function getEntrypointFile(
     return packageJsonEntrypoint;
   }
 
-  if (defaultEntrypoint) {
-    return defaultEntrypoint;
-  }
-
-  if (log) {
-    log({ level: "debug", message: `reached directory root, using ${path} as main file` });
-  }
+  log({ level: "debug", message: `reached directory root, using ${path} as main file` });
   return path;
 
   async function existingFile(dir: string, fileName: string): Promise<string | undefined> {
