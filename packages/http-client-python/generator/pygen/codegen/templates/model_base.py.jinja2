@@ -836,7 +836,7 @@ def _get_deserialize_callable_from_annotation(  # pylint: disable=too-many-retur
         return functools.partial(_deserialize_with_union, deserializers)
 
     try:
-        if annotation._name.lower() == "dict":  # pyright: ignore
+        if annotation.__name__ == "dict":  # pyright: ignore
             value_deserializer = _get_deserialize_callable_from_annotation(
                 annotation.__args__[1], module, rf  # pyright: ignore
             )
@@ -849,7 +849,7 @@ def _get_deserialize_callable_from_annotation(  # pylint: disable=too-many-retur
     except (AttributeError, IndexError):
         pass
     try:
-        if annotation._name.lower() in ["list", "set", "tuple", "sequence"]:  # pyright: ignore
+        if annotation.__name__ in ["list", "set", "tuple", "sequence"]:  # pyright: ignore
             if len(annotation.__args__) > 1:  # pyright: ignore
                 entry_deserializers = [
                     _get_deserialize_callable_from_annotation(dt, module, rf)
