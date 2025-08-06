@@ -1,5 +1,0 @@
-{
-  "python.testing.pytestArgs": ["generic_mock_api_tests"],
-  "python.testing.unittestEnabled": false,
-  "python.testing.pytestEnabled": true
-}
