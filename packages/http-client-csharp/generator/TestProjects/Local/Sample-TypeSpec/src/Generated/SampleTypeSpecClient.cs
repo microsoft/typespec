@@ -687,6 +687,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNullOrEmpty(requiredBadDescription, nameof(requiredBadDescription));
 
             Thing spreadModel = new Thing(
+                null,
                 requiredUnion,
                 requiredLiteralString,
                 requiredNullableString,
@@ -701,7 +702,6 @@ namespace SampleTypeSpec
                 requiredBadDescription,
                 optionalNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
                 requiredNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
-                null,
                 null);
             ClientResult result = AnonymousBody(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
@@ -735,6 +735,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNullOrEmpty(requiredBadDescription, nameof(requiredBadDescription));
 
             Thing spreadModel = new Thing(
+                null,
                 requiredUnion,
                 requiredLiteralString,
                 requiredNullableString,
@@ -749,7 +750,6 @@ namespace SampleTypeSpec
                 requiredBadDescription,
                 optionalNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
                 requiredNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
-                null,
                 null);
             ClientResult result = await AnonymousBodyAsync(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());

@@ -125,15 +125,56 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (_specProperties.Count > 0)
             {
-                return
-                [
-                    // Include properties that are in the spec, ordered by the spec
-                    .._specProperties.Select(p => _propertyProviderMap[p]),
-                    // Include generated properties that are not in the spec
-                    ..generatedProperties.Where(p => !_specPropertiesMap.ContainsKey(p.Name)),
-                    // Include the custom properties that are not in the spec
-                    ..customProperties.Where(p => !_specPropertiesMap.ContainsKey(p.Name) && (p.OriginalName == null || !_specPropertiesMap.ContainsKey(p.OriginalName)))
-                ];
+                // Input properties will only contain this types properties, i.e. it won't include base type properties.
+                var inputProperties = new HashSet<InputProperty>(_specProperties.Count);
+                var nonSpecProperties = new List<PropertyProvider>();
+
+                // Process all properties in single pass, categorizing them
+                foreach (var prop in generatedProperties)
+                {
+                    if (prop.InputProperty != null)
+                    {
+                        inputProperties.Add(prop.InputProperty);
+                    }
+                    else
+                    {
+                        nonSpecProperties.Add(prop);
+                    }
+                }
+
+                foreach (var prop in customProperties)
+                {
+                    // Check if custom property is in spec
+                    if (_specPropertiesMap.TryGetValue(prop.Name, out var specProp) ||
+                        prop.OriginalName != null && _specPropertiesMap.TryGetValue(prop.OriginalName, out specProp))
+                    {
+                        inputProperties.Add(specProp);
+                    }
+                    else
+                    {
+                        nonSpecProperties.Add(prop);
+                    }
+                }
+
+                // Build final array with exact size
+                var specCount = _specProperties.Count(p => inputProperties.Contains(p));
+                var result = new PropertyProvider[specCount + nonSpecProperties.Count];
+                var index = 0;
+
+                // Add spec properties in order
+                foreach (var specProp in _specProperties)
+                {
+                    if (inputProperties.Contains(specProp) &&
+                        _propertyProviderMap.TryGetValue(specProp, out var provider))
+                    {
+                        result[index++] = provider;
+                    }
+                }
+
+                // Copy non-spec properties
+                nonSpecProperties.CopyTo(result, index);
+
+                return result;
             }
 
             // For other types, there is no canonical order, so we can just return generated followed by custom properties.

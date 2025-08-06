@@ -78,6 +78,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(7, properties.Count);
             Assert.AreEqual(2, _typeProvider.Properties.Count);
             Assert.AreEqual(5, _typeProvider.CustomCodeView!.Properties.Count);
+
+            // Validate the exact order
+            // IntProperty
+            // StringProperty
+            // InternalStringProperty
+            // PropertyTypeProperty
+            // NullWireInfo property
             foreach (var expected in _namedSymbol.Properties)
             {
                 var actual = properties[expected.Name];
