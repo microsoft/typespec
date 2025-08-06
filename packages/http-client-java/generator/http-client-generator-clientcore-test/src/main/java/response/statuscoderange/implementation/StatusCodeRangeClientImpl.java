@@ -3,7 +3,6 @@ package response.statuscoderange.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
@@ -112,7 +111,7 @@ public final class StatusCodeRangeClientImpl {
             exceptionBodyClass = ErrorInRange.class)
         @UnexpectedResponseExceptionDetail(exceptionBodyClass = DefaultError.class)
         Response<Void> errorResponseStatusCodeInRange(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
@@ -223,7 +222,7 @@ public final class StatusCodeRangeClientImpl {
         @UnexpectedResponseExceptionDetail(statusCode = { 404 }, exceptionBodyClass = NotFoundError.class)
         @UnexpectedResponseExceptionDetail
         Response<Void> errorResponseStatusCode404(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
+            RequestContext requestContext);
     }
 
     /**
@@ -239,8 +238,7 @@ public final class StatusCodeRangeClientImpl {
     public Response<Void> errorResponseStatusCodeInRangeWithResponse(RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Response.StatusCodeRange.errorResponseStatusCodeInRange",
             requestContext, updatedContext -> {
-                final String accept = "application/json";
-                return service.errorResponseStatusCodeInRange(this.getEndpoint(), accept, updatedContext);
+                return service.errorResponseStatusCodeInRange(this.getEndpoint(), updatedContext);
             });
     }
 
@@ -257,8 +255,7 @@ public final class StatusCodeRangeClientImpl {
     public Response<Void> errorResponseStatusCode404WithResponse(RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Response.StatusCodeRange.errorResponseStatusCode404",
             requestContext, updatedContext -> {
-                final String accept = "application/json";
-                return service.errorResponseStatusCode404(this.getEndpoint(), accept, updatedContext);
+                return service.errorResponseStatusCode404(this.getEndpoint(), updatedContext);
             });
     }
 }
