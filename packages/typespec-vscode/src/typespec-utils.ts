@@ -1,73 +1,19 @@
 import { SourceLocation } from "@typespec/compiler";
-import { ServerDiagnostic } from "@typespec/compiler/internals";
-import { readFile } from "fs/promises";
-import path from "path";
+import { getEntrypointFile, ServerDiagnostic } from "@typespec/compiler/internals";
 import vscode from "vscode";
 import { StartFileName } from "./const.js";
 import logger from "./log/logger.js";
-import { getDirectoryPath, joinPaths, normalizeSlashes } from "./path-utils.js";
+import { joinPaths, normalizeSlashes } from "./path-utils.js";
 import { Result, ResultCode, SettingName } from "./types.js";
 import { ConfirmOptions, QuickPickOptionsWithExternalLink, tryExecuteWithUi } from "./ui-utils.js";
 import { isFile, loadPackageJsonFile, spawnExecutionAndLogToOutput } from "./utils.js";
 
 export async function getEntrypointTspFile(tspPath: string): Promise<string | undefined> {
-  const isFilePath = await isFile(tspPath);
-  let baseDir = isFilePath ? getDirectoryPath(tspPath) : tspPath;
   const configEntrypoints = vscode.workspace
     .getConfiguration()
-    .get<string[] | null>(SettingName.CompileEntrypoint);
-  let fallbackCandidate: string | undefined;
+    .get<string[]>(SettingName.CompileEntrypoint);
 
-  while (true) {
-    if (configEntrypoints && configEntrypoints.length > 0) {
-      // Check for client provided entrypoints (highest priority)
-      for (const entrypoint of configEntrypoints) {
-        const mainTspFile = path.resolve(baseDir, entrypoint);
-        if (await isFile(mainTspFile)) {
-          logger.debug(`Configuration entrypoint file ${mainTspFile} selected as entrypoint file.`);
-          return mainTspFile;
-        }
-      }
-    }
-
-    if (!fallbackCandidate) {
-      const pkgPath = path.resolve(baseDir, "package.json");
-      if (await isFile(pkgPath)) {
-        /* get the tspMain from package.json. */
-        try {
-          const data = await readFile(pkgPath, { encoding: "utf-8" });
-          const packageJson = JSON.parse(data);
-          const tspMain = packageJson.tspMain;
-          if (typeof tspMain === "string") {
-            const tspMainFile = path.resolve(baseDir, tspMain);
-            if (await isFile(tspMainFile)) {
-              logger.debug(`tspMain file ${tspMainFile} selected as entrypoint file.`);
-              return tspMainFile;
-            }
-          }
-        } catch (error) {
-          logger.error(`An error occurred while reading the package.json file ${pkgPath}`, [error]);
-        }
-      }
-
-      const mainTspFile = path.resolve(baseDir, StartFileName);
-      if (await isFile(mainTspFile)) {
-        fallbackCandidate = mainTspFile;
-      }
-    }
-
-    const parentDir = getDirectoryPath(baseDir);
-    if (parentDir === baseDir) {
-      break;
-    }
-    baseDir = parentDir;
-  }
-
-  if (fallbackCandidate) {
-    return fallbackCandidate;
-  }
-
-  return undefined;
+  return await getEntrypointFile(configEntrypoints, tspPath);
 }
 
 export async function TraverseMainTspFileInWorkspace() {
