@@ -68,7 +68,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             HttpMessageApi? httpMessageApi = null,
             RequestContentApi? requestContentApi = null,
             Func<InputAuth>? auth = null,
-            bool includeXmlDocs = false)
+            bool includeXmlDocs = false,
+            Func<InputType, bool>? createCSharpTypeCoreFallback = null,
+            Func<InputModelType, ModelProvider?>? createModelCore = null)
         {
             IReadOnlyList<string> inputNsApiVersions = apiVersions?.Invoke() ?? [];
             IReadOnlyList<InputLiteralType> inputNsLiterals = inputLiterals?.Invoke() ?? [];
@@ -108,9 +110,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
                 mockTypeFactory.Protected().Setup<IReadOnlyList<TypeProvider>>("CreateSerializationsCore", ItExpr.IsAny<InputType>(), ItExpr.IsAny<TypeProvider>()).Returns(createSerializationsCore);
             }
 
+            if (createModelCore is not null)
+            {
+                mockTypeFactory.Protected().Setup<ModelProvider?>("CreateModelCore", ItExpr.IsAny<InputModelType>()).Returns(createModelCore);
+            }
+
             if (createCSharpTypeCore is not null)
             {
-                mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(createCSharpTypeCore);
+                if (createCSharpTypeCoreFallback is not null)
+                {
+                    mockTypeFactory.Protected()
+                        .Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>())
+                        .Returns((InputType input) =>
+                            createCSharpTypeCoreFallback(input)
+                                ? createCSharpTypeCore(input)
+                                : null!);
+                }
+                else
+                {
+                    mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(createCSharpTypeCore);
+                }
             }
 
             if (createClientCore is not null)

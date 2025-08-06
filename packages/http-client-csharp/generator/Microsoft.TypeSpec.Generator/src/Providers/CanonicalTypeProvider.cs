@@ -9,13 +9,14 @@ using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.SourceInput;
+using Microsoft.TypeSpec.Generator.Statements;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
     internal class CanonicalTypeProvider : TypeProvider
     {
         private readonly TypeProvider _generatedTypeProvider;
-        private readonly Dictionary<string, InputProperty> _specPropertiesMap;
+        private readonly Dictionary<string, InputModelProperty> _specPropertiesMap;
         private readonly Dictionary<string, string?> _serializedNameMap;
         private readonly HashSet<string> _renamedProperties;
         private readonly HashSet<string> _renamedFields;
@@ -39,6 +40,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected override string BuildNamespace() => _generatedTypeProvider.Type.Namespace;
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => _generatedTypeProvider.DeclarationModifiers;
+
+        protected override IReadOnlyList<MethodBodyStatement> BuildAttributes()
+        {
+            return [.. _generatedTypeProvider.Attributes, .. _generatedTypeProvider.CustomCodeView?.Attributes ?? []];
+        }
 
         private protected override PropertyProvider[] FilterCustomizedProperties(PropertyProvider[] canonicalProperties) => canonicalProperties;
         private protected override FieldProvider[] FilterCustomizedFields(FieldProvider[] canonicalFields) => canonicalFields;
@@ -103,7 +109,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             !customProperty.Body.HasSetter,
                             customProperty.Type.IsNullable,
                             false,
-                            serializedName ?? customProperty.Name.ToVariableName());
+                            serializedName ?? customProperty.Name.ToVariableName(),
+                            false);
                     }
                     else
                     {
@@ -164,7 +171,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             true,
                             customField.Type.IsNullable,
                             false,
-                            serializedName ?? customField.Name.ToVariableName());
+                            serializedName ?? customField.Name.ToVariableName(),
+                            false);
                     }
                     else
                     {
@@ -312,7 +320,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private bool TryGetCandidateSpecProperty(
             PropertyProvider customProperty,
-            [NotNullWhen(true)] out InputProperty? candidateSpecProperty)
+            [NotNullWhen(true)] out InputModelProperty? candidateSpecProperty)
         {
             if (customProperty.OriginalName != null && _specPropertiesMap.TryGetValue(customProperty.OriginalName, out candidateSpecProperty))
             {
@@ -330,7 +338,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return false;
         }
 
-        private bool TryGetCandidateSpecProperty(FieldProvider customField, [NotNullWhen(true)] out InputProperty? candidateSpecProperty)
+        private bool TryGetCandidateSpecProperty(FieldProvider customField, [NotNullWhen(true)] out InputModelProperty? candidateSpecProperty)
         {
             if (customField.OriginalName != null && _specPropertiesMap.TryGetValue(customField.OriginalName, out candidateSpecProperty))
             {

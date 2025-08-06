@@ -374,7 +374,7 @@ public interface ChildResourcesInterfacesClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a ChildResource list operation as paginated response with {@link PagedFlux}.
+     * @return paged collection of ChildResource items as paginated response with {@link PagedFlux}.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     PagedFlux<ChildResourceInner> listByTopLevelArmResourceAsync(String resourceGroupName,
@@ -388,7 +388,7 @@ public interface ChildResourcesInterfacesClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a ChildResource list operation as paginated response with {@link PagedIterable}.
+     * @return paged collection of ChildResource items as paginated response with {@link PagedIterable}.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     PagedIterable<ChildResourceInner> listByTopLevelArmResource(String resourceGroupName,
@@ -403,7 +403,7 @@ public interface ChildResourcesInterfacesClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a ChildResource list operation as paginated response with {@link PagedIterable}.
+     * @return paged collection of ChildResource items as paginated response with {@link PagedIterable}.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     PagedIterable<ChildResourceInner> listByTopLevelArmResource(String resourceGroupName,

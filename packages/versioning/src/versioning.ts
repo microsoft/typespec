@@ -16,18 +16,31 @@ import {
   type VersionMap,
 } from "./decorators.js";
 import type { Version, VersionResolution } from "./types.js";
+import { getCachedNamespaceDependencies } from "./validate.js";
 import { TimelineMoment, VersioningTimeline } from "./versioning-timeline.js";
 
 export function getVersionDependencies(
   program: Program,
   namespace: Namespace,
 ): Map<Namespace, Map<Version, Version> | Version> | undefined {
-  const useDeps = getUseDependencies(program, namespace);
-  if (useDeps) {
-    return useDeps;
+  const explicit = getUseDependencies(program, namespace);
+  const base = getCachedNamespaceDependencies(program);
+  const usage = base?.get(namespace);
+  if (usage === undefined) {
+    return explicit;
   }
+  const result = new Map<Namespace, Map<Version, Version> | Version>(explicit);
 
-  return undefined;
+  for (const dep of usage) {
+    if (!explicit?.has(dep)) {
+      const version = getVersion(program, dep);
+      if (version) {
+        const depVersions = version.getVersions();
+        result.set(dep, depVersions[depVersions.length - 1]);
+      }
+    }
+  }
+  return result;
 }
 
 /**
@@ -48,14 +61,8 @@ function resolveDependencyVersions(
         continue; // Already resolved.
       }
 
-      if (!(versionMap instanceof Map)) {
-        const rootNsName = getNamespaceFullName(current);
-        const dependencyNsName = getNamespaceFullName(dependencyNs);
-        throw new Error(
-          `Unexpected error: Namespace ${rootNsName} version dependency to ${dependencyNsName} should be a mapping of version.`,
-        );
-      }
-      const dependencyVersion = versionMap.get(currentVersion);
+      const dependencyVersion =
+        versionMap instanceof Map ? versionMap.get(currentVersion) : versionMap;
       namespacesToCheck.push([dependencyNs, dependencyVersion]);
       resolutions.set(dependencyNs, dependencyVersion);
     }

@@ -34,7 +34,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public ChangeTrackingDictionaryDefinition()
         {
-            WhereClause = Where.NotNull(_tKey);
             _indexParam = new ParameterProvider("key", $"The key.", _tKey);
             _IDictionary = new CSharpType(typeof(IDictionary<,>), _tKey, _tValue);
             _dictionary = new CSharpType(typeof(Dictionary<,>), _tKey, _tValue);
@@ -46,6 +45,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _ensureDictionarySignature = new MethodSignature("EnsureDictionary", null, MethodSignatureModifiers.Public, _IDictionary, null, []);
             EnsureDictionary = new(This.Invoke(_ensureDictionarySignature));
         }
+
+        protected override WhereExpression BuildWhereClause() => Where.NotNull(_tKey);
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
         {

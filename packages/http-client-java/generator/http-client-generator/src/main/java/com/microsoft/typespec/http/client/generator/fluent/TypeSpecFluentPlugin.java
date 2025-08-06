@@ -36,59 +36,68 @@ public class TypeSpecFluentPlugin extends FluentGen {
     private static final Logger LOGGER = LoggerFactory.getLogger(TypeSpecFluentPlugin.class);
     private final EmitterOptions emitterOptions;
 
-    public TypeSpecFluentPlugin(EmitterOptions emitterOptions, boolean sdkIntegration) {
+    public TypeSpecFluentPlugin(EmitterOptions options, boolean sdkIntegration) {
         super(new TypeSpecPlugin.MockConnection(), "dummy", "dummy");
-        this.emitterOptions = emitterOptions;
-        SETTINGS_MAP.put("namespace", emitterOptions.getNamespace());
-        if (!CoreUtils.isNullOrEmpty(emitterOptions.getOutputDir())) {
-            SETTINGS_MAP.put("output-folder", emitterOptions.getOutputDir());
+        this.emitterOptions = options;
+
+        SETTINGS_MAP.put("namespace", options.getNamespace());
+        if (!CoreUtils.isNullOrEmpty(options.getOutputDir())) {
+            SETTINGS_MAP.put("output-folder", options.getOutputDir());
         }
-        if (!CoreUtils.isNullOrEmpty(emitterOptions.getServiceName())) {
-            SETTINGS_MAP.put("service-name", emitterOptions.getServiceName());
+        if (!CoreUtils.isNullOrEmpty(options.getServiceName())) {
+            SETTINGS_MAP.put("service-name", options.getServiceName());
         }
-        if (emitterOptions.getGenerateSamples() != null) {
-            SETTINGS_MAP.put("generate-samples", emitterOptions.getGenerateSamples());
+        if (options.getGenerateSamples() != null) {
+            SETTINGS_MAP.put("generate-samples", options.getGenerateSamples());
         }
-        if (emitterOptions.getGenerateTests() != null) {
-            SETTINGS_MAP.put("generate-tests", emitterOptions.getGenerateTests());
+        if (options.getGenerateTests() != null) {
+            SETTINGS_MAP.put("generate-tests", options.getGenerateTests());
         }
-        if (emitterOptions.getArm()) {
-            SETTINGS_MAP.put("fluent", "lite");
+        if (options.getArm()) {
+            if (options.getPremium()) {
+                SETTINGS_MAP.put("fluent", "premium");
+            } else {
+                SETTINGS_MAP.put("fluent", "lite");
+            }
         }
-        if (emitterOptions.getPackageVersion() != null) {
-            SETTINGS_MAP.put("package-version", emitterOptions.getPackageVersion());
+        if (options.getPackageVersion() != null) {
+            SETTINGS_MAP.put("package-version", options.getPackageVersion());
         }
-        if (emitterOptions.getEnableSyncStack() != null) {
-            SETTINGS_MAP.put("enable-sync-stack", emitterOptions.getEnableSyncStack());
+        if (options.getEnableSyncStack() != null) {
+            SETTINGS_MAP.put("enable-sync-stack", options.getEnableSyncStack());
         }
         SETTINGS_MAP.put("sdk-integration", sdkIntegration);
         SETTINGS_MAP.put("output-model-immutable", true);
         SETTINGS_MAP.put("uuid-as-string", true);
-        SETTINGS_MAP.put("stream-style-serialization", emitterOptions.getStreamStyleSerialization());
-        SETTINGS_MAP.put("use-object-for-unknown", emitterOptions.getUseObjectForUnknown());
+        SETTINGS_MAP.put("stream-style-serialization", options.getStreamStyleSerialization());
+        SETTINGS_MAP.put("use-object-for-unknown", options.getUseObjectForUnknown());
+        if (options.getRenameModel() != null) {
+            SETTINGS_MAP.put("rename-model", options.getRenameModel());
+        }
 
         // mgmt
-        if (emitterOptions.getRenameModel() != null) {
-            SETTINGS_MAP.put("rename-model", emitterOptions.getRenameModel());
+        if (options.getAddInner() != null) {
+            SETTINGS_MAP.put("add-inner", options.getAddInner());
         }
-        if (emitterOptions.getAddInner() != null) {
-            SETTINGS_MAP.put("add-inner", emitterOptions.getAddInner());
+        if (options.getRemoveInner() != null) {
+            SETTINGS_MAP.put("remove-inner", options.getRemoveInner());
         }
-        if (emitterOptions.getRemoveInner() != null) {
-            SETTINGS_MAP.put("remove-inner", emitterOptions.getRemoveInner());
+        if (options.getPreserveModel() != null) {
+            SETTINGS_MAP.put("preserve-model", options.getPreserveModel());
         }
-        if (emitterOptions.getPreserveModel() != null) {
-            SETTINGS_MAP.put("preserve-model", emitterOptions.getPreserveModel());
+        if (options.getGenerateAsyncMethods() != null) {
+            SETTINGS_MAP.put("generate-async-methods", options.getGenerateAsyncMethods());
         }
-        if (emitterOptions.getGenerateAsyncMethods() != null) {
-            SETTINGS_MAP.put("generate-async-methods", emitterOptions.getGenerateAsyncMethods());
+        if (options.getPropertyIncludeAlways() != null) {
+            // always serialize this property, even if the value is null
+            SETTINGS_MAP.put("property-include-always", options.getPropertyIncludeAlways());
         }
-        if (emitterOptions.getResourceCollectionAssociations() != null) {
-            SETTINGS_MAP.put("resource-collection-associations", emitterOptions.getResourceCollectionAssociations());
+        if (options.getResourceCollectionAssociations() != null) {
+            SETTINGS_MAP.put("resource-collection-associations", options.getResourceCollectionAssociations());
         }
 
         JavaSettingsAccessor.setHost(this);
-        LOGGER.info("Output folder: {}", emitterOptions.getOutputDir());
+        LOGGER.info("Output folder: {}", options.getOutputDir());
         LOGGER.info("Namespace: {}", JavaSettings.getInstance().getPackage());
     }
 

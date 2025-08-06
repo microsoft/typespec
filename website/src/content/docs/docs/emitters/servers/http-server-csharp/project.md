@@ -9,7 +9,6 @@ title: About Generated Projects
 The code layout inside the 'generated' folder is as follows:
 
 - **generated**
-
   - **controllers**: A set of ASP.Net core MVC controllers representing the operations in the spec, one for each interface or namespace with operations
   - **lib**: A set of library files used in implementing generated models and controllers
   - **models**: A set of models, each serving one of two distinct purposes:
@@ -37,7 +36,6 @@ these files will be overwritten by the emitter unless you specify the `--overwri
   - **launchSettings.json**: Launch configurations for the service (including local ports)
 - **mocks**: Simple implementations of business logic interfaces that return simple responses.
   this allows testing your service out before writing any implementation code.
-
   - **MockRegistration.cs**: Called from the Program.cs startup, registers each of the business
     logic implementations in the dependency injection container.
   - **IInitializer.cs**: Interface used in the mocks to create responses.

@@ -139,7 +139,8 @@
             "json": {
               "name": "prop"
             }
-          }
+          },
+          "isHttpMetadata": false
         },
         {
           "$id": "14",
@@ -159,7 +160,8 @@
             "json": {
               "name": "enumProp"
             }
-          }
+          },
+          "isHttpMetadata": false
         }
       ]
     }
@@ -287,14 +289,14 @@
             {
               "$id": "22",
               "name": "contentType",
-              "nameInRequest": "contentType",
+              "nameInRequest": "Content-Type",
               "doc": "Body parameter's content type. Known values are application/json",
               "type": {
                 "$ref": "7"
               },
               "location": "Header",
               "isApiVersion": false,
-              "isContentType": false,
+              "isContentType": true,
               "isEndpoint": false,
               "explode": false,
               "isRequired": true,
@@ -305,7 +307,7 @@
             {
               "$id": "23",
               "name": "accept",
-              "nameInRequest": "accept",
+              "nameInRequest": "Accept",
               "type": {
                 "$ref": "9"
               },

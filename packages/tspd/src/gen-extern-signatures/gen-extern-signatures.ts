@@ -159,7 +159,9 @@ export async function generateExternDecorators(
     });
 
     for (const file of rawFiles) {
-      files[file.path] = await format(file.contents);
+      if ("contents" in file) {
+        files[file.path] = await format(file.contents);
+      }
     }
   }
   return files;
