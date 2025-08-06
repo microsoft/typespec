@@ -1032,7 +1032,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                             is_operation_file=True, skip_quote=True, serialize_namespace=self.serialize_namespace
                         )
                         if self.code_model.options["models-mode"] == "dpg":
-                            retval.append(f"        error = _failsafe_deserialize({type_annotation},  response.json())")
+                            retval.append(f"        error = _failsafe_deserialize({type_annotation},  response)")
                         else:
                             retval.append(
                                 f"        error = self._deserialize.failsafe_deserialize({type_annotation}, "
@@ -1068,10 +1068,10 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     if self.code_model.options["models-mode"] == "dpg":
                         if xml_serializable(str(e.default_content_type)):
                             retval.append(
-                                f"        error = _failsafe_deserialize_xml({type_annotation},  response)"
+                                f"        error = _failsafe_deserialize_xml({type_annotation}, response)"
                             )
                         else:
-                            retval.append(f"        error = _failsafe_deserialize({type_annotation},  response)")
+                            retval.append(f"        error = _failsafe_deserialize({type_annotation}, response)")
                     else:
                         retval.append(
                             f"        error = self._deserialize.failsafe_deserialize({type_annotation}, "
@@ -1087,7 +1087,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 retval.append("    else:")
             if self.code_model.options["models-mode"] == "dpg":
                 retval.append(
-                    f"{indent}error = _failsafe_deserialize({default_error_deserialization},  response.json())"
+                    f"{indent}error = _failsafe_deserialize({default_error_deserialization}, response)"
                 )
             else:
                 retval.append(
