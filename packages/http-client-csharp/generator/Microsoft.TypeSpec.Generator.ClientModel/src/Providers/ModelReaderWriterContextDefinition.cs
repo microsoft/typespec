@@ -4,6 +4,7 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -26,9 +27,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override CSharpType[] BuildImplements() => [typeof(ModelReaderWriterContext)];
 
-        protected override IReadOnlyList<AttributeStatement> BuildAttributes()
+        protected override IReadOnlyList<MethodBodyStatement> BuildAttributes()
         {
-            var attributes = new List<AttributeStatement>();
+            var attributes = new List<MethodBodyStatement>();
 
             // Add ModelReaderWriterBuildableAttribute for all IPersistableModel types
             var buildableTypes = CollectBuildableTypes();
@@ -36,7 +37,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 // Use the full attribute type name to ensure proper compilation
                 var attributeType = new CSharpType(typeof(ModelReaderWriterBuildableAttribute));
-                attributes.Add(new AttributeStatement(attributeType, TypeOf(type)));
+                var attributeStatement = new AttributeStatement(attributeType, TypeOf(type));
+
+                // If the type is experimental, we add a suppression for it
+                string justification = $"{type} is experimental and may change in future versions.";
+                if (ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(type, out var model))
+                {
+                    var experimentalAttribute =
+                        model?.CanonicalView.Attributes.FirstOrDefault(a => a.Type.Equals(typeof(ExperimentalAttribute)));
+                    if (experimentalAttribute != null)
+                    {
+                        var key = experimentalAttribute.Arguments[0];
+                        attributes.Add(new SuppressionStatement(attributeStatement, key, justification));
+                    }
+                    else
+                    {
+                        attributes.Add(attributeStatement);
+                    }
+                }
+                // A dependency model - need to use reflection to get the attribute data
+                else if (type.IsFrameworkType)
+                {
+                    var experimentalAttr = type.FrameworkType.GetCustomAttributes(typeof(ExperimentalAttribute), false)
+                        .FirstOrDefault();
+                    if (experimentalAttr != null)
+                    {
+                        var key = experimentalAttr.GetType().GetProperty("DiagnosticId")?.GetValue(experimentalAttr);
+                        attributes.Add(new SuppressionStatement(attributeStatement, Literal(key), justification));
+                    }
+                    else
+                    {
+                        attributes.Add(attributeStatement);
+                    }
+                }
             }
 
             return attributes;
