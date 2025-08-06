@@ -1079,18 +1079,19 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                         )
                     condition = "elif"
         # default error handling
-        if builder.default_error_deserialization and self.code_model.options["models-mode"]:
+        default_error_deserialization = builder.default_error_deserialization(self.serialize_namespace)
+        if default_error_deserialization and self.code_model.options["models-mode"]:
             error_model = ", model=error"
             indent = "        " if builder.non_default_errors else "    "
             if builder.non_default_errors:
                 retval.append("    else:")
             if self.code_model.options["models-mode"] == "dpg":
                 retval.append(
-                    f"{indent}error = _failsafe_deserialize({builder.default_error_deserialization},  response.json())"
+                    f"{indent}error = _failsafe_deserialize({default_error_deserialization},  response.json())"
                 )
             else:
                 retval.append(
-                    f"{indent}error = self._deserialize.failsafe_deserialize({builder.default_error_deserialization}, "
+                    f"{indent}error = self._deserialize.failsafe_deserialize({default_error_deserialization}, "
                     "pipeline_response)"
                 )
         retval.append(

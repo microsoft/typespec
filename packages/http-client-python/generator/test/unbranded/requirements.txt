@@ -6,6 +6,7 @@
 -e ./generated/authentication-http-custom
 -e ./generated/authentication-oauth2
 -e ./generated/authentication-union
+-e ./generated/setuppy-authentication-union
 -e ./generated/encode-duration
 -e ./generated/encode-numeric
 -e ./generated/parameters-basic

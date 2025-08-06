@@ -31,15 +31,15 @@ namespace Sample.Models
                 writer.WritePropertyName("customName"u8);
                 writer.WriteStringValue(Name);
             }
-            if (global::Sample.Optional.IsDefined(Flavor))
-            {
-                writer.WritePropertyName("flavor"u8);
-                writer.WriteStringValue(Flavor);
-            }
             if (global::Sample.Optional.IsDefined(CustomColor))
             {
                 writer.WritePropertyName("customColor2"u8);
                 writer.WriteStringValue(CustomColor);
+            }
+            if (global::Sample.Optional.IsDefined(Flavor))
+            {
+                writer.WritePropertyName("flavor"u8);
+                writer.WriteStringValue(Flavor);
             }
             if (((options.Format != "W") && (_additionalBinaryDataProperties != null)))
             {
@@ -78,8 +78,8 @@ namespace Sample.Models
                 return null;
             }
             string name = default;
-            string flavor = default;
             string customColor = default;
+            string flavor = default;
             global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
@@ -88,14 +88,14 @@ namespace Sample.Models
                     name = prop.Value.GetString();
                     continue;
                 }
-                if (prop.NameEquals("flavor"u8))
-                {
-                    flavor = prop.Value.GetString();
-                    continue;
-                }
                 if (prop.NameEquals("customColor2"u8))
                 {
                     customColor = prop.Value.GetString();
+                    continue;
+                }
+                if (prop.NameEquals("flavor"u8))
+                {
+                    flavor = prop.Value.GetString();
                     continue;
                 }
                 if ((options.Format != "W"))
@@ -103,7 +103,7 @@ namespace Sample.Models
                     additionalBinaryDataProperties.Add(prop.Name, global::System.BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            return new global::Sample.Models.MockInputModel(name, flavor, customColor, additionalBinaryDataProperties);
+            return new global::Sample.Models.MockInputModel(name, customColor, flavor, additionalBinaryDataProperties);
         }
 
         global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.MockInputModel>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);

@@ -1,5 +1,50 @@
 # Change Log - @typespec/http-client-python
 
+## 0.15.0
+
+### Features
+
+- [#7829](https://github.com/microsoft/typespec/pull/7829) Adding pyproject.toml generation and optional keep-setup-py flag
+- [#7994](https://github.com/microsoft/typespec/pull/7994) add `generation-subdir` flag
+
+### Bug Fixes
+
+- [#8070](https://github.com/microsoft/typespec/pull/8070) fix import for error model in multi namespace
+- [#8091](https://github.com/microsoft/typespec/pull/8091) Don't hardcode `emit-cross-language-definition-file` as `true` for azure generations
+- [#8006](https://github.com/microsoft/typespec/pull/8006) Ensure necessary typing imports for internal models
+
+
+## 0.14.2
+
+### Bug Fixes
+
+- [#8058](https://github.com/microsoft/typespec/pull/8058) fix outputfolder of packaging files for arm sdk
+
+
+## 0.14.1
+
+### Bump dependencies
+
+- [#7820](https://github.com/microsoft/typespec/pull/7820) Bump min dep of generated sdks on `azure-core` to `1.35.0` for backcompat serialization methods
+
+### Bug Fixes
+
+- [#7992](https://github.com/microsoft/typespec/pull/7992) Import mixins from operations init file to get patch changes
+- [#8039](https://github.com/microsoft/typespec/pull/8039) Don't hardcode client in sample to first client in list
+- [#7939](https://github.com/microsoft/typespec/pull/7939) Pad `datetime` as a model property for typespec
+
+
+## 0.14.0
+
+### Features
+
+- [#7924](https://github.com/microsoft/typespec/pull/7924) Support @override to reorder operation parameters
+
+### Bump dependencies
+
+- [#7924](https://github.com/microsoft/typespec/pull/7924) bump typespec
+
+
 ## 0.13.0
 
 ### Features

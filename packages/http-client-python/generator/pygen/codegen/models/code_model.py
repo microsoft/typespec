@@ -3,6 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
+from pathlib import Path
 from typing import Any, Union, Literal, Optional, cast
 
 from .base import BaseType
@@ -452,3 +453,34 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
             return self.yaml_data.get("licenseInfo", {}).get("company", "")
         # typespec azure case without custom license and swagger case
         return "Microsoft Corporation"
+
+    def get_root_dir(self) -> Path:
+        if self.options["no-namespace-folders"]:
+            # when output folder contains parts different from the namespace, we fall back to current folder directly.
+            return Path(".")
+        return Path(*self.namespace.split("."))
+
+    def get_generation_dir(self, namespace: str) -> Path:
+        """The directory to generate the code in.
+
+        If 'generation-subdir' is specified, it will be used as a subdirectory.
+        """
+        root_dir = self.get_root_dir()
+        retval = self._get_relative_generation_dir(root_dir, namespace)
+        return retval
+
+    def _get_relative_generation_dir(self, root_dir: Path, namespace: str) -> Path:
+        if self.options["no-namespace-folders"]:
+            return Path(".")
+        if self.options.get("generation-subdir"):
+            # For the main namespace, return root_dir + generation-subdir
+            if namespace in ("", self.namespace):
+                return root_dir / self.options["generation-subdir"]
+
+            # For subnamespaces, extract the subnamespace part and append it to generation-subdir
+            if namespace.startswith(self.namespace + "."):
+                subnamespace_parts = namespace[len(self.namespace) + 1 :].split(".")
+                return root_dir / self.options["generation-subdir"] / Path(*subnamespace_parts)
+
+        # No generation-subdir specified, use the namespace path directly
+        return Path(*namespace.split("."))

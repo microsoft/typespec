@@ -223,6 +223,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             bool isRequired = false,
             bool isReadOnly = false,
             bool isDiscriminator = false,
+            bool isHttpMetadata = false,
             string? wireName = null,
             string? summary = null,
             string? serializedName = null,
@@ -235,6 +236,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 type: type,
                 isRequired: isRequired,
                 isReadOnly: isReadOnly,
+                isHttpMetadata: isHttpMetadata,
                 access: null,
                 isDiscriminator: isDiscriminator,
                 serializedName: serializedName ?? wireName ?? name.ToVariableName(),
@@ -316,7 +318,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string @namespace = "Sample.Models",
             string access = "public",
             InputModelTypeUsage usage = InputModelTypeUsage.Output | InputModelTypeUsage.Input | InputModelTypeUsage.Json,
-            IEnumerable<InputProperty>? properties = null,
+            IEnumerable<InputModelProperty>? properties = null,
             InputModelType? baseModel = null,
             bool modelAsStruct = false,
             string? discriminatedKind = null,
@@ -324,7 +326,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             IDictionary<string, InputModelType>? discriminatedModels = null,
             IEnumerable<InputModelType>? derivedModels = null)
         {
-            IEnumerable<InputProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
+            IEnumerable<InputModelProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
 
             var model = new InputModelType(
                 name,
@@ -453,23 +455,23 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
         }
 
         public static InputPagingServiceMetadata NextLinkPagingMetadata(
-            string itemPropertyName,
-            string nextLinkName,
+            IReadOnlyList<string> itemSegments,
+            IReadOnlyList<string> nextLinkSegments,
             InputResponseLocation nextLinkLocation,
             IReadOnlyList<InputParameter>? reinjectedParameters = null)
         {
             return PagingMetadata(
-                [itemPropertyName],
-                new InputNextLink(null, [nextLinkName], nextLinkLocation, reinjectedParameters),
+                itemSegments,
+                new InputNextLink(null, nextLinkSegments, nextLinkLocation, reinjectedParameters),
                 null);
         }
 
-        public static InputPagingServiceMetadata ContinuationTokenPagingMetadata(InputParameter parameter, string itemPropertyName, string continuationTokenName, InputResponseLocation continuationTokenLocation)
+        public static InputPagingServiceMetadata ContinuationTokenPagingMetadata(InputParameter parameter, IReadOnlyList<string> itemSegments, IReadOnlyList<string> continuationTokenSegments, InputResponseLocation continuationTokenLocation)
         {
             return new InputPagingServiceMetadata(
-                [itemPropertyName],
+                itemSegments,
                 null,
-                continuationToken: new InputContinuationToken(parameter, [continuationTokenName], continuationTokenLocation));
+                continuationToken: new InputContinuationToken(parameter, continuationTokenSegments, continuationTokenLocation));
         }
 
         public static InputOperationResponse OperationResponse(

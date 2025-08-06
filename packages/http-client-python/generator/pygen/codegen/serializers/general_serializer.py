@@ -4,7 +4,10 @@
 # license information.
 # --------------------------------------------------------------------------
 import json
-from typing import Any
+from typing import Any, TYPE_CHECKING
+import re
+import tomli as tomllib
+from packaging.version import parse as parse_version
 from .import_serializer import FileImportSerializer, TypingSection
 from ..models.imports import MsrestImportType, FileImport
 from ..models import (
@@ -16,17 +19,20 @@ from ..models.utils import NamespaceType
 from .client_serializer import ClientSerializer, ConfigSerializer
 from .base_serializer import BaseSerializer
 
+if TYPE_CHECKING:
+    from pathlib import Path
+
 VERSION_MAP = {
     "msrest": "0.7.1",
     "isodate": "0.6.1",
-    "azure-mgmt-core": "1.5.0",
-    "azure-core": "1.30.0",
+    "azure-mgmt-core": "1.6.0",
+    "azure-core": "1.35.0",
     "typing-extensions": "4.6.0",
     "corehttp": "1.0.0b6",
 }
 
 MIN_PYTHON_VERSION = "3.9"
-MAX_PYTHON_VERSION = "3.12"
+MAX_PYTHON_VERSION = "3.13"
 
 
 class GeneralSerializer(BaseSerializer):
@@ -42,8 +48,73 @@ class GeneralSerializer(BaseSerializer):
         params |= {"options": self.code_model.options}
         return template.render(code_model=self.code_model, **params)
 
-    def serialize_package_file(self, template_name: str, **kwargs: Any) -> str:
+    def _extract_min_dependency(self, s):
+        # Extract the minimum version from a dependency string.
+        #
+        # Handles formats like:
+        # - >=1.2.3
+        # - >=0.1.0b1 (beta versions)
+        # - >=1.2.3rc2 (release candidates)
+        #
+        # Returns the parsed version if found, otherwise version "0".
+        m = re.search(r"[>=]=?([\d.]+(?:[a-z]+\d+)?)", s)
+        return parse_version(m.group(1)) if m else parse_version("0")
+
+    def _keep_pyproject_fields(self, file_path: "Path") -> dict:
+        # Load the pyproject.toml file if it exists and extract fields to keep.
+        result: dict = {"KEEP_FIELDS": {}}
+        try:
+            with open(file_path, "rb") as f:
+                loaded_pyproject_toml = tomllib.load(f)
+        except Exception:  # pylint: disable=broad-except
+            # If parsing the pyproject.toml fails, we assume the it does not exist or is incorrectly formatted.
+            return result
+
+        # Keep azure-sdk-build configuration
+        if "tool" in loaded_pyproject_toml and "azure-sdk-build" in loaded_pyproject_toml["tool"]:
+            result["KEEP_FIELDS"]["tool.azure-sdk-build"] = loaded_pyproject_toml["tool"]["azure-sdk-build"]
+
+        # Process dependencies
+        if "project" in loaded_pyproject_toml:
+            # Handle main dependencies
+            if "dependencies" in loaded_pyproject_toml["project"]:
+                kept_deps = []
+                for dep in loaded_pyproject_toml["project"]["dependencies"]:
+                    dep_name = re.split(r"[<>=\[]", dep)[0].strip()
+
+                    # Check if dependency is one we track in VERSION_MAP
+                    if dep_name in VERSION_MAP:
+                        # For tracked dependencies, check if the version is higher than our default
+                        default_version = parse_version(VERSION_MAP[dep_name])
+                        dep_version = self._extract_min_dependency(dep)
+                        # If the version is higher than the default, update VERSION_MAP
+                        # with higher min dependency version
+                        if dep_version > default_version:
+                            VERSION_MAP[dep_name] = str(dep_version)
+                    else:
+                        # Keep non-default dependencies
+                        kept_deps.append(dep)
+
+                if kept_deps:
+                    result["KEEP_FIELDS"]["project.dependencies"] = kept_deps
+
+            # Keep optional dependencies
+            if "optional-dependencies" in loaded_pyproject_toml["project"]:
+                result["KEEP_FIELDS"]["project.optional-dependencies"] = loaded_pyproject_toml["project"][
+                    "optional-dependencies"
+                ]
+
+        return result
+
+    def serialize_package_file(self, template_name: str, file_path: "Path", **kwargs: Any) -> str:
         template = self.env.get_template(template_name)
+
+        # Add fields to keep from an existing pyproject.toml
+        if template_name == "pyproject.toml.jinja2":
+            params = self._keep_pyproject_fields(file_path)
+        else:
+            params = {}
+
         package_parts = (
             self.code_model.namespace.split(".")[:-1]
             if self.code_model.is_tsp
@@ -57,17 +128,17 @@ class GeneralSerializer(BaseSerializer):
             dev_status = "4 - Beta"
         else:
             dev_status = "5 - Production/Stable"
-        params = {
-            "code_model": self.code_model,
-            "dev_status": dev_status,
-            "token_credential": token_credential,
-            "pkgutil_names": [".".join(package_parts[: i + 1]) for i in range(len(package_parts))],
-            "init_names": ["/".join(package_parts[: i + 1]) + "/__init__.py" for i in range(len(package_parts))],
-            "client_name": self.code_model.clients[0].name if self.code_model.clients else "",
-            "VERSION_MAP": VERSION_MAP,
-            "MIN_PYTHON_VERSION": MIN_PYTHON_VERSION,
-            "MAX_PYTHON_VERSION": MAX_PYTHON_VERSION,
-        }
+        params |= {
+                "code_model": self.code_model,
+                "dev_status": dev_status,
+                "token_credential": token_credential,
+                "pkgutil_names": [".".join(package_parts[: i + 1]) for i in range(len(package_parts))],
+                "init_names": ["/".join(package_parts[: i + 1]) + "/__init__.py" for i in range(len(package_parts))],
+                "client_name": self.code_model.clients[0].name if self.code_model.clients else "",
+                "VERSION_MAP": VERSION_MAP,
+                "MIN_PYTHON_VERSION": MIN_PYTHON_VERSION,
+                "MAX_PYTHON_VERSION": MAX_PYTHON_VERSION,
+            }
         params |= {"options": self.code_model.options}
         params |= kwargs
         return template.render(file_import=FileImport(self.code_model), **params)

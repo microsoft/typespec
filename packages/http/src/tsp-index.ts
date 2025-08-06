@@ -15,12 +15,12 @@ import {
   $post,
   $put,
   $query,
-  $route,
   $server,
-  $sharedRoute,
   $statusCode,
   $useAuth,
 } from "./decorators.js";
+import { $route } from "./decorators/route.js";
+import { $sharedRoute } from "./decorators/shared-route.js";
 import { $applyMergePatch, $mergePatchModel, $mergePatchProperty } from "./merge-patch.js";
 import {
   $httpFile,

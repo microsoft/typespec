@@ -69,7 +69,7 @@ class SampleSerializer(BaseSerializer):
     def _client_params(self) -> dict[str, Any]:
         # client params
         special_param: dict[str, str] = {}
-        credential_type = getattr(self.code_model.clients[0].credential, "type", None)
+        credential_type = getattr(self.operation_group.client.credential, "type", None)
         if isinstance(credential_type, TokenCredentialType):
             special_param |= {"credential": "DefaultAzureCredential()"}
         elif isinstance(credential_type, KeyCredentialType):
@@ -78,7 +78,7 @@ class SampleSerializer(BaseSerializer):
         params = [
             p
             for p in (
-                self.code_model.clients[0].parameters.positional + self.code_model.clients[0].parameters.keyword_only
+                self.operation_group.client.parameters.positional + self.operation_group.client.parameters.keyword_only
             )
             if not p.optional and p.client_default_value is None
         ]
@@ -153,6 +153,7 @@ class SampleSerializer(BaseSerializer):
         operation_result, return_var = self._operation_result()
         return self.env.get_template("sample.py.jinja2").render(
             code_model=self.code_model,
+            client=self.operation_group.client,
             file_name=self.file_name,
             operation_result=operation_result,
             operation_params=self._operation_params(),

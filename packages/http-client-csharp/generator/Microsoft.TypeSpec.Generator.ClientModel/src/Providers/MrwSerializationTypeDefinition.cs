@@ -51,7 +51,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly ModelProvider _model;
         private readonly InputModelType _inputModel;
         private readonly FieldProvider? _rawDataField;
-        private readonly PropertyProvider? _additionalBinaryDataProperty;
+        private readonly Lazy<PropertyProvider?> _additionalBinaryDataProperty;
         private readonly bool _isStruct;
         private ConstructorProvider? _serializationConstructor;
         // Flag to determine if the model should override the serialization methods
@@ -70,8 +70,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _persistableModelTInterface = new CSharpType(typeof(IPersistableModel<>), interfaceType.Type);
             _persistableModelObjectInterface = _isStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
             _rawDataField = _model.Fields.FirstOrDefault(f => f.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
-            _additionalBinaryDataProperty = GetAdditionalBinaryDataPropertiesProp();
-            _additionalProperties = new([.. _model.Properties.Where(p => p.IsAdditionalProperties)]);
+            _additionalBinaryDataProperty = new(GetAdditionalBinaryDataPropertiesProp);
+            _additionalProperties = new(() => [.. _model.Properties.Where(p => p.IsAdditionalProperties)]);
             _shouldOverrideMethods = _model.Type.BaseType != null && !_isStruct && _model.Type.BaseType is { IsFrameworkType: false };
             _utf8JsonWriterSnippet = _utf8JsonWriterParameter.As<Utf8JsonWriter>();
             _mrwOptionsParameterSnippet = _serializationOptionsParameter.As<ModelReaderWriterOptions>();
@@ -641,6 +641,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     var variableRef = property.AsVariableExpression;
                     if (property.IsAdditionalProperties)
                     {
+                        if (variableRef.Type.IsReadOnlyDictionary)
+                        {
+                            variableRef.Update(type: variableRef.Type.PropertyInitializationType);
+                        }
                         // IDictionary<string, T> additionalTProperties = new Dictionary<string, T>();
                         propertyDeclarationStatements.Add(Declare(variableRef, new DictionaryExpression(property.Type, New.Instance(property.Type.PropertyInitializationType))));
                     }
@@ -755,7 +759,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (!propertyProvider.Type.IsFrameworkType || propertyProvider.IsAdditionalProperties)
             {
-                return propertyProvider.AsVariableExpression;
+                return propertyProvider.Type.IsReadOnlyDictionary
+                    ? New.ReadOnlyDictionary(propertyProvider.Type.Arguments[0], propertyProvider.Type.ElementType, propertyProvider.AsVariableExpression)
+                    : propertyProvider.AsVariableExpression;
             }
             else if (!isRequired)
             {
@@ -796,7 +802,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (parameter.Property != null || parameter.Field != null)
                 {
                     // handle additional properties
-                    if (parameter.Property != null && parameter.Property != _additionalBinaryDataProperty && parameter.Property.IsAdditionalProperties)
+                    if (parameter.Property != null && parameter.Property != _additionalBinaryDataProperty.Value && parameter.Property.IsAdditionalProperties)
                     {
                         AddAdditionalPropertiesValueKindStatements(additionalPropsValueKindBodyStatements, parameter.Property, jsonProperty);
                         continue;
@@ -806,7 +812,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                     // By default, we should only deserialize properties with wire info that are payload properties.
                     // Those properties without wire info indicate they are not spec properties.
-                    if (wireInfo?.Location != PropertyLocation.Body)
+                    if (wireInfo == null || wireInfo.IsHttpMetadata == true)
                     {
                         continue;
                     }
@@ -850,12 +856,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
 
-            if (_additionalBinaryDataProperty != null)
+            if (_additionalBinaryDataProperty.Value != null)
             {
                 var binaryDataDeserializationValue = ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(
-                    _additionalBinaryDataProperty.Type.ElementType.FrameworkType, jsonProperty.Value(), SerializationFormat.Default);
+                    _additionalBinaryDataProperty.Value.Type.ElementType.FrameworkType, jsonProperty.Value(), SerializationFormat.Default);
                 propertyDeserializationStatements.Add(
-                    _additionalBinaryDataProperty.AsVariableExpression.AsDictionary(_additionalBinaryDataProperty.Type).Add(jsonProperty.Name(), binaryDataDeserializationValue));
+                    _additionalBinaryDataProperty.Value.AsVariableExpression.AsDictionary(_additionalBinaryDataProperty.Value.Type).Add(jsonProperty.Name(), binaryDataDeserializationValue));
             }
             else if (rawBinaryData != null)
             {
@@ -1385,7 +1391,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Those properties without wireinfo indicate they are not spec properties.
             foreach (var property in _model.CanonicalView.Properties)
             {
-                if (property.WireInfo?.Location != PropertyLocation.Body)
+                if (property.WireInfo == null || property.WireInfo.IsHttpMetadata)
                 {
                     continue;
                 }
@@ -1395,7 +1401,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (var field in _model.CanonicalView.Fields)
             {
-                if (field.WireInfo?.Location != PropertyLocation.Body)
+                if (field.WireInfo == null || field.WireInfo.IsHttpMetadata)
                 {
                     continue;
                 }
@@ -1791,7 +1797,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// <returns>The method body statement that writes the additional binary data.</returns>
         private MethodBodyStatement CreateWriteAdditionalRawDataStatement()
         {
-            if (_rawDataField == null || _additionalBinaryDataProperty != null)
+            if (_rawDataField == null || _additionalBinaryDataProperty.Value != null)
             {
                 return MethodBodyStatement.Empty;
             }

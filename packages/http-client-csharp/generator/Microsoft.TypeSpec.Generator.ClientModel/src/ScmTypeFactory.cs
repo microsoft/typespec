@@ -164,6 +164,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             }
 
             ClientCache[inputClient] = client;
+
+            if (client != null)
+            {
+                CSharpTypeMap[client.Type] = client;
+            }
+
             return client;
         }
 

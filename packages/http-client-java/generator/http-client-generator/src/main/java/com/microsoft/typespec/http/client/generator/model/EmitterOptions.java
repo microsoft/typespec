@@ -42,11 +42,13 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private DevOptions devOptions;
 
     // mgmt
+    private Boolean premium = false;
     private String renameModel;
     private String addInner;
     private String removeInner;
     private String preserveModel;
     private Boolean generateAsyncMethods;
+    private String propertyIncludeAlways;
     private List<ResourceCollectionAssociation> resourceCollectionAssociations = new ArrayList<>();
 
     // internal
@@ -176,6 +178,14 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return generateAsyncMethods;
     }
 
+    public String getPropertyIncludeAlways() {
+        return propertyIncludeAlways;
+    }
+
+    public Boolean getPremium() {
+        return premium;
+    }
+
     public List<ResourceCollectionAssociation> getResourceCollectionAssociations() {
         return resourceCollectionAssociations;
     }
@@ -250,8 +260,12 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                 options.preserveModel = reader.getNullable(EmitterOptions::getStringOrList);
             } else if ("generate-async-methods".equals(fieldName)) {
                 options.generateAsyncMethods = reader.getNullable(EmitterOptions::getBoolean);
+            } else if ("property-include-always".equals(fieldName)) {
+                options.propertyIncludeAlways = reader.getNullable(EmitterOptions::getStringOrList);
             } else if ("resource-collection-associations".equals(fieldName)) {
                 options.resourceCollectionAssociations = reader.readArray(ResourceCollectionAssociation::fromJson);
+            } else if ("premium".equals(fieldName)) {
+                options.premium = reader.getNullable(EmitterOptions::getBoolean);
             } else {
                 reader.skipChildren();
             }
