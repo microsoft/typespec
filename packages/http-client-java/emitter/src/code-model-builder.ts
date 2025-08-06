@@ -1180,6 +1180,7 @@ export class CodeModelBuilder {
               for (const opParam of op.parameters) {
                 if (
                   opParam.protocol.http?.in === parameter.kind &&
+                  parameter.kind === "query" &&
                   opParam.language.default.serializedName === parameter.serializedName
                 ) {
                   nextLinkReInjectedParameters.push(opParam);
