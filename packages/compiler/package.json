@@ -106,7 +106,7 @@
   },
   "dependencies": {
     "@babel/code-frame": "~7.27.1",
-    "@inquirer/prompts": "^7.4.0",
+    "@inquirer/prompts": "^7.8.0",
     "ajv": "~8.17.1",
     "change-case": "~5.4.4",
     "env-paths": "^3.0.0",
@@ -120,13 +120,13 @@
     "temporal-polyfill": "^0.3.0",
     "vscode-languageserver": "~9.0.1",
     "vscode-languageserver-textdocument": "~1.0.12",
-    "yaml": "~2.8.0",
+    "yaml": "~2.8.1",
     "yargs": "~18.0.0"
   },
   "devDependencies": {
     "@types/babel__code-frame": "~7.0.6",
     "@types/mustache": "~4.2.5",
-    "@types/node": "~24.1.0",
+    "@types/node": "~24.2.0",
     "@types/semver": "^7.5.8",
     "@types/yargs": "~17.0.33",
     "@typespec/internal-build-utils": "workspace:^",
@@ -138,8 +138,8 @@
     "rimraf": "~6.0.1",
     "source-map-support": "~0.5.21",
     "tmlanguage-generator": "workspace:^",
-    "typescript": "~5.8.2",
-    "vitest": "^3.1.2",
+    "typescript": "~5.9.2",
+    "vitest": "^3.2.4",
     "vscode-oniguruma": "~2.0.1",
     "vscode-textmate": "~9.2.0"
   }
