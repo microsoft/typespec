@@ -1,5 +1,17 @@
 # Change Log - typespec-vscode
 
+## 1.3.0
+
+### Features
+
+- [#7830](https://github.com/microsoft/typespec/pull/7830) Get emitter options from the `resolveCompilerOptions` function of the compiler
+- [#6802](https://github.com/microsoft/typespec/pull/6802) Add test case for TypeSpec Extension
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+
 ## 1.2.0
 
 ### Features
