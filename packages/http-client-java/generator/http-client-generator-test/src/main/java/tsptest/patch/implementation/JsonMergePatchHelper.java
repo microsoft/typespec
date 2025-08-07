@@ -7,6 +7,8 @@ package tsptest.patch.implementation;
 import tsptest.patch.models.Fish;
 import tsptest.patch.models.InnerModel;
 import tsptest.patch.models.Resource;
+import tsptest.patch.models.Salmon;
+import tsptest.patch.models.SawShark;
 import tsptest.patch.models.Shark;
 
 /**
@@ -72,6 +74,10 @@ public class JsonMergePatchHelper {
     private static SharkAccessor sharkAccessor;
 
     public interface SharkAccessor {
+        Shark prepareModelForJsonMergePatch(Shark shark, boolean jsonMergePatchEnabled);
+
+        boolean isJsonMergePatch(Shark shark);
+
         void setWeight(Shark shark, Integer weight);
     }
 
@@ -83,9 +89,28 @@ public class JsonMergePatchHelper {
         return sharkAccessor;
     }
 
+    private static SawSharkAccessor sawSharkAccessor;
+
+    public interface SawSharkAccessor {
+        SawShark prepareModelForJsonMergePatch(SawShark sawShark, boolean jsonMergePatchEnabled);
+
+        boolean isJsonMergePatch(SawShark sawShark);
+    }
+
+    public static void setSawSharkAccessor(SawSharkAccessor accessor) {
+        sawSharkAccessor = accessor;
+    }
+
+    public static SawSharkAccessor getSawSharkAccessor() {
+        return sawSharkAccessor;
+    }
+
     private static SalmonAccessor salmonAccessor;
 
     public interface SalmonAccessor {
+        Salmon prepareModelForJsonMergePatch(Salmon salmon, boolean jsonMergePatchEnabled);
+
+        boolean isJsonMergePatch(Salmon salmon);
     }
 
     public static void setSalmonAccessor(SalmonAccessor accessor) {
