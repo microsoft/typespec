@@ -45,7 +45,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         internal bool IsReadOnlyList => _isReadOnlyList ??= TypeIsReadOnlyList();
         internal bool IsReadWriteList => _isReadWriteList ??= TypeIsReadWriteList();
         public bool IsDictionary => _isDictionary ??= TypeIsDictionary();
-        internal bool IsReadOnlyDictionary => _isReadOnlyDictionary ??= TypeIsReadOnlyDictionary();
+        public bool IsReadOnlyDictionary => _isReadOnlyDictionary ??= TypeIsReadOnlyDictionary();
         internal bool IsReadWriteDictionary => _isReadWriteDictionary ??= TypeIsReadWriteDictionary();
         internal bool IsIEnumerableOfT => _isIEnumerableOfT ??= TypeIsIEnumerableOfT();
         internal bool IsIAsyncEnumerableOfT => _isIAsyncEnumerableOfT ??= TypeIsIAsyncEnumerableOfT();
@@ -672,6 +672,36 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             if (@namespace != null)
             {
                 Namespace = @namespace;
+            }
+        }
+
+        internal static readonly IEqualityComparer<CSharpType> IgnoreNullableComparer = new CSharpTypeIgnoreNullableComparer();
+
+        private class CSharpTypeIgnoreNullableComparer : IEqualityComparer<CSharpType>
+        {
+            public bool Equals(CSharpType? x, CSharpType? y)
+            {
+                if (x is null && y is null)
+                {
+                    return true;
+                }
+                if (x is null || y is null)
+                {
+                    return false;
+                }
+
+                return x.Equals(y, ignoreNullable: true);
+            }
+
+            public int GetHashCode(CSharpType obj)
+            {
+                HashCode hashCode = new HashCode();
+                hashCode.Add(obj.Namespace);
+                hashCode.Add(obj.Name);
+                hashCode.Add(obj.IsValueType);
+                hashCode.Add(obj.IsEnum);
+                hashCode.Add(obj.IsStruct);
+                return hashCode.ToHashCode();
             }
         }
     }

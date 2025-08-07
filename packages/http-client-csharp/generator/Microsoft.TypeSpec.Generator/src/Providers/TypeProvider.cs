@@ -25,7 +25,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             _customCodeView = new(() => BuildCustomCodeView());
             _canonicalView = new(BuildCanonicalView);
-            _lastContractView = new(BuildLastContractView);
+            _lastContractView = new(() => BuildLastContractView());
             _inputType = inputType;
         }
 
@@ -43,8 +43,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // Use the Type.Name so that any customizations to the declaring type are applied for the lookup.
                 DeclaringTypeProvider?.Type.Name);
 
-        private protected virtual TypeProvider? BuildLastContractView()
-            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(BuildNamespace(), BuildName(), DeclaringTypeProvider?.BuildName());
+        private protected virtual TypeProvider? BuildLastContractView(string? generatedTypeName = null)
+            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
+                BuildNamespace(),
+                generatedTypeName?? BuildName(),
+                DeclaringTypeProvider?.Type.Name);
 
         public TypeProvider? CustomCodeView => _customCodeView.Value;
         public TypeProvider? LastContractView => _lastContractView.Value;
@@ -231,8 +234,28 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProviders();
 
-        private IReadOnlyList<AttributeStatement>? _attributes;
-        public IReadOnlyList<AttributeStatement> Attributes => _attributes ??= BuildAttributes();
+        private IReadOnlyList<AttributeStatement>? _attributeStatements;
+        private IReadOnlyList<MethodBodyStatement>? _attributes;
+
+        public IReadOnlyList<AttributeStatement> Attributes
+        {
+            get
+            {
+                _attributes ??= BuildAttributes();
+                _attributeStatements ??= _attributes
+                    .Select(a => a switch
+                    {
+                        SuppressionStatement suppression => suppression.AsStatement<AttributeStatement>() ??
+                                                            throw new InvalidOperationException(
+                                                                $"Unexpected suppression statement in {Name}."),
+                        AttributeStatement attribute => attribute,
+                        _ => throw new InvalidOperationException($"Unexpected attribute type {a.GetType()} in {Name}.")
+                    }).ToList();
+                return _attributeStatements;
+            }
+        }
+
+        internal IReadOnlyList<MethodBodyStatement> GetAttributes() => _attributes ??= BuildAttributes();
 
         protected virtual CSharpType[] GetTypeArguments() => [];
 
@@ -353,7 +376,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected virtual CSharpType BuildEnumUnderlyingType() => throw new InvalidOperationException("Not an EnumProvider type");
 
-        protected virtual IReadOnlyList<AttributeStatement> BuildAttributes() => [];
+        protected virtual IReadOnlyList<MethodBodyStatement> BuildAttributes() => [];
 
         private CSharpType? _enumUnderlyingType;
 
@@ -386,7 +409,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _relativeFilePath = null;
             _customCodeView = new(() => BuildCustomCodeView());
             _canonicalView = new(BuildCanonicalView);
-            _lastContractView = new(BuildLastContractView);
+            _lastContractView = new(() => BuildLastContractView());
             _enumValues = null;
             _enumUnderlyingType = null;
             _attributes = null;
@@ -476,6 +499,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 // Reset the custom code view to reflect the new name
                 _customCodeView = new(BuildCustomCodeView(name));
+                _lastContractView = new(BuildLastContractView(name));
                 // Give precedence to the custom code view name if it exists
                 Type.Update(_customCodeView.Value?.Name ?? name);
             }

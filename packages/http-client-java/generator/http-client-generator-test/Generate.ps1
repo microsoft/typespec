@@ -99,6 +99,8 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
     # test service-name
     $tspOptions += " --option ""@typespec/http-client-java.service-name=Arm Resource Provider"""
+    # test property-include-always
+    $tspOptions += " --option ""@typespec/http-client-java.property-include-always=FunctionConfiguration.input"""
   } elseif ($tspFile -match "subclient.tsp") {
     $tspOptions += " --option ""@typespec/http-client-java.enable-subclient=true"""
     # test for include-api-view-properties
@@ -107,6 +109,8 @@ $generateScript = {
 
   # Test customization for one of the TypeSpec definitions - naming.tsp
   if ($tspFile -match "tsp[\\/]naming.tsp$") {
+    # Test for rename-model
+    $tspOptions += " --option ""@typespec/http-client-java.rename-model=RunObjectLastError1:RunObjectLastErrorRenamed,RunObjectLastErrorCode:RunObjectLastErrorCodeRenamed"""
     # Add the customization-class option for Java emitter
     $tspOptions += " --option ""@typespec/http-client-java.customization-class=../../customization/src/main/java/CustomizationTest.java"""
   }

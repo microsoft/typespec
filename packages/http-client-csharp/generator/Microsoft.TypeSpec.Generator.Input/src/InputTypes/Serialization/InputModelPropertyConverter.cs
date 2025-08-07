@@ -43,6 +43,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                 access: null,
                 isDiscriminator: false,
                 serializedName: null!,
+                isHttpMetadata: false,
                 serializationOptions: null!);
             resolver.AddReference(id, property);
 
@@ -53,6 +54,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputType? propertyType = null;
             bool isReadOnly = false;
             bool isOptional = false;
+            bool isHttpMetadata = false;
             string? access = null;
             bool isDiscriminator = false;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
@@ -67,6 +69,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("doc", ref doc)
                     || reader.TryReadComplexType("type", options, ref propertyType)
                     || reader.TryReadBoolean("readOnly", ref isReadOnly)
+                    || reader.TryReadBoolean("isHttpMetadata", ref isHttpMetadata)
                     || reader.TryReadBoolean("optional", ref isOptional)
                     || reader.TryReadString("access", ref access)
                     || reader.TryReadBoolean("discriminator", ref isDiscriminator)
@@ -86,6 +89,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             property.Type = propertyType ?? throw new JsonException($"{nameof(InputModelProperty)} must have a property type.");
             property.IsRequired = !isOptional;
             property.IsReadOnly = isReadOnly;
+            property.IsHttpMetadata = isHttpMetadata;
             property.Access = access;
             property.IsDiscriminator = isDiscriminator;
             property.Decorators = decorators ?? [];

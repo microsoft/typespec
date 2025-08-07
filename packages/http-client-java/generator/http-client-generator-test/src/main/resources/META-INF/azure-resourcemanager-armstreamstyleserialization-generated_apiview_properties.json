@@ -28,6 +28,7 @@
     "tsptest.armstreamstyleserialization.fluent.models.FunctionInner": "TspTest.ArmStreamStyleSerialization.Function",
     "tsptest.armstreamstyleserialization.fluent.models.OutputOnlyModelInner": "TspTest.ArmStreamStyleSerialization.OutputOnlyModel",
     "tsptest.armstreamstyleserialization.fluent.models.OutputOnlyModelProperties": "TspTest.ArmStreamStyleSerialization.OutputOnlyModelProperties",
+    "tsptest.armstreamstyleserialization.fluent.models.ResultData": "TspTest.ArmStreamStyleSerialization.ResultData",
     "tsptest.armstreamstyleserialization.fluent.models.SalmonInner": "TspTest.ArmStreamStyleSerialization.Salmon",
     "tsptest.armstreamstyleserialization.fluent.models.TailProperties": "TspTest.ArmStreamStyleSerialization.TailProperties",
     "tsptest.armstreamstyleserialization.fluent.models.TopLevelArmResourceInner": "TspTest.ArmStreamStyleSerialization.TopLevelArmResource",

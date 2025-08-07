@@ -7,5 +7,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Utilities
     {
         public const string ClientNamespaceConflict = "client-namespace-conflict";
         public const string MissingItemsProperty = "missing-items-property";
+        public const string NoMatchingItemsProperty = "no-matching-items-property";
     }
 }
