@@ -234,7 +234,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProviders();
 
-        private IReadOnlyList<AttributeStatement>? _attributeStatements;
         private IReadOnlyList<MethodBodyStatement>? _attributes;
 
         public IReadOnlyList<AttributeStatement> Attributes
@@ -242,7 +241,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             get
             {
                 _attributes ??= BuildAttributes();
-                _attributeStatements ??= _attributes
+                return [.. _attributes
                     .Select(a => a switch
                     {
                         SuppressionStatement suppression => suppression.AsStatement<AttributeStatement>() ??
@@ -250,8 +249,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                                                                 $"Unexpected suppression statement in {Name}."),
                         AttributeStatement attribute => attribute,
                         _ => throw new InvalidOperationException($"Unexpected attribute type {a.GetType()} in {Name}.")
-                    }).ToList();
-                return _attributeStatements;
+                    })];
             }
         }
 
