@@ -5,4 +5,4 @@ packages:
   - "@typespec/http-client-python"
 ---
 
-Ensure necessary typing imports for internal models
+[python] don't fail on response body consumption in `_failsafe_deserialize`

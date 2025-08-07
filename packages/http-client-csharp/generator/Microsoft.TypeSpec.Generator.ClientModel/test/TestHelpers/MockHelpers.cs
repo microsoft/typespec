@@ -69,7 +69,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             RequestContentApi? requestContentApi = null,
             Func<InputAuth>? auth = null,
             bool includeXmlDocs = false,
-            Func<InputType, bool>? createCSharpTypeCoreFallback = null)
+            Func<InputType, bool>? createCSharpTypeCoreFallback = null,
+            Func<InputModelType, ModelProvider?>? createModelCore = null)
         {
             IReadOnlyList<string> inputNsApiVersions = apiVersions?.Invoke() ?? [];
             IReadOnlyList<InputLiteralType> inputNsLiterals = inputLiterals?.Invoke() ?? [];
@@ -107,6 +108,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             if (createSerializationsCore is not null)
             {
                 mockTypeFactory.Protected().Setup<IReadOnlyList<TypeProvider>>("CreateSerializationsCore", ItExpr.IsAny<InputType>(), ItExpr.IsAny<TypeProvider>()).Returns(createSerializationsCore);
+            }
+
+            if (createModelCore is not null)
+            {
+                mockTypeFactory.Protected().Setup<ModelProvider?>("CreateModelCore", ItExpr.IsAny<InputModelType>()).Returns(createModelCore);
             }
 
             if (createCSharpTypeCore is not null)
