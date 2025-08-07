@@ -224,7 +224,16 @@ class DpgModelSerializer(_ModelSerializer):
                 "for k, v in _flattened_input.items():",
                 "    setattr(self, k, v)",
             ]
-        return [super_call]
+        discriminator_value_setter = []
+        for prop in self.get_properties_to_declare(model):
+            if (
+                prop.is_discriminator
+                and isinstance(prop.type, ConstantType)
+                and prop.type.value is not None
+            ):
+                discriminator_value_setter.append(f"self.{prop.client_name}={prop.get_declaration()}")
+
+        return [super_call, *discriminator_value_setter]
 
     def imports(self) -> FileImport:
         file_import = FileImport(self.code_model)
@@ -345,17 +354,7 @@ class DpgModelSerializer(_ModelSerializer):
 
     @staticmethod
     def properties_to_pass_to_super(model: ModelType) -> str:
-        properties_to_pass_to_super = ["*args"]
-        for parent in model.parents:
-            for prop in model.properties:
-                if (
-                    prop.client_name in [prop.client_name for prop in parent.properties if prop.is_base_discriminator]
-                    and prop.is_discriminator
-                    and not prop.constant
-                    and not prop.readonly
-                ):
-                    properties_to_pass_to_super.append(f"{prop.client_name}={prop.get_declaration()}")
-        properties_to_pass_to_super.append("**kwargs")
+        properties_to_pass_to_super = ["*args", "**kwargs"]
         return ", ".join(properties_to_pass_to_super)
 
     def global_pylint_disables(self) -> str:

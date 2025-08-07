@@ -4065,3 +4065,58 @@ def test_additional_properties_serialization():
     model["durationProp"] = datetime.timedelta(days=1)
 
     assert json.loads(json.dumps(model, cls=SdkJSONEncoder)) == value
+
+class Animal(Model):
+    __mapping__: Dict[str, Model] = {}
+    kind: str = rest_discriminator(name="kind")
+    name: str = rest_field()
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+
+class AnotherPet(Animal, discriminator='pet'):
+    __mapping__: Dict[str, Model] = {}
+    kind: Literal["pet"] = rest_discriminator(name="kind")
+    trained: bool = rest_field()
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.kind = "pet"
+
+
+class AnotherDog(AnotherPet, discriminator='dog'):
+    kind: Literal["dog"] = rest_discriminator(name="kind")
+    breed: str = rest_field()
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.kind = "dog"
+
+
+def test_multi_layer_discriminator():
+    pet = {
+      "kind": "pet",
+      "name": "Buddy",
+      "trained": True
+    }
+    
+    dog = {
+      "kind": "dog",
+      "name": "Rex",
+      "trained": True,
+      "breed": "German Shepherd"
+    }
+    
+    model_pet = AnotherPet(pet)
+    assert model_pet == pet
+    
+    model_dog = AnotherDog(dog)
+    assert model_dog == dog
+
+    assert _deserialize(Animal, pet) == model_pet
+    assert _deserialize(Animal, dog) == model_dog
+    assert _deserialize(AnotherPet, dog) == model_dog
+
+    assert AnotherPet(name="Buddy", trained=True) == model_pet
+    assert AnotherDog(name="Rex", trained=True, breed="German Shepherd") == model_dog
