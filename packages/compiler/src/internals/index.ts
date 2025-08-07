@@ -11,5 +11,5 @@ export { resolveCompilerOptions } from "../config/config-to-options.js";
 export { NodeSystemHost } from "../core/node-system-host.js";
 export { InitTemplateSchema } from "../init/init-template.js";
 export { makeScaffoldingConfig, scaffoldNewProject } from "../init/scaffold.js";
-export { InternalCompileResult, ServerDiagnostic } from "../server/index.js";
 export { resolveEntrypointFile } from "../server/entry-point-resolve.js";
+export { InternalCompileResult, ServerDiagnostic } from "../server/index.js";

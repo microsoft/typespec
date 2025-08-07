@@ -5,7 +5,7 @@ import { resolveTspMain } from "../utils/misc.js";
 export async function resolveEntrypointFile(
   entrypoints: string[] | undefined,
   path: string,
-  log: (log: {level:string, message:string, detail?: unknown}) => void
+  log: (log: { level: string; message: string; detail?: unknown }) => void,
 ): Promise<string> {
   let dir = getDirectoryPath(path);
   let packageJsonEntrypoint: string | undefined;
