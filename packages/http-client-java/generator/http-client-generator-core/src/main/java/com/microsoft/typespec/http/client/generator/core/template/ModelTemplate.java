@@ -1419,14 +1419,6 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         addGeneratedAnnotation(classBlock);
         classBlock.privateFinalMemberVariable("Set<String> updatedProperties = new HashSet<>()");
 
-        if (model.isPolymorphic() && CoreUtils.isNullOrEmpty(model.getDerivedModels())) {
-            // Only polymorphic parent models generate an accessor.
-            // If it is the super most parent model, it will generate the prepareModelForJsonMergePatch method.
-            // Other parents need to generate setters for the properties that are used in json-merge-patch, used in
-            // deserialization to prevent these properties from always being included in serialization.
-            return;
-        }
-
         List<ClientModelProperty> setterProperties = !model.isPolymorphic()
             ? Collections.emptyList()
             : model.getProperties()
@@ -1434,24 +1426,14 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                 .filter(property -> !property.isConstant() && !property.isPolymorphicDiscriminator())
                 .collect(Collectors.toList());
 
-        boolean rootParent = CoreUtils.isNullOrEmpty(model.getParentModelName());
-        if (!rootParent && setterProperties.isEmpty()) {
-            // Model isn't the root parent and doesn't have any setter properties, no need to generate an accessor.
-            return;
-        }
+        // Only the root model needs to have the jsonMergePatch property.
+        addGeneratedAnnotation(classBlock);
+        classBlock.privateMemberVariable("boolean jsonMergePatch");
 
-        if (rootParent) {
-            // Only the root model needs to have the jsonMergePatch property.
-            addGeneratedAnnotation(classBlock);
-            classBlock.privateMemberVariable("boolean jsonMergePatch");
-        }
-
-        if (rootParent) {
-            // setter
-            addGeneratedAnnotation(classBlock);
-            classBlock.privateMethod("void serializeAsJsonMergePatch(boolean jsonMergePatch)",
-                method -> method.line("this.jsonMergePatch = jsonMergePatch;"));
-        }
+        // setter
+        addGeneratedAnnotation(classBlock);
+        classBlock.privateMethod("void serializeAsJsonMergePatch(boolean jsonMergePatch)",
+            method -> method.line("this.jsonMergePatch = jsonMergePatch;"));
 
         // static code block to access jsonMergePatch setter
         classBlock.staticBlock(staticBlock -> {
@@ -1459,26 +1441,27 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
             staticBlock
                 .line("JsonMergePatchHelper.set" + accessorName + "(new JsonMergePatchHelper." + accessorName + "() {");
             staticBlock.indent(() -> {
-                if (rootParent) {
-                    staticBlock.line("@Override");
-                    staticBlock.block("public " + model.getName() + " prepareModelForJsonMergePatch(" + model.getName()
-                        + " model, boolean jsonMergePatchEnabled)", setJsonMergePatch -> {
-                            staticBlock.line("model.serializeAsJsonMergePatch(jsonMergePatchEnabled);");
-                            staticBlock.line("return model;");
-                        });
+                staticBlock.line("@Override");
+                staticBlock.block("public " + model.getName() + " prepareModelForJsonMergePatch(" + model.getName()
+                    + " model, boolean jsonMergePatchEnabled)", setJsonMergePatch -> {
+                        staticBlock.line("model.serializeAsJsonMergePatch(jsonMergePatchEnabled);");
+                        staticBlock.line("return model;");
+                    });
 
-                    staticBlock.line("@Override");
-                    staticBlock.block("public boolean isJsonMergePatch(" + model.getName() + " model)",
-                        getJsonMergePatch -> getJsonMergePatch.line("return model.jsonMergePatch;"));
+                staticBlock.line("@Override");
+                staticBlock.block("public boolean isJsonMergePatch(" + model.getName() + " model)",
+                    getJsonMergePatch -> getJsonMergePatch.line("return model.jsonMergePatch;"));
+
+                if (model.isPolymorphicParent()) {
+                    for (ClientModelProperty setter : setterProperties) {
+                        staticBlock.line("@Override");
+                        staticBlock.block(
+                            "public void " + setter.getSetterName() + "(" + model.getName() + " model, "
+                                + setter.getWireType() + " " + setter.getName() + ")",
+                            setField -> setField.line("model." + setter.getName() + " = " + setter.getName() + ";"));
+                    }
                 }
 
-                for (ClientModelProperty setter : setterProperties) {
-                    staticBlock.line("@Override");
-                    staticBlock.block(
-                        "public void " + setter.getSetterName() + "(" + model.getName() + " model, "
-                            + setter.getWireType() + " " + setter.getName() + ")",
-                        setField -> setField.line("model." + setter.getName() + " = " + setter.getName() + ";"));
-                }
             });
 
             staticBlock.line("});");

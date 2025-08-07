@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
@@ -84,11 +83,6 @@ public class JsonMergePatchHelperTemplate implements IJavaTemplate<List<ClientMo
                 .filter(property -> !property.isConstant() && !property.isPolymorphicDiscriminator())
                 .collect(Collectors.toList());
 
-            if (!CoreUtils.isNullOrEmpty(model.getParentModelName()) && setterProperties.isEmpty()) {
-                // Model isn't the root parent and doesn't have any setter properties, no need to generate an accessor.
-                continue;
-            }
-
             String modelName = model.getName();
             String camelModelName = CodeNamer.toCamelCase(modelName);
 
@@ -97,23 +91,27 @@ public class JsonMergePatchHelperTemplate implements IJavaTemplate<List<ClientMo
 
             // Accessor interface declaration.
             javaClass.interfaceBlock(JavaVisibility.Public, modelName + "Accessor", interfaceBlock -> {
+
                 interfaceBlock.publicMethod(modelName + " prepareModelForJsonMergePatch(" + modelName + " "
                     + camelModelName + ", boolean jsonMergePatchEnabled)");
 
                 interfaceBlock.publicMethod("boolean isJsonMergePatch(" + modelName + " " + camelModelName + ")");
 
-                String modelNameParameter
-                    = model.getName().substring(0, 1).toLowerCase(Locale.ROOT) + model.getName().substring(1);
-                for (ClientModelProperty property : model.getProperties()) {
-                    if (property.isConstant() || property.isPolymorphicDiscriminator()) {
-                        // Don't generate setters for constant or discriminator properties.
-                        continue;
+                // only generate setters for polymorphic parent models' properties which are not constant or
+                // discriminator.
+                if (model.isPolymorphicParent()) {
+                    String modelNameParameter
+                        = model.getName().substring(0, 1).toLowerCase(Locale.ROOT) + model.getName().substring(1);
+                    for (ClientModelProperty property : model.getProperties()) {
+                        if (property.isConstant() || property.isPolymorphicDiscriminator()) {
+                            // Don't generate setters for constant or discriminator properties.
+                            continue;
+                        }
+
+                        interfaceBlock.publicMethod("void " + property.getSetterName() + "(" + model.getName() + " "
+                            + modelNameParameter + ", " + property.getClientType() + " " + property.getName() + ")");
                     }
-
-                    interfaceBlock.publicMethod("void " + property.getSetterName() + "(" + model.getName() + " "
-                        + modelNameParameter + ", " + property.getClientType() + " " + property.getName() + ")");
                 }
-
             });
 
             // Accessor field setter.
