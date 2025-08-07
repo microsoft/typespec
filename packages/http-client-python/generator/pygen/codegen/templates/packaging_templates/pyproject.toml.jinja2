@@ -14,7 +14,11 @@ name = "{{ options.get('package-name')|lower }}"
 authors = [
   { name = "{{ code_model.company_name }}"{% if code_model.is_azure_flavor %}, email = "azpysdkhelp@microsoft.com"{% endif %} },
 ]
+{% if options.get("azure-arm") %}
+description = "Microsoft Azure {{ options.get('package-pprint-name') }} Client Library for Python
+{% else %}
 description = "{{ code_model.company_name }} {% if code_model.is_azure_flavor and not options.get('package-pprint-name').startswith('Azure ') %}Azure {% endif %}{{ options.get('package-pprint-name') }} Client Library for Python"
+{% endif %}
 license = {text = "MIT License"}
 classifiers = [
     "Development Status :: {{ dev_status }}",
