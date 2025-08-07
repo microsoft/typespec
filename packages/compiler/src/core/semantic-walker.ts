@@ -3,6 +3,7 @@ import { isTemplateDeclaration } from "./type-utils.js";
 import {
   Decorator,
   Enum,
+  FunctionType,
   Interface,
   ListenerFlow,
   Model,
@@ -394,6 +395,13 @@ function navigateScalarConstructor(type: ScalarConstructor, context: NavigationC
   if (context.emit("scalarConstructor", type) === ListenerFlow.NoRecursion) return;
 }
 
+function navigateFunctionDeclaration(type: FunctionType, context: NavigationContext) {
+  if (checkVisited(context.visited, type)) {
+    return;
+  }
+  if (context.emit("function", type) === ListenerFlow.NoRecursion) return;
+}
+
 function navigateTypeInternal(type: Type, context: NavigationContext) {
   switch (type.kind) {
     case "Model":
@@ -426,6 +434,8 @@ function navigateTypeInternal(type: Type, context: NavigationContext) {
       return navigateDecoratorDeclaration(type, context);
     case "ScalarConstructor":
       return navigateScalarConstructor(type, context);
+    case "Function":
+      return navigateFunctionDeclaration(type, context);
     case "FunctionParameter":
     case "Boolean":
     case "EnumMember":

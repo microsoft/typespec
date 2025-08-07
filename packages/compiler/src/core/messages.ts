@@ -395,6 +395,7 @@ const diagnostics = {
       modelExpression: `Is a model expression type, but is being used as a value here. Use #{} to create an object value.`,
       tuple: `Is a tuple type, but is being used as a value here. Use #[] to create an array value.`,
       templateConstraint: paramMessage`${"name"} template parameter can be a type but is being used as a value here.`,
+      functionReturn: paramMessage`Function returned a type, but a value was expected.`,
     },
   },
   "non-callable": {

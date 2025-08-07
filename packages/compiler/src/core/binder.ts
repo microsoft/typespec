@@ -13,6 +13,7 @@ import {
   EnumStatementNode,
   FileLibraryMetadata,
   FunctionDeclarationStatementNode,
+  FunctionImplementations,
   FunctionParameterNode,
   InterfaceStatementNode,
   IntersectionExpressionNode,
@@ -162,6 +163,19 @@ export function createBinder(program: Program): Binder {
               "template",
               templateName,
               template,
+              sourceFile,
+            );
+          }
+        }
+      } else if (key === "$functions") {
+        const value: FunctionImplementations = member as any;
+        for (const [namespaceName, functions] of Object.entries(value)) {
+          for (const [functionName, fn] of Object.entries(functions)) {
+            bindFunctionImplementation(
+              namespaceName === "" ? [] : namespaceName.split("."),
+              "function",
+              functionName,
+              fn,
               sourceFile,
             );
           }

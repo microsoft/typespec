@@ -9,6 +9,7 @@ import {
   Decorator,
   EnumMember,
   FunctionParameter,
+  FunctionType,
   Interface,
   Model,
   ModelProperty,
@@ -103,6 +104,8 @@ function getTypeSignature(type: Type, options: GetSymbolSignatureOptions): strin
       return `(union variant)\n${fence(getUnionVariantSignature(type))}`;
     case "Tuple":
       return `(tuple)\n[${fence(type.values.map((v) => getTypeSignature(v, options)).join(", "))}]`;
+    case "Function":
+      return fence(getFunctionSignature(type));
     default:
       const _assertNever: never = type;
       compilerAssert(false, "Unexpected type kind");
@@ -114,6 +117,13 @@ function getDecoratorSignature(type: Decorator) {
   const name = type.name.slice(1);
   const parameters = [type.target, ...type.parameters].map((x) => getFunctionParameterSignature(x));
   return `dec ${ns}${name}(${parameters.join(", ")})`;
+}
+
+function getFunctionSignature(type: FunctionType) {
+  const ns = getQualifier(type.namespace);
+  const parameters = type.parameters.map((p) => getFunctionParameterSignature(p));
+  const returnType = getEntityName(type.returnType);
+  return `fn ${ns}${type.name}(${parameters.join(", ")}): ${returnType}`;
 }
 
 function getOperationSignature(type: Operation, includeQualifier: boolean = true) {

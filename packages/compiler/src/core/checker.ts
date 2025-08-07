@@ -70,6 +70,7 @@ import {
   FunctionDeclarationStatementNode,
   FunctionParameter,
   FunctionParameterNode,
+  FunctionType,
   IdentifierKind,
   IdentifierNode,
   IndeterminateEntity,
@@ -1436,13 +1437,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return errorType;
     }
 
-    if (sym.flags & SymbolFlags.Function) {
-      reportCheckerDiagnostic(
-        createDiagnostic({ code: "invalid-type-ref", messageId: "function", target: sym }),
-      );
+    // if (sym.flags & SymbolFlags.Function) {
+    //   reportCheckerDiagnostic(
+    //     createDiagnostic({ code: "invalid-type-ref", messageId: "function", target: sym }),
+    //   );
 
-      return errorType;
-    }
+    //   return errorType;
+    // }
 
     const argumentNodes = node.kind === SyntaxKind.TypeReference ? node.arguments : [];
     const symbolLinks = getSymbolLinks(sym);
@@ -1911,9 +1912,48 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function checkFunctionDeclaration(
     node: FunctionDeclarationStatementNode,
     mapper: TypeMapper | undefined,
-  ) {
-    reportCheckerDiagnostic(createDiagnostic({ code: "function-unsupported", target: node }));
-    return errorType;
+  ): FunctionType {
+    const mergedSymbol = getMergedSymbol(node.symbol);
+    const links = getSymbolLinks(mergedSymbol);
+
+    if (links.declaredType && mapper === undefined) {
+      // we're not instantiating this operation and we've already checked it
+      return links.declaredType as FunctionType;
+    }
+
+    const namespace = getParentNamespaceType(node);
+    compilerAssert(
+      namespace,
+      `Function ${node.id.sv} should have resolved a declared namespace or the global namespace.`,
+    );
+
+    const name = node.id.sv;
+
+    if (!(node.modifierFlags & ModifierFlags.Extern)) {
+      reportCheckerDiagnostic(createDiagnostic({ code: "function-extern", target: node }));
+    }
+
+    const implementation = mergedSymbol.value;
+    if (implementation === undefined) {
+      reportCheckerDiagnostic(createDiagnostic({ code: "missing-implementation", target: node }));
+    }
+
+    const functionType: FunctionType = createType({
+      kind: "Function",
+      name,
+      namespace,
+      node,
+      parameters: node.parameters.map((x) => checkFunctionParameter(x, mapper, true)),
+      returnType: node.returnType
+        ? getParamConstraintEntityForNode(node.returnType, mapper)
+        : ({
+            entityKind: "MixedParameterConstraint",
+            type: unknownType,
+          } satisfies MixedParameterConstraint),
+      implementation: implementation ?? (() => errorType),
+    });
+
+    return functionType;
   }
 
   function checkFunctionParameter(
@@ -4108,10 +4148,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function checkCallExpressionTarget(
     node: CallExpressionNode,
     mapper: TypeMapper | undefined,
-  ): ScalarConstructor | Scalar | null {
+  ): ScalarConstructor | Scalar | FunctionType | null {
     const target = checkTypeReference(node.target, mapper);
 
-    if (target.kind === "Scalar" || target.kind === "ScalarConstructor") {
+    if (
+      target.kind === "Scalar" ||
+      target.kind === "ScalarConstructor" ||
+      target.kind === "Function"
+    ) {
       return target;
     } else {
       reportCheckerDiagnostic(
@@ -4264,13 +4308,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function checkCallExpression(
     node: CallExpressionNode,
     mapper: TypeMapper | undefined,
-  ): Value | null {
+  ): Type | Value | IndeterminateEntity | null {
     const target = checkCallExpressionTarget(node, mapper);
     if (target === null) {
       return null;
     }
     if (target.kind === "ScalarConstructor") {
       return createScalarValue(node, mapper, target);
+    } else if (target.kind === "Function") {
+      return checkFunctionCall(node, target, mapper);
     }
 
     if (relation.areScalarsRelated(target, getStdType("string"))) {
@@ -4288,6 +4334,45 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         }),
       );
       return null;
+    }
+  }
+
+  function checkFunctionCall(
+    node: CallExpressionNode,
+    target: FunctionType,
+    mapper: TypeMapper | undefined,
+  ): Type | Value | null {
+    const [hadError, resolvedArgs] = checkFunctionCallArguments(node.arguments, target, mapper);
+
+    const result = hadError ? errorType : target.implementation(program, ...resolvedArgs);
+
+    if (!hadError) checkFunctionReturn(target, result);
+
+    return result;
+  }
+
+  function checkFunctionCallArguments(
+    args: Expression[],
+    target: FunctionType,
+    mapper: TypeMapper | undefined,
+  ): [boolean, (Type | Value)[]] {
+    return [false, args.map((arg) => checkNode(arg, mapper))] as [boolean, (Type | Value)[]];
+  }
+
+  function checkFunctionReturn(target: FunctionType, result: Type | Value) {
+    if (target.returnType.valueType) {
+      if (result.entityKind !== "Value") {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "expect-value",
+            messageId: "functionReturn",
+            format: { name: getTypeName(result) },
+            target: target,
+          }),
+        );
+
+        return;
+      }
     }
   }
 

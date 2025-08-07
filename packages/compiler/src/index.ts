@@ -242,7 +242,7 @@ export const $decorators = {
   },
 };
 
-export { $templates } from "./lib/tsp-index.js";
+export { $functions } from "./lib/tsp-index.js";
 
 export {
   ensureTrailingDirectorySeparator,

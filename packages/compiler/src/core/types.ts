@@ -57,6 +57,10 @@ export interface TemplateFunction {
   (program: TemplateContext, mapper: TypeMapper): void;
 }
 
+export interface FunctionImplementation {
+  (program: Program, ...args: any[]): Type | Value;
+}
+
 export interface BaseType {
   readonly entityKind: "Type";
   kind: string;
@@ -135,7 +139,8 @@ export type Type =
   | TemplateParameter
   | Tuple
   | Union
-  | UnionVariant;
+  | UnionVariant
+  | FunctionType;
 
 export type StdTypes = {
   // Models
@@ -689,6 +694,16 @@ export interface Decorator extends BaseType {
   target: MixedFunctionParameter;
   parameters: MixedFunctionParameter[];
   implementation: (...args: unknown[]) => void;
+}
+
+export interface FunctionType extends BaseType {
+  kind: "Function";
+  node?: FunctionDeclarationStatementNode;
+  name: string;
+  namespace?: Namespace;
+  parameters: MixedFunctionParameter[];
+  returnType: MixedParameterConstraint;
+  implementation: (...args: unknown[]) => Type | Value;
 }
 
 export interface FunctionParameterBase extends BaseType {
@@ -2317,6 +2332,12 @@ export interface DecoratorImplementations {
 export interface TemplateImplementations {
   readonly [namespace: string]: {
     readonly [name: string]: TemplateFunction;
+  };
+}
+
+export interface FunctionImplementations {
+  readonly [namespace: string]: {
+    readonly [name: string]: FunctionImplementation;
   };
 }
 
