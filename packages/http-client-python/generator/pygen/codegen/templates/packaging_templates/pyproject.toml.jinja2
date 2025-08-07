@@ -5,7 +5,7 @@
 {% endif %}
 
 [build-system]
-requires = ["setuptools>=61.0.0", "wheel"]  # Requires 61.0.0 for dynamic version
+requires = ["setuptools>=77.0.3", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -15,7 +15,7 @@ authors = [
   { name = "{{ code_model.company_name }}"{% if code_model.is_azure_flavor %}, email = "azpysdkhelp@microsoft.com"{% endif %} },
 ]
 description = "{{ code_model.company_name }} {% if code_model.is_azure_flavor and not options.get('package-pprint-name').startswith('Azure ') %}Azure {% endif %}{{ options.get('package-pprint-name') }} Client Library for Python"
-license = {text = "MIT License"}
+license = "MIT"
 classifiers = [
     "Development Status :: {{ dev_status }}",
     "Programming Language :: Python",
@@ -24,7 +24,6 @@ classifiers = [
     {% for version in range(min_version, max_version + 1) %}
     "Programming Language :: Python :: 3.{{ version }}",
     {% endfor %}
-    "License :: OSI Approved :: MIT License",
 ]
 requires-python = ">={{ MIN_PYTHON_VERSION }}"
 {% else %}
@@ -92,6 +91,7 @@ readme = {file = ["README.md"], content-type = "text/markdown"}
 exclude = [
     "tests*",
     "samples*",
+    "doc*",
     {% for pkgutil_name in pkgutil_names %}
     "{{ pkgutil_name }}",
     {% endfor %}
