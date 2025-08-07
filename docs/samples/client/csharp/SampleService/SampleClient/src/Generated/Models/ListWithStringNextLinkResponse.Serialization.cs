@@ -10,17 +10,17 @@ using System.Text.Json;
 
 namespace SampleTypeSpec
 {
-    /// <summary> The PageThing. </summary>
-    internal partial class PageThing : IJsonModel<PageThing>
+    /// <summary> The ListWithStringNextLinkResponse. </summary>
+    internal partial class ListWithStringNextLinkResponse : IJsonModel<ListWithStringNextLinkResponse>
     {
-        /// <summary> Initializes a new instance of <see cref="PageThing"/> for deserialization. </summary>
-        internal PageThing()
+        /// <summary> Initializes a new instance of <see cref="ListWithStringNextLinkResponse"/> for deserialization. </summary>
+        internal ListWithStringNextLinkResponse()
         {
         }
 
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<PageThing>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        void IJsonModel<ListWithStringNextLinkResponse>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
             writer.WriteStartObject();
             JsonModelWriteCore(writer, options);
@@ -31,18 +31,23 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<PageThing>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<ListWithStringNextLinkResponse>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "J")
             {
-                throw new FormatException($"The model {nameof(PageThing)} does not support writing '{format}' format.");
+                throw new FormatException($"The model {nameof(ListWithStringNextLinkResponse)} does not support writing '{format}' format.");
             }
-            writer.WritePropertyName("items"u8);
+            writer.WritePropertyName("things"u8);
             writer.WriteStartArray();
-            foreach (Thing item in Items)
+            foreach (Thing item in Things)
             {
                 writer.WriteObjectValue(item, options);
             }
             writer.WriteEndArray();
+            if (Optional.IsDefined(Next))
+            {
+                writer.WritePropertyName("next"u8);
+                writer.WriteStringValue(Next);
+            }
             if (options.Format != "W" && _additionalBinaryDataProperties != null)
             {
                 foreach (var item in _additionalBinaryDataProperties)
@@ -62,41 +67,47 @@ namespace SampleTypeSpec
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        PageThing IJsonModel<PageThing>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
+        ListWithStringNextLinkResponse IJsonModel<ListWithStringNextLinkResponse>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual PageThing JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        protected virtual ListWithStringNextLinkResponse JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<PageThing>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<ListWithStringNextLinkResponse>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "J")
             {
-                throw new FormatException($"The model {nameof(PageThing)} does not support reading '{format}' format.");
+                throw new FormatException($"The model {nameof(ListWithStringNextLinkResponse)} does not support reading '{format}' format.");
             }
             using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializePageThing(document.RootElement, options);
+            return DeserializeListWithStringNextLinkResponse(document.RootElement, options);
         }
 
         /// <param name="element"> The JSON element to deserialize. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        internal static PageThing DeserializePageThing(JsonElement element, ModelReaderWriterOptions options)
+        internal static ListWithStringNextLinkResponse DeserializeListWithStringNextLinkResponse(JsonElement element, ModelReaderWriterOptions options)
         {
             if (element.ValueKind == JsonValueKind.Null)
             {
                 return null;
             }
-            IList<Thing> items = default;
+            IList<Thing> things = default;
+            string next = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
-                if (prop.NameEquals("items"u8))
+                if (prop.NameEquals("things"u8))
                 {
                     List<Thing> array = new List<Thing>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
                         array.Add(Thing.DeserializeThing(item, options));
                     }
-                    items = array;
+                    things = array;
+                    continue;
+                }
+                if (prop.NameEquals("next"u8))
+                {
+                    next = prop.Value.GetString();
                     continue;
                 }
                 if (options.Format != "W")
@@ -104,55 +115,55 @@ namespace SampleTypeSpec
                     additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            return new PageThing(items, additionalBinaryDataProperties);
+            return new ListWithStringNextLinkResponse(things, next, additionalBinaryDataProperties);
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<PageThing>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+        BinaryData IPersistableModel<ListWithStringNextLinkResponse>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<PageThing>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<ListWithStringNextLinkResponse>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
                     return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
                 default:
-                    throw new FormatException($"The model {nameof(PageThing)} does not support writing '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(ListWithStringNextLinkResponse)} does not support writing '{options.Format}' format.");
             }
         }
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        PageThing IPersistableModel<PageThing>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+        ListWithStringNextLinkResponse IPersistableModel<ListWithStringNextLinkResponse>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual PageThing PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        protected virtual ListWithStringNextLinkResponse PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<PageThing>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<ListWithStringNextLinkResponse>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
                     using (JsonDocument document = JsonDocument.Parse(data))
                     {
-                        return DeserializePageThing(document.RootElement, options);
+                        return DeserializeListWithStringNextLinkResponse(document.RootElement, options);
                     }
                 default:
-                    throw new FormatException($"The model {nameof(PageThing)} does not support reading '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(ListWithStringNextLinkResponse)} does not support reading '{options.Format}' format.");
             }
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<PageThing>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        string IPersistableModel<ListWithStringNextLinkResponse>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
-        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="PageThing"/> from. </param>
-        public static explicit operator PageThing(ClientResult result)
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ListWithStringNextLinkResponse"/> from. </param>
+        public static explicit operator ListWithStringNextLinkResponse(ClientResult result)
         {
             using PipelineResponse response = result.GetRawResponse();
             using JsonDocument document = JsonDocument.Parse(response.Content);
-            return DeserializePageThing(document.RootElement, ModelSerializationExtensions.WireOptions);
+            return DeserializeListWithStringNextLinkResponse(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }
 }
