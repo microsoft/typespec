@@ -1,6 +1,6 @@
 {
   "name": "@typespec/emitter-framework",
-  "version": "0.8.0",
+  "version": "0.10.0",
   "type": "module",
   "main": "dist/index.js",
   "repository": {
@@ -35,36 +35,45 @@
   },
   "imports": {
     "#test/*": "./test/*",
-    "#core/*": "./src/core/*",
-    "#csharp/*": "./src/csharp/*",
-    "#typescript/*": "./src/typescript/*"
+    "#core/*": {
+      "development": "./src/core/*",
+      "default": "./dist/src/core/*"
+    },
+    "#csharp/*": {
+      "development": "./src/csharp/*",
+      "default": "./dist/src/csharp/*"
+    },
+    "#typescript/*": {
+      "development": "./src/typescript/*",
+      "default": "./dist/src/typescript/*"
+    }
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "description": "",
   "peerDependencies": {
-    "@alloy-js/core": "^0.18.2",
-    "@alloy-js/typescript": "^0.18.0",
-    "@alloy-js/csharp": "^0.18.0",
+    "@alloy-js/core": "^0.19.0",
+    "@alloy-js/csharp": "^0.19.0",
+    "@alloy-js/typescript": "^0.19.0",
     "@typespec/compiler": "workspace:^"
   },
   "devDependencies": {
-    "@alloy-js/cli": "^0.18.0",
+    "@alloy-js/cli": "^0.19.0",
+    "@alloy-js/core": "^0.19.0",
     "@alloy-js/rollup-plugin": "^0.1.0",
-    "@alloy-js/core": "^0.18.2",
-    "@alloy-js/typescript": "^0.18.0",
+    "@alloy-js/typescript": "^0.19.0",
     "@typespec/compiler": "workspace:^",
     "concurrently": "^9.1.2",
     "pathe": "^2.0.3",
-    "prettier": "~3.5.3",
-    "web-tree-sitter": "^0.25.4",
+    "prettier": "~3.6.2",
     "tree-sitter-c-sharp": "^0.23.0",
     "tree-sitter-java": "^0.23.2",
     "tree-sitter-javascript": "^0.23.0",
     "tree-sitter-python": "^0.23.2",
     "tree-sitter-typescript": "^0.23.0",
     "typescript": "~5.8.2",
-    "vitest": "^3.1.2"
+    "vitest": "^3.1.2",
+    "web-tree-sitter": "^0.25.4"
   }
 }

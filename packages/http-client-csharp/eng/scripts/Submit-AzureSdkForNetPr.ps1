@@ -11,8 +11,8 @@ The URL of the pull request in the TypeSpec repository that triggered this updat
 A GitHub personal access token for authentication.
 .PARAMETER BranchName
 The name of the branch to create in the azure-sdk-for-net repository.
-.PARAMETER TypeSpecSourceDirectory
-The source directory of the TypeSpec repository containing the emitter package artifacts.
+.PARAMETER TypeSpecSourcePackageJsonPath
+The path to the TypeSpec package.json file to use for generating emitter-package.json files.
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -29,7 +29,7 @@ param(
   [string]$BranchName = "typespec/update-http-client-$PackageVersion",
 
   [Parameter(Mandatory = $false)]
-  [string]$TypeSpecSourceDirectory
+  [string]$TypeSpecSourcePackageJsonPath
 )
 
 # Import the Generation module to use the Invoke helper function
@@ -142,68 +142,76 @@ try {
     }
     
     # Only run expensive operations if we actually made updates
+    $installSucceeded = $true
     if ($packageJsonUpdated) {
         # Run npm install in the http-client-csharp directory
         Write-Host "Running npm install in eng/packages/http-client-csharp..."
         $httpClientDir = Join-Path $tempDir "eng/packages/http-client-csharp"
-        Invoke "npm install" $httpClientDir
-        if ($LASTEXITCODE -ne 0) {
-            throw "npm install failed"
-        }
-        
-        # Run npm run build
-        Write-Host "Running npm run build in eng/packages/http-client-csharp..."
-        $shouldRunGenerate = $true
         $previousErrorAction = $ErrorActionPreference
         $ErrorActionPreference = "Continue"
         try {
-            Invoke "npm run build" $httpClientDir
+            Invoke "npm install" $httpClientDir
             if ($LASTEXITCODE -ne 0) {
-                Write-Warning "npm run build failed with exit code $LASTEXITCODE, skipping Generate.ps1"
+                Write-Warning "npm install failed with exit code $LASTEXITCODE, skipping generation."
                 Write-Host "##vso[task.complete result=SucceededWithIssues;]"
-                $shouldRunGenerate = $false
+                $installSucceeded = $false
             }
         } catch {
-            Write-Warning "npm run build failed: $($_.Exception.Message), skipping Generate.ps1"
-            $shouldRunGenerate = $false
-        } finally {
+            Write-Warning "npm install failed: $($_.Exception.Message), skipping generation."
+            $installSucceeded = $false
+        }
+        finally {
             $ErrorActionPreference = $previousErrorAction
         }
-        
-        # Run Generate.ps1 from the package root
-        if ($shouldRunGenerate -eq $true)
-        {
-            Write-Host "Running eng/packages/http-client-csharp/eng/scripts/Generate.ps1..."
-            & (Join-Path $tempDir "eng/packages/http-client-csharp/eng/scripts/Generate.ps1")
-            if ($LASTEXITCODE -ne 0) {
-                throw "Generate.ps1 failed"
+
+        if (-not $installSucceeded) {
+            Write-Host "Skipping build and generation steps."
+        } else {
+            # Only run build and generation if npm install succeeded
+            # Run npm run build
+            Write-Host "Running npm run build in eng/packages/http-client-csharp..."
+            $shouldRunGenerate = $true
+            $previousErrorAction = $ErrorActionPreference
+            $ErrorActionPreference = "Continue"
+            try {
+                Invoke "npm run build" $httpClientDir
+                if ($LASTEXITCODE -ne 0) {
+                    Write-Warning "npm run build failed with exit code $LASTEXITCODE, skipping Generate.ps1"
+                    Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+                    $shouldRunGenerate = $false
+                }
+            } catch {
+                Write-Warning "npm run build failed: $($_.Exception.Message), skipping Generate.ps1"
+                $shouldRunGenerate = $false
+            } finally {
+                $ErrorActionPreference = $previousErrorAction
+            }
+            
+            # Run Generate.ps1 from the package root
+            if ($shouldRunGenerate -eq $true)
+            {
+                Write-Host "Running eng/packages/http-client-csharp/eng/scripts/Generate.ps1..."
+                & (Join-Path $tempDir "eng/packages/http-client-csharp/eng/scripts/Generate.ps1")
+                if ($LASTEXITCODE -ne 0) {
+                    throw "Generate.ps1 failed"
+                }
             }
         }
     }
     
-    # Copy emitter-package.json artifacts if they exist in the typespec repo
-    if ($TypeSpecSourceDirectory) {
-        $emitterPackageJsonSource = Join-Path $TypeSpecSourceDirectory "eng/http-client-csharp-emitter-package.json"
-        $emitterPackageLockSource = Join-Path $TypeSpecSourceDirectory "eng/http-client-csharp-emitter-package-lock.json"
-        
-        $emitterPackageJsonDest = Join-Path $tempDir "eng/http-client-csharp-emitter-package.json"
-        $emitterPackageLockDest = Join-Path $tempDir "eng/http-client-csharp-emitter-package-lock.json"
-        
-        if (Test-Path $emitterPackageJsonSource) {
-            Write-Host "Copying emitter-package.json from typespec repo..."
-            Copy-Item $emitterPackageJsonSource $emitterPackageJsonDest -Force
-        } else {
-            Write-Warning "emitter-package.json not found at $emitterPackageJsonSource"
+    # Generate emitter-package.json files using tsp-client if TypeSpec package.json is provided
+    if ($TypeSpecSourcePackageJsonPath -and (Test-Path $TypeSpecSourcePackageJsonPath)) {
+        Write-Host "Generating emitter-package.json files using tsp-client..."
+        $configFilesOutputDir = Join-Path $tempDir "eng"
+        $emitterPackageJsonPath = Join-Path $configFilesOutputDir "http-client-csharp-emitter-package.json"
+
+        Invoke "tsp-client generate-config-files --package-json $TypeSpecSourcePackageJsonPath --emitter-package-json-path $emitterPackageJsonPath --output-dir $configFilesOutputDir" $tempDir
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to generate emitter-package.json files"
         }
-        
-        if (Test-Path $emitterPackageLockSource) {
-            Write-Host "Copying emitter-package-lock.json from typespec repo..."
-            Copy-Item $emitterPackageLockSource $emitterPackageLockDest -Force
-        } else {
-            Write-Warning "emitter-package-lock.json not found at $emitterPackageLockSource"
-        }
+        Write-Host "Successfully generated emitter-package.json files"
     } else {
-        Write-Warning "TypeSpecSourceDirectory parameter not provided. Cannot copy emitter-package files."
+        Write-Warning "TypeSpecSourcePackageJsonPath not provided or file doesn't exist. Skipping emitter-package.json generation."
     }
     
     # Check if there are changes to commit
@@ -217,10 +225,30 @@ try {
     Write-Host "Committing changes..."
     git add $propsFilePath
     git add (Join-Path $tempDir "eng/packages/http-client-csharp/package.json")
-    git add (Join-Path $tempDir "eng/packages/http-client-csharp/package-lock.json")
-    git add (Join-Path $tempDir "eng/packages/http-client-csharp/generator/TestProjects/")
-    git add (Join-Path $tempDir "eng/http-client-csharp-emitter-package.json")
-    git add (Join-Path $tempDir "eng/http-client-csharp-emitter-package-lock.json")
+    
+    # Only add these files if npm install succeeded
+    if ($installSucceeded) {
+        $packageLockPath = Join-Path $tempDir "eng/packages/http-client-csharp/package-lock.json"
+        if (Test-Path $packageLockPath) {
+            git add $packageLockPath
+        }
+        
+        $testProjectsPath = Join-Path $tempDir "eng/packages/http-client-csharp/generator/TestProjects/"
+        if (Test-Path $testProjectsPath) {
+            git add $testProjectsPath
+        }
+    }
+    
+    # Only add emitter files if they were generated
+    $emitterPackageJsonPath = Join-Path $tempDir "eng/http-client-csharp-emitter-package.json"
+    if (Test-Path $emitterPackageJsonPath) {
+        git add $emitterPackageJsonPath
+    }
+    
+    $emitterPackageLockPath = Join-Path $tempDir "eng/http-client-csharp-emitter-package-lock.json"
+    if (Test-Path $emitterPackageLockPath) {
+        git add $emitterPackageLockPath
+    }
     
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to add changes"

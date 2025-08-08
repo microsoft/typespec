@@ -1,6 +1,6 @@
 -r ../dev_requirements.txt
 -e ../../
-azure-mgmt-core==1.5.0
+azure-mgmt-core==1.6.0
 
 # only for azure
 -e ./generated/azure-client-generator-core-access
@@ -8,6 +8,8 @@ azure-mgmt-core==1.5.0
 -e ./generated/azure-client-generator-core-deserialize-empty-string-as-null
 -e ./generated/azure-client-generator-core-flatten-property
 -e ./generated/azure-client-generator-core-usage
+-e ./generated/azure-client-generator-core-override
+-e ./generated/azure-client-generator-core-client-location
 -e ./generated/azure-core-basic
 -e ./generated/azure-core-scalar
 -e ./generated/azure-core-lro-rpc
@@ -23,7 +25,7 @@ azure-mgmt-core==1.5.0
 -e ./generated/azure-resource-manager-non-resource
 -e ./generated/azure-resource-manager-operation-templates
 -e ./generated/azure-resource-manager-resources
-# -e ./generated/client-namespace
+-e ./generated/client-namespace
 -e ./generated/azure-payload-pageable
 -e ./generated/client-naming
 -e ./generated/client-structure-default
@@ -38,6 +40,7 @@ azure-mgmt-core==1.5.0
 -e ./generated/authentication-http-custom
 -e ./generated/authentication-oauth2
 -e ./generated/authentication-union
+-e ./generated/setuppy-authentication-union
 -e ./generated/encode-duration
 -e ./generated/encode-numeric
 -e ./generated/parameters-basic
@@ -84,6 +87,7 @@ azure-mgmt-core==1.5.0
 -e ./generated/payload-media-type
 -e ./generated/payload-xml
 -e ./generated/routes
+-e ./generated/response-status-code-range
 -e ./generated/versioning-added
 -e ./generated/versioning-madeoptional
 -e ./generated/versioning-removed

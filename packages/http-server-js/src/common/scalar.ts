@@ -337,9 +337,17 @@ const BIGINT: ScalarInfo = {
         decodeTemplate: "globalThis.BigInt({})",
       },
     },
+    "TypeSpec.safeint": {
+      lossy: {
+        encodeTemplate: "globalThis.Number({})",
+        decodeTemplate: "globalThis.BigInt({})",
+      },
+    },
   },
   defaultEncodings: {
-    byMimeType: { "application/json": ["TypeSpec.string", "default"] },
+    byMimeType: {
+      "application/json": ["TypeSpec.safeint", "lossy"],
+    },
   },
   isJsonCompatible: false,
 };

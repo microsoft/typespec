@@ -9,9 +9,10 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
+using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
-using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
@@ -457,9 +458,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             // Extract non-body properties from the body model
             var nonBodyProperties = bodyModel.CanonicalView.Properties
-                .Where(p => p.WireInfo != null &&
-                          p.WireInfo.Location != PropertyLocation.Unknown &&
-                          p.WireInfo.Location != PropertyLocation.Body)
+                .Where(p => p.WireInfo?.IsHttpMetadata == true)
                 .ToDictionary(p => p.WireInfo!.SerializedName, p => p);
 
             if (nonBodyProperties.Count == 0)
@@ -472,7 +471,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var protocolParameter in ProtocolMethodParameters)
             {
                 if (protocolParameter.Location != ParameterLocation.Body &&
-                    nonBodyProperties.TryGetValue(protocolParameter.WireInfo.SerializedName, out var nonBodyProperty))
+                    (nonBodyProperties.TryGetValue(protocolParameter.WireInfo.SerializedName, out var nonBodyProperty) ||
+                    nonBodyProperties.TryGetValue(protocolParameter.Name, out nonBodyProperty)))
                 {
                     var conversion = bodyParam.Property(nonBodyProperty.Name);
                     if (protocolParameter.DefaultValue != null)
@@ -697,14 +697,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private CSharpType GetConvenienceReturnType(IReadOnlyList<InputOperationResponse> responses, bool isAsync, out CSharpType? responseBodyType)
         {
             var response = responses.FirstOrDefault(r => !r.IsErrorResponse);
+            responseBodyType = GetResponseBodyType(response?.BodyType);
+
             if (_pagingServiceMethod != null)
             {
-                var type = (response?.BodyType as InputModelType)?.Properties.FirstOrDefault(p =>
-                    p.SerializedName == _pagingServiceMethod.PagingMetadata.ItemPropertySegments[0]);
-
-                responseBodyType = response?.BodyType is null || type is null ? null : GetResponseBodyType((type.Type as InputArrayType)!.ValueType);
-
-                if (response == null || responseBodyType == null)
+                if (responseBodyType == null)
                 {
                     return isAsync ?
                         ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientCollectionAsyncResponseType :
@@ -718,24 +715,57 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     responseBodyType);
             }
 
-            responseBodyType = response?.BodyType is null ? null : GetResponseBodyType(response.BodyType);
-
-            var returnType = response == null || responseBodyType == null
+            var returnType = responseBodyType == null
                 ? ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseType
                 : new CSharpType(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType, responseBodyType.OutputType);
 
             return isAsync ? new CSharpType(typeof(Task<>), returnType) : returnType;
         }
 
-        private static CSharpType? GetResponseBodyType(InputType inputType)
+        private CSharpType? GetResponseBodyType(InputType? responseType)
         {
-            if (inputType is InputModelType inputModelType)
+            if (responseType is null)
+            {
+                return null;
+            }
+
+            if (_pagingServiceMethod != null)
+            {
+                var modelType = responseType as InputModelType;
+
+                foreach (var segment in _pagingServiceMethod!.PagingMetadata.ItemPropertySegments)
+                {
+                    var property = modelType!.Properties.FirstOrDefault(p => p.SerializedName == segment);
+                    var propertyType = property?.Type;
+
+                    if (propertyType is InputArrayType arrayType)
+                    {
+                        var valueType = arrayType.ValueType;
+                        return ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(valueType);
+                    }
+
+                    if (propertyType is InputModelType type)
+                    {
+                        modelType = type;
+                    }
+                }
+
+                // Never found an array property, so there was invalid paging metadata.
+                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                    DiagnosticCodes.NoMatchingItemsProperty,
+                    "No property was found in the response model matching the items property",
+                    ServiceMethod.Operation.CrossLanguageDefinitionId,
+                    EmitterDiagnosticSeverity.Error);
+                return null;
+            }
+
+            if (responseType is InputModelType inputModelType)
             {
                 var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModelType);
                 return model?.Type;
             }
 
-            return ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputType);
+            return ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(responseType);
         }
 
         private bool ShouldMakeProtocolMethodParametersRequired()

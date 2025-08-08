@@ -656,7 +656,8 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         final String implementationSubpackagePrefix = settings.getPackage(settings.getImplementationSubpackage()) + ".";
         for (String modelsPackage : modelsPackages) {
             // export if models is not in implementation
-            if (!modelsPackage.startsWith(implementationSubpackagePrefix)) {
+            if (!modelsPackage.startsWith(implementationSubpackagePrefix)
+                && !modelsPackage.contains("implementation")) {
                 exportModules.add(new ModuleInfo.ExportModule(modelsPackage));
             }
 

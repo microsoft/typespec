@@ -87,7 +87,7 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
             @PathParam("managedMaintenanceWindowStatusContentName") String managedMaintenanceWindowStatusContentName,
             @HeaderParam("Accept") String accept, Context context);
 
-        @Headers({ "Content-Type: application/json" })
+        @Headers({ "Accept: application/json;q=0.9", "Content-Type: application/json" })
         @Delete("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/managedMaintenanceWindowStatusContents/{managedMaintenanceWindowStatusContentName}")
         @ExpectedResponses({ 200, 202, 204 })
         @UnexpectedResponseExceptionType(ManagementException.class)
@@ -95,10 +95,9 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("resourceGroupName") String resourceGroupName,
             @PathParam("managedMaintenanceWindowStatusContentName") String managedMaintenanceWindowStatusContentName,
-            @HeaderParam("If-Match") String ifMatch, @HeaderParam("If-None-Match") String ifNoneMatch,
-            @HeaderParam("Accept") String accept, Context context);
+            @HeaderParam("If-Match") String ifMatch, @HeaderParam("If-None-Match") String ifNoneMatch, Context context);
 
-        @Headers({ "Content-Type: application/json" })
+        @Headers({ "Accept: application/json;q=0.9", "Content-Type: application/json" })
         @Delete("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/managedMaintenanceWindowStatusContents/{managedMaintenanceWindowStatusContentName}")
         @ExpectedResponses({ 200, 202, 204 })
         @UnexpectedResponseExceptionType(ManagementException.class)
@@ -106,8 +105,7 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("resourceGroupName") String resourceGroupName,
             @PathParam("managedMaintenanceWindowStatusContentName") String managedMaintenanceWindowStatusContentName,
-            @HeaderParam("If-Match") String ifMatch, @HeaderParam("If-None-Match") String ifNoneMatch,
-            @HeaderParam("Accept") String accept, Context context);
+            @HeaderParam("If-Match") String ifMatch, @HeaderParam("If-None-Match") String ifNoneMatch, Context context);
     }
 
     /**
@@ -122,7 +120,7 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
      * {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<ManagedMaintenanceWindowStatusInner>> getByResourceGroupWithResponseAsync(
+    public Mono<Response<ManagedMaintenanceWindowStatusInner>> getByResourceGroupWithResponseAsync(
         String resourceGroupName, String managedMaintenanceWindowStatusContentName) {
         if (this.client.getEndpoint() == null) {
             return Mono.error(
@@ -159,7 +157,7 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
      * @return a ManagedMaintenanceWindowStatusContent on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<ManagedMaintenanceWindowStatusInner> getByResourceGroupAsync(String resourceGroupName,
+    public Mono<ManagedMaintenanceWindowStatusInner> getByResourceGroupAsync(String resourceGroupName,
         String managedMaintenanceWindowStatusContentName) {
         return getByResourceGroupWithResponseAsync(resourceGroupName, managedMaintenanceWindowStatusContentName)
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
@@ -234,7 +232,7 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<Flux<ByteBuffer>>> deleteWithResponseAsync(String resourceGroupName,
+    public Mono<Response<Flux<ByteBuffer>>> deleteWithResponseAsync(String resourceGroupName,
         String managedMaintenanceWindowStatusContentName, String ifMatch, String ifNoneMatch) {
         if (this.client.getEndpoint() == null) {
             return Mono.error(
@@ -252,11 +250,10 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
             return Mono.error(new IllegalArgumentException(
                 "Parameter managedMaintenanceWindowStatusContentName is required and cannot be null."));
         }
-        final String accept = "application/json";
         return FluxUtil
             .withContext(context -> service.delete(this.client.getEndpoint(), this.client.getApiVersion(),
                 this.client.getSubscriptionId(), resourceGroupName, managedMaintenanceWindowStatusContentName, ifMatch,
-                ifNoneMatch, accept, context))
+                ifNoneMatch, context))
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
 
@@ -294,10 +291,9 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
                 .log(new IllegalArgumentException(
                     "Parameter managedMaintenanceWindowStatusContentName is required and cannot be null."));
         }
-        final String accept = "application/json";
         return service.deleteSync(this.client.getEndpoint(), this.client.getApiVersion(),
             this.client.getSubscriptionId(), resourceGroupName, managedMaintenanceWindowStatusContentName, ifMatch,
-            ifNoneMatch, accept, Context.NONE);
+            ifNoneMatch, Context.NONE);
     }
 
     /**
@@ -335,10 +331,9 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
                 .log(new IllegalArgumentException(
                     "Parameter managedMaintenanceWindowStatusContentName is required and cannot be null."));
         }
-        final String accept = "application/json";
         return service.deleteSync(this.client.getEndpoint(), this.client.getApiVersion(),
             this.client.getSubscriptionId(), resourceGroupName, managedMaintenanceWindowStatusContentName, ifMatch,
-            ifNoneMatch, accept, context);
+            ifNoneMatch, context);
     }
 
     /**
@@ -354,7 +349,7 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
      * @return the {@link PollerFlux} for polling of long-running operation.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    private PollerFlux<PollResult<Void>, Void> beginDeleteAsync(String resourceGroupName,
+    public PollerFlux<PollResult<Void>, Void> beginDeleteAsync(String resourceGroupName,
         String managedMaintenanceWindowStatusContentName, String ifMatch, String ifNoneMatch) {
         Mono<Response<Flux<ByteBuffer>>> mono = deleteWithResponseAsync(resourceGroupName,
             managedMaintenanceWindowStatusContentName, ifMatch, ifNoneMatch);
@@ -373,7 +368,7 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
      * @return the {@link PollerFlux} for polling of long-running operation.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    private PollerFlux<PollResult<Void>, Void> beginDeleteAsync(String resourceGroupName,
+    public PollerFlux<PollResult<Void>, Void> beginDeleteAsync(String resourceGroupName,
         String managedMaintenanceWindowStatusContentName) {
         final String ifMatch = null;
         final String ifNoneMatch = null;
@@ -457,7 +452,7 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
      * @return A {@link Mono} that completes when a successful response is received.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Void> deleteAsync(String resourceGroupName, String managedMaintenanceWindowStatusContentName,
+    public Mono<Void> deleteAsync(String resourceGroupName, String managedMaintenanceWindowStatusContentName,
         String ifMatch, String ifNoneMatch) {
         return beginDeleteAsync(resourceGroupName, managedMaintenanceWindowStatusContentName, ifMatch, ifNoneMatch)
             .last()
@@ -475,7 +470,7 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
      * @return A {@link Mono} that completes when a successful response is received.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Void> deleteAsync(String resourceGroupName, String managedMaintenanceWindowStatusContentName) {
+    public Mono<Void> deleteAsync(String resourceGroupName, String managedMaintenanceWindowStatusContentName) {
         final String ifMatch = null;
         final String ifNoneMatch = null;
         return beginDeleteAsync(resourceGroupName, managedMaintenanceWindowStatusContentName, ifMatch, ifNoneMatch)

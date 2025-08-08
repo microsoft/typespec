@@ -51,7 +51,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly ModelProvider _model;
         private readonly InputModelType _inputModel;
         private readonly FieldProvider? _rawDataField;
-        private readonly PropertyProvider? _additionalBinaryDataProperty;
+        private readonly Lazy<PropertyProvider?> _additionalBinaryDataProperty;
         private readonly bool _isStruct;
         private ConstructorProvider? _serializationConstructor;
         // Flag to determine if the model should override the serialization methods
@@ -70,8 +70,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _persistableModelTInterface = new CSharpType(typeof(IPersistableModel<>), interfaceType.Type);
             _persistableModelObjectInterface = _isStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
             _rawDataField = _model.Fields.FirstOrDefault(f => f.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
-            _additionalBinaryDataProperty = GetAdditionalBinaryDataPropertiesProp();
-            _additionalProperties = new([.. _model.Properties.Where(p => p.IsAdditionalProperties)]);
+            _additionalBinaryDataProperty = new(GetAdditionalBinaryDataPropertiesProp);
+            _additionalProperties = new(() => [.. _model.Properties.Where(p => p.IsAdditionalProperties)]);
             _shouldOverrideMethods = _model.Type.BaseType != null && !_isStruct && _model.Type.BaseType is { IsFrameworkType: false };
             _utf8JsonWriterSnippet = _utf8JsonWriterParameter.As<Utf8JsonWriter>();
             _mrwOptionsParameterSnippet = _serializationOptionsParameter.As<ModelReaderWriterOptions>();
@@ -641,6 +641,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     var variableRef = property.AsVariableExpression;
                     if (property.IsAdditionalProperties)
                     {
+                        if (variableRef.Type.IsReadOnlyDictionary)
+                        {
+                            variableRef.Update(type: variableRef.Type.PropertyInitializationType);
+                        }
                         // IDictionary<string, T> additionalTProperties = new Dictionary<string, T>();
                         propertyDeclarationStatements.Add(Declare(variableRef, new DictionaryExpression(property.Type, New.Instance(property.Type.PropertyInitializationType))));
                     }
@@ -755,7 +759,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (!propertyProvider.Type.IsFrameworkType || propertyProvider.IsAdditionalProperties)
             {
-                return propertyProvider.AsVariableExpression;
+                return propertyProvider.Type.IsReadOnlyDictionary
+                    ? New.ReadOnlyDictionary(propertyProvider.Type.Arguments[0], propertyProvider.Type.ElementType, propertyProvider.AsVariableExpression)
+                    : propertyProvider.AsVariableExpression;
             }
             else if (!isRequired)
             {
@@ -796,7 +802,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (parameter.Property != null || parameter.Field != null)
                 {
                     // handle additional properties
-                    if (parameter.Property != null && parameter.Property != _additionalBinaryDataProperty && parameter.Property.IsAdditionalProperties)
+                    if (parameter.Property != null && parameter.Property != _additionalBinaryDataProperty.Value && parameter.Property.IsAdditionalProperties)
                     {
                         AddAdditionalPropertiesValueKindStatements(additionalPropsValueKindBodyStatements, parameter.Property, jsonProperty);
                         continue;
@@ -806,7 +812,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                     // By default, we should only deserialize properties with wire info that are payload properties.
                     // Those properties without wire info indicate they are not spec properties.
-                    if (wireInfo?.Location != PropertyLocation.Body)
+                    if (wireInfo == null || wireInfo.IsHttpMetadata == true)
                     {
                         continue;
                     }
@@ -850,12 +856,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
 
-            if (_additionalBinaryDataProperty != null)
+            if (_additionalBinaryDataProperty.Value != null)
             {
                 var binaryDataDeserializationValue = ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(
-                    _additionalBinaryDataProperty.Type.ElementType.FrameworkType, jsonProperty.Value(), SerializationFormat.Default);
+                    _additionalBinaryDataProperty.Value.Type.ElementType.FrameworkType, jsonProperty.Value(), SerializationFormat.Default);
                 propertyDeserializationStatements.Add(
-                    _additionalBinaryDataProperty.AsVariableExpression.AsDictionary(_additionalBinaryDataProperty.Type).Add(jsonProperty.Name(), binaryDataDeserializationValue));
+                    _additionalBinaryDataProperty.Value.AsVariableExpression.AsDictionary(_additionalBinaryDataProperty.Value.Type).Add(jsonProperty.Name(), binaryDataDeserializationValue));
             }
             else if (rawBinaryData != null)
             {
@@ -1273,17 +1279,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private ValueExpression CreateDeserializeValueExpression(CSharpType valueType, SerializationFormat serializationFormat, ScopedApi<JsonElement> jsonElement) =>
-            valueType switch
+        private ValueExpression CreateDeserializeValueExpression(CSharpType valueType,
+            SerializationFormat serializationFormat,
+            ScopedApi<JsonElement> jsonElement)
+        {
+            return valueType switch
             {
                 { IsFrameworkType: true } when valueType.FrameworkType == typeof(Nullable<>) =>
-                    ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(valueType.Arguments[0].FrameworkType, jsonElement, serializationFormat),
+                    ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(
+                        valueType.Arguments[0].FrameworkType, jsonElement, serializationFormat),
                 { IsFrameworkType: true } =>
-                    ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(valueType.FrameworkType, jsonElement, serializationFormat),
+                    ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(valueType.FrameworkType,
+                        jsonElement, serializationFormat),
                 { IsEnum: true } =>
-                    valueType.ToEnum(ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(valueType.UnderlyingEnumType!, jsonElement, serializationFormat)),
+                    valueType.ToEnum(
+                        ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(valueType.UnderlyingEnumType!,
+                            jsonElement, serializationFormat)),
+                // Is it a dependency type rather than a type defined in the library we are generating?
+                _ when !ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(valueType, out _) =>
+                    ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(valueType, jsonElement, serializationFormat),
                 _ => valueType.Deserialize(jsonElement, _mrwOptionsParameterSnippet)
             };
+        }
 
         private MethodBodyStatement CreateDeserializeDictionaryValueStatement(
             CSharpType dictionaryItemType,
@@ -1385,7 +1402,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Those properties without wireinfo indicate they are not spec properties.
             foreach (var property in _model.CanonicalView.Properties)
             {
-                if (property.WireInfo?.Location != PropertyLocation.Body)
+                if (property.WireInfo == null || property.WireInfo.IsHttpMetadata)
                 {
                     continue;
                 }
@@ -1395,7 +1412,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (var field in _model.CanonicalView.Fields)
             {
-                if (field.WireInfo?.Location != PropertyLocation.Body)
+                if (field.WireInfo == null || field.WireInfo.IsHttpMetadata)
                 {
                     continue;
                 }
@@ -1599,7 +1616,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         internal static MethodBodyStatement SerializeJsonValueCore(
-            Type valueType,
+            CSharpType valueType,
             ValueExpression value,
             ScopedApi<Utf8JsonWriter> utf8JsonWriter,
             ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter,
@@ -1607,80 +1624,80 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             return valueType switch
             {
-                var t when t == typeof(JsonElement) =>
+                var t when t.Equals(typeof(JsonElement)) =>
                     value.As<JsonElement>().WriteTo(utf8JsonWriter),
                 var t when ValueTypeIsInt(t) && serializationFormat == SerializationFormat.Int_String =>
                     utf8JsonWriter.WriteStringValue(value.InvokeToString()),
                 var t when ValueTypeIsNumber(t) =>
                     utf8JsonWriter.WriteNumberValue(value),
-                var t when t == typeof(object) =>
+                var t when t.Equals(typeof(object)) =>
                     utf8JsonWriter.WriteObjectValue(value.As(valueType), mrwOptionsParameter),
-                var t when t == typeof(string) || t == typeof(char) || t == typeof(Guid) =>
+                var t when t.Equals(typeof(string)) || t.Equals(typeof(char)) || t.Equals(typeof(Guid)) =>
                     utf8JsonWriter.WriteStringValue(value),
-                var t when t == typeof(bool) =>
+                var t when t.Equals(typeof(bool)) =>
                     utf8JsonWriter.WriteBooleanValue(value),
-                var t when t == typeof(byte[]) =>
+                var t when t.Equals(typeof(byte[])) =>
                     utf8JsonWriter.WriteBase64StringValue(value, serializationFormat.ToFormatSpecifier()),
-                var t when t == typeof(DateTimeOffset) || t == typeof(DateTime) || t == typeof(TimeSpan) =>
-                    SerializeDateTimeRelatedTypes(valueType, serializationFormat, value, utf8JsonWriter, mrwOptionsParameter),
-                var t when t == typeof(IPAddress) =>
+                var t when t.Equals(typeof(DateTimeOffset)) || t.Equals(typeof(DateTime)) || t.Equals(typeof(TimeSpan)) =>
+                    SerializeDateTimeRelatedTypes(serializationFormat, value, utf8JsonWriter, mrwOptionsParameter),
+                var t when t.Equals(typeof(IPAddress)) =>
                     utf8JsonWriter.WriteStringValue(value.InvokeToString()),
-                var t when t == typeof(Uri) =>
+                var t when t.Equals(typeof(Uri)) =>
                     utf8JsonWriter.WriteStringValue(new MemberExpression(value, nameof(Uri.AbsoluteUri))),
-                var t when t == typeof(BinaryData) =>
-                    SerializeBinaryData(valueType, serializationFormat, value, utf8JsonWriter),
-                var t when t == typeof(Stream) =>
+                var t when t.Equals(typeof(BinaryData)) =>
+                    SerializeBinaryData(serializationFormat, value, utf8JsonWriter),
+                var t when t.Equals(typeof(Stream)) =>
                     utf8JsonWriter.WriteBinaryData(BinaryDataSnippets.FromStream(value, false)),
                 _ => throw new NotSupportedException($"Type {valueType} serialization is not supported.")
             };
         }
 
         internal static ValueExpression DeserializeJsonValueCore(
-            Type valueType,
+            CSharpType valueType,
             ScopedApi<JsonElement> element,
             SerializationFormat format)
         {
             return valueType switch
             {
-                Type t when t == typeof(Uri) =>
+                var t when t.Equals(typeof(Uri)) =>
                     New.Instance(valueType, element.GetString()),
-                Type t when t == typeof(IPAddress) =>
+                var t when t.Equals(typeof(IPAddress)) =>
                     Static<IPAddress>().Invoke(nameof(IPAddress.Parse), element.GetString()),
-                Type t when t == typeof(BinaryData) =>
+                var t when t.Equals(typeof(BinaryData)) =>
                     format is SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url
                         ? BinaryDataSnippets.FromBytes(element.GetBytesFromBase64(format.ToFormatSpecifier()))
                         : BinaryDataSnippets.FromString(element.GetRawText()),
-                Type t when t == typeof(Stream) =>
+                var t when t.Equals(typeof(Stream)) =>
                     BinaryDataSnippets.FromString(element.GetRawText()).ToStream(),
-                Type t when t == typeof(JsonElement) =>
+                var t when t.Equals(typeof(JsonElement)) =>
                     element.InvokeClone(),
-                Type t when t == typeof(object) =>
+                var t when t.Equals(typeof(object)) =>
                     element.GetObject(),
-                Type t when t == typeof(bool) =>
+                var t when t.Equals(typeof(bool)) =>
                     element.GetBoolean(),
-                Type t when t == typeof(char) =>
+                var t when t.Equals(typeof(char)) =>
                     element.GetChar(),
-                Type t when ValueTypeIsInt(t) =>
+                var t when ValueTypeIsInt(t) =>
                     GetIntTypeDeserializationExpress(element, t, format),
-                Type t when t == typeof(float) =>
+                var t when t.Equals(typeof(float)) =>
                     element.GetSingle(),
-                Type t when t == typeof(double) =>
+                var t when t.Equals(typeof(double)) =>
                     element.GetDouble(),
-                Type t when t == typeof(decimal) =>
+                var t when t.Equals(typeof(decimal)) =>
                     element.GetDecimal(),
-                Type t when t == typeof(string) =>
+                var t when t.Equals(typeof(string)) =>
                     element.GetString(),
-                Type t when t == typeof(Guid) =>
+                var t when t.Equals(typeof(Guid)) =>
                     element.GetGuid(),
-                Type t when t == typeof(byte[]) =>
+                var t when t.Equals(typeof(byte[])) =>
                     element.GetBytesFromBase64(format.ToFormatSpecifier()),
-                Type t when t == typeof(DateTimeOffset) =>
+                var t when t.Equals(typeof(DateTimeOffset)) =>
                     format == SerializationFormat.DateTime_Unix
                         ? DateTimeOffsetSnippets.FromUnixTimeSeconds(element.GetInt64())
                         : element.GetDateTimeOffset(format.ToFormatSpecifier()),
-                Type t when t == typeof(DateTime) =>
+                var t when t.Equals(typeof(DateTime)) =>
                     element.GetDateTime(),
-                Type t when t == typeof(TimeSpan) => format switch
+                var t when t.Equals(typeof(TimeSpan)) => format switch
                 {
                     SerializationFormat.Duration_Seconds => TimeSpanSnippets.FromSeconds(element.GetInt32()),
                     SerializationFormat.Duration_Seconds_Float or SerializationFormat.Duration_Seconds_Double => TimeSpanSnippets.FromSeconds(element.GetDouble()),
@@ -1690,36 +1707,36 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             };
         }
 
-        private static bool ValueTypeIsInt(Type valueType) =>
-            valueType == typeof(long) ||
-            valueType == typeof(int) ||
-            valueType == typeof(short) ||
-            valueType == typeof(sbyte) ||
-            valueType == typeof(byte);
+        private static bool ValueTypeIsInt(CSharpType valueType) =>
+            valueType.Equals(typeof(long)) ||
+            valueType.Equals(typeof(int)) ||
+            valueType.Equals(typeof(short)) ||
+            valueType.Equals(typeof(sbyte)) ||
+            valueType.Equals(typeof(byte));
 
-        private static bool ValueTypeIsNumber(Type valueType) =>
-            valueType == typeof(decimal) ||
-            valueType == typeof(double) ||
-            valueType == typeof(float) ||
+        private static bool ValueTypeIsNumber(CSharpType valueType) =>
+            valueType.Equals(typeof(decimal)) ||
+            valueType.Equals(typeof(double)) ||
+            valueType.Equals(typeof(float)) ||
             ValueTypeIsInt(valueType);
 
-        private static ValueExpression GetIntTypeDeserializationExpress(ScopedApi<JsonElement> element, Type type, SerializationFormat format) => format switch
+        private static ValueExpression GetIntTypeDeserializationExpress(ScopedApi<JsonElement> element, CSharpType type, SerializationFormat format) => format switch
         {
             // when `@encode(string)`, the type is serialized as string, so we need to deserialize it from string
             // sbyte.Parse(element.GetString())
             SerializationFormat.Int_String => new InvokeMethodExpression(type, nameof(int.Parse), [element.GetString()]),
             _ => type switch
             {
-                Type t when t == typeof(long) => element.GetInt64(),
-                Type t when t == typeof(int) => element.GetInt32(),
-                Type t when t == typeof(short) => element.GetInt16(),
-                Type t when t == typeof(sbyte) => element.GetSByte(),
-                Type t when t == typeof(byte) => element.GetByte(),
+                var t when t.Equals(typeof(long)) => element.GetInt64(),
+                var t when t.Equals(typeof(int)) => element.GetInt32(),
+                var t when t.Equals(typeof(short)) => element.GetInt16(),
+                var t when t.Equals(typeof(sbyte)) => element.GetSByte(),
+                var t when t.Equals(typeof(byte)) => element.GetByte(),
                 _ => throw new NotSupportedException($"Framework type {type} is not int.")
             }
         };
 
-        private static MethodBodyStatement SerializeDateTimeRelatedTypes(Type valueType, SerializationFormat serializationFormat, ValueExpression value, ScopedApi<Utf8JsonWriter> utf8JsonWriter, ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter)
+        private static MethodBodyStatement SerializeDateTimeRelatedTypes(SerializationFormat serializationFormat, ValueExpression value, ScopedApi<Utf8JsonWriter> utf8JsonWriter, ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter)
         {
             var format = serializationFormat.ToFormatSpecifier();
             return serializationFormat switch
@@ -1731,7 +1748,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             };
         }
 
-        private static MethodBodyStatement SerializeBinaryData(Type valueType, SerializationFormat serializationFormat, ValueExpression value, ScopedApi<Utf8JsonWriter> utf8JsonWriter)
+        private static MethodBodyStatement SerializeBinaryData(SerializationFormat serializationFormat, ValueExpression value, ScopedApi<Utf8JsonWriter> utf8JsonWriter)
         {
             if (serializationFormat is SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url)
             {
@@ -1791,7 +1808,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// <returns>The method body statement that writes the additional binary data.</returns>
         private MethodBodyStatement CreateWriteAdditionalRawDataStatement()
         {
-            if (_rawDataField == null || _additionalBinaryDataProperty != null)
+            if (_rawDataField == null || _additionalBinaryDataProperty.Value != null)
             {
                 return MethodBodyStatement.Empty;
             }

@@ -42,6 +42,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         }
 
         [Test]
+        public void NestedNextLinkInBody()
+        {
+            CreatePagingOperation(InputResponseLocation.Body, isNested: true);
+
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+                t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResult");
+            Assert.IsNotNull(collectionResultDefinition);
+
+            var writer = new TypeProviderWriter(collectionResultDefinition!);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void NestedNextLinkInBodyAsync()
+        {
+            CreatePagingOperation(InputResponseLocation.Body, isNested: true);
+
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+                t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsAsyncCollectionResult");
+            Assert.IsNotNull(collectionResultDefinition);
+
+            var writer = new TypeProviderWriter(collectionResultDefinition!);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
         public void NextLinkInHeader()
         {
             CreatePagingOperation(InputResponseLocation.Header);
@@ -98,6 +126,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         }
 
         [Test]
+        public void NestedNextLinkInBodyOfT()
+        {
+            CreatePagingOperation(InputResponseLocation.Body, isNested: true);
+
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+                t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResultOfT");
+            Assert.IsNotNull(collectionResultDefinition);
+
+            var writer = new TypeProviderWriter(collectionResultDefinition!);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void NestedNextLinkInBodyOfTAsync()
+        {
+            CreatePagingOperation(InputResponseLocation.Body, isNested: true);
+
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+                t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsAsyncCollectionResultOfT");
+            Assert.IsNotNull(collectionResultDefinition);
+
+            var writer = new TypeProviderWriter(collectionResultDefinition!);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
         public void NextLinkInHeaderOfT()
         {
             CreatePagingOperation(InputResponseLocation.Header);
@@ -132,7 +188,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             [
                 InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
             ]);
-            var pagingMetadata = InputFactory.NextLinkPagingMetadata("cats", "nextCat", InputResponseLocation.Body);
+            var pagingMetadata = InputFactory.NextLinkPagingMetadata(["cats"], ["nextCat"], InputResponseLocation.Body);
             var response = InputFactory.OperationResponse(
                 [200],
                 InputFactory.Model(
@@ -163,7 +219,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             [
                 InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
             ]);
-            var pagingMetadata = InputFactory.NextLinkPagingMetadata("cats", "nextCat", InputResponseLocation.Body);
+            var pagingMetadata = InputFactory.NextLinkPagingMetadata(["cats"], ["nextCat"], InputResponseLocation.Body);
             var response = InputFactory.OperationResponse(
                 [200],
                 InputFactory.Model(
@@ -182,18 +238,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         }
 
 
-        private static void CreatePagingOperation(InputResponseLocation responseLocation)
+        private static void CreatePagingOperation(InputResponseLocation responseLocation, bool isNested = false)
         {
             var inputModel = InputFactory.Model("cat", properties:
             [
                 InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
             ]);
-            var pagingMetadata = InputFactory.NextLinkPagingMetadata("cats", "nextCat", responseLocation);
+            var pagingMetadata = isNested ?
+                InputFactory.NextLinkPagingMetadata(["nestedItems", "cats"], ["nestedNext", "nextCat"], responseLocation)
+                : InputFactory.NextLinkPagingMetadata(["cats"], ["nextCat"], responseLocation);
+            var catsProperty = InputFactory.Property("cats", InputFactory.Array(inputModel));
+            var nextCatProperty = InputFactory.Property("nextCat", InputPrimitiveType.Url);
+            IEnumerable<InputModelProperty> properties = isNested
+                ?
+                [
+                    InputFactory.Property("nestedItems", InputFactory.Model("nestedItems", properties: [catsProperty])),
+                    InputFactory.Property("nestedNext", InputFactory.Model("nestedNext", properties: [nextCatProperty]))
+                ]
+                : [catsProperty, nextCatProperty];
             var response = InputFactory.OperationResponse(
                 [200],
                 InputFactory.Model(
                     "page",
-                    properties: [InputFactory.Property("cats", InputFactory.Array(inputModel)), InputFactory.Property("nextCat", InputPrimitiveType.Url)]));
+                    properties: properties));
             var operation = InputFactory.Operation("getCats", responses: [response]);
             var inputServiceMethod = InputFactory.PagingServiceMethod("getCats", operation, pagingMetadata: pagingMetadata);
             var client = InputFactory.Client("catClient", methods: [inputServiceMethod]);

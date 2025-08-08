@@ -10,7 +10,7 @@ using System.Text.Json;
 
 namespace SampleTypeSpec
 {
-    /// <summary></summary>
+    /// <summary> this is a model with a client name. </summary>
     public partial class RenamedModel : IJsonModel<RenamedModel>
     {
         /// <summary> Initializes a new instance of <see cref="RenamedModel"/> for deserialization. </summary>

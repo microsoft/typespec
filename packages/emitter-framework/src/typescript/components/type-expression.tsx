@@ -10,7 +10,7 @@ import { FunctionType } from "./function-type.js";
 import { InterfaceExpression } from "./interface-declaration.js";
 import { OverridableComponent } from "./overrides/component-overrides.jsx";
 import { RecordExpression } from "./record-expression.js";
-import { UnionExpression } from "./union-expression.js";
+import { UnionExpression } from "./union/expression.js";
 
 export interface TypeExpressionProps {
   type: Type;

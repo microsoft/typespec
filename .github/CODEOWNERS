@@ -23,12 +23,13 @@ cspell.yaml
 ######################
 /packages/http-client-java/                  @srnagar @anuchandy @weidongxu-microsoft @haolingdong-msft @XiaofeiCao
 /website/src/content/docs/docs/emitters/clients/http-client-java/ @srnagar @anuchandy @weidongxu-microsoft @haolingdong-msft @XiaofeiCao
+/.github/prompts/http-client-java-development.md @srnagar @anuchandy @weidongxu-microsoft @haolingdong-msft @XiaofeiCao
 
 ######################
 # Python
 ######################
-/packages/http-client-python/                @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel
-/website/src/content/docs/docs/emitters/clients/http-client-python/               @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel
+/packages/http-client-python/                @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel @kristapratico @swathipil @catalinaperalta
+/website/src/content/docs/docs/emitters/clients/http-client-python/               @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel @kristapratico @swathipil @catalinaperalta
 
 ######################
 # JavaScript

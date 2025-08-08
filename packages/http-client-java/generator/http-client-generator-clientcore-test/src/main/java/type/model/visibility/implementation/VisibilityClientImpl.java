@@ -14,6 +14,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import type.model.visibility.ReadOnlyModel;
 import type.model.visibility.VisibilityModel;
@@ -56,13 +57,29 @@ public final class VisibilityClientImpl {
     }
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
      * Initializes an instance of VisibilityClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
      */
-    public VisibilityClientImpl(HttpPipeline httpPipeline, String endpoint) {
+    public VisibilityClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
         this.service = VisibilityClientService.getNewInstance(this.httpPipeline);
     }
@@ -157,9 +174,12 @@ public final class VisibilityClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<VisibilityModel> getModelWithResponse(int queryProp, VisibilityModel input,
         RequestContext requestContext) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.getModel(this.getEndpoint(), queryProp, contentType, accept, input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Visibility.getModel", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.getModel(this.getEndpoint(), queryProp, contentType, accept, input, updatedContext);
+            });
     }
 
     /**
@@ -175,8 +195,11 @@ public final class VisibilityClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> headModelWithResponse(int queryProp, VisibilityModel input, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.headModel(this.getEndpoint(), queryProp, contentType, input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Visibility.headModel", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.headModel(this.getEndpoint(), queryProp, contentType, input, updatedContext);
+            });
     }
 
     /**
@@ -191,8 +214,11 @@ public final class VisibilityClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putModelWithResponse(VisibilityModel input, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.putModel(this.getEndpoint(), contentType, input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Visibility.putModel", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.putModel(this.getEndpoint(), contentType, input, updatedContext);
+            });
     }
 
     /**
@@ -207,8 +233,11 @@ public final class VisibilityClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> patchModelWithResponse(VisibilityModel input, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.patchModel(this.getEndpoint(), contentType, input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Visibility.patchModel", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.patchModel(this.getEndpoint(), contentType, input, updatedContext);
+            });
     }
 
     /**
@@ -223,8 +252,11 @@ public final class VisibilityClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> postModelWithResponse(VisibilityModel input, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.postModel(this.getEndpoint(), contentType, input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Visibility.postModel", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.postModel(this.getEndpoint(), contentType, input, updatedContext);
+            });
     }
 
     /**
@@ -239,8 +271,11 @@ public final class VisibilityClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> deleteModelWithResponse(VisibilityModel input, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.deleteModel(this.getEndpoint(), contentType, input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Visibility.deleteModel", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.deleteModel(this.getEndpoint(), contentType, input, updatedContext);
+            });
     }
 
     /**
@@ -255,8 +290,11 @@ public final class VisibilityClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ReadOnlyModel> putReadOnlyModelWithResponse(ReadOnlyModel input, RequestContext requestContext) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.putReadOnlyModel(this.getEndpoint(), contentType, accept, input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Visibility.putReadOnlyModel", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.putReadOnlyModel(this.getEndpoint(), contentType, accept, input, updatedContext);
+            });
     }
 }

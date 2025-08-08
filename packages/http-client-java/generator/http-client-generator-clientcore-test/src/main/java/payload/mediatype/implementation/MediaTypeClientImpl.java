@@ -1,6 +1,7 @@
 package payload.mediatype.implementation;
 
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 
 /**
  * Initializes a new instance of the MediaTypeClient type.
@@ -35,6 +36,20 @@ public final class MediaTypeClientImpl {
     }
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
      * The StringBodiesImpl object to access its operations.
      */
     private final StringBodiesImpl stringBodies;
@@ -52,10 +67,12 @@ public final class MediaTypeClientImpl {
      * Initializes an instance of MediaTypeClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
      */
-    public MediaTypeClientImpl(HttpPipeline httpPipeline, String endpoint) {
+    public MediaTypeClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
         this.stringBodies = new StringBodiesImpl(this);
     }

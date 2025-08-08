@@ -518,7 +518,8 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
         }
     }
 
-    private static boolean addSpecialHeadersToRequestOptions(JavaBlock function, ClientMethod clientMethod) {
+    private static boolean addSpecialHeadersToRequestOptions(JavaBlock function, ClientMethod clientMethod,
+        String requestParamName) {
         // logic only works for DPG, protocol API, on RequestOptions
 
         boolean requestOptionsLocal = false;
@@ -548,8 +549,7 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
         // need a "final" variable for RequestContext
         if (repeatabilityRequestHeaders || contentTypeRequestHeaders) {
             requestOptionsLocal = true;
-            function.line(
-                "RequestContext requestContext = requestContext == null ? RequestContext.none() : requestContext;");
+            function.line("RequestContext %1$s = %1$s == null ? RequestContext.none() : %1$s;", requestParamName);
         }
 
         // repeatability headers
@@ -684,16 +684,21 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
         addServiceMethodAnnotation(typeBlock, ReturnType.SINGLE);
 
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
+
+            final String requestContextParam = getRequestContextParameterName(clientMethod);
+            function.line("return this.instrumentation.instrumentWithResponse(\"%1$s\", %2$s, updatedContext -> {",
+                clientMethod.getOperationInstrumentationInfo().getOperationName(),
+                requestContextParam == null ? "RequestContext.none()" : requestContextParam);
+
+            function.increaseIndent();
             addValidations(function, clientMethod.getRequiredNullableParameterExpressions(),
                 clientMethod.getValidateExpressions(), settings);
             addOptionalAndConstantVariables(function, clientMethod, restAPIMethod.getParameters(), settings);
             applyParameterTransformations(function, clientMethod, settings);
             convertClientTypesToWireTypes(function, clientMethod, restAPIMethod.getParameters());
 
-            boolean requestOptionsLocal = addSpecialHeadersToRequestOptions(function, clientMethod);
-
             String serviceMethodCall
-                = checkAndReplaceParamNameCollision(clientMethod, restAPIMethod, requestOptionsLocal, settings);
+                = checkAndReplaceParamNameCollision(clientMethod, restAPIMethod, "updatedContext", settings);
             function.line(String.format("%s res = %s;", restAPIMethod.getReturnType(), serviceMethodCall));
             if (settings.isAzureV1()) {
                 function.line("return new PagedResponseBase<>(");
@@ -748,6 +753,8 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
                 // previous link, first link, last link
                 function.line("null,null,null);");
             }
+            function.decreaseIndent();
+            function.line("});");
         });
     }
 
@@ -765,6 +772,7 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
         addServiceMethodAnnotation(typeBlock, ReturnType.COLLECTION);
         if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
             writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
+
                 addOptionalVariables(function, clientMethod);
                 if (clientMethod.getParameters()
                     .stream()
@@ -937,21 +945,26 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
         String effectiveProxyMethodName = clientMethod.getProxyMethod().getName();
         addServiceMethodAnnotation(typeBlock, ReturnType.SINGLE);
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
+            final String requestContextParam = getRequestContextParameterName(clientMethod);
+            final String arguments = getUpdatedArgumentList(clientMethod.getArgumentList(), requestContextParam);
 
+            function.line("return this.instrumentation.instrumentWithResponse(\"%1$s\", %2$s, updatedContext -> {",
+                clientMethod.getOperationInstrumentationInfo().getOperationName(),
+                requestContextParam == null ? "RequestContext.none()" : requestContextParam);
+
+            function.increaseIndent();
             addValidations(function, clientMethod.getRequiredNullableParameterExpressions(),
                 clientMethod.getValidateExpressions(), settings);
             addOptionalAndConstantVariables(function, clientMethod, restAPIMethod.getParameters(), settings);
             applyParameterTransformations(function, clientMethod, settings);
             convertClientTypesToWireTypes(function, clientMethod, restAPIMethod.getParameters());
 
-            boolean requestContextLocal = false;
-
-            String serviceMethodCall = checkAndReplaceParamNameCollision(clientMethod, restAPIMethod.toSync(),
-                requestContextLocal, settings);
+            String serviceMethodCall
+                = checkAndReplaceParamNameCollision(clientMethod, restAPIMethod.toSync(), "updatedContext", settings);
             if (clientMethod.getReturnValue().getType() == ClassType.INPUT_STREAM) {
                 function.line(
                     "Iterator<ByteBufferBackedInputStream> iterator = %s(%s).map(ByteBufferBackedInputStream::new).toStream().iterator();",
-                    effectiveProxyMethodName, clientMethod.getArgumentList());
+                    effectiveProxyMethodName, arguments);
                 function.anonymousClass("Enumeration<InputStream>", "enumeration", javaBlock -> {
                     javaBlock.annotation("Override");
                     javaBlock.publicMethod("boolean hasMoreElements()",
@@ -964,8 +977,7 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
             } else if (clientMethod.getReturnValue().getType() != PrimitiveType.VOID) {
                 IType returnType = clientMethod.getReturnValue().getType();
                 if (returnType instanceof PrimitiveType) {
-                    function.line("%s value = %s(%s);", returnType.asNullable(), effectiveProxyMethodName,
-                        clientMethod.getArgumentList());
+                    function.line("%s value = %s(%s);", returnType.asNullable(), effectiveProxyMethodName, arguments);
                     function.ifBlock("value != null", ifAction -> ifAction.methodReturn("value"))
                         .elseBlock(elseAction -> {
                             if (settings.isUseClientLogger()) {
@@ -978,8 +990,10 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
                     function.methodReturn(serviceMethodCall);
                 }
             } else {
-                function.line("%s(%s);", effectiveProxyMethodName, clientMethod.getArgumentList());
+                function.line("%s(%s);", effectiveProxyMethodName, arguments);
             }
+            function.decreaseIndent();
+            function.line("});");
         });
     }
 
@@ -1090,7 +1104,7 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
     }
 
     private static String checkAndReplaceParamNameCollision(ClientMethod clientMethod, ProxyMethod restAPIMethod,
-        boolean useLocalRequestContext, JavaSettings settings) {
+        String requestContextParamName, JavaSettings settings) {
         // Asynchronous methods will use 'FluxUtils.withContext' to infer 'Context' from the Reactor's context.
         // Only replace 'context' with 'Context.NONE' for synchronous methods that don't have a 'Context' parameter.
         boolean isSync = clientMethod.getProxyMethod().isSync();
@@ -1103,9 +1117,9 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
         boolean firstParameter = true;
         for (String proxyMethodArgument : clientMethod.getProxyMethodArguments(settings)) {
             String parameterName;
-            if (useLocalRequestContext && "requestContext".equals(proxyMethodArgument)) {
+            if ("requestContext".equals(proxyMethodArgument)) {
                 // Simple static mapping for RequestOptions when 'useLocalRequestOptions' is true.
-                parameterName = "requestContextLocal";
+                parameterName = requestContextParamName;
             } else {
                 ClientMethodParameter parameter = nameToParameter.get(proxyMethodArgument);
                 if (parameter != null && parametersWithTransformations.contains(proxyMethodArgument)) {
@@ -1117,7 +1131,7 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
                         // For asynchronous methods always use the argument name.
                         parameterName = proxyMethodArgument;
                     } else {
-                        parameterName = (parameter == null && "requestContext".equals(proxyMethodArgument))
+                        parameterName = (parameter == null && requestContextParamName.equals(proxyMethodArgument))
                             ? TemplateUtil.getRequestContextNone()
                             : proxyMethodArgument;
                     }
@@ -1316,5 +1330,28 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
     @Override
     protected void addQueryParameterReInjectionLogic(MethodPageDetails.NextLinkReInjection nextLinkReInjection,
         JavaBlock javaBlock) {
+    }
+
+    /**
+     * Get the name of the request context parameter from the client method or null if not present.
+     */
+    private String getRequestContextParameterName(ClientMethod clientMethod) {
+        return clientMethod.getMethodParameters()
+            .stream()
+            .filter(p -> p.getClientType() == ClassType.REQUEST_CONTEXT)
+            .map(ClientMethodParameter::getName)
+            .findFirst()
+            .orElse(null);
+    }
+
+    /**
+     * Update the argument list to replace the request context parameter with `updateContext`.
+     */
+    private String getUpdatedArgumentList(String argumentList, String requestContextParam) {
+        if (requestContextParam == null) {
+            return argumentList;
+        }
+
+        return argumentList == null ? null : argumentList.replace(requestContextParam, "updatedContext");
     }
 }

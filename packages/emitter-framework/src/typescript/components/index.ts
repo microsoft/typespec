@@ -13,6 +13,6 @@ export * from "./static-serializers.js";
 export * from "./type-declaration.js";
 export * from "./type-expression.js";
 export * from "./type-transform.js";
-export * from "./union-declaration.js";
-export * from "./union-expression.js";
+export * from "./union/declaration.js";
+export * from "./union/expression.js";
 export * from "./value-expression.js";

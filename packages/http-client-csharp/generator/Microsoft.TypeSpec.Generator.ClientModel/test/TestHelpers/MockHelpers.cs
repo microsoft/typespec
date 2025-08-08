@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -67,7 +68,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             HttpMessageApi? httpMessageApi = null,
             RequestContentApi? requestContentApi = null,
             Func<InputAuth>? auth = null,
-            bool includeXmlDocs = false)
+            bool includeXmlDocs = false,
+            Func<InputType, bool>? createCSharpTypeCoreFallback = null,
+            Func<InputModelType, ModelProvider?>? createModelCore = null)
         {
             IReadOnlyList<string> inputNsApiVersions = apiVersions?.Invoke() ?? [];
             IReadOnlyList<InputLiteralType> inputNsLiterals = inputLiterals?.Invoke() ?? [];
@@ -75,6 +78,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             IReadOnlyList<InputClient> inputNsClients = clients?.Invoke() ?? [];
             IReadOnlyList<InputModelType> inputNsModels = inputModels?.Invoke() ?? [];
             InputAuth? inputAuth = auth?.Invoke() ?? null;
+
+            // reset the type cache on TypeReferenceExpression
+            var resetCacheMethod = typeof(TypeReferenceExpression).GetMethod("ResetCache", BindingFlags.Static | BindingFlags.NonPublic);
+            resetCacheMethod!.Invoke(null, null);
 
             var mockTypeFactory = new Mock<ScmTypeFactory>() { CallBase = true };
             var mockInputNs = new Mock<InputNamespace>(
@@ -103,9 +110,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
                 mockTypeFactory.Protected().Setup<IReadOnlyList<TypeProvider>>("CreateSerializationsCore", ItExpr.IsAny<InputType>(), ItExpr.IsAny<TypeProvider>()).Returns(createSerializationsCore);
             }
 
+            if (createModelCore is not null)
+            {
+                mockTypeFactory.Protected().Setup<ModelProvider?>("CreateModelCore", ItExpr.IsAny<InputModelType>()).Returns(createModelCore);
+            }
+
             if (createCSharpTypeCore is not null)
             {
-                mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(createCSharpTypeCore);
+                if (createCSharpTypeCoreFallback is not null)
+                {
+                    mockTypeFactory.Protected()
+                        .Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>())
+                        .Returns((InputType input) =>
+                            createCSharpTypeCoreFallback(input)
+                                ? createCSharpTypeCore(input)
+                                : null!);
+                }
+                else
+                {
+                    mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(createCSharpTypeCore);
+                }
             }
 
             if (createClientCore is not null)

@@ -96,9 +96,6 @@ try {
 
   Write-Host "Copied http-specs to current directory"
 
-  # remove xml tests, emitter has not supported xml model
-  Remove-Item ./specs/payload/xml -Recurse -Force
-
   $job = (Get-ChildItem ./specs -Include "main.tsp","old.tsp" -File -Recurse) | ForEach-Object -Parallel $generateScript -ThrottleLimit $Parallelization -AsJob
 
   $job | Wait-Job -Timeout 1200

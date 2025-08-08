@@ -6,6 +6,7 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using SampleTypeSpec.Models.Custom;
 
 namespace SampleTypeSpec
 {
@@ -13,6 +14,18 @@ namespace SampleTypeSpec
     /// Context class which will be filled in by the System.ClientModel.SourceGeneration.
     /// For more information <see href='https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/System.ClientModel/src/docs/ModelReaderWriterContext.md' />
     /// </summary>
+    [ModelReaderWriterBuildable(typeof(Thing))]
+    [ModelReaderWriterBuildable(typeof(RoundTripModel))]
+    [ModelReaderWriterBuildable(typeof(ModelWithRequiredNullableProperties))]
+    [ModelReaderWriterBuildable(typeof(Friend))]
+    [ModelReaderWriterBuildable(typeof(RenamedModelCustom))]
+    [ModelReaderWriterBuildable(typeof(ReturnsAnonymousModelResponse))]
+    [ModelReaderWriterBuildable(typeof(ListWithNextLinkResponse))]
+    [ModelReaderWriterBuildable(typeof(ListWithStringNextLinkResponse))]
+    [ModelReaderWriterBuildable(typeof(ListWithContinuationTokenResponse))]
+    [ModelReaderWriterBuildable(typeof(ListWithContinuationTokenHeaderResponseResponse))]
+    [ModelReaderWriterBuildable(typeof(PageThing))]
+    [ModelReaderWriterBuildable(typeof(ModelWithEmbeddedNonBodyParameters))]
     public partial class SampleTypeSpecContext : ModelReaderWriterContext
     {
     }

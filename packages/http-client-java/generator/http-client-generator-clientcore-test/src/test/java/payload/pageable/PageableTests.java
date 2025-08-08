@@ -52,4 +52,34 @@ public class PageableTests {
                 .streamByPage(new PagingOptions().setPageSize(4L))
                 .count());
     }
+
+    @Test
+    public void testNestedLink() {
+        PagedIterable<Pet> pagedIterable = client.nestedLink();
+
+        Assertions.assertEquals(4, pagedIterable.stream().count());
+        Assertions.assertEquals(List.of("1", "2", "3", "4"),
+            pagedIterable.stream().map(Pet::getId).collect(Collectors.toList()));
+    }
+
+    @Test
+    public void testNestedContinuationToken() {
+        PagedIterable<Pet> pagedIterable = tokenClient.requestQueryNestedResponseBody("foo", "bar");
+        Assertions.assertEquals(4, pagedIterable.stream().count());
+        Assertions.assertEquals(List.of("1", "2", "3", "4"),
+            pagedIterable.stream().map(Pet::getId).collect(Collectors.toList()));
+
+        pagedIterable = tokenClient.requestHeaderNestedResponseBody("foo", "bar");
+        Assertions.assertEquals(4, pagedIterable.stream().count());
+        Assertions.assertEquals(List.of("1", "2", "3", "4"),
+            pagedIterable.stream().map(Pet::getId).collect(Collectors.toList()));
+
+        // query 2nd page with continuation token
+        pagedIterable = tokenClient.requestQueryNestedResponseBody("foo", "bar");
+        Assertions.assertEquals(List.of("3", "4"),
+            pagedIterable.streamByPage(new PagingOptions().setContinuationToken("page2"))
+                .flatMap(page -> page.getValue().stream())
+                .map(Pet::getId)
+                .collect(Collectors.toList()));
+    }
 }

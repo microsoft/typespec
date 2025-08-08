@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import payload.jsonmergepatch.Resource;
 import payload.jsonmergepatch.ResourcePatch;
@@ -55,13 +56,29 @@ public final class JsonMergePatchClientImpl {
     }
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
      * Initializes an instance of JsonMergePatchClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
      */
-    public JsonMergePatchClientImpl(HttpPipeline httpPipeline, String endpoint) {
+    public JsonMergePatchClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
         this.service = JsonMergePatchClientService.getNewInstance(this.httpPipeline);
     }
@@ -124,9 +141,12 @@ public final class JsonMergePatchClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Resource> createResourceWithResponse(Resource body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.createResource(this.getEndpoint(), contentType, accept, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Payload.JsonMergePatch.createResource", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.createResource(this.getEndpoint(), contentType, accept, body, updatedContext);
+            });
     }
 
     /**
@@ -141,9 +161,12 @@ public final class JsonMergePatchClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Resource> updateResourceWithResponse(ResourcePatch body, RequestContext requestContext) {
-        final String contentType = "application/merge-patch+json";
-        final String accept = "application/json";
-        return service.updateResource(this.getEndpoint(), contentType, accept, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Payload.JsonMergePatch.updateResource", requestContext,
+            updatedContext -> {
+                final String contentType = "application/merge-patch+json";
+                final String accept = "application/json";
+                return service.updateResource(this.getEndpoint(), contentType, accept, body, updatedContext);
+            });
     }
 
     /**
@@ -158,7 +181,10 @@ public final class JsonMergePatchClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Resource> updateOptionalResourceWithResponse(ResourcePatch body, RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.updateOptionalResource(this.getEndpoint(), accept, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Payload.JsonMergePatch.updateOptionalResource",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.updateOptionalResource(this.getEndpoint(), accept, body, updatedContext);
+            });
     }
 }

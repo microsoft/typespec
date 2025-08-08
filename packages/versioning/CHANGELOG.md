@@ -1,5 +1,23 @@
 # Change Log - @typespec/versioning
 
+## 0.73.0
+
+### Features
+
+- [#7999](https://github.com/microsoft/typespec/pull/7999) Use of `@useDependency` is now optional when referencing types from a versioned library. By default the latest version of the library will be used.
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+
+## 0.72.0
+
+### Bump dependencies
+
+- [#7674](https://github.com/microsoft/typespec/pull/7674) Upgrade dependencies
+
+
 ## 0.71.0
 
 ### Bug Fixes
