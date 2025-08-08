@@ -1,10 +1,12 @@
 import {
   InitializedByFlags,
+  SdkCredentialParameter,
+  SdkEndpointParameter,
   SdkHeaderParameter,
   SdkHttpParameter,
   SdkMethod,
+  SdkMethodParameter,
   SdkModelPropertyType,
-  SdkParameter,
   SdkQueryParameter,
   SdkServiceMethod,
   SdkServiceOperation,
@@ -107,7 +109,7 @@ export function camelToSnakeCase(name: string): string {
 
 export function getImplementation(
   context: PythonSdkContext,
-  parameter: SdkParameter | SdkHttpParameter,
+  parameter: SdkEndpointParameter | SdkCredentialParameter | SdkMethodParameter | SdkHttpParameter,
 ): "Client" | "Method" {
   if (parameter.onClient) return "Client";
   return "Method";
@@ -153,7 +155,13 @@ type ParamBase = {
 
 export function getAddedOn<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext,
-  type: SdkModelPropertyType | SdkMethod<TServiceOperation>,
+  type:
+    | SdkEndpointParameter
+    | SdkCredentialParameter
+    | SdkModelPropertyType
+    | SdkMethodParameter
+    | SdkHttpParameter
+    | SdkMethod<TServiceOperation>,
 ): string | undefined {
   // since we do not support multi-service for now, we can just check the root client's api version
   // if type is added in the first version of the client, we do not need to add the versioning info
@@ -168,7 +176,7 @@ export function getAddedOn<TServiceOperation extends SdkServiceOperation>(
 }
 
 export function isContinuationToken<TServiceOperation extends SdkServiceOperation>(
-  parameter: SdkParameter | SdkHttpParameter | SdkServiceResponseHeader,
+  parameter: SdkMethodParameter | SdkHttpParameter | SdkServiceResponseHeader,
   method?: SdkServiceMethod<TServiceOperation>,
   input: boolean = true,
 ): boolean {
@@ -197,7 +205,7 @@ export function isContinuationToken<TServiceOperation extends SdkServiceOperatio
 
 export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext,
-  parameter: SdkParameter | SdkHttpParameter,
+  parameter: SdkEndpointParameter | SdkCredentialParameter | SdkMethodParameter | SdkHttpParameter,
   method?: SdkServiceMethod<TServiceOperation>,
 ): ParamBase {
   let type = getType(context, parameter.type);
@@ -212,9 +220,9 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
   }
   let clientName = camelToSnakeCase(parameter.name);
   if (
-    parameter.kind !== "endpoint" &&
-    parameter.kind !== "credential" &&
     parameter.kind !== "method" &&
+    parameter.kind !== "credential" &&
+    parameter.kind !== "endpoint" &&
     parameter.onClient &&
     parameter.correspondingMethodParams[0]
   ) {
@@ -227,7 +235,10 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
     clientName,
     inOverload: false,
     isApiVersion: parameter.isApiVersionParam,
-    isContinuationToken: isContinuationToken(parameter, method),
+    isContinuationToken:
+      parameter.kind !== "endpoint" &&
+      parameter.kind !== "credential" &&
+      isContinuationToken(parameter, method),
     type,
     apiVersions: parameter.apiVersions,
   };
