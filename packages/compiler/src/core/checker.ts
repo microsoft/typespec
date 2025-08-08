@@ -1953,6 +1953,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       implementation: implementation ?? (() => errorType),
     });
 
+    namespace.functionDeclarations.set(name, functionType);
+
+    linkType(links, functionType, mapper);
+
     return functionType;
   }
 
@@ -5239,7 +5243,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         createDiagnostic({
           code: "augment-decorator-target",
           messageId:
-            aliasNode.value?.kind === SyntaxKind.UnionExpression ? "noUnionExpression" : "default",
+            aliasNode.value.kind === SyntaxKind.UnionExpression ? "noUnionExpression" : "default",
           target: node.targetType,
         }),
       );
@@ -5450,8 +5454,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node: AliasStatementNode,
     mapper: TypeMapper | undefined,
   ): Type | IndeterminateEntity {
-    const symbol = getMergedSymbol(node.symbol);
-    const links = getSymbolLinks(symbol);
+    const links = getSymbolLinks(node.symbol);
 
     if (links.declaredType && mapper === undefined) {
       // We are not instantiating this alias and it's already checked.
@@ -5461,81 +5464,36 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     const aliasSymId = getNodeSym(node);
 
-    const isExtern = node.modifiers & ModifierFlags.Extern;
-
-    if (isExtern && node.value) {
-      // Illegal combination. Extern aliases cannot have a value.
-      reportCheckerDiagnostic(
-        createDiagnostic({
-          code: "alias-extern-value",
-          target: node.value,
-          format: { typeName: symbol.name },
-        }),
-      );
-    } else if (!isExtern && !node.value) {
-      // Illegal combination. Non-extern aliases must have a value.
-      reportCheckerDiagnostic(
-        createDiagnostic({
-          code: "alias-no-value",
-          target: node,
-          format: { typeName: symbol.name },
-        }),
-      );
-    }
-
-    if (isExtern) {
-      pendingResolutions.start(aliasSymId, ResolutionKind.Type);
-      let type: Type;
-      if (symbol.value === undefined) {
+    if (pendingResolutions.has(aliasSymId, ResolutionKind.Type)) {
+      if (mapper === undefined) {
         reportCheckerDiagnostic(
           createDiagnostic({
-            code: "alias-extern-no-impl",
+            code: "circular-alias-type",
+            format: { typeName: node.id.sv },
             target: node,
-            format: { typeName: symbol.name },
           }),
         );
-        type = errorType;
-      } else {
-        if (mapper) type = symbol.value(program, mapper);
-        // We are checking the template itself, so we will just put a never type here
-        else type = neverType;
       }
-      links.declaredType = type;
-      linkType(links, type, mapper);
-      pendingResolutions.finish(aliasSymId, ResolutionKind.Type);
-      return type;
-    } else {
-      if (pendingResolutions.has(aliasSymId, ResolutionKind.Type)) {
-        if (mapper === undefined) {
-          reportCheckerDiagnostic(
-            createDiagnostic({
-              code: "circular-alias-type",
-              format: { typeName: symbol.name },
-              target: node,
-            }),
-          );
-        }
-        links.declaredType = errorType;
-        return errorType;
-      }
-
-      pendingResolutions.start(aliasSymId, ResolutionKind.Type);
-
-      const type = checkNode(node.value!, mapper);
-      if (type === null) {
-        links.declaredType = errorType;
-        return errorType;
-      }
-      if (isValue(type)) {
-        reportCheckerDiagnostic(createDiagnostic({ code: "value-in-type", target: node.value! }));
-        links.declaredType = errorType;
-        return errorType;
-      }
-      linkType(links, type as any, mapper);
-      pendingResolutions.finish(aliasSymId, ResolutionKind.Type);
-
-      return type;
+      links.declaredType = errorType;
+      return errorType;
     }
+
+    pendingResolutions.start(aliasSymId, ResolutionKind.Type);
+
+    const type = checkNode(node.value, mapper);
+    if (type === null) {
+      links.declaredType = errorType;
+      return errorType;
+    }
+    if (isValue(type)) {
+      reportCheckerDiagnostic(createDiagnostic({ code: "value-in-type", target: node.value }));
+      links.declaredType = errorType;
+      return errorType;
+    }
+    linkType(links, type as any, mapper);
+    pendingResolutions.finish(aliasSymId, ResolutionKind.Type);
+
+    return type;
   }
 
   function checkConst(node: ConstStatementNode): Value | null {

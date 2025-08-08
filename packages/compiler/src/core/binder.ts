@@ -34,7 +34,6 @@ import {
   SymbolFlags,
   SymbolTable,
   SyntaxKind,
-  TemplateImplementations,
   TemplateParameterDeclarationNode,
   TypeSpecScriptNode,
   UnionStatementNode,
@@ -154,19 +153,6 @@ export function createBinder(program: Program): Binder {
             );
           }
         }
-      } else if (key === "$templates") {
-        const value: TemplateImplementations = member as any;
-        for (const [namespaceName, templates] of Object.entries(value)) {
-          for (const [templateName, template] of Object.entries(templates)) {
-            bindFunctionImplementation(
-              namespaceName === "" ? [] : namespaceName.split("."),
-              "template",
-              templateName,
-              template,
-              sourceFile,
-            );
-          }
-        }
       } else if (key === "$functions") {
         const value: FunctionImplementations = member as any;
         for (const [namespaceName, functions] of Object.entries(value)) {
@@ -210,7 +196,7 @@ export function createBinder(program: Program): Binder {
 
   function bindFunctionImplementation(
     nsParts: string[],
-    kind: "decorator" | "function" | "template",
+    kind: "decorator" | "function",
     name: string,
     fn: (...args: any[]) => any,
     sourceFile: JsSourceFileNode,
@@ -266,14 +252,6 @@ export function createBinder(program: Program): Binder {
         sourceFile,
         "@" + name,
         SymbolFlags.Decorator | SymbolFlags.Declaration | SymbolFlags.Implementation,
-        containerSymbol,
-      );
-    } else if (kind === "template") {
-      tracer.trace("template", `Bound template "${name}" in namespace "${nsParts.join(".")}".`);
-      sym = createSymbol(
-        sourceFile,
-        name,
-        SymbolFlags.Alias | SymbolFlags.Declaration | SymbolFlags.Implementation,
         containerSymbol,
       );
     } else {

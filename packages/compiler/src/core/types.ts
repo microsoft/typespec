@@ -53,10 +53,6 @@ export interface DecoratorFunction {
   namespace?: string;
 }
 
-export interface TemplateFunction {
-  (program: TemplateContext, mapper: TypeMapper): void;
-}
-
 export interface FunctionImplementation {
   (program: Program, ...args: any[]): Type | Value;
 }
@@ -585,6 +581,13 @@ export interface Namespace extends BaseType, DecoratedType {
    * Order is implementation-defined and may change.
    */
   decoratorDeclarations: Map<string, Decorator>;
+
+  /**
+   * The functions declared in the namespace.
+   *
+   * Order is implementation-defined and may change.
+   */
+  functionDeclarations: Map<string, FunctionType>;
 }
 
 export type LiteralType = StringLiteral | NumericLiteral | BooleanLiteral;
@@ -1473,9 +1476,8 @@ export interface EnumSpreadMemberNode extends BaseNode {
 
 export interface AliasStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.AliasStatement;
-  readonly value?: Expression;
+  readonly value: Expression;
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
-  readonly modifiers: ModifierFlags;
 }
 
 export interface ConstStatementNode extends BaseNode, DeclarationNode {
@@ -2326,12 +2328,6 @@ export interface TypeSpecLibraryDef<
 export interface DecoratorImplementations {
   readonly [namespace: string]: {
     readonly [name: string]: DecoratorFunction;
-  };
-}
-
-export interface TemplateImplementations {
-  readonly [namespace: string]: {
-    readonly [name: string]: TemplateFunction;
   };
 }
 

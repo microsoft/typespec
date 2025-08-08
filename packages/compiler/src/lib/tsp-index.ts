@@ -130,7 +130,7 @@ let COUNTER = 0;
 
 export const $functions = {
   TypeSpec: {
-    example(program: Program, t: Type): Type {
+    example2(program: Program, t: Type): Type {
       return $(program).array.create(
         $(program).tuple.create([$(program).literal.create(COUNTER++), t]),
       );

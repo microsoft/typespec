@@ -5,7 +5,7 @@ import "./reflection.tsp";
 import "./visibility.tsp";
 
 namespace TypeSpec {
-  extern fn example(T: Reflection.Type);
+  extern fn example2(T: Reflection.Type);
 
-  alias Example<T> = example(T);
+  alias Example2<T> = example2(T);
 }

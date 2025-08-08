@@ -469,7 +469,7 @@ describe("compiler: parser", () => {
         (node) => {
           const statement = node.statements[0];
           assert(statement.kind === SyntaxKind.AliasStatement, "alias statement expected");
-          const value = statement.value!;
+          const value = statement.value;
           assert(value.kind === SyntaxKind.StringLiteral, "string literal expected");
           assert.strictEqual(value.value, "banana");
         },

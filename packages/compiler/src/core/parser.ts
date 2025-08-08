@@ -468,12 +468,15 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           reportInvalidDecorators(decorators, "empty statement");
           item = parseEmptyStatement(pos);
           break;
+        case Token.AliasKeyword:
+          reportInvalidDecorators(decorators, "alias statement");
+          item = parseAliasStatement(pos);
+          break;
         // Start of declaration with modifiers
         case Token.ExternKeyword:
         case Token.FnKeyword:
         case Token.DecKeyword:
-        case Token.AliasKeyword:
-          item = parseDeclaration(pos, decorators);
+          item = parseDeclaration(pos);
           break;
         default:
           item = parseInvalidStatement(pos, decorators);
@@ -561,11 +564,14 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           reportInvalidDecorators(decorators, "using statement");
           item = parseUsingStatement(pos);
           break;
+        case Token.AliasKeyword:
+          reportInvalidDecorators(decorators, "alias statement");
+          item = parseAliasStatement(pos);
+          break;
         case Token.ExternKeyword:
         case Token.FnKeyword:
         case Token.DecKeyword:
-        case Token.AliasKeyword:
-          item = parseDeclaration(pos, decorators);
+          item = parseDeclaration(pos);
           break;
         case Token.EndOfFile:
           parseExpected(Token.CloseBrace);
@@ -1216,37 +1222,24 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
-  function parseAliasStatement(pos: number, modifiers: Modifier[]): AliasStatementNode {
-    const modifierFlags = modifiersToFlags(modifiers);
+  function parseAliasStatement(pos: number): AliasStatementNode {
     parseExpected(Token.AliasKeyword);
     const id = parseIdentifier();
     const { items: templateParameters, range: templateParametersRange } =
       parseTemplateParameterList();
 
-    const nextTok = parseExpectedOneOf(Token.Equals, Token.Semicolon);
+    parseExpected(Token.Equals);
 
-    if (nextTok === Token.Semicolon) {
-      return {
-        kind: SyntaxKind.AliasStatement,
-        id,
-        templateParameters,
-        templateParametersRange,
-        modifiers: modifierFlags,
-        ...finishNode(pos),
-      };
-    } else {
-      const value = parseExpression();
-      parseExpected(Token.Semicolon);
-      return {
-        kind: SyntaxKind.AliasStatement,
-        id,
-        templateParameters,
-        templateParametersRange,
-        value,
-        modifiers: modifierFlags,
-        ...finishNode(pos),
-      };
-    }
+    const value = parseExpression();
+    parseExpected(Token.Semicolon);
+    return {
+      kind: SyntaxKind.AliasStatement,
+      id,
+      templateParameters,
+      templateParametersRange,
+      value,
+      ...finishNode(pos),
+    };
   }
 
   function parseConstStatement(pos: number): ConstStatementNode {
@@ -1994,21 +1987,13 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
   function parseDeclaration(
     pos: number,
-    decorators: DecoratorExpressionNode[],
-  ):
-    | DecoratorDeclarationStatementNode
-    | FunctionDeclarationStatementNode
-    | AliasStatementNode
-    | InvalidStatementNode {
+  ): DecoratorDeclarationStatementNode | FunctionDeclarationStatementNode | InvalidStatementNode {
     const modifiers = parseModifiers();
     switch (token()) {
       case Token.DecKeyword:
         return parseDecoratorDeclarationStatement(pos, modifiers);
       case Token.FnKeyword:
         return parseFunctionDeclarationStatement(pos, modifiers);
-      case Token.AliasKeyword:
-        reportInvalidDecorators(decorators, "alias statement");
-        return parseAliasStatement(pos, modifiers);
     }
     return parseInvalidStatement(pos, []);
   }

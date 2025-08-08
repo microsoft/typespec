@@ -202,6 +202,10 @@ function navigateNamespaceType(namespace: Namespace, context: NavigationContext)
     navigateDecoratorDeclaration(decorator, context);
   }
 
+  for (const func of namespace.functionDeclarations.values()) {
+    navigateFunctionDeclaration(func, context);
+  }
+
   context.emit("exitNamespace", namespace);
 }
 
