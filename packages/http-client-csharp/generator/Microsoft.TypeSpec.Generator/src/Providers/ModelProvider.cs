@@ -473,7 +473,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     $"Initializes a new instance of {Type:C}",
                     accessibility,
                     constructorParameters,
-                    Initializer: constructorInitializer),
+                    initializer: constructorInitializer),
                 bodyStatements: new MethodBodyStatement[]
                 {
                     GetPropertyInitializers(true, parameters: constructorParameters)
@@ -502,7 +502,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     $"Initializes a new instance of {Type:C}",
                     MethodSignatureModifiers.Internal,
                     ctorParameters,
-                    Initializer: ctorInitializer),
+                    initializer: ctorInitializer),
                 bodyStatements: new MethodBodyStatement[]
                 {
                     GetPropertyInitializers(false)
@@ -785,9 +785,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var backingField = property.BackingField;
                 if (backingField != null)
                 {
-                    var assignment = isPrimaryConstructor
-                       ? backingField.Assign(New.Instance(backingField.Type.PropertyInitializationType))
-                       : backingField.Assign(property.AsParameter);
+                    AssignmentExpression assignment = backingField.Assign(property.AsParameter);
+                    if (isPrimaryConstructor)
+                    {
+                        assignment = backingField.Assign(New.Instance(backingField.Type.PropertyInitializationType));
+                    }
+                    else if (property.Type.IsReadOnlyDictionary)
+                    {
+                        assignment = backingField.Assign(New.Instance(backingField.Type.PropertyInitializationType, property.AsParameter));
+                    }
 
                     methodBodyStatements.Add(assignment.Terminate());
                 }

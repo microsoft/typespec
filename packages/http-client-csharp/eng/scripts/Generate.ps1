@@ -7,6 +7,9 @@ param(
 
 Import-Module "$PSScriptRoot\Generation.psm1" -DisableNameChecking -Force;
 
+# Start overall timer
+$totalStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+
 $packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
 $solutionDir = Join-Path $packageRoot 'generator'
 
@@ -15,32 +18,32 @@ if (-not $LaunchOnly) {
 
     if ($null -eq $filter -or $filter -eq "Sample-TypeSpec") {
 
-        Write-Host "Building logging plugin" -ForegroundColor Cyan
-        $pluginDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'plugins' 'logging' 'Logging.Plugin' 'src'
-        Invoke "dotnet build" $pluginDir
+       Write-Host "Building logging plugin" -ForegroundColor Cyan
+       $pluginDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'plugins' 'logging' 'Logging.Plugin' 'src'
+       Invoke "dotnet build" $pluginDir
 
-        $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
+       $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
 
-        Write-Host "Installing SampleTypeSpec plugins" -ForegroundColor Cyan
+       Write-Host "Installing SampleTypeSpec plugins" -ForegroundColor Cyan
 
-        Invoke "npm install --force" $sampleDir
+       Invoke "npm install --force" $sampleDir
 
-        Write-Host "Generating SampleTypeSpec using plugins" -ForegroundColor Cyan
+       Write-Host "Generating SampleTypeSpec using plugins" -ForegroundColor Cyan
 
-        Invoke "npx tsp compile . --trace @typespec/http-client-csharp" $sampleDir
+       Invoke "npx tsp compile . --trace @typespec/http-client-csharp --option @typespec/http-client-csharp.new-project=true" $sampleDir
 
-        # exit if the generation failed
-        if ($LASTEXITCODE -ne 0) {
-          exit $LASTEXITCODE
-        }
+       # exit if the generation failed
+       if ($LASTEXITCODE -ne 0) {
+         exit $LASTEXITCODE
+       }
 
-        Write-Host "Building SampleTypeSpec plugin library" -ForegroundColor Cyan
-        Invoke "dotnet build $sampleDir/SampleClient/src/SampleTypeSpec.csproj"
+       Write-Host "Building SampleTypeSpec plugin library" -ForegroundColor Cyan
+       Invoke "dotnet build $sampleDir/SampleClient/src/SampleTypeSpec.csproj"
 
-        # exit if the generation failed
-        if ($LASTEXITCODE -ne 0) {
-          exit $LASTEXITCODE
-        }
+       # exit if the generation failed
+       if ($LASTEXITCODE -ne 0) {
+         exit $LASTEXITCODE
+       }
 
         Write-Host "Generating SampleTypeSpec" -ForegroundColor Cyan
         $testProjectsLocalDir = Join-Path $packageRoot 'generator' 'TestProjects' 'Local'
@@ -48,7 +51,7 @@ if (-not $LaunchOnly) {
         $SampleTypeSpecTestProject = Join-Path $testProjectsLocalDir "Sample-TypeSpec"
         $SampleTypeSpecTestProject = $SampleTypeSpecTestProject
 
-        Invoke (Get-TspCommand "$SampleTypeSpecTestProject/Sample-TypeSpec.tsp" $SampleTypeSpecTestProject -newProject $false)
+        Invoke (Get-TspCommand "$SampleTypeSpecTestProject/Sample-TypeSpec.tsp" $SampleTypeSpecTestProject)
 
         # exit if the generation failed
         if ($LASTEXITCODE -ne 0) {
@@ -83,7 +86,6 @@ $failingSpecs = @(
     Join-Path 'http' 'type' 'model' 'templated'
     Join-Path 'http' 'client' 'naming' # pending until https://github.com/microsoft/typespec/issues/5653 is resolved
     Join-Path 'http' 'streaming' 'jsonl'
-    Join-Path 'http' 'payload' 'pageable' # pending until https://github.com/microsoft/typespec/issues/8009 is resolved
 )
 
 $azureAllowSpecs = @(
@@ -213,3 +215,10 @@ if ($null -eq $filter) {
     # Write the launch settings to the launchSettings.json file
     Set-LaunchSettings $sortedLaunchSettings
 }
+
+# Stop total timer
+$totalStopwatch.Stop()
+
+# Display timing summary
+Write-Host "`n==================== TIMING SUMMARY ====================" -ForegroundColor Cyan
+Write-Host "Total execution time: $($totalStopwatch.Elapsed.ToString('hh\:mm\:ss\.ff'))" -ForegroundColor Yellow

@@ -614,7 +614,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 _publicCtorDescription,
                 modifier,
                 secondaryConstructorParameters,
-                Initializer: primaryCtorInitializer);
+                initializer: primaryCtorInitializer);
 
             return new ConstructorProvider(
                 constructorSignature,

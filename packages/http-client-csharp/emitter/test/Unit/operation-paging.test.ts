@@ -57,11 +57,11 @@ describe("Next link operations", () => {
     const program = await typeSpecCompile(
       `
         @route("foo")
+        @list
         op link(...RequestOptions): LinkResult;
 
-        @pagedResult
         model LinkResult {
-          @items
+          @pageItems
           items: Foo[];
 
           @nextLink

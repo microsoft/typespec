@@ -20,7 +20,6 @@ if (-not (Test-Path $coverageDir)) {
 }
 
 $failingSpecs = @(
-    Join-Path 'payload' 'pageable' # pending until https://github.com/microsoft/typespec/issues/8009 is resolved
 )
 
 # generate all

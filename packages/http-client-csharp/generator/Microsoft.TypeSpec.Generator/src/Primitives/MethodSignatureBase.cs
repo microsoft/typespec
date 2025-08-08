@@ -42,17 +42,17 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
         public CSharpType? ReturnType { get; private set; }
 
-        public IReadOnlyList<AttributeStatement> Attributes { get; private set; }
+        public IReadOnlyList<AttributeStatement> Attributes { get; internal set; }
 
-        public IReadOnlyList<ParameterProvider> Parameters { get; private set; }
+        public IReadOnlyList<ParameterProvider> Parameters { get; internal set; }
 
-        public MethodSignatureModifiers Modifiers { get; private set; }
+        public MethodSignatureModifiers Modifiers { get; internal set; }
 
-        public string? NonDocumentComment { get; private set; }
+        public string? NonDocumentComment { get; internal set; }
 
-        public FormattableString? Description { get; private set; }
+        public FormattableString? Description { get; internal set; }
 
-        public string Name { get; private set; }
+        public string Name { get; internal set; }
 
         public void Update(string? name = default, FormattableString? description = default, string? nonDocumentComment = default, MethodSignatureModifiers? modifiers = default, IReadOnlyList<ParameterProvider>? parameters = default, IReadOnlyList<AttributeStatement>? attributes = default, CSharpType? returnType = default)
         {

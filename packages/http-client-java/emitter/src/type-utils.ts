@@ -1,7 +1,7 @@
 import { getUnionAsEnum } from "@azure-tools/typespec-azure-core";
 import {
-  SdkBodyModelPropertyType,
   SdkDurationType,
+  SdkModelPropertyType,
   SdkModelType,
   SdkType,
   isSdkFloatKind,
@@ -352,7 +352,7 @@ export function isArmCommonType(entity: Type): boolean {
  * @param property the model property.
  * @returns the serialized name of the property.
  */
-export function getPropertySerializedName(property: SdkBodyModelPropertyType): string {
+export function getPropertySerializedName(property: SdkModelPropertyType): string {
   // still fallback to "property.name", as for orphan model, serializationOptions.json is undefined
   return (
     property.serializationOptions.json?.name ??
@@ -370,7 +370,7 @@ export function getPropertySerializedName(property: SdkBodyModelPropertyType): s
  * @returns the XML serialization format, or undefined if not applicable.
  */
 export function getXmlSerializationFormat(
-  type: SdkModelType | SdkBodyModelPropertyType,
+  type: SdkModelType | SdkModelPropertyType,
 ): XmlSerializationFormat | undefined {
   if (!type.serializationOptions.xml) {
     return undefined;

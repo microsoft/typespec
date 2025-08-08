@@ -14,7 +14,6 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
     public class ContinuationTokenPaginationTests : SpectorTestBase
     {
         [SpectorTest]
-        [Ignore("https://github.com/microsoft/typespec/issues/8009")]
         public Task RequestHeaderResponseBodyConvenienceMethod() => Test(async (host) =>
         {
             var client = new PageableClient(host, null);
@@ -25,7 +24,6 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
         });
 
         [SpectorTest]
-        [Ignore("https://github.com/microsoft/typespec/issues/8009")]
         public Task RequestHeaderResponseBodyProtocolMethod() => Test(async (host) =>
         {
             var client = new PageableClient(host, null);
@@ -36,7 +34,26 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
         });
 
         [SpectorTest]
-        [Ignore("https://github.com/microsoft/typespec/issues/8009")]
+        public Task RequestHeaderNestedResponseBodyConvenienceMethod() => Test(async (host) =>
+        {
+            var client = new PageableClient(host, null);
+            var result = client.GetServerDrivenPaginationClient()
+                .GetServerDrivenPaginationContinuationTokenClient()
+                .RequestHeaderNestedResponseBodyAsync(foo: "foo", bar: "bar");
+            await ValidateConvenience(result, false, isNested: true);
+        });
+
+        [SpectorTest]
+        public Task RequestHeaderNestedResponseBodyProtocolMethod() => Test(async (host) =>
+        {
+            var client = new PageableClient(host, null);
+            var result = client.GetServerDrivenPaginationClient()
+                .GetServerDrivenPaginationContinuationTokenClient()
+                .RequestHeaderNestedResponseBodyAsync(token: null, foo: "foo", bar: "bar", options: null);
+            await ValidateProtocol(result, false, isNested: true);
+        });
+
+        [SpectorTest]
         public Task RequestHeaderResponseHeaderConvenienceMethod() => Test(async (host) =>
         {
             var client = new PageableClient(host, null);
@@ -47,7 +64,6 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
         });
 
         [SpectorTest]
-        [Ignore("https://github.com/microsoft/typespec/issues/8009")]
         public Task RequestHeaderResponseHeaderProtocolMethod() => Test(async (host) =>
         {
             var client = new PageableClient(host, null);
@@ -58,7 +74,6 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
         });
 
         [SpectorTest]
-        [Ignore("https://github.com/microsoft/typespec/issues/8009")]
         public Task RequestQueryResponseBodyConvenienceMethod() => Test(async (host) =>
         {
             var client = new PageableClient(host, null);
@@ -69,7 +84,6 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
         });
 
         [SpectorTest]
-        [Ignore("https://github.com/microsoft/typespec/issues/8009")]
         public Task RequestQueryResponseBodyProtocolMethod() => Test(async (host) =>
         {
             var client = new PageableClient(host, null);
@@ -80,7 +94,26 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
         });
 
         [SpectorTest]
-        [Ignore("https://github.com/microsoft/typespec/issues/8009")]
+        public Task RequestQueryNestedResponseBodyConvenienceMethod() => Test(async (host) =>
+        {
+            var client = new PageableClient(host, null);
+            var result = client.GetServerDrivenPaginationClient()
+                .GetServerDrivenPaginationContinuationTokenClient()
+                .RequestQueryNestedResponseBodyAsync(foo: "foo", bar: "bar");
+            await ValidateConvenience(result, false, isNested: true);
+        });
+
+        [SpectorTest]
+        public Task RequestQueryNestedResponseBodyProtocolMethod() => Test(async (host) =>
+        {
+            var client = new PageableClient(host, null);
+            var result = client.GetServerDrivenPaginationClient()
+                .GetServerDrivenPaginationContinuationTokenClient()
+                .RequestQueryNestedResponseBodyAsync(null, foo: "foo", bar: "bar", options: null);
+            await ValidateProtocol(result, false, isNested: true);
+        });
+
+        [SpectorTest]
         public Task RequestQueryResponseHeaderConvenienceMethod() => Test(async (host) =>
         {
             var client = new PageableClient(host, null);
@@ -91,7 +124,6 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
         });
 
         [SpectorTest]
-        [Ignore("https://github.com/microsoft/typespec/issues/8009")]
         public Task RequestQueryResponseHeaderProtocolMethod() => Test(async (host) =>
         {
             var client = new PageableClient(host, null);
@@ -102,7 +134,6 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
         });
 
         [SpectorTest]
-        [Ignore("https://github.com/microsoft/typespec/issues/8009")]
         public Task RequestHeaderResponseBodyConvenienceMethodSync() => Test((host) =>
         {
             var client = new PageableClient(host, null);
@@ -128,7 +159,6 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
         });
 
         [SpectorTest]
-        [Ignore("https://github.com/microsoft/typespec/issues/8009")]
         public Task RequestHeaderResponseBodyProtocolMethodSync() => Test((host) =>
         {
             var client = new PageableClient(host, null);
@@ -158,7 +188,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
             return Task.CompletedTask;
         });
 
-        private static async Task ValidateProtocol(AsyncCollectionResult result, bool tokenInHeader)
+        private static async Task ValidateProtocol(AsyncCollectionResult result, bool tokenInHeader, bool isNested = false)
         {
             int count = 0;
             var expectedPets = new Dictionary<string, string>()
@@ -172,9 +202,12 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
             {
                 Assert.IsNotNull(page);
                 var token = result.GetContinuationToken(page);
-                ValidateContinuationToken(token, page, tokenInHeader, count < 2);
+                ValidateContinuationToken(token, page, tokenInHeader, count < 2, isNested: isNested);
                 var pageResult = JsonNode.Parse(page.GetRawResponse().Content.ToString())!;
-                foreach (var pet in (pageResult["pets"] as JsonArray)!)
+                var items = isNested
+                    ? pageResult["nestedItems"]!["pets"] as JsonArray
+                    : pageResult["pets"] as JsonArray;
+                foreach (var pet in items!)
                 {
                     Assert.IsNotNull(pet);
                     Assert.IsNotNull(pet);
@@ -184,7 +217,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
             }
         }
 
-        private static async Task ValidateConvenience(AsyncCollectionResult<Pet> result, bool tokenInHeader)
+        private static async Task ValidateConvenience(AsyncCollectionResult<Pet> result, bool tokenInHeader, bool isNested = false)
         {
             int count = 0;
             var expectedPets = new Dictionary<string, string>()
@@ -208,9 +241,11 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
                 var token = result.GetContinuationToken(page);
                 var response = page.GetRawResponse();
                 var pageResult = JsonNode.Parse(response.Content.ToString())!;
-                ValidateContinuationToken(token, page, tokenInHeader, count < 2);
-
-                foreach (var pet in (pageResult["pets"] as JsonArray)!)
+                ValidateContinuationToken(token, page, tokenInHeader, count < 2, isNested: isNested);
+                var items = isNested
+                    ? pageResult["nestedItems"]!["pets"] as JsonArray
+                    : pageResult["pets"] as JsonArray;
+                foreach (var pet in items!)
                 {
                     Assert.IsNotNull(pet);
                     Assert.IsNotNull(pet);
@@ -226,7 +261,8 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
             ContinuationToken? token,
             ClientResult page,
             bool tokenInHeader,
-            bool hasMore)
+            bool hasMore,
+            bool isNested = false)
         {
             if (!hasMore)
             {
@@ -242,7 +278,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
                 else
                 {
                     var pageResult = JsonNode.Parse(page.GetRawResponse().Content.ToString())!;
-                    nextTokenValue = pageResult["nextToken"]?.ToString();
+                    nextTokenValue = isNested ? pageResult["nestedNext"]!["nextToken"]?.ToString() : pageResult["nextToken"]?.ToString();
                 }
                 Assert.AreEqual(token!.ToBytes().ToString(), nextTokenValue);
             }

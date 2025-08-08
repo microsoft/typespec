@@ -164,6 +164,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             }
 
             ClientCache[inputClient] = client;
+
+            if (client != null)
+            {
+                CSharpTypeMap[client.Type] = client;
+            }
+
             return client;
         }
 
@@ -192,11 +198,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             return methods;
         }
 
-        public virtual ValueExpression DeserializeJsonValue(Type valueType, ScopedApi<JsonElement> element, SerializationFormat format)
+        public virtual ValueExpression DeserializeJsonValue(CSharpType valueType, ScopedApi<JsonElement> element, SerializationFormat format)
             => MrwSerializationTypeDefinition.DeserializeJsonValueCore(valueType, element, format);
 
         public virtual MethodBodyStatement SerializeJsonValue(
-            Type valueType,
+            CSharpType valueType,
             ValueExpression value,
             ScopedApi<Utf8JsonWriter> utf8JsonWriter,
             ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter,
