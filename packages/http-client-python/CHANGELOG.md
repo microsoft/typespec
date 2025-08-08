@@ -1,5 +1,19 @@
 # Change Log - @typespec/http-client-python
 
+## 0.15.1
+
+### Bump dependencies
+
+- [#7968](https://github.com/microsoft/typespec/pull/7968) Adopt latest TCGC.
+- [#8135](https://github.com/microsoft/typespec/pull/8135) Bump tsp packages to 1.3.0 and 0.59.0
+
+### Bug Fixes
+
+- [#7911](https://github.com/microsoft/typespec/pull/7911) [python] don't fail on response body consumption in `_failsafe_deserialize`
+- [#8124](https://github.com/microsoft/typespec/pull/8124) Don't include folder suffixes in documentation generated with `generation-subdir`
+- [#8114](https://github.com/microsoft/typespec/pull/8114) Exclude doc folder in pyproject.toml
+
+
 ## 0.15.0
 
 ### Features
