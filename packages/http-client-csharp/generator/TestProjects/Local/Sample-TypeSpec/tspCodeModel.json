@@ -1443,7 +1443,7 @@
                 "decorators": []
               }
             ],
-            "namespace": "",
+            "namespace": "SampleTypeSpec",
             "decorators": []
           },
           "optional": false,
@@ -1497,7 +1497,7 @@
               "crossLanguageDefinitionId": "TypeSpec.string",
               "decorators": []
             },
-            "namespace": ""
+            "namespace": "SampleTypeSpec"
           },
           "optional": false,
           "readOnly": false,
@@ -1528,7 +1528,7 @@
               "crossLanguageDefinitionId": "TypeSpec.string",
               "decorators": []
             },
-            "namespace": ""
+            "namespace": "SampleTypeSpec"
           },
           "optional": true,
           "readOnly": false,
@@ -1746,7 +1746,7 @@
               "crossLanguageDefinitionId": "TypeSpec.Array",
               "decorators": []
             },
-            "namespace": ""
+            "namespace": "SampleTypeSpec"
           },
           "optional": true,
           "readOnly": false,
@@ -1773,7 +1773,7 @@
             "type": {
               "$ref": "176"
             },
-            "namespace": ""
+            "namespace": "SampleTypeSpec"
           },
           "optional": false,
           "readOnly": false,
@@ -2396,7 +2396,7 @@
                     "crossLanguageDefinitionId": "TypeSpec.int32",
                     "decorators": []
                   },
-                  "namespace": ""
+                  "namespace": "SampleTypeSpec"
                 },
                 "optional": false,
                 "readOnly": false,
@@ -2423,7 +2423,7 @@
                   "type": {
                     "$ref": "6"
                   },
-                  "namespace": ""
+                  "namespace": "SampleTypeSpec"
                 },
                 "optional": false,
                 "readOnly": false,
@@ -2450,7 +2450,7 @@
                   "type": {
                     "$ref": "1"
                   },
-                  "namespace": ""
+                  "namespace": "SampleTypeSpec"
                 },
                 "optional": false,
                 "readOnly": false,
