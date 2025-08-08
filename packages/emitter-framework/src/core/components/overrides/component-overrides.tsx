@@ -10,7 +10,7 @@ import type {
   Union,
   UnionVariant,
 } from "@typespec/compiler";
-import { useTsp } from "../../../core/context/index.js";
+import { useTsp } from "../../context/index.js";
 import {
   type ComponentOverridesConfig,
   getOverrideForType,
@@ -64,8 +64,6 @@ export type OverrideReferenceComponent<TCustomType extends Type> = ComponentDefi
 >;
 
 export interface ComponentOverridesConfigBase<TCustomType extends Type> {
-  /** Override when this type is being declared */
-  declare?: OverrideDeclarationComponent<TCustomType>;
   /**
    * Override when this type is referenced.
    * e.g. When used in <TypeExpression type={type} />
@@ -97,25 +95,6 @@ export interface OverrideTypeComponentCommonProps<T extends Type> {
   children: Children;
 }
 
-export interface OverridableComponentDeclarationProps<
-  T extends Type,
-  U extends ComponentDefinition<any>,
-> extends OverrideTypeComponentCommonProps<T> {
-  /**
-   * Pass when rendering a declaration for the provided type or type kind.
-   */
-  declare: true;
-
-  /**
-   * The props passed to VarDeclaration to declare this type.
-   */
-  declarationProps: U extends ComponentDefinition<infer P> ? P : never;
-
-  /**
-   * The component to use to declare this type.
-   */
-  Declaration: U;
-}
 export interface OverridableComponentReferenceProps<T extends Type>
   extends OverrideTypeComponentCommonProps<T> {
   /**
@@ -130,13 +109,9 @@ export interface OverridableComponentReferenceProps<T extends Type>
   member?: ModelProperty;
 }
 
-export type OverridableComponentProps<T extends Type, U extends ComponentDefinition<any>> =
-  | OverridableComponentDeclarationProps<T, U>
-  | OverridableComponentReferenceProps<T>;
+export type OverridableComponentProps<T extends Type> = OverridableComponentReferenceProps<T>;
 
-export function OverridableComponent<T extends Type, U extends ComponentDefinition<any>>(
-  props: OverridableComponentProps<T, U>,
-) {
+export function OverridableComponent<T extends Type>(props: OverridableComponentProps<T>) {
   const options = useOverrides();
   const { $ } = useTsp();
   const descriptor =
@@ -147,18 +122,7 @@ export function OverridableComponent<T extends Type, U extends ComponentDefiniti
     return <>{props.children}</>;
   }
 
-  if ("declare" in props && props.declare && descriptor.declare) {
-    const CustomComponent = descriptor.declare;
-
-    return (
-      <CustomComponent
-        type={props.type}
-        default={props.children}
-        declarationProps={props.declarationProps}
-        Declaration={props.Declaration}
-      />
-    );
-  } else if ("reference" in props && props.reference && descriptor.reference) {
+  if ("reference" in props && props.reference && descriptor.reference) {
     const CustomComponent = descriptor.reference;
     return <CustomComponent type={props.type} member={props.member} default={props.children} />;
   }

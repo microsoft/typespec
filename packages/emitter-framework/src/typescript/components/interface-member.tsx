@@ -3,7 +3,6 @@ import * as ts from "@alloy-js/typescript";
 import { isNeverType, type ModelProperty, type Operation } from "@typespec/compiler";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { InterfaceMethod } from "./interface-method.jsx";
-import { OverridableComponent } from "./overrides/component-overrides.jsx";
 import { TypeExpression } from "./type-expression.js";
 
 export interface InterfaceMemberProps {
@@ -31,16 +30,7 @@ export function InterfaceMember(props: InterfaceMemberProps) {
       optional: props.optional ?? props.type.optional,
       type: <TypeExpression type={unpackedType} />,
     };
-    return (
-      <OverridableComponent
-        declare
-        type={props.type}
-        Declaration={ts.InterfaceMember}
-        declarationProps={interfaceMemberProps}
-      >
-        <ts.InterfaceMember {...interfaceMemberProps} />
-      </OverridableComponent>
-    );
+    return <ts.InterfaceMember {...interfaceMemberProps} />;
   }
 
   if ($.operation.is(props.type)) {

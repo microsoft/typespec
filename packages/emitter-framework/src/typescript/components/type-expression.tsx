@@ -2,13 +2,13 @@ import { For } from "@alloy-js/core";
 import { Reference, ValueExpression } from "@alloy-js/typescript";
 import type { IntrinsicType, Model, Scalar, Type } from "@typespec/compiler";
 import type { Typekit } from "@typespec/compiler/typekit";
+import { OverridableComponent } from "../../core/components/overrides/component-overrides.jsx";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportTypescriptDiagnostic } from "../../typescript/lib.js";
 import { efRefkey } from "../utils/refkey.js";
 import { ArrayExpression } from "./array-expression.js";
 import { FunctionType } from "./function-type.js";
 import { InterfaceExpression } from "./interface-declaration.js";
-import { OverridableComponent } from "./overrides/component-overrides.jsx";
 import { RecordExpression } from "./record-expression.js";
 import { UnionExpression } from "./union/expression.js";
 
