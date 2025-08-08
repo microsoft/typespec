@@ -21,11 +21,9 @@ function Wrapper(props: { children: Children }) {
   const policy = createCSharpNamePolicy();
   return (
     <Output program={runner.program} namePolicy={policy}>
-      <TestClientOverrides>
-        <Namespace name="TestNamespace">
-          <SourceFile path="test.cs">{props.children}</SourceFile>
-        </Namespace>
-      </TestClientOverrides>
+      <Namespace name="TestNamespace">
+        <SourceFile path="test.cs">{props.children}</SourceFile>
+      </Namespace>
     </Output>
   );
 }
@@ -87,11 +85,13 @@ it("renders a class declaration with properties using component override", async
 
   expect(
     <Wrapper>
-      <List hardline>
-        <ClassDeclaration type={Foo} />
-        <ClassDeclaration type={Bar} />
-        <ClassDeclaration type={TestModel} />
-      </List>
+      <TestClientOverrides>
+        <List hardline>
+          <ClassDeclaration type={Foo} />
+          <ClassDeclaration type={Bar} />
+          <ClassDeclaration type={TestModel} />
+        </List>
+      </TestClientOverrides>
     </Wrapper>,
   ).toRenderTo(d`
     namespace TestNamespace
