@@ -10,7 +10,7 @@ import client.naming.enumconflict.secondnamespace.models.SecondStatus;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public final class EnumConflictClientTests {
+public final class EnumConflictTests {
 
     private final FirstOperationsClient firstOperationsClient
         = new EnumConflictClientBuilder().buildFirstOperationsClient();

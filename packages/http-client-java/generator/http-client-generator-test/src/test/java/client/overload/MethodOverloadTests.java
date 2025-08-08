@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
  * - list() operation lists all resources
  * - listByScope(String scope) operation lists resources filtered by scope
  */
-public final class OverloadClientTests {
+public final class MethodOverloadTests {
 
     private final OverloadClient client = new OverloadClientBuilder().buildClient();
 
