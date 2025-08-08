@@ -622,7 +622,7 @@ describe("compiler: parser", () => {
     function getNode(astNode: TypeSpecScriptNode): Node {
       const statement = astNode.statements[0];
       strictEqual(statement.kind, SyntaxKind.AliasStatement);
-      return statement.value!;
+      return statement.value;
     }
     function getStringTemplateNode(astNode: TypeSpecScriptNode): StringTemplateExpressionNode {
       const node = getNode(astNode);

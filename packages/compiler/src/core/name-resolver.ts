@@ -1100,8 +1100,6 @@ export function createResolver(program: Program): NameResolver {
         mergeDeclarationOrImplementation(key, sourceBinding, target, SymbolFlags.Decorator);
       } else if (sourceBinding.flags & SymbolFlags.Function) {
         mergeDeclarationOrImplementation(key, sourceBinding, target, SymbolFlags.Function);
-      } else if (sourceBinding.flags & SymbolFlags.Alias) {
-        mergeDeclarationOrImplementation(key, sourceBinding, target, SymbolFlags.Alias);
       } else {
         target.set(key, sourceBinding);
       }
@@ -1119,7 +1117,6 @@ export function createResolver(program: Program): NameResolver {
       target.set(key, sourceBinding);
       return;
     }
-
     const isSourceImplementation = sourceBinding.flags & SymbolFlags.Implementation;
     const isTargetImplementation = targetBinding.flags & SymbolFlags.Implementation;
     if (!isTargetImplementation && isSourceImplementation) {

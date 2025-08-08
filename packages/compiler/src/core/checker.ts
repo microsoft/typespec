@@ -1637,11 +1637,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       templateNode.kind === SyntaxKind.OperationStatement &&
       templateNode.parent!.kind === SyntaxKind.InterfaceStatement
         ? getSymbolLinksForMember(templateNode as MemberNode)
-        : getSymbolLinks(
-            templateNode.kind === SyntaxKind.AliasStatement
-              ? getMergedSymbol(templateNode.symbol)
-              : templateNode.symbol,
-          );
+        : getSymbolLinks(templateNode.symbol);
 
     compilerAssert(
       symbolLinks,
@@ -3558,7 +3554,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    */
   function checkTemplateDeclaration(node: TemplateableNode, mapper: TypeMapper | undefined) {
     // If mapper is undefined it means we are checking the declaration of the template.
-    if (mapper === undefined && node.templateParameters) {
+    if (mapper === undefined) {
       for (const templateParameter of node.templateParameters) {
         checkTemplateParameterDeclaration(templateParameter, undefined);
       }
@@ -4312,7 +4308,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function checkCallExpression(
     node: CallExpressionNode,
     mapper: TypeMapper | undefined,
-  ): Type | Value | IndeterminateEntity | null {
+  ): Type | Value | null {
     const target = checkCallExpressionTarget(node, mapper);
     if (target === null) {
       return null;
@@ -5457,13 +5453,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const links = getSymbolLinks(node.symbol);
 
     if (links.declaredType && mapper === undefined) {
-      // We are not instantiating this alias and it's already checked.
       return links.declaredType;
     }
     checkTemplateDeclaration(node, mapper);
 
     const aliasSymId = getNodeSym(node);
-
     if (pendingResolutions.has(aliasSymId, ResolutionKind.Type)) {
       if (mapper === undefined) {
         reportCheckerDiagnostic(
@@ -5479,7 +5473,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     pendingResolutions.start(aliasSymId, ResolutionKind.Type);
-
     const type = checkNode(node.value, mapper);
     if (type === null) {
       links.declaredType = errorType;

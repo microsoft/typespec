@@ -456,6 +456,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         case Token.EnumKeyword:
           item = parseEnumStatement(pos, decorators);
           break;
+        case Token.AliasKeyword:
+          reportInvalidDecorators(decorators, "alias statement");
+          item = parseAliasStatement(pos);
+          break;
         case Token.ConstKeyword:
           reportInvalidDecorators(decorators, "const statement");
           item = parseConstStatement(pos);
@@ -467,10 +471,6 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         case Token.Semicolon:
           reportInvalidDecorators(decorators, "empty statement");
           item = parseEmptyStatement(pos);
-          break;
-        case Token.AliasKeyword:
-          reportInvalidDecorators(decorators, "alias statement");
-          item = parseAliasStatement(pos);
           break;
         // Start of declaration with modifiers
         case Token.ExternKeyword:
@@ -556,6 +556,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         case Token.EnumKeyword:
           item = parseEnumStatement(pos, decorators);
           break;
+        case Token.AliasKeyword:
+          reportInvalidDecorators(decorators, "alias statement");
+          item = parseAliasStatement(pos);
+          break;
         case Token.ConstKeyword:
           reportInvalidDecorators(decorators, "const statement");
           item = parseConstStatement(pos);
@@ -563,10 +567,6 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         case Token.UsingKeyword:
           reportInvalidDecorators(decorators, "using statement");
           item = parseUsingStatement(pos);
-          break;
-        case Token.AliasKeyword:
-          reportInvalidDecorators(decorators, "alias statement");
-          item = parseAliasStatement(pos);
           break;
         case Token.ExternKeyword:
         case Token.FnKeyword:
