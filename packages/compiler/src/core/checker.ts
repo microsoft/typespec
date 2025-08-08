@@ -4428,16 +4428,16 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           continue;
         }
 
-        const resolved = collector.pipe(
-          checkEntityAssignableToConstraint(checkedArg, param.type, args[idx]),
-        );
+        // const resolved = collector.pipe(
+        //   checkEntityAssignableToConstraint(checkedArg, param.type, args[idx]),
+        // );
 
-        if (!resolved) {
-          satisfied = false;
-          continue;
-        }
+        // if (!resolved) {
+        //   satisfied = false;
+        //   continue;
+        // }
 
-        resolvedArgs.push(resolved);
+        resolvedArgs.push(checkedArg);
       }
     }
 
@@ -4466,7 +4466,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const collector = createDiagnosticCollector();
 
     if (constraintIsValue) {
-      const normed = collector.pipe(normalizeValue(entity, constraint));
+      const normed = collector.pipe(normalizeValue(entity, constraint, diagnosticTarget));
 
       // Error should have been reported in normalizeValue
       if (!normed) return collector.wrap(null);
@@ -4506,6 +4506,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function normalizeValue(
     entity: Type | Value | IndeterminateEntity,
     constraint: MixedParameterConstraint,
+    diagnosticTarget: Node,
   ): DiagnosticResult<Value | null> {
     if (entity.entityKind === "Value") return [entity, []];
 
@@ -4524,7 +4525,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
             createDiagnostic({
               code: "expect-value",
               format: { name: getTypeName(entity.type) },
-              target: entity.type,
+              target: diagnosticTarget,
             }),
           ],
         ];
@@ -4540,7 +4541,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           createDiagnostic({
             code: "expect-value",
             format: { name: getTypeName(entity) },
-            target: entity,
+            target: diagnosticTarget,
           }),
         ],
       ];
