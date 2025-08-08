@@ -1,4 +1,7 @@
 import { TypeSpecDecorators } from "../../generated-defs/TypeSpec.js";
+import { Program } from "../core/program.js";
+import { Type } from "../core/types.js";
+import { $ } from "../typekit/index.js";
 import {
   $discriminator,
   $doc,
@@ -121,6 +124,18 @@ export const $decorators = {
     firstLink: firstLinkDecorator,
     lastLink: lastLinkDecorator,
   } satisfies TypeSpecDecorators,
+};
+
+let COUNTER = 0;
+
+export const $functions = {
+  TypeSpec: {
+    example2(program: Program, t: Type): Type {
+      return $(program).array.create(
+        $(program).tuple.create([$(program).literal.create(COUNTER++), t]),
+      );
+    },
+  },
 };
 
 export const namespace = "TypeSpec";

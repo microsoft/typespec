@@ -98,11 +98,9 @@ const ReflectionNameToKind = {
   Tuple: "Tuple",
   Union: "Union",
   UnionVariant: "UnionVariant",
-} as const;
+} as const satisfies Record<string, Type["kind"]>;
 
-const _assertReflectionNameToKind: Record<string, Type["kind"]> = ReflectionNameToKind;
-
-type ReflectionTypeName = keyof typeof ReflectionNameToKind;
+type ReflectionTypeName = keyof typeof ReflectionNameToKind | "Type";
 
 export function createTypeRelationChecker(program: Program, checker: Checker): TypeRelation {
   return {
@@ -510,10 +508,10 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
 
   function isSimpleTypeAssignableTo(source: Type, target: Type): boolean | undefined {
     if (isNeverType(source)) return true;
-    if (isVoidType(target)) return false;
+    if (isVoidType(target)) return isVoidType(source);
     if (isUnknownType(target)) return true;
     if (isReflectionType(target)) {
-      return source.kind === ReflectionNameToKind[target.name];
+      return target.name === "Type" || source.kind === ReflectionNameToKind[target.name];
     }
 
     if (target.kind === "Scalar") {

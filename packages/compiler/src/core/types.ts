@@ -53,6 +53,10 @@ export interface DecoratorFunction {
   namespace?: string;
 }
 
+export interface FunctionImplementation {
+  (program: Program, ...args: any[]): Type | Value;
+}
+
 export interface BaseType {
   readonly entityKind: "Type";
   kind: string;
@@ -131,7 +135,8 @@ export type Type =
   | TemplateParameter
   | Tuple
   | Union
-  | UnionVariant;
+  | UnionVariant
+  | FunctionType;
 
 export type StdTypes = {
   // Models
@@ -576,6 +581,13 @@ export interface Namespace extends BaseType, DecoratedType {
    * Order is implementation-defined and may change.
    */
   decoratorDeclarations: Map<string, Decorator>;
+
+  /**
+   * The functions declared in the namespace.
+   *
+   * Order is implementation-defined and may change.
+   */
+  functionDeclarations: Map<string, FunctionType>;
 }
 
 export type LiteralType = StringLiteral | NumericLiteral | BooleanLiteral;
@@ -685,6 +697,16 @@ export interface Decorator extends BaseType {
   target: MixedFunctionParameter;
   parameters: MixedFunctionParameter[];
   implementation: (...args: unknown[]) => void;
+}
+
+export interface FunctionType extends BaseType {
+  kind: "Function";
+  node?: FunctionDeclarationStatementNode;
+  name: string;
+  namespace?: Namespace;
+  parameters: MixedFunctionParameter[];
+  returnType: MixedParameterConstraint;
+  implementation: (...args: unknown[]) => Type | Value;
 }
 
 export interface FunctionParameterBase extends BaseType {
@@ -2309,6 +2331,12 @@ export interface DecoratorImplementations {
   };
 }
 
+export interface FunctionImplementations {
+  readonly [namespace: string]: {
+    readonly [name: string]: FunctionImplementation;
+  };
+}
+
 export interface PackageFlags {}
 
 export interface LinterDefinition {
@@ -2453,6 +2481,10 @@ export interface DecoratorContext {
     target: T,
     ...args: A
   ): R;
+}
+
+export interface TemplateContext {
+  program: Program;
 }
 
 export interface EmitContext<TOptions extends object = Record<string, never>> {
