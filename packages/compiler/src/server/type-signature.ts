@@ -20,13 +20,15 @@ import {
   UnionVariant,
   Value,
 } from "../core/types.js";
-import { walkPropertiesInherited } from "../index.js";
+import { Checker, walkPropertiesInherited } from "../index.js";
 
 interface GetSymbolSignatureOptions {
   /**
    * Whether to include the body in the signature. Only support Model and Interface type now
    */
   includeBody: boolean;
+
+  checker?: Checker;
 }
 
 /** @internal */
@@ -43,6 +45,7 @@ export function getSymbolSignature(
       return fence(`alias ${getAliasSignature(decl)}`);
   }
   const entity = sym.type ?? program.checker.getTypeOrValueForNode(decl);
+  options.checker = program.checker;
   return getEntitySignature(sym, entity, options);
 }
 
@@ -71,7 +74,7 @@ function getTypeSignature(type: Type, options: GetSymbolSignatureOptions): strin
     case "Interface":
       return fence(getInterfaceSignature(type, options.includeBody));
     case "Model":
-      return fence(getModelSignature(type, options.includeBody));
+      return fence(getModelSignature(type, options));
     case "ScalarConstructor":
       return fence(`init ${getTypeSignature(type.scalar, options)}.${type.name}`);
     case "Decorator":
@@ -140,8 +143,8 @@ function getInterfaceSignature(type: Interface, includeBody: boolean) {
 /**
  * All properties from 'extends' and 'is' will be included if includeBody is true.
  */
-function getModelSignature(type: Model, includeBody: boolean) {
-  if (includeBody) {
+function getModelSignature(type: Model, options: GetSymbolSignatureOptions) {
+  if (options.includeBody) {
     const propDesc = [];
     const INDENT = "  ";
     for (const prop of walkPropertiesInherited(type)) {
@@ -149,7 +152,7 @@ function getModelSignature(type: Model, includeBody: boolean) {
     }
     return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)}{\n${propDesc.map((d) => `${d};`).join("\n")}\n}`;
   } else {
-    return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)}`;
+    return `${type.kind.toLowerCase()} ${getPrintableTypeName(type, options.checker)}`;
   }
 }
 
@@ -215,9 +218,10 @@ function getQualifier(parent: (Type & { name?: string | symbol }) | undefined) {
   return parentName + ".";
 }
 
-function getPrintableTypeName(type: Type) {
+function getPrintableTypeName(type: Type, checker?: Checker): string {
   return getTypeName(type, {
     printable: true,
+    checker: checker,
   });
 }
 
