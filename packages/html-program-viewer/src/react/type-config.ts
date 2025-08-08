@@ -57,6 +57,7 @@ export const TypeConfig: TypeGraphConfig = buildConfig({
     unions: "nested-items",
     enums: "nested-items",
     decoratorDeclarations: "nested-items",
+    functionDeclarations: "nested-items",
   },
   Interface: {
     operations: "nested-items",
