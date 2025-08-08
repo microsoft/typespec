@@ -1,4 +1,4 @@
-import { OverridableComponent } from "#typescript/index.js";
+import { Experimental_OverridableComponent } from "#core/index.js";
 import { type Children, code } from "@alloy-js/core";
 import { Reference } from "@alloy-js/csharp";
 import { getTypeName, type IntrinsicType, type Scalar, type Type } from "@typespec/compiler";
@@ -15,9 +15,9 @@ export function TypeExpression(props: TypeExpressionProps): Children {
   const { $ } = useTsp();
   if (isDeclaration($, props.type)) {
     return (
-      <OverridableComponent reference type={props.type}>
+      <Experimental_OverridableComponent reference type={props.type}>
         <Reference refkey={efRefkey(props.type)} />
-      </OverridableComponent>
+      </Experimental_OverridableComponent>
     );
   }
   if ($.scalar.is(props.type)) {

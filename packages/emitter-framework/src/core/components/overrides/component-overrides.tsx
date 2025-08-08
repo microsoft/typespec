@@ -12,13 +12,13 @@ import type {
 } from "@typespec/compiler";
 import { useTsp } from "../../context/index.js";
 import {
-  type ComponentOverridesConfig,
+  type Experimental_ComponentOverridesConfig,
   getOverrideForType,
   getOverridesForTypeKind,
 } from "./config.js";
 import { type ComponentOverridesContext, OverridesContext, useOverrides } from "./context.js";
 
-export interface OverrideEmitPropsBase<TCustomType extends Type> {
+export interface Experimental_OverrideEmitPropsBase<TCustomType extends Type> {
   /**
    * The TypeSpec type to render.
    */
@@ -30,18 +30,19 @@ export interface OverrideEmitPropsBase<TCustomType extends Type> {
   default: Children;
 }
 
-export type CustomTypeToProps<TCustomType extends Type> = TCustomType extends ModelProperty
-  ? ObjectPropertyProps
-  : TCustomType extends EnumMember
-    ? {}
-    : TCustomType extends UnionVariant
+export type Experimental_CustomTypeToProps<TCustomType extends Type> =
+  TCustomType extends ModelProperty
+    ? ObjectPropertyProps
+    : TCustomType extends EnumMember
       ? {}
-      : TCustomType extends Model | Scalar | Union | Enum
-        ? VarDeclarationProps
-        : VarDeclarationProps | ObjectPropertyProps;
+      : TCustomType extends UnionVariant
+        ? {}
+        : TCustomType extends Model | Scalar | Union | Enum
+          ? VarDeclarationProps
+          : VarDeclarationProps | ObjectPropertyProps;
 
-export interface OverrideReferenceProps<TCustomType extends Type>
-  extends OverrideEmitPropsBase<TCustomType> {
+export interface Experimental_OverrideReferenceProps<TCustomType extends Type>
+  extends Experimental_OverrideEmitPropsBase<TCustomType> {
   /**
    * The member this type is referenced from, if any. This member may contain
    * additional metadata that should be represented in the emitted output.
@@ -49,33 +50,32 @@ export interface OverrideReferenceProps<TCustomType extends Type>
   member?: ModelProperty;
 }
 
-export interface OverrideDeclareProps<TCustomType extends Type>
-  extends OverrideEmitPropsBase<TCustomType> {
-  Declaration: ComponentDefinition<CustomTypeToProps<TCustomType>>;
-  declarationProps: CustomTypeToProps<TCustomType>;
+export interface Experimental_OverrideDeclareProps<TCustomType extends Type>
+  extends Experimental_OverrideEmitPropsBase<TCustomType> {
+  Declaration: ComponentDefinition<Experimental_CustomTypeToProps<TCustomType>>;
+  declarationProps: Experimental_CustomTypeToProps<TCustomType>;
 }
 
-export type OverrideDeclarationComponent<TCustomType extends Type> = ComponentDefinition<
-  OverrideDeclareProps<TCustomType>
+export type Experimental_OverrideDeclarationComponent<TCustomType extends Type> =
+  ComponentDefinition<Experimental_OverrideDeclareProps<TCustomType>>;
+
+export type Experimental_OverrideReferenceComponent<TCustomType extends Type> = ComponentDefinition<
+  Experimental_OverrideReferenceProps<TCustomType>
 >;
 
-export type OverrideReferenceComponent<TCustomType extends Type> = ComponentDefinition<
-  OverrideReferenceProps<TCustomType>
->;
-
-export interface ComponentOverridesConfigBase<TCustomType extends Type> {
+export interface Experimental_ComponentOverridesConfigBase<TCustomType extends Type> {
   /**
    * Override when this type is referenced.
    * e.g. When used in <TypeExpression type={type} />
    */
-  reference?: OverrideReferenceComponent<TCustomType>;
+  reference?: Experimental_OverrideReferenceComponent<TCustomType>;
 }
 
-export interface ComponentOverridesProps {
-  overrides: ComponentOverridesConfig;
+export interface Experimental_ComponentOverridesProps {
+  overrides: Experimental_ComponentOverridesConfig;
   children?: Children;
 }
-export function ComponentOverrides(props: ComponentOverridesProps) {
+export function Experimental_ComponentOverrides(props: Experimental_ComponentOverridesProps) {
   const context: ComponentOverridesContext = {
     overrides: props.overrides,
   };
@@ -83,7 +83,7 @@ export function ComponentOverrides(props: ComponentOverridesProps) {
   return <OverridesContext.Provider value={context}>{props.children}</OverridesContext.Provider>;
 }
 
-export interface OverrideTypeComponentCommonProps<T extends Type> {
+export interface Experimental_OverrideTypeComponentCommonProps<T extends Type> {
   /**
    * The TypeSpec type to render.
    */
@@ -95,8 +95,8 @@ export interface OverrideTypeComponentCommonProps<T extends Type> {
   children: Children;
 }
 
-export interface OverridableComponentReferenceProps<T extends Type>
-  extends OverrideTypeComponentCommonProps<T> {
+export interface Experimental_OverridableComponentReferenceProps<T extends Type>
+  extends Experimental_OverrideTypeComponentCommonProps<T> {
   /**
    * Pass when rendering a reference to the provided type or type kind.
    */
@@ -109,9 +109,12 @@ export interface OverridableComponentReferenceProps<T extends Type>
   member?: ModelProperty;
 }
 
-export type OverridableComponentProps<T extends Type> = OverridableComponentReferenceProps<T>;
+export type Experimental_OverridableComponentProps<T extends Type> =
+  Experimental_OverridableComponentReferenceProps<T>;
 
-export function OverridableComponent<T extends Type>(props: OverridableComponentProps<T>) {
+export function Experimental_OverridableComponent<T extends Type>(
+  props: Experimental_OverridableComponentProps<T>,
+) {
   const options = useOverrides();
   const { $ } = useTsp();
   const descriptor =

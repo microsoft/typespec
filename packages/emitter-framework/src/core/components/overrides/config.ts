@@ -1,23 +1,24 @@
 import type { Program, Scalar, Type } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
-import type { ComponentOverridesConfigBase } from "./component-overrides.jsx";
+import type { Experimental_ComponentOverridesConfigBase } from "./component-overrides.jsx";
 
 const getOverrideForTypeSym: unique symbol = Symbol.for("ef-ts:getOverrideForType");
 const getOverrideForTypeKindSym: unique symbol = Symbol.for("ef-ts:getOverrideForTypeKind");
 
-export type ComponentOverridesConfig = ComponentOverridesClass;
-export const ComponentOverridesConfig = function () {
-  return new ComponentOverridesClass();
+export type Experimental_ComponentOverridesConfig = Experimental_ComponentOverridesClass;
+export const Experimental_ComponentOverridesConfig = function () {
+  return new Experimental_ComponentOverridesClass();
 } as {
-  new (): ComponentOverridesClass;
-  (): ComponentOverridesClass;
+  new (): Experimental_ComponentOverridesClass;
+  (): Experimental_ComponentOverridesClass;
 };
 
-export class ComponentOverridesClass {
-  #typeEmitOptions: Map<Type, ComponentOverridesConfigBase<any>> = new Map();
-  #typeKindEmitOptions: Map<Type["kind"], ComponentOverridesConfigBase<any>> = new Map();
+export class Experimental_ComponentOverridesClass {
+  #typeEmitOptions: Map<Type, Experimental_ComponentOverridesConfigBase<any>> = new Map();
+  #typeKindEmitOptions: Map<Type["kind"], Experimental_ComponentOverridesConfigBase<any>> =
+    new Map();
 
-  forType<const T extends Type>(type: T, options: ComponentOverridesConfigBase<T>) {
+  forType<const T extends Type>(type: T, options: Experimental_ComponentOverridesConfigBase<T>) {
     this.#typeEmitOptions.set(type, options);
 
     return this;
@@ -25,7 +26,7 @@ export class ComponentOverridesClass {
 
   forTypeKind<const TKind extends Type["kind"]>(
     typeKind: TKind,
-    options: ComponentOverridesConfigBase<Extract<Type, { kind: TKind }>>,
+    options: Experimental_ComponentOverridesConfigBase<Extract<Type, { kind: TKind }>>,
   ) {
     this.#typeKindEmitOptions.set(typeKind, options);
 
@@ -70,7 +71,7 @@ export class ComponentOverridesClass {
 export function getOverrideForType(
   program: Program,
   type: Type,
-  options?: ComponentOverridesConfig,
+  options?: Experimental_ComponentOverridesConfig,
 ) {
   return options?.[getOverrideForTypeSym](program, type);
 }
@@ -78,7 +79,7 @@ export function getOverrideForType(
 export function getOverridesForTypeKind(
   program: Program,
   typeKind: Type["kind"],
-  options?: ComponentOverridesConfig,
+  options?: Experimental_ComponentOverridesConfig,
 ) {
   return options?.[getOverrideForTypeKindSym](program, typeKind);
 }

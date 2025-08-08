@@ -1,5 +1,8 @@
+import {
+  Experimental_ComponentOverrides,
+  Experimental_ComponentOverridesConfig,
+} from "#core/index.js";
 import { Tester } from "#test/test-host.js";
-import { ComponentOverrides, ComponentOverridesConfig } from "#typescript/index.js";
 import { List, type Children } from "@alloy-js/core";
 import { d } from "@alloy-js/core/testing";
 import { createCSharpNamePolicy, Namespace, SourceFile } from "@alloy-js/csharp";
@@ -112,7 +115,7 @@ it("renders a class declaration with properties using component override", async
 });
 
 function TestClientOverrides(props: { children?: Children }) {
-  const overrides = ComponentOverridesConfig().forTypeKind("Model", {
+  const overrides = Experimental_ComponentOverridesConfig().forTypeKind("Model", {
     reference: (props) => {
       if (props.type.name === "Foo") {
         return "Bar";
@@ -121,7 +124,11 @@ function TestClientOverrides(props: { children?: Children }) {
       }
     },
   });
-  return <ComponentOverrides overrides={overrides}>{props.children}</ComponentOverrides>;
+  return (
+    <Experimental_ComponentOverrides overrides={overrides}>
+      {props.children}
+    </Experimental_ComponentOverrides>
+  );
 }
 
 it("can override class name", async () => {

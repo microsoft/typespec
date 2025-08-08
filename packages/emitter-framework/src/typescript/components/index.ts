@@ -1,5 +1,3 @@
-export * from "../../core/components/overrides/component-overrides.jsx";
-export * from "../../core/components/overrides/config.js";
 export * from "./array-expression.jsx";
 export * from "./arrow-function.jsx";
 export * from "./class-method.js";

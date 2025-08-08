@@ -1,8 +1,8 @@
 import { createContext, useContext, type ComponentContext } from "@alloy-js/core";
-import type { ComponentOverridesConfig } from "./config.js";
+import type { Experimental_ComponentOverridesConfig } from "./config.js";
 
 export interface ComponentOverridesContext {
-  overrides?: ComponentOverridesConfig;
+  overrides?: Experimental_ComponentOverridesConfig;
 }
 /**
  * Context for setting overrides for components

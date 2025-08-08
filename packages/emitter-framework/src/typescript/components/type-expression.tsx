@@ -2,7 +2,7 @@ import { For } from "@alloy-js/core";
 import { Reference, ValueExpression } from "@alloy-js/typescript";
 import type { IntrinsicType, Model, Scalar, Type } from "@typespec/compiler";
 import type { Typekit } from "@typespec/compiler/typekit";
-import { OverridableComponent } from "../../core/components/overrides/component-overrides.jsx";
+import { Experimental_OverridableComponent } from "../../core/components/overrides/component-overrides.jsx";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportTypescriptDiagnostic } from "../../typescript/lib.js";
 import { efRefkey } from "../utils/refkey.js";
@@ -30,9 +30,9 @@ export function TypeExpression(props: TypeExpressionProps) {
     // todo: probably need abstraction around deciding what's a declaration in the output
     // (it may not correspond to things which are declarations in TypeSpec?)
     return (
-      <OverridableComponent reference type={type}>
+      <Experimental_OverridableComponent reference type={type}>
         <Reference refkey={efRefkey(type)} />
-      </OverridableComponent>
+      </Experimental_OverridableComponent>
     );
     //throw new Error("Reference not implemented");
   }

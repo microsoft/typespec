@@ -1,8 +1,8 @@
 import {
-  ComponentOverrides,
-  ComponentOverridesConfig,
-  FunctionDeclaration,
-} from "#typescript/index.js";
+  Experimental_ComponentOverrides,
+  Experimental_ComponentOverridesConfig,
+} from "#core/index.js";
+import { FunctionDeclaration } from "#typescript/index.js";
 import { For, List, type Children } from "@alloy-js/core";
 import { d } from "@alloy-js/core/testing";
 import { SourceFile } from "@alloy-js/typescript";
@@ -54,7 +54,7 @@ it("uses overridden component", async () => {
 });
 
 function TestClientOverrides(props: { children?: Children }) {
-  const overrides = ComponentOverridesConfig().forTypeKind("Model", {
+  const overrides = Experimental_ComponentOverridesConfig().forTypeKind("Model", {
     reference: (props) => {
       if (props.type.name === "Foo") {
         return "unknown";
@@ -63,5 +63,9 @@ function TestClientOverrides(props: { children?: Children }) {
       }
     },
   });
-  return <ComponentOverrides overrides={overrides}>{props.children}</ComponentOverrides>;
+  return (
+    <Experimental_ComponentOverrides overrides={overrides}>
+      {props.children}
+    </Experimental_ComponentOverrides>
+  );
 }

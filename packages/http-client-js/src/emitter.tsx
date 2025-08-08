@@ -1,12 +1,13 @@
 import { Children, SourceDirectory } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { EmitContext } from "@typespec/compiler";
-import { useTsp, writeOutput } from "@typespec/emitter-framework";
 import {
-  ComponentOverrides,
-  ComponentOverridesConfig,
-  TypeExpression,
-} from "@typespec/emitter-framework/typescript";
+  Experimental_ComponentOverrides,
+  Experimental_ComponentOverridesConfig,
+  useTsp,
+  writeOutput,
+} from "@typespec/emitter-framework";
+import { TypeExpression } from "@typespec/emitter-framework/typescript";
 import { OperationsDirectory } from "./components/client-directory.jsx";
 import { Client } from "./components/client.jsx";
 import { Models } from "./components/models.js";
@@ -66,7 +67,7 @@ export async function $onEmit(context: EmitContext<JsClientEmitterOptions>) {
 
 export function HttpClientOverrides(props: { children?: Children }) {
   const { $ } = useTsp();
-  const overrides = ComponentOverridesConfig().forTypeKind("Model", {
+  const overrides = Experimental_ComponentOverridesConfig().forTypeKind("Model", {
     reference: (props) => {
       if ($.httpPart.is(props.type)) {
         return <TypeExpression type={$.httpPart.unpack(props.type)} />;
@@ -75,5 +76,9 @@ export function HttpClientOverrides(props: { children?: Children }) {
       }
     },
   });
-  return <ComponentOverrides overrides={overrides}>{props.children}</ComponentOverrides>;
+  return (
+    <Experimental_ComponentOverrides overrides={overrides}>
+      {props.children}
+    </Experimental_ComponentOverrides>
+  );
 }
