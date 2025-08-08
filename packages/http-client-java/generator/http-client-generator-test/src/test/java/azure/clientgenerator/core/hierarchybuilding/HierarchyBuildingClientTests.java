@@ -9,7 +9,7 @@ import azure.clientgenerator.core.hierarchybuilding.models.Pet;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class HierarchyBuildingClientTests {
+public final class HierarchyBuildingClientTests {
 
     private final HierarchyBuildingClient client = new HierarchyBuildingClientBuilder().buildClient();
 
