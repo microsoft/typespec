@@ -1,51 +1,37 @@
 import { SourceLocation } from "@typespec/compiler";
-import { ServerDiagnostic } from "@typespec/compiler/internals";
-import { readFile } from "fs/promises";
-import path from "path";
+import { resolveEntrypointFile, ServerDiagnostic } from "@typespec/compiler/internals";
 import vscode from "vscode";
 import { StartFileName } from "./const.js";
 import logger from "./log/logger.js";
-import { getDirectoryPath, joinPaths, normalizeSlashes } from "./path-utils.js";
-import { Result, ResultCode } from "./types.js";
+import { joinPaths, normalizeSlashes } from "./path-utils.js";
+import { Result, ResultCode, SettingName } from "./types.js";
 import { ConfirmOptions, QuickPickOptionsWithExternalLink, tryExecuteWithUi } from "./ui-utils.js";
 import { isFile, loadPackageJsonFile, spawnExecutionAndLogToOutput } from "./utils.js";
 
 export async function getEntrypointTspFile(tspPath: string): Promise<string | undefined> {
-  const isFilePath = await isFile(tspPath);
-  let baseDir = isFilePath ? getDirectoryPath(tspPath) : tspPath;
-
-  while (true) {
-    const pkgPath = path.resolve(baseDir, "package.json");
-    if (await isFile(pkgPath)) {
-      /* get the tspMain from package.json. */
-      try {
-        const data = await readFile(pkgPath, { encoding: "utf-8" });
-        const packageJson = JSON.parse(data);
-        const tspMain = packageJson.tspMain;
-        if (typeof tspMain === "string") {
-          const tspMainFile = path.resolve(baseDir, tspMain);
-          if (await isFile(tspMainFile)) {
-            logger.debug(`tspMain file ${tspMainFile} selected as entrypoint file.`);
-            return tspMainFile;
-          }
-        }
-      } catch (error) {
-        logger.error(`An error occurred while reading the package.json file ${pkgPath}`, [error]);
-      }
+  const configEntrypoints = vscode.workspace
+    .getConfiguration()
+    .get<string[]>(SettingName.CompileEntrypoint);
+  const logAdapter = (logInfo: { level: string; message: string; detail?: unknown }) => {
+    switch (logInfo.level) {
+      case "error":
+        logger.error(logInfo.message, logInfo.detail ? [logInfo.detail] : undefined);
+        break;
+      case "warning":
+      case "warn":
+        logger.warning(logInfo.message, logInfo.detail ? [logInfo.detail] : undefined);
+        break;
+      case "info":
+        logger.info(logInfo.message, logInfo.detail ? [logInfo.detail] : undefined);
+        break;
+      case "debug":
+      case "trace":
+      default:
+        logger.debug(logInfo.message, logInfo.detail ? [logInfo.detail] : undefined);
+        break;
     }
-
-    const mainTspFile = path.resolve(baseDir, StartFileName);
-    if (await isFile(mainTspFile)) {
-      return mainTspFile;
-    }
-    const parentDir = getDirectoryPath(baseDir);
-    if (parentDir === baseDir) {
-      break;
-    }
-    baseDir = parentDir;
-  }
-
-  return undefined;
+  };
+  return await resolveEntrypointFile(configEntrypoints, tspPath, logAdapter);
 }
 
 export async function TraverseMainTspFileInWorkspace() {
