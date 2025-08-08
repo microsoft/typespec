@@ -775,6 +775,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 return false;
             }
+
             if (convenienceMethodParameterCount == 0)
             {
                 return true;

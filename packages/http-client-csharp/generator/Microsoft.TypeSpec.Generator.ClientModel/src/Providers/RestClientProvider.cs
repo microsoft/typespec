@@ -266,12 +266,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (var inputParameter in operation.Parameters)
             {
-                if (inputParameter.Location != InputRequestLocation.Header)
+                if (inputParameter is not InputHeaderParameter inputHeaderParameter)
                 {
                     continue;
                 }
 
-                bool isAcceptParameter = inputParameter.IsAcceptHeader();
+                bool isAcceptParameter = inputHeaderParameter.IsAcceptHeader();
                 if (isNextLink && !isAcceptParameter)
                 {
                     continue;
@@ -280,7 +280,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 CSharpType? type;
                 string? format;
                 ValueExpression? valueExpression;
-                GetParamInfo(paramMap, operation, inputParameter, out type, out format, out valueExpression);
+                GetParamInfo(paramMap, operation, inputHeaderParameter, out type, out format, out valueExpression);
                 if (valueExpression == null)
                 {
                     continue;
@@ -288,7 +288,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 // Check if parameter is already a string type or an enum with string values
                 bool isStringType = type?.Equals(typeof(string)) == true ||
-                    (isAcceptParameter && inputParameter.Type is InputEnumType { ValueType.Kind: InputPrimitiveTypeKind.String });
+                    (isAcceptParameter && inputHeaderParameter.Type is InputEnumType { ValueType.Kind: InputPrimitiveTypeKind.String });
                 ValueExpression toStringExpression = isStringType ?
                     valueExpression :
                     valueExpression.ConvertToString(Literal(format));
@@ -296,14 +296,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (type?.IsCollection == true)
                 {
-                    statement = request.SetHeaderDelimited(inputParameter.NameInRequest, valueExpression, Literal(inputParameter.ArraySerializationDelimiter), format != null ? Literal(format) : null);
+                    statement = request.SetHeaderDelimited(inputHeaderParameter.SerializedName, valueExpression, Literal(inputHeaderParameter.ArraySerializationDelimiter), format != null ? Literal(format) : null);
                 }
                 else
                 {
-                    statement = request.SetHeaders([Literal(inputParameter.NameInRequest), toStringExpression.As<string>()]);
+                    statement = request.SetHeaders([Literal(inputHeaderParameter.SerializedName), toStringExpression.As<string>()]);
                 }
 
-                if (!TryGetSpecialHeaderParam(inputParameter, out _) && (!inputParameter.IsRequired || type?.IsNullable == true ||
+                if (!TryGetSpecialHeaderParam(inputHeaderParameter, out _) && (!inputHeaderParameter.IsRequired || type?.IsNullable == true ||
                    (type is { IsValueType: false, IsFrameworkType: true } && type.FrameworkType != typeof(string))))
                 {
                     statement = BuildQueryOrHeaderOrPathParameterNullCheck(type, valueExpression, statement);
@@ -321,12 +321,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (var inputParameter in operation.Parameters)
             {
-                if (inputParameter.Location != InputRequestLocation.Query)
+                if (inputParameter is not InputQueryParameter inputQueryParameter)
                     continue;
 
                 string? format;
                 ValueExpression? valueExpression;
-                GetParamInfo(paramMap, operation, inputParameter, out var paramType, out format, out valueExpression);
+                GetParamInfo(paramMap, operation, inputQueryParameter, out var paramType, out format, out valueExpression);
                 if (valueExpression == null)
                 {
                     continue;
@@ -337,11 +337,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (paramType?.IsCollection == true)
                 {
-                    var delimiter = inputParameter.ArraySerializationDelimiter;
+                    var delimiter = inputQueryParameter.ArraySerializationDelimiter;
 
-                    if (inputParameter.Type is InputDictionaryType)
+                    if (inputQueryParameter.Type is InputDictionaryType)
                     {
-                        if (inputParameter.Explode)
+                        if (inputQueryParameter.Explode)
                         {
                             statement = new ForEachStatement("param", valueExpression.AsDictionary(paramType),
                                 out KeyValuePairExpression item)
@@ -359,30 +359,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                     list.Add(item.Key),
                                     list.Add(item.Value)
                                 },
-                                uri.AppendQueryDelimited(Literal(inputParameter.NameInRequest), list, format, true)
+                                uri.AppendQueryDelimited(Literal(inputQueryParameter.SerializedName), list, format, true)
                                     .Terminate()
                             };
                         }
                     }
-                    else if (!inputParameter.Explode)
+                    else if (!inputQueryParameter.Explode)
                     {
-                        statement = uri.AppendQueryDelimited(Literal(inputParameter.NameInRequest), valueExpression, format, true, delimiter: delimiter).Terminate();
+                        statement = uri.AppendQueryDelimited(Literal(inputQueryParameter.SerializedName), valueExpression, format, true, delimiter: delimiter).Terminate();
                     }
                     else
                     {
                         statement = new ForEachStatement("param", valueExpression.As(paramType), out VariableExpression item)
                         {
-                            uri.AppendQuery(Literal(inputParameter.NameInRequest), item, true).Terminate()
+                            uri.AppendQuery(Literal(inputQueryParameter.SerializedName), item, true).Terminate()
                         };
                     }
                 }
                 else
                 {
-                    statement = uri.AppendQuery(Literal(inputParameter.NameInRequest), toStringExpression, true)
+                    statement = uri.AppendQuery(Literal(inputQueryParameter.SerializedName), toStringExpression, true)
                         .Terminate();
                 }
 
-                if (!inputParameter.IsRequired || paramType?.IsNullable == true ||
+                if (!inputQueryParameter.IsRequired || paramType?.IsNullable == true ||
                     (paramType is { IsValueType: false, IsFrameworkType: true } && paramType.FrameworkType != typeof(string)))
                 {
                     statement = BuildQueryOrHeaderOrPathParameterNullCheck(paramType, valueExpression, statement);
@@ -432,7 +432,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private IReadOnlyList<MethodBodyStatement> AppendPathParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
         {
-            Dictionary<string, InputParameter> inputParamMap = new(operation.Parameters.ToDictionary(p => p.NameInRequest));
+            Dictionary<string, InputParameter> inputParamMap = new(operation.Parameters.ToDictionary(p => p.SerializedName));
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
             int uriOffset = GetUriOffset(operation.Uri);
             AddUriSegments(operation.Uri, uriOffset, uri, statements, inputParamMap, paramMap, operation);
@@ -507,56 +507,64 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 string? format;
                 ValueExpression? valueExpression;
                 InputParameter? inputParam = null;
+                bool escape = false;
                 if (isClientParameter)
                 {
                     GetParamInfo(paramMap[paramName], out type, out format, out valueExpression);
                 }
                 else
                 {
-                    inputParam = inputParamMap[paramName];
-                    if (inputParam.Location == InputRequestLocation.Path || inputParam.Location == InputRequestLocation.Uri)
+                    if (isClientParameter)
                     {
-                        GetParamInfo(paramMap, operation, inputParam, out type, out format, out valueExpression);
-                        if (valueExpression == null)
-                        {
-                            break;
-                        }
+                        GetParamInfo(paramMap[paramName], out type, out format, out valueExpression);
+                        escape = true; // Default for client parameters
                     }
                     else
                     {
-                        throw new InvalidOperationException($"The location of parameter {inputParam.Name} should be path or uri");
+                        inputParam = inputParamMap[paramName];
+                        if (inputParam is InputPathParameter || inputParam is InputEndpointParameter)
+                        {
+                            GetParamInfo(paramMap, operation, inputParam, out type, out format, out valueExpression);
+                            if (valueExpression == null)
+                            {
+                                break;
+                            }
+
+                            escape = inputParam switch
+                            {
+                                InputPathParameter pathParam => !pathParam.SkipUrlEncoding,
+                                InputEndpointParameter endpointParam => !endpointParam.SkipUrlEncoding,
+                                _ => escape
+                            };
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException($"The location of parameter {inputParam.Name} should be path or uri");
+                        }
                     }
                 }
                 ValueExpression[] toStringParams = format is null ? [] : [Literal(format)];
-                bool escape = !inputParam?.SkipUrlEncoding ?? true;
-                if (type?.OutputType.IsCollection == true)
+
+                valueExpression = type?.Equals(typeof(string)) == true
+                        ? valueExpression
+                        : valueExpression.Invoke(nameof(ToString), toStringParams);
+                MethodBodyStatement statement;
+                if (inputParam?.IsRequired == false)
                 {
-                    statements.Add(uri.AppendPathDelimited(
-                        valueExpression, format, escape, inputParam?.ArraySerializationDelimiter).Terminate());
+                    bool shouldPrependWithPathSeparator = path.Length > 0 && path[^1] != '/';
+                    List<MethodBodyStatement> appendPathStatements = shouldPrependWithPathSeparator
+                        ? [uri.AppendPath(Literal("/"), false).Terminate(), uri.AppendPath(valueExpression, escape).Terminate()]
+                        : [uri.AppendPath(valueExpression, escape).Terminate()];
+                    statement = BuildQueryOrHeaderOrPathParameterNullCheck(
+                        type,
+                        valueExpression,
+                        appendPathStatements);
                 }
                 else
                 {
-                    valueExpression = type?.Equals(typeof(string)) == true
-                        ? valueExpression
-                        : valueExpression.Invoke(nameof(ToString), toStringParams);
-                    MethodBodyStatement statement;
-                    if (inputParam?.IsRequired == false)
-                    {
-                        bool shouldPrependWithPathSeparator = path.Length > 0 && path[^1] != '/';
-                        List<MethodBodyStatement> appendPathStatements = shouldPrependWithPathSeparator
-                            ? [uri.AppendPath(Literal("/"), false).Terminate(), uri.AppendPath(valueExpression, escape).Terminate()]
-                            : [uri.AppendPath(valueExpression, escape).Terminate()];
-                        statement = BuildQueryOrHeaderOrPathParameterNullCheck(
-                            type,
-                            valueExpression,
-                            appendPathStatements);
-                    }
-                    else
-                    {
-                        statement = uri.AppendPath(valueExpression, escape).Terminate();
-                    }
-                    statements.Add(statement);
+                    statement = uri.AppendPath(valueExpression, escape).Terminate();
                 }
+                statements.Add(statement);
 
                 pathSpan = pathSpan.Slice(paramEndIndex + 1);
             }
@@ -565,7 +573,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static void GetParamInfo(Dictionary<string, ParameterProvider> paramMap, InputOperation operation, InputParameter inputParam, out CSharpType? type, out string? format, out ValueExpression? valueExpression)
         {
             type = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParam.Type);
-            if (inputParam.Kind == InputParameterKind.Constant && !(operation.IsMultipartFormData && inputParam.IsContentType))
+            if (inputParam.Kind == InputParameterKind.Constant && !(operation.IsMultipartFormData && inputParam is InputHeaderParameter headerParameter && headerParameter.IsContentType))
             {
                 valueExpression = Literal((inputParam.Type as InputLiteralType)?.Value);
                 format = ScmCodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputParam.Type).ToFormatSpecifier();
@@ -613,9 +621,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static bool TryGetSpecialHeaderParam(InputParameter inputParameter, [NotNullWhen(true)] out ParameterProvider? parameterProvider)
         {
-            if (inputParameter.Location == InputRequestLocation.Header)
-            {
-                return _knownSpecialHeaderParams.TryGetValue(inputParameter.NameInRequest, out parameterProvider);
+            if (inputParameter is InputHeaderParameter ||
+                inputParameter is InputMethodParameter inputMethodParameter && inputMethodParameter.Location == InputRequestLocation.Header)
+                {
+                return _knownSpecialHeaderParams.TryGetValue(inputParameter.SerializedName, out parameterProvider);
             }
 
             parameterProvider = null;
@@ -683,11 +692,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                if ((inputParam.Kind != InputParameterKind.Method &&
-                     inputParam.Location != InputRequestLocation.Body) ||
-                    TryGetSpecialHeaderParam(inputParam, out _))
+                if (TryGetSpecialHeaderParam(inputParam, out _))
                 {
                     continue;
+                }
+
+                if (inputParam.Kind != InputParameterKind.Method)
+                {
+                    if (inputParam is not InputBodyParameter &&
+                        !(inputParam is InputMethodParameter { Location: InputRequestLocation.Body }))
+                    {
+                        continue;
+                    }
                 }
 
                 ParameterProvider? parameter = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(inputParam)?.ToPublicInputParameter();
@@ -698,7 +714,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (methodType is MethodType.Protocol or MethodType.CreateRequest)
                 {
-                    if (inputParam.Location == InputRequestLocation.Body)
+                    if (inputParam is InputBodyParameter)
                     {
                         if (methodType == MethodType.CreateRequest)
                         {
@@ -716,7 +732,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         parameter.Type = parameter.Type.IsEnum ? parameter.Type.UnderlyingEnumType : parameter.Type;
                     }
                 }
-                else if (methodType is MethodType.Convenience && spreadSource != null && inputParam.Location.HasFlag(InputRequestLocation.Body))
+                else if (methodType is MethodType.Convenience &&
+                    spreadSource != null
+                    && inputParam is InputMethodParameter inputMethodParameter
+                    && inputMethodParameter.Location == InputRequestLocation.Body)
                 {
                     parameter.SpreadSource = spreadSource;
                 }

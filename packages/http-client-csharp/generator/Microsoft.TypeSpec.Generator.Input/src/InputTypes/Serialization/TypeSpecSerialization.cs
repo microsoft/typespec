@@ -63,6 +63,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     new InputLongRunningPagingServiceMethodConverter(referenceHandler),
                     new InputServiceMethodResponseConverter(),
                     new InputPropertyConverter(referenceHandler),
+                    new InputEndpointParameterConverter(referenceHandler),
+                    new InputMethodParameterConverter(referenceHandler),
                     new InputHeaderParameterConverter(referenceHandler),
                     new InputQueryParameterConverter(referenceHandler),
                     new InputPathParameterConverter(referenceHandler),

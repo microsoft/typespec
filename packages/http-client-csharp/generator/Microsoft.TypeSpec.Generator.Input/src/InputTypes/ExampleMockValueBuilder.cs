@@ -82,7 +82,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             }
 
             // if the parameter is endpoint
-            if (parameter.IsEndpoint)
+            if (parameter is InputEndpointParameter)
             {
                 var value = InputExampleValue.Value(parameter.Type, EndpointMockValue);
                 return new(parameter, value);

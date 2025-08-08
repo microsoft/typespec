@@ -579,7 +579,7 @@ op testOperation(@bodyRoot body: HeaderModel): void;
 
     const fooParameter = method.operation.parameters.find((p) => p.name === "foo");
     ok(fooParameter);
-    strictEqual(fooParameter.nameInRequest, "x-foo");
+    strictEqual(fooParameter.serializedName, "x-foo");
   });
 
   it("Header property should be included in the model if it's read-only", async () => {
@@ -685,7 +685,7 @@ op testOperation(@bodyRoot body: HeaderModel): void;
 
     const fooParameter = method.operation.parameters.find((p) => p.name === "foo");
     ok(fooParameter);
-    strictEqual(fooParameter.nameInRequest, "x-foo");
+    strictEqual(fooParameter.serializedName, "x-foo");
   });
 });
 
