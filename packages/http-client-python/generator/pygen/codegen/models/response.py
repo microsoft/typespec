@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import Dict, Optional, List, Any, TYPE_CHECKING, Union
+from typing import Optional, Any, TYPE_CHECKING, Union
 
 from .base import BaseModel
 from .base import BaseType
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 class ResponseHeader(BaseModel):
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         type: BaseType,
     ) -> None:
@@ -33,7 +33,7 @@ class ResponseHeader(BaseModel):
         return self.type.serialization_type(**kwargs)
 
     @classmethod
-    def from_yaml(cls, yaml_data: Dict[str, Any], code_model: "CodeModel") -> "ResponseHeader":
+    def from_yaml(cls, yaml_data: dict[str, Any], code_model: "CodeModel") -> "ResponseHeader":
         from . import build_type
 
         return cls(
@@ -46,14 +46,14 @@ class ResponseHeader(BaseModel):
 class Response(BaseModel):
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         *,
-        headers: Optional[List[ResponseHeader]] = None,
+        headers: Optional[list[ResponseHeader]] = None,
         type: Optional[BaseType] = None,
     ) -> None:
         super().__init__(yaml_data=yaml_data, code_model=code_model)
-        self.status_codes: List[Union[int, str, List[int]]] = yaml_data["statusCodes"]
+        self.status_codes: list[Union[int, str, list[int]]] = yaml_data["statusCodes"]
         self.headers = headers or []
         self.type = type
         self.nullable = yaml_data.get("nullable")
@@ -66,7 +66,7 @@ class Response(BaseModel):
             return "".join([f'.get("{field}", {{}})' for field in field.split(".")])
         return ""
 
-    def get_polymorphic_subtypes(self, polymorphic_subtypes: List["ModelType"]) -> None:
+    def get_polymorphic_subtypes(self, polymorphic_subtypes: list["ModelType"]) -> None:
         if self.type:
             self.type.get_polymorphic_subtypes(polymorphic_subtypes)
 
@@ -140,7 +140,7 @@ class Response(BaseModel):
         return ImportType.SDKCORE if self.code_model.core_library.split(".")[0] in input_path else ImportType.THIRDPARTY
 
     @classmethod
-    def from_yaml(cls, yaml_data: Dict[str, Any], code_model: "CodeModel") -> "Response":
+    def from_yaml(cls, yaml_data: dict[str, Any], code_model: "CodeModel") -> "Response":
         type = code_model.lookup_type(id(yaml_data["type"])) if yaml_data.get("type") else None
         # use ByteIteratorType if we are returning a binary type
         default_content_type = yaml_data.get("defaultContentType", "application/json")
@@ -170,7 +170,7 @@ class PagingResponse(Response):
             or f"{self.code_model.core_library}.{default_paging_submodule}.AsyncItemPaged"
         )
 
-    def get_polymorphic_subtypes(self, polymorphic_subtypes: List["ModelType"]) -> None:
+    def get_polymorphic_subtypes(self, polymorphic_subtypes: list["ModelType"]) -> None:
         return self.item_type.get_polymorphic_subtypes(polymorphic_subtypes)
 
     def get_json_template_representation(self) -> Any:
@@ -336,7 +336,7 @@ class LROPagingResponse(LROResponse, PagingResponse):
         return file_import
 
 
-def get_response(yaml_data: Dict[str, Any], code_model: "CodeModel") -> Response:
+def get_response(yaml_data: dict[str, Any], code_model: "CodeModel") -> Response:
     if yaml_data["discriminator"] == "lropaging":
         return LROPagingResponse.from_yaml(yaml_data, code_model)
     if yaml_data["discriminator"] == "lro":

@@ -7,10 +7,8 @@ import abc
 from enum import Enum
 
 from typing import (
-    Dict,
     Any,
     TYPE_CHECKING,
-    List,
     Optional,
     TypeVar,
     Union,
@@ -56,7 +54,7 @@ class _ParameterBase(BaseModel, abc.ABC):  # pylint: disable=too-many-instance-a
 
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         type: BaseType,
     ) -> None:
@@ -75,13 +73,13 @@ class _ParameterBase(BaseModel, abc.ABC):  # pylint: disable=too-many-instance-a
         self.grouped_by: Optional[str] = self.yaml_data.get("groupedBy")
         # property matching property name to parameter name for grouping params
         # and flattened body params
-        self.property_to_parameter_name: Optional[Dict[str, str]] = self.yaml_data.get("propertyToParameterName")
+        self.property_to_parameter_name: Optional[dict[str, str]] = self.yaml_data.get("propertyToParameterName")
         self.flattened: bool = self.yaml_data.get("flattened", False)
         self.in_flattened_body: bool = self.yaml_data.get("inFlattenedBody", False)
         self.grouper: bool = self.yaml_data.get("grouper", False)
         self.check_client_input: bool = self.yaml_data.get("checkClientInput", False)
         self.added_on: Optional[str] = self.yaml_data.get("addedOn")
-        self.api_versions: Optional[List[str]] = self.yaml_data.get("apiVersions", [])
+        self.api_versions: Optional[list[str]] = self.yaml_data.get("apiVersions", [])
         self.is_api_version: bool = self.yaml_data.get("isApiVersion", False)
         self.in_overload: bool = self.yaml_data.get("inOverload", False)
         self.default_to_unset_sentinel: bool = self.yaml_data.get("defaultToUnsetSentinel", False)
@@ -227,7 +225,7 @@ class BodyParameter(_ParameterBase):
     """Body parameter."""
 
     @property
-    def entries(self) -> List["BodyParameter"]:
+    def entries(self) -> list["BodyParameter"]:
         return [BodyParameter.from_yaml(e, self.code_model) for e in self.yaml_data.get("entries", [])]
 
     @property
@@ -258,7 +256,7 @@ class BodyParameter(_ParameterBase):
         return not (self.flattened or self.grouped_by)
 
     @property
-    def content_types(self) -> List[str]:
+    def content_types(self) -> list[str]:
         return self.yaml_data["contentTypes"]
 
     @property
@@ -280,11 +278,10 @@ class BodyParameter(_ParameterBase):
                 "prepare_multipart_form_data",
                 ImportType.LOCAL,
             )
-            file_import.add_submodule_import("typing", "List", ImportType.STDLIB)
         return file_import
 
     @classmethod
-    def from_yaml(cls, yaml_data: Dict[str, Any], code_model: "CodeModel") -> "BodyParameter":
+    def from_yaml(cls, yaml_data: dict[str, Any], code_model: "CodeModel") -> "BodyParameter":
         return cls(
             yaml_data=yaml_data,
             code_model=code_model,
@@ -300,7 +297,7 @@ class Parameter(_ParameterBase):
 
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         type: BaseType,
     ) -> None:
@@ -364,7 +361,7 @@ class Parameter(_ParameterBase):
         return ParameterMethodLocation.POSITIONAL
 
     @classmethod
-    def from_yaml(cls, yaml_data: Dict[str, Any], code_model: "CodeModel"):
+    def from_yaml(cls, yaml_data: dict[str, Any], code_model: "CodeModel"):
         return cls(
             yaml_data=yaml_data,
             code_model=code_model,
