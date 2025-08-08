@@ -10,7 +10,7 @@ import {
   createTupleToArrayValueCodeFix,
 } from "./compiler-code-fixes/convert-to-value.codefix.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
-import { compilerAssert, ignoreDiagnostics } from "./diagnostics.js";
+import { compilerAssert, createDiagnosticCollector, ignoreDiagnostics } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import { explainStringTemplateNotSerializable } from "./helpers/string-template-utils.js";
 import { typeReferenceToString } from "./helpers/syntax-utils.js";
@@ -57,6 +57,7 @@ import {
   DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
   Diagnostic,
+  DiagnosticResult,
   DiagnosticTarget,
   DocContent,
   Entity,
@@ -4342,11 +4343,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     target: FunctionType,
     mapper: TypeMapper | undefined,
   ): Type | Value | null {
-    const [hadError, resolvedArgs] = checkFunctionCallArguments(node.arguments, target, mapper);
+    const [satisfied, resolvedArgs] = checkFunctionCallArguments(node.arguments, target, mapper);
 
-    const result = hadError ? errorType : target.implementation(program, ...resolvedArgs);
+    const result = !satisfied ? errorType : target.implementation(program, ...resolvedArgs);
 
-    if (!hadError) checkFunctionReturn(target, result);
+    if (satisfied) checkFunctionReturn(target, result, node);
 
     return result;
   }
@@ -4355,25 +4356,200 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     args: Expression[],
     target: FunctionType,
     mapper: TypeMapper | undefined,
-  ): [boolean, (Type | Value)[]] {
-    return [false, args.map((arg) => checkNode(arg, mapper))] as [boolean, (Type | Value)[]];
-  }
+  ): [boolean, (Type | Value | undefined)[]] {
+    if (args.length < target.parameters.filter((p) => !p.optional && !p.rest).length) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "invalid-argument-count",
+          messageId: "atLeast",
+          format: { actual: args.length.toString(), expected: target.parameters.length.toString() },
+          target: target.node!,
+        }),
+      );
+      return [false, []];
+    }
 
-  function checkFunctionReturn(target: FunctionType, result: Type | Value) {
-    if (target.returnType.valueType) {
-      if (result.entityKind !== "Value") {
-        reportCheckerDiagnostic(
-          createDiagnostic({
-            code: "expect-value",
-            messageId: "functionReturn",
-            format: { name: getTypeName(result) },
-            target: target,
-          }),
+    const collector = createDiagnosticCollector();
+
+    const resolvedArgs: (Type | Value | undefined)[] = [];
+    let satisfied = true;
+
+    let idx = 0;
+
+    for (const param of target.parameters) {
+      if (param.rest) {
+        const constraint = extractRestParamConstraint(param.type);
+
+        if (!constraint) {
+          satisfied = false;
+          continue;
+        }
+
+        const restArgs = args
+          .slice(idx)
+          .map((arg) => getTypeOrValueForNode(arg, mapper, { kind: "argument", constraint }));
+
+        if (restArgs.some((x) => x === null)) {
+          satisfied = false;
+          continue;
+        }
+
+        resolvedArgs.push(...(restArgs as (Value | Type)[]));
+      } else {
+        const arg = args[idx++];
+
+        if (!arg) {
+          if (param.optional) {
+            resolvedArgs.push(undefined);
+            continue;
+          } else {
+            reportCheckerDiagnostic(
+              createDiagnostic({
+                code: "invalid-argument",
+                messageId: "default",
+                // TODO: render constraint
+                format: { value: "undefined", expected: "TODO" },
+                target: target.node!,
+              }),
+            );
+            satisfied = false;
+            continue;
+          }
+        }
+
+        // Normal param
+        const checkedArg = getTypeOrValueForNode(arg, mapper, {
+          kind: "argument",
+          constraint: param.type,
+        });
+
+        if (!checkedArg) {
+          satisfied = false;
+          continue;
+        }
+
+        const resolved = collector.pipe(
+          checkEntityAssignableToConstraint(checkedArg, param.type, args[idx]),
         );
 
-        return;
+        if (!resolved) {
+          satisfied = false;
+          continue;
+        }
+
+        resolvedArgs.push(resolved);
       }
     }
+
+    reportCheckerDiagnostics(collector.diagnostics);
+
+    return [satisfied, resolvedArgs];
+  }
+
+  function checkFunctionReturn(target: FunctionType, result: Type | Value, diagnosticTarget: Node) {
+    const [_, diagnostics] = checkEntityAssignableToConstraint(
+      result,
+      target.returnType,
+      diagnosticTarget,
+    );
+
+    reportCheckerDiagnostics(diagnostics);
+  }
+
+  function checkEntityAssignableToConstraint(
+    entity: Type | Value | IndeterminateEntity,
+    constraint: MixedParameterConstraint,
+    diagnosticTarget: Node,
+  ): DiagnosticResult<Type | Value | null> {
+    const constraintIsValue = !!constraint.valueType;
+
+    const collector = createDiagnosticCollector();
+
+    if (constraintIsValue) {
+      const normed = collector.pipe(normalizeValue(entity, constraint));
+
+      // Error should have been reported in normalizeValue
+      if (!normed) return collector.wrap(null);
+
+      const assignable = collector.pipe(
+        relation.isValueOfType(normed, constraint.valueType, diagnosticTarget),
+      );
+
+      return collector.wrap(assignable ? normed : null);
+    } else {
+      // Constraint is a type
+
+      if (entity.entityKind !== "Type") {
+        collector.add(
+          createDiagnostic({
+            code: "value-in-type",
+            format: { name: getTypeName(entity.type) },
+            target: diagnosticTarget,
+          }),
+        );
+        return collector.wrap(null);
+      }
+
+      compilerAssert(
+        constraint.type,
+        "Expected type constraint to be defined when known not to be a value constraint.",
+      );
+
+      const assignable = collector.pipe(
+        relation.isTypeAssignableTo(entity, constraint.type, diagnosticTarget),
+      );
+
+      return collector.wrap(assignable ? entity : null);
+    }
+  }
+
+  function normalizeValue(
+    entity: Type | Value | IndeterminateEntity,
+    constraint: MixedParameterConstraint,
+  ): DiagnosticResult<Value | null> {
+    if (entity.entityKind === "Value") return [entity, []];
+
+    if (entity.entityKind === "Indeterminate") {
+      // Coerce to a value
+      const coerced = getValueFromIndeterminate(
+        entity.type,
+        constraint.type && { kind: "argument", type: constraint.type },
+        entity.type.node!,
+      );
+
+      if (coerced?.entityKind !== "Value") {
+        return [
+          null,
+          [
+            createDiagnostic({
+              code: "expect-value",
+              format: { name: getTypeName(entity.type) },
+              target: entity.type,
+            }),
+          ],
+        ];
+      }
+
+      return [coerced, []];
+    }
+
+    if (entity.entityKind === "Type") {
+      return [
+        null,
+        [
+          createDiagnostic({
+            code: "expect-value",
+            format: { name: getTypeName(entity) },
+            target: entity,
+          }),
+        ],
+      ];
+    }
+
+    compilerAssert(
+      false,
+      `Unreachable: unexpected entity kind '${(entity satisfies never as Entity).entityKind}'`,
+    );
   }
 
   function checkTypeOfExpression(node: TypeOfExpressionNode, mapper: TypeMapper | undefined): Type {
