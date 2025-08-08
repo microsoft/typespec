@@ -1,5 +1,21 @@
 # Change Log - @typespec/playground
 
+## 0.10.0
+
+### Features
+
+- [#8013](https://github.com/microsoft/typespec/pull/8013) Add button to bookmark types in the type graph into `window.vars`
+- [#7944](https://github.com/microsoft/typespec/pull/7944) Exposed some debugging variables in the playground console, including the Program, a bound Typekit, and the compiler host.
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+### Bug Fixes
+
+- [#7959](https://github.com/microsoft/typespec/pull/7959) Fix loading monaco web workers
+
+
 ## 0.9.0
 
 ### Features

@@ -21,6 +21,14 @@ const argv = parseArgs({
   },
 });
 
+// Add this near the top with other constants
+const SKIP_SPECS = [
+  "type/union/discriminated",
+  "client-operation-group",
+  "azure/client-generator-core/api-version",
+  "azure/client-generator-core/hierarchy-building",
+];
+
 // Get the directory of the current file
 const PLUGIN_DIR = argv.values.pluginDir
   ? resolve(argv.values.pluginDir)
@@ -316,14 +324,8 @@ async function getSubdirectories(baseDir: string, flags: RegenerateFlags): Promi
 
         const mainTspRelativePath = toPosix(relative(baseDir, mainTspPath));
 
-        // after support discriminated union, remove this check
-        if (mainTspRelativePath.includes("type/union/discriminated")) return;
-
-        // after fix test generation for nested operation group, remove this check
-        if (mainTspRelativePath.includes("client-operation-group")) return;
-
-        // after https://github.com/Azure/autorest.python/issues/3043 fixed, remove this check
-        if (mainTspRelativePath.includes("azure/client-generator-core/api-version")) return;
+        // Replace the individual skip checks with:
+        if (SKIP_SPECS.some((skipSpec) => mainTspRelativePath.includes(skipSpec))) return;
 
         const hasMainTsp = await promises
           .access(mainTspPath)

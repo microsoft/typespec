@@ -1,5 +1,12 @@
 # Changelog - @typespec/xml
 
+## 0.73.0
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+
 ## 0.72.0
 
 ### Bump dependencies

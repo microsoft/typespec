@@ -1,5 +1,26 @@
 # Change Log - @typespec/compiler
 
+## 1.3.0
+
+### Features
+
+- [#7830](https://github.com/microsoft/typespec/pull/7830) [API] `resolveCompilerOptions` now only takes a `SystemHost` instead of `CompilerHost`
+- [#7912](https://github.com/microsoft/typespec/pull/7912) Updates the `tsp init` command to support passing in more options via CLI flags. The `-y` option can also be used to auto accept prompts.
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+### Bug Fixes
+
+- [#7721](https://github.com/microsoft/typespec/pull/7721) Make the `console.*` methods usable in the compiler and display them in the vscode output.
+- [#8012](https://github.com/microsoft/typespec/pull/8012) Fix `tsp format --check` incorrectly validating needs format
+- [#7957](https://github.com/microsoft/typespec/pull/7957) Fix incorrectly reported `incompatible-compiler-version` in some cases when using symlinks
+- [#7947](https://github.com/microsoft/typespec/pull/7947) [API] [Testing] Ignore test files in legacy library definition
+- [#7899](https://github.com/microsoft/typespec/pull/7899) Ensure model that are spread, intersected or used as the base are fully checked before trying to copy the properties
+- [#8002](https://github.com/microsoft/typespec/pull/8002) Union expression are correctly attached to the namespace they were declared in
+
+
 ## 1.2.0
 
 ### Features

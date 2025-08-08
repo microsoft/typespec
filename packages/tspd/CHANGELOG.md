@@ -1,5 +1,13 @@
 # Changelog - @typespec/tspd
 
+## 0.72.2
+
+### Bump dependencies
+
+- [#8050](https://github.com/microsoft/typespec/pull/8050) Upgrade alloy 0.19
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+
 ## 0.72.0
 
 ### Bump dependencies

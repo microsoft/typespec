@@ -1,0 +1,19 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "azure.clientgenerator.core.hierarchybuilding.HierarchyBuildingAsyncClient": "_Specs_.Azure.ClientGenerator.Core.HierarchyBuilding",
+    "azure.clientgenerator.core.hierarchybuilding.HierarchyBuildingAsyncClient.updateDog": "_Specs_.Azure.ClientGenerator.Core.HierarchyBuilding.updateDog",
+    "azure.clientgenerator.core.hierarchybuilding.HierarchyBuildingAsyncClient.updateDogWithResponse": "_Specs_.Azure.ClientGenerator.Core.HierarchyBuilding.updateDog",
+    "azure.clientgenerator.core.hierarchybuilding.HierarchyBuildingAsyncClient.updatePet": "_Specs_.Azure.ClientGenerator.Core.HierarchyBuilding.updatePet",
+    "azure.clientgenerator.core.hierarchybuilding.HierarchyBuildingAsyncClient.updatePetWithResponse": "_Specs_.Azure.ClientGenerator.Core.HierarchyBuilding.updatePet",
+    "azure.clientgenerator.core.hierarchybuilding.HierarchyBuildingClient": "_Specs_.Azure.ClientGenerator.Core.HierarchyBuilding",
+    "azure.clientgenerator.core.hierarchybuilding.HierarchyBuildingClient.updateDog": "_Specs_.Azure.ClientGenerator.Core.HierarchyBuilding.updateDog",
+    "azure.clientgenerator.core.hierarchybuilding.HierarchyBuildingClient.updateDogWithResponse": "_Specs_.Azure.ClientGenerator.Core.HierarchyBuilding.updateDog",
+    "azure.clientgenerator.core.hierarchybuilding.HierarchyBuildingClient.updatePet": "_Specs_.Azure.ClientGenerator.Core.HierarchyBuilding.updatePet",
+    "azure.clientgenerator.core.hierarchybuilding.HierarchyBuildingClient.updatePetWithResponse": "_Specs_.Azure.ClientGenerator.Core.HierarchyBuilding.updatePet",
+    "azure.clientgenerator.core.hierarchybuilding.HierarchyBuildingClientBuilder": "_Specs_.Azure.ClientGenerator.Core.HierarchyBuilding",
+    "azure.clientgenerator.core.hierarchybuilding.models.Animal": "_Specs_.Azure.ClientGenerator.Core.HierarchyBuilding.Animal",
+    "azure.clientgenerator.core.hierarchybuilding.models.Dog": "_Specs_.Azure.ClientGenerator.Core.HierarchyBuilding.Dog",
+    "azure.clientgenerator.core.hierarchybuilding.models.Pet": "_Specs_.Azure.ClientGenerator.Core.HierarchyBuilding.Pet"
+  }
+}
