@@ -47,7 +47,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 if (method is ScmMethodProvider scmMethod && scmMethod.CollectionDefinition != null)
                 {
                     clients.Add(scmMethod.CollectionDefinition);
-                    ScmCodeModelGenerator.Instance.AddTypeToKeep(scmMethod.CollectionDefinition);
                 }
             }
         }

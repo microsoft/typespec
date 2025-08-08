@@ -1,6 +1,6 @@
 {
   "name": "@typespec/library-linter",
-  "version": "0.72.1",
+  "version": "0.73.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for linting another library.",
   "homepage": "https://typespec.io",
