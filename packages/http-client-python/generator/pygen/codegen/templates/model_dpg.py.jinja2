@@ -10,7 +10,7 @@
     {% endif %}
 
     {% if model.properties != None %}
-        {% for p in model.properties %}
+        {% for p in serializer.get_properties_to_declare(model) %}
             {% for line in serializer.variable_documentation_string(p) %}
     {{ macros.wrap_model_string(line, '\n    ') -}}
             {% endfor %}
