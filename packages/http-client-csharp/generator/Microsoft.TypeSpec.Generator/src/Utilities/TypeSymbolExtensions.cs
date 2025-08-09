@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Primitives;
 
@@ -45,7 +44,7 @@ namespace Microsoft.TypeSpec.Generator
             var fullyQualifiedName = GetFullyQualifiedName(typeSymbol);
             var namedTypeSymbol = typeSymbol as INamedTypeSymbol;
 
-            Type? type = LoadFrameworkType(fullyQualifiedName);
+            Type? type = CodeModelGenerator.Instance.TypeFactory.CreateFrameworkType(fullyQualifiedName);
 
             if (type is null)
             {
@@ -157,18 +156,6 @@ namespace Microsoft.TypeSpec.Generator
         {
             var fullyQualifiedName = typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             return fullyQualifiedName.StartsWith(GlobalPrefix, StringComparison.Ordinal) ? fullyQualifiedName.Substring(GlobalPrefix.Length) : fullyQualifiedName;
-        }
-
-        private static Type? LoadFrameworkType(string fullyQualifiedName)
-        {
-            return fullyQualifiedName switch
-            {
-                // Special case for types that would not be defined in corlib, but should still be considered framework types.
-                "System.BinaryData" => typeof(BinaryData),
-                "System.Uri" => typeof(Uri),
-                "System.Text.Json.JsonElement" => typeof(JsonElement),
-                _ => Type.GetType(fullyQualifiedName)
-            };
         }
 
         private static CSharpType ConstructCSharpTypeFromSymbol(
