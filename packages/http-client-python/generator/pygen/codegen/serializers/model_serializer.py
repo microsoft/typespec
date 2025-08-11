@@ -108,7 +108,7 @@ class _ModelSerializer(BaseSerializer, ABC):
         for parent in model.parents:
             for prop in model.properties:
                 if prop in parent.properties and not prop.is_discriminator and not prop.constant and not prop.readonly:
-                    properties_to_pass_to_super.append(f"{prop.client_name}={prop.client_name}")
+                    properties_to_pass_to_super.append(f"{prop.client_name}={prop.client_name}  # type: ignore")
         properties_to_pass_to_super.append("**kwargs")
         return ", ".join(properties_to_pass_to_super)
 
