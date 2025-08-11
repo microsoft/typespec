@@ -4,8 +4,8 @@
 
 package azure.clientgenerator.core.hierarchybuilding;
 
-import azure.clientgenerator.core.hierarchybuilding.implementation.HierarchyBuildingClientImpl;
-import azure.clientgenerator.core.hierarchybuilding.models.Animal;
+import azure.clientgenerator.core.hierarchybuilding.implementation.PetOperationsImpl;
+import azure.clientgenerator.core.hierarchybuilding.models.Pet;
 import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.ReturnType;
 import com.azure.core.annotation.ServiceClient;
@@ -24,22 +24,22 @@ import reactor.core.publisher.Mono;
  * Initializes a new instance of the asynchronous HierarchyBuildingClient type.
  */
 @ServiceClient(builder = HierarchyBuildingClientBuilder.class, isAsync = true)
-public final class HierarchyBuildingAsyncClient {
+public final class PetOperationsAsyncClient {
     @Generated
-    private final HierarchyBuildingClientImpl serviceClient;
+    private final PetOperationsImpl serviceClient;
 
     /**
-     * Initializes an instance of HierarchyBuildingAsyncClient class.
+     * Initializes an instance of PetOperationsAsyncClient class.
      * 
      * @param serviceClient the service client implementation.
      */
     @Generated
-    HierarchyBuildingAsyncClient(HierarchyBuildingClientImpl serviceClient) {
+    PetOperationsAsyncClient(PetOperationsImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
 
     /**
-     * Update a pet.
+     * Update a pet as a pet.
      * <p><strong>Request Body Schema</strong></p>
      * 
      * <pre>
@@ -47,6 +47,7 @@ public final class HierarchyBuildingAsyncClient {
      * {
      *     kind: String (Required)
      *     name: String (Required)
+     *     trained: boolean (Required)
      * }
      * }
      * </pre>
@@ -58,11 +59,12 @@ public final class HierarchyBuildingAsyncClient {
      * {
      *     kind: String (Required)
      *     name: String (Required)
+     *     trained: boolean (Required)
      * }
      * }
      * </pre>
      * 
-     * @param animal The animal parameter.
+     * @param pet The pet parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -72,12 +74,12 @@ public final class HierarchyBuildingAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> updatePetWithResponse(BinaryData animal, RequestOptions requestOptions) {
-        return this.serviceClient.updatePetWithResponseAsync(animal, requestOptions);
+    public Mono<Response<BinaryData>> updatePetAsPetWithResponse(BinaryData pet, RequestOptions requestOptions) {
+        return this.serviceClient.updatePetAsPetWithResponseAsync(pet, requestOptions);
     }
 
     /**
-     * Update a dog.
+     * Update a dog as a pet.
      * <p><strong>Request Body Schema</strong></p>
      * 
      * <pre>
@@ -85,6 +87,7 @@ public final class HierarchyBuildingAsyncClient {
      * {
      *     kind: String (Required)
      *     name: String (Required)
+     *     trained: boolean (Required)
      * }
      * }
      * </pre>
@@ -96,11 +99,12 @@ public final class HierarchyBuildingAsyncClient {
      * {
      *     kind: String (Required)
      *     name: String (Required)
+     *     trained: boolean (Required)
      * }
      * }
      * </pre>
      * 
-     * @param animal The animal parameter.
+     * @param pet The pet parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -110,14 +114,14 @@ public final class HierarchyBuildingAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> updateDogWithResponse(BinaryData animal, RequestOptions requestOptions) {
-        return this.serviceClient.updateDogWithResponseAsync(animal, requestOptions);
+    public Mono<Response<BinaryData>> updateDogAsPetWithResponse(BinaryData pet, RequestOptions requestOptions) {
+        return this.serviceClient.updateDogAsPetWithResponseAsync(pet, requestOptions);
     }
 
     /**
-     * Update a pet.
+     * Update a pet as a pet.
      * 
-     * @param animal The animal parameter.
+     * @param pet The pet parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -128,17 +132,17 @@ public final class HierarchyBuildingAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Animal> updatePet(Animal animal) {
-        // Generated convenience method for updatePetWithResponse
+    public Mono<Pet> updatePetAsPet(Pet pet) {
+        // Generated convenience method for updatePetAsPetWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return updatePetWithResponse(BinaryData.fromObject(animal), requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(Animal.class));
+        return updatePetAsPetWithResponse(BinaryData.fromObject(pet), requestOptions).flatMap(FluxUtil::toMono)
+            .map(protocolMethodData -> protocolMethodData.toObject(Pet.class));
     }
 
     /**
-     * Update a dog.
+     * Update a dog as a pet.
      * 
-     * @param animal The animal parameter.
+     * @param pet The pet parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -149,10 +153,10 @@ public final class HierarchyBuildingAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Animal> updateDog(Animal animal) {
-        // Generated convenience method for updateDogWithResponse
+    public Mono<Pet> updateDogAsPet(Pet pet) {
+        // Generated convenience method for updateDogAsPetWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return updateDogWithResponse(BinaryData.fromObject(animal), requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(Animal.class));
+        return updateDogAsPetWithResponse(BinaryData.fromObject(pet), requestOptions).flatMap(FluxUtil::toMono)
+            .map(protocolMethodData -> protocolMethodData.toObject(Pet.class));
     }
 }

@@ -40,7 +40,14 @@ import java.util.Objects;
 /**
  * A builder for creating a new instance of the HierarchyBuildingClient type.
  */
-@ServiceClientBuilder(serviceClients = { HierarchyBuildingClient.class, HierarchyBuildingAsyncClient.class })
+@ServiceClientBuilder(
+    serviceClients = {
+        AnimalOperationsClient.class,
+        PetOperationsClient.class,
+        DogOperationsClient.class,
+        AnimalOperationsAsyncClient.class,
+        PetOperationsAsyncClient.class,
+        DogOperationsAsyncClient.class })
 public final class HierarchyBuildingClientBuilder implements HttpTrait<HierarchyBuildingClientBuilder>,
     ConfigurationTrait<HierarchyBuildingClientBuilder>, EndpointTrait<HierarchyBuildingClientBuilder> {
     @Generated
@@ -265,23 +272,63 @@ public final class HierarchyBuildingClientBuilder implements HttpTrait<Hierarchy
     }
 
     /**
-     * Builds an instance of HierarchyBuildingAsyncClient class.
+     * Builds an instance of AnimalOperationsAsyncClient class.
      * 
-     * @return an instance of HierarchyBuildingAsyncClient.
+     * @return an instance of AnimalOperationsAsyncClient.
      */
     @Generated
-    public HierarchyBuildingAsyncClient buildAsyncClient() {
-        return new HierarchyBuildingAsyncClient(buildInnerClient());
+    public AnimalOperationsAsyncClient buildAnimalOperationsAsyncClient() {
+        return new AnimalOperationsAsyncClient(buildInnerClient().getAnimalOperations());
     }
 
     /**
-     * Builds an instance of HierarchyBuildingClient class.
+     * Builds an instance of PetOperationsAsyncClient class.
      * 
-     * @return an instance of HierarchyBuildingClient.
+     * @return an instance of PetOperationsAsyncClient.
      */
     @Generated
-    public HierarchyBuildingClient buildClient() {
-        return new HierarchyBuildingClient(buildInnerClient());
+    public PetOperationsAsyncClient buildPetOperationsAsyncClient() {
+        return new PetOperationsAsyncClient(buildInnerClient().getPetOperations());
+    }
+
+    /**
+     * Builds an instance of DogOperationsAsyncClient class.
+     * 
+     * @return an instance of DogOperationsAsyncClient.
+     */
+    @Generated
+    public DogOperationsAsyncClient buildDogOperationsAsyncClient() {
+        return new DogOperationsAsyncClient(buildInnerClient().getDogOperations());
+    }
+
+    /**
+     * Builds an instance of AnimalOperationsClient class.
+     * 
+     * @return an instance of AnimalOperationsClient.
+     */
+    @Generated
+    public AnimalOperationsClient buildAnimalOperationsClient() {
+        return new AnimalOperationsClient(buildInnerClient().getAnimalOperations());
+    }
+
+    /**
+     * Builds an instance of PetOperationsClient class.
+     * 
+     * @return an instance of PetOperationsClient.
+     */
+    @Generated
+    public PetOperationsClient buildPetOperationsClient() {
+        return new PetOperationsClient(buildInnerClient().getPetOperations());
+    }
+
+    /**
+     * Builds an instance of DogOperationsClient class.
+     * 
+     * @return an instance of DogOperationsClient.
+     */
+    @Generated
+    public DogOperationsClient buildDogOperationsClient() {
+        return new DogOperationsClient(buildInnerClient().getDogOperations());
     }
 
     private static final ClientLogger LOGGER = new ClientLogger(HierarchyBuildingClientBuilder.class);
