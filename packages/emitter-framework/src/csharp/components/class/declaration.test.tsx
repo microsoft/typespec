@@ -77,9 +77,9 @@ it("renders a class declaration with properties using component override", async
     model ${t.model("Foo")} {}
     model ${t.model("Bar")} {}
     model ${t.model("TestModel")} {
-      @test Prop1: string;
-      @test Prop2: int32;
-      @test Prop3?: Foo;
+      Prop1: string;
+      Prop2: int32;
+      Prop3?: Foo;
     }
   `);
 
