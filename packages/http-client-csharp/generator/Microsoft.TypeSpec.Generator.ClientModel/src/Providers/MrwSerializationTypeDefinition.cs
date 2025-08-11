@@ -10,6 +10,8 @@ using System.Linq;
 using System.Net;
 using System.Text.Json;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
+using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -1508,11 +1510,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// <param name="value">The value to be serialized.</param>
         /// <param name="serializationFormat">The serialization format.</param>
         /// <returns>The serialization statement.</returns>
-        /// <exception cref="NotSupportedException">Thrown when the serialization type is not supported.</exception>
         private MethodBodyStatement CreateSerializationStatement(
             CSharpType serializationType,
             ValueExpression value,
-            SerializationFormat serializationFormat) => serializationType switch
+            SerializationFormat serializationFormat)
+        {
+            MethodBodyStatement? statement = serializationType switch
             {
                 { IsDictionary: true } =>
                     CreateDictionarySerializationStatement(
@@ -1523,9 +1526,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         serializationFormat),
                 { IsCollection: false } =>
                     CreateValueSerializationStatement(serializationType, serializationFormat, value),
-                _ => throw new NotSupportedException(
-                    $"Serialization of type {serializationType.Name} is not supported.")
+                _ => null,
             };
+
+            if (statement == null)
+            {
+                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                   DiagnosticCodes.UnsupportedSerialization,
+                   $"Serialization of type {serializationType.Name} is not supported.",
+                   severity: EmitterDiagnosticSeverity.Warning);
+                return CreateValueSerializationStatement(serializationType, serializationFormat, value);
+            }
+
+            return statement;
+        }
 
         private MethodBodyStatement CreateDictionarySerializationStatement(
             DictionaryExpression dictionary,
@@ -1611,7 +1625,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter,
             SerializationFormat serializationFormat)
         {
-            return valueType switch
+            MethodBodyStatement? statement = valueType switch
             {
                 var t when t == typeof(JsonElement) =>
                     value.As<JsonElement>().WriteTo(utf8JsonWriter),
@@ -1637,8 +1651,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     SerializeBinaryData(valueType, serializationFormat, value, utf8JsonWriter),
                 var t when t == typeof(Stream) =>
                     utf8JsonWriter.WriteBinaryData(BinaryDataSnippets.FromStream(value, false)),
-                _ => throw new NotSupportedException($"Type {valueType} serialization is not supported.")
+                _ => null
             };
+
+            if (statement is null)
+            {
+                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                    DiagnosticCodes.UnsupportedSerialization,
+                    $"Serialization of type {valueType.Name} is not supported.",
+                    severity: EmitterDiagnosticSeverity.Warning);
+
+                return utf8JsonWriter.WriteObjectValue(value.As(valueType), mrwOptionsParameter);
+            }
+
+            return statement;
         }
 
         internal static ValueExpression DeserializeJsonValueCore(
@@ -1646,7 +1672,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ScopedApi<JsonElement> element,
             SerializationFormat format)
         {
-            return valueType switch
+            ValueExpression? exp = valueType switch
             {
                 Type t when t == typeof(Uri) =>
                     New.Instance(valueType, element.GetString()),
@@ -1692,8 +1718,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     SerializationFormat.Duration_Seconds_Float or SerializationFormat.Duration_Seconds_Double => TimeSpanSnippets.FromSeconds(element.GetDouble()),
                     _ => element.GetTimeSpan(format.ToFormatSpecifier())
                 },
-                _ => throw new NotSupportedException($"Framework type {valueType} is not supported.")
+                _ => null,
             };
+
+            if (exp is null)
+            {
+                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                    DiagnosticCodes.UnsupportedSerialization,
+                    $"Deserialization of type {valueType.Name} is not supported.",
+                    severity: EmitterDiagnosticSeverity.Warning);
+                return new CSharpType(valueType).Deserialize(element);
+            }
+
+            return exp;
         }
 
         private static bool ValueTypeIsInt(Type valueType) =>
