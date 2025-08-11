@@ -1151,7 +1151,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             foreach (var method in client.RestClient.Methods)
             {
-                Assert.IsTrue(method.Signature.Name.Equals("CreateGetRequest", StringComparison.OrdinalIgnoreCase));
+                Assert.IsTrue(method.Signature.Name.Equals("CreateGetCatsRequest", StringComparison.OrdinalIgnoreCase));
             }
         }
 
