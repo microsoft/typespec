@@ -4,7 +4,7 @@
 
 package azure.clientgenerator.core.hierarchybuilding;
 
-import azure.clientgenerator.core.hierarchybuilding.implementation.HierarchyBuildingClientImpl;
+import azure.clientgenerator.core.hierarchybuilding.implementation.AnimalOperationsImpl;
 import azure.clientgenerator.core.hierarchybuilding.models.Animal;
 import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.ReturnType;
@@ -22,22 +22,22 @@ import com.azure.core.util.BinaryData;
  * Initializes a new instance of the synchronous HierarchyBuildingClient type.
  */
 @ServiceClient(builder = HierarchyBuildingClientBuilder.class)
-public final class HierarchyBuildingClient {
+public final class AnimalOperationsClient {
     @Generated
-    private final HierarchyBuildingClientImpl serviceClient;
+    private final AnimalOperationsImpl serviceClient;
 
     /**
-     * Initializes an instance of HierarchyBuildingClient class.
+     * Initializes an instance of AnimalOperationsClient class.
      * 
      * @param serviceClient the service client implementation.
      */
     @Generated
-    HierarchyBuildingClient(HierarchyBuildingClientImpl serviceClient) {
+    AnimalOperationsClient(AnimalOperationsImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
 
     /**
-     * Update a pet.
+     * Update a pet as an animal.
      * <p><strong>Request Body Schema</strong></p>
      * 
      * <pre>
@@ -70,12 +70,12 @@ public final class HierarchyBuildingClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> updatePetWithResponse(BinaryData animal, RequestOptions requestOptions) {
-        return this.serviceClient.updatePetWithResponse(animal, requestOptions);
+    public Response<BinaryData> updatePetAsAnimalWithResponse(BinaryData animal, RequestOptions requestOptions) {
+        return this.serviceClient.updatePetAsAnimalWithResponse(animal, requestOptions);
     }
 
     /**
-     * Update a dog.
+     * Update a dog as an animal.
      * <p><strong>Request Body Schema</strong></p>
      * 
      * <pre>
@@ -108,12 +108,12 @@ public final class HierarchyBuildingClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> updateDogWithResponse(BinaryData animal, RequestOptions requestOptions) {
-        return this.serviceClient.updateDogWithResponse(animal, requestOptions);
+    public Response<BinaryData> updateDogAsAnimalWithResponse(BinaryData animal, RequestOptions requestOptions) {
+        return this.serviceClient.updateDogAsAnimalWithResponse(animal, requestOptions);
     }
 
     /**
-     * Update a pet.
+     * Update a pet as an animal.
      * 
      * @param animal The animal parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -126,14 +126,15 @@ public final class HierarchyBuildingClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Animal updatePet(Animal animal) {
-        // Generated convenience method for updatePetWithResponse
+    public Animal updatePetAsAnimal(Animal animal) {
+        // Generated convenience method for updatePetAsAnimalWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return updatePetWithResponse(BinaryData.fromObject(animal), requestOptions).getValue().toObject(Animal.class);
+        return updatePetAsAnimalWithResponse(BinaryData.fromObject(animal), requestOptions).getValue()
+            .toObject(Animal.class);
     }
 
     /**
-     * Update a dog.
+     * Update a dog as an animal.
      * 
      * @param animal The animal parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -146,9 +147,10 @@ public final class HierarchyBuildingClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Animal updateDog(Animal animal) {
-        // Generated convenience method for updateDogWithResponse
+    public Animal updateDogAsAnimal(Animal animal) {
+        // Generated convenience method for updateDogAsAnimalWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return updateDogWithResponse(BinaryData.fromObject(animal), requestOptions).getValue().toObject(Animal.class);
+        return updateDogAsAnimalWithResponse(BinaryData.fromObject(animal), requestOptions).getValue()
+            .toObject(Animal.class);
     }
 }

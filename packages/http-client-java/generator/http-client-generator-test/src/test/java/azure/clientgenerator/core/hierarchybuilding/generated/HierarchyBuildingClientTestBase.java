@@ -8,8 +8,10 @@ package azure.clientgenerator.core.hierarchybuilding.generated;
 // If you wish to modify these files, please copy them out of the 'generated' package, and modify there.
 // See https://aka.ms/azsdk/dpg/java/tests for guide on adding a test.
 
-import azure.clientgenerator.core.hierarchybuilding.HierarchyBuildingClient;
+import azure.clientgenerator.core.hierarchybuilding.AnimalOperationsClient;
+import azure.clientgenerator.core.hierarchybuilding.DogOperationsClient;
 import azure.clientgenerator.core.hierarchybuilding.HierarchyBuildingClientBuilder;
+import azure.clientgenerator.core.hierarchybuilding.PetOperationsClient;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
@@ -17,18 +19,40 @@ import com.azure.core.test.TestProxyTestBase;
 import com.azure.core.util.Configuration;
 
 class HierarchyBuildingClientTestBase extends TestProxyTestBase {
-    protected HierarchyBuildingClient hierarchyBuildingClient;
+    protected AnimalOperationsClient animalOperationsClient;
+
+    protected PetOperationsClient petOperationsClient;
+
+    protected DogOperationsClient dogOperationsClient;
 
     @Override
     protected void beforeTest() {
-        HierarchyBuildingClientBuilder hierarchyBuildingClientbuilder = new HierarchyBuildingClientBuilder()
+        HierarchyBuildingClientBuilder animalOperationsClientbuilder = new HierarchyBuildingClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
             .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {
-            hierarchyBuildingClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
+            animalOperationsClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
-        hierarchyBuildingClient = hierarchyBuildingClientbuilder.buildClient();
+        animalOperationsClient = animalOperationsClientbuilder.buildAnimalOperationsClient();
+
+        HierarchyBuildingClientBuilder petOperationsClientbuilder = new HierarchyBuildingClientBuilder()
+            .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
+            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
+        if (getTestMode() == TestMode.RECORD) {
+            petOperationsClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
+        }
+        petOperationsClient = petOperationsClientbuilder.buildPetOperationsClient();
+
+        HierarchyBuildingClientBuilder dogOperationsClientbuilder = new HierarchyBuildingClientBuilder()
+            .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
+            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
+        if (getTestMode() == TestMode.RECORD) {
+            dogOperationsClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
+        }
+        dogOperationsClient = dogOperationsClientbuilder.buildDogOperationsClient();
 
     }
 }
