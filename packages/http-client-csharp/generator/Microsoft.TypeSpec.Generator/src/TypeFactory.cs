@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Text.Json;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -55,6 +56,7 @@ namespace Microsoft.TypeSpec.Generator
                 "System.BinaryData" => typeof(BinaryData),
                 "System.Uri" => typeof(Uri),
                 "System.Text.Json.JsonElement" => typeof(JsonElement),
+                "System.Net.IPAddress" => typeof(IPAddress),
                 _ => Type.GetType(fullyQualifiedTypeName)
             };
         }
