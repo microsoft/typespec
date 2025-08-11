@@ -228,7 +228,7 @@ class DpgModelSerializer(_ModelSerializer):
         for prop in self.get_properties_to_declare(model):
             if (
                 prop.is_discriminator
-                and (isinstance(prop.type, ConstantType) or isinstance(prop.type, EnumValue))
+                and isinstance(prop.type, (ConstantType, EnumValue))
                 and prop.type.value is not None
             ):
                 discriminator_value_setter.append(f"self.{prop.client_name}={prop.get_declaration()}")
