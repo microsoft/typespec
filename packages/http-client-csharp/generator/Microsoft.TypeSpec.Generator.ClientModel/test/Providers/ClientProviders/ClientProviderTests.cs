@@ -1155,6 +1155,56 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             }
         }
 
+        [Test]
+        public void ListMethodsWithoutWordBoundaryAreNotRenamed()
+        {
+            MockHelpers.LoadMockGenerator();
+
+            var inputOperation = InputFactory.Operation(
+                "listen");
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod("listen", inputOperation);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            foreach (var method in client!.Methods)
+            {
+                Assert.IsTrue(method.Signature.Name.StartsWith("Listen", StringComparison.OrdinalIgnoreCase));
+            }
+
+            foreach (var method in client.RestClient.Methods)
+            {
+                Assert.IsTrue(method.Signature.Name.StartsWith("CreateListen", StringComparison.OrdinalIgnoreCase));
+            }
+        }
+
+        [Test]
+        public void ListMethodsWithLowercaseAfterAreNotRenamed()
+        {
+            MockHelpers.LoadMockGenerator();
+
+            var inputOperation = InputFactory.Operation(
+                "Listing");
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod("Listing", inputOperation);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            foreach (var method in client!.Methods)
+            {
+                Assert.IsTrue(method.Signature.Name.StartsWith("Listing", StringComparison.OrdinalIgnoreCase));
+            }
+
+            foreach (var method in client.RestClient.Methods)
+            {
+                Assert.IsTrue(method.Signature.Name.StartsWith("CreateListing", StringComparison.OrdinalIgnoreCase));
+            }
+        }
+
         private static InputClient GetEnumQueryParamClient()
         {
             return InputFactory.Client(
