@@ -107,10 +107,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 Validation = EnumUnderlyingType.IsValueType ? ParameterValidationType.None : ParameterValidationType.AssertNotNull
             };
             var signature = new ConstructorSignature(
-                Type: Type,
-                Description: $"Initializes a new instance of {Type:C}.",
-                Modifiers: MethodSignatureModifiers.Public,
-                Parameters: [valueParameter]);
+                type: Type,
+                description: $"Initializes a new instance of {Type:C}.",
+                modifiers: MethodSignatureModifiers.Public,
+                parameters: [valueParameter]);
 
             var valueField = (ValueExpression)_valueField;
             var body = new MethodBodyStatement[]

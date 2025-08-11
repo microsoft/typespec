@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Primitives;
 
@@ -165,6 +166,7 @@ namespace Microsoft.TypeSpec.Generator
                 // Special case for types that would not be defined in corlib, but should still be considered framework types.
                 "System.BinaryData" => typeof(BinaryData),
                 "System.Uri" => typeof(Uri),
+                "System.Text.Json.JsonElement" => typeof(JsonElement),
                 _ => Type.GetType(fullyQualifiedName)
             };
         }

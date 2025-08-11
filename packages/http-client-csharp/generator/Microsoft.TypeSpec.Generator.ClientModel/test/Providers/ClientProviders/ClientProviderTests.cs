@@ -1554,7 +1554,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                     "ModelWithHeader",
                                     properties:
                                     [
-                                        InputFactory.HeaderParameter("foo", InputPrimitiveType.String, isRequired: true),
+                                        InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true, isHttpMetadata: true),
                                         InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
                                     ]),
                                 location: InputRequestLocation.Body,
@@ -1569,7 +1569,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                 "ModelWithHeader",
                                 properties:
                                 [
-                                    InputFactory.HeaderParameter("foo", InputPrimitiveType.String, isRequired: true),
+                                    InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true, isHttpMetadata: true),
                                     InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
                                 ]),
                             location: InputRequestLocation.Body, isRequired: true)]
@@ -1588,7 +1588,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                     "ModelWithQuery",
                                     properties:
                                     [
-                                        InputFactory.QueryParameter("foo", InputPrimitiveType.String, isRequired: true),
+                                        InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true, isHttpMetadata: true),
                                         InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
                                     ]),
                                 location: InputRequestLocation.Body,
@@ -1603,7 +1603,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                 "ModelWithQuery",
                                 properties:
                                 [
-                                    InputFactory.QueryParameter("foo", InputPrimitiveType.String, isRequired: true),
+                                    InputFactory.Property("foo", InputPrimitiveType.String, isRequired : true, isHttpMetadata : true),
                                     InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
                                 ]),
                             location: InputRequestLocation.Body, isRequired: true)]
@@ -1622,7 +1622,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                     "ModelWithPathParam",
                                     properties:
                                     [
-                                        InputFactory.QueryParameter("foo", InputPrimitiveType.String, isRequired: true),
+                                        InputFactory.Property("foo", InputPrimitiveType.String, isRequired : true, isHttpMetadata : true),
                                         InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
                                     ]),
                                 location: InputRequestLocation.Body,
@@ -1637,7 +1637,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                 "ModelWithPathParam",
                                 properties:
                                 [
-                                    InputFactory.QueryParameter("foo", InputPrimitiveType.String, isRequired: true),
+                                    InputFactory.Property("foo", InputPrimitiveType.String, isRequired : true, isHttpMetadata : true),
                                     InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
                                 ]),
                             location: InputRequestLocation.Body, isRequired: true)]
@@ -1656,9 +1656,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                     "ModelWithMixedParams",
                                     properties:
                                     [
-                                        InputFactory.PathParameter("cat", InputPrimitiveType.String, isRequired: true),
-                                        InputFactory.QueryParameter("dog", InputPrimitiveType.String, isRequired: true),
-                                        InputFactory.HeaderParameter("bird", InputPrimitiveType.String, isRequired: true),
+                                        InputFactory.Property("cat", InputPrimitiveType.String, isRequired: true, isHttpMetadata: true),
+                                        InputFactory.Property("dog", InputPrimitiveType.String, isRequired : true, isHttpMetadata : true),
+                                        InputFactory.Property("bird", InputPrimitiveType.String, isRequired : true, isHttpMetadata : true),
                                         InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
                                     ]),
                                 location: InputRequestLocation.Body,
@@ -1675,9 +1675,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                 "ModelWithPathParam",
                                 properties:
                                 [
-                                    InputFactory.PathParameter("cat", InputPrimitiveType.String, isRequired: true),
-                                    InputFactory.QueryParameter("dog", InputPrimitiveType.String, isRequired: true),
-                                    InputFactory.HeaderParameter("bird", InputPrimitiveType.String, isRequired: true),
+                                    InputFactory.Property("cat", InputPrimitiveType.String, isRequired : true, isHttpMetadata : true),
+                                    InputFactory.Property("dog", InputPrimitiveType.String, isRequired : true, isHttpMetadata : true),
+                                    InputFactory.Property("bird", InputPrimitiveType.String, isRequired : true, isHttpMetadata : true),
                                 ]),
                             location: InputRequestLocation.Body, isRequired: true)]
                     )).SetProperty("caseName", "WithMixedParametersInRequestBody");

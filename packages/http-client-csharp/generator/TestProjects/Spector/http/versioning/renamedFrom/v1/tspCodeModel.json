@@ -171,7 +171,8 @@
             "json": {
               "name": "oldProp"
             }
-          }
+          },
+          "isHttpMetadata": false
         },
         {
           "$id": "18",
@@ -191,7 +192,8 @@
             "json": {
               "name": "enumProp"
             }
-          }
+          },
+          "isHttpMetadata": false
         },
         {
           "$id": "19",
@@ -238,7 +240,8 @@
             "json": {
               "name": "unionProp"
             }
-          }
+          },
+          "isHttpMetadata": false
         }
       ]
     }
@@ -408,14 +411,14 @@
             {
               "$id": "35",
               "name": "contentType",
-              "nameInRequest": "contentType",
+              "nameInRequest": "Content-Type",
               "doc": "Body parameter's content type. Known values are application/json",
               "type": {
                 "$ref": "7"
               },
               "location": "Header",
               "isApiVersion": false,
-              "isContentType": false,
+              "isContentType": true,
               "isEndpoint": false,
               "explode": false,
               "isRequired": true,
@@ -426,7 +429,7 @@
             {
               "$id": "36",
               "name": "accept",
-              "nameInRequest": "accept",
+              "nameInRequest": "Accept",
               "type": {
                 "$ref": "9"
               },
@@ -629,14 +632,14 @@
                 {
                   "$id": "48",
                   "name": "contentType",
-                  "nameInRequest": "contentType",
+                  "nameInRequest": "Content-Type",
                   "doc": "Body parameter's content type. Known values are application/json",
                   "type": {
                     "$ref": "11"
                   },
                   "location": "Header",
                   "isApiVersion": false,
-                  "isContentType": false,
+                  "isContentType": true,
                   "isEndpoint": false,
                   "explode": false,
                   "isRequired": true,
@@ -647,7 +650,7 @@
                 {
                   "$id": "49",
                   "name": "accept",
-                  "nameInRequest": "accept",
+                  "nameInRequest": "Accept",
                   "type": {
                     "$ref": "13"
                   },

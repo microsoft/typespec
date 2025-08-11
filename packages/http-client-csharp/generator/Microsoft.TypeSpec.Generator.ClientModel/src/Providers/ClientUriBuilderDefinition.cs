@@ -87,10 +87,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override ConstructorProvider[] BuildConstructors()
         {
             var signature = new ConstructorSignature(
-                Type: Type,
-                Modifiers: MethodSignatureModifiers.Public,
-                Parameters: Array.Empty<ParameterProvider>(),
-                Description: null);
+                type: Type,
+                modifiers: MethodSignatureModifiers.Public,
+                parameters: Array.Empty<ParameterProvider>(),
+                description: null);
             return [new ConstructorProvider(signature, MethodBodyStatement.Empty, this, XmlDocProvider.Empty)];
         }
 

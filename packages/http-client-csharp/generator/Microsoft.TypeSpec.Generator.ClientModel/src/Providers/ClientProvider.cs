@@ -391,7 +391,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                 false,
                                 p.Type is InputNullableType,
                                 false,
-                                p.NameInRequest));
+                                p.NameInRequest,
+                                false));
                         if (p.IsApiVersion)
                         {
                             _apiVersionField = field;
@@ -613,7 +614,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 _publicCtorDescription,
                 modifier,
                 secondaryConstructorParameters,
-                Initializer: primaryCtorInitializer);
+                initializer: primaryCtorInitializer);
 
             return new ConstructorProvider(
                 constructorSignature,

@@ -1,5 +1,40 @@
 # Change Log - @typespec/http-client-python
 
+## 0.15.1
+
+### Bump dependencies
+
+- [#7968](https://github.com/microsoft/typespec/pull/7968) Adopt latest TCGC.
+- [#8135](https://github.com/microsoft/typespec/pull/8135) Bump tsp packages to 1.3.0 and 0.59.0
+
+### Bug Fixes
+
+- [#7911](https://github.com/microsoft/typespec/pull/7911) [python] don't fail on response body consumption in `_failsafe_deserialize`
+- [#8124](https://github.com/microsoft/typespec/pull/8124) Don't include folder suffixes in documentation generated with `generation-subdir`
+- [#8114](https://github.com/microsoft/typespec/pull/8114) Exclude doc folder in pyproject.toml
+
+
+## 0.15.0
+
+### Features
+
+- [#7829](https://github.com/microsoft/typespec/pull/7829) Adding pyproject.toml generation and optional keep-setup-py flag
+- [#7994](https://github.com/microsoft/typespec/pull/7994) add `generation-subdir` flag
+
+### Bug Fixes
+
+- [#8070](https://github.com/microsoft/typespec/pull/8070) fix import for error model in multi namespace
+- [#8091](https://github.com/microsoft/typespec/pull/8091) Don't hardcode `emit-cross-language-definition-file` as `true` for azure generations
+- [#8006](https://github.com/microsoft/typespec/pull/8006) Ensure necessary typing imports for internal models
+
+
+## 0.14.2
+
+### Bug Fixes
+
+- [#8058](https://github.com/microsoft/typespec/pull/8058) fix outputfolder of packaging files for arm sdk
+
+
 ## 0.14.1
 
 ### Bump dependencies
