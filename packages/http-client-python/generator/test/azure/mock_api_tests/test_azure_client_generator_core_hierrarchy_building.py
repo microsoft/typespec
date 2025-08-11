@@ -6,7 +6,6 @@
 import pytest
 from specs.azure.clientgenerator.core.hierarchybuilding import HierarchyBuildingClient
 from specs.azure.clientgenerator.core.hierarchybuilding.models import (
-    Animal,
     Pet,
     Dog,
 )
