@@ -95,6 +95,10 @@ describe.each(ImportCasesConfigList)("ImportTypespecFromOpenApi3", async (item) 
     app.close();
     try {
       execSync("git restore ./package.json", { stdio: "inherit" });
+    } catch (e) {
+      process.exit(1);
+    }
+    try {
       execSync("git restore ../../pnpm-lock.yaml", { stdio: "inherit" });
     } catch (e) {
       process.exit(1);
