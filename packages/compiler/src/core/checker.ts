@@ -15,7 +15,7 @@ import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-
 import { explainStringTemplateNotSerializable } from "./helpers/string-template-utils.js";
 import { typeReferenceToString } from "./helpers/syntax-utils.js";
 import { getEntityName, getTypeName } from "./helpers/type-name-utils.js";
-import { marshallTypeForJS, unmarshalJsToValue } from "./js-marshaller.js";
+import { marshalTypeForJs, unmarshalJsToValue } from "./js-marshaller.js";
 import { createDiagnostic } from "./messages.js";
 import { NameResolver } from "./name-resolver.js";
 import { Numeric } from "./numeric.js";
@@ -4479,7 +4479,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         resolvedArgs.push(
           ...restArgs.map((v) =>
             v !== null && isValue(v)
-              ? marshallTypeForJS(v, undefined, function onUnknown() {
+              ? marshalTypeForJs(v, undefined, function onUnknown() {
                   // TODO: diagnostic for unknown value
                 })
               : v,
@@ -4527,7 +4527,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         resolvedArgs.push(
           resolved
             ? isValue(resolved)
-              ? marshallTypeForJS(resolved, undefined, function onUnknown() {
+              ? marshalTypeForJs(resolved, undefined, function onUnknown() {
                   // TODO: diagnostic for unknown value
                 })
               : resolved
@@ -5428,7 +5428,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   ) {
     if (valueConstraint !== undefined) {
       if (isValue(value)) {
-        return marshallTypeForJS(value, valueConstraint.type, function onUnknown() {
+        return marshalTypeForJs(value, valueConstraint.type, function onUnknown() {
           reportCheckerDiagnostic(
             createDiagnostic({
               code: "unknown-value",

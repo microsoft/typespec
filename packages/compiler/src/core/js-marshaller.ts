@@ -15,7 +15,7 @@ import type {
   Value,
 } from "./types.js";
 
-export function marshallTypeForJS<T extends Value>(
+export function marshalTypeForJs<T extends Value>(
   value: T,
   valueConstraint: Type | undefined,
   onUnknown: (value: UnknownValue) => void,
@@ -89,12 +89,12 @@ function objectValueToJs(
 ): Record<string, unknown> {
   const result: Record<string, unknown> = {};
   for (const [key, value] of type.properties) {
-    result[key] = marshallTypeForJS(value.value, undefined, onUnknown);
+    result[key] = marshalTypeForJs(value.value, undefined, onUnknown);
   }
   return result;
 }
 function arrayValueToJs(type: ArrayValue, onUnknown: (value: UnknownValue) => void) {
-  return type.values.map((x) => marshallTypeForJS(x, undefined, onUnknown));
+  return type.values.map((x) => marshalTypeForJs(x, undefined, onUnknown));
 }
 
 export function unmarshalJsToValue(

@@ -242,8 +242,6 @@ export const $decorators = {
   },
 };
 
-export { $functions } from "./lib/tsp-index.js";
-
 export {
   ensureTrailingDirectorySeparator,
   getAnyExtensionFromPath,

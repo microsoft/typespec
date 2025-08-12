@@ -122,8 +122,8 @@ describe("compiler: checker: functions", () => {
           calledArgs = [program, a, b, ...rest];
           return a; // Return first arg
         },
-        sum(program: Program, ...nums: number[]) {
-          return nums.reduce((a, b) => a + b, 0);
+        sum(program: Program, ...addends: number[]) {
+          return addends.reduce((a, b) => a + b, 0);
         },
         valFirst(program: Program, v: any) {
           return v;
@@ -166,9 +166,10 @@ describe("compiler: checker: functions", () => {
     });
 
     it("allows zero args for rest-only", async () => {
-      await runner.compile(
-        `extern fn sum(...nums: valueof int32[]): valueof int32; const S = sum();`,
+      const diagnostics = await runner.diagnose(
+        `extern fn sum(...addends: valueof int32[]): valueof int32; const S = sum();`,
       );
+      expectDiagnostics(diagnostics, []);
     });
 
     it("errors if not enough args", async () => {

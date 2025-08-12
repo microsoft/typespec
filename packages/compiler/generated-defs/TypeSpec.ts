@@ -8,7 +8,6 @@ import type {
   Namespace,
   Numeric,
   Operation,
-  Program,
   Scalar,
   Type,
   Union,
@@ -1156,13 +1155,4 @@ export type TypeSpecDecorators = {
   defaultVisibility: DefaultVisibilityDecorator;
   withVisibilityFilter: WithVisibilityFilterDecorator;
   withLifecycleUpdate: WithLifecycleUpdateDecorator;
-};
-
-export type Example2FunctionImplementation = (program: Program, T: Type) => Type;
-
-export type Foo2FunctionImplementation = (program: Program, v: string) => string;
-
-export type TypeSpecFunctions = {
-  example2: Example2FunctionImplementation;
-  foo2: Foo2FunctionImplementation;
 };
