@@ -151,7 +151,7 @@ class JinjaSerializer(ReaderAndWriter):
                 # write apiview-properties.json
                 if self.code_model.options.get("emit-cross-language-definition-file"):
                     self.write_file(
-                        generation_path / Path("apiview-properties.json"),
+                        self._root_of_sdk / Path("apiview-properties.json"),
                         general_serializer.serialize_cross_language_definition_file(),
                     )
 
@@ -165,7 +165,7 @@ class JinjaSerializer(ReaderAndWriter):
                 # add _metadata.json
                 if self.code_model.metadata:
                     self.write_file(
-                        Path("./_metadata.json"),
+                        self._root_of_sdk / "_metadata.json",
                         json.dumps(self.code_model.metadata, indent=2),
                     )
             elif client_namespace_type.clients:
@@ -526,7 +526,7 @@ class JinjaSerializer(ReaderAndWriter):
         namespace_config = get_namespace_config(self.code_model.namespace, self.code_model.options["multiapi"])
         num_of_namespace = namespace_config.count(".") + 1
         num_of_package_namespace = (
-            get_namespace_from_package_name(self.code_model.options.get("namespace", "")).count(".") + 1
+            get_namespace_from_package_name(self.code_model.options.get("package-name", "")).count(".") + 1
         )
         if num_of_namespace > num_of_package_namespace:
             return Path("/".join(namespace_config.split(".")[num_of_package_namespace:]))
