@@ -88,11 +88,7 @@ version = {attr = "{{ code_model.namespace|lower }}._version.VERSION"}
 version = {attr = "{{ options.get('package-name')|lower|replace('-', '.') }}._version.VERSION"}
     {% endif %}
 {% endif %}
-{% if options.get("azure-arm") %}
 readme = {file = ["README.md", "CHANGELOG.md"], content-type = "text/markdown"}
-{% else %}
-readme = {file = ["README.md"], content-type = "text/markdown"}
-{% endif %}
 {% if options.get('package-mode') %}
 
 [tool.setuptools.packages.find]
