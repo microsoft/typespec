@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
@@ -78,10 +79,23 @@ public class JsonMergePatchHelperTemplate implements IJavaTemplate<List<ClientMo
                 continue;
             }
 
+            if (model.isPolymorphic() && CoreUtils.isNullOrEmpty(model.getDerivedModels())) {
+                // Only polymorphic parent models generate an accessor.
+                // If it is the super most parent model, it will generate the prepareModelForJsonMergePatch method.
+                // Other parents need to generate setters for the properties that are used in json-merge-patch, used in
+                // deserialization to prevent these properties from always being included in serialization.
+                continue;
+            }
+
             List<ClientModelProperty> setterProperties = model.getProperties()
                 .stream()
                 .filter(property -> !property.isConstant() && !property.isPolymorphicDiscriminator())
                 .collect(Collectors.toList());
+
+            if (!CoreUtils.isNullOrEmpty(model.getParentModelName()) && setterProperties.isEmpty()) {
+                // Model isn't the root parent and doesn't have any setter properties, no need to generate an accessor.
+                continue;
+            }
 
             String modelName = model.getName();
             String camelModelName = CodeNamer.toCamelCase(modelName);
@@ -91,14 +105,14 @@ public class JsonMergePatchHelperTemplate implements IJavaTemplate<List<ClientMo
 
             // Accessor interface declaration.
             javaClass.interfaceBlock(JavaVisibility.Public, modelName + "Accessor", interfaceBlock -> {
+                if (CoreUtils.isNullOrEmpty(model.getParentModelName())) {
+                    // Only the super most parent model generates the prepareModelForJsonMergePatch method.
+                    interfaceBlock.publicMethod(modelName + " prepareModelForJsonMergePatch(" + modelName + " "
+                        + camelModelName + ", boolean jsonMergePatchEnabled)");
 
-                interfaceBlock.publicMethod(modelName + " prepareModelForJsonMergePatch(" + modelName + " "
-                    + camelModelName + ", boolean jsonMergePatchEnabled)");
+                    interfaceBlock.publicMethod("boolean isJsonMergePatch(" + modelName + " " + camelModelName + ")");
+                }
 
-                interfaceBlock.publicMethod("boolean isJsonMergePatch(" + modelName + " " + camelModelName + ")");
-
-                // only generate setters for polymorphic parent models' properties which are not constant or
-                // discriminator.
                 if (model.isPolymorphicParent()) {
                     String modelNameParameter
                         = model.getName().substring(0, 1).toLowerCase(Locale.ROOT) + model.getName().substring(1);
