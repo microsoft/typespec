@@ -10,13 +10,11 @@ namespace Sample
     {
         internal global::System.ClientModel.Primitives.PipelineMessage CreateSingleServiceMethodInputClientOperationRequest(string accept, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage();
-            message.ResponseClassifier = PipelineMessageClassifier200;
-            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
-            request.Method = "GET";
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
-            request.Uri = uri.ToUri();
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            message.ResponseClassifier = PipelineMessageClassifier200;
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("accept", accept);
             message.Apply(options);
             return message;
