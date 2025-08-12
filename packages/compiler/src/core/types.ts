@@ -15,6 +15,7 @@ Value extends StringValue ? string
   : Value extends EnumValue ? EnumMember
   : Value extends NullValue ? null
   : Value extends ScalarValue ? Value
+  : Value extends UnknownValue ? null
   : Value
 
 /**
@@ -171,7 +172,8 @@ export interface IndeterminateEntity {
     | BooleanLiteral
     | EnumMember
     | UnionVariant
-    | NullType;
+    | NullType
+    | UnknownType;
 }
 
 export interface IntrinsicType extends BaseType {
@@ -325,7 +327,8 @@ export type Value =
   | ObjectValue
   | ArrayValue
   | EnumValue
-  | NullValue;
+  | NullValue
+  | UnknownValue;
 
 /** @internal */
 export type ValueWithTemplate = Value | TemplateValue;
@@ -391,6 +394,9 @@ export interface EnumValue extends BaseValue {
 export interface NullValue extends BaseValue {
   valueKind: "NullValue";
   value: null;
+}
+export interface UnknownValue extends BaseValue {
+  valueKind: "UnknownValue";
 }
 
 /**
@@ -706,7 +712,7 @@ export interface FunctionType extends BaseType {
   namespace?: Namespace;
   parameters: MixedFunctionParameter[];
   returnType: MixedParameterConstraint;
-  implementation: (...args: unknown[]) => Type | Value;
+  implementation: (...args: unknown[]) => unknown;
 }
 
 export interface FunctionParameterBase extends BaseType {

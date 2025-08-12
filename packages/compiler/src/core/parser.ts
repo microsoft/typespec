@@ -2083,7 +2083,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
     let foundOptional = false;
     for (const [index, item] of parameters.items.entries()) {
-      if (!item.optional && foundOptional) {
+      if (!(item.optional || item.rest) && foundOptional) {
         error({ code: "required-parameter-first", target: item });
         continue;
       }

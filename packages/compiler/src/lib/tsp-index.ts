@@ -135,6 +135,9 @@ export const $functions = {
         $(program).tuple.create([$(program).literal.create(COUNTER++), t]),
       );
     },
+    foo2(_: Program, v: string): string {
+      return v + "_PROCESSED";
+    },
   },
 };
 

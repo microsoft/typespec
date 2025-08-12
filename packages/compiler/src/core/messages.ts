@@ -1015,6 +1015,16 @@ const diagnostics = {
     },
   },
 
+  "unknown-value": {
+    severity: "error",
+    messages: {
+      default: "The 'unknown' value cannot be used here.",
+      "in-json": "The 'unknown' value cannot be serialized to JSON.",
+      "in-js-argument":
+        "The 'unknown' value cannot be used as an argument to a function or decorator.",
+    },
+  },
+
   // #region Visibility
   "visibility-sealed": {
     severity: "error",
