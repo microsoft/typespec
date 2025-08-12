@@ -25,7 +25,6 @@ const argv = parseArgs({
 const SKIP_SPECS = [
   "type/union/discriminated",
   "client-operation-group",
-  "azure/client-generator-core/api-version",
   "azure/client-generator-core/hierarchy-building",
 ];
 
