@@ -43,27 +43,8 @@ public class Shark extends Fish {
     @Generated
     private final Set<String> updatedProperties = new HashSet<>();
 
-    @Generated
-    private boolean jsonMergePatch;
-
-    @Generated
-    private void serializeAsJsonMergePatch(boolean jsonMergePatch) {
-        this.jsonMergePatch = jsonMergePatch;
-    }
-
     static {
         JsonMergePatchHelper.setSharkAccessor(new JsonMergePatchHelper.SharkAccessor() {
-            @Override
-            public Shark prepareModelForJsonMergePatch(Shark model, boolean jsonMergePatchEnabled) {
-                model.serializeAsJsonMergePatch(jsonMergePatchEnabled);
-                return model;
-            }
-
-            @Override
-            public boolean isJsonMergePatch(Shark model) {
-                return model.jsonMergePatch;
-            }
-
             @Override
             public void setWeight(Shark model, Integer weight) {
                 model.weight = weight;

@@ -37,29 +37,6 @@ public final class SawShark extends Shark {
     @Generated
     private final Set<String> updatedProperties = new HashSet<>();
 
-    @Generated
-    private boolean jsonMergePatch;
-
-    @Generated
-    private void serializeAsJsonMergePatch(boolean jsonMergePatch) {
-        this.jsonMergePatch = jsonMergePatch;
-    }
-
-    static {
-        JsonMergePatchHelper.setSawSharkAccessor(new JsonMergePatchHelper.SawSharkAccessor() {
-            @Override
-            public SawShark prepareModelForJsonMergePatch(SawShark model, boolean jsonMergePatchEnabled) {
-                model.serializeAsJsonMergePatch(jsonMergePatchEnabled);
-                return model;
-            }
-
-            @Override
-            public boolean isJsonMergePatch(SawShark model) {
-                return model.jsonMergePatch;
-            }
-        });
-    }
-
     /**
      * Creates an instance of SawShark class.
      */

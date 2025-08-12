@@ -437,11 +437,11 @@ public final class PatchClient {
     public Salmon createOrUpdateSalmon(Salmon fish) {
         // Generated convenience method for createOrUpdateSalmonWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        JsonMergePatchHelper.getSalmonAccessor().prepareModelForJsonMergePatch(fish, true);
+        JsonMergePatchHelper.getFishAccessor().prepareModelForJsonMergePatch(fish, true);
         BinaryData fishInBinaryData = BinaryData.fromObject(fish);
         // BinaryData.fromObject() will not fire serialization, use getLength() to fire serialization.
         fishInBinaryData.getLength();
-        JsonMergePatchHelper.getSalmonAccessor().prepareModelForJsonMergePatch(fish, false);
+        JsonMergePatchHelper.getFishAccessor().prepareModelForJsonMergePatch(fish, false);
         return createOrUpdateSalmonWithResponse(fishInBinaryData, requestOptions).getValue().toObject(Salmon.class);
     }
 }

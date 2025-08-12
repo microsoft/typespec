@@ -52,29 +52,6 @@ public final class Salmon extends Fish {
     @Generated
     private final Set<String> updatedProperties = new HashSet<>();
 
-    @Generated
-    private boolean jsonMergePatch;
-
-    @Generated
-    private void serializeAsJsonMergePatch(boolean jsonMergePatch) {
-        this.jsonMergePatch = jsonMergePatch;
-    }
-
-    static {
-        JsonMergePatchHelper.setSalmonAccessor(new JsonMergePatchHelper.SalmonAccessor() {
-            @Override
-            public Salmon prepareModelForJsonMergePatch(Salmon model, boolean jsonMergePatchEnabled) {
-                model.serializeAsJsonMergePatch(jsonMergePatchEnabled);
-                return model;
-            }
-
-            @Override
-            public boolean isJsonMergePatch(Salmon model) {
-                return model.jsonMergePatch;
-            }
-        });
-    }
-
     /**
      * Creates an instance of Salmon class.
      */
