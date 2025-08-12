@@ -1151,7 +1151,57 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             foreach (var method in client.RestClient.Methods)
             {
-                Assert.IsTrue(method.Signature.Name.StartsWith("CreateGet", StringComparison.OrdinalIgnoreCase));
+                Assert.IsTrue(method.Signature.Name.Equals("CreateGetCatsRequest", StringComparison.OrdinalIgnoreCase));
+            }
+        }
+
+        [Test]
+        public void ListMethodIsRenamedToGetAll()
+        {
+            MockHelpers.LoadMockGenerator();
+
+            var inputOperation = InputFactory.Operation(
+                "List");
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod("List", inputOperation);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            foreach (var method in client!.Methods)
+            {
+                Assert.IsTrue(method.Signature.Name.StartsWith("GetAll", StringComparison.OrdinalIgnoreCase));
+            }
+
+            foreach (var method in client.RestClient.Methods)
+            {
+                Assert.IsTrue(method.Signature.Name.Equals("CreateGetAllRequest", StringComparison.OrdinalIgnoreCase));
+            }
+        }
+
+        [Test]
+        public void MethodStartingWithListIsNotRenamedIfNotFullWord()
+        {
+            MockHelpers.LoadMockGenerator();
+
+            var inputOperation = InputFactory.Operation(
+                "Listen");
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod("Listen", inputOperation);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            foreach (var method in client!.Methods)
+            {
+                Assert.IsTrue(method.Signature.Name.StartsWith("Listen", StringComparison.OrdinalIgnoreCase));
+            }
+
+            foreach (var method in client.RestClient.Methods)
+            {
+                Assert.IsTrue(method.Signature.Name.Equals("CreateListenRequest", StringComparison.OrdinalIgnoreCase));
             }
         }
 

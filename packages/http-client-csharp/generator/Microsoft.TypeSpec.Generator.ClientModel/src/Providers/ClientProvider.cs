@@ -193,10 +193,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var operationName = serviceMethod.Operation.Name.ToIdentifierName();
             // Replace List with Get as .NET convention is to use Get for list operations.
-            if (operationName.StartsWith("List", StringComparison.Ordinal))
+            if (operationName == "List")
             {
-                operationName = $"Get{operationName.Substring(4)}";
+                return "GetAll";
             }
+            if (operationName.StartsWith("List", StringComparison.Ordinal) &&
+                operationName.Length > 4 && char.IsUpper(operationName[4]))
+            {
+                // If the operation name starts with List and has a capital letter after it, we replace List with Get.
+                return $"Get{operationName.Substring(4)}";
+            }
+
             return operationName;
         }
 

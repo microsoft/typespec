@@ -1,6 +1,6 @@
 {
   "name": "typespec-vscode",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec language support for VS Code",
   "homepage": "https://typespec.io",
@@ -268,7 +268,7 @@
     "package-vsix": "vsce package",
     "deploy": "vsce publish",
     "open-in-browser": "vscode-test-web --extensionDevelopmentPath=. .",
-    "test:e2e:skip": "pnpm test:web && pnpm test:extension",
+    "test:e2e": "pnpm test:web && pnpm test:extension",
     "test:web": "vscode-test-web --quality stable --extensionDevelopmentPath=. --headless --extensionTestsPath=dist/test/web/suite.js ./test/web/data",
     "test:extension": "vitest run --root test/extension"
   },

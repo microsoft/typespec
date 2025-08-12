@@ -189,5 +189,33 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             // The BuildX methods should be called again, which will return the original state.
             Assert.AreEqual(1, typeProvider.Methods.Count);
         }
+
+        [Test]
+        public void TestCanUpdateAttributes()
+        {
+            var typeProvider = new TestTypeProvider(name: "OriginalName",
+               methods: [new MethodProvider(
+                    new MethodSignature("TestMethod", $"", MethodSignatureModifiers.Public, null, $"", []),
+                    Snippet.Throw(Snippet.Null), new TestTypeProvider())]);
+            typeProvider.Update(attributes: [
+                    new(typeof(ObsoleteAttribute))
+                ]);
+
+            Assert.IsNotNull(typeProvider.Attributes);
+            Assert.AreEqual(1, typeProvider.Attributes.Count);
+            Assert.AreEqual(new CSharpType(typeof(ObsoleteAttribute)), typeProvider.Attributes[0].Type);
+
+            // now reset and validate
+            typeProvider.Reset();
+            Assert.AreEqual(0, typeProvider.Attributes.Count);
+
+            // re-add the attributes
+            typeProvider.Update(attributes: [
+                new(typeof(ObsoleteAttribute))
+            ]);
+
+            Assert.AreEqual(1, typeProvider.Attributes.Count);
+            Assert.AreEqual(new CSharpType(typeof(ObsoleteAttribute)), typeProvider.Attributes[0].Type);
+        }
     }
 }
