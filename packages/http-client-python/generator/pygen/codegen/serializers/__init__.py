@@ -216,11 +216,17 @@ class JinjaSerializer(ReaderAndWriter):
                     general_serializer.serialize_pkgutil_init_file(),
                 )
 
-    def _serialize_and_write_package_files(self) -> None:
+    # path where README.md is
+    @property
+    def _root_of_sdk(self) -> Path:
         root_of_sdk = Path(".")
         if self.code_model.options["no-namespace-folders"]:
             compensation = Path("../" * (self.code_model.namespace.count(".") + 1))
             root_of_sdk = root_of_sdk / compensation
+        return root_of_sdk
+
+    def _serialize_and_write_package_files(self) -> None:
+        root_of_sdk = self._root_of_sdk
         if self.code_model.options["package-mode"] in VALID_PACKAGE_MODE:
             env = Environment(
                 loader=PackageLoader("pygen.codegen", "templates/packaging_templates"),
@@ -527,7 +533,7 @@ class JinjaSerializer(ReaderAndWriter):
         return Path("")
 
     def _serialize_and_write_sample(self, env: Environment):
-        out_path = Path("./generated_samples")
+        out_path = self._root_of_sdk / "generated_samples"
         for client in self.code_model.clients:
             for op_group in client.operation_groups:
                 for operation in op_group.operations:
@@ -561,7 +567,7 @@ class JinjaSerializer(ReaderAndWriter):
 
     def _serialize_and_write_test(self, env: Environment):
         self.code_model.for_test = True
-        out_path = Path("./generated_tests")
+        out_path = self._root_of_sdk / "generated_tests"
         general_serializer = TestGeneralSerializer(code_model=self.code_model, env=env)
         self.write_file(out_path / "conftest.py", general_serializer.serialize_conftest())
         if not self.code_model.options["azure-arm"]:
