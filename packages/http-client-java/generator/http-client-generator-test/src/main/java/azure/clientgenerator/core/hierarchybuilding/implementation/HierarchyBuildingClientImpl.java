@@ -4,43 +4,17 @@
 
 package azure.clientgenerator.core.hierarchybuilding.implementation;
 
-import com.azure.core.annotation.BodyParam;
-import com.azure.core.annotation.ExpectedResponses;
-import com.azure.core.annotation.HeaderParam;
-import com.azure.core.annotation.Host;
-import com.azure.core.annotation.HostParam;
-import com.azure.core.annotation.Put;
-import com.azure.core.annotation.ReturnType;
-import com.azure.core.annotation.ServiceInterface;
-import com.azure.core.annotation.ServiceMethod;
-import com.azure.core.annotation.UnexpectedResponseExceptionType;
-import com.azure.core.exception.ClientAuthenticationException;
-import com.azure.core.exception.HttpResponseException;
-import com.azure.core.exception.ResourceModifiedException;
-import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.HttpPipeline;
 import com.azure.core.http.HttpPipelineBuilder;
 import com.azure.core.http.policy.RetryPolicy;
 import com.azure.core.http.policy.UserAgentPolicy;
-import com.azure.core.http.rest.RequestOptions;
-import com.azure.core.http.rest.Response;
-import com.azure.core.http.rest.RestProxy;
-import com.azure.core.util.BinaryData;
-import com.azure.core.util.Context;
-import com.azure.core.util.FluxUtil;
 import com.azure.core.util.serializer.JacksonAdapter;
 import com.azure.core.util.serializer.SerializerAdapter;
-import reactor.core.publisher.Mono;
 
 /**
  * Initializes a new instance of the HierarchyBuildingClient type.
  */
 public final class HierarchyBuildingClientImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final HierarchyBuildingClientService service;
-
     /**
      * Service host.
      */
@@ -84,6 +58,48 @@ public final class HierarchyBuildingClientImpl {
     }
 
     /**
+     * The AnimalOperationsImpl object to access its operations.
+     */
+    private final AnimalOperationsImpl animalOperations;
+
+    /**
+     * Gets the AnimalOperationsImpl object to access its operations.
+     * 
+     * @return the AnimalOperationsImpl object.
+     */
+    public AnimalOperationsImpl getAnimalOperations() {
+        return this.animalOperations;
+    }
+
+    /**
+     * The PetOperationsImpl object to access its operations.
+     */
+    private final PetOperationsImpl petOperations;
+
+    /**
+     * Gets the PetOperationsImpl object to access its operations.
+     * 
+     * @return the PetOperationsImpl object.
+     */
+    public PetOperationsImpl getPetOperations() {
+        return this.petOperations;
+    }
+
+    /**
+     * The DogOperationsImpl object to access its operations.
+     */
+    private final DogOperationsImpl dogOperations;
+
+    /**
+     * Gets the DogOperationsImpl object to access its operations.
+     * 
+     * @return the DogOperationsImpl object.
+     */
+    public DogOperationsImpl getDogOperations() {
+        return this.dogOperations;
+    }
+
+    /**
      * Initializes an instance of HierarchyBuildingClient client.
      * 
      * @param endpoint Service host.
@@ -115,213 +131,8 @@ public final class HierarchyBuildingClientImpl {
         this.httpPipeline = httpPipeline;
         this.serializerAdapter = serializerAdapter;
         this.endpoint = endpoint;
-        this.service
-            = RestProxy.create(HierarchyBuildingClientService.class, this.httpPipeline, this.getSerializerAdapter());
-    }
-
-    /**
-     * The interface defining all the services for HierarchyBuildingClient to be used by the proxy service to perform
-     * REST calls.
-     */
-    @Host("{endpoint}")
-    @ServiceInterface(name = "HierarchyBuildingClient")
-    public interface HierarchyBuildingClientService {
-        @Put("/azure/client-generator-core/hierarchy-building/animal/pet")
-        @ExpectedResponses({ 200 })
-        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
-        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
-        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
-        @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Mono<Response<BinaryData>> updatePet(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") BinaryData animal, RequestOptions requestOptions, Context context);
-
-        @Put("/azure/client-generator-core/hierarchy-building/animal/pet")
-        @ExpectedResponses({ 200 })
-        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
-        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
-        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
-        @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Response<BinaryData> updatePetSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") BinaryData animal, RequestOptions requestOptions, Context context);
-
-        @Put("/azure/client-generator-core/hierarchy-building/animal/dog")
-        @ExpectedResponses({ 200 })
-        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
-        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
-        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
-        @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Mono<Response<BinaryData>> updateDog(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") BinaryData animal, RequestOptions requestOptions, Context context);
-
-        @Put("/azure/client-generator-core/hierarchy-building/animal/dog")
-        @ExpectedResponses({ 200 })
-        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
-        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
-        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
-        @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Response<BinaryData> updateDogSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") BinaryData animal, RequestOptions requestOptions, Context context);
-    }
-
-    /**
-     * Update a pet.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String (Required)
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String (Required)
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param animal The animal parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> updatePetWithResponseAsync(BinaryData animal, RequestOptions requestOptions) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return FluxUtil.withContext(
-            context -> service.updatePet(this.getEndpoint(), contentType, accept, animal, requestOptions, context));
-    }
-
-    /**
-     * Update a pet.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String (Required)
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String (Required)
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param animal The animal parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the response body along with {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> updatePetWithResponse(BinaryData animal, RequestOptions requestOptions) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.updatePetSync(this.getEndpoint(), contentType, accept, animal, requestOptions, Context.NONE);
-    }
-
-    /**
-     * Update a dog.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String (Required)
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String (Required)
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param animal The animal parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> updateDogWithResponseAsync(BinaryData animal, RequestOptions requestOptions) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return FluxUtil.withContext(
-            context -> service.updateDog(this.getEndpoint(), contentType, accept, animal, requestOptions, context));
-    }
-
-    /**
-     * Update a dog.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String (Required)
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String (Required)
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param animal The animal parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the response body along with {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> updateDogWithResponse(BinaryData animal, RequestOptions requestOptions) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.updateDogSync(this.getEndpoint(), contentType, accept, animal, requestOptions, Context.NONE);
+        this.animalOperations = new AnimalOperationsImpl(this);
+        this.petOperations = new PetOperationsImpl(this);
+        this.dogOperations = new DogOperationsImpl(this);
     }
 }

@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
+using System.Text.Json;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -44,6 +46,19 @@ namespace Microsoft.TypeSpec.Generator
             type = CreateCSharpTypeCore(inputType);
             TypeCache.Add(inputType, type);
             return type;
+        }
+
+        protected internal virtual Type? CreateFrameworkType(string fullyQualifiedTypeName)
+        {
+            return fullyQualifiedTypeName switch
+            {
+                // Special case for types that would not be defined in corlib, but should still be considered framework types.
+                "System.BinaryData" => typeof(BinaryData),
+                "System.Uri" => typeof(Uri),
+                "System.Text.Json.JsonElement" => typeof(JsonElement),
+                "System.Net.IPAddress" => typeof(IPAddress),
+                _ => Type.GetType(fullyQualifiedTypeName)
+            };
         }
 
         protected virtual CSharpType? CreateCSharpTypeCore(InputType inputType)
