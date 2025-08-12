@@ -25,7 +25,6 @@ const argv = parseArgs({
 const SKIP_SPECS = [
   "type/union/discriminated",
   "client-operation-group",
-  "azure/client-generator-core/api-version",
   "azure/client-generator-core/hierarchy-building",
 ];
 
@@ -116,6 +115,9 @@ const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<stri
   },
   "client/naming": {
     namespace: "client.naming",
+  },
+  "client/overload": {
+    namespace: "client.overload",
   },
   "encode/duration": {
     namespace: "encode.duration",
