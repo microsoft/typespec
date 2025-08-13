@@ -1,0 +1,69 @@
+import { NodeSystemHost } from "../core/node-system-host.js";
+import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
+import { resolveTspMain } from "../utils/misc.js";
+
+export async function resolveEntrypointFile(
+  entrypoints: string[] | undefined,
+  path: string,
+  log: (log: { level: string; message: string; detail?: unknown }) => void,
+): Promise<string> {
+  let dir = getDirectoryPath(path);
+  let packageJsonEntrypoint: string | undefined;
+
+  while (true) {
+    if (entrypoints) {
+      // Check for client provided entrypoints (highest priority)
+      if (entrypoints.length > 0) {
+        entrypoints.push("main.tsp"); // add default entrypoint
+      }
+
+      for (const entrypoint of entrypoints) {
+        const candidate = await existingFile(dir, entrypoint);
+        if (candidate) {
+          log({
+            level: "debug",
+            message: `main file found using client provided entrypoint: ${candidate}`,
+          });
+          return candidate;
+        }
+      }
+    }
+
+    if (!packageJsonEntrypoint) {
+      const pkgPath = joinPaths(dir, "package.json");
+      const content = await NodeSystemHost.readFile(pkgPath);
+      const pkg = JSON.parse(content.text);
+      const tspMain = resolveTspMain(pkg);
+      if (typeof tspMain === "string") {
+        log({
+          level: "debug",
+          message: `tspMain resolved from package.json (${pkgPath}) as ${tspMain}`,
+        });
+        packageJsonEntrypoint = await existingFile(dir, tspMain);
+        if (packageJsonEntrypoint) {
+          log({ level: "debug", message: `main file found as ${packageJsonEntrypoint}` });
+        }
+      }
+    }
+
+    const parentDir = getDirectoryPath(dir);
+    if (parentDir === dir) {
+      break;
+    }
+
+    dir = parentDir;
+  }
+
+  if (packageJsonEntrypoint) {
+    return packageJsonEntrypoint;
+  }
+
+  log({ level: "debug", message: `reached directory root, using ${path} as main file` });
+  return path;
+
+  async function existingFile(dir: string, fileName: string): Promise<string | undefined> {
+    const candidate = joinPaths(dir, fileName);
+    const stat = await NodeSystemHost.stat(candidate);
+    return stat?.isFile() ? candidate : undefined;
+  }
+}
