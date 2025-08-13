@@ -71,7 +71,7 @@
   "devDependencies": {
     "@azure-tools/typespec-autorest": "0.59.0",
     "@azure-tools/typespec-azure-core": "0.59.0",
-    "@azure-tools/typespec-azure-resource-manager": "0.59.0",
+    "@azure-tools/typespec-azure-resource-manager": "0.59.1",
     "@azure-tools/typespec-azure-rulesets": "0.59.0",
     "@azure-tools/typespec-client-generator-core": "0.59.0",
     "@typespec/spector": "0.1.0-alpha.17",
