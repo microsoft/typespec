@@ -175,15 +175,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ];
         }
 
-        private ValueExpression GetPropertyExpression(IReadOnlyList<string> segments, ValueExpression responseExpression)
+        private ValueExpression GetPropertyExpression(IReadOnlyList<string> segments, ValueExpression response)
         {
-            return BuildGetPropertyExpression(segments, responseExpression.CastTo(ResponseModelType));
+            return BuildGetPropertyExpression(segments, response.CastTo(ResponseModelType));
         }
 
-        protected ValueExpression BuildGetPropertyExpression(IReadOnlyList<string> segments, ValueExpression responseModelExpression)
+        protected ValueExpression BuildGetPropertyExpression(IReadOnlyList<string> segments, ValueExpression responseModel)
         {
             TypeProvider model = ResponseModel;
-            ValueExpression getPropertyExpression = responseModelExpression;
+            ValueExpression getPropertyExpression = responseModel;
 
             for (int i = 0; i < segments.Count; i++)
             {
@@ -374,7 +374,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     MethodBodyStatement.EmptyLine,
 
                     // Assign nextLinkUri from the result and check if it is null
-                    AssignAndCheckNextPageVariable(result, nextPageVariable),
+                    AssignAndCheckNextPageVariable(result,result.CastTo(ResponseModelType), nextPageVariable),
 
                     // Update message for next iteration
                     message.Assign(InvokeCreateRequestForNextLink(nextPageVariable)).Terminate()
@@ -413,7 +413,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     MethodBodyStatement.EmptyLine,
 
                     // Assign nextLinkUri from the result and check if it is null
-                    AssignAndCheckNextPageVariable(result, nextTokenVariable),
+                    AssignAndCheckNextPageVariable(result, result.CastTo(ResponseModelType), nextTokenVariable),
 
                     // Update message for next iteration
                     message.Assign(InvokeCreateRequestForContinuationToken(nextTokenVariable)).Terminate()
@@ -440,12 +440,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ];
         }
 
-        protected MethodBodyStatement[] AssignAndCheckNextPageVariable(ClientResponseApi result, VariableExpression nextPage)
+        protected MethodBodyStatement[] AssignAndCheckNextPageVariable(ClientResponseApi result, ValueExpression responseModel, VariableExpression nextPage)
         {
             switch (NextPageLocation)
             {
                 case InputResponseLocation.Body:
-                    var resultExpression = GetPropertyExpression(NextPagePropertySegments, result);
+                    var resultExpression = BuildGetPropertyExpression(NextPagePropertySegments, responseModel);
                     if (Paging.ContinuationToken != null || NextPagePropertyType.Equals(typeof(Uri)))
                     {
                         return
