@@ -374,7 +374,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     MethodBodyStatement.EmptyLine,
 
                     // Assign nextLinkUri from the result and check if it is null
-                    AssignAndCheckNextPageVariable(result,result.CastTo(ResponseModelType), nextPageVariable),
+                    AssignAndCheckNextPageVariable(result, result.CastTo(ResponseModelType), nextPageVariable),
 
                     // Update message for next iteration
                     message.Assign(InvokeCreateRequestForNextLink(nextPageVariable)).Terminate()
