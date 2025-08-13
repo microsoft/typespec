@@ -233,6 +233,12 @@ class ResourceTypeNormalization {
         }
     }
 
+    /**
+     * Check the object schema, determine its resource type.
+     *
+     * @param compositeType the object schema to check
+     * @return the resource type
+     */
     private static Optional<ResourceType> getSchemaResourceType(ObjectSchema compositeType) {
         ResourceType type = null;
 
@@ -263,6 +269,12 @@ class ResourceTypeNormalization {
         return Optional.ofNullable(type);
     }
 
+    /**
+     * Rename the schema based on the resource type.
+     *
+     * @param compositeType the object schema to rename
+     * @param type the resource type
+     */
     private static void renameSchemaOnResourceType(ObjectSchema compositeType, ResourceType type) {
         switch (type) {
             case SUB_RESOURCE:
