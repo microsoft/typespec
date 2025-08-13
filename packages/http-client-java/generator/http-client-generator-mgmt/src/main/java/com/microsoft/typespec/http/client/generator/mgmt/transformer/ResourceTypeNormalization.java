@@ -238,23 +238,29 @@ class ResourceTypeNormalization {
         if (javaName.equals(ResourceTypeName.SUB_RESOURCE)
             || javaName.startsWith(ResourceTypeName.SUB_RESOURCE_AUTO_GENERATED)) {
             type = ResourceType.SUB_RESOURCE;
+            compositeType.getLanguage().getJava().setName(ResourceTypeName.SUB_RESOURCE);
         } else if (javaName.equals(ResourceTypeName.PROXY_RESOURCE)
             || javaName.startsWith(ResourceTypeName.PROXY_RESOURCE_AUTO_GENERATED)
             || javaName.equals(ResourceTypeName.EXTENSION_RESOURCE)) {
             type = ResourceType.PROXY_RESOURCE;
+            compositeType.getLanguage().getJava().setName(ResourceTypeName.PROXY_RESOURCE);
         } else if (javaName.equals(ResourceTypeName.TRACKED_RESOURCE)
             || javaName.startsWith(ResourceTypeName.TRACKED_RESOURCE_AUTO_GENERATED)) {
             type = ResourceType.RESOURCE;
+            compositeType.getLanguage().getJava().setName(ResourceTypeName.TRACKED_RESOURCE);
         } else if (javaName.equals(ResourceTypeName.RESOURCE)
             || javaName.startsWith(ResourceTypeName.RESOURCE_AUTO_GENERATED)
             || javaName.equals(ResourceTypeName.AZURE_RESOURCE)
             || javaName.startsWith(ResourceTypeName.AZURE_RESOURCE_AUTO_GENERATED)) {
             if (hasProperties(compositeType, RESOURCE_EXTRA_FIELDS)) {
                 type = ResourceType.RESOURCE;
+                compositeType.getLanguage().getJava().setName(ResourceTypeName.RESOURCE);
             } else if (hasProperties(compositeType, PROXY_RESOURCE_FIELDS)) {
                 type = ResourceType.PROXY_RESOURCE;
+                compositeType.getLanguage().getJava().setName(ResourceTypeName.PROXY_RESOURCE);
             } else if (hasProperties(compositeType, SUB_RESOURCE_FIELDS)) {
                 type = ResourceType.SUB_RESOURCE;
+                compositeType.getLanguage().getJava().setName(ResourceTypeName.SUB_RESOURCE);
             }
         }
 
