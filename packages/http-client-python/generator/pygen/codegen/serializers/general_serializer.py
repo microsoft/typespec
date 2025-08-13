@@ -4,7 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import json
-from typing import Any, List, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 import re
 import tomli as tomllib
 from packaging.version import parse as parse_version
@@ -45,7 +45,7 @@ class GeneralSerializer(BaseSerializer):
             "MIN_PYTHON_VERSION": MIN_PYTHON_VERSION,
             "MAX_PYTHON_VERSION": MAX_PYTHON_VERSION,
         }
-        params.update({"options": self.code_model.options})
+        params |= {"options": self.code_model.options}
         return template.render(code_model=self.code_model, **params)
 
     def _extract_min_dependency(self, s):
@@ -130,8 +130,7 @@ class GeneralSerializer(BaseSerializer):
             dev_status = "4 - Beta"
         else:
             dev_status = "5 - Production/Stable"
-        params.update(
-            {
+        params |= {
                 "code_model": self.code_model,
                 "dev_status": dev_status,
                 "token_credential": token_credential,
@@ -142,16 +141,15 @@ class GeneralSerializer(BaseSerializer):
                 "MIN_PYTHON_VERSION": MIN_PYTHON_VERSION,
                 "MAX_PYTHON_VERSION": MAX_PYTHON_VERSION,
             }
-        )
-        params.update({"options": self.code_model.options})
-        params.update(kwargs)
+        params |= {"options": self.code_model.options}
+        params |= kwargs
         return template.render(file_import=FileImport(self.code_model), **params)
 
     def serialize_pkgutil_init_file(self) -> str:
         template = self.env.get_template("pkgutil_init.py.jinja2")
         return template.render()
 
-    def serialize_init_file(self, clients: List[Client]) -> str:
+    def serialize_init_file(self, clients: list[Client]) -> str:
         template = self.env.get_template("init.py.jinja2")
         return template.render(
             code_model=self.code_model,
@@ -160,7 +158,7 @@ class GeneralSerializer(BaseSerializer):
             serialize_namespace=self.serialize_namespace,
         )
 
-    def serialize_service_client_file(self, clients: List[Client]) -> str:
+    def serialize_service_client_file(self, clients: list[Client]) -> str:
         template = self.env.get_template("client_container.py.jinja2")
 
         imports = FileImport(self.code_model)
@@ -210,13 +208,10 @@ class GeneralSerializer(BaseSerializer):
             )
         if self.code_model.need_utils_form_data(self.async_mode, self.client_namespace):
             file_import.add_submodule_import("typing", "IO", ImportType.STDLIB)
-            file_import.add_submodule_import("typing", "Tuple", ImportType.STDLIB)
             file_import.add_submodule_import("typing", "Union", ImportType.STDLIB)
             file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
             file_import.add_submodule_import("typing", "Mapping", ImportType.STDLIB)
-            file_import.add_submodule_import("typing", "Dict", ImportType.STDLIB)
             file_import.add_submodule_import("typing", "Any", ImportType.STDLIB)
-            file_import.add_submodule_import("typing", "List", ImportType.STDLIB)
             file_import.add_submodule_import(
                 ".._utils.model_base",
                 "SdkJSONEncoder",
@@ -239,7 +234,7 @@ class GeneralSerializer(BaseSerializer):
             client_namespace=self.client_namespace,
         )
 
-    def serialize_config_file(self, clients: List[Client]) -> str:
+    def serialize_config_file(self, clients: list[Client]) -> str:
         template = self.env.get_template("config_container.py.jinja2")
         imports = FileImport(self.code_model)
         for client in self.code_model.clients:
@@ -282,40 +277,35 @@ class GeneralSerializer(BaseSerializer):
             f"{model.client_namespace}.models.{model.name}": model.cross_language_definition_id
             for model in self.code_model.public_model_types
         }
-        cross_langauge_def_dict.update(
-            {
-                f"{self.code_model.namespace}.models.{enum.name}": enum.cross_language_definition_id
-                for enum in self.code_model.enums
-                if not enum.internal
-            }
-        )
+        cross_langauge_def_dict |= {
+            f"{self.code_model.namespace}.models.{enum.name}": enum.cross_language_definition_id
+            for enum in self.code_model.enums
+            if not enum.internal
+        }
+
         for client in self.code_model.clients:
             for operation_group in client.operation_groups:
                 for operation in operation_group.operations:
                     if operation.name.startswith("_"):
                         continue
-                    cross_langauge_def_dict.update(
-                        {
-                            f"{self.code_model.namespace}."
-                            + (
-                                f"{client.name}."
-                                if operation_group.is_mixin
-                                else f"operations.{operation_group.class_name}."
-                            )
-                            + f"{operation.name}": operation.cross_language_definition_id
-                        }
-                    )
-                    cross_langauge_def_dict.update(
-                        {
-                            f"{self.code_model.namespace}.aio."
-                            + (
-                                f"{client.name}."
-                                if operation_group.is_mixin
-                                else f"operations.{operation_group.class_name}."
-                            )
-                            + f"{operation.name}": operation.cross_language_definition_id
-                        }
-                    )
+                    cross_langauge_def_dict |= {
+                        f"{self.code_model.namespace}."
+                        + (
+                            f"{client.name}."
+                            if operation_group.is_mixin
+                            else f"operations.{operation_group.class_name}."
+                        )
+                        + f"{operation.name}": operation.cross_language_definition_id
+                    }
+                    cross_langauge_def_dict |= {
+                        f"{self.code_model.namespace}.aio."
+                        + (
+                            f"{client.name}."
+                            if operation_group.is_mixin
+                            else f"operations.{operation_group.class_name}."
+                        )
+                        + f"{operation.name}": operation.cross_language_definition_id
+                    }
         return json.dumps(
             {
                 "CrossLanguagePackageId": self.code_model.cross_language_package_id,

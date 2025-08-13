@@ -3,12 +3,12 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import TypeVar, Dict
+from typing import TypeVar
 
 from enum import Enum
 
 T = TypeVar("T")
-OrderedSet = Dict[T, None]
+OrderedSet = dict[T, None]
 
 
 def add_to_description(description: str, entry: str) -> str:
