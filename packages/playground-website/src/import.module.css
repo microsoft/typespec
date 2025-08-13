@@ -3,3 +3,8 @@
   border: 1px solid var(--colorNeutralStroke1);
   margin-bottom: 20px;
 }
+
+.url-input {
+  width: 100%;
+  margin-bottom: 20px;
+}
