@@ -39,7 +39,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected IReadOnlyList<FieldProvider> RequestFields { get; }
 
         protected ModelProvider ResponseModel { get; }
-        protected CSharpType ResponseType { get; }
+        protected CSharpType ResponseModelType { get; }
 
         protected virtual CSharpType? ItemModelType { get; }
         protected FieldProvider? NextTokenField { get; }
@@ -71,7 +71,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var response = Operation.Responses.FirstOrDefault(r => !r.IsErrorResponse);
             ResponseModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel((InputModelType)response!.BodyType!)!;
-            ResponseType = ResponseModel.Type;
+            ResponseModelType = ResponseModel.Type;
 
             var createRequestMethodSignature = Client.RestClient.GetCreateRequestMethod(Operation).Signature;
             _createRequestParameters = createRequestMethodSignature.Parameters;
@@ -175,10 +175,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ];
         }
 
-        protected ValueExpression BuildGetPropertyExpression(IReadOnlyList<string> segments, ValueExpression response)
+        private ValueExpression GetPropertyExpression(IReadOnlyList<string> segments, ValueExpression responseExpression)
         {
-            ValueExpression expression = response.CastTo(ResponseType);
+            return BuildGetPropertyExpression(segments, responseExpression.CastTo(ResponseModelType));
+        }
+
+        protected ValueExpression BuildGetPropertyExpression(IReadOnlyList<string> segments, ValueExpression responseModelExpression)
+        {
             TypeProvider model = ResponseModel;
+            ValueExpression getPropertyExpression = responseModelExpression;
 
             for (int i = 0; i < segments.Count; i++)
             {
@@ -186,10 +191,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (i > 0)
                 {
-                    expression = expression.NullConditional();
+                    getPropertyExpression = getPropertyExpression.NullConditional();
                 }
 
-                expression = expression.Property(property.Name);
+                getPropertyExpression = getPropertyExpression.Property(property.Name);
 
                 if (i < segments.Count - 1)
                 {
@@ -197,7 +202,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
 
-            return expression;
+            return getPropertyExpression;
         }
 
         private MethodBodyStatement[] BuildConstructorBody(ParameterProvider clientParameter)
@@ -276,7 +281,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement[] BuildGetValuesFromPages()
         {
-            var items = BuildGetPropertyExpression(Paging.ItemPropertySegments, PageParameter.AsExpression());
+            var items = GetPropertyExpression(Paging.ItemPropertySegments, PageParameter.AsExpression());
             return
             IsAsync ?
                 [
@@ -307,7 +312,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             switch (NextPageLocation)
             {
                 case InputResponseLocation.Body:
-                    var resultExpression = BuildGetPropertyExpression(nextPagePropertySegments!, PageParameter.AsExpression());
+                    var resultExpression = GetPropertyExpression(nextPagePropertySegments!, PageParameter.AsExpression());
                     return
                     [
                         Declare(nextPageVariable, resultExpression),
@@ -440,7 +445,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             switch (NextPageLocation)
             {
                 case InputResponseLocation.Body:
-                    var resultExpression = BuildGetPropertyExpression(NextPagePropertySegments, result);
+                    var resultExpression = GetPropertyExpression(NextPagePropertySegments, result);
                     if (Paging.ContinuationToken != null || NextPagePropertyType.Equals(typeof(Uri)))
                     {
                         return
