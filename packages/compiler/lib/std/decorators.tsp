@@ -80,12 +80,6 @@ model ServiceOptions {
  * @service(#{title: "Pet store"})
  * namespace PetStore;
  * ```
- *
- * @example Setting service version
- * ```typespec
- * @service(#{version: "1.0"})
- * namespace PetStore;
- * ```
  */
 extern dec service(target: Namespace, options?: valueof ServiceOptions);
 

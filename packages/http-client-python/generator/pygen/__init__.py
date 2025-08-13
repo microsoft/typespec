@@ -109,7 +109,12 @@ class OptionsDict(MutableMapping):
         if key == "combine-operation-files":
             return self.get("version-tolerant")
         if key == "package-pprint-name":
-            return " ".join([i.capitalize() for i in str(self.get("package-name", "")).split("-")])
+            package_names = self.get("package-name", "").split("-")
+            return (
+                (package_names[-1].capitalize() + " Management")
+                if self.get("azure-arm")
+                else " ".join([i.capitalize() for i in package_names])
+            )
         if key == "builders-visibility":
             # Default to public if low-level client is not set, otherwise embedded
             return "embedded" if not self.get("low-level-client") else "public"
