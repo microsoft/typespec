@@ -3,7 +3,7 @@
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
-    public enum InputParameterKind
+    public enum InputParameterScope
     {
         Method = 0,
         Client = 1,

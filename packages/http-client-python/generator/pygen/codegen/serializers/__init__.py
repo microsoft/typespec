@@ -149,9 +149,12 @@ class JinjaSerializer(ReaderAndWriter):
                     self._serialize_and_write_package_files()
 
                 # write apiview-properties.json
-                if self.code_model.options.get("emit-cross-language-definition-file"):
+                if (
+                    self.code_model.options.get("emit-cross-language-definition-file")
+                    and not self.code_model.options["multiapi"]
+                ):
                     self.write_file(
-                        generation_path / Path("apiview-properties.json"),
+                        self._root_of_sdk / Path("apiview-properties.json"),
                         general_serializer.serialize_cross_language_definition_file(),
                     )
 
@@ -165,7 +168,7 @@ class JinjaSerializer(ReaderAndWriter):
                 # add _metadata.json
                 if self.code_model.metadata:
                     self.write_file(
-                        Path("./_metadata.json"),
+                        self._root_of_sdk / "_metadata.json",
                         json.dumps(self.code_model.metadata, indent=2),
                     )
             elif client_namespace_type.clients:
@@ -216,11 +219,17 @@ class JinjaSerializer(ReaderAndWriter):
                     general_serializer.serialize_pkgutil_init_file(),
                 )
 
-    def _serialize_and_write_package_files(self) -> None:
+    # path where README.md is
+    @property
+    def _root_of_sdk(self) -> Path:
         root_of_sdk = Path(".")
         if self.code_model.options["no-namespace-folders"]:
             compensation = Path("../" * (self.code_model.namespace.count(".") + 1))
             root_of_sdk = root_of_sdk / compensation
+        return root_of_sdk
+
+    def _serialize_and_write_package_files(self) -> None:
+        root_of_sdk = self._root_of_sdk
         if self.code_model.options["package-mode"] in VALID_PACKAGE_MODE:
             env = Environment(
                 loader=PackageLoader("pygen.codegen", "templates/packaging_templates"),
@@ -520,14 +529,14 @@ class JinjaSerializer(ReaderAndWriter):
         namespace_config = get_namespace_config(self.code_model.namespace, self.code_model.options["multiapi"])
         num_of_namespace = namespace_config.count(".") + 1
         num_of_package_namespace = (
-            get_namespace_from_package_name(self.code_model.options.get("namespace", "")).count(".") + 1
+            get_namespace_from_package_name(self.code_model.options.get("package-name", "")).count(".") + 1
         )
         if num_of_namespace > num_of_package_namespace:
             return Path("/".join(namespace_config.split(".")[num_of_package_namespace:]))
         return Path("")
 
     def _serialize_and_write_sample(self, env: Environment):
-        out_path = Path("./generated_samples")
+        out_path = self._root_of_sdk / "generated_samples"
         for client in self.code_model.clients:
             for op_group in client.operation_groups:
                 for operation in op_group.operations:
@@ -561,7 +570,7 @@ class JinjaSerializer(ReaderAndWriter):
 
     def _serialize_and_write_test(self, env: Environment):
         self.code_model.for_test = True
-        out_path = Path("./generated_tests")
+        out_path = self._root_of_sdk / "generated_tests"
         general_serializer = TestGeneralSerializer(code_model=self.code_model, env=env)
         self.write_file(out_path / "conftest.py", general_serializer.serialize_conftest())
         if not self.code_model.options["azure-arm"]:
