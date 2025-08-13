@@ -1909,6 +1909,31 @@ Two requests need to be tested.
 }
 ```
 
+### Payload_Pageable_simple
+
+- Endpoint: `get /payload/pageable/simple`
+
+Test case for simple pagination without nextlink or continuationToken.
+
+Single request:
+Expected route: /payload/pageable/simple?filter=foo
+
+Expected request header:
+header1=header1
+
+Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "1", "name": "dog" },
+    { "id": "2", "name": "cat" },
+    { "id": "3", "name": "bird" },
+    { "id": "4", "name": "fish" }
+  ]
+}
+```
+
 ### Payload_Xml_ModelWithArrayOfModelValue_get
 
 - Endpoint: `get /payload/xml/modelWithArrayOfModel`

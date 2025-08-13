@@ -128,3 +128,41 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestQuery
   createTests("query", "header");
 Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeaderResponseHeader =
   createTests("header", "header");
+
+Scenarios.Payload_Pageable_simple = passOnSuccess([
+  {
+    uri: "/payload/pageable/simple",
+    method: "get",
+    request: {
+      headers: { header1: "header1" },
+      query: { filter: "foo" },
+    },
+    response: {
+      status: 200,
+      body: json({
+        pets: [
+          { id: "1", name: "dog" },
+          { id: "2", name: "cat" },
+          { id: "3", name: "bird" },
+          { id: "4", name: "fish" },
+        ],
+      }),
+    },
+    handler: (req: MockRequest) => {
+      req.expect.containsHeader("header1", "header1");
+      req.expect.containsQueryParam("filter", "foo");
+      return {
+        status: 200,
+        body: json({
+          pets: [
+            { id: "1", name: "dog" },
+            { id: "2", name: "cat" },
+            { id: "3", name: "bird" },
+            { id: "4", name: "fish" },
+          ],
+        }),
+      };
+    },
+    kind: "MockApiDefinition",
+  },
+]);
