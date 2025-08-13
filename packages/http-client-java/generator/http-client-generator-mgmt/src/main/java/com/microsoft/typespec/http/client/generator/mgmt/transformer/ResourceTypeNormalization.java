@@ -63,8 +63,10 @@ class ResourceTypeNormalization {
         objectSchemas.forEach(compositeType -> {
             Optional<ObjectSchema> parentType = getObjectParent(compositeType);
             if (parentType.isPresent()) {
-                getSchemaResourceType(parentType.get())
-                    .ifPresent(type -> adaptForParentSchema(compositeType, parentType.get(), type));
+                getSchemaResourceType(parentType.get()).ifPresent(type -> {
+                    renameSchemaOnResourceType(compositeType, type);
+                    adaptForParentSchema(compositeType, parentType.get(), type);
+                });
 
                 if (FluentType.SYSTEM_DATA.getName().equals(Utils.getJavaName(parentType.get()))) {
                     adaptAsSystemData(compositeType);
@@ -238,33 +240,43 @@ class ResourceTypeNormalization {
         if (javaName.equals(ResourceTypeName.SUB_RESOURCE)
             || javaName.startsWith(ResourceTypeName.SUB_RESOURCE_AUTO_GENERATED)) {
             type = ResourceType.SUB_RESOURCE;
-            compositeType.getLanguage().getJava().setName(ResourceTypeName.SUB_RESOURCE);
         } else if (javaName.equals(ResourceTypeName.PROXY_RESOURCE)
             || javaName.startsWith(ResourceTypeName.PROXY_RESOURCE_AUTO_GENERATED)
             || javaName.equals(ResourceTypeName.EXTENSION_RESOURCE)) {
             type = ResourceType.PROXY_RESOURCE;
-            compositeType.getLanguage().getJava().setName(ResourceTypeName.PROXY_RESOURCE);
         } else if (javaName.equals(ResourceTypeName.TRACKED_RESOURCE)
             || javaName.startsWith(ResourceTypeName.TRACKED_RESOURCE_AUTO_GENERATED)) {
             type = ResourceType.RESOURCE;
-            compositeType.getLanguage().getJava().setName(ResourceTypeName.TRACKED_RESOURCE);
         } else if (javaName.equals(ResourceTypeName.RESOURCE)
             || javaName.startsWith(ResourceTypeName.RESOURCE_AUTO_GENERATED)
             || javaName.equals(ResourceTypeName.AZURE_RESOURCE)
             || javaName.startsWith(ResourceTypeName.AZURE_RESOURCE_AUTO_GENERATED)) {
             if (hasProperties(compositeType, RESOURCE_EXTRA_FIELDS)) {
                 type = ResourceType.RESOURCE;
-                compositeType.getLanguage().getJava().setName(ResourceTypeName.RESOURCE);
             } else if (hasProperties(compositeType, PROXY_RESOURCE_FIELDS)) {
                 type = ResourceType.PROXY_RESOURCE;
-                compositeType.getLanguage().getJava().setName(ResourceTypeName.PROXY_RESOURCE);
             } else if (hasProperties(compositeType, SUB_RESOURCE_FIELDS)) {
                 type = ResourceType.SUB_RESOURCE;
-                compositeType.getLanguage().getJava().setName(ResourceTypeName.SUB_RESOURCE);
             }
         }
 
         return Optional.ofNullable(type);
+    }
+
+    private static void renameSchemaOnResourceType(ObjectSchema compositeType, ResourceType type) {
+        switch (type) {
+            case SUB_RESOURCE:
+                compositeType.getLanguage().getJava().setName(ResourceTypeName.SUB_RESOURCE);
+                break;
+
+            case PROXY_RESOURCE:
+                compositeType.getLanguage().getJava().setName(ResourceTypeName.PROXY_RESOURCE);
+                break;
+
+            case RESOURCE:
+                compositeType.getLanguage().getJava().setName(ResourceTypeName.RESOURCE);
+                break;
+        }
     }
 
     private static void adaptForParentSchema(ObjectSchema compositeType, ObjectSchema parentType, ResourceType type) {
