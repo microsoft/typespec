@@ -1,10 +1,11 @@
 packages:
-  - "packages/*"
-  - "e2e"
-  - "website"
-  - "!packages/http-client-csharp/**"
-  - "!packages/http-client-java/**"
-  - "!packages/http-client-python/**"
-
+  - packages/*
+  - e2e
+  - website
+  - '!packages/http-client-csharp/**'
+  - '!packages/http-client-java/**'
+  - '!packages/http-client-python/**'
+onlyBuiltDependencies:
+  - '@playwright/browser-chromium'
 overrides:
-  "cross-spawn@>=7.0.0 <7.0.5": "^7.0.5"
+  cross-spawn@>=7.0.0 <7.0.5: ^7.0.5
