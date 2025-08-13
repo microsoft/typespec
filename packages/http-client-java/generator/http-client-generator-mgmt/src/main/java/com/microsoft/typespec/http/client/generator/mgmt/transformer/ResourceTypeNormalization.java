@@ -64,7 +64,7 @@ class ResourceTypeNormalization {
             Optional<ObjectSchema> parentType = getObjectParent(compositeType);
             if (parentType.isPresent()) {
                 getSchemaResourceType(parentType.get()).ifPresent(type -> {
-                    renameSchemaOnResourceType(compositeType, type);
+                    renameSchemaOnResourceType(parentType.get(), type);
                     adaptForParentSchema(compositeType, parentType.get(), type);
                 });
 
