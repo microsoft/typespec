@@ -20,9 +20,9 @@ namespace Sample
             uri.AppendPath("/", false);
             uri.AppendPath(p1, true);
             uri.AppendPath("/", false);
-            uri.AppendPathDelimited(p2, " ", null, true);
+            uri.AppendPathDelimited(p2, ",", null, true);
             uri.AppendPath("/", false);
-            uri.AppendPathDelimited(p3, null, null, true);
+            uri.AppendPathDelimited(p3, ",", null, true);
             request.Uri = uri.ToUri();
             message.Apply(options);
             return message;

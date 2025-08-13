@@ -125,7 +125,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (var p in _inputClient.Parameters)
             {
-                if (!p.IsEndpoint && !p.IsApiVersion && p.DefaultValue != null)
+                if ((p is not InputEndpointParameter || p is InputEndpointParameter endpointParameter && !endpointParameter.IsEndpoint)
+                    && !p.IsApiVersion && p.DefaultValue != null)
                 {
                     FormattableString? description = null;
                     var parameterDescription = DocHelpers.GetDescription(p.Summary, p.Doc);
