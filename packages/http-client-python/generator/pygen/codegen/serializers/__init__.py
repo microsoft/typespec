@@ -149,7 +149,10 @@ class JinjaSerializer(ReaderAndWriter):
                     self._serialize_and_write_package_files()
 
                 # write apiview-properties.json
-                if self.code_model.options.get("emit-cross-language-definition-file"):
+                if (
+                    self.code_model.options.get("emit-cross-language-definition-file")
+                    and not self.code_model.options["multiapi"]
+                ):
                     self.write_file(
                         self._root_of_sdk / Path("apiview-properties.json"),
                         general_serializer.serialize_cross_language_definition_file(),
