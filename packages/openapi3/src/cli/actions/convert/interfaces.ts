@@ -26,6 +26,12 @@ export interface TypeSpecServerVariable {
 export interface TypeSpecTagMetadata {
   name: string;
   description?: string;
+  externalDocs?: TypeSpecExternalDocs;
+}
+
+export interface TypeSpecExternalDocs {
+  url: string;
+  description?: string;
 }
 
 export interface TypeSpecDeclaration {
