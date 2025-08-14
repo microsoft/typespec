@@ -52,11 +52,21 @@ export { $linter } from "./linter.js";
 /** @internal */
 export { setStatusCode } from "./decorators.js";
 export type { HttpProperty } from "./http-property.js";
+
+import { Visibility as HttpVisibility } from "./metadata.js";
+
+/**
+ * Flag enum representation of well-known visibilities that are used in REST APIs.
+ *
+ * @deprecated Prefer using `VisibilityFilter` from `@typespec/compiler` instead.
+ */
+export const Visibility = HttpVisibility;
+export type Visibility = HttpVisibility;
+
 export {
-  HttpVisibilityProvider,
-  Visibility,
   createMetadataInfo,
   getVisibilitySuffix,
+  HttpVisibilityProvider,
   isApplicableMetadata,
   isApplicableMetadataOrBody,
   isMetadata,
@@ -75,9 +85,9 @@ export {
 } from "./operations.js";
 export { getOperationParameters } from "./parameters.js";
 export {
-  HttpPart,
   getHttpFileModel,
   getHttpPart,
+  HttpPart,
   isHttpFile,
   isOrExtendsHttpFile,
 } from "./private.decorators.js";
@@ -132,11 +142,11 @@ export type {
   ImplicitFlow,
   NoAuth,
   NoHttpAuthRef,
+  Oauth2Auth,
   OAuth2Flow,
   OAuth2FlowType,
   OAuth2HttpAuthRef,
   OAuth2Scope,
-  Oauth2Auth,
   OpenIDConnectAuth,
   OperationContainer,
   OperationVerbSelector,

@@ -4,6 +4,7 @@ import {
   DiagnosticResult,
   Model,
   Type,
+  VisibilityFilter,
   walkPropertiesInherited,
   type Diagnostic,
   type ModelProperty,
@@ -225,7 +226,7 @@ function getHttpProperty(
 export function resolvePayloadProperties(
   program: Program,
   type: Type,
-  visibility: Visibility,
+  visibility: Visibility | VisibilityFilter,
   disposition: HttpPayloadDisposition,
   options: GetHttpPropertyOptions = {},
 ): DiagnosticResult<HttpProperty[]> {

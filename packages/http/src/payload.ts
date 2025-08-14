@@ -9,6 +9,7 @@ import {
   Tuple,
   Type,
   Union,
+  VisibilityFilter,
   createDiagnosticCollector,
   filterModelProperties,
   getDiscriminator,
@@ -68,7 +69,7 @@ export enum HttpPayloadDisposition {
 export function resolveHttpPayload(
   program: Program,
   type: Type,
-  visibility: Visibility,
+  visibility: Visibility | VisibilityFilter,
   disposition: HttpPayloadDisposition,
   options: ExtractBodyAndMetadataOptions = {},
 ): DiagnosticResult<HttpPayload> {
@@ -102,7 +103,7 @@ function resolveBody(
   program: Program,
   requestOrResponseType: Type,
   metadata: HttpProperty[],
-  visibility: Visibility,
+  visibility: Visibility | VisibilityFilter,
   disposition: HttpPayloadDisposition,
 ): DiagnosticResult<HttpPayloadBody | undefined> {
   const diagnostics = createDiagnosticCollector();
@@ -227,7 +228,7 @@ function resolveExplicitBodyProperty(
   program: Program,
   metadata: HttpProperty[],
   contentTypeProperty: HttpProperty | undefined,
-  visibility: Visibility,
+  visibility: Visibility | VisibilityFilter,
   disposition: HttpPayloadDisposition,
 ): DiagnosticResult<HttpPayloadBody | undefined> {
   const diagnostics = createDiagnosticCollector();
@@ -381,7 +382,7 @@ function resolveMultiPartBody(
   program: Program,
   property: ModelProperty,
   contentTypeProperty: HttpProperty | undefined,
-  visibility: Visibility,
+  visibility: Visibility | VisibilityFilter,
 ): DiagnosticResult<HttpOperationMultipartBody | undefined> {
   const diagnostics = createDiagnosticCollector();
 
@@ -421,7 +422,7 @@ function resolveMultiPartBodyFromModel(
   property: ModelProperty,
   type: Model,
   contentTypeProperty: HttpProperty | undefined,
-  visibility: Visibility,
+  visibility: Visibility | VisibilityFilter,
 ): DiagnosticResult<HttpOperationMultipartBody | undefined> {
   const diagnostics = createDiagnosticCollector();
   const parts: HttpOperationModelPart[] = [];
@@ -468,7 +469,7 @@ function resolveMultiPartBodyFromTuple(
   property: ModelProperty,
   type: Tuple,
   contentTypeProperty: HttpProperty | undefined,
-  visibility: Visibility,
+  visibility: Visibility | VisibilityFilter,
 ): DiagnosticResult<HttpOperationMultipartBody | undefined> {
   const diagnostics = createDiagnosticCollector();
   const parts: HttpOperationTuplePart[] = [];
@@ -513,7 +514,7 @@ function resolveMultiPartBodyFromTuple(
 function resolvePartOrParts(
   program: Program,
   type: Type,
-  visibility: Visibility,
+  visibility: Visibility | VisibilityFilter,
   property?: ModelProperty,
 ): DiagnosticResult<HttpOperationPartCommon | undefined> {
   if (type.kind === "Model" && isArrayModelType(program, type)) {
@@ -530,7 +531,7 @@ function resolvePartOrParts(
 function resolvePart(
   program: Program,
   type: Type,
-  visibility: Visibility,
+  visibility: Visibility | VisibilityFilter,
   property?: ModelProperty,
 ): DiagnosticResult<HttpOperationPartCommon | undefined> {
   const diagnostics = createDiagnosticCollector();
