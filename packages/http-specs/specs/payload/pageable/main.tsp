@@ -412,3 +412,28 @@ namespace ServerDrivenPagination {
     };
   }
 }
+
+@scenario
+@scenarioDoc("""
+  Test case for simple pagination without nextlink or continuationToken.
+  
+  Single request:
+  Expected route: /payload/pageable/simple
+  
+  Expected response body:
+  ```json
+  { "pets": [
+      { "id": "1", "name": "dog" },
+      { "id": "2", "name": "cat" },
+      { "id": "3", "name": "bird" },
+      { "id": "4", "name": "fish" }
+    ]
+  }
+  ```
+  """)
+@route("/simple")
+@list
+op listWithoutContinuation(): {
+  @pageItems
+  pets: Pet[];
+};
