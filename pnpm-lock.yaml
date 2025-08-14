@@ -420,6 +420,9 @@ importers:
       '@alloy-js/core':
         specifier: ^0.19.0
         version: 0.19.0
+      '@alloy-js/python':
+        specifier: ^0.0.1
+        version: 0.0.1
       '@alloy-js/rollup-plugin':
         specifier: ^0.1.0
         version: 0.1.0(@babel/core@7.28.0)(@types/babel__core@7.20.5)(rollup@4.45.1)
@@ -2710,6 +2713,9 @@ packages:
 
   '@alloy-js/markdown@0.19.0':
     resolution: {integrity: sha512-IKwzO6+ggXtl+bVy33wa5iBJx6KkMD7lzN3RJrKTvBPml7iuP21TwLjhUa1rmRQLekUZlbRuTYWaeWVEyrPYyw==}
+
+  '@alloy-js/python@0.0.1':
+    resolution: {integrity: sha512-7L32hryUa2StoMceIkGT2bnDzChK19c7oPrKlDj+Tmw8uKmM/3FDeRlzDatDWp7bE3iGMUjKsstSPsD4t038Hg==}
 
   '@alloy-js/rollup-plugin@0.1.0':
     resolution: {integrity: sha512-MXR8mBdSh/pxMP8kIXAcMYKsm5yOWZ+igxcaRX1vBXFiHU4eK7gE/5q6Fk8Vdydh+MItWtgekwIhUWvcszdNFQ==}
@@ -13649,6 +13655,12 @@ snapshots:
     dependencies:
       '@alloy-js/core': 0.19.0
       yaml: 2.8.0
+
+  '@alloy-js/python@0.0.1':
+    dependencies:
+      '@alloy-js/core': 0.19.0
+      change-case: 5.4.4
+      pathe: 2.0.3
 
   '@alloy-js/rollup-plugin@0.1.0(@babel/core@7.28.0)(@types/babel__core@7.20.5)(rollup@4.45.1)':
     dependencies:
