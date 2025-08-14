@@ -108,7 +108,7 @@ class GeneralSerializer(BaseSerializer):
         template = self.env.get_template(template_name)
 
         # Add fields to keep from an existing pyproject.toml
-        if template_name == "pyproject.toml.jinja2" and file_content:
+        if template_name == "pyproject.toml.jinja2":
             params = self._keep_pyproject_fields(file_content)
         else:
             params = {}
