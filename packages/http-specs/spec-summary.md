@@ -1696,6 +1696,28 @@ Content-Type: application/octet-stream
 --abcde12345--
 ```
 
+### Payload_Pageable_listWithoutContinuation
+
+- Endpoint: `get /payload/pageable/simple`
+
+Test case for simple pagination without nextlink or continuationToken.
+
+Single request:
+Expected route: /payload/pageable/simple
+
+Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "1", "name": "dog" },
+    { "id": "2", "name": "cat" },
+    { "id": "3", "name": "bird" },
+    { "id": "4", "name": "fish" }
+  ]
+}
+```
+
 ### Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeaderNestedResponseBody
 
 - Endpoint: `get /payload/pageable/server-driven-pagination/continuationtoken/request-header-nested-response-body`
@@ -2002,28 +2024,6 @@ Two requests need to be tested.
 ```json
 {
   "pets": [
-    { "id": "3", "name": "bird" },
-    { "id": "4", "name": "fish" }
-  ]
-}
-```
-
-### Payload_Pageable_listWithoutContinuation
-
-- Endpoint: `get /payload/pageable/simple`
-
-Test case for simple pagination without nextlink or continuationToken.
-
-Single request:
-Expected route: /payload/pageable/simple
-
-Expected response body:
-
-```json
-{
-  "pets": [
-    { "id": "1", "name": "dog" },
-    { "id": "2", "name": "cat" },
     { "id": "3", "name": "bird" },
     { "id": "4", "name": "fish" }
   ]
