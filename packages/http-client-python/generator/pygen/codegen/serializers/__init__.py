@@ -222,7 +222,7 @@ class JinjaSerializer(ReaderAndWriter):
     # path where README.md is
     @property
     def _root_of_sdk(self) -> Path:
-        root_of_sdk = self.output_folder
+        root_of_sdk = Path(".")
         if self.code_model.options["no-namespace-folders"]:
             compensation = Path("../" * (self.code_model.namespace.count(".") + 1))
             root_of_sdk = root_of_sdk / compensation
@@ -263,7 +263,7 @@ class JinjaSerializer(ReaderAndWriter):
                     continue
                 self.write_file(
                     output_file,
-                    serializer.serialize_package_file(template_name, output_file, **params),
+                    serializer.serialize_package_file(template_name, self.output_folder / output_file, **params),
                 )
 
     def _keep_patch_file(self, path_file: Path, env: Environment):
