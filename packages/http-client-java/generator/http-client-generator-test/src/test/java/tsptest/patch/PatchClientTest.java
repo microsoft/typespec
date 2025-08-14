@@ -157,7 +157,6 @@ public class PatchClientTest {
         String jsonSalmon = BinaryData.fromObject(fish).toString();
         JsonNode nodeSalmon = OBJECT_MAPPER.readTree(jsonSalmon);
         Assertions.assertEquals(JsonNodeType.NULL, nodeSalmon.get("color").getNodeType());
-
     }
 
     @Test
@@ -174,6 +173,4 @@ public class PatchClientTest {
         Assertions.assertNull(node.get("description"));
         Assertions.assertEquals(JsonNodeType.NULL, node.get("intValue").getNodeType());
     }
-
-
 }
