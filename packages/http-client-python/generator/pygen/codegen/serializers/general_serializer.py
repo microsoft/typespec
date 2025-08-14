@@ -19,9 +19,6 @@ from ..models.utils import NamespaceType
 from .client_serializer import ClientSerializer, ConfigSerializer
 from .base_serializer import BaseSerializer
 
-if TYPE_CHECKING:
-    from pathlib import Path
-
 VERSION_MAP = {
     "msrest": "0.7.1",
     "isodate": "0.6.1",
