@@ -23,6 +23,9 @@ using OpenAPI;
   termsOfService: "http://swagger.io/terms/",
 })
 @server("/v3")
+@tagMetadata("pet", #{ description: "Everything about your Pets" })
+@tagMetadata("store", #{ description: "Access to Petstore orders" })
+@tagMetadata("user", #{ description: "Operations about user" })
 namespace SwaggerPetstoreOpenAPI30;
 
 @extension("x-swagger-router-model", "io.swagger.petstore.model.Order")
