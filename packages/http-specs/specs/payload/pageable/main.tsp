@@ -256,10 +256,7 @@ namespace ServerDrivenPagination {
   Test case for simple pagination without nextlink or continuationToken.
   
   Single request:
-  Expected route: /payload/pageable/simple?filter=foo
-  
-  Expected request header:
-  header1=header1
+  Expected route: /payload/pageable/simple
   
   Expected response body:
   ```json
@@ -274,7 +271,7 @@ namespace ServerDrivenPagination {
   """)
 @route("/simple")
 @list
-op simple(@header header1?: string, @query filter?: string): {
+op listWithoutContinuation(): {
   @pageItems
   pets: Pet[];
 };
