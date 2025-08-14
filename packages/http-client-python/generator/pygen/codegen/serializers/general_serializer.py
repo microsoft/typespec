@@ -4,7 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import json
-from typing import Any, List, TYPE_CHECKING
+from typing import Any, List
 import re
 import tomli as tomllib
 from packaging.version import parse as parse_version
