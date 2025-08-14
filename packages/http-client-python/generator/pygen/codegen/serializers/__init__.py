@@ -264,7 +264,7 @@ class JinjaSerializer(ReaderAndWriter):
                 file_path = self.get_output_folder() / Path(output_name)
                 self.write_file(
                     output_name,
-                    serializer.serialize_package_file(template_name, file_path, **params),
+                    serializer.serialize_package_file(template_name, output_name, **params),
                 )
 
     def _keep_patch_file(self, path_file: Path, env: Environment):
