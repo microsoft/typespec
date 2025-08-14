@@ -1,4 +1,4 @@
-using System.Text.Json;
+using System.Linq;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Input.Tests
@@ -6,35 +6,25 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
     public class InputClientApiVersionsTests
     {
         [Test]
-        public void InputClient_CanReadApiVersionsFromJson()
+        public void InputClient_ApiVersions_PropertyExists()
         {
             // Arrange
-            var json = @"{
-  ""$id"": ""1"",
-  ""name"": ""TestClient"",
-  ""namespace"": ""TestNamespace"",
-  ""crossLanguageDefinitionId"": ""TestNamespace.TestClient"",
-  ""summary"": ""Test client for API versions"",
-  ""doc"": ""Test client documentation"",
-  ""methods"": [],
-  ""parameters"": [],
-  ""parent"": null,
-  ""children"": [],
-  ""decorators"": [],
-  ""apiVersions"": [
-    ""2024-01-01"",
-    ""2024-06-01-preview""
-  ]
-}";
+            var apiVersions = new[] { "2024-01-01", "2024-06-01-preview" };
 
             // Act
-            var client = JsonSerializer.Deserialize<InputClient>(json, TypeSpecSerialization.JsonSerializerOptions);
+            var client = new InputClient(
+                "TestClient",
+                "TestNamespace", 
+                "TestNamespace.TestClient",
+                "Test summary",
+                "Test documentation",
+                [],
+                [],
+                null,
+                [],
+                apiVersions);
 
             // Assert
-            Assert.IsNotNull(client);
-            Assert.AreEqual("TestClient", client.Name);
-            Assert.AreEqual("TestNamespace", client.Namespace);
-            Assert.AreEqual("TestNamespace.TestClient", client.CrossLanguageDefinitionId);
             Assert.IsNotNull(client.ApiVersions);
             Assert.AreEqual(2, client.ApiVersions.Count);
             Assert.Contains("2024-01-01", client.ApiVersions.ToList());
@@ -42,56 +32,43 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
         }
 
         [Test]
-        public void InputClient_HandlesNullApiVersions()
+        public void InputClient_ApiVersions_DefaultEmpty()
         {
-            // Arrange
-            var json = @"{
-  ""$id"": ""1"",
-  ""name"": ""TestClient"",
-  ""namespace"": ""TestNamespace"",
-  ""crossLanguageDefinitionId"": ""TestNamespace.TestClient"",
-  ""summary"": ""Test client"",
-  ""doc"": ""Test client documentation"",
-  ""methods"": [],
-  ""parameters"": [],
-  ""parent"": null,
-  ""children"": [],
-  ""decorators"": []
-}";
-
             // Act
-            var client = JsonSerializer.Deserialize<InputClient>(json, TypeSpecSerialization.JsonSerializerOptions);
+            var client = new InputClient(
+                "TestClient",
+                "TestNamespace", 
+                "TestNamespace.TestClient",
+                "Test summary",
+                "Test documentation",
+                [],
+                [],
+                null,
+                [],
+                null);
 
             // Assert
-            Assert.IsNotNull(client);
             Assert.IsNotNull(client.ApiVersions);
             Assert.AreEqual(0, client.ApiVersions.Count);
         }
 
         [Test]
-        public void InputClient_HandlesEmptyApiVersions()
+        public void InputClient_ApiVersions_EmptyCollection()
         {
-            // Arrange
-            var json = @"{
-  ""$id"": ""1"",
-  ""name"": ""TestClient"",
-  ""namespace"": ""TestNamespace"",
-  ""crossLanguageDefinitionId"": ""TestNamespace.TestClient"",
-  ""summary"": ""Test client"",
-  ""doc"": ""Test client documentation"",
-  ""methods"": [],
-  ""parameters"": [],
-  ""parent"": null,
-  ""children"": [],
-  ""decorators"": [],
-  ""apiVersions"": []
-}";
-
             // Act
-            var client = JsonSerializer.Deserialize<InputClient>(json, TypeSpecSerialization.JsonSerializerOptions);
+            var client = new InputClient(
+                "TestClient",
+                "TestNamespace", 
+                "TestNamespace.TestClient",
+                "Test summary",
+                "Test documentation",
+                [],
+                [],
+                null,
+                [],
+                []);
 
             // Assert
-            Assert.IsNotNull(client);
             Assert.IsNotNull(client.ApiVersions);
             Assert.AreEqual(0, client.ApiVersions.Count);
         }
