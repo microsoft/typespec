@@ -4,6 +4,7 @@ import { transformComponentParameters } from "./transform-component-parameters.j
 import { transformComponentSchemas } from "./transform-component-schemas.js";
 import { transformNamespaces } from "./transform-namespaces.js";
 import { transformPaths } from "./transform-paths.js";
+import { transformServers } from "./transform-servers.js";
 import { transformServiceInfo } from "./transform-service-info.js";
 
 export function transform(context: Context): TypeSpecProgram {
@@ -15,6 +16,7 @@ export function transform(context: Context): TypeSpecProgram {
     serviceInfo: transformServiceInfo(openapi.info),
     ...transformNamespaces(models, operations),
     augmentations: [],
+    servers: transformServers(openapi.servers ?? []),
   };
 }
 

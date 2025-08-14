@@ -7,6 +7,19 @@ export interface TypeSpecProgram {
   types: TypeSpecDataTypes[];
   augmentations: TypeSpecAugmentation[];
   operations: TypeSpecOperation[];
+  servers: TypeSpecServer[];
+}
+
+export interface TypeSpecServer {
+  url: string;
+  description?: string;
+  variables?: Record<string, TypeSpecServerVariable>;
+}
+
+export interface TypeSpecServerVariable {
+  default: string;
+  description?: string;
+  enum?: string[];
 }
 
 export interface TypeSpecDeclaration {
