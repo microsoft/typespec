@@ -11,14 +11,17 @@ import org.junit.jupiter.api.Test;
 
 public final class HierarchyBuildingTests {
 
-    private final HierarchyBuildingClient client = new HierarchyBuildingClientBuilder().buildClient();
+    private final AnimalOperationsClient animalClient
+        = new HierarchyBuildingClientBuilder().buildAnimalOperationsClient();
+    private final PetOperationsClient petClient = new HierarchyBuildingClientBuilder().buildPetOperationsClient();
+    private final DogOperationsClient dogClient = new HierarchyBuildingClientBuilder().buildDogOperationsClient();
 
     @Test
     public void testUpdatePetAsAnimal() {
         // Test operation that accepts Animal input and returns Animal output
         // Service expects Pet data and returns Pet data
         Pet inputPet = new Pet("Buddy", true);
-        Animal response = client.updatePet(inputPet);
+        Animal response = animalClient.updatePetAsAnimal(inputPet);
 
         // Verify response is a Pet
         Assertions.assertNotNull(response);
@@ -37,7 +40,7 @@ public final class HierarchyBuildingTests {
         // Service expects Dog data and returns Dog data
         // Due to @hierarchyBuilding(Pet), Dog should inherit from Pet rather than Animal directly
         Dog inputDog = new Dog("Rex", true, "German Shepherd");
-        Animal response = client.updateDog(inputDog);
+        Animal response = animalClient.updateDogAsAnimal(inputDog);
 
         // Verify response is a Dog
         Assertions.assertNotNull(response);
@@ -52,5 +55,54 @@ public final class HierarchyBuildingTests {
 
         // Verify Dog extends Pet (hierarchy building)
         Assertions.assertInstanceOf(Pet.class, dogResponse);
+    }
+
+    @Test
+    public void testUpdatePetAsPet() {
+        // Test operation that accepts Pet input and returns Pet output
+        Pet inputPet = new Pet("Buddy", true);
+        Pet response = petClient.updatePetAsPet(inputPet);
+
+        // Verify response is a Pet
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals("pet", response.getKind());
+        Assertions.assertEquals("Buddy", response.getName());
+        Assertions.assertTrue(response.isTrained());
+    }
+
+    @Test
+    public void testUpdateDogAsPet() {
+        // Test operation that accepts Pet input and returns Pet output
+        // Service expects Dog data and returns Dog data, but through Pet interface
+        Dog inputDog = new Dog("Rex", true, "German Shepherd");
+        Pet response = petClient.updateDogAsPet(inputDog);
+
+        // Verify response is a Dog (polymorphic deserialization)
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals("dog", response.getKind());
+        Assertions.assertEquals("Rex", response.getName());
+        Assertions.assertTrue(response.isTrained());
+
+        // Verify it's actually a Dog instance
+        Assertions.assertInstanceOf(Dog.class, response);
+        Dog dogResponse = (Dog) response;
+        Assertions.assertEquals("German Shepherd", dogResponse.getBreed());
+    }
+
+    @Test
+    public void testUpdateDogAsDog() {
+        // Test operation that accepts Dog input and returns Dog output
+        Dog inputDog = new Dog("Rex", true, "German Shepherd");
+        Dog response = dogClient.updateDogAsDog(inputDog);
+
+        // Verify response is a Dog
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals("dog", response.getKind());
+        Assertions.assertEquals("Rex", response.getName());
+        Assertions.assertTrue(response.isTrained());
+        Assertions.assertEquals("German Shepherd", response.getBreed());
+
+        // Verify Dog extends Pet (hierarchy building)
+        Assertions.assertInstanceOf(Pet.class, response);
     }
 }

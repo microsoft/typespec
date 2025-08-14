@@ -1,5 +1,13 @@
 # Change Log - @typespec/http-client-python
 
+## 0.15.2
+
+### Bug Fixes
+
+- [#8175](https://github.com/microsoft/typespec/pull/8175) fix generated output folder for `generated_samples/generated_tests`
+- [#8117](https://github.com/microsoft/typespec/pull/8117) keep declaration of pyproject.toml same with existing setup.py of ARM SDK
+
+
 ## 0.15.1
 
 ### Bump dependencies

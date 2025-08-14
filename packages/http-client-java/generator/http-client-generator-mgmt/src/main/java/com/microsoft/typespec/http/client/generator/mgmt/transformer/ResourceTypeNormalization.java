@@ -63,8 +63,10 @@ class ResourceTypeNormalization {
         objectSchemas.forEach(compositeType -> {
             Optional<ObjectSchema> parentType = getObjectParent(compositeType);
             if (parentType.isPresent()) {
-                getSchemaResourceType(parentType.get())
-                    .ifPresent(type -> adaptForParentSchema(compositeType, parentType.get(), type));
+                getSchemaResourceType(parentType.get()).ifPresent(type -> {
+                    renameSchemaOnResourceType(parentType.get(), type);
+                    adaptForParentSchema(compositeType, parentType.get(), type);
+                });
 
                 if (FluentType.SYSTEM_DATA.getName().equals(Utils.getJavaName(parentType.get()))) {
                     adaptAsSystemData(compositeType);
@@ -231,6 +233,12 @@ class ResourceTypeNormalization {
         }
     }
 
+    /**
+     * Check the object schema, determine its resource type.
+     *
+     * @param compositeType the object schema to check
+     * @return the resource type
+     */
     private static Optional<ResourceType> getSchemaResourceType(ObjectSchema compositeType) {
         ResourceType type = null;
 
@@ -259,6 +267,28 @@ class ResourceTypeNormalization {
         }
 
         return Optional.ofNullable(type);
+    }
+
+    /**
+     * Rename the schema based on the resource type.
+     *
+     * @param compositeType the object schema to rename
+     * @param type the resource type
+     */
+    private static void renameSchemaOnResourceType(ObjectSchema compositeType, ResourceType type) {
+        switch (type) {
+            case SUB_RESOURCE:
+                compositeType.getLanguage().getJava().setName(ResourceTypeName.SUB_RESOURCE);
+                break;
+
+            case PROXY_RESOURCE:
+                compositeType.getLanguage().getJava().setName(ResourceTypeName.PROXY_RESOURCE);
+                break;
+
+            case RESOURCE:
+                compositeType.getLanguage().getJava().setName(ResourceTypeName.RESOURCE);
+                break;
+        }
     }
 
     private static void adaptForParentSchema(ObjectSchema compositeType, ObjectSchema parentType, ResourceType type) {
