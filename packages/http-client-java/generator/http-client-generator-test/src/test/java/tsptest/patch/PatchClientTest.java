@@ -148,6 +148,16 @@ public class PatchClientTest {
         String json = BinaryData.fromObject(fish).toString();
         JsonNode node = OBJECT_MAPPER.readTree(json);
         Assertions.assertEquals(JsonNodeType.NULL, node.get("color").getNodeType());
+
+        Salmon salmon = new Salmon().setAge(2);
+        salmon.setColor("red");
+        Assertions.assertEquals("salmon", salmon.getKind());
+        JsonMergePatchHelper.getFishAccessor().prepareModelForJsonMergePatch(salmon, true);
+        salmon.setColor(null);
+        String jsonSalmon = BinaryData.fromObject(fish).toString();
+        JsonNode nodeSalmon = OBJECT_MAPPER.readTree(jsonSalmon);
+        Assertions.assertEquals(JsonNodeType.NULL, nodeSalmon.get("color").getNodeType());
+
     }
 
     @Test
@@ -164,4 +174,6 @@ public class PatchClientTest {
         Assertions.assertNull(node.get("description"));
         Assertions.assertEquals(JsonNodeType.NULL, node.get("intValue").getNodeType());
     }
+
+
 }
