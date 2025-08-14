@@ -21,6 +21,13 @@ const argv = parseArgs({
   },
 });
 
+// Add this near the top with other constants
+const SKIP_SPECS = [
+  "type/union/discriminated",
+  "client-operation-group",
+  "azure/client-generator-core/hierarchy-building",
+];
+
 // Get the directory of the current file
 const PLUGIN_DIR = argv.values.pluginDir
   ? resolve(argv.values.pluginDir)
@@ -46,6 +53,9 @@ const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<stri
   "azure/client-generator-core/client-initialization": {
     namespace: "specs.azure.clientgenerator.core.clientinitialization",
   },
+  "azure/client-generator-core/client-location": {
+    namespace: "specs.azure.clientgenerator.core.clientlocation",
+  },
   "azure/client-generator-core/deserialize-empty-string-as-null": {
     namespace: "specs.azure.clientgenerator.core.emptystring",
   },
@@ -54,6 +64,9 @@ const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<stri
   },
   "azure/client-generator-core/usage": {
     namespace: "specs.azure.clientgenerator.core.usage",
+  },
+  "azure/client-generator-core/override": {
+    namespace: "specs.azure.clientgenerator.core.override",
   },
   "azure/core/basic": {
     namespace: "specs.azure.core.basic",
@@ -103,6 +116,9 @@ const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<stri
   "client/naming": {
     namespace: "client.naming",
   },
+  "client/overload": {
+    namespace: "client.overload",
+  },
   "encode/duration": {
     namespace: "encode.duration",
   },
@@ -147,10 +163,17 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
     namespace: "authentication.http.custom",
     "package-pprint-name": "Authentication Http Custom",
   },
-  "authentication/union": {
-    "package-name": "authentication-union",
-    namespace: "authentication.union",
-  },
+  "authentication/union": [
+    {
+      "package-name": "authentication-union",
+      namespace: "authentication.union",
+    },
+    {
+      "package-name": "setuppy-authentication-union",
+      namespace: "setuppy.authentication.union",
+      "keep-setup-py": "true",
+    },
+  ],
   "type/array": {
     "package-name": "typetest-array",
     namespace: "typetest.array",
@@ -256,17 +279,13 @@ function getEmitterOption(spec: string, flavor: string): Record<string, string>[
 
 // Function to execute CLI commands asynchronously
 async function executeCommand(tspCommand: TspCommand): Promise<void> {
-  try {
-    rmSync(tspCommand.outputDir, { recursive: true, force: true });
-  } catch (error) {
-    console.error(chalk.red(`rm error: ${error}`));
-  }
   const execFileAsync = promisify(execFile);
   try {
     console.log(chalk.green(`start tsp ${tspCommand.command.join(" ")}`));
     await execFileAsync("tsp", tspCommand.command, { shell: true });
     console.log(chalk.green(`tsp ${tspCommand.command.join(" ")} succeeded`));
   } catch (err) {
+    rmSync(tspCommand.outputDir, { recursive: true, force: true });
     console.error(chalk.red(`exec error: ${err}`));
     throw err;
   }
@@ -307,11 +326,8 @@ async function getSubdirectories(baseDir: string, flags: RegenerateFlags): Promi
 
         const mainTspRelativePath = toPosix(relative(baseDir, mainTspPath));
 
-        // after fix test generation for nested operation group, remove this check
-        if (mainTspRelativePath.includes("client-operation-group")) return;
-
-        // after https://github.com/Azure/autorest.python/issues/3043 fixed, remove this check
-        if (mainTspRelativePath.includes("azure/client-generator-core/api-version")) return;
+        // Replace the individual skip checks with:
+        if (SKIP_SPECS.some((skipSpec) => mainTspRelativePath.includes(skipSpec))) return;
 
         const hasMainTsp = await promises
           .access(mainTspPath)

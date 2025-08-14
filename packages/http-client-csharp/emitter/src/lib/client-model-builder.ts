@@ -5,8 +5,8 @@ import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { CodeModel } from "../type/code-model.js";
 import { fromSdkClients } from "./client-converter.js";
-import { navigateModels } from "./model.js";
 import { processServiceAuthentication } from "./service-authentication.js";
+import { fromSdkType } from "./type-converter.js";
 import { firstLetterToUpperCase, getClientNamespaceString } from "./utils.js";
 
 /**
@@ -17,13 +17,12 @@ import { firstLetterToUpperCase, getClientNamespaceString } from "./utils.js";
  */
 export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   const sdkPackage = sdkContext.sdkPackage;
-
-  navigateModels(sdkContext);
+  // convert all the models and enums in the sdkPackage to the type cache.
+  const models = sdkPackage.models.map((m) => fromSdkType(sdkContext, m));
+  const enums = sdkPackage.enums.map((e) => fromSdkType(sdkContext, e));
 
   const sdkApiVersionEnums = sdkPackage.enums.filter((e) => e.usage === UsageFlags.ApiVersionEnum);
-
   const rootClients = sdkPackage.clients;
-
   const rootApiVersions =
     sdkApiVersionEnums.length > 0
       ? sdkApiVersionEnums[0].values.map((v) => v.value as string).flat()
@@ -31,13 +30,16 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
 
   const inputClients = fromSdkClients(sdkContext, rootClients, rootApiVersions);
 
+  // TODO -- TCGC now does not have constants field in its sdkPackage, they might add it in the future.
+  const constants = Array.from(sdkContext.__typeCache.constants.values());
+
   // TODO - TCGC has two issues which come from the same root cause: the name determination algorithm based on the typespec node of the constant.
   // typespec itself will always use the same node/Type instance for the same value constant, therefore a lot of names are not correct.
   // issues:
   // - https://github.com/Azure/typespec-azure/issues/2572 (constants in operations)
   // - https://github.com/Azure/typespec-azure/issues/2563 (constants in models)
   // First we correct the names of the constants in models.
-  for (const model of sdkContext.__typeCache.models.values()) {
+  for (const model of models) {
     // because this `models` list already contains all the models, therefore we just need to iterate all of them to find if any their properties is constant
     for (const property of model.properties) {
       const type = property.type;
@@ -69,9 +71,9 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
     // if the typespec is changed.
     name: getClientNamespaceString(sdkContext)!,
     apiVersions: rootApiVersions,
-    enums: Array.from(sdkContext.__typeCache.enums.values()),
-    constants: Array.from(sdkContext.__typeCache.constants.values()),
-    models: Array.from(sdkContext.__typeCache.models.values()),
+    enums: enums,
+    constants: constants,
+    models: models,
     clients: inputClients,
     auth: processServiceAuthentication(sdkContext, sdkPackage),
   };

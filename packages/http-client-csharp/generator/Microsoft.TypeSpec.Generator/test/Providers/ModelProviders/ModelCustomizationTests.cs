@@ -104,13 +104,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNull(modelTypeProvider.CustomCodeView.Properties[1].WireInfo);
 
             // validate canonical view
-            Assert.AreEqual(2, modelTypeProvider.CanonicalView!.Properties.Count);
+            Assert.AreEqual(1, modelTypeProvider.CanonicalView!.Properties.Count);
             Assert.AreEqual("Prop2", modelTypeProvider.CanonicalView.Properties[0].Name);
-            Assert.AreEqual("Prop1", modelTypeProvider.CanonicalView.Properties[1].Name);
             wireInfo = modelTypeProvider.CanonicalView.Properties[0].WireInfo;
             Assert.IsNotNull(wireInfo);
-            Assert.AreEqual("prop1", wireInfo!.SerializedName);
-            Assert.IsNull(modelTypeProvider.CanonicalView.Properties[1].WireInfo);
 
             Assert.AreEqual(0, modelTypeProvider.Properties.Count);
         }
@@ -271,6 +268,176 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsFalse(elementType.IsNullable);
             Assert.IsTrue(elementType.IsEnum);
             Assert.IsTrue(elementType.IsStruct);
+        }
+
+        [Test]
+        public async Task CanChangeListOfModelToReadOnlyListOfModel()
+        {
+            var props = new[]
+            {
+                InputFactory.Property("Prop1", InputFactory.Array(InputFactory.Model(
+                    "Foo",
+                    usage: InputModelTypeUsage.Input)))
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+            AssertCommon(modelTypeProvider, "Sample.Models", "MockInputModel");
+
+            // the property should be added to the custom code view
+            Assert.AreEqual(1, modelTypeProvider.CustomCodeView!.Properties.Count);
+            // the canonical type should be changed
+            Assert.AreEqual(1, modelTypeProvider.CanonicalView!.Properties.Count);
+
+            var listProp = modelTypeProvider.CanonicalView.Properties[0];
+            Assert.AreEqual("Prop1", listProp.Name);
+            Assert.IsFalse(listProp.Type.IsNullable);
+            Assert.IsTrue(listProp.Type.IsList);
+
+            var elementType = listProp.Type.ElementType;
+            Assert.AreEqual("global::Sample.Models.Foo", elementType.ToString());
+            Assert.AreEqual("Sample.Models", elementType.Namespace);
+            Assert.IsFalse(elementType.IsNullable);
+        }
+
+        [Test]
+        public async Task CanChangeListOfEnumToReadOnlyListOfEnum()
+        {
+            var props = new[]
+            {
+                InputFactory.Property("Prop1", InputFactory.Array(InputFactory.StringEnum(
+                    "MyEnum",
+                    [("foo", "bar")],
+                    usage: InputModelTypeUsage.Input)))
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+            AssertCommon(modelTypeProvider, "Sample.Models", "MockInputModel");
+
+            // the property should be added to the custom code view
+            Assert.AreEqual(1, modelTypeProvider.CustomCodeView!.Properties.Count);
+            // the canonical type should be changed
+            Assert.AreEqual(1, modelTypeProvider.CanonicalView!.Properties.Count);
+
+            var listProp = modelTypeProvider.CanonicalView.Properties[0];
+            Assert.AreEqual("Prop1", listProp.Name);
+            Assert.IsFalse(listProp.Type.IsNullable);
+            Assert.IsTrue(listProp.Type.IsList);
+
+            var elementType = listProp.Type.ElementType;
+            Assert.AreEqual("global::Sample.Models.Foo", elementType.ToString());
+            Assert.AreEqual("Sample.Models", elementType.Namespace);
+            Assert.IsFalse(elementType.IsNullable);
+        }
+
+        [Test]
+        public async Task CanChangeDictionaryOfModelToReadOnlyDictionaryOfModel()
+        {
+            var props = new[]
+            {
+                InputFactory.Property("Prop1", InputFactory.Dictionary(InputFactory.Model(
+                    "Foo",
+                    usage: InputModelTypeUsage.Input)))
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+            AssertCommon(modelTypeProvider, "Sample.Models", "MockInputModel");
+
+            // the property should be added to the custom code view
+            Assert.AreEqual(1, modelTypeProvider.CustomCodeView!.Properties.Count);
+            // the canonical type should be changed
+            Assert.AreEqual(1, modelTypeProvider.CanonicalView!.Properties.Count);
+
+            var listProp = modelTypeProvider.CanonicalView.Properties[0];
+            Assert.AreEqual("Prop1", listProp.Name);
+            Assert.IsFalse(listProp.Type.IsNullable);
+            Assert.IsTrue(listProp.Type.IsDictionary);
+
+            var elementType = listProp.Type.ElementType;
+            Assert.AreEqual("global::Sample.Models.Foo", elementType.ToString());
+            Assert.AreEqual("Sample.Models", elementType.Namespace);
+            Assert.IsFalse(elementType.IsNullable);
+        }
+
+        [Test]
+        public async Task CanChangeModelProperty()
+        {
+            var props = new[]
+            {
+                InputFactory.Property("Prop1", InputFactory.Model(
+                    "Foo",
+                    usage: InputModelTypeUsage.Input))
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+            AssertCommon(modelTypeProvider, "Sample.Models", "MockInputModel");
+
+            // the property should be added to the custom code view
+            Assert.AreEqual(1, modelTypeProvider.CustomCodeView!.Properties.Count);
+            // the canonical type should be changed
+            Assert.AreEqual(1, modelTypeProvider.CanonicalView!.Properties.Count);
+
+            var modelProp = modelTypeProvider.CanonicalView.Properties[0];
+            Assert.AreEqual("Prop1", modelProp.Name);
+            Assert.IsFalse(modelProp.Type.IsNullable);
+            Assert.IsFalse(modelProp.Body.HasSetter);
+            Assert.AreEqual("global::Sample.Models.Foo", modelProp.Type.ToString());
+            Assert.AreEqual("Sample.Models", modelProp.Type.Namespace);
+        }
+
+        [Test]
+        public async Task CanChangeModelPropertyWhenModelIsCustomized()
+        {
+            var props = new[]
+            {
+                InputFactory.Property("Prop1", InputFactory.Model(
+                    "Foo",
+                    usage: InputModelTypeUsage.Input))
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+            AssertCommon(modelTypeProvider, "Sample.Models", "MockInputModel");
+
+            // the property should be added to the custom code view
+            Assert.AreEqual(1, modelTypeProvider.CustomCodeView!.Properties.Count);
+            // the canonical type should be changed
+            Assert.AreEqual(1, modelTypeProvider.CanonicalView!.Properties.Count);
+
+            var modelProp = modelTypeProvider.CanonicalView.Properties[0];
+            Assert.AreEqual("Prop1", modelProp.Name);
+            Assert.IsFalse(modelProp.Type.IsNullable);
+            Assert.IsFalse(modelProp.Body.HasSetter);
+            Assert.AreEqual("global::Sample.Models.Custom.Foo", modelProp.Type.ToString());
+            Assert.AreEqual("Sample.Models.Custom", modelProp.Type.Namespace);
         }
 
         [Test]

@@ -1,6 +1,7 @@
 package payload.pageable.implementation;
 
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 
 /**
  * Initializes a new instance of the PageableClient type.
@@ -35,6 +36,20 @@ public final class PageableClientImpl {
     }
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
      * The ServerDrivenPaginationsImpl object to access its operations.
      */
     private final ServerDrivenPaginationsImpl serverDrivenPaginations;
@@ -66,10 +81,12 @@ public final class PageableClientImpl {
      * Initializes an instance of PageableClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
      */
-    public PageableClientImpl(HttpPipeline httpPipeline, String endpoint) {
+    public PageableClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
         this.serverDrivenPaginations = new ServerDrivenPaginationsImpl(this);
         this.serverDrivenPaginationContinuationTokens = new ServerDrivenPaginationContinuationTokensImpl(this);

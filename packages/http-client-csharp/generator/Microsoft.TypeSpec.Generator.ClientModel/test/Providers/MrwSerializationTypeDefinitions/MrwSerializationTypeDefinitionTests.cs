@@ -708,47 +708,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
-        public void TestBuildExplicitFromClientResult_ArrayOfModels()
-        {
-            var inputModel = InputFactory.Model("mockInputModel", usage: InputModelTypeUsage.Output | InputModelTypeUsage.Json);
-            var modelArray = InputFactory.Array(inputModel);
-            var inputOperation = InputFactory.Operation("bar", responses: [InputFactory.OperationResponse(bodytype: modelArray)]);
-            var inputServiceResponse = InputFactory.ServiceMethodResponse(modelArray, null);
-            var inputClient = InputFactory.Client("fooClient", methods: [InputFactory.BasicServiceMethod("bar", inputOperation, response: inputServiceResponse)]);
-            MockHelpers.LoadMockGenerator(
-                inputModels: () => [inputModel],
-                clients: () => [inputClient]);
-            var outputLibrary = ScmCodeModelGenerator.Instance.OutputLibrary;
-            var modelProvider = outputLibrary.TypeProviders.OfType<ModelProvider>().FirstOrDefault(t => t.Name == "MockInputModel");
-            Assert.IsNotNull(modelProvider);
-
-            var serializationProvider = modelProvider!.SerializationProviders.FirstOrDefault();
-            Assert.IsNotNull(serializationProvider);
-            var methods = serializationProvider!.Methods;
-
-            Assert.IsTrue(methods.Count > 0);
-
-            var method = methods.FirstOrDefault(m => m.Signature.Name == "MockInputModel");
-
-            Assert.IsNotNull(method);
-
-            var methodSignature = method?.Signature;
-            Assert.IsNotNull(methodSignature);
-
-            var expectedModifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Explicit | MethodSignatureModifiers.Operator;
-            Assert.AreEqual(inputModel.Name.ToIdentifierName(), methodSignature?.Name);
-            Assert.AreEqual(expectedModifiers, methodSignature?.Modifiers);
-
-            var methodParameters = methodSignature?.Parameters;
-            Assert.AreEqual(1, methodParameters?.Count);
-            var clientResultParameter = methodParameters?[0];
-            Assert.AreEqual(new CSharpType(typeof(ClientResult)), clientResultParameter?.Type);
-
-            var methodBody = method?.BodyStatements;
-            Assert.IsNotNull(methodBody);
-        }
-
-        [Test]
         public void TestExplicitFromClientResultNotGeneratedForNonRootOutputModel()
         {
             var inputModel = InputFactory.Model("mockInputModel");
@@ -843,7 +802,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var name = kind.ToString().ToLower();
             var properties = new List<InputModelProperty>
             {
-                new InputModelProperty("requiredInt", "", "", new InputPrimitiveType(kind, name, $"TypeSpec.{name}", encode), true, false, null, false, "requiredInt", new(json: new("requiredInt"))),
+                new InputModelProperty("requiredInt", "", "", new InputPrimitiveType(kind, name, $"TypeSpec.{name}", encode), true, false, null, false, "requiredInt", false, false, null, new(json: new("requiredInt"))),
              };
 
             var inputModel = new InputModelType("TestModel", "TestNamespace", "TestModel", "public", null, "", "Test model.", InputModelTypeUsage.Input, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, new());
@@ -867,6 +826,47 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         {
             var expr = MrwSerializationTypeDefinition.DeserializeJsonValueCore(type, new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "foo")), format);
             return expr.ToDisplayString();
+        }
+
+        [Test]
+        public void ModelPropertiesAreNotEvaluatedInConstructor()
+        {
+            MockHelpers.LoadMockGenerator();
+            var inputModel = InputFactory.Model("mockInputModel", properties: [InputFactory.Property("mockProperty", InputPrimitiveType.String, isRequired: true, isReadOnly: true)]);
+
+            // Create a custom model provider that tracks property access
+            var trackingModel = new PropertyAccessTrackingModelProvider(inputModel);
+
+            // Create the MrwSerializationTypeDefinition - this should NOT access Properties
+            var serialization = new MrwSerializationTypeDefinition(inputModel, trackingModel);
+
+            // Verify that Properties were not accessed during construction
+            Assert.IsFalse(trackingModel.PropertiesAccessed, "Model.Properties should not be accessed in the MrwSerializationTypeDefinition constructor");
+
+            // Now access a member that would require Properties (like Methods or Constructors)
+            var _ = serialization.Methods;
+
+            // Now Properties should have been accessed
+            Assert.IsTrue(trackingModel.PropertiesAccessed, "Model.Properties should be accessed when Methods are requested");
+        }
+
+        private class PropertyAccessTrackingModelProvider : ModelProvider
+        {
+            private readonly InputModelType _inputModel;
+            private bool _propertiesAccessed;
+
+            public PropertyAccessTrackingModelProvider(InputModelType inputModel) : base(inputModel)
+            {
+                _inputModel = inputModel;
+            }
+
+            public bool PropertiesAccessed => _propertiesAccessed;
+
+            protected override PropertyProvider[] BuildProperties()
+            {
+                _propertiesAccessed = true;
+                return base.BuildProperties();
+            }
         }
 
         /// <summary>

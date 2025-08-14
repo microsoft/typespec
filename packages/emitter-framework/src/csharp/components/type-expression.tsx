@@ -1,7 +1,8 @@
-import { Children } from "@alloy-js/core";
+import { Experimental_OverridableComponent } from "#core/index.js";
+import { type Children, code } from "@alloy-js/core";
 import { Reference } from "@alloy-js/csharp";
-import { IntrinsicType, Scalar, Type } from "@typespec/compiler";
-import { Typekit } from "@typespec/compiler/typekit";
+import { getTypeName, type IntrinsicType, type Scalar, type Type } from "@typespec/compiler";
+import type { Typekit } from "@typespec/compiler/typekit";
 import { useTsp } from "../../core/index.js";
 import { reportTypescriptDiagnostic } from "../../typescript/lib.js";
 import { efRefkey } from "./utils/refkey.js";
@@ -13,12 +14,23 @@ export interface TypeExpressionProps {
 export function TypeExpression(props: TypeExpressionProps): Children {
   const { $ } = useTsp();
   if (isDeclaration($, props.type)) {
-    return <Reference refkey={efRefkey(props.type)} />;
+    return (
+      <Experimental_OverridableComponent reference type={props.type}>
+        <Reference refkey={efRefkey(props.type)} />
+      </Experimental_OverridableComponent>
+    );
   }
   if ($.scalar.is(props.type)) {
     return getScalarIntrinsicExpression($, props.type);
+  } else if ($.array.is(props.type)) {
+    return code`${(<TypeExpression type={props.type.indexer.value} />)}[]`;
+  } else if ($.record.is(props.type)) {
+    return code`IDictionary<string, ${(<TypeExpression type={props.type.indexer.value} />)}>`;
   }
-  throw new Error("not implemented");
+
+  throw new Error(
+    `Unsupported type for TypeExpression: ${props.type.kind} (${getTypeName(props.type)})`,
+  );
 }
 
 const intrinsicNameToCSharpType = new Map<string, string | null>([

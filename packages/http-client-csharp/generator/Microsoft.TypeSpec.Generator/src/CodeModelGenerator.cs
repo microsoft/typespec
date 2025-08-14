@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -28,13 +27,13 @@ namespace Microsoft.TypeSpec.Generator
         private static CodeModelGenerator? _instance;
         private List<string> _sharedSourceDirectories = [];
         public const string GeneratorMetadataName = "GeneratorName";
-        internal static CodeModelGenerator Instance
+        public static CodeModelGenerator Instance
         {
             get
             {
                 return _instance ?? throw new InvalidOperationException("CodeModelGenerator is not initialized");
             }
-            set
+            internal set
             {
                 _instance = value;
             }
@@ -129,6 +128,7 @@ namespace Microsoft.TypeSpec.Generator
         internal HashSet<string> TypesToKeep { get; } = [];
 
         internal HashSet<string> TypesToKeepPublic { get; } = [];
+        internal HashSet<string> NonRootTypes { get; } = [];
 
         /// <summary>
         /// Adds a type to the list of types to keep.
@@ -148,7 +148,23 @@ namespace Microsoft.TypeSpec.Generator
         /// <summary>
         /// Adds a type to the list of types to keep as public.
         /// </summary>
-        /// <param name="typeName">The type provider representing the type.</param>
+        /// <param name="typeName">Either a fully qualified type name or simple type name.</param>
         public void AddTypeToKeepPublic(string typeName) => TypesToKeepPublic.Add(typeName);
+
+        /// <summary>
+        /// Adds a type to the list of non-root type providers. Non-root type providers are types whose
+        /// references do not contribute to usages of the generated code. Therefore, if the 'unreferenced-types-handling' property
+        /// is not set to 'keepAll', any types referenced by non-root type providers will not automatically be kept.
+        /// </summary>
+        /// <param name="typeName">Either a fully qualified type name or simple type name.</param>
+        public void AddNonRootType(string typeName) => NonRootTypes.Add(typeName);
+
+        /// <summary>
+        /// Adds a type to the list of non-root type providers. Non-root type providers are types whose
+        /// references do not contribute to usages of the generated code. Therefore, if the 'unreferenced-types-handling' property
+        /// is not set to 'keepAll', any types referenced by non-root type providers will not automatically be kept.
+        /// </summary>
+        /// <param name="type">The type provider representing the type.</param>
+        public void AddNonRootType(TypeProvider type) => AddNonRootType(type.Type.FullyQualifiedName);
     }
 }

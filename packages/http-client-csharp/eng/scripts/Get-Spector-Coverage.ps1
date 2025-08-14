@@ -19,14 +19,22 @@ if (-not (Test-Path $coverageDir)) {
     New-Item -ItemType Directory -Path $coverageDir | Out-Null
 }
 
+$failingSpecs = @(
+)
+
 # generate all
 foreach ($directory in $directories) {
     if (-not (IsGenerated $directory.FullName)) {
         continue
     }
-
+    
     $outputDir = $directory.FullName.Substring(0, $directory.FullName.IndexOf("src") - 1)
     $subPath = $outputDir.Substring($spectorRoot.Length + 1)
+    
+    if ($failingSpecs.Contains($subPath)) {
+        Write-Host "Skipping $subPath" -ForegroundColor Yellow
+        continue
+    }
 
     Write-Host "Regenerating $subPath" -ForegroundColor Cyan
 

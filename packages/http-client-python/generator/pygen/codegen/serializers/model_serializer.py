@@ -164,7 +164,7 @@ class MsrestModelSerializer(_ModelSerializer):
     def declare_model(self, model: ModelType) -> str:
         basename = (
             "msrest.serialization.Model"
-            if self.code_model.options["client_side_validation"]
+            if self.code_model.options["client-side-validation"]
             else "_serialization.Model"
         )
         if model.parents:
@@ -266,7 +266,7 @@ class DpgModelSerializer(_ModelSerializer):
                     )
             if model.is_polymorphic:
                 file_import.add_submodule_import("typing", "Dict", ImportType.STDLIB)
-            if not model.internal and self.init_line(model):
+            if self.need_init(model):
                 file_import.add_submodule_import("typing", "overload", ImportType.STDLIB)
                 file_import.add_submodule_import("typing", "Mapping", ImportType.STDLIB)
                 file_import.add_submodule_import("typing", "Any", ImportType.STDLIB)

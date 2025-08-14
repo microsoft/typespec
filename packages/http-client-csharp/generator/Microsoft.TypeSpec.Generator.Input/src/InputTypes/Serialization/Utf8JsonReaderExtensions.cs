@@ -28,31 +28,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             return true;
         }
 
-        public static bool TryReadReferenceId(this ref Utf8JsonReader reader, ref bool isFirstProperty, ref string? value)
-        {
-            if (reader.TokenType != JsonTokenType.PropertyName)
-            {
-                throw new JsonException();
-            }
-
-            if (reader.GetString() != "$id")
-            {
-                return false;
-            }
-
-            if (!isFirstProperty)
-            {
-                throw new JsonException("$id should be the first defined property");
-            }
-
-            isFirstProperty = false;
-
-            reader.Read();
-            value = reader.GetString() ?? throw new JsonException();
-            reader.Read();
-            return true;
-        }
-
         public static bool TryReadNullableBoolean(this ref Utf8JsonReader reader, string propertyName, ref bool? value)
         {
             if (reader.TokenType != JsonTokenType.PropertyName)

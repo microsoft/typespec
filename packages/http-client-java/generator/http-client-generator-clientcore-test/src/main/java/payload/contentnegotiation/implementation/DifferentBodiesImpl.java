@@ -12,6 +12,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.models.binarydata.BinaryData;
 import java.lang.reflect.InvocationTargetException;
 import payload.contentnegotiation.differentbody.PngImageAsJson;
@@ -31,6 +32,11 @@ public final class DifferentBodiesImpl {
     private final ContentNegotiationClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of DifferentBodiesImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -38,6 +44,7 @@ public final class DifferentBodiesImpl {
     DifferentBodiesImpl(ContentNegotiationClientImpl client) {
         this.service = DifferentBodiesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -86,8 +93,11 @@ public final class DifferentBodiesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getAvatarAsPngWithResponse(RequestContext requestContext) {
-        final String accept = "image/png";
-        return service.getAvatarAsPng(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Payload.ContentNegotiation.DifferentBody.getAvatarAsPng",
+            requestContext, updatedContext -> {
+                final String accept = "image/png";
+                return service.getAvatarAsPng(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -101,7 +111,10 @@ public final class DifferentBodiesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<PngImageAsJson> getAvatarAsJsonWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.getAvatarAsJson(this.client.getEndpoint(), accept, requestContext);
+        return this.instrumentation.instrumentWithResponse("Payload.ContentNegotiation.DifferentBody.getAvatarAsJson",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.getAvatarAsJson(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 }

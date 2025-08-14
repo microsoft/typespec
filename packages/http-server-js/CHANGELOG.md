@@ -1,5 +1,27 @@
 # Changelog - @typespec/http-server-js
 
+## 0.58.0-alpha.18
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8084](https://github.com/microsoft/typespec/pull/8084) Corrected an error that caused Array and Record responses to fail to serialize correctly when they were variants of a Union return type.
+- [#7940](https://github.com/microsoft/typespec/pull/7940) Fixed an issue where JSON serialization would not correctly handle optional properties in some cases.
+  
+  Fixed an issue where body serialization would sometimes fail to name anonymous response items, even if a name is required
+  to dispatch serialization code.
+
+
+## 0.58.0-alpha.16
+
+### Bump dependencies
+
+- [#7674](https://github.com/microsoft/typespec/pull/7674) Upgrade dependencies
+
+
 ## 0.58.0-alpha.15
 
 ### Features

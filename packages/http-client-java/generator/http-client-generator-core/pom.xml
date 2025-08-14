@@ -24,12 +24,12 @@
     <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-core</artifactId>
-      <version>1.55.4</version>
+      <version>1.55.5</version>
     </dependency>
     <dependency>
       <groupId>io.clientcore</groupId>
       <artifactId>core</artifactId>
-      <version>1.0.0-beta.10</version>
+      <version>1.0.0-beta.11</version>
     </dependency>
     <dependency>
       <groupId>com.azure</groupId>
@@ -54,7 +54,7 @@
     <dependency>
       <groupId>com.github.javaparser</groupId>
       <artifactId>javaparser-core</artifactId>
-      <version>3.25.10</version>
+      <version>3.27.0</version>
     </dependency>
     <!-- 1.24.0 is the last version that supports Java 11 -->
     <dependency>
@@ -75,13 +75,13 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
-      <version>5.11.2</version>
+      <version>5.13.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
-      <version>5.11.2</version>
+      <version>5.13.1</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

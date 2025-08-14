@@ -1,5 +1,25 @@
 # Changelog - @typespec/tspd
 
+## 0.72.2
+
+### Bump dependencies
+
+- [#8050](https://github.com/microsoft/typespec/pull/8050) Upgrade alloy 0.19
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+
+## 0.72.0
+
+### Bump dependencies
+
+- [#7655](https://github.com/microsoft/typespec/pull/7655) Upgrade to alloy 0.18.0
+- [#7674](https://github.com/microsoft/typespec/pull/7674) Upgrade dependencies
+
+### Bug Fixes
+
+- [#7647](https://github.com/microsoft/typespec/pull/7647) Add missing dependency on `@microsoft/api-extractor`
+
+
 ## 0.71.0
 
 ### Features

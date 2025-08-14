@@ -4,9 +4,11 @@ import { Diagnostic, FileChangeType } from "vscode-languageserver/node.js";
 import { parse, visitChildren } from "../core/parser.js";
 import { resolvePath } from "../core/path-utils.js";
 import { IdentifierNode, SyntaxKind } from "../core/types.js";
+import { createClientConfigProvider } from "../server/client-config-provider.js";
 import { Server, ServerHost, createServer } from "../server/index.js";
 import { createStringMap } from "../utils/misc.js";
-import { StandardTestLibrary, TestHostOptions, createTestFileSystem } from "./test-host.js";
+import { createTestFileSystem } from "./fs.js";
+import { StandardTestLibrary, TestHostOptions } from "./test-compiler-host.js";
 import { resolveVirtualPath } from "./test-utils.js";
 import { TestFileSystem } from "./types.js";
 
@@ -108,7 +110,8 @@ export async function createTestServerHost(options?: TestHostOptions & { workspa
 
   const workspaceDir = options?.workspaceDir ?? "./";
   const rootUri = serverHost.getURL(workspaceDir);
-  const server = createServer(serverHost);
+  const clientConfigProvider = createClientConfigProvider();
+  const server = createServer(serverHost, clientConfigProvider);
   await server.initialize({
     rootUri: options?.caseInsensitiveFileSystem ? rootUri.toUpperCase() : rootUri,
     capabilities: {},

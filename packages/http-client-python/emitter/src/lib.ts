@@ -22,6 +22,7 @@ export interface PythonEmitterOptions {
   "package-pprint-name"?: string;
   "head-as-boolean"?: boolean;
   "use-pyodide"?: boolean;
+  "keep-setup-py"?: boolean;
 }
 
 export interface PythonSdkContext extends SdkContext<PythonEmitterOptions> {
@@ -79,6 +80,24 @@ export const PythonEmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = 
       nullable: true,
       description:
         "Whether to generate using `pyodide` instead of `python`. If there is no python installed on your device, we will default to using pyodide to generate the code.",
+    },
+    "validate-versioning": {
+      type: "boolean",
+      nullable: true,
+      description:
+        "Whether to validate the versioning of the package. Defaults to `true`. If set to `false`, we will not validate the versioning of the package.",
+    },
+    "generation-subdir": {
+      type: "string",
+      nullable: true,
+      description:
+        "The subdirectory to generate the code in. If not specified, the code will be generated in the root folder. Note: if you're using this flag, you will need to add and maintain the versioning file yourself.",
+    },
+    "keep-setup-py": {
+      type: "boolean",
+      nullable: true,
+      description:
+        "Whether to keep the existing `setup.py` when `generate-packaging-files` is `true`. If set to `false` and by default, `pyproject.toml` will be generated instead. To generate `setup.py`, use `basic-setup-py`.",
     },
   },
   required: [],

@@ -1,6 +1,7 @@
 import { NoTarget } from "@typespec/compiler";
 
 import {
+  getHttpOperationParameter,
   SdkBasicServiceMethod,
   SdkBodyParameter,
   SdkClientType,
@@ -11,6 +12,7 @@ import {
   SdkHttpResponse,
   SdkLroPagingServiceMethod,
   SdkLroServiceMethod,
+  SdkMethodParameter,
   SdkModelPropertyType,
   SdkPagingServiceMethod,
   SdkPathParameter,
@@ -21,7 +23,7 @@ import {
 } from "@azure-tools/typespec-client-generator-core";
 import { HttpStatusCodeRange } from "@typespec/http";
 import { PythonSdkContext, reportDiagnostic } from "./lib.js";
-import { KnownTypes, getType } from "./types.js";
+import { getType, KnownTypes } from "./types.js";
 import {
   camelToSnakeCase,
   emitParamBase,
@@ -98,7 +100,9 @@ function addLroInformation(
   };
 }
 
-function getWireNameFromPropertySegments(segments: SdkModelPropertyType[]): string | undefined {
+function getWireNameFromPropertySegments(
+  segments: (SdkModelPropertyType | SdkMethodParameter | SdkServiceResponseHeader)[],
+): string | undefined {
   if (segments[0].kind === "property") {
     return segments
       .filter((s) => s.kind === "property")
@@ -111,7 +115,7 @@ function getWireNameFromPropertySegments(segments: SdkModelPropertyType[]): stri
 
 function getWireNameWithDiagnostics(
   context: PythonSdkContext,
-  segments: SdkModelPropertyType[] | undefined,
+  segments: (SdkModelPropertyType | SdkServiceResponseHeader)[] | undefined,
   code: "invalid-paging-items" | "invalid-next-link" | "invalid-lro-result",
   method?: SdkServiceMethod<SdkHttpOperation>,
 ): string | undefined {
@@ -134,7 +138,7 @@ function getWireNameWithDiagnostics(
 function buildContinuationToken(
   context: PythonSdkContext,
   method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
-  segments: SdkModelPropertyType[],
+  segments: (SdkModelPropertyType | SdkMethodParameter | SdkServiceResponseHeader)[],
   input: boolean = true,
 ): Record<string, any> {
   if (segments[0].kind === "property") {
@@ -293,7 +297,7 @@ function emitHttpOperation(
     discriminator: "basic",
     isOverload: false,
     overloads: [],
-    apiVersions: [],
+    apiVersions: method.apiVersions,
     wantTracing: true,
     exposeStreamKeyword: true,
     crossLanguageDefinitionId: method?.crossLanguageDefinitionId,
@@ -424,7 +428,23 @@ function emitHttpParameters(
   method: SdkServiceMethod<SdkHttpOperation>,
 ): Record<string, any>[] {
   const parameters: Record<string, any>[] = [...context.__endpointPathParameters];
-  for (const parameter of operation.parameters) {
+
+  // handle @override for parameters reorder
+  const httpParameters = method.isOverride
+    ? (() => {
+        const parametersFromMethod = method.parameters
+          .map((param) => getHttpOperationParameter(method, param))
+          .filter((result) => result !== undefined);
+
+        const parametersFromOperation = operation.parameters.filter(
+          (param) => !parametersFromMethod.includes(param),
+        );
+
+        return [...parametersFromMethod, ...parametersFromOperation];
+      })()
+    : operation.parameters;
+
+  for (const parameter of httpParameters) {
     switch (parameter.kind) {
       case "header":
         parameters.push(emitHttpHeaderParameter(context, parameter, method));
@@ -437,6 +457,7 @@ function emitHttpParameters(
         break;
     }
   }
+
   return parameters;
 }
 

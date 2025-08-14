@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Property;
@@ -34,12 +35,18 @@ import java.util.stream.Stream;
 final class PagingMetadata {
     private final Operation operation;
     private final Operation nextOperation;
-    private final ModelPropertySegment itemPropertyReference;
-    private final ModelPropertySegment nextLinkPropertyReference;
+    private final List<ModelPropertySegment> pageItemsPropertyReference;
+    private final List<ModelPropertySegment> nextLinkPropertyReference;
     private final IType lroPollResultType;
     private final List<ClientMethod> nextMethods;
     private final ClientMethodParameter maxPageSizeParameter;
     private final MethodPageDetails.ContinuationToken continuationToken;
+    /**
+     * Represents the next link re-injected parameters for paging. This is a legacy feature and currently only
+     * query parameters are included.
+     * If there is no next link re-injected parameters, this field will be null.
+     */
+    private final MethodPageDetails.NextLinkReInjection nextLinkReInjection;
 
     /**
      * Creates paging meta data for an {@link Operation}.
@@ -59,12 +66,12 @@ final class PagingMetadata {
         final XmsPageable xmsPageable = operation.getExtensions().getXmsPageable();
         final IType responseType = proxyMethod.getResponseType();
 
-        final ModelPropertySegment itemPropertyReference = getPageableItem(xmsPageable, responseType);
-        if (itemPropertyReference == null) {
+        final List<ModelPropertySegment> pageItemsPropertyReference = getPageableItem(xmsPageable, responseType);
+        if (CoreUtils.isNullOrEmpty(pageItemsPropertyReference)) {
             // No PagingMetadata to create if operation has no pageable-item property.
             return null;
         }
-        final ModelPropertySegment nextLinkPropertyReference = getPageableNextLink(xmsPageable, responseType);
+        final List<ModelPropertySegment> nextLinkPropertyReference = getPageableNextLink(xmsPageable, responseType);
         final Operation nextOperation = xmsPageable.getNextOperation();
         final IType lroPollResultType;
         if (operation.isLro() && nextOperation != operation) {
@@ -87,8 +94,27 @@ final class PagingMetadata {
             = getContinuationToken(xmsPageable, responseType, parametersDetails);
         final ClientMethodParameter maxPageSizeParameter = getPageSizeClientMethodParameter(parametersDetails);
 
-        return new PagingMetadata(operation, nextOperation, itemPropertyReference, nextLinkPropertyReference,
-            nextMethods, lroPollResultType, continuationToken, maxPageSizeParameter);
+        MethodPageDetails.NextLinkReInjection nextLinkReInjection = null;
+        if (xmsPageable.getNextLinkReInjectedParameters() != null) {
+            List<String> queryParamSerializedNames = new ArrayList<>();
+            for (Parameter p : xmsPageable.getNextLinkReInjectedParameters()) {
+                if (p.getProtocol() != null
+                    && p.getProtocol().getHttp() != null
+                    && p.getProtocol().getHttp().getIn() == RequestParameterLocation.QUERY) {
+                    if (p.getLanguage() != null && p.getLanguage().getDefault() != null) {
+                        if (p.getLanguage().getDefault().getSerializedName() != null) {
+                            queryParamSerializedNames.add(p.getLanguage().getDefault().getSerializedName());
+                        }
+                    }
+                }
+            }
+            if (!queryParamSerializedNames.isEmpty()) {
+                nextLinkReInjection = new MethodPageDetails.NextLinkReInjection(queryParamSerializedNames);
+            }
+        }
+
+        return new PagingMetadata(operation, nextOperation, pageItemsPropertyReference, nextLinkPropertyReference,
+            nextMethods, lroPollResultType, continuationToken, maxPageSizeParameter, nextLinkReInjection);
     }
 
     boolean isMethodForNextPage() {
@@ -107,8 +133,8 @@ final class PagingMetadata {
     MethodPageDetails asMethodPageDetails(boolean isSync) {
         final ClientMethodType nextMethodType = nextMethodType(isSync);
         final ClientMethod nextMethod = enumerateNextMethodsOfType(nextMethodType).findFirst().orElse(null);
-        return new MethodPageDetails(itemPropertyReference, nextLinkPropertyReference, nextMethod, lroPollResultType,
-            continuationToken, maxPageSizeParameter);
+        return new MethodPageDetails(pageItemsPropertyReference, nextLinkPropertyReference, nextMethod,
+            lroPollResultType, continuationToken, maxPageSizeParameter, nextLinkReInjection);
     }
 
     /**
@@ -135,16 +161,60 @@ final class PagingMetadata {
         if (nextMethodWithContext == null) {
             return null;
         }
-        return new MethodPageDetails(itemPropertyReference, nextLinkPropertyReference, nextMethodWithContext,
-            lroPollResultType, continuationToken, maxPageSizeParameter);
+        return new MethodPageDetails(pageItemsPropertyReference, nextLinkPropertyReference, nextMethodWithContext,
+            lroPollResultType, continuationToken, maxPageSizeParameter, nextLinkReInjection);
     }
 
-    private static ModelPropertySegment getPageableItem(XmsPageable xmsPageable, IType responseType) {
-        return ClientModelUtil.getModelPropertySegment(responseType, xmsPageable.getItemName());
+    private static List<ModelPropertySegment> getPageableItem(XmsPageable xmsPageable, IType responseType) {
+        if (xmsPageable.getItemName() == null) {
+            return null;
+        } else if (xmsPageable.getPageItemsProperty() != null) {
+            // TypeSpec
+            List<ModelPropertySegment> result = new ArrayList<>();
+            for (Property p : xmsPageable.getPageItemsProperty()) {
+                final ModelPropertySegment segment
+                    = ClientModelUtil.getModelPropertySegment(responseType, p.getSerializedName());
+                if (segment == null) {
+                    throw new RuntimeException(String.format(
+                        "[JavaCheck/SchemaError] PageItems property of serialized name '%s' is not found in model '%s'.",
+                        p.getSerializedName(), responseType));
+                }
+                result.add(segment);
+
+                responseType = segment.getProperty().getClientType();
+            }
+            return result;
+        } else {
+            // m4
+            return Collections
+                .singletonList(ClientModelUtil.getModelPropertySegment(responseType, xmsPageable.getItemName()));
+        }
     }
 
-    private static ModelPropertySegment getPageableNextLink(XmsPageable xmsPageable, IType responseBodyType) {
-        return ClientModelUtil.getModelPropertySegment(responseBodyType, xmsPageable.getNextLinkName());
+    private static List<ModelPropertySegment> getPageableNextLink(XmsPageable xmsPageable, IType responseType) {
+        if (xmsPageable.getNextLinkName() == null) {
+            return null;
+        } else if (xmsPageable.getNextLinkProperty() != null) {
+            // TypeSpec
+            List<ModelPropertySegment> result = new ArrayList<>();
+            for (Property p : xmsPageable.getNextLinkProperty()) {
+                final ModelPropertySegment segment
+                    = ClientModelUtil.getModelPropertySegment(responseType, p.getSerializedName());
+                if (segment == null) {
+                    throw new RuntimeException(String.format(
+                        "[JavaCheck/SchemaError] NextLink property of serialized name '%s' is not found in model '%s'.",
+                        p.getSerializedName(), responseType));
+                }
+                result.add(segment);
+
+                responseType = segment.getProperty().getClientType();
+            }
+            return result;
+        } else {
+            // m4
+            return Collections
+                .singletonList(ClientModelUtil.getModelPropertySegment(responseType, xmsPageable.getNextLinkName()));
+        }
     }
 
     /**
@@ -233,16 +303,19 @@ final class PagingMetadata {
         return isSync ? ClientMethodType.PagingSyncSinglePage : ClientMethodType.PagingAsyncSinglePage;
     }
 
-    private PagingMetadata(Operation operation, Operation nextOperation, ModelPropertySegment itemPropertyReference,
-        ModelPropertySegment nextLinkPropertyReference, List<ClientMethod> nextMethods, IType lroPollResultType,
-        MethodPageDetails.ContinuationToken continuationToken, ClientMethodParameter maxPageSizeParameter) {
+    private PagingMetadata(Operation operation, Operation nextOperation,
+        List<ModelPropertySegment> pageItemsPropertyReference, List<ModelPropertySegment> nextLinkPropertyReference,
+        List<ClientMethod> nextMethods, IType lroPollResultType, MethodPageDetails.ContinuationToken continuationToken,
+        ClientMethodParameter maxPageSizeParameter, MethodPageDetails.NextLinkReInjection nextLinkReInjection) {
         this.operation = operation;
         this.nextOperation = nextOperation;
-        this.itemPropertyReference = itemPropertyReference;
-        this.nextLinkPropertyReference = nextLinkPropertyReference;
         this.nextMethods = nextMethods;
         this.lroPollResultType = lroPollResultType;
+        this.pageItemsPropertyReference = pageItemsPropertyReference;
+        this.nextLinkPropertyReference = nextLinkPropertyReference;
         this.continuationToken = continuationToken;
         this.maxPageSizeParameter = maxPageSizeParameter;
+        this.nextLinkReInjection = nextLinkReInjection;
     }
+
 }

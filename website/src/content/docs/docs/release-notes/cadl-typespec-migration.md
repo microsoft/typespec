@@ -11,9 +11,7 @@ We understand that change can be challenging, and we appreciate your patience an
 ## Name Changes
 
 - Packages:
-
   - NPM package scope:
-
     - @cadl-lang/[xx] -> @typespec/[xx]
 
   - Package names
@@ -27,21 +25,17 @@ We understand that change can be challenging, and we appreciate your patience an
 | @cadl-lang/openapi3 | using Cadl.OpenApi3; | @typespec/openapi3 | using OpenAPI3; |
 
 - File extension:
-
   - `.cadl` -> `.tsp`
 
 - Configuration file:
-
   - `cadl-project.yaml` -> `tspconfig.yaml`
 
 - CLI
-
   - `npx cadl compile .` -> `npx tsp compile .`
 
 - Compiler JS APIs
   - All artifacts with `*Cadl*` in the name have been updated to `*TypeSpec*`. However, aliases have been created with older `*Cadl*` name with `@deprecated` flag.
 - Noteable changes:
-
   - @cadl-lang/rest was split into two packages, @typespec/rest and @typespec/http
 
 - Back-compatibility

@@ -141,7 +141,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             @HeaderParam("Accept") String accept, @BodyParam("application/json") ChildResourceUpdate properties,
             Context context);
 
-        @Headers({ "Content-Type: application/json" })
+        @Headers({ "Accept: application/json;q=0.9", "Content-Type: application/json" })
         @Delete("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childResources/{childResourceName}")
         @ExpectedResponses({ 200, 202, 204 })
         @UnexpectedResponseExceptionType(ManagementException.class)
@@ -149,10 +149,9 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("resourceGroupName") String resourceGroupName,
             @PathParam("topLevelArmResourceName") String topLevelArmResourceName,
-            @PathParam("childResourceName") String childResourceName, @HeaderParam("Accept") String accept,
-            Context context);
+            @PathParam("childResourceName") String childResourceName, Context context);
 
-        @Headers({ "Content-Type: application/json" })
+        @Headers({ "Accept: application/json;q=0.9", "Content-Type: application/json" })
         @Delete("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childResources/{childResourceName}")
         @ExpectedResponses({ 200, 202, 204 })
         @UnexpectedResponseExceptionType(ManagementException.class)
@@ -160,8 +159,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("resourceGroupName") String resourceGroupName,
             @PathParam("topLevelArmResourceName") String topLevelArmResourceName,
-            @PathParam("childResourceName") String childResourceName, @HeaderParam("Accept") String accept,
-            Context context);
+            @PathParam("childResourceName") String childResourceName, Context context);
 
         @Headers({ "Content-Type: application/json" })
         @Get("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childResources")
@@ -183,7 +181,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             @PathParam("topLevelArmResourceName") String topLevelArmResourceName, @HeaderParam("Accept") String accept,
             Context context);
 
-        @Headers({ "Content-Type: application/json" })
+        @Headers({ "Accept: application/json;q=0.9", "Content-Type: application/json" })
         @Post("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childResources/{childResourceName}/actionWithoutBody")
         @ExpectedResponses({ 202, 204 })
         @UnexpectedResponseExceptionType(ManagementException.class)
@@ -191,10 +189,9 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("resourceGroupName") String resourceGroupName,
             @PathParam("topLevelArmResourceName") String topLevelArmResourceName,
-            @PathParam("childResourceName") String childResourceName, @HeaderParam("Accept") String accept,
-            Context context);
+            @PathParam("childResourceName") String childResourceName, Context context);
 
-        @Headers({ "Content-Type: application/json" })
+        @Headers({ "Accept: application/json;q=0.9", "Content-Type: application/json" })
         @Post("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childResources/{childResourceName}/actionWithoutBody")
         @ExpectedResponses({ 202, 204 })
         @UnexpectedResponseExceptionType(ManagementException.class)
@@ -202,8 +199,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("resourceGroupName") String resourceGroupName,
             @PathParam("topLevelArmResourceName") String topLevelArmResourceName,
-            @PathParam("childResourceName") String childResourceName, @HeaderParam("Accept") String accept,
-            Context context);
+            @PathParam("childResourceName") String childResourceName, Context context);
 
         @Headers({ "Content-Type: application/json" })
         @Get("{nextLink}")
@@ -234,7 +230,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
      * @return a ChildResource along with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<ChildResourceInner>> getWithResponseAsync(String resourceGroupName,
+    public Mono<Response<ChildResourceInner>> getWithResponseAsync(String resourceGroupName,
         String topLevelArmResourceName, String childResourceName) {
         if (this.client.getEndpoint() == null) {
             return Mono.error(
@@ -276,7 +272,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
      * @return a ChildResource on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<ChildResourceInner> getAsync(String resourceGroupName, String topLevelArmResourceName,
+    public Mono<ChildResourceInner> getAsync(String resourceGroupName, String topLevelArmResourceName,
         String childResourceName) {
         return getWithResponseAsync(resourceGroupName, topLevelArmResourceName, childResourceName)
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
@@ -354,7 +350,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
      * {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<Flux<ByteBuffer>>> createOrUpdateWithResponseAsync(String resourceGroupName,
+    public Mono<Response<Flux<ByteBuffer>>> createOrUpdateWithResponseAsync(String resourceGroupName,
         String topLevelArmResourceName, String childResourceName, ChildResourceInner resource) {
         if (this.client.getEndpoint() == null) {
             return Mono.error(
@@ -504,7 +500,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
      * @return the {@link PollerFlux} for polling of subresource of Top Level Arm Resource.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    private PollerFlux<PollResult<ChildResourceInner>, ChildResourceInner> beginCreateOrUpdateAsync(
+    public PollerFlux<PollResult<ChildResourceInner>, ChildResourceInner> beginCreateOrUpdateAsync(
         String resourceGroupName, String topLevelArmResourceName, String childResourceName,
         ChildResourceInner resource) {
         Mono<Response<Flux<ByteBuffer>>> mono
@@ -569,7 +565,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
      * @return subresource of Top Level Arm Resource on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<ChildResourceInner> createOrUpdateAsync(String resourceGroupName, String topLevelArmResourceName,
+    public Mono<ChildResourceInner> createOrUpdateAsync(String resourceGroupName, String topLevelArmResourceName,
         String childResourceName, ChildResourceInner resource) {
         return beginCreateOrUpdateAsync(resourceGroupName, topLevelArmResourceName, childResourceName, resource).last()
             .flatMap(this.client::getLroFinalResultOrError);
@@ -628,7 +624,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
      * {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<ChildResourceInner>> updateWithResponseAsync(String resourceGroupName,
+    public Mono<Response<ChildResourceInner>> updateWithResponseAsync(String resourceGroupName,
         String topLevelArmResourceName, String childResourceName, ChildResourceUpdate properties) {
         if (this.client.getEndpoint() == null) {
             return Mono.error(
@@ -677,7 +673,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
      * @return subresource of Top Level Arm Resource on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<ChildResourceInner> updateAsync(String resourceGroupName, String topLevelArmResourceName,
+    public Mono<ChildResourceInner> updateAsync(String resourceGroupName, String topLevelArmResourceName,
         String childResourceName, ChildResourceUpdate properties) {
         return updateWithResponseAsync(resourceGroupName, topLevelArmResourceName, childResourceName, properties)
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
@@ -765,7 +761,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<Flux<ByteBuffer>>> deleteWithResponseAsync(String resourceGroupName,
+    public Mono<Response<Flux<ByteBuffer>>> deleteWithResponseAsync(String resourceGroupName,
         String topLevelArmResourceName, String childResourceName) {
         if (this.client.getEndpoint() == null) {
             return Mono.error(
@@ -787,11 +783,8 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             return Mono
                 .error(new IllegalArgumentException("Parameter childResourceName is required and cannot be null."));
         }
-        final String accept = "application/json";
-        return FluxUtil
-            .withContext(context -> service.delete(this.client.getEndpoint(), this.client.getApiVersion(),
-                this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, childResourceName, accept,
-                context))
+        return FluxUtil.withContext(context -> service.delete(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, childResourceName, context))
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
 
@@ -831,9 +824,8 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             throw LOGGER.atError()
                 .log(new IllegalArgumentException("Parameter childResourceName is required and cannot be null."));
         }
-        final String accept = "application/json";
         return service.deleteSync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, childResourceName, accept,
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, childResourceName,
             Context.NONE);
     }
 
@@ -874,10 +866,8 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             throw LOGGER.atError()
                 .log(new IllegalArgumentException("Parameter childResourceName is required and cannot be null."));
         }
-        final String accept = "application/json";
         return service.deleteSync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, childResourceName, accept,
-            context);
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, childResourceName, context);
     }
 
     /**
@@ -892,8 +882,8 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
      * @return the {@link PollerFlux} for polling of long-running operation.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    private PollerFlux<PollResult<Void>, Void> beginDeleteAsync(String resourceGroupName,
-        String topLevelArmResourceName, String childResourceName) {
+    public PollerFlux<PollResult<Void>, Void> beginDeleteAsync(String resourceGroupName, String topLevelArmResourceName,
+        String childResourceName) {
         Mono<Response<Flux<ByteBuffer>>> mono
             = deleteWithResponseAsync(resourceGroupName, topLevelArmResourceName, childResourceName);
         return this.client.<Void, Void>getLroResult(mono, this.client.getHttpPipeline(), Void.class, Void.class,
@@ -951,7 +941,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
      * @return A {@link Mono} that completes when a successful response is received.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Void> deleteAsync(String resourceGroupName, String topLevelArmResourceName, String childResourceName) {
+    public Mono<Void> deleteAsync(String resourceGroupName, String topLevelArmResourceName, String childResourceName) {
         return beginDeleteAsync(resourceGroupName, topLevelArmResourceName, childResourceName).last()
             .flatMap(this.client::getLroFinalResultOrError);
     }
@@ -996,8 +986,8 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a ChildResource list operation along with {@link PagedResponse} on successful completion
-     * of {@link Mono}.
+     * @return paged collection of ChildResource items along with {@link PagedResponse} on successful completion of
+     * {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<ChildResourceInner>> listByTopLevelArmResourceSinglePageAsync(String resourceGroupName,
@@ -1036,10 +1026,10 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a ChildResource list operation as paginated response with {@link PagedFlux}.
+     * @return paged collection of ChildResource items as paginated response with {@link PagedFlux}.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    private PagedFlux<ChildResourceInner> listByTopLevelArmResourceAsync(String resourceGroupName,
+    public PagedFlux<ChildResourceInner> listByTopLevelArmResourceAsync(String resourceGroupName,
         String topLevelArmResourceName) {
         return new PagedFlux<>(
             () -> listByTopLevelArmResourceSinglePageAsync(resourceGroupName, topLevelArmResourceName),
@@ -1054,7 +1044,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a ChildResource list operation along with {@link PagedResponse}.
+     * @return paged collection of ChildResource items along with {@link PagedResponse}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<ChildResourceInner> listByTopLevelArmResourceSinglePage(String resourceGroupName,
@@ -1094,7 +1084,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a ChildResource list operation along with {@link PagedResponse}.
+     * @return paged collection of ChildResource items along with {@link PagedResponse}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<ChildResourceInner> listByTopLevelArmResourceSinglePage(String resourceGroupName,
@@ -1133,7 +1123,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a ChildResource list operation as paginated response with {@link PagedIterable}.
+     * @return paged collection of ChildResource items as paginated response with {@link PagedIterable}.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<ChildResourceInner> listByTopLevelArmResource(String resourceGroupName,
@@ -1152,7 +1142,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a ChildResource list operation as paginated response with {@link PagedIterable}.
+     * @return paged collection of ChildResource items as paginated response with {@link PagedIterable}.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<ChildResourceInner> listByTopLevelArmResource(String resourceGroupName,
@@ -1174,7 +1164,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<Flux<ByteBuffer>>> actionWithoutBodyWithResponseAsync(String resourceGroupName,
+    public Mono<Response<Flux<ByteBuffer>>> actionWithoutBodyWithResponseAsync(String resourceGroupName,
         String topLevelArmResourceName, String childResourceName) {
         if (this.client.getEndpoint() == null) {
             return Mono.error(
@@ -1196,10 +1186,9 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             return Mono
                 .error(new IllegalArgumentException("Parameter childResourceName is required and cannot be null."));
         }
-        final String accept = "application/json";
         return FluxUtil
             .withContext(context -> service.actionWithoutBody(this.client.getEndpoint(), this.client.getApiVersion(),
-                this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, childResourceName, accept,
+                this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, childResourceName,
                 context))
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
@@ -1240,9 +1229,8 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             throw LOGGER.atError()
                 .log(new IllegalArgumentException("Parameter childResourceName is required and cannot be null."));
         }
-        final String accept = "application/json";
         return service.actionWithoutBodySync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, childResourceName, accept,
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, childResourceName,
             Context.NONE);
     }
 
@@ -1283,10 +1271,8 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             throw LOGGER.atError()
                 .log(new IllegalArgumentException("Parameter childResourceName is required and cannot be null."));
         }
-        final String accept = "application/json";
         return service.actionWithoutBodySync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, childResourceName, accept,
-            context);
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, childResourceName, context);
     }
 
     /**
@@ -1301,7 +1287,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
      * @return the {@link PollerFlux} for polling of long-running operation.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    private PollerFlux<PollResult<Void>, Void> beginActionWithoutBodyAsync(String resourceGroupName,
+    public PollerFlux<PollResult<Void>, Void> beginActionWithoutBodyAsync(String resourceGroupName,
         String topLevelArmResourceName, String childResourceName) {
         Mono<Response<Flux<ByteBuffer>>> mono
             = actionWithoutBodyWithResponseAsync(resourceGroupName, topLevelArmResourceName, childResourceName);
@@ -1360,7 +1346,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
      * @return A {@link Mono} that completes when a successful response is received.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Void> actionWithoutBodyAsync(String resourceGroupName, String topLevelArmResourceName,
+    public Mono<Void> actionWithoutBodyAsync(String resourceGroupName, String topLevelArmResourceName,
         String childResourceName) {
         return beginActionWithoutBodyAsync(resourceGroupName, topLevelArmResourceName, childResourceName).last()
             .flatMap(this.client::getLroFinalResultOrError);
@@ -1405,8 +1391,8 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a ChildResource list operation along with {@link PagedResponse} on successful completion
-     * of {@link Mono}.
+     * @return paged collection of ChildResource items along with {@link PagedResponse} on successful completion of
+     * {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<ChildResourceInner>> listByTopLevelArmResourceNextSinglePageAsync(String nextLink) {
@@ -1433,7 +1419,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a ChildResource list operation along with {@link PagedResponse}.
+     * @return paged collection of ChildResource items along with {@link PagedResponse}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<ChildResourceInner> listByTopLevelArmResourceNextSinglePage(String nextLink) {
@@ -1461,7 +1447,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a ChildResource list operation along with {@link PagedResponse}.
+     * @return paged collection of ChildResource items along with {@link PagedResponse}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<ChildResourceInner> listByTopLevelArmResourceNextSinglePage(String nextLink,

@@ -13,9 +13,10 @@ import {
 } from "@typespec/compiler";
 import { getAuthenticationForOperation } from "./auth.js";
 import { getAuthentication } from "./decorators.js";
+import { isSharedRoute } from "./decorators/shared-route.js";
 import { createDiagnostic, reportDiagnostic } from "./lib.js";
 import { getResponsesForOperation } from "./responses.js";
-import { isSharedRoute, resolvePathAndParameters } from "./route.js";
+import { resolvePathAndParameters } from "./route.js";
 import {
   HttpOperation,
   HttpService,

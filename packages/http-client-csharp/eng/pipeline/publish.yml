@@ -8,6 +8,12 @@ trigger:
 
 pr: none
 
+parameters:
+  - name: CreateAzureSdkForNetPR
+    displayName: Create PR for azure-sdk-for-net
+    type: boolean
+    default: false
+
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
 
@@ -62,7 +68,7 @@ extends:
         dependsOn:
           - CSharp_Publish
           - CSharp_Build
-        condition: and(succeeded(), and(ne(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranchName'], 'main')))
+        condition: and(succeeded(), or(eq(variables['Build.SourceBranchName'], 'main'), and(eq(variables['Build.Reason'], 'Manual'), ${{ parameters.CreateAzureSdkForNetPR }})))
         variables:
           PackageVersion: $[ stageDependencies.CSharp_Build.Build_linux_20.outputs['ci_build.emitterVersion'] ]
         pool:
@@ -75,19 +81,36 @@ extends:
               - checkout: self
               - pwsh: |
                   # Determine the TypeSpec PR URL 
-                  $sourceBranch = '$(Build.SourceBranch)'
-                  $repoUrl = '$(Build.Repository.Uri)'
+                  $repoUrl = '$(Build.Repository.Uri)'.TrimEnd('/')
+                  $commitSha = '$(Build.SourceVersion)'
+                  $typeSpecCommitUrl = "$repoUrl/commit/$commitSha"
 
-                  if ($sourceBranch -match "^refs/pull/(\d+)/(head|merge)$") {
-                    $typeSpecPRUrl = "$repoUrl/pull/$($Matches[1])"
-                  } elseif ($sourceBranch -match "^refs/heads/(.+)$") {
-                    $typeSpecPRUrl = "$repoUrl/tree/$($Matches[1])"
-                  } else {
-                    $typeSpecPRUrl = "$repoUrl/tree/$sourceBranch"
-                  }
-                  Write-Host "TypeSpec PR URL: $typeSpecPRUrl"
-                  Write-Host "##vso[task.setvariable variable=TypeSpecPRUrl]$typeSpecPRUrl"
+                  Write-Host "Commit SHA: $commitSha"
+                  Write-Host "TypeSpec Commit URL: $typeSpecCommitUrl"
+                  Write-Host "##vso[task.setvariable variable=TypeSpecCommitUrl]$typeSpecCommitUrl"
                 displayName: Set variables for PR creation
+
+              - task: UseNode@1
+                displayName: "Install Node.js"
+                inputs:
+                  version: "22.x"
+
+              - download: current
+                displayName: Download pipeline artifacts
+
+              - pwsh: |
+                  npm install -g @azure-tools/typespec-client-generator-cli@latest
+                displayName: Install tsp-client
+
+              - task: PowerShell@2
+                displayName: Update package.json with injected dependencies
+                inputs:
+                  pwsh: true
+                  filePath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Update-PackageJson.ps1
+                  workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+                  arguments: >
+                    -PackageVersion '$(PackageVersion)'
+                    -PackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
 
               - task: UseDotNet@2
                 inputs:
@@ -95,11 +118,12 @@ extends:
                   workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
 
               - task: PowerShell@2
-                displayName: Create PR in azure-sdk-for-net
+                displayName: Generate emitter-package.json files & create PR in azure-sdk-for-net
                 inputs:
                   pwsh: true
                   filePath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Submit-AzureSdkForNetPr.ps1
                   arguments: >
                     -PackageVersion '$(PackageVersion)'
-                    -TypeSpecPRUrl '$(TypeSpecPRUrl)'
+                    -TypeSpecCommitUrl '$(TypeSpecCommitUrl)'
                     -AuthToken '$(azuresdk-github-pat)'
+                    -TypeSpecSourcePackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'

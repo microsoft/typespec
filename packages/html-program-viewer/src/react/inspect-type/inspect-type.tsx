@@ -4,7 +4,11 @@ import { useCallback, type FunctionComponent, type ReactElement, type ReactNode 
 import { isNamedUnion } from "../../utils.js";
 import { Literal, Mono, TypeKind } from "../common.js";
 import { JsValue } from "../js-inspector/js-value/js-value.js";
-import { getPropertyRendering, type EntityPropertyConfig } from "../type-config.js";
+import {
+  getRenderingConfig,
+  type PropertiesRendering,
+  type PropertyRendering,
+} from "../type-config.js";
 import { useTreeNavigatorOptional } from "../use-tree-navigation.js";
 import style from "./inspect-type.module.css";
 
@@ -152,11 +156,23 @@ const SimpleType = ({ type, children }: { type: Type; children: ReactNode }) => 
   );
 };
 
-const EntityProperties = ({ entity: type }: { entity: Entity }) => {
-  const props = Object.entries(type)
+const EntityProperties = ({ entity }: { entity: Entity }) => {
+  return <InspectObject value={entity} config={getRenderingConfig(entity)} />;
+};
+const InspectObject = ({
+  value,
+  config,
+}: {
+  value: object | undefined;
+  config: PropertiesRendering<any> | null;
+}) => {
+  if (value === undefined) {
+    return null;
+  }
+  const props = Object.entries(value)
     .map(([key, value]) => {
-      const action = getPropertyRendering(type as any, key);
-      if (action === undefined || action === "skip") {
+      const action = config?.[key];
+      if (action === undefined || action === null || action.kind === "skip") {
         return undefined;
       }
       return <EntityProperty key={key} name={key} value={value} action={action} />;
@@ -169,7 +185,7 @@ const EntityProperties = ({ entity: type }: { entity: Entity }) => {
 interface EntityPropertyProps {
   name: string;
   value: any;
-  action: EntityPropertyConfig;
+  action: PropertyRendering<any>;
 }
 const EntityProperty = (props: EntityPropertyProps) => {
   return (
@@ -184,12 +200,16 @@ const EntityProperty = (props: EntityPropertyProps) => {
 
 const EntityPropertyValue = ({ value, action }: EntityPropertyProps) => {
   const render = (x: Entity) => {
-    if (action === "parent") {
+    if (action.kind === "parent") {
       return x.entityKind === "Type" ? <ParentReference type={x} /> : null;
     }
-    const renderRef = action === "ref";
+    const renderRef = action.kind === "ref";
     return renderRef ? <EntityReference entity={x} /> : <EntityUI entity={x} />;
   };
+
+  if (action.kind === "nested") {
+    return <InspectObject value={value} config={action.properties} />;
+  }
 
   if (value === undefined) {
     return null;

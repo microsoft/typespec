@@ -120,6 +120,44 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public void TestBuildProperties_WithReadOnlyAdditionalProperties()
+        {
+            var additionalProperties = InputPrimitiveType.Any;
+
+            var inputBase = InputFactory.Model(
+                "baseModel",
+                usage: InputModelTypeUsage.Output,
+                properties: [],
+                additionalProperties: additionalProperties);
+
+            var baseModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputBase);
+
+            Assert.NotNull(baseModel);
+
+            var baseModelProperties = baseModel!.Properties;
+
+            Assert.IsNotNull(baseModelProperties);
+            Assert.AreEqual(1, baseModelProperties.Count);
+
+            var baseAdditionalPropertiesProp = baseModelProperties.FirstOrDefault(p => p.Name == "AdditionalProperties");
+            Assert.IsNotNull(baseAdditionalPropertiesProp);
+            Assert.AreEqual(new CSharpType(typeof(IReadOnlyDictionary<string, BinaryData>)), baseAdditionalPropertiesProp!.Type);
+
+            // validate the serialization ctor
+            var serializationCtor = baseModel.FullConstructor;
+            Assert.IsNotNull(serializationCtor);
+
+            var parameters = serializationCtor.Signature.Parameters;
+            Assert.AreEqual(1, parameters.Count);
+            var parameter = parameters.First();
+            Assert.AreEqual("additionalProperties", parameter.Name);
+            Assert.IsTrue(parameter.Type.IsReadOnlyDictionary);
+
+            var body = serializationCtor.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(body.Contains("_additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>(additionalProperties);"));
+        }
+
+        [Test]
         public void ValidateListParameterHandlingInConstructor()
         {
             var properties = new List<InputModelProperty>
@@ -885,10 +923,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                "ModelWithNonBodyPropertyKinds",
                properties:
                [
-                    InputFactory.HeaderParameter("foo", InputPrimitiveType.String, isRequired: true),
-                    InputFactory.QueryParameter("cat", InputPrimitiveType.String, serializedName: "x-cat", isRequired: true),
-                    InputFactory.PathParameter("bird", InputPrimitiveType.String, isRequired: true),
-                    InputFactory.HeaderParameter("snake", InputFactory.StringEnum("snake", [("value", "value")], isExtensible: true), isRequired: true, isReadOnly: true),
+                    InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true, isHttpMetadata: true),
+                    InputFactory.Property("cat", InputPrimitiveType.String, serializedName: "x-cat", isRequired: true, isHttpMetadata: true),
+                    InputFactory.Property("bird", InputPrimitiveType.String, isRequired : true, isHttpMetadata : true),
+                    InputFactory.Property("snake", InputFactory.StringEnum("snake", [("value", "value")], isExtensible: true), isRequired: true, isReadOnly: true, isHttpMetadata: true),
                     InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
                ]);
             var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);

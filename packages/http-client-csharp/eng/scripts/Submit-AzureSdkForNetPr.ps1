@@ -11,6 +11,8 @@ The URL of the pull request in the TypeSpec repository that triggered this updat
 A GitHub personal access token for authentication.
 .PARAMETER BranchName
 The name of the branch to create in the azure-sdk-for-net repository.
+.PARAMETER TypeSpecSourcePackageJsonPath
+The path to the TypeSpec package.json file to use for generating emitter-package.json files.
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -18,23 +20,25 @@ param(
   [string]$PackageVersion,
 
   [Parameter(Mandatory = $true)]
-  [string]$TypeSpecPRUrl,
+  [string]$TypeSpecCommitUrl,
 
   [Parameter(Mandatory = $true)]
   [string]$AuthToken,
 
   [Parameter(Mandatory = $false)]
-  [string]$BranchName = "typespec/update-http-client-$PackageVersion"
+  [string]$BranchName = "typespec/update-http-client-$PackageVersion",
+
+  [Parameter(Mandatory = $false)]
+  [string]$TypeSpecSourcePackageJsonPath
 )
 
 # Import the Generation module to use the Invoke helper function
-Import-Module (Join-Path $PSScriptRoot "Generation.psm1")
+Import-Module (Join-Path $PSScriptRoot "Generation.psm1") -DisableNameChecking -Force
 
 # Set up variables for the PR
 $RepoOwner = "Azure"
 $RepoName = "azure-sdk-for-net"
 $BaseBranch = "main"
-$PROwner = "azure-sdk"
 $PRBranch = $BranchName
 
 $PRTitle = "Update UnbrandedGeneratorVersion to $PackageVersion"
@@ -43,13 +47,15 @@ This PR updates the UnbrandedGeneratorVersion property in eng/Packages.Data.prop
 
 ## Details
 
-- Original TypeSpec PR: $TypeSpecPRUrl
+- TypeSpec commit that triggered this PR: $TypeSpecCommitUrl
 
 ## Changes
 
 - Updated eng/Packages.Data.props UnbrandedGeneratorVersion property
 - Updated eng/packages/http-client-csharp/package.json dependency version
 - Ran npm install to update package-lock.json
+- Ran eng/packages/http-client-csharp/eng/scripts/Generate.ps1 to regenerate test projects
+- Generated emitter-package.json artifacts using tsp-client
 
 This is an automated PR created by the TypeSpec publish pipeline.
 "@
@@ -136,28 +142,76 @@ try {
     }
     
     # Only run expensive operations if we actually made updates
+    $installSucceeded = $true
     if ($packageJsonUpdated) {
         # Run npm install in the http-client-csharp directory
         Write-Host "Running npm install in eng/packages/http-client-csharp..."
         $httpClientDir = Join-Path $tempDir "eng/packages/http-client-csharp"
-        Invoke "npm install" $httpClientDir
-        if ($LASTEXITCODE -ne 0) {
-            throw "npm install failed"
+        $previousErrorAction = $ErrorActionPreference
+        $ErrorActionPreference = "Continue"
+        try {
+            Invoke "npm install" $httpClientDir
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warning "npm install failed with exit code $LASTEXITCODE, skipping generation."
+                Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+                $installSucceeded = $false
+            }
+        } catch {
+            Write-Warning "npm install failed: $($_.Exception.Message), skipping generation."
+            $installSucceeded = $false
         }
-        
-        # Run npm run build
-        Write-Host "Running npm run build in eng/packages/http-client-csharp..."
-        Invoke "npm run build" $httpClientDir
-        if ($LASTEXITCODE -ne 0) {
-            throw "npm run build failed"
+        finally {
+            $ErrorActionPreference = $previousErrorAction
         }
-        
-        # Run Generate.ps1 from the repository root
-        Write-Host "Running eng/scripts/Generate.ps1..."
-        Invoke "eng/scripts/Generate.ps1" $tempDir
-        if ($LASTEXITCODE -ne 0) {
-            throw "Generate.ps1 failed"
+
+        if (-not $installSucceeded) {
+            Write-Host "Skipping build and generation steps."
+        } else {
+            # Only run build and generation if npm install succeeded
+            # Run npm run build
+            Write-Host "Running npm run build in eng/packages/http-client-csharp..."
+            $shouldRunGenerate = $true
+            $previousErrorAction = $ErrorActionPreference
+            $ErrorActionPreference = "Continue"
+            try {
+                Invoke "npm run build" $httpClientDir
+                if ($LASTEXITCODE -ne 0) {
+                    Write-Warning "npm run build failed with exit code $LASTEXITCODE, skipping Generate.ps1"
+                    Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+                    $shouldRunGenerate = $false
+                }
+            } catch {
+                Write-Warning "npm run build failed: $($_.Exception.Message), skipping Generate.ps1"
+                $shouldRunGenerate = $false
+            } finally {
+                $ErrorActionPreference = $previousErrorAction
+            }
+            
+            # Run Generate.ps1 from the package root
+            if ($shouldRunGenerate -eq $true)
+            {
+                Write-Host "Running eng/packages/http-client-csharp/eng/scripts/Generate.ps1..."
+                & (Join-Path $tempDir "eng/packages/http-client-csharp/eng/scripts/Generate.ps1")
+                if ($LASTEXITCODE -ne 0) {
+                    throw "Generate.ps1 failed"
+                }
+            }
         }
+    }
+    
+    # Generate emitter-package.json files using tsp-client if TypeSpec package.json is provided
+    if ($TypeSpecSourcePackageJsonPath -and (Test-Path $TypeSpecSourcePackageJsonPath)) {
+        Write-Host "Generating emitter-package.json files using tsp-client..."
+        $configFilesOutputDir = Join-Path $tempDir "eng"
+        $emitterPackageJsonPath = Join-Path $configFilesOutputDir "http-client-csharp-emitter-package.json"
+
+        Invoke "tsp-client generate-config-files --package-json $TypeSpecSourcePackageJsonPath --emitter-package-json-path $emitterPackageJsonPath --output-dir $configFilesOutputDir" $tempDir
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to generate emitter-package.json files"
+        }
+        Write-Host "Successfully generated emitter-package.json files"
+    } else {
+        Write-Warning "TypeSpecSourcePackageJsonPath not provided or file doesn't exist. Skipping emitter-package.json generation."
     }
     
     # Check if there are changes to commit
@@ -169,26 +223,39 @@ try {
 
     # Commit the changes
     Write-Host "Committing changes..."
-    if ($propsFileUpdated) {
-        git add eng/Packages.Data.props
+    git add $propsFilePath
+    git add (Join-Path $tempDir "eng/packages/http-client-csharp/package.json")
+    
+    # Only add these files if npm install succeeded
+    if ($installSucceeded) {
+        $packageLockPath = Join-Path $tempDir "eng/packages/http-client-csharp/package-lock.json"
+        if (Test-Path $packageLockPath) {
+            git add $packageLockPath
+        }
+        
+        $testProjectsPath = Join-Path $tempDir "eng/packages/http-client-csharp/generator/TestProjects/"
+        if (Test-Path $testProjectsPath) {
+            git add $testProjectsPath
+        }
     }
-    if ($packageJsonUpdated) {
-        git add eng/packages/http-client-csharp/package.json
-        git add eng/packages/http-client-csharp/package-lock.json
+    
+    # Only add emitter files if they were generated
+    $emitterPackageJsonPath = Join-Path $tempDir "eng/http-client-csharp-emitter-package.json"
+    if (Test-Path $emitterPackageJsonPath) {
+        git add $emitterPackageJsonPath
     }
+    
+    $emitterPackageLockPath = Join-Path $tempDir "eng/http-client-csharp-emitter-package-lock.json"
+    if (Test-Path $emitterPackageLockPath) {
+        git add $emitterPackageLockPath
+    }
+    
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to add changes"
     }
 
     # Build commit message based on what was updated
-    $commitMessage = "Update UnbrandedGeneratorVersion to $PackageVersion`n"
-    if ($propsFileUpdated) {
-        $commitMessage += "`n- Updated eng/Packages.Data.props"
-    }
-    if ($packageJsonUpdated) {
-        $commitMessage += "`n- Updated eng/packages/http-client-csharp/package.json"
-        $commitMessage += "`n- Ran npm install to update package-lock.json"
-    }
+    $commitMessage = "Update UnbrandedGeneratorVersion to $PackageVersion"
     
     git commit -m $commitMessage
     if ($LASTEXITCODE -ne 0) {

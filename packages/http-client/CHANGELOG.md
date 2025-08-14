@@ -1,5 +1,21 @@
 # Changelog - @typespec/http-client
 
+## 0.9.0
+
+### Bump dependencies
+
+- [#8050](https://github.com/microsoft/typespec/pull/8050) Upgrade alloy 0.19
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+
+## 0.8.0
+
+### Bump dependencies
+
+- [#7655](https://github.com/microsoft/typespec/pull/7655) Upgrade to alloy 0.18.0
+- [#7674](https://github.com/microsoft/typespec/pull/7674) Upgrade dependencies
+
+
 ## 0.7.0
 
 ### Bump dependencies

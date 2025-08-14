@@ -292,7 +292,10 @@ class GeneratedModelType(ModelType):
 
     def docstring_type(self, **kwargs: Any) -> str:
         type_annotation = self.type_annotation(need_model_alias=False, skip_quote=True, **kwargs)
-        return f"~{self.client_namespace}.models.{type_annotation}"
+        client_namespace = self.client_namespace
+        if self.code_model.options.get("generation-subdir"):
+            client_namespace += f".{self.code_model.options['generation-subdir']}"
+        return f"~{client_namespace}.models.{type_annotation}"
 
     def docstring_text(self, **kwargs: Any) -> str:
         return self.name

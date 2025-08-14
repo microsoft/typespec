@@ -7,6 +7,7 @@ import com.azure.core.http.HttpMethod;
 import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Property;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
@@ -23,6 +24,7 @@ import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ReturnTypeJavaDocAssembler;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -287,14 +289,26 @@ public final class ClientMethodsReturnDescription {
                 String.format("[JavaCheck/SchemaError] no common parent found for client models %s",
                     operation.getResponseSchemas().map(SchemaUtil::getJavaName).collect(Collectors.toList())));
         }
-        final ClientModel pageResponseModel = Mappers.getModelMapper().map((ObjectSchema) pageResponseSchema);
-        final String pageItemName = operation.getExtensions().getXmsPageable().getItemName();
-        final Optional<ClientModelProperty> pageItemPropertyOpt
-            = ClientModelUtil.findProperty(pageResponseModel, pageItemName);
-        if (pageItemPropertyOpt.isEmpty()) {
-            throw new IllegalArgumentException(
-                String.format("[JavaCheck/SchemaError] item name %s not found among properties of client model %s",
+        IType elementType;
+        if (!CoreUtils.isNullOrEmpty(operation.getExtensions().getXmsPageable().getPageItemsProperty())) {
+            // TypeSpec, the element type of the type of the last property
+            List<Property> list = operation.getExtensions().getXmsPageable().getPageItemsProperty();
+            final IType listType = Mappers.getSchemaMapper().map(list.get(list.size() - 1).getSchema());
+            elementType = ((IterableType) listType).getElementType();
+        } else {
+            // m4
+            final ClientModel pageResponseModel = Mappers.getModelMapper().map((ObjectSchema) pageResponseSchema);
+            final String pageItemName = operation.getExtensions().getXmsPageable().getItemName();
+            final Optional<ClientModelProperty> pageItemPropertyOpt
+                = ClientModelUtil.findProperty(pageResponseModel, pageItemName);
+            if (pageItemPropertyOpt.isEmpty()) {
+                throw new IllegalArgumentException(String.format(
+                    "[JavaCheck/SchemaError] PageItems property of serialized name '%s' is not found in model '%s'.",
                     pageItemName, pageResponseModel.getName()));
+            }
+            final ClientModelProperty property = pageItemPropertyOpt.get();
+            final IType listType = property.getWireType();
+            elementType = ((IterableType) listType).getElementType();
         }
 
         if (isProtocolMethod && settings.isAzureV1()) {
@@ -307,10 +321,6 @@ public final class ClientMethodsReturnDescription {
         }
 
         // unbranded paging methods would use the model as return type, instead of BinaryData.
-        //
-        final ClientModelProperty property = pageItemPropertyOpt.get();
-        final IType listType = property.getWireType();
-        final IType elementType = ((IterableType) listType).getElementType();
         IType asyncRestResponseReturnType = mono(GenericType.PagedResponse(elementType));
         IType asyncReturnType = GenericType.PagedFlux(elementType);
         IType syncReturnType = GenericType.PagedIterable(elementType);

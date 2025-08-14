@@ -1,6 +1,6 @@
 {
   "name": "@typespec/sse",
-  "version": "0.71.0",
+  "version": "0.73.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library providing server sent events bindings",
   "homepage": "https://typespec.io",
@@ -55,7 +55,7 @@
     "@typespec/streams": "workspace:^"
   },
   "devDependencies": {
-    "@types/node": "~22.13.11",
+    "@types/node": "~24.1.0",
     "@typespec/compiler": "workspace:^",
     "@typespec/events": "workspace:^",
     "@typespec/http": "workspace:^",

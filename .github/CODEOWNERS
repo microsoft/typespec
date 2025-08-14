@@ -14,21 +14,22 @@ cspell.yaml
 ######################
 # CSharp
 ######################
-/packages/http-client-csharp/                @m-nash @JoshLove-msft @jorgerangel-msft @christothes
-/docs/samples/client/csharp                  @JoshLove-msft @jorgerangel-msft @christothes
-/website/src/content/docs/docs/emitters/clients/http-client-csharp/ @JoshLove-msft @jorgerangel-msft @christothes
+/packages/http-client-csharp/                @m-nash @JoshLove-msft @jorgerangel-msft @christothes @jsquire
+/docs/samples/client/csharp                  @JoshLove-msft @jorgerangel-msft @christothes @jsquire
+/website/src/content/docs/docs/emitters/clients/http-client-csharp/ @JoshLove-msft @jorgerangel-msft @christothes @jsquire
 
 ######################
 # Java
 ######################
 /packages/http-client-java/                  @srnagar @anuchandy @weidongxu-microsoft @haolingdong-msft @XiaofeiCao
 /website/src/content/docs/docs/emitters/clients/http-client-java/ @srnagar @anuchandy @weidongxu-microsoft @haolingdong-msft @XiaofeiCao
+/.github/prompts/http-client-java-development.md @srnagar @anuchandy @weidongxu-microsoft @haolingdong-msft @XiaofeiCao
 
 ######################
 # Python
 ######################
-/packages/http-client-python/                @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel
-/website/src/content/docs/docs/emitters/clients/http-client-python/               @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel
+/packages/http-client-python/                @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel @kristapratico @swathipil @catalinaperalta
+/website/src/content/docs/docs/emitters/clients/http-client-python/               @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel @kristapratico @swathipil @catalinaperalta
 
 ######################
 # JavaScript

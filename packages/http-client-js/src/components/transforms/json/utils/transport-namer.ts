@@ -1,4 +1,4 @@
-import { Type } from "@typespec/compiler";
+import type { Type } from "@typespec/compiler";
 import { type Typekit } from "@typespec/compiler/typekit";
 import { reportDiagnostic } from "../../../../lib.js";
 

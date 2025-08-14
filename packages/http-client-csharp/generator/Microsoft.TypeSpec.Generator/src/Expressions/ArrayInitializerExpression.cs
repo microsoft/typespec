@@ -34,15 +34,17 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             else
             {
                 writer.WriteLine();
-                writer.WriteRawLine("{ ");
-                for (int i = 0; i < Elements.Count; i++)
+                using (writer.ScopeRaw(newLine: false))
                 {
-                    Elements[i].Write(writer);
-                    if (i < Elements.Count - 1)
-                        writer.WriteRawLine(",");
+                    for (int i = 0; i < Elements.Count; i++)
+                    {
+                        Elements[i].Write(writer);
+                        if (i < Elements.Count - 1)
+                            writer.WriteRawLine(",");
+                        else
+                            writer.WriteLine();
+                    }
                 }
-                writer.WriteLine();
-                writer.AppendRaw(" }");
             }
         }
     }
