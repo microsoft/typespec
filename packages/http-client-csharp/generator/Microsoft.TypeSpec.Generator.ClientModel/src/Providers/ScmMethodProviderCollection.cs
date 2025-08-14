@@ -215,7 +215,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var convenienceMethodParams = ConvenienceMethodParameters.ToDictionary(p => p.Name);
             List<ValueExpression> expressions = new(spreadSource.Properties.Count);
             // we should make this find more deterministic
-            var ctor = spreadSource.Constructors.First(c => c.Signature.Parameters.Count == spreadSource.CanonicalView.Properties.Count + 1 &&
+            var ctor = spreadSource.CanonicalView.Constructors.First(c => c.Signature.Parameters.Count == spreadSource.CanonicalView.Properties.Count + 1 &&
                 c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
 
             foreach (var param in ctor.Signature.Parameters)
