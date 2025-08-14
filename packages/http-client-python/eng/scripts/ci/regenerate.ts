@@ -22,10 +22,7 @@ const argv = parseArgs({
 });
 
 // Add this near the top with other constants
-const SKIP_SPECS = [
-  "type/union/discriminated",
-  "client-operation-group",
-];
+const SKIP_SPECS = ["type/union/discriminated", "client-operation-group"];
 
 // Get the directory of the current file
 const PLUGIN_DIR = argv.values.pluginDir
