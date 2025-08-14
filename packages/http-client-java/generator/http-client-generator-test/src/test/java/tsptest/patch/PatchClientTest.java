@@ -29,9 +29,10 @@ public class PatchClientTest {
         resource.setIntValue(null);
         resource.setLongValue(null);
         JsonMergePatchHelper.getResourceAccessor().prepareModelForJsonMergePatch(resource, true);
-        String json = BinaryData.fromObject(resource).toString();
+        BinaryData data = BinaryData.fromObject(resource);
+        data.getLength(); // fire serialization
         JsonMergePatchHelper.getResourceAccessor().prepareModelForJsonMergePatch(resource, false);
-        JsonNode node = OBJECT_MAPPER.readTree(json);
+        JsonNode node = OBJECT_MAPPER.readTree(data.toString());
         Assertions.assertEquals(JsonNodeType.NULL, node.get("longValue").getNodeType());
         Assertions.assertEquals(JsonNodeType.NULL, node.get("intValue").getNodeType());
     }
@@ -41,9 +42,10 @@ public class PatchClientTest {
         Resource resource = new Resource();
         resource.setDescription(null);
         JsonMergePatchHelper.getResourceAccessor().prepareModelForJsonMergePatch(resource, true);
-        String json = BinaryData.fromObject(resource).toString();
+        BinaryData data = BinaryData.fromObject(resource);
+        data.getLength(); // fire serialization
         JsonMergePatchHelper.getResourceAccessor().prepareModelForJsonMergePatch(resource, false);
-        JsonNode node = OBJECT_MAPPER.readTree(json);
+        JsonNode node = OBJECT_MAPPER.readTree(data.toString());
         Assertions.assertEquals(JsonNodeType.NULL, node.get("description").getNodeType());
     }
 
@@ -55,18 +57,20 @@ public class PatchClientTest {
         // serialize for inner model property
         resource.getInnerModelProperty().setDescription(null);
         JsonMergePatchHelper.getResourceAccessor().prepareModelForJsonMergePatch(resource, true);
-        String json = BinaryData.fromObject(resource).toString();
+        BinaryData data = BinaryData.fromObject(resource);
+        data.getLength(); // fire serialization
         JsonMergePatchHelper.getResourceAccessor().prepareModelForJsonMergePatch(resource, false);
-        JsonNode node = OBJECT_MAPPER.readTree(json);
+        JsonNode node = OBJECT_MAPPER.readTree(data.toString());
         Assertions.assertEquals(JsonNodeType.NULL,
             node.get("wireNameForInnerModelProperty").get("description").getNodeType());
 
         // serialize for outer model property
         resource.setInnerModelProperty(null);
         JsonMergePatchHelper.getResourceAccessor().prepareModelForJsonMergePatch(resource, true);
-        json = BinaryData.fromObject(resource).toString();
+        data = BinaryData.fromObject(resource);
+        data.getLength(); // fire serialization
         JsonMergePatchHelper.getResourceAccessor().prepareModelForJsonMergePatch(resource, false);
-        node = OBJECT_MAPPER.readTree(json);
+        node = OBJECT_MAPPER.readTree(data.toString());
         Assertions.assertEquals(JsonNodeType.NULL, node.get("wireNameForInnerModelProperty").getNodeType());
     }
 
@@ -77,9 +81,10 @@ public class PatchClientTest {
         map.put("key", null);
         resource.setMap(map);
         JsonMergePatchHelper.getResourceAccessor().prepareModelForJsonMergePatch(resource, true);
-        String json = BinaryData.fromObject(resource).toString();
+        BinaryData data = BinaryData.fromObject(resource);
+        data.getLength(); // fire serialization
         JsonMergePatchHelper.getResourceAccessor().prepareModelForJsonMergePatch(resource, false);
-        JsonNode node = OBJECT_MAPPER.readTree(json);
+        JsonNode node = OBJECT_MAPPER.readTree(data.toString());
         Assertions.assertEquals(JsonNodeType.NULL, node.get("map").get("key").getNodeType());
     }
 
@@ -91,7 +96,8 @@ public class PatchClientTest {
             resource.setMap(map);
             map.put(null, new InnerModel());
             JsonMergePatchHelper.getResourceAccessor().prepareModelForJsonMergePatch(resource, true);
-            BinaryData.fromObject(resource).toString();
+            BinaryData data = BinaryData.fromObject(resource);
+            data.getLength(); // fire serialization
             JsonMergePatchHelper.getResourceAccessor().prepareModelForJsonMergePatch(resource, false);
         });
 
@@ -110,9 +116,10 @@ public class PatchClientTest {
         resource.setMap(map);
         resource.getArray().set(0, null);
         JsonMergePatchHelper.getResourceAccessor().prepareModelForJsonMergePatch(resource, true);
-        String json = BinaryData.fromObject(resource).toString(); // {"map":{"key":null},"array":[null,{"name":"value2"}]}
+        BinaryData data = BinaryData.fromObject(resource);
+        data.getLength(); // fire serialization
         JsonMergePatchHelper.getResourceAccessor().prepareModelForJsonMergePatch(resource, false);
-        JsonNode node = OBJECT_MAPPER.readTree(json);
+        JsonNode node = OBJECT_MAPPER.readTree(data.toString());
         Assertions.assertEquals(JsonNodeType.NULL, node.get("map").get("key").getNodeType());
         Assertions.assertEquals(2, node.get("array").size());
         Assertions.assertTrue(node.get("array").get(0).isNull());
@@ -124,9 +131,10 @@ public class PatchClientTest {
         Resource resource = new Resource();
         resource.setEnumValue(null);
         JsonMergePatchHelper.getResourceAccessor().prepareModelForJsonMergePatch(resource, true);
-        String json = BinaryData.fromObject(resource).toString();
+        BinaryData data = BinaryData.fromObject(resource);
+        data.getLength(); // fire serialization
         JsonMergePatchHelper.getResourceAccessor().prepareModelForJsonMergePatch(resource, false);
-        JsonNode node = OBJECT_MAPPER.readTree(json);
+        JsonNode node = OBJECT_MAPPER.readTree(data.toString());
         Assertions.assertEquals(JsonNodeType.NULL, node.get("enumValue").getNodeType());
     }
 
@@ -137,9 +145,10 @@ public class PatchClientTest {
         shark.setColor(null);
         resource.setFish(shark);
         JsonMergePatchHelper.getResourceAccessor().prepareModelForJsonMergePatch(resource, true);
-        String json = BinaryData.fromObject(resource).toString();
+        BinaryData data = BinaryData.fromObject(resource);
+        data.getLength(); // fire serialization
         JsonMergePatchHelper.getResourceAccessor().prepareModelForJsonMergePatch(resource, false);
-        JsonNode node = OBJECT_MAPPER.readTree(json);
+        JsonNode node = OBJECT_MAPPER.readTree(data.toString());
         Assertions.assertEquals(JsonNodeType.NULL, node.get("fish").get("color").getNodeType());
         Assertions.assertEquals("shark", node.get("fish").get("kind").asText());
         Assertions.assertEquals(2, node.get("fish").get("age").asInt());
@@ -150,18 +159,20 @@ public class PatchClientTest {
         Fish fish = new Salmon().setAge(1);
         fish.setColor(null);
         JsonMergePatchHelper.getFishAccessor().prepareModelForJsonMergePatch(fish, true);
-        String json = BinaryData.fromObject(fish).toString();
+        BinaryData fishData = BinaryData.fromObject(fish);
+        fishData.getLength(); // fire serialization
         JsonMergePatchHelper.getFishAccessor().prepareModelForJsonMergePatch(fish, false);
-        JsonNode node = OBJECT_MAPPER.readTree(json);
+        JsonNode node = OBJECT_MAPPER.readTree(fishData.toString());
         Assertions.assertEquals("salmon", fish.getKind());
         Assertions.assertEquals(JsonNodeType.NULL, node.get("color").getNodeType());
 
         Salmon salmon = new Salmon().setAge(2);
         salmon.setColor(null);
         JsonMergePatchHelper.getFishAccessor().prepareModelForJsonMergePatch(salmon, true);
-        String jsonSalmon = BinaryData.fromObject(salmon).toString();
+        BinaryData salmonData = BinaryData.fromObject(salmon);
+        salmonData.getLength(); // fire serialization
         JsonMergePatchHelper.getFishAccessor().prepareModelForJsonMergePatch(salmon, false);
-        JsonNode nodeSalmon = OBJECT_MAPPER.readTree(jsonSalmon);
+        JsonNode nodeSalmon = OBJECT_MAPPER.readTree(salmonData.toString());
         Assertions.assertEquals("salmon", salmon.getKind());
         Assertions.assertEquals(JsonNodeType.NULL, nodeSalmon.get("color").getNodeType());
     }
@@ -175,11 +186,11 @@ public class PatchClientTest {
         Resource resourceToUpdate = BinaryData.fromObject(resource).toObject(Resource.class);
         resourceToUpdate.setIntValue(null);
         JsonMergePatchHelper.getResourceAccessor().prepareModelForJsonMergePatch(resourceToUpdate, true);
-        String json = BinaryData.fromObject(resourceToUpdate).toString();
+        BinaryData resourceData = BinaryData.fromObject(resourceToUpdate);
+        resourceData.getLength(); // fire serialization
         JsonMergePatchHelper.getResourceAccessor().prepareModelForJsonMergePatch(resourceToUpdate, false);
-        JsonNode node = OBJECT_MAPPER.readTree(json);
+        JsonNode node = OBJECT_MAPPER.readTree(resourceData.toString());
         Assertions.assertNull(node.get("description"));
         Assertions.assertEquals(JsonNodeType.NULL, node.get("intValue").getNodeType());
     }
 }
-
