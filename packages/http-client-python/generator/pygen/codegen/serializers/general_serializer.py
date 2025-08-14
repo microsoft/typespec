@@ -60,12 +60,11 @@ class GeneralSerializer(BaseSerializer):
         m = re.search(r"[>=]=?([\d.]+(?:[a-z]+\d+)?)", s)
         return parse_version(m.group(1)) if m else parse_version("0")
 
-    def _keep_pyproject_fields(self, file_path: "Path") -> dict:
+    def _keep_pyproject_fields(self, file_content: str) -> dict:
         # Load the pyproject.toml file if it exists and extract fields to keep.
         result: dict = {"KEEP_FIELDS": {}}
         try:
-            with open(file_path, "rb") as f:
-                loaded_pyproject_toml = tomllib.load(f)
+            loaded_pyproject_toml = tomllib.loads(file_content)
         except Exception:  # pylint: disable=broad-except
             # If parsing the pyproject.toml fails, we assume the it does not exist or is incorrectly formatted.
             return result
@@ -108,12 +107,12 @@ class GeneralSerializer(BaseSerializer):
 
         return result
 
-    def serialize_package_file(self, template_name: str, file_path: "Path", **kwargs: Any) -> str:
+    def serialize_package_file(self, template_name: str, file_content: str, **kwargs: Any) -> str:
         template = self.env.get_template(template_name)
 
         # Add fields to keep from an existing pyproject.toml
-        if template_name == "pyproject.toml.jinja2":
-            params = self._keep_pyproject_fields(file_path)
+        if template_name == "pyproject.toml.jinja2" and file_content:
+            params = self._keep_pyproject_fields(file_content)
         else:
             params = {}
 

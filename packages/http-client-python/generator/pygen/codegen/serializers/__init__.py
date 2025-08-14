@@ -261,9 +261,10 @@ class JinjaSerializer(ReaderAndWriter):
                 if self.keep_version_file and file == "setup.py" and not self.code_model.options["azure-arm"]:
                     # don't regenerate setup.py file if the version file is more up to date for data-plane
                     continue
+                file_content = self.read_file(output_file) if file == "pyproject.toml" else ""
                 self.write_file(
                     output_file,
-                    serializer.serialize_package_file(template_name, self.output_folder / output_file, **params),
+                    serializer.serialize_package_file(template_name, file_content, **params),
                 )
 
     def _keep_patch_file(self, path_file: Path, env: Environment):
