@@ -2,7 +2,7 @@ import { TypeSpecServer, TypeSpecServerVariable } from "../interfaces.js";
 
 function generateServerVariable(variableName: string, variable: TypeSpecServerVariable): string {
   const { default: defaultValue, description, enum: enumValues } = variable;
-  const enumString = enumValues ? `${enumValues.map(x => `"${x}"`).join(" | ")}` : "";
+  const enumString = enumValues ? `${enumValues.map((x) => `"${x}"`).join(" | ")}` : "";
   return `
     ${description ? `@doc("${description}")` : ""}
     ${variableName}: ${enumString || "string"}${defaultValue ? ` = "${defaultValue}"` : ""},
@@ -19,14 +19,13 @@ export function generateServers(servers: TypeSpecServer[]): string {
     return "";
   }
   const definitions = servers.map((server) => {
-    const variables = server.variables && Object.keys(server.variables).length > 0
-      ? `, {
+    const variables =
+      server.variables && Object.keys(server.variables).length > 0
+        ? `, {
         ${generateServerVariables(server.variables)}
       }`
-      : "";
-    const description = server.description ? 
-                          `, "${server.description}"` : 
-                          (variables ? `, ""` : "");
+        : "";
+    const description = server.description ? `, "${server.description}"` : variables ? `, ""` : "";
     return `@server("${server.url}"${description}${variables})`;
   });
   return definitions.join("\n");
