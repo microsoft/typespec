@@ -36,7 +36,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private FieldProvider? _requestOptionsField;
         protected virtual string RequestOptionsFieldName => "_options";
 
-        protected IReadOnlyList<FieldProvider> RequestFields { get; }
+        protected IReadOnlyList<FieldProvider> RequestFields => BuildRequestFields();
 
         protected ModelProvider ResponseModel { get; }
         protected CSharpType ResponseModelType { get; }
@@ -52,9 +52,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static readonly ParameterProvider PageParameter =
             new("page", FormattableStringHelpers.Empty, new CSharpType(typeof(ClientResult)));
-
-        private readonly IReadOnlyList<ParameterProvider> _createRequestParameters;
-        private readonly string _createRequestMethodName;
 
         public CollectionResultDefinition(ClientProvider client, InputPagingServiceMethod serviceMethod, CSharpType? itemModelType, bool isAsync)
         {
@@ -73,27 +70,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ResponseModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel((InputModelType)response!.BodyType!)!;
             ResponseModelType = ResponseModel.Type;
 
-            var createRequestMethodSignature = Client.RestClient.GetCreateRequestMethod(Operation).Signature;
-            _createRequestParameters = createRequestMethodSignature.Parameters;
-            _createRequestMethodName = createRequestMethodSignature.Name;
-
-            var fields = new List<FieldProvider>();
-            for (int paramIndex = 0; paramIndex < _createRequestParameters.Count; paramIndex++)
+            foreach (var field in RequestFields)
             {
-                var parameter = _createRequestParameters[paramIndex];
-                var field = new FieldProvider(
-                    FieldModifiers.Private | FieldModifiers.ReadOnly,
-                    parameter.Type,
-                    $"_{parameter.Name.ToVariableName()}",
-                    this);
-                fields.Add(field);
-                if (parameter.Name == Paging.ContinuationToken?.Parameter.Name)
+                if (field.AsParameter.Name == Paging.ContinuationToken?.Parameter.Name)
                 {
                     NextTokenField = field;
                 }
             }
-
-            RequestFields = fields;
 
             NextPageLocation = Paging.NextLink?.ResponseLocation ?? Paging.ContinuationToken?.ResponseLocation;
             NextPagePropertySegments = Paging.NextLink?.ResponseSegments ?? Paging.ContinuationToken?.ResponseSegments ?? [];
@@ -108,6 +91,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Operation.CrossLanguageDefinitionId,
                     EmitterDiagnosticSeverity.Error);
             }
+        }
+
+        private IReadOnlyList<ParameterProvider> CreateRequestParameters
+            => Client.RestClient.GetCreateRequestMethod(Operation).Signature.Parameters;
+
+        private string CreateRequestMethodName
+            => Client.RestClient.GetCreateRequestMethod(Operation).Signature.Name;
+
+        private IReadOnlyList<FieldProvider> BuildRequestFields()
+        {
+            var fields = new List<FieldProvider>();
+            for (int paramIndex = 0; paramIndex < CreateRequestParameters.Count; paramIndex++)
+            {
+                var parameter = CreateRequestParameters[paramIndex];
+                var field = new FieldProvider(
+                    FieldModifiers.Private | FieldModifiers.ReadOnly,
+                    parameter.Type,
+                    $"_{parameter.Name.ToVariableName()}",
+                    this);
+                fields.Add(field);
+            }
+
+            return fields;
         }
 
         private CSharpType GetNextPagePropertyType()
@@ -168,7 +174,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         MethodSignatureModifiers.Public,
                         [
                             clientParameter,
-                            .. _createRequestParameters
+                            .. CreateRequestParameters
                         ]),
                     BuildConstructorBody(clientParameter),
                     this)
@@ -207,13 +213,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement[] BuildConstructorBody(ParameterProvider clientParameter)
         {
-            var statements = new List<MethodBodyStatement>(_createRequestParameters.Count + 1);
+            var statements = new List<MethodBodyStatement>(CreateRequestParameters.Count + 1);
 
             statements.Add(ClientField.Assign(clientParameter).Terminate());
 
-            for (int parameterNumber = 0; parameterNumber < _createRequestParameters.Count; parameterNumber++)
+            for (int parameterNumber = 0; parameterNumber < CreateRequestParameters.Count; parameterNumber++)
             {
-                var parameter = _createRequestParameters[parameterNumber];
+                var parameter = CreateRequestParameters[parameterNumber];
                 var field = RequestFields[parameterNumber];
                 statements.Add(field.Assign(parameter).Terminate());
             }
@@ -497,16 +503,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private ScopedApi<PipelineMessage> InvokeCreateRequestForContinuationToken(ValueExpression nextToken)
         {
             // Replace the nextToken field with the nextToken variable
-            var arguments = RequestFields.Select(f => f == NextTokenField ? nextToken : f.AsValueExpression);
+            var arguments = RequestFields.Select(f => f.Name.Equals(NextTokenField?.Name) == true ? nextToken : f.AsValueExpression);
 
-            return ClientField.Invoke(_createRequestMethodName, arguments).As<PipelineMessage>();
+            return ClientField.Invoke(CreateRequestMethodName, arguments).As<PipelineMessage>();
         }
 
         private ScopedApi<PipelineMessage> InvokeCreateInitialRequest()
         {
             ValueExpression[] arguments = [.. RequestFields.Select(f => f.AsValueExpression)];
 
-            return ClientField.Invoke(_createRequestMethodName, arguments).As<PipelineMessage>();
+            return ClientField.Invoke(CreateRequestMethodName, arguments).As<PipelineMessage>();
         }
     }
 }
