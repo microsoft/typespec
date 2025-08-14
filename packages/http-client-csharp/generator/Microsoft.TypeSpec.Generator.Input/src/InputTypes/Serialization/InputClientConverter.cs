@@ -44,6 +44,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? crossLanguageDefinitionId = null;
             InputClient? parent = null;
             IReadOnlyList<InputClient>? children = null;
+            IReadOnlyList<string>? apiVersions = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -56,7 +57,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadComplexType("decorators", options, ref decorators)
                     || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId)
                     || reader.TryReadComplexType("parent", options, ref parent)
-                    || reader.TryReadComplexType("children", options, ref children);
+                    || reader.TryReadComplexType("children", options, ref children)
+                    || reader.TryReadComplexType("apiVersions", options, ref apiVersions);
 
                 if (!isKnownProperty)
                 {
@@ -74,6 +76,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             client.Decorators = decorators ?? [];
             client.Parent = parent;
             client.Children = children ?? [];
+            client.ApiVersions = apiVersions ?? [];
 
             return client;
         }
