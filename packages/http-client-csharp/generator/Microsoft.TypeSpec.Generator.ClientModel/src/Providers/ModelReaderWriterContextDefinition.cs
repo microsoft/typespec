@@ -122,7 +122,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     foreach (var property in model.Properties)
                     {
                         var propertyType = property.Type.IsCollection ? GetInnerMostElement(property.Type) : property.Type;
-                        CollectBuildableTypesRecursive(propertyType, buildableTypes, visitedTypes, modelProviders);
+                        CollectBuildableTypesRecursive(propertyType.WithNullable(false), buildableTypes, visitedTypes, modelProviders);
                     }
                 }
             }
