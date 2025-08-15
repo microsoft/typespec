@@ -1,4 +1,4 @@
-import { printIdentifier } from "../../../../../../compiler/src/core/helpers/index.js";
+import { printIdentifier } from "@typespec/compiler";
 import { OpenAPI3Schema, Refable } from "../../../../types.js";
 import {
   TypeSpecAlias,
