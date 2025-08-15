@@ -145,11 +145,12 @@ HEADERS_CONVERT_IN_METHOD = {
         "type": {
             "type": "sdkcore",
             "name": "MatchConditions",
+            "isTypingOnly": True,
         },
     },
 }
 CLOUD_SETTING = {
-  "optional": False,
+  "optional": True,
   "description": "The cloud setting for which to get the ARM endpoint.",
   "clientName": "cloud_setting",
   "implementation": "Client",
