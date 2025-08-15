@@ -102,6 +102,12 @@ export class SchemaToExpressionGenerator {
       type = this.getOneOfType(schema, callingScope);
     } else if (schema.type === "string") {
       type = getStringType(schema);
+    } else if (schema.type === "object") {
+      // this is a fallback to maintain compatibility and it needs to be in the last cases
+      type = this.getObjectType(schema, callingScope);
+    } else if (schema.type === "array") {
+      // this is a fallback to maintain compatibility and it needs to be in the last cases
+      type = this.generateArrayType(schema, callingScope);
     }
 
     if (schema.nullable) {
