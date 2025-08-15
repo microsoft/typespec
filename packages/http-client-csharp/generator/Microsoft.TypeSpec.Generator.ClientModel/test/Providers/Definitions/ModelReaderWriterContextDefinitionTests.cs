@@ -267,6 +267,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Test]
+        public async Task NullableValueTypesAreHandledCorrectly()
+        {
+            var customizedModel = InputFactory.Model("CustomizedModel");
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () =>
+                [
+                    InputFactory.Model("RegularModel", properties:
+                    [
+                        InputFactory.Property("ModelProperty", new InputNullableType(customizedModel)),
+                        InputFactory.Property("IntProperty", InputPrimitiveType.Int32)
+                    ]),
+                    customizedModel
+                ],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+            Assert.IsTrue(attributes.Count > 0);
+
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute));
+            Assert.AreEqual(2, buildableAttributes.Count());
+
+            var writer = new TypeProviderWriter(contextDefinition);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
         public async Task CustomizedExperimentalModelsHaveAttributeSuppressions()
         {
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
