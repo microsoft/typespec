@@ -361,8 +361,6 @@ class Parameter(_ParameterBase):
         # for optional path parameter, we need to use keyword only
         if self.location == ParameterLocation.PATH and self.optional:
             return ParameterMethodLocation.KEYWORD_ONLY
-        if self.location == ParameterLocation.OTHER:
-            return ParameterMethodLocation.KEYWORD_ONLY
         return ParameterMethodLocation.POSITIONAL
 
     @classmethod
@@ -397,6 +395,8 @@ class ClientParameter(Parameter):
             and self.code_model.options["from-typespec"]
             and not self.code_model.options["azure-arm"]
         ):
+            return ParameterMethodLocation.KEYWORD_ONLY
+        if self.location == ParameterLocation.OTHER:
             return ParameterMethodLocation.KEYWORD_ONLY
         return ParameterMethodLocation.POSITIONAL
 
