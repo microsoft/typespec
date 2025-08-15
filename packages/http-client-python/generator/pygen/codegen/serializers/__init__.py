@@ -256,15 +256,15 @@ class JinjaSerializer(ReaderAndWriter):
             if not self.code_model.is_azure_flavor and template_name == "dev_requirements.txt.jinja2":
                 continue
             file = template_name.replace(".jinja2", "")
-            output_name = root_of_sdk / file
-            if not self.read_file(output_name) or file in _REGENERATE_FILES:
+            output_file = root_of_sdk / file
+            if not self.read_file(output_file) or file in _REGENERATE_FILES:
                 if self.keep_version_file and file == "setup.py" and not self.code_model.options["azure-arm"]:
                     # don't regenerate setup.py file if the version file is more up to date for data-plane
                     continue
-                file_path = self.get_output_folder() / Path(output_name)
+                file_content = self.read_file(output_file) if file == "pyproject.toml" else ""
                 self.write_file(
-                    output_name,
-                    serializer.serialize_package_file(template_name, file_path, **params),
+                    output_file,
+                    serializer.serialize_package_file(template_name, file_content, **params),
                 )
 
     def _keep_patch_file(self, path_file: Path, env: Environment):
