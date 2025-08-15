@@ -6,7 +6,6 @@ using System.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
-using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -21,27 +20,43 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         }
 
         [Test]
-        public void TestVisitorCanMutateDefinition()
+        public void TestCanMutateDefinition()
         {
             CreatePagingOperation(InputResponseLocation.Body);
             var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
                 t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResult");
             Assert.IsNotNull(collectionResultDefinition);
 
-            // visit
-            var visitor = new TestVisitor();
-            foreach (var constructor in collectionResultDefinition!.Constructors)
-            {
-                visitor.VisitScmConstructor(constructor);
-            }
-
+            var restClientProvider = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+                t => t is RestClientProvider && t.Name == "CatClient");
+            Assert.IsNotNull(restClientProvider);
             var constructors = collectionResultDefinition!.Constructors;
+
+            var createdRequestMethod = restClientProvider!.Methods
+                .FirstOrDefault(m => m.Signature.Name == "CreateGetCatsRequest");
+            Assert.IsNotNull(createdRequestMethod);
+
+            // update the create request method signature
+            var currentSignature = createdRequestMethod!.Signature;
+            createdRequestMethod.Update(signature: new MethodSignature(
+                currentSignature.Name,
+                currentSignature.Description,
+                currentSignature.Modifiers,
+                currentSignature.ReturnType,
+                currentSignature.ReturnDescription,
+                [],
+                currentSignature.Attributes));
+
+            // reset
+            collectionResultDefinition.Reset();
+            constructors = collectionResultDefinition!.Constructors;
             Assert.IsNotEmpty(constructors);
 
             var ctor = constructors[0];
             var ctorParameters = ctor.Signature.Parameters;
 
-            Assert.IsTrue(ctorParameters.Any(p => p.Name == "myNewToken"));
+            // should now only have the client name parameter
+            Assert.AreEqual(1, ctorParameters.Count);
         }
 
         internal static void CreatePagingOperation(InputResponseLocation responseLocation, bool isNested = false)
@@ -73,40 +88,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             var client = InputFactory.Client("catClient", methods: [inputServiceMethod]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [client]);
-        }
-
-        private class TestVisitor : ScmLibraryVisitor
-        {
-            public ScmMethodProvider? VisitScmMethod(ScmMethodProvider method)
-            {
-                return base.VisitMethod(method);
-            }
-
-            public TypeProvider? TestVisitType(TypeProvider type)
-            {
-                return base.VisitType(type);
-            }
-
-            public ConstructorProvider? VisitScmConstructor(ConstructorProvider constructor)
-            {
-                var parameters = constructor.Signature.Parameters;
-                foreach (var parameter in parameters)
-                {
-                    if (parameter.Name.Equals("myToken"))
-                    {
-                        // Mutate the parameter name to test if the visitor can change the definition
-                        parameter.Update(name: "myNewToken");
-                    }
-                }
-                constructor.Signature.Update(parameters: parameters);
-
-                return base.VisitConstructor(constructor);
-            }
-
-            internal MethodProvider? VisitScmMethod(MethodProvider method)
-            {
-                return base.VisitMethod(method);
-            }
         }
     }
 }
