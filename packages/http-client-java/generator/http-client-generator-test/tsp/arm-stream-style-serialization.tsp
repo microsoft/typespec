@@ -8,6 +8,7 @@ import "@azure-tools/typespec-client-generator-core";
 using TypeSpec.Http;
 using TypeSpec.Rest;
 using TypeSpec.Versioning;
+using Azure.Core;
 using Azure.ResourceManager;
 using Azure.ClientGenerator.Core;
 
@@ -154,7 +155,7 @@ model OutputOnlyModel {
 
 model OutputOnlyModelProperties {
   title: string;
-  dog: Dog;
+  dog: Golden;
 }
 
 @doc("extensible enum type for discriminator")
@@ -249,8 +250,39 @@ interface Priorities {
   };
 }
 
+@route("/items")
+interface Items {
+  // op of LRO + pageable
+  @get
+  @list
+  list(): ListResult & ArmLroLocationHeader;
+}
+
+model ListResult {
+  @pageItems
+  items: Result[];
+
+  @nextLink
+  nextLink?: string;
+}
+
+model Result {
+  name: string;
+
+  @visibility(Lifecycle.Read)
+  data: ResultData;
+}
+
+model ResultData {
+  prop1: string;
+
+  @visibility(Lifecycle.Read)
+  prop2: string;
+}
+
 @@flattenProperty(Fish.properties);
 @@flattenProperty(FishProperties.tailProperties);
 @@flattenProperty(Fish.anotherProperties);
 @@flattenProperty(AnotherFishProperties.eyeProperties);
 @@flattenProperty(FunctionProperties.properties);
+@@flattenProperty(Result.data);

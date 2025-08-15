@@ -22,6 +22,7 @@ using OpenAPI;
   license: #{ name: "Apache 2.0", url: "http://www.apache.org/licenses/LICENSE-2.0.html" },
   termsOfService: "http://swagger.io/terms/",
 })
+@server("/v3")
 namespace SwaggerPetstoreOpenAPI30;
 
 @extension("x-swagger-router-model", "io.swagger.petstore.model.Order")

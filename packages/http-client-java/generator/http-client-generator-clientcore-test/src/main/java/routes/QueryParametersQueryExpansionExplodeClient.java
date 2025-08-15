@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.util.List;
 import java.util.Map;
 import routes.implementation.QueryParametersQueryExpansionExplodesImpl;
@@ -20,14 +21,19 @@ public final class QueryParametersQueryExpansionExplodeClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final QueryParametersQueryExpansionExplodesImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of QueryParametersQueryExpansionExplodeClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    QueryParametersQueryExpansionExplodeClient(QueryParametersQueryExpansionExplodesImpl serviceClient) {
+    QueryParametersQueryExpansionExplodeClient(QueryParametersQueryExpansionExplodesImpl serviceClient,
+        Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -43,7 +49,8 @@ public final class QueryParametersQueryExpansionExplodeClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> primitiveWithResponse(String param, RequestContext requestContext) {
-        return this.serviceClient.primitiveWithResponse(param, requestContext);
+        return this.instrumentation.instrumentWithResponse("Routes.QueryParameters.QueryExpansion.Explode.primitive",
+            requestContext, updatedContext -> this.serviceClient.primitiveWithResponse(param, updatedContext));
     }
 
     /**
@@ -57,7 +64,7 @@ public final class QueryParametersQueryExpansionExplodeClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void primitive(String param) {
-        this.serviceClient.primitive(param);
+        primitiveWithResponse(param, RequestContext.none());
     }
 
     /**
@@ -73,7 +80,8 @@ public final class QueryParametersQueryExpansionExplodeClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> arrayWithResponse(List<String> param, RequestContext requestContext) {
-        return this.serviceClient.arrayWithResponse(param, requestContext);
+        return this.instrumentation.instrumentWithResponse("Routes.QueryParameters.QueryExpansion.Explode.array",
+            requestContext, updatedContext -> this.serviceClient.arrayWithResponse(param, updatedContext));
     }
 
     /**
@@ -87,7 +95,7 @@ public final class QueryParametersQueryExpansionExplodeClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void array(List<String> param) {
-        this.serviceClient.array(param);
+        arrayWithResponse(param, RequestContext.none());
     }
 
     /**
@@ -103,7 +111,8 @@ public final class QueryParametersQueryExpansionExplodeClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> recordWithResponse(Map<String, Integer> param, RequestContext requestContext) {
-        return this.serviceClient.recordWithResponse(param, requestContext);
+        return this.instrumentation.instrumentWithResponse("Routes.QueryParameters.QueryExpansion.Explode.record",
+            requestContext, updatedContext -> this.serviceClient.recordWithResponse(param, updatedContext));
     }
 
     /**
@@ -117,6 +126,6 @@ public final class QueryParametersQueryExpansionExplodeClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void record(Map<String, Integer> param) {
-        this.serviceClient.record(param);
+        recordWithResponse(param, RequestContext.none());
     }
 }

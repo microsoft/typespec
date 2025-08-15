@@ -21,7 +21,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public ApiVersionEnumProvider(InputEnumType input, TypeProvider? declaringType) : base(input, declaringType) { }
 
         protected override string BuildName() => ApiVersionEnumName;
-        protected override FormattableString Description => $"{ApiVersionEnumDescription}";
+        protected override FormattableString BuildDescription() => $"{ApiVersionEnumDescription}";
 
         protected override IReadOnlyList<EnumTypeMember> BuildEnumValues()
         {
@@ -93,7 +93,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return currentApiVersions;
             }
 
-            allMembers.Sort(static (x, y) => string.Compare(x.Name, y.Name, StringComparison.OrdinalIgnoreCase));
+            SortApiVersions(allMembers);
+
             for (int i = 0; i < allMembers.Count; i++)
             {
                 var member = allMembers[i];
@@ -108,6 +109,59 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return allMembers;
+        }
+
+        private static void SortApiVersions(List<EnumTypeMember> allMembers)
+        {
+            allMembers.Sort((x, y) =>
+            {
+                // Extract base names and version types
+                var (xBase, xType, xPrereleaseNumber) = ParseVersionInfo(x.Name);
+                var (yBase, yType, yPreReleaseNumber) = ParseVersionInfo(y.Name);
+
+                // First compare base names
+                int baseComparison = string.Compare(xBase, yBase, StringComparison.OrdinalIgnoreCase);
+                if (baseComparison != 0)
+                {
+                    return baseComparison;
+                }
+
+                // If base names are equal, and version types are equal, compare prerelease numbers
+                if (xType == yType)
+                {
+                    return xPrereleaseNumber.CompareTo(yPreReleaseNumber);
+                }
+
+                return xType.CompareTo(yType);
+            });
+
+            static (string BaseName, VersionType VersionType, int PrereleaseNumber) ParseVersionInfo(string name)
+            {
+                // Common patterns for Beta/Preview versions
+                string[] versionIndicators = ["_Beta", "_Preview"];
+
+                foreach (var indicator in versionIndicators)
+                {
+                    int index = name.IndexOf(indicator, StringComparison.OrdinalIgnoreCase);
+                    if (index >= 0)
+                    {
+                        string baseName = name.Substring(0, index).Trim('_');
+                        return (baseName, Enum.Parse<VersionType>(indicator.TrimStart('_')),
+                            int.TryParse(name.Substring(index + indicator.Length).Trim('_'), out int prereleaseNumber) ? prereleaseNumber : 0);
+                    }
+                }
+
+                // No version indicator found, it's a GA version
+                return (name, VersionType.GA, 0);
+            }
+        }
+
+        private enum VersionType
+        {
+            Beta,
+            // Beta and Preview should never occur in the same enum, but handle it gracefully
+            Preview,
+            GA
         }
 
         private static (string? Prefix, char? Separator) ExtractVersionFormatInfo(string previousVersion, List<EnumTypeMember> currentApiVersions)

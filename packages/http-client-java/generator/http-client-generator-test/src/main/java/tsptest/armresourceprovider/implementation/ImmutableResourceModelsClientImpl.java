@@ -31,8 +31,8 @@ import java.nio.ByteBuffer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tsptest.armresourceprovider.fluent.ImmutableResourceModelsClient;
-import tsptest.armresourceprovider.fluent.models.NginxConfigurationResponseInner;
 import tsptest.armresourceprovider.models.NginxConfigurationRequest;
+import tsptest.armresourceprovider.models.NginxConfigurationResponse;
 
 /**
  * An instance of this class provides access to all the operations defined in ImmutableResourceModelsClient.
@@ -64,7 +64,7 @@ public final class ImmutableResourceModelsClientImpl implements ImmutableResourc
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArmClientImmutableRe")
+    @ServiceInterface(name = "ArmClientImmutableResourceModels")
     public interface ImmutableResourceModelsService {
         @Headers({ "Content-Type: application/json" })
         @Put("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/configurations/{configurationName}")
@@ -100,7 +100,7 @@ public final class ImmutableResourceModelsClientImpl implements ImmutableResourc
      * with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<Flux<ByteBuffer>>> createOrUpdateWithResponseAsync(String resourceGroupName,
+    public Mono<Response<Flux<ByteBuffer>>> createOrUpdateWithResponseAsync(String resourceGroupName,
         String configurationName, NginxConfigurationRequest properties) {
         if (this.client.getEndpoint() == null) {
             return Mono.error(
@@ -224,13 +224,12 @@ public final class ImmutableResourceModelsClientImpl implements ImmutableResourc
      * using a specific property type.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    private PollerFlux<PollResult<NginxConfigurationResponseInner>, NginxConfigurationResponseInner>
-        beginCreateOrUpdateAsync(String resourceGroupName, String configurationName,
-            NginxConfigurationRequest properties) {
+    public PollerFlux<PollResult<NginxConfigurationResponse>, NginxConfigurationResponse> beginCreateOrUpdateAsync(
+        String resourceGroupName, String configurationName, NginxConfigurationRequest properties) {
         Mono<Response<Flux<ByteBuffer>>> mono
             = createOrUpdateWithResponseAsync(resourceGroupName, configurationName, properties);
-        return this.client.<NginxConfigurationResponseInner, NginxConfigurationResponseInner>getLroResult(mono,
-            this.client.getHttpPipeline(), NginxConfigurationResponseInner.class, NginxConfigurationResponseInner.class,
+        return this.client.<NginxConfigurationResponse, NginxConfigurationResponse>getLroResult(mono,
+            this.client.getHttpPipeline(), NginxConfigurationResponse.class, NginxConfigurationResponse.class,
             this.client.getContext());
     }
 
@@ -246,13 +245,13 @@ public final class ImmutableResourceModelsClientImpl implements ImmutableResourc
      * using a specific property type.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    private PollerFlux<PollResult<NginxConfigurationResponseInner>, NginxConfigurationResponseInner>
+    public PollerFlux<PollResult<NginxConfigurationResponse>, NginxConfigurationResponse>
         beginCreateOrUpdateAsync(String resourceGroupName, String configurationName) {
         final NginxConfigurationRequest properties = null;
         Mono<Response<Flux<ByteBuffer>>> mono
             = createOrUpdateWithResponseAsync(resourceGroupName, configurationName, properties);
-        return this.client.<NginxConfigurationResponseInner, NginxConfigurationResponseInner>getLroResult(mono,
-            this.client.getHttpPipeline(), NginxConfigurationResponseInner.class, NginxConfigurationResponseInner.class,
+        return this.client.<NginxConfigurationResponse, NginxConfigurationResponse>getLroResult(mono,
+            this.client.getHttpPipeline(), NginxConfigurationResponse.class, NginxConfigurationResponse.class,
             this.client.getContext());
     }
 
@@ -269,11 +268,11 @@ public final class ImmutableResourceModelsClientImpl implements ImmutableResourc
      * using a specific property type.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    public SyncPoller<PollResult<NginxConfigurationResponseInner>, NginxConfigurationResponseInner>
+    public SyncPoller<PollResult<NginxConfigurationResponse>, NginxConfigurationResponse>
         beginCreateOrUpdate(String resourceGroupName, String configurationName, NginxConfigurationRequest properties) {
         Response<BinaryData> response = createOrUpdateWithResponse(resourceGroupName, configurationName, properties);
-        return this.client.<NginxConfigurationResponseInner, NginxConfigurationResponseInner>getLroResult(response,
-            NginxConfigurationResponseInner.class, NginxConfigurationResponseInner.class, Context.NONE);
+        return this.client.<NginxConfigurationResponse, NginxConfigurationResponse>getLroResult(response,
+            NginxConfigurationResponse.class, NginxConfigurationResponse.class, Context.NONE);
     }
 
     /**
@@ -288,12 +287,12 @@ public final class ImmutableResourceModelsClientImpl implements ImmutableResourc
      * using a specific property type.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    public SyncPoller<PollResult<NginxConfigurationResponseInner>, NginxConfigurationResponseInner>
+    public SyncPoller<PollResult<NginxConfigurationResponse>, NginxConfigurationResponse>
         beginCreateOrUpdate(String resourceGroupName, String configurationName) {
         final NginxConfigurationRequest properties = null;
         Response<BinaryData> response = createOrUpdateWithResponse(resourceGroupName, configurationName, properties);
-        return this.client.<NginxConfigurationResponseInner, NginxConfigurationResponseInner>getLroResult(response,
-            NginxConfigurationResponseInner.class, NginxConfigurationResponseInner.class, Context.NONE);
+        return this.client.<NginxConfigurationResponse, NginxConfigurationResponse>getLroResult(response,
+            NginxConfigurationResponse.class, NginxConfigurationResponse.class, Context.NONE);
     }
 
     /**
@@ -310,12 +309,12 @@ public final class ImmutableResourceModelsClientImpl implements ImmutableResourc
      * using a specific property type.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    public SyncPoller<PollResult<NginxConfigurationResponseInner>, NginxConfigurationResponseInner> beginCreateOrUpdate(
+    public SyncPoller<PollResult<NginxConfigurationResponse>, NginxConfigurationResponse> beginCreateOrUpdate(
         String resourceGroupName, String configurationName, NginxConfigurationRequest properties, Context context) {
         Response<BinaryData> response
             = createOrUpdateWithResponse(resourceGroupName, configurationName, properties, context);
-        return this.client.<NginxConfigurationResponseInner, NginxConfigurationResponseInner>getLroResult(response,
-            NginxConfigurationResponseInner.class, NginxConfigurationResponseInner.class, context);
+        return this.client.<NginxConfigurationResponse, NginxConfigurationResponse>getLroResult(response,
+            NginxConfigurationResponse.class, NginxConfigurationResponse.class, context);
     }
 
     /**
@@ -331,8 +330,8 @@ public final class ImmutableResourceModelsClientImpl implements ImmutableResourc
      * successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<NginxConfigurationResponseInner> createOrUpdateAsync(String resourceGroupName,
-        String configurationName, NginxConfigurationRequest properties) {
+    public Mono<NginxConfigurationResponse> createOrUpdateAsync(String resourceGroupName, String configurationName,
+        NginxConfigurationRequest properties) {
         return beginCreateOrUpdateAsync(resourceGroupName, configurationName, properties).last()
             .flatMap(this.client::getLroFinalResultOrError);
     }
@@ -349,8 +348,7 @@ public final class ImmutableResourceModelsClientImpl implements ImmutableResourc
      * successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<NginxConfigurationResponseInner> createOrUpdateAsync(String resourceGroupName,
-        String configurationName) {
+    public Mono<NginxConfigurationResponse> createOrUpdateAsync(String resourceGroupName, String configurationName) {
         final NginxConfigurationRequest properties = null;
         return beginCreateOrUpdateAsync(resourceGroupName, configurationName, properties).last()
             .flatMap(this.client::getLroFinalResultOrError);
@@ -367,7 +365,7 @@ public final class ImmutableResourceModelsClientImpl implements ImmutableResourc
      * @return concrete proxy resource types can be created by aliasing this type using a specific property type.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public NginxConfigurationResponseInner createOrUpdate(String resourceGroupName, String configurationName) {
+    public NginxConfigurationResponse createOrUpdate(String resourceGroupName, String configurationName) {
         final NginxConfigurationRequest properties = null;
         return beginCreateOrUpdate(resourceGroupName, configurationName, properties).getFinalResult();
     }
@@ -385,7 +383,7 @@ public final class ImmutableResourceModelsClientImpl implements ImmutableResourc
      * @return concrete proxy resource types can be created by aliasing this type using a specific property type.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public NginxConfigurationResponseInner createOrUpdate(String resourceGroupName, String configurationName,
+    public NginxConfigurationResponse createOrUpdate(String resourceGroupName, String configurationName,
         NginxConfigurationRequest properties, Context context) {
         return beginCreateOrUpdate(resourceGroupName, configurationName, properties, context).getFinalResult();
     }

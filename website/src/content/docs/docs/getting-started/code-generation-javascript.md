@@ -39,13 +39,11 @@ tsp init
 ```
 
 3. Select the appropriate template when prompted:
-
    - Choose "Generic REST API" to create a standard REST API
    - Enter a project name or accept the default
    - Select "JavaScript Server Stubs" from the emitter options
 
 4. After initialization completes, your project structure will include:
-
    - `main.tsp` - Your TypeSpec definition file with a sample service
    - `tspconfig.yaml` - Configuration for your emitters
    - `package.json` - Project dependencies
@@ -180,18 +178,15 @@ The generated code is organized into two main categories:
 Located in the `src/generated` directory, these files will be regenerated whenever you recompile your TypeSpec definition. If you modify these files, your modifications will be overwritten every time you run `tsp compile`. Your code may need to import and use methods or types from these files, but **do not** modify them as your modifications will not be preserved.
 
 - **Helpers**: Located in `src/generated/helpers`, these files contain common implementation used by the generated code.
-
   - Example: `helpers/router.ts` contains common types and implementation for the generated router.
   - Your code may need to import and use methods/types from these helpers, but you never need to modify them.
 
 - **HTTP Infrastructure**: Located in `src/generated/http`, these files define the HTTP implementation layer for the server.
-
   - Example: `http/router.ts` contains the implementation of the service router that dispatches requests to the route handlers.
   - Example: `http/operations/server-raw.ts` contains the individual route handlers that handle parsing types from requests and serializing them to responses.
   - These files handle the HTTP infrastructure. Your code will create an instance of the router in `http/router.ts`, but otherwise does not need to interact with this code directly.
 
 - **Data Models and Operation Interfaces**: Located in `src/generated/models`, these files define the data types that represent the API types defined in the TypeSpec specification.
-
   - Example: `models/all/demo-service.ts` contains the interfaces that represent the `Widget` data type and the `Widgets` operations interface.
   - Your code will import and use these types to define implementations of the route controllers that define the business logic of your service.
 
@@ -202,19 +197,16 @@ These files are not regenerated automatically when your specification is recompi
 These files are all located in the output directory `tsp-output/server/generated`, but none of them are located within the `src/generated` folder of the emitter output directory.
 
 - **Project files**: these files define the structure of the project, its dependencies, and build scripts
-
   - Examples: `package.json`, `tsconfig.json`, `.vscode/` which all define the project structure.
   - You can customize these files to your liking, for example by adding new dependencies or changing TypeScript config settings.
 
 - **Route controllers**: Implementations of the operation interfaces that define the business logic layer.
-
   - Example: `src/controllers/widgets.ts` contains the scaffolded implementation of the `Widgets` interface.
   - These controllers are passed in to the router and define the business logic of your app.
   - The scaffolding system generates "mock" implementations that either return made-up values or throw `NotImplementedError`.
   - These files **are not overwritten** when you recompile, so you can edit them to add the correct logic for your service.
 
 - **Server entrypoint**: Located in `src/index.ts`, this file defines the entrypoint of the server process.
-
   - This file creates an Express app and an instance of the generated router, then binds them together and starts the Express app.
   - You can change this file to add middleware, custom routes, etc. to the express app as needed.
 

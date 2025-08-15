@@ -3,7 +3,6 @@ package server.versions.versioned.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.PathParam;
@@ -14,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import server.versions.versioned.VersionedServiceVersion;
 
@@ -69,17 +69,34 @@ public final class VersionedClientImpl {
     }
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
      * Initializes an instance of VersionedClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
      * @param serviceVersion Service version.
      */
-    public VersionedClientImpl(HttpPipeline httpPipeline, String endpoint, VersionedServiceVersion serviceVersion) {
+    public VersionedClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint,
+        VersionedServiceVersion serviceVersion) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
         this.serviceVersion = serviceVersion;
-        this.service = RestProxy.create(VersionedClientService.class, this.httpPipeline);
+        this.service = VersionedClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -143,18 +160,10 @@ public final class VersionedClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withoutApiVersionWithResponse(RequestContext requestContext) {
-        return service.withoutApiVersion(this.getEndpoint(), requestContext);
-    }
-
-    /**
-     * The withoutApiVersion operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withoutApiVersion() {
-        withoutApiVersionWithResponse(RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Server.Versions.Versioned.withoutApiVersion",
+            requestContext, updatedContext -> {
+                return service.withoutApiVersion(this.getEndpoint(), updatedContext);
+            });
     }
 
     /**
@@ -168,18 +177,11 @@ public final class VersionedClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withQueryApiVersionWithResponse(RequestContext requestContext) {
-        return service.withQueryApiVersion(this.getEndpoint(), this.getServiceVersion().getVersion(), requestContext);
-    }
-
-    /**
-     * The withQueryApiVersion operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withQueryApiVersion() {
-        withQueryApiVersionWithResponse(RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Server.Versions.Versioned.withQueryApiVersion",
+            requestContext, updatedContext -> {
+                return service.withQueryApiVersion(this.getEndpoint(), this.getServiceVersion().getVersion(),
+                    updatedContext);
+            });
     }
 
     /**
@@ -193,18 +195,11 @@ public final class VersionedClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withPathApiVersionWithResponse(RequestContext requestContext) {
-        return service.withPathApiVersion(this.getEndpoint(), this.getServiceVersion().getVersion(), requestContext);
-    }
-
-    /**
-     * The withPathApiVersion operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withPathApiVersion() {
-        withPathApiVersionWithResponse(RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Server.Versions.Versioned.withPathApiVersion",
+            requestContext, updatedContext -> {
+                return service.withPathApiVersion(this.getEndpoint(), this.getServiceVersion().getVersion(),
+                    updatedContext);
+            });
     }
 
     /**
@@ -218,18 +213,10 @@ public final class VersionedClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withQueryOldApiVersionWithResponse(RequestContext requestContext) {
-        return service.withQueryOldApiVersion(this.getEndpoint(), this.getServiceVersion().getVersion(),
-            requestContext);
-    }
-
-    /**
-     * The withQueryOldApiVersion operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withQueryOldApiVersion() {
-        withQueryOldApiVersionWithResponse(RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Server.Versions.Versioned.withQueryOldApiVersion",
+            requestContext, updatedContext -> {
+                return service.withQueryOldApiVersion(this.getEndpoint(), this.getServiceVersion().getVersion(),
+                    updatedContext);
+            });
     }
 }

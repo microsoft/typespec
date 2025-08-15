@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http",
-  "version": "1.0.1",
+  "version": "1.3.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec HTTP protocol binding",
   "homepage": "https://github.com/microsoft/typespec",
@@ -47,6 +47,9 @@
       "import": "./dist/src/experimental/merge-patch/index.js"
     }
   },
+  "imports": {
+    "#test/*": "./test/*"
+  },
   "engines": {
     "node": ">=20.0.0"
   },
@@ -80,7 +83,7 @@
     }
   },
   "devDependencies": {
-    "@types/node": "~22.13.11",
+    "@types/node": "~24.1.0",
     "@typespec/compiler": "workspace:^",
     "@typespec/library-linter": "workspace:^",
     "@typespec/streams": "workspace:^",

@@ -3,7 +3,6 @@ package type.property.additionalproperties.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -14,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import type.property.additionalproperties.SpreadRecordForUnion;
 
@@ -32,20 +32,26 @@ public final class SpreadRecordUnionsImpl {
     private final AdditionalPropertiesClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of SpreadRecordUnionsImpl.
      * 
      * @param client the instance of the service client containing this operation class.
      */
     SpreadRecordUnionsImpl(AdditionalPropertiesClientImpl client) {
-        this.service = RestProxy.create(SpreadRecordUnionsService.class, client.getHttpPipeline());
+        this.service = SpreadRecordUnionsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
      * The interface defining all the services for AdditionalPropertiesClientSpreadRecordUnions to be used by the proxy
      * service to perform REST calls.
      */
-    @ServiceInterface(name = "AdditionalProperties", host = "{endpoint}")
+    @ServiceInterface(name = "AdditionalPropertiesClientSpreadRecordUnions", host = "{endpoint}")
     public interface SpreadRecordUnionsService {
         static SpreadRecordUnionsService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -88,20 +94,11 @@ public final class SpreadRecordUnionsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<SpreadRecordForUnion> getWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.get(this.client.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * Get call.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return call.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public SpreadRecordForUnion get() {
-        return getWithResponse(RequestContext.none()).getValue();
+        return this.instrumentation.instrumentWithResponse("Type.Property.AdditionalProperties.SpreadRecordUnion.get",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                return service.get(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
@@ -116,20 +113,10 @@ public final class SpreadRecordUnionsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(SpreadRecordForUnion body, RequestContext requestContext) {
-        final String contentType = "application/json";
-        return service.put(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * Put operation.
-     * 
-     * @param body body.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void put(SpreadRecordForUnion body) {
-        putWithResponse(body, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Type.Property.AdditionalProperties.SpreadRecordUnion.put",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                return service.put(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 }

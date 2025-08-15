@@ -3,15 +3,20 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Statements;
+using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
     internal class ModelReaderWriterContextDefinition : TypeProvider
     {
-        internal static string s_name = $"{RemovePeriods(ScmCodeModelGenerator.Instance.TypeFactory.PrimaryNamespace)}Context";
+        internal static readonly string s_name = $"{RemovePeriods(ScmCodeModelGenerator.Instance.TypeFactory.PrimaryNamespace)}Context";
 
         protected override string BuildName() => s_name;
 
@@ -21,6 +26,133 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             => TypeSignatureModifiers.Public | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
 
         protected override CSharpType[] BuildImplements() => [typeof(ModelReaderWriterContext)];
+
+        protected override IReadOnlyList<MethodBodyStatement> BuildAttributes()
+        {
+            var attributes = new List<MethodBodyStatement>();
+
+            // Add ModelReaderWriterBuildableAttribute for all IPersistableModel types
+            var buildableTypes = CollectBuildableTypes();
+            foreach (var type in buildableTypes)
+            {
+                // Use the full attribute type name to ensure proper compilation
+                var attributeType = new CSharpType(typeof(ModelReaderWriterBuildableAttribute));
+                var attributeStatement = new AttributeStatement(attributeType, TypeOf(type));
+
+                // If the type is experimental, we add a suppression for it
+                string justification = $"{type} is experimental and may change in future versions.";
+                if (ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(type, out var model))
+                {
+                    var experimentalAttribute =
+                        model?.CanonicalView.Attributes.FirstOrDefault(a => a.Type.Equals(typeof(ExperimentalAttribute)));
+                    if (experimentalAttribute != null)
+                    {
+                        var key = experimentalAttribute.Arguments[0];
+                        attributes.Add(new SuppressionStatement(attributeStatement, key, justification));
+                    }
+                    else
+                    {
+                        attributes.Add(attributeStatement);
+                    }
+                }
+                // A dependency model - need to use reflection to get the attribute data
+                else if (type.IsFrameworkType)
+                {
+                    var experimentalAttr = type.FrameworkType.GetCustomAttributes(typeof(ExperimentalAttribute), false)
+                        .FirstOrDefault();
+                    if (experimentalAttr != null)
+                    {
+                        var key = experimentalAttr.GetType().GetProperty("DiagnosticId")?.GetValue(experimentalAttr);
+                        attributes.Add(new SuppressionStatement(attributeStatement, Literal(key), justification));
+                    }
+                    else
+                    {
+                        attributes.Add(attributeStatement);
+                    }
+                }
+            }
+
+            return attributes;
+        }
+
+        /// <summary>
+        /// Collects all types that implement IPersistableModel, including all models and their properties
+        /// that are also IPersistableModel types, recursively without duplicates.
+        /// </summary>
+        private HashSet<CSharpType> CollectBuildableTypes()
+        {
+            var buildableTypes = new HashSet<CSharpType>(new CSharpTypeNameComparer());
+            var visitedTypes = new HashSet<CSharpType>(new CSharpTypeNameComparer());
+
+            // Get all model providers from the output library
+            var modelProviders = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .ToDictionary(mp => mp.Type, mp => mp, new CSharpTypeNameComparer());
+
+            // Process each model recursively
+            foreach (var modelProvider in modelProviders.Values)
+            {
+                CollectBuildableTypesRecursive(modelProvider.Type, buildableTypes, visitedTypes, modelProviders);
+            }
+
+            return buildableTypes;
+        }
+
+        /// <summary>
+        /// Recursively collects all types that implement IPersistableModel.
+        /// </summary>
+        private void CollectBuildableTypesRecursive(CSharpType currentType, HashSet<CSharpType> buildableTypes, HashSet<CSharpType> visitedTypes, Dictionary<CSharpType, ModelProvider> modelProviders)
+        {
+            // Avoid infinite recursion by checking if we've already visited this type
+            if (visitedTypes.Contains(currentType))
+            {
+                return;
+            }
+
+            visitedTypes.Add(currentType);
+
+            // Check if this type implements IPersistableModel
+            if (ImplementsIPersistableModel(currentType, modelProviders, out ModelProvider? model))
+            {
+                buildableTypes.Add(currentType);
+
+                if (model is not null)
+                {
+                    // Check all properties of this model
+                    foreach (var property in model.Properties)
+                    {
+                        var propertyType = property.Type.IsCollection ? GetInnerMostElement(property.Type) : property.Type;
+                        CollectBuildableTypesRecursive(propertyType, buildableTypes, visitedTypes, modelProviders);
+                    }
+                }
+            }
+        }
+
+        private CSharpType GetInnerMostElement(CSharpType type)
+        {
+            var result = type.ElementType;
+            while (result.IsCollection)
+            {
+                result = result.ElementType;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Checks if a type implements IPersistableModel interface.
+        /// </summary>
+        private bool ImplementsIPersistableModel(CSharpType type, Dictionary<CSharpType, ModelProvider> modelProviders, out ModelProvider? model)
+        {
+            if (modelProviders.TryGetValue(type, out model))
+            {
+                return model.SerializationProviders.OfType<MrwSerializationTypeDefinition>().Any();
+            }
+
+            if (!type.IsFrameworkType || type.IsEnum || type.IsLiteral)
+                return false;
+
+            return type.FrameworkType.GetInterfaces().Any(i => i.Name == "IPersistableModel`1" || i.Name == "IJsonModel`1");
+        }
 
         protected override XmlDocProvider BuildXmlDocs()
         {
@@ -48,6 +180,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return buffer.Slice(0, index).ToString();
+        }
+
+        private class CSharpTypeNameComparer : IEqualityComparer<CSharpType>
+        {
+            public bool Equals(CSharpType? x, CSharpType? y)
+            {
+                if (x is null && y is null)
+                {
+                    return true;
+                }
+                if (x is null || y is null)
+                {
+                    return false;
+                }
+                return x.Namespace == y.Namespace && x.Name == y.Name;
+            }
+
+            public int GetHashCode(CSharpType obj)
+            {
+                HashCode hashCode = new HashCode();
+                hashCode.Add(obj.Namespace);
+                hashCode.Add(obj.Name);
+                return hashCode.ToHashCode();
+            }
         }
     }
 }

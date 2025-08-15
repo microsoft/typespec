@@ -60,8 +60,8 @@ words:
   - Dorg
   - Dosgi
   - dotenv
-  - duplicative
   - Dskip
+  - duplicative
   - Dyns
   - eastus
   - ecmarkup
@@ -78,6 +78,7 @@ words:
   - fastify
   - fluentui
   - français
+  - freadme
   - fslib
   - genproto
   - getpgid
@@ -177,6 +178,7 @@ words:
   - Packument
   - Perfolizer
   - picocolors
+  - pnpx
   - posargs
   - primitivea
   - prismjs
@@ -197,6 +199,7 @@ words:
   - pyright
   - pyrightconfig
   - pytest
+  - pytyped
   - pyyaml
   - rcfile
   - reactivex
@@ -216,6 +219,7 @@ words:
   - safeint
   - sdkcore
   - segmentof
+  - setuppy
   - serde
   - sfixed
   - shiki
@@ -294,6 +298,7 @@ ignorePaths:
   - common/scripts/*
   - "**/ThirdPartyNotices.txt"
   - packages/compiler/test/formatter/scenarios/**
+  - packages/http-client-java/generator/http-client-generator/src/main/resources/PerfAutomation.jfc
   - packages/http-client-java/generator/http-client-generator-test/**
   - packages/http-client-java/generator/http-client-generator-clientcore-test/**
   - packages/http-client-js/test/e2e/**

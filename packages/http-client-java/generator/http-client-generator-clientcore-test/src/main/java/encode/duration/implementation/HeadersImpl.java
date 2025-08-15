@@ -3,7 +3,6 @@ package encode.duration.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
@@ -13,6 +12,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.models.binarydata.BinaryData;
 import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
@@ -34,20 +34,26 @@ public final class HeadersImpl {
     private final DurationClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of HeadersImpl.
      * 
      * @param client the instance of the service client containing this operation class.
      */
     HeadersImpl(DurationClientImpl client) {
-        this.service = RestProxy.create(HeadersService.class, client.getHttpPipeline());
+        this.service = HeadersService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
      * The interface defining all the services for DurationClientHeaders to be used by the proxy service to perform REST
      * calls.
      */
-    @ServiceInterface(name = "DurationClientHeader", host = "{endpoint}")
+    @ServiceInterface(name = "DurationClientHeaders", host = "{endpoint}")
     public interface HeadersService {
         static HeadersService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -121,20 +127,10 @@ public final class HeadersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> defaultMethodWithResponse(Duration duration, RequestContext requestContext) {
-        return service.defaultMethod(this.client.getEndpoint(), duration, requestContext);
-    }
-
-    /**
-     * The defaultMethod operation.
-     * 
-     * @param duration The duration parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void defaultMethod(Duration duration) {
-        defaultMethodWithResponse(duration, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Header.default", requestContext,
+            updatedContext -> {
+                return service.defaultMethod(this.client.getEndpoint(), duration, updatedContext);
+            });
     }
 
     /**
@@ -149,20 +145,10 @@ public final class HeadersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> iso8601WithResponse(Duration duration, RequestContext requestContext) {
-        return service.iso8601(this.client.getEndpoint(), duration, requestContext);
-    }
-
-    /**
-     * The iso8601 operation.
-     * 
-     * @param duration The duration parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void iso8601(Duration duration) {
-        iso8601WithResponse(duration, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Header.iso8601", requestContext,
+            updatedContext -> {
+                return service.iso8601(this.client.getEndpoint(), duration, updatedContext);
+            });
     }
 
     /**
@@ -177,47 +163,37 @@ public final class HeadersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> iso8601ArrayWithResponse(List<Duration> duration, RequestContext requestContext) {
-        String durationConverted = duration.stream().map(paramItemValue -> {
-            if (paramItemValue == null) {
-                return "";
-            } else {
-                String itemValueString = BinaryData.fromObject(paramItemValue).toString();
-                int strLength = itemValueString.length();
-                int startOffset = 0;
-                while (startOffset < strLength) {
-                    if (itemValueString.charAt(startOffset) != '"') {
-                        break;
-                    }
-                    startOffset++;
-                }
-                if (startOffset == strLength) {
-                    return "";
-                }
-                int endOffset = strLength - 1;
-                while (endOffset >= 0) {
-                    if (itemValueString.charAt(endOffset) != '"') {
-                        break;
-                    }
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Header.iso8601Array", requestContext,
+            updatedContext -> {
+                String durationConverted = duration.stream().map(paramItemValue -> {
+                    if (paramItemValue == null) {
+                        return "";
+                    } else {
+                        String itemValueString = BinaryData.fromObject(paramItemValue).toString();
+                        int strLength = itemValueString.length();
+                        int startOffset = 0;
+                        while (startOffset < strLength) {
+                            if (itemValueString.charAt(startOffset) != '"') {
+                                break;
+                            }
+                            startOffset++;
+                        }
+                        if (startOffset == strLength) {
+                            return "";
+                        }
+                        int endOffset = strLength - 1;
+                        while (endOffset >= 0) {
+                            if (itemValueString.charAt(endOffset) != '"') {
+                                break;
+                            }
 
-                    endOffset--;
-                }
-                return itemValueString.substring(startOffset, endOffset + 1);
-            }
-        }).collect(Collectors.joining(","));
-        return service.iso8601Array(this.client.getEndpoint(), durationConverted, requestContext);
-    }
-
-    /**
-     * The iso8601Array operation.
-     * 
-     * @param duration The duration parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void iso8601Array(List<Duration> duration) {
-        iso8601ArrayWithResponse(duration, RequestContext.none());
+                            endOffset--;
+                        }
+                        return itemValueString.substring(startOffset, endOffset + 1);
+                    }
+                }).collect(Collectors.joining(","));
+                return service.iso8601Array(this.client.getEndpoint(), durationConverted, updatedContext);
+            });
     }
 
     /**
@@ -232,21 +208,11 @@ public final class HeadersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> int32SecondsWithResponse(Duration duration, RequestContext requestContext) {
-        long durationConverted = duration.getSeconds();
-        return service.int32Seconds(this.client.getEndpoint(), durationConverted, requestContext);
-    }
-
-    /**
-     * The int32Seconds operation.
-     * 
-     * @param duration The duration parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void int32Seconds(Duration duration) {
-        int32SecondsWithResponse(duration, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Header.int32Seconds", requestContext,
+            updatedContext -> {
+                long durationConverted = duration.getSeconds();
+                return service.int32Seconds(this.client.getEndpoint(), durationConverted, updatedContext);
+            });
     }
 
     /**
@@ -261,21 +227,11 @@ public final class HeadersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> floatSecondsWithResponse(Duration duration, RequestContext requestContext) {
-        double durationConverted = (double) duration.toNanos() / 1000_000_000L;
-        return service.floatSeconds(this.client.getEndpoint(), durationConverted, requestContext);
-    }
-
-    /**
-     * The floatSeconds operation.
-     * 
-     * @param duration The duration parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void floatSeconds(Duration duration) {
-        floatSecondsWithResponse(duration, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Header.floatSeconds", requestContext,
+            updatedContext -> {
+                double durationConverted = (double) duration.toNanos() / 1000_000_000L;
+                return service.floatSeconds(this.client.getEndpoint(), durationConverted, updatedContext);
+            });
     }
 
     /**
@@ -290,20 +246,10 @@ public final class HeadersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> float64SecondsWithResponse(Duration duration, RequestContext requestContext) {
-        double durationConverted = (double) duration.toNanos() / 1000_000_000L;
-        return service.float64Seconds(this.client.getEndpoint(), durationConverted, requestContext);
-    }
-
-    /**
-     * The float64Seconds operation.
-     * 
-     * @param duration The duration parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void float64Seconds(Duration duration) {
-        float64SecondsWithResponse(duration, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Header.float64Seconds", requestContext,
+            updatedContext -> {
+                double durationConverted = (double) duration.toNanos() / 1000_000_000L;
+                return service.float64Seconds(this.client.getEndpoint(), durationConverted, updatedContext);
+            });
     }
 }

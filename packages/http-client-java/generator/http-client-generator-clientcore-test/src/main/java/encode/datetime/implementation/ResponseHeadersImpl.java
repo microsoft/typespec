@@ -3,7 +3,6 @@ package encode.datetime.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
@@ -12,6 +11,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -29,20 +29,26 @@ public final class ResponseHeadersImpl {
     private final DatetimeClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of ResponseHeadersImpl.
      * 
      * @param client the instance of the service client containing this operation class.
      */
     ResponseHeadersImpl(DatetimeClientImpl client) {
-        this.service = RestProxy.create(ResponseHeadersService.class, client.getHttpPipeline());
+        this.service = ResponseHeadersService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
      * The interface defining all the services for DatetimeClientResponseHeaders to be used by the proxy service to
      * perform REST calls.
      */
-    @ServiceInterface(name = "DatetimeClientRespon", host = "{endpoint}")
+    @ServiceInterface(name = "DatetimeClientResponseHeaders", host = "{endpoint}")
     public interface ResponseHeadersService {
         static ResponseHeadersService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -96,18 +102,10 @@ public final class ResponseHeadersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> defaultMethodWithResponse(RequestContext requestContext) {
-        return service.defaultMethod(this.client.getEndpoint(), requestContext);
-    }
-
-    /**
-     * The defaultMethod operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void defaultMethod() {
-        defaultMethodWithResponse(RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.ResponseHeader.default", requestContext,
+            updatedContext -> {
+                return service.defaultMethod(this.client.getEndpoint(), updatedContext);
+            });
     }
 
     /**
@@ -121,18 +119,10 @@ public final class ResponseHeadersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> rfc3339WithResponse(RequestContext requestContext) {
-        return service.rfc3339(this.client.getEndpoint(), requestContext);
-    }
-
-    /**
-     * The rfc3339 operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void rfc3339() {
-        rfc3339WithResponse(RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.ResponseHeader.rfc3339", requestContext,
+            updatedContext -> {
+                return service.rfc3339(this.client.getEndpoint(), updatedContext);
+            });
     }
 
     /**
@@ -146,18 +136,10 @@ public final class ResponseHeadersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> rfc7231WithResponse(RequestContext requestContext) {
-        return service.rfc7231(this.client.getEndpoint(), requestContext);
-    }
-
-    /**
-     * The rfc7231 operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void rfc7231() {
-        rfc7231WithResponse(RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.ResponseHeader.rfc7231", requestContext,
+            updatedContext -> {
+                return service.rfc7231(this.client.getEndpoint(), updatedContext);
+            });
     }
 
     /**
@@ -171,17 +153,9 @@ public final class ResponseHeadersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> unixTimestampWithResponse(RequestContext requestContext) {
-        return service.unixTimestamp(this.client.getEndpoint(), requestContext);
-    }
-
-    /**
-     * The unixTimestamp operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void unixTimestamp() {
-        unixTimestampWithResponse(RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.ResponseHeader.unixTimestamp",
+            requestContext, updatedContext -> {
+                return service.unixTimestamp(this.client.getEndpoint(), updatedContext);
+            });
     }
 }

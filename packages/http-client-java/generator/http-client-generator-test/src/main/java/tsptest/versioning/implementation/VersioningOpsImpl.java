@@ -85,7 +85,7 @@ public final class VersioningOpsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "VersioningClientVers")
+    @ServiceInterface(name = "VersioningClientVersioningOps")
     public interface VersioningOpsService {
         @Post("/versioning/resources/{name}:export")
         @ExpectedResponses({ 202 })

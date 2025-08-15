@@ -17,7 +17,7 @@ namespace Sample
 
         public CatClientGetCatsAsyncCollectionResult(global::Sample.CatClient client, string myToken, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            global::Sample.Argument.AssertNotNull(myToken, nameof(myToken));
+            global::Sample.Argument.AssertNotNullOrEmpty(myToken, nameof(myToken));
 
             _client = client;
             _myToken = myToken;

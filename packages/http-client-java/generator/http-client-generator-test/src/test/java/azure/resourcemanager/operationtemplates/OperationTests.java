@@ -3,7 +3,12 @@
 
 package azure.resourcemanager.operationtemplates;
 
+import azure.resourcemanager.operationtemplates.fluent.models.WidgetInner;
+import azure.resourcemanager.operationtemplates.models.ActionRequest;
+import azure.resourcemanager.operationtemplates.models.ActionResult;
 import azure.resourcemanager.operationtemplates.models.ActionType;
+import azure.resourcemanager.operationtemplates.models.ChangeAllowanceRequest;
+import azure.resourcemanager.operationtemplates.models.ChangeAllowanceResult;
 import azure.resourcemanager.operationtemplates.models.CheckNameAvailabilityReason;
 import azure.resourcemanager.operationtemplates.models.CheckNameAvailabilityRequest;
 import azure.resourcemanager.operationtemplates.models.CheckNameAvailabilityResponse;
@@ -14,9 +19,12 @@ import azure.resourcemanager.operationtemplates.models.OperationDisplay;
 import azure.resourcemanager.operationtemplates.models.Order;
 import azure.resourcemanager.operationtemplates.models.OrderProperties;
 import azure.resourcemanager.operationtemplates.models.Origin;
+import azure.resourcemanager.operationtemplates.models.Widget;
+import azure.resourcemanager.operationtemplates.models.WidgetProperties;
 import com.azure.core.http.HttpPipeline;
 import com.azure.core.management.Region;
 import com.azure.core.management.profile.AzureProfile;
+import com.azure.core.util.Context;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.time.Duration;
@@ -84,6 +92,41 @@ public class OperationTests {
         Assertions.assertEquals("order1,product1,1", exportResult.content());
 
         manager.lroes().deleteById(order.id());
+    }
+
+    @Test
+    public void testOptionalBody() {
+        String rgName = "test-rg";
+        String resourceName = "widget1";
+        Widget widget = manager.optionalBodies().getByResourceGroup(rgName, resourceName);
+        Assertions.assertEquals("A test widget", widget.properties().description());
+        widget = manager.optionalBodies().patch(rgName, resourceName);
+        Assertions.assertEquals("A test widget", widget.properties().description());
+
+        ChangeAllowanceResult result = manager.optionalBodies().providerPost();
+        Assertions.assertEquals(50, result.totalAllowed());
+        Assertions.assertEquals("Changed to default allowance", result.status());
+        result = manager.optionalBodies()
+            .providerPostWithResponse(new ChangeAllowanceRequest().withReason("Increased demand").withTotalAllowed(100),
+                Context.NONE)
+            .getValue();
+        Assertions.assertEquals(100, result.totalAllowed());
+        Assertions.assertEquals("Changed to requested allowance", result.status());
+
+        WidgetInner inner = widget.innerModel();
+        inner.withProperties(new WidgetProperties().withName("updated-widget").withDescription("Updated description"));
+        widget = manager.optionalBodies().patchWithResponse(rgName, resourceName, inner, Context.NONE).getValue();
+        Assertions.assertEquals("Updated description", widget.properties().description());
+        Assertions.assertEquals("updated-widget", widget.properties().name());
+
+        ActionResult actionResult = manager.optionalBodies().post(rgName, resourceName);
+        Assertions.assertEquals("Action completed successfully", actionResult.result());
+
+        actionResult = manager.optionalBodies()
+            .postWithResponse(rgName, resourceName,
+                new ActionRequest().withActionType("perform").withParameters("test-parameters"), Context.NONE)
+            .getValue();
+        Assertions.assertEquals("Action completed successfully with parameters", actionResult.result());
     }
 
     // for LRO operations, we need to override default poll interval

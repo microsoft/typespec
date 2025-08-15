@@ -57,7 +57,7 @@ public final class BooleanLiteralsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ValueTypesClientBool")
+    @ServiceInterface(name = "ValueTypesClientBooleanLiterals")
     public interface BooleanLiteralsService {
         @Get("/type/property/value-types/boolean/literal")
         @ExpectedResponses({ 200 })

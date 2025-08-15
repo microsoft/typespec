@@ -7,6 +7,8 @@ using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.SourceInput;
@@ -24,8 +26,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _namedTypeSymbol = namedTypeSymbol;
         }
 
-        private protected sealed override NamedTypeSymbolProvider? GetCustomCodeView() => null;
-        private protected sealed override TypeProvider? GetLastContractView() => null;
+        private protected sealed override NamedTypeSymbolProvider? BuildCustomCodeView(string? generatedTypeName = default) => null;
+        private protected sealed override TypeProvider? BuildLastContractView(string? generatedTypeName = default) => null;
 
         protected override string BuildRelativeFilePath() => throw new InvalidOperationException("This type should not be writing in generation");
 
@@ -156,11 +158,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (constructorSymbol.IsImplicitlyDeclared)
                     continue;
 
+                var initializer = ExtractConstructorInitializer(constructorSymbol);
                 var signature = new ConstructorSignature(
                     Type,
                     GetSymbolXmlDoc(constructorSymbol, "summary"),
                     GetAccessModifier(constructorSymbol.DeclaredAccessibility),
-                    [.. constructorSymbol.Parameters.Select(p => ConvertToParameterProvider(constructorSymbol, p))]);
+                    [.. constructorSymbol.Parameters.Select(p => ConvertToParameterProvider(constructorSymbol, p))],
+                    initializer: initializer);
                 constructors.Add(new ConstructorProvider(signature, MethodBodyStatement.Empty, this));
             }
             return [.. constructors];
@@ -336,6 +340,76 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 float floatValue => Float(floatValue),
                 long longValue => Long(longValue),
                 _ => Default
+            };
+        }
+
+        private ConstructorInitializer? ExtractConstructorInitializer(IMethodSymbol constructorSymbol)
+        {
+            // Get the first syntax reference for the constructor
+            var syntaxReference = constructorSymbol.DeclaringSyntaxReferences.FirstOrDefault();
+            if (syntaxReference == null)
+                return null;
+
+            // Get the syntax node and cast to constructor declaration
+            var syntaxNode = syntaxReference.GetSyntax();
+            if (syntaxNode is not ConstructorDeclarationSyntax constructorSyntax)
+                return null;
+
+            // Check if there's an initializer
+            if (constructorSyntax.Initializer == null)
+                return null;
+
+            // Determine if it's 'this' or 'base'
+            var isBase = constructorSyntax.Initializer.ThisOrBaseKeyword.IsKind(SyntaxKind.BaseKeyword);
+
+            // Extract arguments from the initializer
+            var arguments = new List<ValueExpression>();
+            foreach (var arg in constructorSyntax.Initializer.ArgumentList.Arguments)
+            {
+                // Convert argument syntax to appropriate expression
+                var argumentExpression = ConvertArgumentToExpression(arg);
+                if (argumentExpression != null)
+                {
+                    arguments.Add(argumentExpression);
+                }
+            }
+
+            return new ConstructorInitializer(isBase, arguments);
+        }
+
+        private ValueExpression? ConvertArgumentToExpression(ArgumentSyntax argument)
+        {
+            // For now, we'll handle the most common cases
+            // This could be extended to handle more complex expressions if needed
+            var expression = argument.Expression;
+
+            return expression switch
+            {
+                // Handle literal expressions
+                LiteralExpressionSyntax literal => ConvertLiteralToExpression(literal),
+
+                // Handle identifier (parameter/variable names)
+                IdentifierNameSyntax identifier => new VariableExpression(typeof(object), identifier.Identifier.ValueText),
+
+                // For other expression types, we'll create a literal string representation
+                // This is a fallback - more specific handling could be added as needed
+                _ => Literal(expression.ToString())
+            };
+        }
+
+        private ValueExpression ConvertLiteralToExpression(LiteralExpressionSyntax literal)
+        {
+            return literal.Token.Kind() switch
+            {
+                SyntaxKind.StringLiteralToken => Literal(literal.Token.ValueText),
+                SyntaxKind.NumericLiteralToken =>
+                    int.TryParse(literal.Token.ValueText, out var intValue) ? Literal(intValue) :
+                    double.TryParse(literal.Token.ValueText, out var doubleValue) ? Literal(doubleValue) :
+                    Literal(literal.Token.ValueText),
+                SyntaxKind.TrueKeyword => True,
+                SyntaxKind.FalseKeyword => False,
+                SyntaxKind.NullKeyword => Null,
+                _ => Literal(literal.Token.ValueText)
             };
         }
     }

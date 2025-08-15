@@ -57,7 +57,7 @@ public final class StringOperationsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ScalarClientStringOp")
+    @ServiceInterface(name = "ScalarClientStringOperations")
     public interface StringOperationsService {
         @Get("/type/scalar/string")
         @ExpectedResponses({ 200 })

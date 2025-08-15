@@ -65,7 +65,7 @@ public final class LocationResourcesClientImpl implements LocationResourcesClien
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ResourcesClientLocat")
+    @ServiceInterface(name = "ResourcesClientLocationResources")
     public interface LocationResourcesService {
         @Headers({ "Content-Type: application/json" })
         @Get("/subscriptions/{subscriptionId}/providers/Azure.ResourceManager.Resources/locations/{location}/locationResources/{locationResourceName}")
@@ -121,23 +121,22 @@ public final class LocationResourcesClientImpl implements LocationResourcesClien
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
             @BodyParam("application/json") LocationResourceInner properties, Context context);
 
-        @Headers({ "Content-Type: application/json" })
+        @Headers({ "Accept: application/json;q=0.9", "Content-Type: application/json" })
         @Delete("/subscriptions/{subscriptionId}/providers/Azure.ResourceManager.Resources/locations/{location}/locationResources/{locationResourceName}")
         @ExpectedResponses({ 200, 204 })
         @UnexpectedResponseExceptionType(ManagementException.class)
         Mono<Response<Void>> delete(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("location") String location, @PathParam("locationResourceName") String locationResourceName,
-            @HeaderParam("Accept") String accept, Context context);
+            Context context);
 
-        @Headers({ "Content-Type: application/json" })
+        @Headers({ "Accept: application/json;q=0.9", "Content-Type: application/json" })
         @Delete("/subscriptions/{subscriptionId}/providers/Azure.ResourceManager.Resources/locations/{location}/locationResources/{locationResourceName}")
         @ExpectedResponses({ 200, 204 })
         @UnexpectedResponseExceptionType(ManagementException.class)
         Response<Void> deleteSync(@HostParam("endpoint") String endpoint, @QueryParam("api-version") String apiVersion,
             @PathParam("subscriptionId") String subscriptionId, @PathParam("location") String location,
-            @PathParam("locationResourceName") String locationResourceName, @HeaderParam("Accept") String accept,
-            Context context);
+            @PathParam("locationResourceName") String locationResourceName, Context context);
 
         @Headers({ "Content-Type: application/json" })
         @Get("/subscriptions/{subscriptionId}/providers/Azure.ResourceManager.Resources/locations/{location}/locationResources")
@@ -550,10 +549,9 @@ public final class LocationResourcesClientImpl implements LocationResourcesClien
             return Mono
                 .error(new IllegalArgumentException("Parameter locationResourceName is required and cannot be null."));
         }
-        final String accept = "application/json";
         return FluxUtil
             .withContext(context -> service.delete(this.client.getEndpoint(), this.client.getApiVersion(),
-                this.client.getSubscriptionId(), location, locationResourceName, accept, context))
+                this.client.getSubscriptionId(), location, locationResourceName, context))
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
 
@@ -603,9 +601,8 @@ public final class LocationResourcesClientImpl implements LocationResourcesClien
             throw LOGGER.atError()
                 .log(new IllegalArgumentException("Parameter locationResourceName is required and cannot be null."));
         }
-        final String accept = "application/json";
         return service.deleteSync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), location, locationResourceName, accept, context);
+            this.client.getSubscriptionId(), location, locationResourceName, context);
     }
 
     /**

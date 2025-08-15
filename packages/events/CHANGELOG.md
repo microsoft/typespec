@@ -1,5 +1,23 @@
 # Changelog - @typespec/events
 
+## 0.73.0
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+
+## 0.72.0
+
+### Bump dependencies
+
+- [#7674](https://github.com/microsoft/typespec/pull/7674) Upgrade dependencies
+
+
+## 0.71.0
+
+No changes, version bump only.
+
 ## 0.70.0
 
 No changes, version bump only.

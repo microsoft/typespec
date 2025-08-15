@@ -21,13 +21,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private const string AdditionalBinaryDataPropsFieldDescription = "Keeps track of any properties unknown to the library.";
         private readonly InputModelType _inputModel;
 
-        protected override FormattableString Description => _description ??= BuildDescription();
-
-        private FormattableString? _description;
-
         // Note the description cannot be built from the constructor as it would lead to a circular dependency between the base
         // and derived models resulting in a stack overflow.
-        private FormattableString BuildDescription()
+        protected override FormattableString BuildDescription()
         {
             var description = DocHelpers.GetFormattableDescription(_inputModel.Summary, _inputModel.Doc) ??
                               $"The {Name}.";
@@ -127,7 +123,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace :
             CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(_inputModel.Namespace);
 
-        protected override CSharpType? GetBaseType()
+        protected override CSharpType? BuildBaseType()
         {
             return BaseModelProvider?.Type;
         }
@@ -350,12 +346,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return properties;
         }
 
-        private Dictionary<InputModelType, Dictionary<string, InputProperty>>? _inputDerivedProperties;
-        private Dictionary<InputModelType, Dictionary<string, InputProperty>> InputDerivedProperties => _inputDerivedProperties ??= BuildDerivedProperties();
+        private Dictionary<InputModelType, Dictionary<string, InputModelProperty>>? _inputDerivedProperties;
+        private Dictionary<InputModelType, Dictionary<string, InputModelProperty>> InputDerivedProperties => _inputDerivedProperties ??= BuildDerivedProperties();
 
-        private Dictionary<InputModelType, Dictionary<string, InputProperty>> BuildDerivedProperties()
+        private Dictionary<InputModelType, Dictionary<string, InputModelProperty>> BuildDerivedProperties()
         {
-            Dictionary<InputModelType, Dictionary<string, InputProperty>> derivedProperties = [];
+            Dictionary<InputModelType, Dictionary<string, InputModelProperty>> derivedProperties = [];
             var derivedModels = new List<InputModelType>();
             EnumerateDerivedModels(_inputModel, derivedModels);
             foreach (var derivedModel in derivedModels)
@@ -382,7 +378,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var propertiesCount = _inputModel.Properties.Count;
             var properties = new List<PropertyProvider>(propertiesCount + 1);
-            Dictionary<string, InputProperty> baseProperties = EnumerateBaseModels().SelectMany(m => m.Properties).GroupBy(x => x.Name).Select(g => g.First()).ToDictionary(p => p.Name) ?? [];
+            Dictionary<string, InputModelProperty> baseProperties = EnumerateBaseModels().SelectMany(m => m.Properties).GroupBy(x => x.Name).Select(g => g.First()).ToDictionary(p => p.Name) ?? [];
             var baseModelDiscriminator = _inputModel.BaseModel?.DiscriminatorProperty;
             for (int i = 0; i < propertiesCount; i++)
             {
@@ -477,7 +473,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     $"Initializes a new instance of {Type:C}",
                     accessibility,
                     constructorParameters,
-                    Initializer: constructorInitializer),
+                    initializer: constructorInitializer),
                 bodyStatements: new MethodBodyStatement[]
                 {
                     GetPropertyInitializers(true, parameters: constructorParameters)
@@ -506,7 +502,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     $"Initializes a new instance of {Type:C}",
                     MethodSignatureModifiers.Internal,
                     ctorParameters,
-                    Initializer: ctorInitializer),
+                    initializer: ctorInitializer),
                 bodyStatements: new MethodBodyStatement[]
                 {
                     GetPropertyInitializers(false)
@@ -789,9 +785,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var backingField = property.BackingField;
                 if (backingField != null)
                 {
-                    var assignment = isPrimaryConstructor
-                       ? backingField.Assign(New.Instance(backingField.Type.PropertyInitializationType))
-                       : backingField.Assign(property.AsParameter);
+                    AssignmentExpression assignment = backingField.Assign(property.AsParameter);
+                    if (isPrimaryConstructor)
+                    {
+                        assignment = backingField.Assign(New.Instance(backingField.Type.PropertyInitializationType));
+                    }
+                    else if (property.Type.IsReadOnlyDictionary)
+                    {
+                        assignment = backingField.Assign(New.Instance(backingField.Type.PropertyInitializationType, property.AsParameter));
+                    }
 
                     methodBodyStatements.Add(assignment.Terminate());
                 }

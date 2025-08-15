@@ -6,7 +6,6 @@
     "versioning.removed.ModelV2": "Versioning.Removed.ModelV2",
     "versioning.removed.ModelV3": "Versioning.Removed.ModelV3",
     "versioning.removed.RemovedClient": "Versioning.Removed",
-    "versioning.removed.RemovedClientBuilder": "Versioning.Removed",
-    "versioning.removed.Versions": "Versioning.Removed.Versions"
+    "versioning.removed.RemovedClientBuilder": "Versioning.Removed"
   }
 }

@@ -16,16 +16,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
 {
     public abstract class TypeProvider
     {
-        private readonly Lazy<TypeProvider?> _customCodeView;
-        private readonly Lazy<TypeProvider?> _lastContractView;
+        private Lazy<TypeProvider?> _customCodeView;
+        private Lazy<TypeProvider?> _lastContractView;
         private Lazy<CanonicalTypeProvider> _canonicalView;
         private readonly InputType? _inputType;
 
         protected TypeProvider(InputType? inputType = default)
         {
-            _customCodeView = new(GetCustomCodeView);
+            _customCodeView = new(() => BuildCustomCodeView());
             _canonicalView = new(BuildCanonicalView);
-            _lastContractView = new(GetLastContractView);
+            _lastContractView = new(() => BuildLastContractView());
             _inputType = inputType;
         }
 
@@ -36,11 +36,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
         }
 
-        private protected virtual TypeProvider? GetCustomCodeView()
-            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(BuildNamespace(), BuildName(), DeclaringTypeProvider?.BuildName());
+        private protected virtual TypeProvider? BuildCustomCodeView(string? generatedTypeName = null)
+            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
+                BuildNamespace(),
+                generatedTypeName ?? BuildName(),
+                // Use the Type.Name so that any customizations to the declaring type are applied for the lookup.
+                DeclaringTypeProvider?.Type.Name);
 
-        private protected virtual TypeProvider? GetLastContractView()
-            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(BuildNamespace(), BuildName(), DeclaringTypeProvider?.BuildName());
+        private protected virtual TypeProvider? BuildLastContractView(string? generatedTypeName = null)
+            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
+                BuildNamespace(),
+                generatedTypeName?? BuildName(),
+                DeclaringTypeProvider?.Type.Name);
 
         public TypeProvider? CustomCodeView => _customCodeView.Value;
         public TypeProvider? LastContractView => _lastContractView.Value;
@@ -88,13 +95,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// Gets the relative file path where the generated file will be stored.
         /// This path is relative to the project's root directory.
         /// </summary>
-        public string RelativeFilePath => _relativeFilePath ??= BuildRelativeFilePath();
+        // Intentionally do not cache this value as the name might be changed in a visitor so we want to always
+        // recalculate it.
+        public string RelativeFilePath => _relativeFilePath ?? BuildRelativeFilePath();
 
         private string? _relativeFilePath;
 
         public string Name => Type.Name;
 
-        protected virtual FormattableString Description { get; } = FormattableStringHelpers.Empty;
+        public FormattableString Description => _description ??= BuildDescription();
+        private FormattableString? _description;
+
+        protected virtual FormattableString BuildDescription() => FormattableStringHelpers.Empty;
 
         private XmlDocProvider? _xmlDocs;
 
@@ -110,12 +122,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             private set => _deprecated = value;
         }
 
-        private string? _name;
         private CSharpType? _type;
         private CSharpType[]? _arguments;
         public CSharpType Type => _type ??=
             new(
-                _name ??= CustomCodeView?.Name ?? BuildName(),
+                CustomCodeView?.Name ?? BuildName(),
                 CustomCodeView?.Type.Namespace ?? BuildNamespace(),
                 this is EnumProvider ||
                 DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct) ||
@@ -125,7 +136,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 _arguments ??= GetTypeArguments(),
                 DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) && _arguments.All(t => t.IsPublic),
                 DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct),
-                GetBaseType(),
+                BaseType,
                 IsEnum ? EnumUnderlyingType.FrameworkType : null);
 
         protected virtual bool GetIsEnum() => false;
@@ -145,6 +156,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var customModifiers = CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
             if (customModifiers != TypeSignatureModifiers.None)
             {
+                // if the custom modifiers contain accessibility modifiers, we override the default ones
+                if (customModifiers.HasFlag(TypeSignatureModifiers.Internal) ||
+                    customModifiers.HasFlag(TypeSignatureModifiers.Public) ||
+                    customModifiers.HasFlag(TypeSignatureModifiers.Private))
+                {
+                    modifiers &= ~(TypeSignatureModifiers.Internal | TypeSignatureModifiers.Public | TypeSignatureModifiers.Private);
+                }
                 modifiers |= customModifiers;
             }
             // we default to public when no accessibility modifier is provided
@@ -178,11 +196,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal virtual TypeProvider? BaseTypeProvider => null;
 
-        protected virtual CSharpType? GetBaseType() => null;
+        protected virtual CSharpType? BuildBaseType() => null;
 
-        public virtual WhereExpression? WhereClause { get; protected init; }
+        public CSharpType? BaseType => _baseType ??= BuildBaseType();
+        private CSharpType? _baseType;
 
-        public virtual TypeProvider? DeclaringTypeProvider { get; protected init; }
+        public WhereExpression? WhereClause => _whereClause ??= BuildWhereClause();
+        private WhereExpression? _whereClause;
+        protected virtual WhereExpression? BuildWhereClause() => null;
+
+        public TypeProvider? DeclaringTypeProvider => _declaringTypeProvider ??= BuildDeclaringTypeProvider();
+        private TypeProvider? _declaringTypeProvider;
+        protected virtual TypeProvider? BuildDeclaringTypeProvider() => null;
 
         private IReadOnlyList<CSharpType>? _implements;
 
@@ -203,14 +228,32 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public IReadOnlyList<FieldProvider> Fields => _fields ??= FilterCustomizedFields(BuildFields());
 
         private IReadOnlyList<TypeProvider>? _nestedTypes;
-        public IReadOnlyList<TypeProvider> NestedTypes => _nestedTypes ??= BuildNestedTypes();
+        public IReadOnlyList<TypeProvider> NestedTypes => _nestedTypes ??= BuildNestedTypesInternal();
 
         private IReadOnlyList<TypeProvider>? _serializationProviders;
 
         public IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProviders();
 
-        private IReadOnlyList<AttributeStatement>? _attributes;
-        public IReadOnlyList<AttributeStatement> Attributes => _attributes ??= BuildAttributes();
+        private IReadOnlyList<MethodBodyStatement>? _attributes;
+
+        public IReadOnlyList<AttributeStatement> Attributes
+        {
+            get
+            {
+                _attributes ??= BuildAttributes();
+                return [.. _attributes
+                    .Select(a => a switch
+                    {
+                        SuppressionStatement suppression => suppression.AsStatement<AttributeStatement>() ??
+                                                            throw new InvalidOperationException(
+                                                                $"Unexpected suppression statement in {Name}."),
+                        AttributeStatement attribute => attribute,
+                        _ => throw new InvalidOperationException($"Unexpected attribute type {a.GetType()} in {Name}.")
+                    })];
+            }
+        }
+
+        internal IReadOnlyList<MethodBodyStatement> GetAttributes() => _attributes ??= BuildAttributes();
 
         protected virtual CSharpType[] GetTypeArguments() => [];
 
@@ -301,6 +344,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return constructors.ToArray();
         }
 
+        private TypeProvider[] BuildNestedTypesInternal()
+        {
+            var nestedTypes = new List<TypeProvider>();
+            foreach (var nestedType in BuildNestedTypes())
+            {
+                if (ShouldGenerate(nestedType))
+                {
+                    nestedTypes.Add(nestedType);
+                }
+            }
+
+            return [.. nestedTypes];
+        }
+
         protected virtual PropertyProvider[] BuildProperties() => [];
 
         protected virtual FieldProvider[] BuildFields() => [];
@@ -317,7 +374,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected virtual CSharpType BuildEnumUnderlyingType() => throw new InvalidOperationException("Not an EnumProvider type");
 
-        protected virtual IReadOnlyList<AttributeStatement> BuildAttributes() => [];
+        protected virtual IReadOnlyList<MethodBodyStatement> BuildAttributes() => [];
 
         private CSharpType? _enumUnderlyingType;
 
@@ -333,6 +390,49 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected abstract string BuildRelativeFilePath();
         protected abstract string BuildName();
 
+        /// <summary>
+        /// Resets the type provider to its initial state, clearing all cached properties and fields.
+        /// This allows for the type provider to rebuild its state on subsequent calls to its properties.
+        /// </summary>
+        public void Reset()
+        {
+            _methods = null;
+            _properties = null;
+            _fields = null;
+            _constructors = null;
+            _serializationProviders = null;
+            _nestedTypes = null;
+            _xmlDocs = null;
+            _declarationModifiers = null;
+            _relativeFilePath = null;
+            _customCodeView = new(() => BuildCustomCodeView());
+            _canonicalView = new(BuildCanonicalView);
+            _lastContractView = new(() => BuildLastContractView());
+            _enumValues = null;
+            _enumUnderlyingType = null;
+            _attributes = null;
+            _deprecated = null;
+            _description = null;
+            _type = null;
+            _arguments = null;
+        }
+
+        /// <summary>
+        /// Updates the type provider with new values for its properties, methods, constructors, etc.
+        /// </summary>
+        /// <param name="methods">The new methods.</param>
+        /// <param name="constructors">The new constructors.</param>
+        /// <param name="properties">The new properties.</param>
+        /// <param name="fields">The new fields.</param>
+        /// <param name="serializations">The new serializations.</param>
+        /// <param name="nestedTypes">The new nested types.</param>
+        /// <param name="xmlDocs">The new XML docs.</param>
+        /// <param name="modifiers">The new modifiers.</param>
+        /// <param name="name">The new name.</param>
+        /// <param name="namespace">The new namespace.</param>
+        /// <param name="relativeFilePath">The new relative file path.</param>
+        /// <param name="reset">Whether to reset the type provider before applying the other changes in the update. This is useful
+        /// if you are changing the name as other properties would need to be reset and recomputed based on the new name.</param>
         public void Update(
             IEnumerable<MethodProvider>? methods = null,
             IEnumerable<ConstructorProvider>? constructors = null,
@@ -340,10 +440,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
             IEnumerable<FieldProvider>? fields = null,
             IEnumerable<TypeProvider>? serializations = null,
             IEnumerable<TypeProvider>? nestedTypes = null,
+            IEnumerable<AttributeStatement>? attributes = default,
             XmlDocProvider? xmlDocs = null,
             TypeSignatureModifiers? modifiers = null,
-            string? relativeFilePath = null)
+            string? name = null,
+            string? @namespace = null,
+            string? relativeFilePath = null,
+            bool reset = false)
         {
+            if (reset)
+            {
+                Reset();
+            }
             if (methods != null)
             {
                 _methods = (methods as IReadOnlyList<MethodProvider>) ?? methods.ToList();
@@ -379,6 +487,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (relativeFilePath != null)
             {
                 _relativeFilePath = relativeFilePath;
+            }
+            if (attributes != null)
+            {
+                _attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [.. attributes];
+            }
+
+            if (name != null)
+            {
+                // Reset the custom code view to reflect the new name
+                _customCodeView = new(BuildCustomCodeView(name));
+                _lastContractView = new(BuildLastContractView(name));
+                // Give precedence to the custom code view name if it exists
+                Type.Update(_customCodeView.Value?.Name ?? name);
+            }
+
+            if (@namespace != null)
+            {
+                Type.Update(@namespace: @namespace);
             }
 
             // Rebuild the canonical view
@@ -429,6 +555,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     return false;
                 }
+            }
+
+            return true;
+        }
+
+        private bool ShouldGenerate(TypeProvider nestedType)
+        {
+            if (nestedType is FixedEnumProvider { CustomCodeView: { IsEnum: true, Type: { IsValueType: true, IsStruct: false } } })
+            {
+                return false;
             }
 
             return true;

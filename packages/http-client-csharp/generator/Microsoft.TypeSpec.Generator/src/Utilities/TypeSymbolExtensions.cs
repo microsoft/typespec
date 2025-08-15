@@ -44,7 +44,7 @@ namespace Microsoft.TypeSpec.Generator
             var fullyQualifiedName = GetFullyQualifiedName(typeSymbol);
             var namedTypeSymbol = typeSymbol as INamedTypeSymbol;
 
-            Type? type = LoadFrameworkType(fullyQualifiedName);
+            Type? type = CodeModelGenerator.Instance.TypeFactory.CreateFrameworkType(fullyQualifiedName);
 
             if (type is null)
             {
@@ -158,17 +158,6 @@ namespace Microsoft.TypeSpec.Generator
             return fullyQualifiedName.StartsWith(GlobalPrefix, StringComparison.Ordinal) ? fullyQualifiedName.Substring(GlobalPrefix.Length) : fullyQualifiedName;
         }
 
-        private static Type? LoadFrameworkType(string fullyQualifiedName)
-        {
-            return fullyQualifiedName switch
-            {
-                // Special case for types that would not be defined in corlib, but should still be considered framework types.
-                "System.BinaryData" => typeof(BinaryData),
-                "System.Uri" => typeof(Uri),
-                _ => Type.GetType(fullyQualifiedName)
-            };
-        }
-
         private static CSharpType ConstructCSharpTypeFromSymbol(
             ITypeSymbol typeSymbol,
             string fullyQualifiedName,
@@ -201,12 +190,21 @@ namespace Microsoft.TypeSpec.Generator
                 pieces = GetFullyQualifiedName(typeArg).Split('.');
             }
 
+            string ns = string.Join('.', pieces.Take(pieces.Length - 1));
+            CSharpType? containingType = null;
+
+            if (typeSymbol.ContainingType != null)
+            {
+                containingType = GetCSharpType(typeSymbol.ContainingType);
+                ns = string.Join('.', pieces.Take(pieces.Length - 2));
+            }
+
             return new CSharpType(
                 name,
-                string.Join('.', pieces.Take(pieces.Length - 1)),
+                ns,
                 isValueType,
                 isNullable,
-                typeSymbol.ContainingType is not null ? GetCSharpType(typeSymbol.ContainingType) : null,
+                containingType,
                 arguments,
                 typeSymbol.DeclaredAccessibility == Accessibility.Public,
                 isValueType && !isEnum,

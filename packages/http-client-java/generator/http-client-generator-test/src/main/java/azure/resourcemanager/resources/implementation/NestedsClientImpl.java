@@ -70,7 +70,7 @@ public final class NestedsClientImpl implements NestedsClient {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ResourcesClientNeste")
+    @ServiceInterface(name = "ResourcesClientNesteds")
     public interface NestedsService {
         @Headers({ "Content-Type: application/json" })
         @Get("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/{topLevelTrackedResourceName}/nestedProxyResources/{nextedProxyResourceName}")
@@ -138,7 +138,7 @@ public final class NestedsClientImpl implements NestedsClient {
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
             @BodyParam("application/json") NestedProxyResourceInner properties, Context context);
 
-        @Headers({ "Content-Type: application/json" })
+        @Headers({ "Accept: application/json;q=0.9", "Content-Type: application/json" })
         @Delete("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/{topLevelTrackedResourceName}/nestedProxyResources/{nextedProxyResourceName}")
         @ExpectedResponses({ 202, 204 })
         @UnexpectedResponseExceptionType(ManagementException.class)
@@ -146,10 +146,9 @@ public final class NestedsClientImpl implements NestedsClient {
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("resourceGroupName") String resourceGroupName,
             @PathParam("topLevelTrackedResourceName") String topLevelTrackedResourceName,
-            @PathParam("nextedProxyResourceName") String nextedProxyResourceName, @HeaderParam("Accept") String accept,
-            Context context);
+            @PathParam("nextedProxyResourceName") String nextedProxyResourceName, Context context);
 
-        @Headers({ "Content-Type: application/json" })
+        @Headers({ "Accept: application/json;q=0.9", "Content-Type: application/json" })
         @Delete("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/{topLevelTrackedResourceName}/nestedProxyResources/{nextedProxyResourceName}")
         @ExpectedResponses({ 202, 204 })
         @UnexpectedResponseExceptionType(ManagementException.class)
@@ -157,8 +156,7 @@ public final class NestedsClientImpl implements NestedsClient {
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("resourceGroupName") String resourceGroupName,
             @PathParam("topLevelTrackedResourceName") String topLevelTrackedResourceName,
-            @PathParam("nextedProxyResourceName") String nextedProxyResourceName, @HeaderParam("Accept") String accept,
-            Context context);
+            @PathParam("nextedProxyResourceName") String nextedProxyResourceName, Context context);
 
         @Headers({ "Content-Type: application/json" })
         @Get("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/{topLevelTrackedResourceName}/nestedProxyResources")
@@ -914,11 +912,10 @@ public final class NestedsClientImpl implements NestedsClient {
             return Mono.error(
                 new IllegalArgumentException("Parameter nextedProxyResourceName is required and cannot be null."));
         }
-        final String accept = "application/json";
         return FluxUtil
             .withContext(context -> service.delete(this.client.getEndpoint(), this.client.getApiVersion(),
                 this.client.getSubscriptionId(), resourceGroupName, topLevelTrackedResourceName,
-                nextedProxyResourceName, accept, context))
+                nextedProxyResourceName, context))
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
 
@@ -959,10 +956,9 @@ public final class NestedsClientImpl implements NestedsClient {
             throw LOGGER.atError()
                 .log(new IllegalArgumentException("Parameter nextedProxyResourceName is required and cannot be null."));
         }
-        final String accept = "application/json";
         return service.deleteSync(this.client.getEndpoint(), this.client.getApiVersion(),
             this.client.getSubscriptionId(), resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName,
-            accept, Context.NONE);
+            Context.NONE);
     }
 
     /**
@@ -1003,10 +999,9 @@ public final class NestedsClientImpl implements NestedsClient {
             throw LOGGER.atError()
                 .log(new IllegalArgumentException("Parameter nextedProxyResourceName is required and cannot be null."));
         }
-        final String accept = "application/json";
         return service.deleteSync(this.client.getEndpoint(), this.client.getApiVersion(),
             this.client.getSubscriptionId(), resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName,
-            accept, context);
+            context);
     }
 
     /**

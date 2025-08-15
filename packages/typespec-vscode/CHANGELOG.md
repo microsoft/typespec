@@ -1,5 +1,50 @@
 # Change Log - typespec-vscode
 
+## 1.3.0
+
+### Features
+
+- [#7830](https://github.com/microsoft/typespec/pull/7830) Get emitter options from the `resolveCompilerOptions` function of the compiler
+- [#6802](https://github.com/microsoft/typespec/pull/6802) Add test case for TypeSpec Extension
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+
+## 1.2.0
+
+### Features
+
+- [#7576](https://github.com/microsoft/typespec/pull/7576) Allow LSP to configure which emitters to include for live checks
+
+### Bump dependencies
+
+- [#7674](https://github.com/microsoft/typespec/pull/7674) Upgrade dependencies
+
+
+## 1.1.0
+
+### Features
+
+- [#7317](https://github.com/microsoft/typespec/pull/7317) Enable emit code command on tspconfig.yaml.
+- [#6783](https://github.com/microsoft/typespec/pull/6783) Install packages for unrecognized import via npm command
+- [#7239](https://github.com/microsoft/typespec/pull/7239) Use language server to compile project instead of CLI
+- [#7331](https://github.com/microsoft/typespec/pull/7331) Support prompting to install compiler proactively if no compiler is found when starting LSP
+- [#7541](https://github.com/microsoft/typespec/pull/7541) Add extension API for other vscode extension to be able to register more TypeSpec InitTemplate to choose when scaffolding TypeSpec project.
+
+### Bump dependencies
+
+- [#7323](https://github.com/microsoft/typespec/pull/7323) Upgrade dependencies
+
+### Bug Fixes
+
+- [#7300](https://github.com/microsoft/typespec/pull/7300) Unify the writing of OpenAPI 3
+- [#7353](https://github.com/microsoft/typespec/pull/7353) Fix openapi3 preview error when path contains space
+- [#7374](https://github.com/microsoft/typespec/pull/7374) Check whether the compiler language server supports project compilation.
+- [#7302](https://github.com/microsoft/typespec/pull/7302) Telemetry data item result displays `cancelled` when the `Select file` step of `Preview API Documentation` is `cancelled`
+
+
 ## 1.0.0
 
 ### Features

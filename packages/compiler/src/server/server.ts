@@ -1,9 +1,8 @@
-import { Console } from "console";
 import { mkdir, writeFile } from "fs/promises";
 import inspector from "inspector";
 import { join } from "path";
 import { fileURLToPath } from "url";
-import { inspect } from "util";
+import { format, inspect } from "util";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
   ApplyWorkspaceEditParams,
@@ -15,6 +14,7 @@ import {
 } from "vscode-languageserver/node.js";
 import { NodeHost } from "../core/node-host.js";
 import { typespecVersion } from "../manifest.js";
+import { createClientConfigProvider } from "./client-config-provider.js";
 import { createServer } from "./serverlib.js";
 import { CustomRequestName, Server, ServerHost, ServerLog } from "./types.js";
 
@@ -32,14 +32,20 @@ try {
 }
 
 function main() {
-  // Redirect all console stdout output to stderr since LSP pipe uses stdout
-  // and writing to stdout for anything other than LSP protocol will break
-  // things badly.
-  global.console = new Console(process.stderr, process.stderr);
-
   let clientHasWorkspaceFolderCapability = false;
   const connection = createConnection(ProposedFeatures.all);
   const documents = new TextDocuments(TextDocument);
+
+  // eslint-disable-next-line no-console
+  console.log = (data: any, ...args: any[]) => connection.console.info(format(data, ...args));
+  // eslint-disable-next-line no-console
+  console.info = (data: any, ...args: any[]) => connection.console.info(format(data, ...args));
+  // eslint-disable-next-line no-console
+  console.debug = (data: any, ...args: any[]) => connection.console.debug(format(data, ...args));
+  // eslint-disable-next-line no-console
+  console.warn = (data: any, ...args: any[]) => connection.console.warn(format(data, ...args));
+  // eslint-disable-next-line no-console
+  console.error = (data: any, ...args: any[]) => connection.console.error(format(data, ...args));
 
   const host: ServerHost = {
     compilerHost: NodeHost,
@@ -86,7 +92,8 @@ function main() {
     },
   };
 
-  const s = createServer(host);
+  const clientConfigProvider = createClientConfigProvider();
+  const s = createServer(host, clientConfigProvider);
   server = s;
   s.log({ level: `info`, message: `TypeSpec language server v${typespecVersion}` });
   s.log({ level: `info`, message: `Module: ${fileURLToPath(import.meta.url)}` });
@@ -106,10 +113,13 @@ function main() {
     return await s.initialize(params);
   });
 
-  connection.onInitialized((params) => {
+  connection.onInitialized(async (params) => {
     if (clientHasWorkspaceFolderCapability) {
       connection.workspace.onDidChangeWorkspaceFolders(s.workspaceFoldersChanged);
     }
+
+    // Initialize client configurations
+    await clientConfigProvider.initialize(connection, host);
     s.initialized(params);
   });
 

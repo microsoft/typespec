@@ -1,12 +1,16 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Snippets;
+using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -142,12 +146,20 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual, propertyProvider.Modifiers);
             Assert.AreEqual(new CSharpType(typeof(string)), propertyProvider.Type);
 
+            var attributes = new List<AttributeStatement>
+            {
+                 new(typeof(ObsoleteAttribute)),
+                 new(typeof(ObsoleteAttribute), Snippet.Literal("This is obsolete")),
+                 new(typeof(ExperimentalAttribute), Snippet.Literal("001"))
+            };
+
             propertyProvider.Update(
                 modifiers: propertyProvider.Modifiers &~ MethodSignatureModifiers.Virtual,
                 type: new CSharpType(typeof(int)),
                 name: "newName",
                 body: new AutoPropertyBody(HasSetter: true),
-                enclosingType: new TestTypeProvider());
+                enclosingType: new TestTypeProvider(),
+                attributes: attributes);
 
             Assert.IsTrue(propertyProvider.Body.HasSetter);
             Assert.AreEqual("newName", propertyProvider.Name);
@@ -158,6 +170,50 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             propertyProvider.Update(description: $"new description");
             Assert.AreEqual("new description", propertyProvider.Description.ToString());
+
+            Assert.IsNotNull(propertyProvider.Attributes);
+            Assert.AreEqual(attributes.Count, propertyProvider.Attributes.Count);
+            for (int i = 0; i < attributes.Count; i++)
+            {
+                Assert.AreEqual(attributes[i].Type, propertyProvider.Attributes[i].Type);
+                Assert.IsTrue(propertyProvider.Attributes[i].Arguments.SequenceEqual(attributes[i].Arguments));
+            }
+        }
+
+        [Test]
+        public void TestAttributes()
+        {
+            var attributes = new List<AttributeStatement>
+            {
+                 new(typeof(ObsoleteAttribute)),
+                 new(typeof(ObsoleteAttribute), Snippet.Literal("This is obsolete")),
+                 new(typeof(ExperimentalAttribute), Snippet.Literal("001"))
+            };
+            var property = new PropertyProvider(
+               description: null,
+               modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual,
+               type: new CSharpType(typeof(string)),
+               name: "Name",
+               body: new AutoPropertyBody(HasSetter: false),
+               enclosingType: new TestTypeProvider(),
+               attributes: attributes);
+
+            Assert.IsNotNull(property.Attributes);
+            Assert.AreEqual(attributes.Count, property.Attributes.Count);
+            for (int i = 0; i < attributes.Count; i++)
+            {
+                Assert.AreEqual(attributes[i].Type, property.Attributes[i].Type);
+                Assert.IsTrue(property.Attributes[i].Arguments.SequenceEqual(attributes[i].Arguments));
+            }
+
+            // validate the attributes are written correctly
+            using var writer = new CodeWriter();
+            writer.WriteProperty(property);
+            var expectedPropertyString = "[global::System.ObsoleteAttribute]\n" +
+                "[global::System.ObsoleteAttribute(\"This is obsolete\")]\n" +
+                "[global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute(\"001\")]\n" +
+                "public virtual string Name { get; }\n";
+            Assert.AreEqual(expectedPropertyString, writer.ToString(false));
         }
 
         private static IEnumerable<TestCaseData> CollectionPropertyTestCases()

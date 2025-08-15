@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import type.model.inheritance.enumdiscriminator.implementation.EnumDiscriminatorClientImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class EnumDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final EnumDiscriminatorClientImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of EnumDiscriminatorClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    EnumDiscriminatorClient(EnumDiscriminatorClientImpl serviceClient) {
+    EnumDiscriminatorClient(EnumDiscriminatorClientImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -40,7 +45,9 @@ public final class EnumDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Dog> getExtensibleModelWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getExtensibleModelWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.EnumDiscriminator.getExtensibleModel", requestContext,
+            updatedContext -> this.serviceClient.getExtensibleModelWithResponse(updatedContext));
     }
 
     /**
@@ -53,7 +60,7 @@ public final class EnumDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Dog getExtensibleModel() {
-        return this.serviceClient.getExtensibleModel();
+        return getExtensibleModelWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -69,7 +76,9 @@ public final class EnumDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putExtensibleModelWithResponse(Dog input, RequestContext requestContext) {
-        return this.serviceClient.putExtensibleModelWithResponse(input, requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.EnumDiscriminator.putExtensibleModel", requestContext,
+            updatedContext -> this.serviceClient.putExtensibleModelWithResponse(input, updatedContext));
     }
 
     /**
@@ -83,7 +92,7 @@ public final class EnumDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putExtensibleModel(Dog input) {
-        this.serviceClient.putExtensibleModel(input);
+        putExtensibleModelWithResponse(input, RequestContext.none());
     }
 
     /**
@@ -98,7 +107,9 @@ public final class EnumDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Dog> getExtensibleModelMissingDiscriminatorWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getExtensibleModelMissingDiscriminatorWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.EnumDiscriminator.getExtensibleModelMissingDiscriminator", requestContext,
+            updatedContext -> this.serviceClient.getExtensibleModelMissingDiscriminatorWithResponse(updatedContext));
     }
 
     /**
@@ -111,7 +122,7 @@ public final class EnumDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Dog getExtensibleModelMissingDiscriminator() {
-        return this.serviceClient.getExtensibleModelMissingDiscriminator();
+        return getExtensibleModelMissingDiscriminatorWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -126,7 +137,9 @@ public final class EnumDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Dog> getExtensibleModelWrongDiscriminatorWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getExtensibleModelWrongDiscriminatorWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.EnumDiscriminator.getExtensibleModelWrongDiscriminator", requestContext,
+            updatedContext -> this.serviceClient.getExtensibleModelWrongDiscriminatorWithResponse(updatedContext));
     }
 
     /**
@@ -139,7 +152,7 @@ public final class EnumDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Dog getExtensibleModelWrongDiscriminator() {
-        return this.serviceClient.getExtensibleModelWrongDiscriminator();
+        return getExtensibleModelWrongDiscriminatorWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -154,7 +167,8 @@ public final class EnumDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Snake> getFixedModelWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getFixedModelWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.EnumDiscriminator.getFixedModel",
+            requestContext, updatedContext -> this.serviceClient.getFixedModelWithResponse(updatedContext));
     }
 
     /**
@@ -167,7 +181,7 @@ public final class EnumDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Snake getFixedModel() {
-        return this.serviceClient.getFixedModel();
+        return getFixedModelWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -183,7 +197,8 @@ public final class EnumDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putFixedModelWithResponse(Snake input, RequestContext requestContext) {
-        return this.serviceClient.putFixedModelWithResponse(input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.EnumDiscriminator.putFixedModel",
+            requestContext, updatedContext -> this.serviceClient.putFixedModelWithResponse(input, updatedContext));
     }
 
     /**
@@ -197,7 +212,7 @@ public final class EnumDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putFixedModel(Snake input) {
-        this.serviceClient.putFixedModel(input);
+        putFixedModelWithResponse(input, RequestContext.none());
     }
 
     /**
@@ -212,7 +227,9 @@ public final class EnumDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Snake> getFixedModelMissingDiscriminatorWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getFixedModelMissingDiscriminatorWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.EnumDiscriminator.getFixedModelMissingDiscriminator", requestContext,
+            updatedContext -> this.serviceClient.getFixedModelMissingDiscriminatorWithResponse(updatedContext));
     }
 
     /**
@@ -225,7 +242,7 @@ public final class EnumDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Snake getFixedModelMissingDiscriminator() {
-        return this.serviceClient.getFixedModelMissingDiscriminator();
+        return getFixedModelMissingDiscriminatorWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -240,7 +257,9 @@ public final class EnumDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Snake> getFixedModelWrongDiscriminatorWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getFixedModelWrongDiscriminatorWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.EnumDiscriminator.getFixedModelWrongDiscriminator", requestContext,
+            updatedContext -> this.serviceClient.getFixedModelWrongDiscriminatorWithResponse(updatedContext));
     }
 
     /**
@@ -253,6 +272,6 @@ public final class EnumDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Snake getFixedModelWrongDiscriminator() {
-        return this.serviceClient.getFixedModelWrongDiscriminator();
+        return getFixedModelWrongDiscriminatorWithResponse(RequestContext.none()).getValue();
     }
 }

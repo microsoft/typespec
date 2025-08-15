@@ -20,7 +20,7 @@ import {
 import { getHeaderFieldOptions, getPathParamOptions, getQueryParamOptions } from "@typespec/http";
 import { JsContext, Module } from "../../ctx.js";
 import { reportDiagnostic } from "../../lib.js";
-import { access, parseCase } from "../../util/case.js";
+import { access, objectLiteralProperty, parseCase } from "../../util/case.js";
 import { differentiateUnion, writeCodeTree } from "../../util/differentiate.js";
 import { UnimplementedError } from "../../util/error.js";
 import { indent } from "../../util/iter.js";
@@ -106,10 +106,12 @@ function propertyRequiresJsonSerialization(
   module: Module,
   property: ModelProperty,
 ): boolean {
+  const encodedName = resolveEncodedName(ctx.program, property, "application/json");
+  const jsPropertyName = keywordSafe(parseCase(property.name).camelCase);
   return !!(
     isHttpMetadata(ctx, property) ||
     getEncode(ctx.program, property) ||
-    resolveEncodedName(ctx.program, property, "application/json") !== property.name ||
+    encodedName !== jsPropertyName ||
     (isJsonSerializable(property.type) &&
       requiresJsonSerialization(ctx, module, property.type, property))
   );
@@ -158,6 +160,7 @@ function* emitToJson(
         const propertyName = keywordSafe(parseCase(property.name).camelCase);
 
         let expr: string = access("input", propertyName);
+        const primitiveExpr = expr;
 
         const encoding = getEncode(ctx.program, property);
 
@@ -190,7 +193,10 @@ function* emitToJson(
           expr = transposeExpressionToJson(ctx, property.type, expr, module);
         }
 
-        yield `  ${encodedName}: ${expr},`;
+        if (property.optional && requiresJsonSerialization(ctx, module, property.type)) {
+          expr = `(${primitiveExpr}) !== undefined ? ${expr} : undefined`;
+        }
+        yield `  ${objectLiteralProperty(encodedName)}: ${expr},`;
       }
 
       yield `};`;
@@ -391,6 +397,7 @@ function* emitFromJson(
           resolveEncodedName(ctx.program, property, "application/json") ?? property.name;
 
         let expr = access("input", encodedName);
+        const primitiveExpr = expr;
 
         const encoding = getEncode(ctx.program, property);
 
@@ -426,6 +433,10 @@ function* emitFromJson(
         }
 
         const propertyName = keywordSafe(parseCase(property.name).camelCase);
+
+        if (property.optional && requiresJsonSerialization(ctx, module, property.type)) {
+          expr = `(${primitiveExpr}) !== undefined ? ${expr} : undefined`;
+        }
 
         yield `  ${propertyName}: ${expr},`;
       }

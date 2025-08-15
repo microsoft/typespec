@@ -1,6 +1,6 @@
 {
   "name": "@typespec/events",
-  "version": "0.70.0",
+  "version": "0.73.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library providing events bindings",
   "homepage": "https://typespec.io",
@@ -56,7 +56,7 @@
     "@typespec/compiler": "workspace:^"
   },
   "devDependencies": {
-    "@types/node": "~22.13.11",
+    "@types/node": "~24.1.0",
     "@typespec/compiler": "workspace:^",
     "@typespec/library-linter": "workspace:^",
     "@typespec/tspd": "workspace:^",

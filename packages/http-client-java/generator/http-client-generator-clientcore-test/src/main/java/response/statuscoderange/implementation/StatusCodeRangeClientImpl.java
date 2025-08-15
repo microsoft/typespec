@@ -3,8 +3,6 @@ package response.statuscoderange.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
-import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
@@ -13,6 +11,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import response.statuscoderange.DefaultError;
 import response.statuscoderange.ErrorInRange;
@@ -57,22 +56,38 @@ public final class StatusCodeRangeClientImpl {
     }
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
      * Initializes an instance of StatusCodeRangeClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
      */
-    public StatusCodeRangeClientImpl(HttpPipeline httpPipeline, String endpoint) {
+    public StatusCodeRangeClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
-        this.service = RestProxy.create(StatusCodeRangeClientService.class, this.httpPipeline);
+        this.service = StatusCodeRangeClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
      * The interface defining all the services for StatusCodeRangeClient to be used by the proxy service to perform REST
      * calls.
      */
-    @ServiceInterface(name = "StatusCodeRangeClien", host = "{endpoint}")
+    @ServiceInterface(name = "StatusCodeRangeClient", host = "{endpoint}")
     public interface StatusCodeRangeClientService {
         static StatusCodeRangeClientService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -96,7 +111,7 @@ public final class StatusCodeRangeClientImpl {
             exceptionBodyClass = ErrorInRange.class)
         @UnexpectedResponseExceptionDetail(exceptionBodyClass = DefaultError.class)
         Response<Void> errorResponseStatusCodeInRange(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
@@ -207,7 +222,7 @@ public final class StatusCodeRangeClientImpl {
         @UnexpectedResponseExceptionDetail(statusCode = { 404 }, exceptionBodyClass = NotFoundError.class)
         @UnexpectedResponseExceptionDetail
         Response<Void> errorResponseStatusCode404(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
+            RequestContext requestContext);
     }
 
     /**
@@ -221,19 +236,10 @@ public final class StatusCodeRangeClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> errorResponseStatusCodeInRangeWithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.errorResponseStatusCodeInRange(this.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * The errorResponseStatusCodeInRange operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void errorResponseStatusCodeInRange() {
-        errorResponseStatusCodeInRangeWithResponse(RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Response.StatusCodeRange.errorResponseStatusCodeInRange",
+            requestContext, updatedContext -> {
+                return service.errorResponseStatusCodeInRange(this.getEndpoint(), updatedContext);
+            });
     }
 
     /**
@@ -247,18 +253,9 @@ public final class StatusCodeRangeClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> errorResponseStatusCode404WithResponse(RequestContext requestContext) {
-        final String accept = "application/json";
-        return service.errorResponseStatusCode404(this.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * The errorResponseStatusCode404 operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void errorResponseStatusCode404() {
-        errorResponseStatusCode404WithResponse(RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Response.StatusCodeRange.errorResponseStatusCode404",
+            requestContext, updatedContext -> {
+                return service.errorResponseStatusCode404(this.getEndpoint(), updatedContext);
+            });
     }
 }

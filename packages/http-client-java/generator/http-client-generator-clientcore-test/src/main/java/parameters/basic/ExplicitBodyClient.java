@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import parameters.basic.explicitbody.User;
 import parameters.basic.implementation.ExplicitBodiesImpl;
 
@@ -19,14 +20,18 @@ public final class ExplicitBodyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final ExplicitBodiesImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of ExplicitBodyClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    ExplicitBodyClient(ExplicitBodiesImpl serviceClient) {
+    ExplicitBodyClient(ExplicitBodiesImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -42,7 +47,8 @@ public final class ExplicitBodyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> simpleWithResponse(User body, RequestContext requestContext) {
-        return this.serviceClient.simpleWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Parameters.Basic.ExplicitBody.simple", requestContext,
+            updatedContext -> this.serviceClient.simpleWithResponse(body, updatedContext));
     }
 
     /**
@@ -56,6 +62,6 @@ public final class ExplicitBodyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void simple(User body) {
-        this.serviceClient.simple(body);
+        simpleWithResponse(body, RequestContext.none());
     }
 }

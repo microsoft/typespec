@@ -40,7 +40,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
         public void ValidateModifiers()
         {
             var modifiers = _namedTypeSymbolProvider.DeclarationModifiers;
-            Assert.IsTrue(modifiers.HasFlag(TypeSignatureModifiers.Public | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class));
+            Assert.IsTrue(modifiers.HasFlag(TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class));
         }
 
         [Test]
@@ -54,6 +54,31 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
         {
             Assert.AreEqual("Sample.Models", _namedTypeSymbolProvider.Type.Namespace);
             Assert.AreEqual(_namedSymbol.Type.Namespace, _namedTypeSymbolProvider.Type.Namespace);
+        }
+
+        [Test]
+        public void ValidateNamespaceNestedType()
+        {
+            // Get all members, including nested types
+            var allMembers = _iNamedSymbol.GetMembers().OfType<INamedTypeSymbol>();
+            INamedTypeSymbol? nestedType = null;
+
+            // Iterate over the members and find the nested types
+            foreach (var member in allMembers)
+            {
+                if (member.Kind == SymbolKind.NamedType && SymbolEqualityComparer.Default.Equals(member.ContainingSymbol, _iNamedSymbol))
+                {
+                    nestedType = member;
+                    break;
+                }
+            }
+
+            Assert.IsNotNull(nestedType, "Nested type not found in the named symbol.");
+            var type = nestedType!.GetCSharpType();
+            Assert.AreEqual("Sample.Models", type.Namespace);
+
+            var fullName = type.FullyQualifiedName;
+            Assert.AreEqual("Sample.Models.NamedSymbol.Foo", fullName);
         }
 
         [Test]

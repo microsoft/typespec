@@ -169,7 +169,6 @@ public class TypeSpecPlugin extends Javagen {
         SETTINGS_MAP.put("enable-sync-stack", true);
         SETTINGS_MAP.put("enable-page-size", true);
 
-        SETTINGS_MAP.put("use-default-http-status-code-to-exception-type-mapping", true);
         SETTINGS_MAP.put("polling", new HashMap<String, Object>());
 
         SETTINGS_MAP.put("client-logger", true);
@@ -181,7 +180,7 @@ public class TypeSpecPlugin extends Javagen {
         SETTINGS_MAP.put("disable-required-property-annotation", true);
         // Defaulting to KeyCredential and not providing TypeSpec services to generate with AzureKeyCredential.
         SETTINGS_MAP.put("use-key-credential", true);
-        SETTINGS_MAP.put("use-rest-proxy", true);
+        SETTINGS_MAP.put("use-rest-proxy", false);
     }
 
     public static class MockConnection extends Connection {
@@ -200,6 +199,7 @@ public class TypeSpecPlugin extends Javagen {
     public TypeSpecPlugin(EmitterOptions options, boolean sdkIntegration) {
         super(new MockConnection(), "dummy", "dummy");
         this.emitterOptions = options;
+
         SETTINGS_MAP.put("namespace", options.getNamespace());
         if (!CoreUtils.isNullOrEmpty(options.getOutputDir())) {
             SETTINGS_MAP.put("output-folder", options.getOutputDir());
@@ -228,9 +228,6 @@ public class TypeSpecPlugin extends Javagen {
         if (options.getUseObjectForUnknown()) {
             SETTINGS_MAP.put("use-object-for-unknown", emitterOptions.getUseObjectForUnknown());
         }
-        if (options.getUseEclipseLanguageServer() != null) {
-            SETTINGS_MAP.put("use-eclipse-language-server", emitterOptions.getUseEclipseLanguageServer());
-        }
         if (options.getUseRestProxy() != null) {
             SETTINGS_MAP.put("use-rest-proxy", emitterOptions.getUseRestProxy());
         }
@@ -255,8 +252,17 @@ public class TypeSpecPlugin extends Javagen {
                 Paths.get(options.getOutputDir()).resolve(options.getCustomizationClass()).toAbsolutePath().toString());
         }
 
-        if (emitterOptions.getPolling() != null) {
+        if (options.getPolling() != null) {
             SETTINGS_MAP.put("polling", options.getPolling());
+        }
+
+        if (options.getUseDefaultHttpStatusCodeToExceptionTypeMapping() != null) {
+            SETTINGS_MAP.put("use-default-http-status-code-to-exception-type-mapping",
+                options.getUseDefaultHttpStatusCodeToExceptionTypeMapping());
+        }
+
+        if (options.getRenameModel() != null) {
+            SETTINGS_MAP.put("rename-model", options.getRenameModel());
         }
 
         if (options.getFlavor() != null) {

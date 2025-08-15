@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Expressions;
@@ -19,7 +20,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
     {
         private VariableExpression? _variable;
         private Lazy<ParameterProvider> _parameter;
-        private readonly InputProperty? _inputProperty;
+        internal InputProperty? InputProperty { get; }
+
         private readonly SerializationFormat _serializationFormat;
         private FormattableString? _customDescription;
 
@@ -42,6 +44,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public ParameterProvider AsParameter => _parameter.Value;
 
         public TypeProvider EnclosingType { get; private set; }
+
+        public IReadOnlyList<AttributeStatement> Attributes { get; private set; }
 
         public string? OriginalName { get; internal init; }
 
@@ -76,7 +80,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private PropertyProvider(InputProperty inputProperty, CSharpType propertyType, TypeProvider enclosingType)
         {
-            _inputProperty = inputProperty;
+            InputProperty = inputProperty;
             if (!inputProperty.IsRequired && !propertyType.IsCollection)
             {
                 propertyType = propertyType.WithNullable(true);
@@ -96,6 +100,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
 
             WireInfo = new PropertyWireInformation(inputProperty);
+            Attributes = [];
 
             InitializeParameter(DocHelpers.GetFormattableDescription(inputProperty.Summary, inputProperty.Doc) ?? FormattableStringHelpers.Empty);
             BuildDocs();
@@ -109,7 +114,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             PropertyBody body,
             TypeProvider enclosingType,
             CSharpType? explicitInterface = null,
-            PropertyWireInformation? wireInfo = null)
+            PropertyWireInformation? wireInfo = null,
+            IEnumerable<AttributeStatement>? attributes = null)
         {
             Modifiers = modifiers;
             Type = type;
@@ -119,6 +125,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             WireInfo = wireInfo;
             EnclosingType = enclosingType;
+            Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [];
 
             InitializeParameter(description ?? FormattableStringHelpers.Empty);
             _customDescription = description;
@@ -127,9 +134,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private void BuildDocs()
         {
-            if (_inputProperty != null)
+            if (InputProperty != null)
             {
-                Description = DocHelpers.GetFormattableDescription(_inputProperty.Summary, _inputProperty.Doc) ??
+                Description = DocHelpers.GetFormattableDescription(InputProperty.Summary, InputProperty.Doc) ??
                               PropertyDescriptionBuilder.CreateDefaultPropertyDescription(Name, !Body.HasSetter);
                 XmlDocs = new XmlDocProvider(PropertyDescriptionBuilder.BuildPropertyDescription(
                     Type,
@@ -257,7 +264,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             TypeProvider? enclosingType = null,
             CSharpType? explicitInterface = null,
             PropertyWireInformation? wireInfo = null,
-            XmlDocProvider? xmlDocs = null)
+            XmlDocProvider? xmlDocs = null,
+            IEnumerable<AttributeStatement>? attributes = null)
         {
             if (description != null)
             {
@@ -290,6 +298,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (wireInfo != null)
             {
                 WireInfo = wireInfo;
+            }
+            if (attributes != null)
+            {
+                Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [];
             }
             if (xmlDocs != null)
             {

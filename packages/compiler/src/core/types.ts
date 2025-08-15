@@ -61,6 +61,11 @@ export interface BaseType {
   instantiationParameters?: Type[];
 
   /**
+   * If the type is currently being created.
+   */
+  creating?: true;
+
+  /**
    * Reflect if a type has been finished(Decorators have been called).
    * There is multiple reasons a type might not be finished:
    * - a template declaration will not

@@ -56,7 +56,7 @@ public final class IsFloatsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "AdditionalProperties")
+    @ServiceInterface(name = "AdditionalPropertiesClientIsFloats")
     public interface IsFloatsService {
         @Get("/type/property/additionalProperties/isRecordFloat")
         @ExpectedResponses({ 200 })

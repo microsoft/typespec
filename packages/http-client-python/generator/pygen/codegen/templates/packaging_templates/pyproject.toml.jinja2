@@ -1,0 +1,120 @@
+{% set min_version = MIN_PYTHON_VERSION.split('.')[1] | int %}
+{% set max_version = MAX_PYTHON_VERSION.split('.')[1] | int %}
+{% if code_model.license_header %}
+{{ code_model.license_header }}
+{% endif %}
+
+[build-system]
+requires = ["setuptools>=77.0.3", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "{{ options.get('package-name')|lower }}"
+{% if options.get('package-mode') %}
+authors = [
+  { name = "{{ code_model.company_name }}"{% if code_model.is_azure_flavor %}, email = "azpysdkhelp@microsoft.com"{% endif %} },
+]
+{% if options.get("azure-arm") %}
+description = "Microsoft Azure {{ options.get('package-pprint-name') }} Client Library for Python"
+{% else %}
+description = "{{ code_model.company_name }} {% if code_model.is_azure_flavor and not options.get('package-pprint-name').startswith('Azure ') %}Azure {% endif %}{{ options.get('package-pprint-name') }} Client Library for Python"
+{% endif %}
+license = "MIT"
+classifiers = [
+    "Development Status :: {{ dev_status }}",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3",
+    {% for version in range(min_version, max_version + 1) %}
+    "Programming Language :: Python :: 3.{{ version }}",
+    {% endfor %}
+]
+requires-python = ">={{ MIN_PYTHON_VERSION }}"
+{% else %}
+description = "{{ options.get('package-name') }}"
+{% endif %}
+{% if code_model.is_azure_flavor %}
+keywords = ["azure", "azure sdk"]
+{% endif %}
+
+dependencies = [
+    {% if code_model.is_legacy %}
+    "msrest>={{ VERSION_MAP['msrest'] }}",
+    {% else %}
+    "isodate>={{ VERSION_MAP['isodate'] }}",
+    {% endif %}
+    {% if options.get('azure_arm') %}
+    "azure-mgmt-core>={{ VERSION_MAP['azure-mgmt-core'] }}",
+    {% elif code_model.is_azure_flavor %}
+    "azure-core>={{ VERSION_MAP['azure-core'] }}",
+    {% else %}
+    "corehttp[requests]>={{ VERSION_MAP['corehttp'] }}",
+    {% endif %}
+    "typing-extensions>={{ VERSION_MAP['typing-extensions'] }}",
+    {% if KEEP_FIELDS and KEEP_FIELDS.get('project.dependencies') %}
+    {% for dep in KEEP_FIELDS.get('project.dependencies') %}
+    "{{ dep }}",
+    {% endfor %}
+    {% endif %}
+]
+dynamic = [
+    {% if options.get('package-mode') %}"version", {% endif %}"readme"
+]
+{% if not options.get('package-mode') %}
+version = "{{ options.get("package-version", "unknown") }}"
+{% endif %}
+{% if KEEP_FIELDS and KEEP_FIELDS.get('project.optional-dependencies') %}
+
+[project.optional-dependencies]
+{% for key, val in KEEP_FIELDS.get('project.optional-dependencies').items() %}
+{{ key }} = [
+  {% for dep in val %}
+  "{{ dep }}",
+  {% endfor %}
+]
+{% endfor %}
+{% endif %}
+{% if code_model.is_azure_flavor %}
+
+[project.urls]
+repository = "https://github.com/Azure/azure-sdk-for-python"
+{% endif %}
+
+[tool.setuptools.dynamic]
+{% if options.get('package-mode') %}
+    {% if code_model.is_tsp %}
+version = {attr = "{{ code_model.namespace|lower }}._version.VERSION"}
+    {% else %}
+version = {attr = "{{ options.get('package-name')|lower|replace('-', '.') }}._version.VERSION"}
+    {% endif %}
+{% endif %}
+readme = {file = ["README.md", "CHANGELOG.md"], content-type = "text/markdown"}
+{% if options.get('package-mode') %}
+
+[tool.setuptools.packages.find]
+exclude = [
+    "tests*",
+    "samples*",
+    "doc*",
+    {% for pkgutil_name in pkgutil_names %}
+    "{{ pkgutil_name }}",
+    {% endfor %}
+]
+
+[tool.setuptools.package-data]
+pytyped = ["py.typed"]
+{% endif %}
+{% if KEEP_FIELDS and KEEP_FIELDS.get('tool.azure-sdk-build') %}
+
+[tool.azure-sdk-build]
+{% for key, val in KEEP_FIELDS.get('tool.azure-sdk-build').items() %}
+{{ key }} = {{ val|tojson }}
+{% endfor %}
+{% endif %}
+{% if KEEP_FIELDS and KEEP_FIELDS.get('packaging') %}
+
+[packaging]
+{% for key, val in KEEP_FIELDS.get('packaging').items() %}
+{{ key }} = {{ val|tojson }}
+{% endfor %}
+{% endif %}

@@ -72,7 +72,7 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArmClientChildExtens")
+    @ServiceInterface(name = "ArmClientChildExtensionResourceInterfaces")
     public interface ChildExtensionResourceInterfacesService {
         @Headers({ "Content-Type: application/json" })
         @Get("/{resourceUri}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childExtensionResources/{childExtensionResourceName}")
@@ -140,7 +140,7 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
             @BodyParam("application/json") ChildExtensionResourceUpdate properties, Context context);
 
-        @Headers({ "Content-Type: application/json" })
+        @Headers({ "Accept: application/json;q=0.9", "Content-Type: application/json" })
         @Delete("/{resourceUri}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childExtensionResources/{childExtensionResourceName}")
         @ExpectedResponses({ 200, 202, 204 })
         @UnexpectedResponseExceptionType(ManagementException.class)
@@ -148,10 +148,9 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
             @QueryParam("api-version") String apiVersion,
             @PathParam(value = "resourceUri", encoded = true) String resourceUri,
             @PathParam("topLevelArmResourceName") String topLevelArmResourceName,
-            @PathParam("childExtensionResourceName") String childExtensionResourceName,
-            @HeaderParam("Accept") String accept, Context context);
+            @PathParam("childExtensionResourceName") String childExtensionResourceName, Context context);
 
-        @Headers({ "Content-Type: application/json" })
+        @Headers({ "Accept: application/json;q=0.9", "Content-Type: application/json" })
         @Delete("/{resourceUri}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childExtensionResources/{childExtensionResourceName}")
         @ExpectedResponses({ 200, 202, 204 })
         @UnexpectedResponseExceptionType(ManagementException.class)
@@ -159,8 +158,7 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
             @QueryParam("api-version") String apiVersion,
             @PathParam(value = "resourceUri", encoded = true) String resourceUri,
             @PathParam("topLevelArmResourceName") String topLevelArmResourceName,
-            @PathParam("childExtensionResourceName") String childExtensionResourceName,
-            @HeaderParam("Accept") String accept, Context context);
+            @PathParam("childExtensionResourceName") String childExtensionResourceName, Context context);
 
         @Headers({ "Content-Type: application/json" })
         @Get("/{resourceUri}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childExtensionResources")
@@ -211,7 +209,7 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
      * @return a ChildExtensionResource along with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<ChildExtensionResourceInner>> getWithResponseAsync(String resourceUri,
+    public Mono<Response<ChildExtensionResourceInner>> getWithResponseAsync(String resourceUri,
         String topLevelArmResourceName, String childExtensionResourceName) {
         if (this.client.getEndpoint() == null) {
             return Mono.error(
@@ -247,7 +245,7 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
      * @return a ChildExtensionResource on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<ChildExtensionResourceInner> getAsync(String resourceUri, String topLevelArmResourceName,
+    public Mono<ChildExtensionResourceInner> getAsync(String resourceUri, String topLevelArmResourceName,
         String childExtensionResourceName) {
         return getWithResponseAsync(resourceUri, topLevelArmResourceName, childExtensionResourceName)
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
@@ -323,7 +321,7 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
      * {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<Flux<ByteBuffer>>> createOrUpdateWithResponseAsync(String resourceUri,
+    public Mono<Response<Flux<ByteBuffer>>> createOrUpdateWithResponseAsync(String resourceUri,
         String topLevelArmResourceName, String childExtensionResourceName, ChildExtensionResourceInner resource) {
         if (this.client.getEndpoint() == null) {
             return Mono.error(
@@ -458,7 +456,7 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
      * @return the {@link PollerFlux} for polling of extensionResource of Top Level Arm Resource.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    private PollerFlux<PollResult<ChildExtensionResourceInner>, ChildExtensionResourceInner> beginCreateOrUpdateAsync(
+    public PollerFlux<PollResult<ChildExtensionResourceInner>, ChildExtensionResourceInner> beginCreateOrUpdateAsync(
         String resourceUri, String topLevelArmResourceName, String childExtensionResourceName,
         ChildExtensionResourceInner resource) {
         Mono<Response<Flux<ByteBuffer>>> mono = createOrUpdateWithResponseAsync(resourceUri, topLevelArmResourceName,
@@ -526,7 +524,7 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
      * @return extensionResource of Top Level Arm Resource on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<ChildExtensionResourceInner> createOrUpdateAsync(String resourceUri, String topLevelArmResourceName,
+    public Mono<ChildExtensionResourceInner> createOrUpdateAsync(String resourceUri, String topLevelArmResourceName,
         String childExtensionResourceName, ChildExtensionResourceInner resource) {
         return beginCreateOrUpdateAsync(resourceUri, topLevelArmResourceName, childExtensionResourceName, resource)
             .last()
@@ -586,7 +584,7 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
      * {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<ChildExtensionResourceInner>> updateWithResponseAsync(String resourceUri,
+    public Mono<Response<ChildExtensionResourceInner>> updateWithResponseAsync(String resourceUri,
         String topLevelArmResourceName, String childExtensionResourceName, ChildExtensionResourceUpdate properties) {
         if (this.client.getEndpoint() == null) {
             return Mono.error(
@@ -629,7 +627,7 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
      * @return extensionResource of Top Level Arm Resource on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<ChildExtensionResourceInner> updateAsync(String resourceUri, String topLevelArmResourceName,
+    public Mono<ChildExtensionResourceInner> updateAsync(String resourceUri, String topLevelArmResourceName,
         String childExtensionResourceName, ChildExtensionResourceUpdate properties) {
         return updateWithResponseAsync(resourceUri, topLevelArmResourceName, childExtensionResourceName, properties)
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
@@ -712,7 +710,7 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<Flux<ByteBuffer>>> deleteWithResponseAsync(String resourceUri, String topLevelArmResourceName,
+    public Mono<Response<Flux<ByteBuffer>>> deleteWithResponseAsync(String resourceUri, String topLevelArmResourceName,
         String childExtensionResourceName) {
         if (this.client.getEndpoint() == null) {
             return Mono.error(
@@ -729,10 +727,9 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
             return Mono.error(
                 new IllegalArgumentException("Parameter childExtensionResourceName is required and cannot be null."));
         }
-        final String accept = "application/json";
         return FluxUtil
             .withContext(context -> service.delete(this.client.getEndpoint(), this.client.getApiVersion(), resourceUri,
-                topLevelArmResourceName, childExtensionResourceName, accept, context))
+                topLevelArmResourceName, childExtensionResourceName, context))
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
 
@@ -768,9 +765,8 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
                 .log(new IllegalArgumentException(
                     "Parameter childExtensionResourceName is required and cannot be null."));
         }
-        final String accept = "application/json";
         return service.deleteSync(this.client.getEndpoint(), this.client.getApiVersion(), resourceUri,
-            topLevelArmResourceName, childExtensionResourceName, accept, Context.NONE);
+            topLevelArmResourceName, childExtensionResourceName, Context.NONE);
     }
 
     /**
@@ -806,9 +802,8 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
                 .log(new IllegalArgumentException(
                     "Parameter childExtensionResourceName is required and cannot be null."));
         }
-        final String accept = "application/json";
         return service.deleteSync(this.client.getEndpoint(), this.client.getApiVersion(), resourceUri,
-            topLevelArmResourceName, childExtensionResourceName, accept, context);
+            topLevelArmResourceName, childExtensionResourceName, context);
     }
 
     /**
@@ -823,7 +818,7 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
      * @return the {@link PollerFlux} for polling of long-running operation.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    private PollerFlux<PollResult<Void>, Void> beginDeleteAsync(String resourceUri, String topLevelArmResourceName,
+    public PollerFlux<PollResult<Void>, Void> beginDeleteAsync(String resourceUri, String topLevelArmResourceName,
         String childExtensionResourceName) {
         Mono<Response<Flux<ByteBuffer>>> mono
             = deleteWithResponseAsync(resourceUri, topLevelArmResourceName, childExtensionResourceName);
@@ -882,7 +877,7 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
      * @return A {@link Mono} that completes when a successful response is received.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Void> deleteAsync(String resourceUri, String topLevelArmResourceName,
+    public Mono<Void> deleteAsync(String resourceUri, String topLevelArmResourceName,
         String childExtensionResourceName) {
         return beginDeleteAsync(resourceUri, topLevelArmResourceName, childExtensionResourceName).last()
             .flatMap(this.client::getLroFinalResultOrError);
@@ -965,7 +960,7 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
      * @return the response of a ChildExtensionResource list operation as paginated response with {@link PagedFlux}.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    private PagedFlux<ChildExtensionResourceInner> listByTopLevelArmResourceAsync(String resourceUri,
+    public PagedFlux<ChildExtensionResourceInner> listByTopLevelArmResourceAsync(String resourceUri,
         String topLevelArmResourceName) {
         return new PagedFlux<>(() -> listByTopLevelArmResourceSinglePageAsync(resourceUri, topLevelArmResourceName),
             nextLink -> listByTopLevelArmResourceNextSinglePageAsync(nextLink));

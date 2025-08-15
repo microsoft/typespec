@@ -15,7 +15,7 @@ export function generateMain(program: TypeSpecProgram, context: Context): string
   using Http;
   using OpenAPI;
 
-  ${generateServiceInformation(program.serviceInfo)}
+  ${generateServiceInformation(program.serviceInfo, program.servers)}
 
   ${program.types.map((t) => generateDataType(t, context)).join("\n\n")}
 

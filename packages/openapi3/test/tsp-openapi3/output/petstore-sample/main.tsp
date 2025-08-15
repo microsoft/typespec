@@ -7,6 +7,7 @@ using OpenAPI;
 
 @service(#{ title: "Swagger Petstore" })
 @info(#{ version: "1.0.0", license: #{ name: "MIT" } })
+@server("http://petstore.swagger.io/v1")
 namespace SwaggerPetstore;
 
 model Pet {

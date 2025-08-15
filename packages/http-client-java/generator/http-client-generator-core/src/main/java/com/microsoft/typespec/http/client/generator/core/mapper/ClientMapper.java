@@ -114,8 +114,12 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         builder.enums(enumTypes);
 
         // exception
-        List<ClientException> exceptions = codeModel.getOperationGroups()
-            .stream()
+        List<ClientException> exceptions = Stream
+            .concat(
+                codeModel.getClients() == null
+                    ? Stream.<OperationGroup>empty()
+                    : codeModel.getClients().stream().flatMap(c -> c.getOperationGroups().stream()),
+                codeModel.getOperationGroups().stream())
             .flatMap(og -> og.getOperations().stream())
             .flatMap(o -> o.getExceptions().stream())
             .map(Response::getSchema)
@@ -652,7 +656,8 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         final String implementationSubpackagePrefix = settings.getPackage(settings.getImplementationSubpackage()) + ".";
         for (String modelsPackage : modelsPackages) {
             // export if models is not in implementation
-            if (!modelsPackage.startsWith(implementationSubpackagePrefix)) {
+            if (!modelsPackage.startsWith(implementationSubpackagePrefix)
+                && !modelsPackage.contains("implementation")) {
                 exportModules.add(new ModuleInfo.ExportModule(modelsPackage));
             }
 

@@ -251,9 +251,12 @@ namespace Microsoft.TypeSpec.Generator
         public async Task PostProcessAsync()
         {
             var modelFactory = CodeModelGenerator.Instance.OutputLibrary.ModelFactory.Value;
+            var nonRootTypes = CodeModelGenerator.Instance.NonRootTypes;
             var postProcessor = new PostProcessor(
                 [.. CodeModelGenerator.Instance.TypeFactory.UnionVariantTypesToKeep, .. CodeModelGenerator.Instance.TypesToKeep],
-                modelFactoryFullName: $"{modelFactory.Type.Namespace}.{modelFactory.Name}");
+                modelFactoryFullName: modelFactory.Type.FullyQualifiedName,
+                additionalNonRootTypeFullNames: nonRootTypes);
+
             switch (Configuration.UnreferencedTypesHandling)
             {
                 case Configuration.UnreferencedTypesHandlingOption.KeepAll:

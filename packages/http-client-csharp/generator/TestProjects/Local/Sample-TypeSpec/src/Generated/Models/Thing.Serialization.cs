@@ -13,7 +13,7 @@ using System.Text.Json;
 
 namespace SampleTypeSpec
 {
-    /// <summary></summary>
+    /// <summary> A model with a few properties of literal types. </summary>
     public partial class Thing : IJsonModel<Thing>
     {
         /// <summary> Initializes a new instance of <see cref="Thing"/> for deserialization. </summary>
@@ -39,6 +39,8 @@ namespace SampleTypeSpec
             {
                 throw new FormatException($"The model {nameof(Thing)} does not support writing '{format}' format.");
             }
+            writer.WritePropertyName("name"u8);
+            writer.WriteStringValue(Rename);
             writer.WritePropertyName("requiredUnion"u8);
 #if NET6_0_OR_GREATER
             writer.WriteRawValue(RequiredUnion);
@@ -116,8 +118,6 @@ namespace SampleTypeSpec
             {
                 writer.WriteNull("requiredNullableList"u8);
             }
-            writer.WritePropertyName("name"u8);
-            writer.WriteStringValue(Rename);
             if (options.Format != "W" && _additionalBinaryDataProperties != null)
             {
                 foreach (var item in _additionalBinaryDataProperties)
@@ -160,6 +160,7 @@ namespace SampleTypeSpec
             {
                 return null;
             }
+            string rename = default;
             BinaryData requiredUnion = default;
             string requiredLiteralString = default;
             string requiredNullableString = default;
@@ -174,10 +175,14 @@ namespace SampleTypeSpec
             string requiredBadDescription = default;
             IList<int> optionalNullableList = default;
             IList<int> requiredNullableList = default;
-            string rename = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
+                if (prop.NameEquals("name"u8))
+                {
+                    rename = prop.Value.GetString();
+                    continue;
+                }
                 if (prop.NameEquals("requiredUnion"u8))
                 {
                     requiredUnion = BinaryData.FromString(prop.Value.GetRawText());
@@ -289,17 +294,13 @@ namespace SampleTypeSpec
                     requiredNullableList = array;
                     continue;
                 }
-                if (prop.NameEquals("name"u8))
-                {
-                    rename = prop.Value.GetString();
-                    continue;
-                }
                 if (options.Format != "W")
                 {
                     additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
             return new Thing(
+                rename,
                 requiredUnion,
                 requiredLiteralString,
                 requiredNullableString,
@@ -314,7 +315,6 @@ namespace SampleTypeSpec
                 requiredBadDescription,
                 optionalNullableList ?? new ChangeTrackingList<int>(),
                 requiredNullableList,
-                rename,
                 additionalBinaryDataProperties);
         }
 

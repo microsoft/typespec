@@ -1,5 +1,32 @@
 # Change Log - @typespec/openapi3
 
+## 1.3.0
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+
+## 1.2.0
+
+### Bump dependencies
+
+- [#7674](https://github.com/microsoft/typespec/pull/7674) Upgrade dependencies
+
+### Bug Fixes
+
+- [#7750](https://github.com/microsoft/typespec/pull/7750) Prepends namespace name to array declarations in nested namespaces.
+- [#7864](https://github.com/microsoft/typespec/pull/7864) Fixed a bug that caused `model M is T[]` declarations to be renamed to `MItem` incorrectly.
+
+
+## 1.1.0
+
+### Features
+
+- [#7219](https://github.com/microsoft/typespec/pull/7219) [OpenAPI -> tsp] Add support for converting inline schemas using allOf
+- [#7403](https://github.com/microsoft/typespec/pull/7403) Adds support for parameter examples via `@opExample` via the `experimental-parameter-examples` option.
+
+
 ## 1.0.0
 
 ### Features

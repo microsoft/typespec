@@ -3,7 +3,6 @@ package encode.datetime.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.QueryParam;
@@ -13,6 +12,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.models.binarydata.BinaryData;
 import io.clientcore.core.utils.DateTimeRfc1123;
 import java.lang.reflect.InvocationTargetException;
@@ -35,20 +35,26 @@ public final class QueriesImpl {
     private final DatetimeClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of QueriesImpl.
      * 
      * @param client the instance of the service client containing this operation class.
      */
     QueriesImpl(DatetimeClientImpl client) {
-        this.service = RestProxy.create(QueriesService.class, client.getHttpPipeline());
+        this.service = QueriesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
      * The interface defining all the services for DatetimeClientQueries to be used by the proxy service to perform REST
      * calls.
      */
-    @ServiceInterface(name = "DatetimeClientQuerie", host = "{endpoint}")
+    @ServiceInterface(name = "DatetimeClientQueries", host = "{endpoint}")
     public interface QueriesService {
         static QueriesService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -114,20 +120,10 @@ public final class QueriesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> defaultMethodWithResponse(OffsetDateTime value, RequestContext requestContext) {
-        return service.defaultMethod(this.client.getEndpoint(), value, requestContext);
-    }
-
-    /**
-     * The defaultMethod operation.
-     * 
-     * @param value The value parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void defaultMethod(OffsetDateTime value) {
-        defaultMethodWithResponse(value, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.Query.default", requestContext,
+            updatedContext -> {
+                return service.defaultMethod(this.client.getEndpoint(), value, updatedContext);
+            });
     }
 
     /**
@@ -142,20 +138,10 @@ public final class QueriesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> rfc3339WithResponse(OffsetDateTime value, RequestContext requestContext) {
-        return service.rfc3339(this.client.getEndpoint(), value, requestContext);
-    }
-
-    /**
-     * The rfc3339 operation.
-     * 
-     * @param value The value parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void rfc3339(OffsetDateTime value) {
-        rfc3339WithResponse(value, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.Query.rfc3339", requestContext,
+            updatedContext -> {
+                return service.rfc3339(this.client.getEndpoint(), value, updatedContext);
+            });
     }
 
     /**
@@ -170,21 +156,11 @@ public final class QueriesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> rfc7231WithResponse(OffsetDateTime value, RequestContext requestContext) {
-        DateTimeRfc1123 valueConverted = new DateTimeRfc1123(value);
-        return service.rfc7231(this.client.getEndpoint(), valueConverted, requestContext);
-    }
-
-    /**
-     * The rfc7231 operation.
-     * 
-     * @param value The value parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void rfc7231(OffsetDateTime value) {
-        rfc7231WithResponse(value, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.Query.rfc7231", requestContext,
+            updatedContext -> {
+                DateTimeRfc1123 valueConverted = new DateTimeRfc1123(value);
+                return service.rfc7231(this.client.getEndpoint(), valueConverted, updatedContext);
+            });
     }
 
     /**
@@ -199,21 +175,11 @@ public final class QueriesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> unixTimestampWithResponse(OffsetDateTime value, RequestContext requestContext) {
-        long valueConverted = value.toEpochSecond();
-        return service.unixTimestamp(this.client.getEndpoint(), valueConverted, requestContext);
-    }
-
-    /**
-     * The unixTimestamp operation.
-     * 
-     * @param value The value parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void unixTimestamp(OffsetDateTime value) {
-        unixTimestampWithResponse(value, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.Query.unixTimestamp", requestContext,
+            updatedContext -> {
+                long valueConverted = value.toEpochSecond();
+                return service.unixTimestamp(this.client.getEndpoint(), valueConverted, updatedContext);
+            });
     }
 
     /**
@@ -228,51 +194,41 @@ public final class QueriesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> unixTimestampArrayWithResponse(List<OffsetDateTime> value, RequestContext requestContext) {
-        String valueConverted = value.stream()
-            .map(paramItemValue -> paramItemValue.toEpochSecond())
-            .collect(Collectors.toList())
-            .stream()
-            .map(paramItemValue -> {
-                if (paramItemValue == null) {
-                    return "";
-                } else {
-                    String itemValueString = BinaryData.fromObject(paramItemValue).toString();
-                    int strLength = itemValueString.length();
-                    int startOffset = 0;
-                    while (startOffset < strLength) {
-                        if (itemValueString.charAt(startOffset) != '"') {
-                            break;
-                        }
-                        startOffset++;
-                    }
-                    if (startOffset == strLength) {
-                        return "";
-                    }
-                    int endOffset = strLength - 1;
-                    while (endOffset >= 0) {
-                        if (itemValueString.charAt(endOffset) != '"') {
-                            break;
-                        }
+        return this.instrumentation.instrumentWithResponse("Encode.Datetime.Query.unixTimestampArray", requestContext,
+            updatedContext -> {
+                String valueConverted = value.stream()
+                    .map(paramItemValue -> paramItemValue.toEpochSecond())
+                    .collect(Collectors.toList())
+                    .stream()
+                    .map(paramItemValue -> {
+                        if (paramItemValue == null) {
+                            return "";
+                        } else {
+                            String itemValueString = BinaryData.fromObject(paramItemValue).toString();
+                            int strLength = itemValueString.length();
+                            int startOffset = 0;
+                            while (startOffset < strLength) {
+                                if (itemValueString.charAt(startOffset) != '"') {
+                                    break;
+                                }
+                                startOffset++;
+                            }
+                            if (startOffset == strLength) {
+                                return "";
+                            }
+                            int endOffset = strLength - 1;
+                            while (endOffset >= 0) {
+                                if (itemValueString.charAt(endOffset) != '"') {
+                                    break;
+                                }
 
-                        endOffset--;
-                    }
-                    return itemValueString.substring(startOffset, endOffset + 1);
-                }
-            })
-            .collect(Collectors.joining(","));
-        return service.unixTimestampArray(this.client.getEndpoint(), valueConverted, requestContext);
-    }
-
-    /**
-     * The unixTimestampArray operation.
-     * 
-     * @param value The value parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void unixTimestampArray(List<OffsetDateTime> value) {
-        unixTimestampArrayWithResponse(value, RequestContext.none());
+                                endOffset--;
+                            }
+                            return itemValueString.substring(startOffset, endOffset + 1);
+                        }
+                    })
+                    .collect(Collectors.joining(","));
+                return service.unixTimestampArray(this.client.getEndpoint(), valueConverted, updatedContext);
+            });
     }
 }

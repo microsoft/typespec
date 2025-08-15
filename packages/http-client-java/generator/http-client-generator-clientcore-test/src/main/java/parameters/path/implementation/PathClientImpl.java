@@ -3,7 +3,6 @@ package parameters.path.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.PathParam;
@@ -13,6 +12,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -53,15 +53,31 @@ public final class PathClientImpl {
     }
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
      * Initializes an instance of PathClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
      */
-    public PathClientImpl(HttpPipeline httpPipeline, String endpoint) {
+    public PathClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
-        this.service = RestProxy.create(PathClientService.class, this.httpPipeline);
+        this.service = PathClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -109,20 +125,9 @@ public final class PathClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> normalWithResponse(String name, RequestContext requestContext) {
-        return service.normal(this.getEndpoint(), name, requestContext);
-    }
-
-    /**
-     * The normal operation.
-     * 
-     * @param name The name parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void normal(String name) {
-        normalWithResponse(name, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Parameters.Path.normal", requestContext, updatedContext -> {
+            return service.normal(this.getEndpoint(), name, updatedContext);
+        });
     }
 
     /**
@@ -137,31 +142,9 @@ public final class PathClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> optionalWithResponse(String name, RequestContext requestContext) {
-        return service.optional(this.getEndpoint(), name, requestContext);
-    }
-
-    /**
-     * The optional operation.
-     * 
-     * @param name The name parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void optional(String name) {
-        optionalWithResponse(name, RequestContext.none());
-    }
-
-    /**
-     * The optional operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void optional() {
-        final String name = null;
-        optionalWithResponse(name, RequestContext.none());
+        return this.instrumentation.instrumentWithResponse("Parameters.Path.optional", requestContext,
+            updatedContext -> {
+                return service.optional(this.getEndpoint(), name, updatedContext);
+            });
     }
 }

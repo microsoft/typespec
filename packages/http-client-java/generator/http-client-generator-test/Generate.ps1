@@ -19,6 +19,16 @@ Write-Host "Parallelization: $Parallelization"
 $generateScript = {
   $tspFile = $_
 
+  if ((($tspFile -match "payload[\\/]pageable[\\/]main\.tsp") -and (-not ($tspFile -match "azure[\\/]payload[\\/]pageable[\\/]main\.tsp"))) -or ($tspFile -match "payload[\\/]xml[\\/]main\.tsp")) {
+    Write-Host "
+    SKIPPED
+    $tspFile
+    "
+    # xml is not supported
+    # nested pageItems/nextLink/continuationToken is not supported
+    return
+  }
+
   $tspClientFile = $tspFile -replace 'main.tsp', 'client.tsp'
   if (($tspClientFile -match 'client.tsp$') -and (Test-Path $tspClientFile)) {
     $tspFile = $tspClientFile
@@ -62,6 +72,9 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.api-version=2022-09-01"""
     # exclude preview from service versions
     $tspOptions += " --option ""@typespec/http-client-java.service-version-exclude-preview=true"""
+  } elseif ($tspFile -match "tsp[\\/]error.tsp") {
+    # test for default-http-exception-type
+    $tspOptions += " --option ""@typespec/http-client-java.use-default-http-status-code-to-exception-type-mapping=false"""
   } elseif ($tspFile -match "type[\\/]array" -or $tspFile -match "type[\\/]dictionary") {
     # TODO https://github.com/Azure/autorest.java/issues/2964
     # also serve as a test for "use-object-for-unknown" emitter option
@@ -77,11 +90,17 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.service-version-exclude-preview=true"""
     # rename model
     $tspOptions += " --option ""@typespec/http-client-java.rename-model=TopLevelArmResourceListResult:ResourceListResult,CustomTemplateResourcePropertiesAnonymousEmptyModel:AnonymousEmptyModel"""
+    # remove inner
+    $tspOptions += " --option ""@typespec/http-client-java.remove-inner=NginxConfigurationResponse"""
+    # generate async methods
+    $tspOptions += " --option ""@typespec/http-client-java.generate-async-methods=true"""
   } elseif ($tspFile -match "arm-stream-style-serialization.tsp") {
     # for mgmt, do not generate tests due to random mock values
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
     # test service-name
     $tspOptions += " --option ""@typespec/http-client-java.service-name=Arm Resource Provider"""
+    # test property-include-always
+    $tspOptions += " --option ""@typespec/http-client-java.property-include-always=FunctionConfiguration.input"""
   } elseif ($tspFile -match "subclient.tsp") {
     $tspOptions += " --option ""@typespec/http-client-java.enable-subclient=true"""
     # test for include-api-view-properties
@@ -90,15 +109,16 @@ $generateScript = {
 
   # Test customization for one of the TypeSpec definitions - naming.tsp
   if ($tspFile -match "tsp[\\/]naming.tsp$") {
+    # Test for rename-model
+    $tspOptions += " --option ""@typespec/http-client-java.rename-model=RunObjectLastError1:RunObjectLastErrorRenamed,RunObjectLastErrorCode:RunObjectLastErrorCodeRenamed"""
     # Add the customization-class option for Java emitter
     $tspOptions += " --option ""@typespec/http-client-java.customization-class=../../customization/src/main/java/CustomizationTest.java"""
   }
 
   # Test customization using only JavaParser for one of the TypeSpec definitions - naming-javaparser.tsp
   if ($tspFile -match "tsp[\\/]naming-javaparser.tsp$") {
-      # Add the customization-class option for Java emitter
-      $tspOptions += " --option ""@typespec/http-client-java.customization-class=../../customization/src/main/java/JavaParserCustomizationTest.java"""
-      $tspOptions += " --option ""@typespec/http-client-java.use-eclipse-language-server=false"""
+    # Add the customization-class option for Java emitter
+    $tspOptions += " --option ""@typespec/http-client-java.customization-class=../../customization/src/main/java/JavaParserCustomizationTest.java"""
   }
 
   $tspTrace = "--trace import-resolution --trace projection --trace http-client-java"
@@ -170,8 +190,6 @@ try {
   # generate for http-specs/azure-http-specs test sources
   Copy-Item -Path node_modules/@typespec/http-specs/specs -Destination ./ -Recurse -Force
   Copy-Item -Path node_modules/@azure-tools/azure-http-specs/specs -Destination ./ -Recurse -Force
-  # remove xml tests, emitter has not supported xml model
-  Remove-Item ./specs/payload/xml -Recurse -Force
 
   $job = (Get-ChildItem ./specs -Include "main.tsp","old.tsp" -File -Recurse) | ForEach-Object -Parallel $generateScript -ThrottleLimit $Parallelization -AsJob
 
