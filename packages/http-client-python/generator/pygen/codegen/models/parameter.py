@@ -361,6 +361,8 @@ class Parameter(_ParameterBase):
         # for optional path parameter, we need to use keyword only
         if self.location == ParameterLocation.PATH and self.optional:
             return ParameterMethodLocation.KEYWORD_ONLY
+        if self.location == ParameterLocation.OTHER:
+            return ParameterMethodLocation.KEYWORD_ONLY
         return ParameterMethodLocation.POSITIONAL
 
     @classmethod
