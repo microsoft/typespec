@@ -104,7 +104,10 @@ async def test_optional_body_get(client):
         widget_name="widget1",
     )
     assert result.name == "widget1"
-    assert result.id == "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.OperationTemplates/widgets/widget1"
+    assert (
+        result.id
+        == "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.OperationTemplates/widgets/widget1"
+    )
     assert result.type == "Azure.ResourceManager.OperationTemplates/widgets"
     assert result.location == "eastus"
     assert result.properties.name == "widget1"
@@ -130,10 +133,7 @@ async def test_optional_body_patch_with_body(client):
         widget_name="widget1",
         properties=models.Widget(
             location="eastus",
-            properties=models.WidgetProperties(
-                name="updated-widget",
-                description="Updated description"
-            )
+            properties=models.WidgetProperties(name="updated-widget", description="Updated description"),
         ),
     )
     assert result.name == "widget1"
@@ -155,10 +155,7 @@ async def test_optional_body_post_with_body(client):
     result = await client.optional_body.post(
         resource_group_name=RESOURCE_GROUP_NAME,
         widget_name="widget1",
-        body=models.ActionRequest(
-            action_type="perform",
-            parameters="test-parameters"
-        ),
+        body=models.ActionRequest(action_type="perform", parameters="test-parameters"),
     )
     assert result.result == "Action completed successfully with parameters"
 
@@ -173,10 +170,7 @@ async def test_optional_body_provider_post_without_body(client):
 @pytest.mark.asyncio
 async def test_optional_body_provider_post_with_body(client):
     result = await client.optional_body.provider_post(
-        body=models.ChangeAllowanceRequest(
-            total_allowed=100,
-            reason="Increased demand"
-        ),
+        body=models.ChangeAllowanceRequest(total_allowed=100, reason="Increased demand"),
     )
     assert result.total_allowed == 100
     assert result.status == "Changed to requested allowance"
