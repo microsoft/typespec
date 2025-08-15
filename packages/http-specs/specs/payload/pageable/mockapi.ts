@@ -164,6 +164,26 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestQuery
 Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeaderResponseHeader =
   createTests("header", "header");
 
+Scenarios.Payload_Pageable_listWithoutContinuation = passOnSuccess([
+  {
+    uri: "/payload/pageable/simple",
+    method: "get",
+    request: {},
+    response: {
+      status: 200,
+      body: json({
+        pets: [
+          { id: "1", name: "dog" },
+          { id: "2", name: "cat" },
+          { id: "3", name: "bird" },
+          { id: "4", name: "fish" },
+        ],
+      }),
+    },
+    kind: "MockApiDefinition",
+  },
+]);
+
 Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestQueryNestedResponseBody =
   passOnSuccess([
     {
