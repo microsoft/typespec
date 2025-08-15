@@ -82,3 +82,81 @@ def test_lro_begin_delete(client):
         resource_group_name=RESOURCE_GROUP_NAME,
         order_name="order1",
     ).result()
+
+
+def test_optional_body_get(client):
+    result = client.optional_body.get(
+        resource_group_name=RESOURCE_GROUP_NAME,
+        widget_name="widget1",
+    )
+    assert result.name == "widget1"
+    assert result.id == "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.OperationTemplates/widgets/widget1"
+    assert result.type == "Azure.ResourceManager.OperationTemplates/widgets"
+    assert result.location == "eastus"
+    assert result.properties.name == "widget1"
+    assert result.properties.description == "A test widget"
+    assert result.properties.provisioning_state == "Succeeded"
+
+
+def test_optional_body_patch_without_body(client):
+    result = client.optional_body.patch(
+        resource_group_name=RESOURCE_GROUP_NAME,
+        widget_name="widget1",
+    )
+    assert result.name == "widget1"
+    assert result.properties.name == "widget1"
+    assert result.properties.description == "A test widget"
+
+
+def test_optional_body_patch_with_body(client):
+    result = client.optional_body.patch(
+        resource_group_name=RESOURCE_GROUP_NAME,
+        widget_name="widget1",
+        properties=models.Widget(
+            location="eastus",
+            properties=models.WidgetProperties(
+                name="updated-widget",
+                description="Updated description"
+            )
+        ),
+    )
+    assert result.name == "widget1"
+    assert result.properties.name == "updated-widget"
+    assert result.properties.description == "Updated description"
+
+
+def test_optional_body_post_without_body(client):
+    result = client.optional_body.post(
+        resource_group_name=RESOURCE_GROUP_NAME,
+        widget_name="widget1",
+    )
+    assert result.result == "Action completed successfully"
+
+
+def test_optional_body_post_with_body(client):
+    result = client.optional_body.post(
+        resource_group_name=RESOURCE_GROUP_NAME,
+        widget_name="widget1",
+        body=models.ActionRequest(
+            action_type="perform",
+            parameters="test-parameters"
+        ),
+    )
+    assert result.result == "Action completed successfully with parameters"
+
+
+def test_optional_body_provider_post_without_body(client):
+    result = client.optional_body.provider_post()
+    assert result.total_allowed == 50
+    assert result.status == "Changed to default allowance"
+
+
+def test_optional_body_provider_post_with_body(client):
+    result = client.optional_body.provider_post(
+        body=models.ChangeAllowanceRequest(
+            total_allowed=100,
+            reason="Increased demand"
+        ),
+    )
+    assert result.total_allowed == 100
+    assert result.status == "Changed to requested allowance"
