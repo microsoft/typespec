@@ -81,7 +81,7 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):  # pylint: disable=t
 
         # update the host parameter value. In later logic, SDK will overwrite it
         # with value from cloud_setting if users don't provide it.
-        if self.code_model.options["azure-arm"]:
+        if self.code_model.options.get("azure-arm"):
             if self.need_cloud_setting:
                 for p in self.parameters.parameters:
                     if p.location == ParameterLocation.ENDPOINT_PATH:
