@@ -2030,6 +2030,41 @@ Two requests need to be tested.
 }
 ```
 
+### Payload_Pageable_ServerDrivenPagination_linkString
+
+- Endpoint: `get /payload/pageable/server-driven-pagination/link-string`
+
+Test case for using link as pagination with string nextLink.
+
+Two requests need to be tested.
+
+1. Initial request:
+   Expected route: /payload/pageable/server-driven-pagination/link-string
+   Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "1", "name": "dog" },
+    { "id": "2", "name": "cat" }
+  ],
+  "next": "http://[host]:[port]/payload/pageable/server-driven-pagination/link-string/nextPage"
+}
+```
+
+2. Next page request:
+   Expected route: /payload/pageable/server-driven-pagination/link-string/nextPage
+   Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "3", "name": "bird" },
+    { "id": "4", "name": "fish" }
+  ]
+}
+```
+
 ### Payload_Pageable_ServerDrivenPagination_nestedLink
 
 - Endpoint: `get /payload/pageable/server-driven-pagination/nested-link`
