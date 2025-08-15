@@ -411,7 +411,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? discriminatedKind = null,
             InputType? additionalProperties = null,
             IDictionary<string, InputModelType>? discriminatedModels = null,
-            IEnumerable<InputModelType>? derivedModels = null)
+            IEnumerable<InputModelType>? derivedModels = null,
+            InputModelProperty? discriminatorProperty = null)
         {
             IEnumerable<InputModelProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
 
@@ -428,7 +429,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 baseModel,
                 derivedModels is null ? [] : [.. derivedModels],
                 discriminatedKind,
-                propertiesList.FirstOrDefault(p => p is InputModelProperty modelProperty && modelProperty.IsDiscriminator),
+                discriminatorProperty ?? propertiesList.FirstOrDefault(p => p is InputModelProperty modelProperty && modelProperty.IsDiscriminator),
                 discriminatedModels is null ? new Dictionary<string, InputModelType>() : discriminatedModels.AsReadOnly(),
                 additionalProperties,
                 modelAsStruct,
