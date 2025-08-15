@@ -36,7 +36,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private FieldProvider? _requestOptionsField;
         protected virtual string RequestOptionsFieldName => "_options";
 
-        protected IReadOnlyList<FieldProvider> RequestFields => BuildRequestFields();
+        private IReadOnlyList<FieldProvider>? _requestFields;
+        protected IReadOnlyList<FieldProvider> RequestFields
+            => _requestFields ??= BuildRequestFields();
+
+        private IReadOnlyList<ParameterProvider>? _createRequestParameters;
+        private IReadOnlyList<ParameterProvider> CreateRequestParameters
+            => _createRequestParameters ??= Client.RestClient.GetCreateRequestMethod(Operation).Signature.Parameters;
+
+        private string? _createRequestMethodName;
+        private string CreateRequestMethodName
+            => _createRequestMethodName ??= Client.RestClient.GetCreateRequestMethod(Operation).Signature.Name;
 
         protected ModelProvider ResponseModel { get; }
         protected CSharpType ResponseModelType { get; }
@@ -92,12 +102,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     EmitterDiagnosticSeverity.Error);
             }
         }
-
-        private IReadOnlyList<ParameterProvider> CreateRequestParameters
-            => Client.RestClient.GetCreateRequestMethod(Operation).Signature.Parameters;
-
-        private string CreateRequestMethodName
-            => Client.RestClient.GetCreateRequestMethod(Operation).Signature.Name;
 
         private IReadOnlyList<FieldProvider> BuildRequestFields()
         {
@@ -513,6 +517,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ValueExpression[] arguments = [.. RequestFields.Select(f => f.AsValueExpression)];
 
             return ClientField.Invoke(CreateRequestMethodName, arguments).As<PipelineMessage>();
+        }
+
+        public override void Reset()
+        {
+            base.Reset();
+            _requestFields = null;
+            _createRequestParameters = null;
+            _createRequestMethodName = null;
+            _requestOptionsField = null;
         }
     }
 }
