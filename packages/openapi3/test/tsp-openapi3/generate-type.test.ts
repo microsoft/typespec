@@ -232,7 +232,7 @@ const testScenarios: TestScenario[] = [
         missingTypeProp: { properties: { foo: { type: "string" } } },
       },
     },
-    expected: "{missingTypeProp: unknown}",
+    expected: "{missingTypeProp: { foo?: string}}",
   },
 ];
 
