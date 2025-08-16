@@ -396,6 +396,8 @@ class ClientParameter(Parameter):
             and not self.code_model.options["azure-arm"]
         ):
             return ParameterMethodLocation.KEYWORD_ONLY
+        if self.location == ParameterLocation.OTHER:
+            return ParameterMethodLocation.KEYWORD_ONLY
         return ParameterMethodLocation.POSITIONAL
 
 

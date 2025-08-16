@@ -86,7 +86,7 @@ class ClientSerializer:
             endpoint_parameter = cast(Parameter, self.client.endpoint_parameter)
             retval.extend(
                 [
-                    '_cloud = kwargs.pop("cloud_setting", None) or settings.current.azure_cloud  # type: ignore',
+                    "_cloud = cloud_setting or settings.current.azure_cloud  # type: ignore",
                     "_endpoints = get_arm_endpoints(_cloud)",
                     f"if not {endpoint_parameter.client_name}:",
                     f'    {endpoint_parameter.client_name} = _endpoints["resource_manager"]',
