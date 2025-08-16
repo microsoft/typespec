@@ -1,9 +1,12 @@
 import { Temporal } from "temporal-polyfill";
 import { ignoreDiagnostics } from "../core/diagnostics.js";
+import { reportDiagnostic } from "../core/messages.js";
 import type { Program } from "../core/program.js";
 import { getProperty } from "../core/semantic-walker.js";
 import { isArrayModelType, isUnknownType } from "../core/type-utils.js";
 import {
+  DiagnosticTarget,
+  NoTarget,
   type ObjectValue,
   type Scalar,
   type ScalarValue,
@@ -21,9 +24,16 @@ export function serializeValueAsJson(
   value: Value,
   type: Type,
   encodeAs?: EncodeData,
+  diagnosticTarget?: DiagnosticTarget | typeof NoTarget,
 ): unknown {
   if (type.kind === "ModelProperty") {
-    return serializeValueAsJson(program, value, type.type, encodeAs ?? getEncode(program, type));
+    return serializeValueAsJson(
+      program,
+      value,
+      type.type,
+      encodeAs ?? getEncode(program, type),
+      diagnosticTarget,
+    );
   }
   switch (value.valueKind) {
     case "NullValue":
@@ -43,12 +53,21 @@ export function serializeValueAsJson(
           type.kind === "Model" && isArrayModelType(program, type)
             ? type.indexer.value
             : program.checker.anyType,
+          /* encodeAs: */ undefined,
+          diagnosticTarget,
         ),
       );
     case "ObjectValue":
-      return serializeObjectValueAsJson(program, value, type);
+      return serializeObjectValueAsJson(program, value, type, diagnosticTarget);
     case "ScalarValue":
       return serializeScalarValueAsJson(program, value, type, encodeAs);
+    case "UnknownValue":
+      reportDiagnostic(program, {
+        code: "unknown-value",
+        messageId: "in-json",
+        target: diagnosticTarget ?? value,
+      });
+      return null;
   }
 }
 
@@ -89,6 +108,7 @@ function serializeObjectValueAsJson(
   program: Program,
   value: ObjectValue,
   type: Type,
+  diagnosticTarget?: DiagnosticTarget | typeof NoTarget,
 ): Record<string, unknown> {
   type = resolveUnions(program, value, type) ?? type;
   const obj: Record<string, unknown> = {};
@@ -99,7 +119,13 @@ function serializeObjectValueAsJson(
         definition.kind === "ModelProperty"
           ? resolveEncodedName(program, definition, "application/json")
           : propValue.name;
-      obj[name] = serializeValueAsJson(program, propValue.value, definition);
+      obj[name] = serializeValueAsJson(
+        program,
+        propValue.value,
+        definition,
+        /* encodeAs: */ undefined,
+        propValue.node,
+      );
     }
   }
   return obj;
