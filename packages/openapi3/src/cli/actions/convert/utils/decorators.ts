@@ -79,7 +79,7 @@ function createTSValueFromObjectValue(value: object): TSValue | undefined {
   }
   return undefined;
 }
-function normalizeObjectValueToTSValueExpression(value: any): string {
+export function normalizeObjectValueToTSValueExpression(value: any): string {
   if (typeof value === "object" && !Array.isArray(value)) {
     return `#{${Object.entries(value)
       .map(([key, v]) => {
