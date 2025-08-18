@@ -37,6 +37,11 @@ cspell.yaml
 /packages/http-client-js/                    @joheredi @timotheeguerin @timovv @qiaozha @MaryGao @xirzec @bterlson @markcowl @allenjzhang @witemple-msft @chrisradek @AlitzelMendez
 
 ######################
+# Client Framework
+######################
+/packages/http-client/                    @joheredi @timotheeguerin @timovv @qiaozha @MaryGao @xirzec @bterlson @markcowl @allenjzhang @witemple-msft @chrisradek @AlitzelMendez @tadelesh
+
+######################
 # IDE
 ######################
 /packages/typespec-vs/                       @RodgeFu @lirenhe @bterlson @markcowl @allenjzhang @timotheeguerin @chrisradek @AlitzelMendez
