@@ -1,3 +1,4 @@
+import { printIdentifier } from "@typespec/compiler";
 import { OpenAPI3Schema, Refable } from "../../../../types.js";
 import {
   TypeSpecAlias,
@@ -99,7 +100,9 @@ function generateUnion(union: TypeSpecUnion, context: Context): string {
 
     const value = (memberSchema.properties?.[union.schema.discriminator.propertyName] as any)
       ?.enum?.[0];
-    return value ? `${value}: ` : "";
+    // checking whether the value is using an invalid character as an identifier
+    const valueIdentifier = value ? printIdentifier(value, "disallow-reserved") : "";
+    return value ? `${value === valueIdentifier ? value : valueIdentifier}: ` : "";
   };
   if (schema.enum) {
     definitions.push(...schema.enum.map((e) => `${JSON.stringify(e)},`));
