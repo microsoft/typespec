@@ -115,24 +115,113 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             visitedTypes.Add(currentType);
 
+            if (IsModelReaderWriterInterfaceType(currentType))
+            {
+                return;
+            }
+
             // Check if this type implements IPersistableModel
-            if (ImplementsIPersistableModel(currentType, providers, out TypeProvider? provider))
+            bool implementsInterface = ImplementsIPersistableModel(currentType, providers, out TypeProvider? provider);
+            if (implementsInterface)
             {
                 buildableTypes.Add(currentType, provider);
+            }
 
-                if (provider is not null)
+            // Always traverse properties and base types, regardless of whether the current type implements the interface
+            // This ensures we find nested types that might implement the interfaces
+            if (provider is not null)
+            {
+                CollectBuildableTypesFromProperties(provider, buildableTypes, visitedTypes, providers);
+                CollectBuildableTypesFromBaseTypeProviders(provider, buildableTypes, visitedTypes, providers);
+            }
+            else if (currentType.IsFrameworkType)
+            {
+                // For framework types, use reflection to examine their properties
+                CollectBuildableTypesFromFrameworkType(currentType, buildableTypes, visitedTypes, providers);
+            }
+        }
+
+        private void CollectBuildableTypesFromBaseTypeProviders(
+            TypeProvider typeProvider,
+            Dictionary<CSharpType, TypeProvider?> buildableTypes,
+            HashSet<CSharpType> visitedTypes,
+            Dictionary<CSharpType, TypeProvider> providers)
+        {
+            if (typeProvider is ModelProvider modelProvider && modelProvider.BaseModelProvider != null)
+            {
+                CollectBuildableTypesFromProperties(modelProvider.BaseModelProvider, buildableTypes, visitedTypes, providers);
+                CollectBuildableTypesFromBaseTypeProviders(modelProvider.BaseModelProvider, buildableTypes, visitedTypes, providers);
+            }
+            else
+            {
+                foreach (var implementedType in typeProvider.Implements)
                 {
-                    // Check all properties of this model
-                    foreach (var property in provider.Properties)
-                    {
-                        var propertyType = property.Type.IsCollection ? GetInnerMostElement(property.Type) : property.Type;
-                        CollectBuildableTypesRecursive(propertyType.WithNullable(false), buildableTypes, visitedTypes, providers);
-                    }
+                    CollectBuildableTypesRecursive(implementedType, buildableTypes, visitedTypes, providers);
                 }
             }
         }
 
-        private CSharpType GetInnerMostElement(CSharpType type)
+        private void CollectBuildableTypesFromProperties(
+            TypeProvider provider,
+            Dictionary<CSharpType, TypeProvider?> buildableTypes,
+            HashSet<CSharpType> visitedTypes,
+            Dictionary<CSharpType, TypeProvider> providers)
+        {
+            foreach (var property in provider.Properties)
+            {
+                var propertyType = property.Type.IsCollection ? GetInnerMostElement(property.Type) : property.Type;
+                CollectBuildableTypesRecursive(propertyType.WithNullable(false), buildableTypes, visitedTypes, providers);
+            }
+        }
+
+        private void CollectBuildableTypesFromFrameworkType(
+            CSharpType frameworkType,
+            Dictionary<CSharpType, TypeProvider?> buildableTypes,
+            HashSet<CSharpType> visitedTypes,
+            Dictionary<CSharpType, TypeProvider> providers)
+        {
+            if (!frameworkType.IsFrameworkType)
+            {
+                return;
+            }
+
+            try
+            {
+                var type = frameworkType.FrameworkType;
+                var properties = type.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+
+                foreach (var property in properties)
+                {
+                    var propertyType = property.PropertyType;
+
+                    // Handle generic types by getting their concrete types if available
+                    if (propertyType.IsGenericTypeDefinition && frameworkType.Arguments.Count > 0)
+                    {
+                        continue;
+                    }
+
+                    var csharpPropertyType = new CSharpType(propertyType);
+                    var typeToCheck = csharpPropertyType.IsCollection ? csharpPropertyType.ElementType : csharpPropertyType;
+
+                    CollectBuildableTypesRecursive(typeToCheck.WithNullable(false), buildableTypes, visitedTypes, providers);
+                }
+
+                // Also check base types of the framework type
+                if (type.BaseType != null && type.BaseType != typeof(object))
+                {
+                    var baseFrameworkType = new CSharpType(type.BaseType);
+                    CollectBuildableTypesRecursive(baseFrameworkType, buildableTypes, visitedTypes, providers);
+                }
+            }
+            catch (Exception)
+            {
+                // If we can't reflect on the type for any reason, skip it to avoid breaking the generation
+                // This can happen with certain generic types or types that aren't fully constructed
+                ScmCodeModelGenerator.Instance.Emitter.Debug($"Failed to get type for {frameworkType.Name}.");
+            }
+        }
+
+        private static CSharpType GetInnerMostElement(CSharpType type)
         {
             var result = type.ElementType;
             while (result.IsCollection)
