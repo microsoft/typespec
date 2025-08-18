@@ -3,16 +3,8 @@ import "../dist/src/tsp-index.js";
 
 namespace TypeSpec.HttpClient;
 
-enum FeatureLifecycle {
-  Experimental,
-}
-
 model FeatureLifecycleOptions {
   ...ClientDecoratorOptions;
 }
 
-extern dec featureLifecycle(
-  target: unknown,
-  value: Reflection.EnumMember,
-  options?: valueof FeatureLifecycleOptions
-);
+extern dec experimental(target: unknown, options?: valueof FeatureLifecycleOptions);

@@ -1,16 +1,15 @@
-import type { DecoratorContext, EnumMember, Type } from "@typespec/compiler";
+import type { DecoratorContext, Type } from "@typespec/compiler";
 
 export interface FeatureLifecycleOptions {
   readonly emitterScope?: string;
 }
 
-export type FeatureLifecycleDecorator = (
+export type ExperimentalDecorator = (
   context: DecoratorContext,
   target: Type,
-  value: EnumMember,
   options?: FeatureLifecycleOptions,
 ) => void;
 
 export type TypeSpecHttpClientDecorators = {
-  featureLifecycle: FeatureLifecycleDecorator;
+  experimental: ExperimentalDecorator;
 };

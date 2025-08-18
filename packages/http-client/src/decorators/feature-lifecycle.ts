@@ -1,6 +1,6 @@
 import { Program, Type } from "@typespec/compiler";
 import { useStateMap } from "@typespec/compiler/utils";
-import { FeatureLifecycleDecorator } from "../../generated-defs/TypeSpec.HttpClient.js";
+import { ExperimentalDecorator } from "../../generated-defs/TypeSpec.HttpClient.js";
 import { createStateSymbol } from "../lib.js";
 import { parseScopeFilter, ScopedValue } from "./scope-cache.js";
 
@@ -10,11 +10,11 @@ const [getFeatureLifecycleState, setFeatureLifecycleState] = useStateMap<Type, S
   featureLifecycleStateSymbol,
 );
 
-export const $featureLifecycle: FeatureLifecycleDecorator = (context, target, value, options) => {
+export const $experimental: ExperimentalDecorator = (context, target, options) => {
   const scopeFilter = parseScopeFilter(options?.emitterScope);
   setFeatureLifecycleState(context.program, target, {
     emitterFilter: scopeFilter,
-    value: (value.value && String(value.value)) || value.name,
+    value: "Experimental",
   });
 };
 
