@@ -63,6 +63,52 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.AreEqual(1, buildableAttributes.Count(), "Exactly one ModelReaderWriterBuildableAttribute should be generated for TestModel");
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ValidateModelReaderWriterBuildableAttributesAreGeneratedForNonModelsThatImplementMRW(bool implementsIPersistable)
+        {
+            var outputLibrary = new TestOutputLibrary(implementsIPersistable);
+            var mockGenerator = MockHelpers.LoadMockGenerator(createOutputLibrary: () => outputLibrary);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+            Assert.IsTrue(attributes.Count > 0);
+
+            // Check that exactly one ModelReaderWriterBuildableAttribute exists
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute));
+            Assert.AreEqual(1, buildableAttributes.Count(), "Exactly one ModelReaderWriterBuildableAttribute should be generated for TestModel");
+            Assert.AreEqual("typeof(global::Sample.TestMrwSerialization)", buildableAttributes.First().Arguments.First().ToDisplayString(),
+                "The ModelReaderWriterBuildableAttribute should be generated for TestMrwSerialization");
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ValidateModelReaderWriterBuildableAttributesAreGeneratedForNonModelsThatHaveDepProperty(bool implementsIPersistable)
+        {
+            var outputLibrary = new TestOutputLibrary(implementsIPersistable, includeDepModelProperty: true);
+            var mockGenerator = MockHelpers.LoadMockGenerator(createOutputLibrary: () => outputLibrary);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+
+            int expectedCount = 2;
+            Assert.AreEqual(expectedCount, attributes.Count);
+
+            // Check that exactly one ModelReaderWriterBuildableAttribute exists
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
+            Assert.AreEqual(2, buildableAttributes.Count(), "Exactly one ModelReaderWriterBuildableAttribute should be generated for TestModel");
+            Assert.AreEqual("typeof(global::Sample.TestMrwSerialization)", buildableAttributes[0].Arguments.First().ToDisplayString(),
+                "The ModelReaderWriterBuildableAttribute should be generated for TestMrwSerialization");
+            Assert.AreEqual(
+                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.DependencyModel)",
+                buildableAttributes[1].Arguments.First().ToDisplayString(),
+                "The ModelReaderWriterBuildableAttribute should be generated for DependencyModel");
+        }
+
         [Test]
         public void ValidateModelReaderWriterBuildableAttributesIncludeNestedModels()
         {
@@ -267,6 +313,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Test]
+        public async Task NullableValueTypesAreHandledCorrectly()
+        {
+            var customizedModel = InputFactory.Model("CustomizedModel");
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () =>
+                [
+                    InputFactory.Model("RegularModel", properties:
+                    [
+                        InputFactory.Property("ModelProperty", new InputNullableType(customizedModel)),
+                        InputFactory.Property("IntProperty", InputPrimitiveType.Int32)
+                    ]),
+                    customizedModel
+                ],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+            Assert.IsTrue(attributes.Count > 0);
+
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute));
+            Assert.AreEqual(2, buildableAttributes.Count());
+
+            var writer = new TypeProviderWriter(contextDefinition);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
         public async Task CustomizedExperimentalModelsHaveAttributeSuppressions()
         {
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
@@ -311,6 +388,347 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                     new AttributeStatement(typeof(ExperimentalAttribute), Snippet.Literal("TEST001")),
                 ];
             }
+        }
+
+        [Test]
+        public void ValidateFrameworkTypesWithMRWInterfacesAreIncluded()
+        {
+            // Create a model with a property that is a framework type implementing MRW interfaces
+            var parentModel = InputFactory.Model("ParentModel", properties:
+            [
+                InputFactory.Property("FrameworkProperty", InputPrimitiveType.String), // Will be mapped to framework type
+                InputFactory.Property("SimpleProperty", InputPrimitiveType.String)
+            ]);
+
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [parentModel],
+                createCSharpTypeCore: input =>
+                {
+                    // Map string property to a framework type that implements MRW
+                    if (input == InputPrimitiveType.String)
+                        return new CSharpType(typeof(FrameworkModelWithMRW));
+                    return ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(input)!;
+                },
+                createCSharpTypeCoreFallback: input => input == InputPrimitiveType.String);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+            Assert.IsTrue(attributes.Count > 0);
+
+            // Should include both the parent model and the framework type
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
+            Assert.AreEqual(2, buildableAttributes.Count(), "Should include both ParentModel and FrameworkModelWithMRW");
+            Assert.AreEqual(
+                "typeof(global::Sample.Models.ParentModel)",
+                buildableAttributes[0].Arguments.First().ToDisplayString());
+            Assert.AreEqual(
+                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.FrameworkModelWithMRW)",
+                buildableAttributes[1].Arguments.First().ToDisplayString());
+        }
+
+        [Test]
+        public void ValidateTypesWithoutMRWButWithMRWPropertiesAreTraversed()
+        {
+            // Create a model that doesn't implement MRW but has properties that do
+            var mrwModel = InputFactory.Model("MRWModel", properties: []);
+
+            var nonMrwModel = InputFactory.Model("NonMRWModel", properties:
+            [
+                InputFactory.Property("MRWProperty", mrwModel),
+                InputFactory.Property("SimpleProperty", InputPrimitiveType.String)
+            ]);
+
+            // Create a custom type provider that doesn't implement MRW interfaces
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [nonMrwModel, mrwModel],
+                createModelCore: input =>
+                {
+                    if (input.Name == "NonMRWModel")
+                        return new NonMRWModelProvider(input);
+                    return new ModelProvider(input);
+                });
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+            Assert.AreEqual(1, attributes.Count);
+
+            // Should only include MRWModel, not NonMRWModel (since it doesn't implement MRW)
+            // but NonMRWModel should still be traversed to find MRWModel
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute));
+            Assert.AreEqual(1, buildableAttributes.Count(), "Should only include MRWModel");
+
+            var attributeArg = buildableAttributes.First().Arguments.First().ToDisplayString();
+            Assert.IsTrue(attributeArg.Contains("MRWModel"), "Should include MRWModel through traversal");
+        }
+
+        [Test]
+        public void ValidateBaseTypeHierarchyTraversal()
+        {
+            // Create a hierarchy: DerivedModel -> BaseModel -> GrandBaseModel
+            var grandBaseModel = InputFactory.Model("GrandBaseModel", properties:
+            [
+                InputFactory.Property("GrandBaseProperty", InputPrimitiveType.String)
+            ]);
+
+            var baseModel = InputFactory.Model("BaseModel", properties:
+            [
+                InputFactory.Property("BaseProperty", InputPrimitiveType.String)
+            ], baseModel: grandBaseModel);
+
+            var derivedModel = InputFactory.Model("DerivedModel", properties:
+            [
+                InputFactory.Property("DerivedProperty", InputPrimitiveType.String)
+            ], baseModel: baseModel);
+
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [derivedModel, baseModel, grandBaseModel]);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+            Assert.IsTrue(attributes.Count > 0);
+
+            // Should include all three models in the hierarchy
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute));
+            Assert.AreEqual(3, buildableAttributes.Count(), "Should include all models in the hierarchy");
+            var expectedTypes = new[]
+            {
+                "typeof(global::Sample.Models.GrandBaseModel)",
+                "typeof(global::Sample.Models.BaseModel)",
+                "typeof(global::Sample.Models.DerivedModel)"
+            };
+            foreach (var expectedType in expectedTypes)
+            {
+                Assert.IsTrue(buildableAttributes.Any(a => a.Arguments.First().ToDisplayString() == expectedType),
+                    $"Should include {expectedType} in the attributes");
+            }
+        }
+
+        [Test]
+        public void ValidateInterfaceTypesAreNotIncluded()
+        {
+            // Create a model with a property that directly references MRW interface types
+            var modelWithInterfaces = InputFactory.Model("ModelWithInterfaces", properties:
+            [
+                InputFactory.Property("JsonModelProperty", InputPrimitiveType.String),
+                InputFactory.Property("PersistableModelProperty", InputPrimitiveType.String)
+            ]);
+
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [modelWithInterfaces],
+                createCSharpTypeCore: input =>
+                {
+                    if (input == InputPrimitiveType.String)
+                    {
+                        // Return interface types to test filtering
+                        return new CSharpType(typeof(IJsonModel<>));
+                    }
+                    return ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(input)!;
+                },
+                createCSharpTypeCoreFallback: input => input == InputPrimitiveType.String);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+
+            // Should only include the model itself, not the interface types
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute));
+            Assert.AreEqual(1, buildableAttributes.Count(), "Should only include ModelWithInterfaces, not interface types");
+
+            var attributeArg = buildableAttributes.First().Arguments.First().ToDisplayString();
+            Assert.IsTrue(attributeArg.Contains("ModelWithInterfaces"), "Should include only the concrete model");
+        }
+
+        [Test]
+        public void ValidateFrameworkTypePropertiesAreTraversedUsingReflection()
+        {
+            // Create a model with a property that's a framework type with properties that implement MRW
+            var parentModel = InputFactory.Model("ParentModel", properties:
+            [
+                InputFactory.Property("ComplexFrameworkProperty", InputPrimitiveType.String),
+                InputFactory.Property("SimpleProperty", InputPrimitiveType.String)
+            ]);
+
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [parentModel],
+                createCSharpTypeCore: input =>
+                {
+                    if (input == InputPrimitiveType.String)
+                        return new CSharpType(typeof(ComplexFrameworkType));
+                    return ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(input)!;
+                },
+                createCSharpTypeCoreFallback: input => input == InputPrimitiveType.String);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+            Assert.AreEqual(2, attributes.Count);
+
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
+            Assert.AreEqual(2, buildableAttributes.Count());
+            Assert.AreEqual(
+                "typeof(global::Sample.Models.ParentModel)",
+                buildableAttributes[0].Arguments.First().ToDisplayString());
+            Assert.AreEqual(
+                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.FrameworkModelWithMRW)",
+                buildableAttributes[1].Arguments.First().ToDisplayString());
+        }
+
+        [Test]
+        public void ValidateArrayOfFrameworkTypesAreHandled()
+        {
+            // Create a model with collection properties containing framework types
+            var collectionModel = InputFactory.Model("CollectionModel", properties:
+            [
+                InputFactory.Property("FrameworkArray", InputFactory.Array(InputPrimitiveType.String)),
+                InputFactory.Property("FrameworkList", InputFactory.Array(InputPrimitiveType.String))
+            ]);
+
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [collectionModel],
+                createCSharpTypeCore: input =>
+                {
+                    if (input == InputPrimitiveType.String)
+                    {
+                        return new CSharpType(typeof(FrameworkModelWithMRW));
+                    }
+                    else if (input is InputArrayType)
+                    {
+                        return new CSharpType(typeof(IList<FrameworkModelWithMRW>));
+                    }
+                    return ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(input)!;
+                });
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+            Assert.AreEqual(2, attributes.Count);
+
+            // Should include both the collection model and the framework type it contains
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
+            Assert.AreEqual(2, buildableAttributes.Count());
+            Assert.AreEqual(
+                "typeof(global::Sample.Models.CollectionModel)",
+                buildableAttributes[0].Arguments.First().ToDisplayString());
+            Assert.AreEqual(
+                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.FrameworkModelWithMRW)",
+                buildableAttributes[1].Arguments.First().ToDisplayString());
+        }
+
+        [Test]
+        public void ValidateDictionaryOfFrameworkTypesAreHandled()
+        {
+            // Create a model with dictionary properties containing framework types
+            var collectionModel = InputFactory.Model("CollectionModel", properties:
+            [
+                InputFactory.Property("FrameworkDict", InputFactory.Dictionary(InputPrimitiveType.Int64, InputPrimitiveType.String))
+            ]);
+
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [collectionModel],
+                createCSharpTypeCore: input =>
+                {
+                    if (input == InputPrimitiveType.String)
+                    {
+                        return new CSharpType(typeof(FrameworkModelWithMRW));
+                    }
+                    else if (input is InputDictionaryType)
+                    {
+                        return new CSharpType(typeof(IDictionary<int, FrameworkModelWithMRW>));
+                    }
+                    return ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(input)!;
+                });
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+            Assert.AreEqual(2, attributes.Count);
+
+            // Should include both the collection model and the framework type it contains
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
+            Assert.AreEqual(2, buildableAttributes.Count());
+            Assert.AreEqual(
+                "typeof(global::Sample.Models.CollectionModel)",
+                buildableAttributes[0].Arguments.First().ToDisplayString());
+            Assert.AreEqual(
+                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.FrameworkModelWithMRW)",
+                buildableAttributes[1].Arguments.First().ToDisplayString());
+        }
+
+        [Test]
+        public void ValidateNestedFrameworkTypeHierarchy()
+        {
+            // Test complex scenario with multiple levels of framework types and inheritance
+            var complexModel = InputFactory.Model("ComplexModel", properties:
+            [
+                InputFactory.Property("NestedFrameworkProperty", InputPrimitiveType.String)
+            ]);
+
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [complexModel],
+                createCSharpTypeCore: input =>
+                {
+                    if (input == InputPrimitiveType.String)
+                        return new CSharpType(typeof(NestedFrameworkType));
+                    return ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(input)!;
+                },
+                createCSharpTypeCoreFallback: input => input == InputPrimitiveType.String);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+            Assert.AreEqual(3, attributes.Count);
+
+            // Should include both the collection model and the framework type it contains
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
+            Assert.AreEqual(3, buildableAttributes.Count());
+            Assert.AreEqual(
+                "typeof(global::Sample.Models.ComplexModel)",
+                buildableAttributes[0].Arguments.First().ToDisplayString());
+            Assert.AreEqual(
+                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.NestedFrameworkType)",
+                buildableAttributes[1].Arguments.First().ToDisplayString());
+            Assert.AreEqual(
+                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.FrameworkModelWithMRW)",
+                buildableAttributes[2].Arguments.First().ToDisplayString());
+        }
+
+        // This test validates that the correct attributes are generated for a complex scenario
+        // where a type provider implements a nested framework type hierarchy, and the framework types
+        // have properties that implement MRW interfaces.
+        [Test]
+        public void ValidateTypeProviderImplementsNestedFrameworkTypeHierarchy()
+        {
+            var outputLibrary = new TestOutputLibrary([new MRWTypeProvider()]);
+            var mockGenerator = MockHelpers.LoadMockGenerator(createOutputLibrary: () => outputLibrary);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+
+            int expectedCount = 2;
+            Assert.AreEqual(expectedCount, attributes.Count);
+
+            // Check that exactly one ModelReaderWriterBuildableAttribute exists
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
+            Assert.AreEqual(expectedCount, buildableAttributes.Count);
+            Assert.AreEqual(
+                "typeof(global::Sample.MRWTypeProvider)",
+                buildableAttributes[0].Arguments.First().ToDisplayString());
+            Assert.AreEqual(
+                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.FrameworkModelWithMRW)",
+                buildableAttributes[1].Arguments.First().ToDisplayString());
         }
 
         private class DependencyModel : IJsonModel<DependencyModel>
@@ -367,6 +785,196 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             BinaryData IPersistableModel<ExperimentalDependencyModel>.Write(ModelReaderWriterOptions options)
             {
                 throw new NotImplementedException();
+            }
+        }
+
+        private class TestMrwSerialization : TypeProvider
+        {
+            private readonly bool _implementsPersistableModel;
+            private readonly bool _includeTypeWithDepModelProperty;
+            public TestMrwSerialization(bool implementsPersistableModel, bool includeDepModelProperty) : base()
+            {
+                _implementsPersistableModel = implementsPersistableModel;
+                _includeTypeWithDepModelProperty = includeDepModelProperty;
+            }
+
+            protected override string BuildName() => "TestMrwSerialization";
+
+            protected override CSharpType[] BuildImplements()
+            {
+                return _implementsPersistableModel
+                    ? [new CSharpType(typeof(IPersistableModel<object>))]
+                    : [new CSharpType(typeof(IJsonModel<object>))];
+            }
+
+            protected override PropertyProvider[] BuildProperties()
+            {
+                if (!_includeTypeWithDepModelProperty)
+                {
+                    return base.BuildProperties();
+                }
+
+                return [new PropertyProvider(null, MethodSignatureModifiers.Public, new CSharpType(typeof(DependencyModel)), "p1", new AutoPropertyBody(false), this)];
+            }
+
+            protected override string BuildRelativeFilePath()
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        private class FrameworkModelWithMRW : IJsonModel<FrameworkModelWithMRW>, IPersistableModel<FrameworkModelWithMRW>
+        {
+            public string Value { get; set; } = string.Empty;
+
+            FrameworkModelWithMRW? IJsonModel<FrameworkModelWithMRW>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+            {
+                throw new NotImplementedException();
+            }
+
+            FrameworkModelWithMRW? IPersistableModel<FrameworkModelWithMRW>.Create(BinaryData data, ModelReaderWriterOptions options)
+            {
+                throw new NotImplementedException();
+            }
+
+            string IPersistableModel<FrameworkModelWithMRW>.GetFormatFromOptions(ModelReaderWriterOptions options)
+            {
+                throw new NotImplementedException();
+            }
+
+            void IJsonModel<FrameworkModelWithMRW>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+            {
+                throw new NotImplementedException();
+            }
+
+            BinaryData IPersistableModel<FrameworkModelWithMRW>.Write(ModelReaderWriterOptions options)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        private class NonMRWModelProvider : ModelProvider
+        {
+            public NonMRWModelProvider(InputModelType inputModel) : base(inputModel)
+            {
+            }
+
+            protected override CSharpType[] BuildImplements()
+            {
+                // Don't implement MRW interfaces
+                return [];
+            }
+
+            protected override TypeProvider[] BuildSerializationProviders()
+            {
+                // Return an empty array to indicate no MRW serialization
+                return [];
+            }
+        }
+
+        private class MRWTypeProvider : TypeProvider
+        {
+            public MRWTypeProvider() : base()
+            {
+            }
+
+            protected override CSharpType[] BuildImplements()
+            {
+                // Implement a framework type that does not implement MRW interfaces
+                return [new CSharpType(typeof(FrameworkTypeImplementingOtherFrameworkType)), new CSharpType(typeof(IPersistableModel<object>))];
+            }
+
+            protected override string BuildName() => "MRWTypeProvider";
+
+            protected override string BuildRelativeFilePath()
+            {
+                throw new NotImplementedException();
+            }
+
+            protected override TypeProvider[] BuildSerializationProviders()
+            {
+                // Return an empty array to indicate no MRW serialization
+                return [];
+            }
+        }
+
+        private class FrameworkTypeImplementingOtherFrameworkType : ComplexFrameworkType
+        {
+            public string AnotherProperty { get; set; } = string.Empty;
+        }
+
+        private class ComplexFrameworkType
+        {
+            public FrameworkModelWithMRW NestedProperty { get; set; } = new();
+            public string SimpleProperty { get; set; } = string.Empty;
+            public List<FrameworkModelWithMRW> ListProperty { get; set; } = new();
+        }
+
+        private class NestedFrameworkType : IJsonModel<NestedFrameworkType>
+        {
+            public ComplexFrameworkType ComplexProperty { get; set; } = new();
+            public FrameworkModelWithMRW DirectProperty { get; set; } = new();
+
+            NestedFrameworkType? IJsonModel<NestedFrameworkType>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+            {
+                throw new NotImplementedException();
+            }
+
+            NestedFrameworkType? IPersistableModel<NestedFrameworkType>.Create(BinaryData data, ModelReaderWriterOptions options)
+            {
+                throw new NotImplementedException();
+            }
+
+            string IPersistableModel<NestedFrameworkType>.GetFormatFromOptions(ModelReaderWriterOptions options)
+            {
+                throw new NotImplementedException();
+            }
+
+            void IJsonModel<NestedFrameworkType>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+            {
+                throw new NotImplementedException();
+            }
+
+            BinaryData IPersistableModel<NestedFrameworkType>.Write(ModelReaderWriterOptions options)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        private class TestOutputLibrary : ScmOutputLibrary
+        {
+            private readonly bool _implementsPersistableModel;
+            private readonly bool _includeTypeWithDepModelProperty;
+            private IReadOnlyList<TypeProvider>? _typeProviders = null;
+
+            public TestOutputLibrary(bool implementsPersistableModel, bool includeDepModelProperty = false) : base()
+            {
+                _implementsPersistableModel = implementsPersistableModel;
+                _includeTypeWithDepModelProperty = includeDepModelProperty;
+            }
+
+            public TestOutputLibrary(IEnumerable<TypeProvider> providers) : base()
+            {
+                _typeProviders = [.. providers];
+            }
+
+            protected override TypeProvider[] BuildTypeProviders()
+            {
+                var providers = base.BuildTypeProviders();
+                if (_typeProviders != null)
+                {
+                    return
+                    [
+                        .. providers,
+                        .. _typeProviders
+                    ];
+                }
+
+                return
+                [
+                    .. providers,
+                    new TestMrwSerialization(_implementsPersistableModel, _includeTypeWithDepModelProperty)
+                ];
             }
         }
     }

@@ -110,14 +110,14 @@ function generateUnion(union: TypeSpecUnion, context: Context): string {
     definitions.push(
       ...schema.oneOf.map(
         (member) =>
-          getVariantName(member) + context.generateTypeFromRefableSchema(member, union.scope),
+          getVariantName(member) + context.generateTypeFromRefableSchema(member, union.scope) + ",",
       ),
     );
   } else if (schema.anyOf) {
     definitions.push(
       ...schema.anyOf.map(
         (member) =>
-          getVariantName(member) + context.generateTypeFromRefableSchema(member, union.scope),
+          getVariantName(member) + context.generateTypeFromRefableSchema(member, union.scope) + ",",
       ),
     );
   } else {
