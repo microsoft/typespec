@@ -101,7 +101,7 @@ function generateUnion(union: TypeSpecUnion, context: Context): string {
     const value = (memberSchema.properties?.[union.schema.discriminator.propertyName] as any)
       ?.enum?.[0];
     // checking whether the value is using an invalid character as an identifier
-    const valueIdentifier = printIdentifier(value, "disallow-reserved");
+    const valueIdentifier = value ? printIdentifier(value, "disallow-reserved") : "";
     return value ? `${value === valueIdentifier ? value : valueIdentifier}: ` : "";
   };
   if (schema.enum) {
