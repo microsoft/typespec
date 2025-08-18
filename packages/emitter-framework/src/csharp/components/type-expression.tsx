@@ -41,6 +41,7 @@ export function TypeExpression(props: TypeExpressionProps): Children {
   } else if ($.record.is(props.type)) {
     return code`IDictionary<string, ${(<TypeExpression type={props.type.indexer.value} />)}>`;
   } else if ($.literal.isString(props.type)) {
+    // c# doesn't have literal types, so we map them to their corresponding C# types in general
     return code`string`;
   } else if ($.literal.isNumeric(props.type)) {
     return Number.isInteger(props.type.value) ? code`int` : code`double`;
