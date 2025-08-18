@@ -1,7 +1,15 @@
 import { Experimental_OverridableComponent } from "#core/index.js";
-import { type Children, code } from "@alloy-js/core";
+import { code, type Children } from "@alloy-js/core";
 import { Reference } from "@alloy-js/csharp";
-import { getTypeName, type IntrinsicType, type Scalar, type Type } from "@typespec/compiler";
+import {
+  getTypeName,
+  isNullType,
+  isVoidType,
+  type IntrinsicType,
+  type Scalar,
+  type Type,
+  type Union,
+} from "@typespec/compiler";
 import type { Typekit } from "@typespec/compiler/typekit";
 import { useTsp } from "../../core/index.js";
 import { reportTypescriptDiagnostic } from "../../typescript/lib.js";
@@ -12,6 +20,12 @@ export interface TypeExpressionProps {
 }
 
 export function TypeExpression(props: TypeExpressionProps): Children {
+  if (props.type.kind === "Union") {
+    const nullabletype = getNullableUnionInnerType(props.type);
+    if (nullabletype) {
+      return code`${(<TypeExpression type={nullabletype} />)}?`;
+    }
+  }
   const { $ } = useTsp();
   if (isDeclaration($, props.type)) {
     return (
@@ -26,11 +40,41 @@ export function TypeExpression(props: TypeExpressionProps): Children {
     return code`${(<TypeExpression type={props.type.indexer.value} />)}[]`;
   } else if ($.record.is(props.type)) {
     return code`IDictionary<string, ${(<TypeExpression type={props.type.indexer.value} />)}>`;
+  } else if ($.literal.isString(props.type)) {
+    return code`string`;
+  } else if ($.literal.isNumeric(props.type)) {
+    return Number.isInteger(props.type.value) ? code`int` : code`double`;
+  } else if ($.literal.isBoolean(props.type)) {
+    return code`bool`;
+  } else if (isVoidType(props.type)) {
+    return code`void`;
   }
 
   throw new Error(
     `Unsupported type for TypeExpression: ${props.type.kind} (${getTypeName(props.type)})`,
   );
+}
+
+/** Get the inner type if the union is a nullable, otherwise return undefined */
+function getNullableUnionInnerType(u: Union): Type | undefined {
+  const isNull = (type: Type) => isNullType(type) || isVoidType(type);
+
+  if (Array.from(u.variants.values()).some((v) => isNull(v.type))) {
+    const { $ } = useTsp();
+    const left = Array.from(u.variants.values()).filter((v) => !isNull(v.type));
+    if (left.length === 0) {
+      // a union only has null or void?
+      return $.intrinsic.void;
+    } else if (left.length === 1) {
+      return left[0].type;
+    } else {
+      return $.union.create({
+        name: u.name,
+        variants: left,
+      });
+    }
+  }
+  return undefined;
 }
 
 const intrinsicNameToCSharpType = new Map<string, string | null>([
@@ -112,8 +156,7 @@ function isDeclaration($: Typekit, type: Type): boolean {
       if ($.array.is(type) || $.record.is(type)) {
         return false;
       }
-
-      return Boolean(type.name);
+      return true;
     case "Union":
       return Boolean(type.name);
     default:

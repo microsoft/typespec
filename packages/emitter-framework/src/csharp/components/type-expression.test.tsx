@@ -131,3 +131,32 @@ describe("Record map to IDictionary", () => {
     );
   });
 });
+
+describe("Nullable union", () => {
+  it("nullable boolean", async () => {
+    const { Pet } = (await runner.compile(`
+      @test model Pet {
+        @test name: boolean | null;
+      }
+    `)) as { Pet: Model };
+
+    const res = render(
+      <Wrapper>
+        <ClassDeclaration type={Pet} />
+      </Wrapper>,
+    );
+
+    assertFileContents(
+      res,
+      d`
+          namespace TestNamespace
+          {
+              class Pet
+              {
+                  public required bool? name { get; set; }
+              }
+          }
+        `,
+    );
+  });
+});
