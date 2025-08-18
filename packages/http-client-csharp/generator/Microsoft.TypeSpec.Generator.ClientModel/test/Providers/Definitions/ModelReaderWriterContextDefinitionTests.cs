@@ -63,6 +63,52 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.AreEqual(1, buildableAttributes.Count(), "Exactly one ModelReaderWriterBuildableAttribute should be generated for TestModel");
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ValidateModelReaderWriterBuildableAttributesAreGeneratedForNonModelsThatImplementMRW(bool implementsIPersistable)
+        {
+            var outputLibrary = new TestOutputLibrary(implementsIPersistable);
+            var mockGenerator = MockHelpers.LoadMockGenerator(createOutputLibrary: () => outputLibrary);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+            Assert.IsTrue(attributes.Count > 0);
+
+            // Check that exactly one ModelReaderWriterBuildableAttribute exists
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute));
+            Assert.AreEqual(1, buildableAttributes.Count(), "Exactly one ModelReaderWriterBuildableAttribute should be generated for TestModel");
+            Assert.AreEqual("typeof(global::Sample.TestMrwSerialization)", buildableAttributes.First().Arguments.First().ToDisplayString(),
+                "The ModelReaderWriterBuildableAttribute should be generated for TestMrwSerialization");
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ValidateModelReaderWriterBuildableAttributesAreGeneratedForNonModelsThatHaveDepProperty(bool implementsIPersistable)
+        {
+            var outputLibrary = new TestOutputLibrary(implementsIPersistable, includeDepModelProperty: true);
+            var mockGenerator = MockHelpers.LoadMockGenerator(createOutputLibrary: () => outputLibrary);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+
+            int expectedCount = 2;
+            Assert.AreEqual(expectedCount, attributes.Count);
+
+            // Check that exactly one ModelReaderWriterBuildableAttribute exists
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
+            Assert.AreEqual(2, buildableAttributes.Count(), "Exactly one ModelReaderWriterBuildableAttribute should be generated for TestModel");
+            Assert.AreEqual("typeof(global::Sample.TestMrwSerialization)", buildableAttributes[0].Arguments.First().ToDisplayString(),
+                "The ModelReaderWriterBuildableAttribute should be generated for TestMrwSerialization");
+            Assert.AreEqual(
+                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.DependencyModel)",
+                buildableAttributes[1].Arguments.First().ToDisplayString(),
+                "The ModelReaderWriterBuildableAttribute should be generated for DependencyModel");
+        }
+
         [Test]
         public void ValidateModelReaderWriterBuildableAttributesIncludeNestedModels()
         {
@@ -267,6 +313,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Test]
+        public async Task NullableValueTypesAreHandledCorrectly()
+        {
+            var customizedModel = InputFactory.Model("CustomizedModel");
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () =>
+                [
+                    InputFactory.Model("RegularModel", properties:
+                    [
+                        InputFactory.Property("ModelProperty", new InputNullableType(customizedModel)),
+                        InputFactory.Property("IntProperty", InputPrimitiveType.Int32)
+                    ]),
+                    customizedModel
+                ],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+            Assert.IsTrue(attributes.Count > 0);
+
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute));
+            Assert.AreEqual(2, buildableAttributes.Count());
+
+            var writer = new TypeProviderWriter(contextDefinition);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
         public async Task CustomizedExperimentalModelsHaveAttributeSuppressions()
         {
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
@@ -367,6 +444,63 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             BinaryData IPersistableModel<ExperimentalDependencyModel>.Write(ModelReaderWriterOptions options)
             {
                 throw new NotImplementedException();
+            }
+        }
+
+        private class TestMrwSerialization : TypeProvider
+        {
+            private readonly bool _implementsPersistableModel;
+            private readonly bool _includeTypeWithDepModelProperty;
+            public TestMrwSerialization(bool implementsPersistableModel, bool includeDepModelProperty) : base()
+            {
+                _implementsPersistableModel = implementsPersistableModel;
+                _includeTypeWithDepModelProperty = includeDepModelProperty;
+            }
+
+            protected override string BuildName() => "TestMrwSerialization";
+
+            protected override CSharpType[] BuildImplements()
+            {
+                return _implementsPersistableModel
+                    ? [new CSharpType(typeof(IPersistableModel<object>))]
+                    : [new CSharpType(typeof(IJsonModel<object>))];
+            }
+
+            protected override PropertyProvider[] BuildProperties()
+            {
+                if (!_includeTypeWithDepModelProperty)
+                {
+                    return base.BuildProperties();
+                }
+
+                return [new PropertyProvider(null, MethodSignatureModifiers.Public, new CSharpType(typeof(DependencyModel)), "p1", new AutoPropertyBody(false), this)];
+            }
+
+            protected override string BuildRelativeFilePath()
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        private class TestOutputLibrary : ScmOutputLibrary
+        {
+            private readonly bool _implementsPersistableModel;
+            private readonly bool _includeTypeWithDepModelProperty;
+
+            public TestOutputLibrary(bool implementsPersistableModel, bool includeDepModelProperty = false) : base()
+            {
+                _implementsPersistableModel = implementsPersistableModel;
+                _includeTypeWithDepModelProperty = includeDepModelProperty;
+            }
+
+            protected override TypeProvider[] BuildTypeProviders()
+            {
+                var providers = base.BuildTypeProviders();
+                return
+                [
+                    .. providers,
+                    new TestMrwSerialization(_implementsPersistableModel, _includeTypeWithDepModelProperty)
+                ];
             }
         }
     }
