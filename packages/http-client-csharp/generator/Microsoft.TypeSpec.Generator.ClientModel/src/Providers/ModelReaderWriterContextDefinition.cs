@@ -156,19 +156,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private void CollectBuildableTypesFromProperties(
-            TypeProvider provider,
-            Dictionary<CSharpType, TypeProvider?> buildableTypes,
-            HashSet<CSharpType> visitedTypes,
-            Dictionary<CSharpType, TypeProvider> providers)
-        {
-            foreach (var property in provider.Properties)
-            {
-                var propertyType = property.Type.IsCollection ? GetInnerMostElement(property.Type) : property.Type;
-                CollectBuildableTypesRecursive(propertyType.WithNullable(false), buildableTypes, visitedTypes, providers);
-            }
-        }
-
         private void CollectBuildableTypesFromFrameworkType(
             CSharpType frameworkType,
             Dictionary<CSharpType, TypeProvider?> buildableTypes,
