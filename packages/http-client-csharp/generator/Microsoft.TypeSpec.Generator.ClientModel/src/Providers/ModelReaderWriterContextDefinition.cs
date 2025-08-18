@@ -131,7 +131,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // This ensures we find nested types that might implement the interfaces
             if (provider is not null)
             {
-                // CollectBuildableTypesFromProperties(provider, buildableTypes, visitedTypes, providers);
                 foreach (var property in provider.Properties)
                 {
                     var propertyType = property.Type.IsCollection ? GetInnerMostElement(property.Type) : property.Type;
