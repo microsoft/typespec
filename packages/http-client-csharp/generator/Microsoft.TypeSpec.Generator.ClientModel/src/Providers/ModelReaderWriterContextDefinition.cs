@@ -131,33 +131,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // This ensures we find nested types that might implement the interfaces
             if (provider is not null)
             {
-                CollectBuildableTypesFromProperties(provider, buildableTypes, visitedTypes, providers);
-                CollectBuildableTypesFromBaseTypeProviders(provider, buildableTypes, visitedTypes, providers);
+                // CollectBuildableTypesFromProperties(provider, buildableTypes, visitedTypes, providers);
+                foreach (var property in provider.Properties)
+                {
+                    var propertyType = property.Type.IsCollection ? GetInnerMostElement(property.Type) : property.Type;
+                    CollectBuildableTypesRecursive(propertyType.WithNullable(false), buildableTypes, visitedTypes, providers);
+                }
+
+                if (provider is ModelProvider modelProvider && modelProvider.BaseModelProvider != null)
+                {
+                    CollectBuildableTypesRecursive(modelProvider.BaseModelProvider.Type, buildableTypes, visitedTypes, providers);
+                }
+                else
+                {
+                    foreach (var implementedType in provider.Implements)
+                    {
+                        CollectBuildableTypesRecursive(implementedType, buildableTypes, visitedTypes, providers);
+                    }
+                }
             }
             else if (currentType.IsFrameworkType)
             {
-                // For framework types, use reflection to examine their properties
                 CollectBuildableTypesFromFrameworkType(currentType, buildableTypes, visitedTypes, providers);
-            }
-        }
-
-        private void CollectBuildableTypesFromBaseTypeProviders(
-            TypeProvider typeProvider,
-            Dictionary<CSharpType, TypeProvider?> buildableTypes,
-            HashSet<CSharpType> visitedTypes,
-            Dictionary<CSharpType, TypeProvider> providers)
-        {
-            if (typeProvider is ModelProvider modelProvider && modelProvider.BaseModelProvider != null)
-            {
-                CollectBuildableTypesFromProperties(modelProvider.BaseModelProvider, buildableTypes, visitedTypes, providers);
-                CollectBuildableTypesFromBaseTypeProviders(modelProvider.BaseModelProvider, buildableTypes, visitedTypes, providers);
-            }
-            else
-            {
-                foreach (var implementedType in typeProvider.Implements)
-                {
-                    CollectBuildableTypesRecursive(implementedType, buildableTypes, visitedTypes, providers);
-                }
             }
         }
 
