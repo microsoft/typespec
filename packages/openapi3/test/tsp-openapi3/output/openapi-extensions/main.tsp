@@ -10,7 +10,7 @@ using OpenAPI;
 namespace title;
 
 model Foo {
-  @extension("x-model", #{ name: "Foo", age: 12, other: #{ id: "some" } })
+  @extension("x-model", #{ name: "Foo", age: 12, other: #{ id: "some", `node.js`: true } })
   @extension("x-obj", #{ foo: 123, bar: "string" })
   @extension("x-array", #["one", 2])
   @extension("x-bool", true)
