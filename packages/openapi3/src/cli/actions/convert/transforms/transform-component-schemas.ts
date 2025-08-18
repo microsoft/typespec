@@ -217,7 +217,13 @@ function getTypeSpecKind(schema: OpenAPI3Schema): TypeSpecDataTypes["kind"] {
     return "enum";
   } else if (schema.anyOf || schema.oneOf || schema.enum || schema.nullable) {
     return "union";
-  } else if (schema.type === "object" || schema.type === "array" || schema.allOf) {
+  } else if (
+    schema.type === "object" ||
+    (schema.properties && Object.keys(schema.properties).length > 0) ||
+    schema.type === "array" ||
+    schema.items ||
+    schema.allOf
+  ) {
     return "model";
   }
 
