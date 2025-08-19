@@ -153,7 +153,7 @@ CLOUD_SETTING = {
     "description": "The cloud setting for which to get the ARM endpoint.",
     "clientName": "cloud_setting",
     "implementation": "Client",
-    "location": "other",
+    "location": "keyword",
     "type": {
         "type": "sdkcore",
         "name": "AzureClouds",
