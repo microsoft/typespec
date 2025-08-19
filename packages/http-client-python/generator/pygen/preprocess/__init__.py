@@ -339,8 +339,8 @@ class PreProcessPlugin(YamlUpdatePlugin):
                     yaml_data["hasEtag"] = True
 
         # add client signature cloud_setting for arm
-        if self.azure_arm:
-            parameters.append(CLOUD_SETTING)
+        if self.azure_arm and yaml_data["parameters"]:
+            yaml_data["parameters"].append(CLOUD_SETTING)
 
     def get_operation_updater(self, yaml_data: Dict[str, Any]) -> Callable[[Dict[str, Any], Dict[str, Any]], None]:
         if yaml_data["discriminator"] == "lropaging":
