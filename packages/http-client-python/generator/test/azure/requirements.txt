@@ -31,6 +31,7 @@ azure-mgmt-core==1.6.0
 -e ./generated/client-namespace
 -e ./generated/azure-payload-pageable
 -e ./generated/client-naming
+-e ./generated/client-naming-enum-conflict
 -e ./generated/client-overload
 -e ./generated/client-structure-default
 -e ./generated/client-structure-multiclient

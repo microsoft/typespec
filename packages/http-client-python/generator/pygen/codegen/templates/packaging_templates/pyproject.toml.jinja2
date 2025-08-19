@@ -111,3 +111,10 @@ pytyped = ["py.typed"]
 {{ key }} = {{ val|tojson }}
 {% endfor %}
 {% endif %}
+{% if KEEP_FIELDS and KEEP_FIELDS.get('packaging') %}
+
+[packaging]
+{% for key, val in KEEP_FIELDS.get('packaging').items() %}
+{{ key }} = {{ val|tojson }}
+{% endfor %}
+{% endif %}
