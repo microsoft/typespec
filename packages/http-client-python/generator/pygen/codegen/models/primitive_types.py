@@ -595,7 +595,7 @@ class SdkCoreType(PrimitiveType):
         return f"~{self.code_model.core_library}.{self.name}"
 
     def type_annotation(self, **kwargs: Any) -> str:
-        return f'"{self.name}"'
+        return f'"{self.name}"' if self.is_typing_only else self.name
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = super().imports(**kwargs)
