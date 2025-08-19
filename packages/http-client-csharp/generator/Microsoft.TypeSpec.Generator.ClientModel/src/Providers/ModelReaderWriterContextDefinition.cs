@@ -14,7 +14,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    internal class ModelReaderWriterContextDefinition : TypeProvider
+    public class ModelReaderWriterContextDefinition : TypeProvider
     {
         internal static readonly string s_name = $"{RemovePeriods(ScmCodeModelGenerator.Instance.TypeFactory.PrimaryNamespace)}Context";
 
