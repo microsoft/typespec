@@ -184,13 +184,14 @@ function Set-LaunchSettings {
 }
 
 function Sort-Specs {
-    param (
-        [array]$Specs
-    )
+  param (
+    [array]$Specs
+  )
 
-    return $Specs | Sort-Object {
-        $_.FullName.Substring($_.FullName.IndexOf("specs") + 6) # relative path after "specs\"
-    }
+  return $Specs | Sort-Object {
+    # relative path after "specs\"
+    $_.FullName.Substring($_.FullName.IndexOf("specs") + 6).TrimStart('\','/')
+  }
 }
 
 Export-ModuleMember -Function "Invoke"
