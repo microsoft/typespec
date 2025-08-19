@@ -99,11 +99,7 @@ $azureAllowSpecs = @(
 
 $spectorLaunchProjects = @{}
 
-# Loop through all directories and subdirectories of the Spector specs
-$directories = @(Get-ChildItem -Path "$specsDirectory/specs" -Directory -Recurse)
-$directories += @(Get-ChildItem -Path "$azureSpecsDirectory/specs" -Directory -Recurse)
-
-foreach ($directory in Sort-Specs $directories) {
+foreach ($directory in Get-Sorted-Specs) {
     if (-not (IsSpecDir $directory.FullName)) {
         continue
     }

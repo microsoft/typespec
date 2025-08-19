@@ -13,7 +13,6 @@ $specsDirectory = Join-Path $packageRoot 'node_modules' '@typespec' 'http-specs'
 $azureSpecsDirectory = Join-Path $packageRoot 'node_modules' '@azure-tools' 'azure-http-specs' 'specs'
 $spectorRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'Spector' 
 $spectorRootHttp = Join-Path $spectorRoot 'http'
-$directories = Get-ChildItem -Path "$spectorRootHttp" -Directory -Recurse
 $SpectorCsproj = Join-Path $packageRoot 'generator' 'TestProjects' 'Spector.Tests' 'TestProjects.Spector.Tests.csproj'
 
 $coverageDir = Join-Path $packageRoot 'generator' 'artifacts' 'coverage'
@@ -22,7 +21,7 @@ if (-not (Test-Path $coverageDir)) {
     New-Item -ItemType Directory -Path $coverageDir | Out-Null
 }
 
-foreach ($directory in Sort-Specs $directories) {
+foreach ($directory in Get-Sorted-Specs) {
     if (-not (IsGenerated $directory.FullName)) {
         continue
     }
