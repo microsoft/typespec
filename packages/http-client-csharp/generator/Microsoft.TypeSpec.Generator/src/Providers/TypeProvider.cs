@@ -394,7 +394,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// Resets the type provider to its initial state, clearing all cached properties and fields.
         /// This allows for the type provider to rebuild its state on subsequent calls to its properties.
         /// </summary>
-        public void Reset()
+        public virtual void Reset()
         {
             _methods = null;
             _properties = null;

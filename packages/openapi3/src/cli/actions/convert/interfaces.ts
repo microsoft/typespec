@@ -5,8 +5,33 @@ export interface TypeSpecProgram {
   serviceInfo: TypeSpecServiceInfo;
   namespaces: Record<string, TypeSpecNamespace>;
   types: TypeSpecDataTypes[];
+  tags: TypeSpecTagMetadata[];
   augmentations: TypeSpecAugmentation[];
   operations: TypeSpecOperation[];
+  servers: TypeSpecServer[];
+}
+
+export interface TypeSpecServer {
+  url: string;
+  description?: string;
+  variables?: Record<string, TypeSpecServerVariable>;
+}
+
+export interface TypeSpecServerVariable {
+  default: string;
+  description?: string;
+  enum?: string[];
+}
+
+export interface TypeSpecTagMetadata {
+  name: string;
+  description?: string;
+  externalDocs?: TypeSpecExternalDocs;
+}
+
+export interface TypeSpecExternalDocs {
+  url: string;
+  description?: string;
 }
 
 export interface TypeSpecDeclaration {

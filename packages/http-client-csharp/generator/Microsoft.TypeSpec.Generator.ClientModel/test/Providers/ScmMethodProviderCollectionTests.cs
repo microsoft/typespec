@@ -7,6 +7,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
@@ -114,6 +115,56 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsTrue(lastParameter.Type.Equals(typeof(CancellationToken)));
             Assert.IsFalse(lastParameter.Type.IsNullable);
             Assert.AreEqual(Snippet.Default, lastParameter.DefaultValue);
+        }
+
+        [Test]
+        public async Task SpreadModelCanonicalViewIsUsedToFindConstructor()
+        {
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "CreateMessage",
+                InputFactory.Operation(
+                    "CreateMessage",
+                    parameters:
+                    [
+                        InputFactory.BodyParameter(
+                            "spread",
+                            _spreadModel,
+                            isRequired: true,
+                            scope: InputParameterScope.Spread),
+                        InputFactory.PathParameter(
+                            "p1",
+                            InputPrimitiveType.Boolean,
+                            isRequired: true,
+                            scope: InputParameterScope.Method)
+                    ]),
+                parameters:
+                [
+                    InputFactory.MethodParameter("p2", InputPrimitiveType.String, isRequired: true, scope: InputParameterScope.Spread),
+                    InputFactory.MethodParameter(
+                        "p1",
+                        InputPrimitiveType.Boolean,
+                        location: InputRequestLocation.Path,
+                        isRequired: true,
+                        scope: InputParameterScope.Method)
+                ]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+
+            var convenienceMethods = methodCollection.Where(m => m.Signature.Parameters.All(p => p.Name != "content")).ToList();
+            Assert.AreEqual(2, convenienceMethods.Count);
+            foreach (var method in convenienceMethods)
+            {
+                StringAssert.Contains(
+                    "global::Sample.Models.SpreadModel spreadModel = new global::Sample.Models.SpreadModel(p2, null);",
+                    method.BodyStatements!.ToDisplayString());
+            }
+
         }
 
         [Test]
