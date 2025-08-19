@@ -1,3 +1,4 @@
+import { printIdentifier } from "@typespec/compiler";
 import { ExtensionKey } from "@typespec/openapi";
 import { Extensions, OpenAPI3Parameter, OpenAPI3Schema, Refable } from "../../../../types.js";
 import { TSValue, TypeSpecDecorator } from "../interfaces.js";
@@ -79,11 +80,11 @@ function createTSValueFromObjectValue(value: object): TSValue | undefined {
   }
   return undefined;
 }
-function normalizeObjectValueToTSValueExpression(value: any): string {
+export function normalizeObjectValueToTSValueExpression(value: any): string {
   if (typeof value === "object" && !Array.isArray(value)) {
     return `#{${Object.entries(value)
       .map(([key, v]) => {
-        return `${key}: ${normalizeObjectValueToTSValueExpression(v)}`;
+        return `${printIdentifier(key, "disallow-reserved")}: ${normalizeObjectValueToTSValueExpression(v)}`;
       })
       .join(", ")}}`;
   } else if (Array.isArray(value)) {
