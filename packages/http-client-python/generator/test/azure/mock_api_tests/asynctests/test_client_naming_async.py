@@ -4,8 +4,8 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
-from client.naming.aio import NamingClient
-from client.naming import models
+from client.naming.main.aio import NamingClient
+from client.naming.main import models
 
 
 @pytest.fixture
