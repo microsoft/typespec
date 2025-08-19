@@ -183,6 +183,16 @@ function Set-LaunchSettings {
   Set-Content $launchSettingsPath $content -NoNewLine
 }
 
+function Sort-Specs {
+    param (
+        [array]$Specs
+    )
+
+    return $Specs | Sort-Object {
+        $_.FullName.Substring($_.FullName.IndexOf("specs") + 6) # relative path after "specs\"
+    }
+}
+
 Export-ModuleMember -Function "Invoke"
 Export-ModuleMember -Function "Get-TspCommand"
 Export-ModuleMember -Function "Refresh-Build"
@@ -190,3 +200,4 @@ Export-ModuleMember -Function "Compare-Paths"
 Export-ModuleMember -Function "Generate-Srv-Driven"
 Export-ModuleMember -Function "Generate-Versioning"
 Export-ModuleMember -Function "Set-LaunchSettings"
+Export-ModuleMember -Function "Sort-Specs"

@@ -22,7 +22,7 @@ if (-not (Test-Path $coverageDir)) {
     New-Item -ItemType Directory -Path $coverageDir | Out-Null
 }
 
-foreach ($directory in $directories) {
+foreach ($directory in Sort-Specs $directories) {
     if (-not (IsGenerated $directory.FullName)) {
         continue
     }

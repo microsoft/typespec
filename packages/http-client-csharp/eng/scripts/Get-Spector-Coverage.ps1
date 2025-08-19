@@ -23,7 +23,7 @@ $failingSpecs = @(
 )
 
 # generate all
-foreach ($directory in $directories) {
+foreach ($directory in Sort-Specs $directories) {
     if (-not (IsGenerated $directory.FullName)) {
         continue
     }
