@@ -4,7 +4,7 @@
 
 package client.naming;
 
-import client.naming.implementation.ClientModelsImpl;
+import client.naming.implementation.ModelClientsImpl;
 import client.naming.model.models.ClientModel;
 import client.naming.model.models.JavaModel;
 import com.azure.core.annotation.Generated;
@@ -23,17 +23,17 @@ import com.azure.core.util.BinaryData;
  * Initializes a new instance of the synchronous NamingClient type.
  */
 @ServiceClient(builder = NamingClientBuilder.class)
-public final class ClientModelClient {
+public final class ModelClient {
     @Generated
-    private final ClientModelsImpl serviceClient;
+    private final ModelClientsImpl serviceClient;
 
     /**
-     * Initializes an instance of ClientModelClient class.
+     * Initializes an instance of ModelClient class.
      * 
      * @param serviceClient the service client implementation.
      */
     @Generated
-    ClientModelClient(ClientModelsImpl serviceClient) {
+    ModelClient(ModelClientsImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
 
