@@ -125,7 +125,7 @@ function generateUnion(union: TypeSpecUnion, context: Context): string {
     const primitiveType = getTypeSpecPrimitiveFromSchema(schema);
     if (primitiveType) {
       definitions.push(`${primitiveType},`);
-    } else if (schema.type === "array") {
+    } else if (schema.type === "array" || schema.items) {
       // For arrays, we'll create a non-nullable schema and let the union itself handle
       // the nullability of the schema overall.
       const schemaWithoutNullable = { ...schema, nullable: undefined };
