@@ -77,11 +77,13 @@ export class SchemaToExpressionGenerator {
 
     if (schema.enum) {
       type = getEnum(schema.enum);
-    } else if (schema.anyOf) {
+    } else if (schema.anyOf?.length) {
       type = this.getAnyOfType(schema, callingScope);
-    } else if (schema.allOf) {
+    } else if (schema.allOf?.length) {
       type = this.getAllOfType(schema, callingScope);
-    } else if (schema.type === "array") {
+    } else if (schema?.items) {
+      // we should never test on type array as it's not required
+      // but rather on the presence of a schema for items
       type = this.generateArrayType(schema, callingScope);
     } else if (schema.type === "boolean") {
       type = "boolean";
@@ -89,12 +91,23 @@ export class SchemaToExpressionGenerator {
       type = getIntegerType(schema);
     } else if (schema.type === "number") {
       type = getNumberType(schema);
-    } else if (schema.type === "object") {
+    } else if (
+      (schema?.properties && Object.keys(schema.properties).length) ||
+      schema?.additionalProperties
+    ) {
+      // we should never test on type object as it's not required
+      // but rather on the presence of properties which indicates an object type
       type = this.getObjectType(schema, callingScope);
-    } else if (schema.oneOf) {
+    } else if (schema.oneOf?.length) {
       type = this.getOneOfType(schema, callingScope);
     } else if (schema.type === "string") {
       type = getStringType(schema);
+    } else if (schema.type === "object") {
+      // this is a fallback to maintain compatibility and it needs to be in the last cases
+      type = this.getObjectType(schema, callingScope);
+    } else if (schema.type === "array") {
+      // this is a fallback to maintain compatibility and it needs to be in the last cases
+      type = this.generateArrayType(schema, callingScope);
     }
 
     if (schema.nullable) {
