@@ -1977,7 +1977,26 @@ export interface Diagnostic {
 export interface CodeFix {
   readonly id: string;
   readonly label: string;
-  readonly fix: (fixContext: CodeFixContext) => CodeFixEdit | CodeFixEdit[] | Promise<void> | void;
+  readonly fix: (
+    fixContext: CodeFixContext,
+  ) =>
+    | CodeFixEdit
+    | CodeFixEdit[]
+    | Promise<CodeFixEdit | CodeFixEdit[] | undefined>
+    | Promise<void>
+    | void;
+}
+
+export interface CodeFixFileCreationOptions {
+  projectRoot: string;
+  targetFilePath: string;
+  templateContent?: string;
+  creationLabel?: string;
+}
+
+export interface CodeFixOptions {
+  fileOptions?: CodeFixFileCreationOptions;
+  customLabel?: string;
 }
 
 export interface FilePos {

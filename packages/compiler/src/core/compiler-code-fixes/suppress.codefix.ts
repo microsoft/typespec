@@ -1,16 +1,34 @@
 import { isWhiteSpace } from "../charcode.js";
+import { resolveCodeFixCreateFile } from "../codefix-create-file-resolve.js";
 import { defineCodeFix, getSourceLocation } from "../diagnostics.js";
-import type { DiagnosticTarget, SourceLocation } from "../types.js";
+import type { CodeFixOptions, DiagnosticTarget, SourceLocation } from "../types.js";
 
-export function createSuppressCodeFix(diagnosticTarget: DiagnosticTarget, warningCode: string) {
+export function createSuppressCodeFix(
+  diagnosticTarget: DiagnosticTarget,
+  warningCode: string,
+  options: CodeFixOptions | undefined = undefined,
+) {
+  const { fileOptions, customLabel } = options || {};
+
+  const defaultLabel = `Suppress warning: "${warningCode}"`;
+  const label =
+    customLabel ||
+    (fileOptions?.creationLabel
+      ? `${defaultLabel} in ${fileOptions.targetFilePath}`
+      : defaultLabel);
+
   return defineCodeFix({
-    id: "suppress",
-    label: `Suppress warning: "${warningCode}"`,
-    fix: (context) => {
-      const location = getSourceLocation(diagnosticTarget);
-      const { lineStart, indent } = findLineStartAndIndent(location);
-      const updatedLocation = { ...location, pos: lineStart };
-      return context.prependText(updatedLocation, `${indent}#suppress "${warningCode}" ""\n`);
+    id: fileOptions ? `suppress-in-file-${fileOptions.targetFilePath}` : "suppress",
+    label,
+    fix: async (context) => {
+      if (fileOptions) {
+        return await resolveCodeFixCreateFile(fileOptions, `\n// suppress "${warningCode}"`);
+      } else {
+        const location = getSourceLocation(diagnosticTarget);
+        const { lineStart, indent } = findLineStartAndIndent(location);
+        const updatedLocation = { ...location, pos: lineStart };
+        return context.prependText(updatedLocation, `${indent}#suppress "${warningCode}" ""\n`);
+      }
     },
   });
 }
