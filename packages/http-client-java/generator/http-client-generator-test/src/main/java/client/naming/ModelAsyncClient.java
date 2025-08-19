@@ -4,7 +4,7 @@
 
 package client.naming;
 
-import client.naming.implementation.ClientModelsImpl;
+import client.naming.implementation.ModelClientsImpl;
 import client.naming.model.models.ClientModel;
 import client.naming.model.models.JavaModel;
 import com.azure.core.annotation.Generated;
@@ -25,17 +25,17 @@ import reactor.core.publisher.Mono;
  * Initializes a new instance of the asynchronous NamingClient type.
  */
 @ServiceClient(builder = NamingClientBuilder.class, isAsync = true)
-public final class ClientModelAsyncClient {
+public final class ModelAsyncClient {
     @Generated
-    private final ClientModelsImpl serviceClient;
+    private final ModelClientsImpl serviceClient;
 
     /**
-     * Initializes an instance of ClientModelAsyncClient class.
+     * Initializes an instance of ModelAsyncClient class.
      * 
      * @param serviceClient the service client implementation.
      */
     @Generated
-    ClientModelAsyncClient(ClientModelsImpl serviceClient) {
+    ModelAsyncClient(ModelClientsImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
 
