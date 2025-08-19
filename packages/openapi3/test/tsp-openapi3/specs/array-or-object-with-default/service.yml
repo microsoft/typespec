@@ -40,4 +40,20 @@ components:
           items:
             $ref: "#/components/schemas/Dog"
           nullable: true
-          default: []
+          default: [] #this validates the default value uses data notation, and not type notation
+        home_address:
+          type: object
+          default: #this validates the default value uses data notation, and not type notation
+            street: ""
+            city: ""
+            state: ""
+            zip.code: "" #this validates the symbol is escaped in the definition
+          properties:
+            street:
+              type: string
+            city:
+              type: string
+            state:
+              type: string
+            zip.code:
+              type: string

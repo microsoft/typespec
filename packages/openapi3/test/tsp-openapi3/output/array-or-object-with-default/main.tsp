@@ -17,6 +17,12 @@ model Dog {
 model DogOwner {
   name?: string;
   dogs?: Dog[] | null = #[];
+  home_address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    `zip.code`?: string;
+  } = #{ street: "", city: "", state: "", `zip.code`: "" };
 }
 
 @route("/") @get op extensive(): DogOwner | {
