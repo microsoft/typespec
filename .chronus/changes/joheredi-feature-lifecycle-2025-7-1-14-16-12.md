@@ -4,4 +4,4 @@ packages:
   - "@typespec/http-client"
 ---
 
-Introduce @featureLifecycle decorator
+Introduces @experimental decorator for annotating generated code as experimental.

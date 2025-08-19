@@ -1,7 +1,7 @@
 export interface EmitterFilter {
   includedEmitters: string[];
   excludedEmitters: string[];
-  isUnscoped: boolean;
+  isScoped: boolean;
 }
 
 export interface ScopedValue<T> {
@@ -14,7 +14,7 @@ export function parseScopeFilter(string: string | undefined): EmitterFilter {
     return {
       excludedEmitters: [],
       includedEmitters: [],
-      isUnscoped: true,
+      isScoped: false,
     };
   }
 
@@ -34,6 +34,6 @@ export function parseScopeFilter(string: string | undefined): EmitterFilter {
   return {
     excludedEmitters,
     includedEmitters,
-    isUnscoped: false,
+    isScoped: true,
   };
 }

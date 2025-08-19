@@ -1,4 +1,4 @@
-import { t } from "@typespec/compiler/testing";
+import { expectDiagnostics, t } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { expect, it } from "vitest";
 import "../src/typekit/index.js";
@@ -134,4 +134,21 @@ it("should not get featureLifecycle when in excluded scopes", async () => {
     emitterName: "myEmitter",
   });
   expect(featureLifecycle).toBeUndefined();
+});
+
+it("should report diagnostics when both include and exclude are set", async () => {
+  const diagnostics = await Tester.diagnose(`
+    namespace Test;
+
+    model MyModel {
+       id: string;
+       @experimental(#{emitterScope: "!myEmitter,otherEmitter"})
+       betaProp: string;
+    }
+    `);
+
+  expectDiagnostics(diagnostics, {
+    code: "include-and-exclude-scopes",
+    message: "The @experimental should only either include or exclude scopes, not both.",
+  });
 });

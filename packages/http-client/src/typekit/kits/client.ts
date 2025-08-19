@@ -8,7 +8,7 @@ import {
   Operation,
   Type,
 } from "@typespec/compiler";
-import { defineKit } from "@typespec/compiler/typekit";
+import { createDiagnosable, defineKit, Diagnosable } from "@typespec/compiler/typekit";
 import {
   getHttpService,
   getServers,
@@ -34,7 +34,9 @@ interface ClientKit extends NameKit<InternalClient> {
    * @param type The type to get the feature lifecycle for
    * @param options The options to use when getting the feature lifecycle
    */
-  getFeatureLifecycle(type: Type, options?: GetFeatureLifecycleOptions): string | undefined;
+  getFeatureLifecycle: Diagnosable<
+    (type: Type, options?: GetFeatureLifecycleOptions) => string | undefined
+  >;
   /**
    * Get the parent of a client
    * @param type The client to get the parent of
@@ -109,9 +111,9 @@ export const clientOperationCache = new Map<InternalClient, HttpOperation[]>();
 
 defineKit<TypekitExtension>({
   client: {
-    getFeatureLifecycle(type, options) {
+    getFeatureLifecycle: createDiagnosable(function (type, options) {
       return getClientFeatureLifecycle(this.program, type, options);
-    },
+    }),
     getParent(client) {
       const type = client.kind === "Client" ? client.type : client;
       if (type.namespace && type.namespace !== this.program.getGlobalNamespaceType()) {
