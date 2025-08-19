@@ -42,11 +42,11 @@ def test_header_response(client: NamingClient):
 
 
 def test_model_client(client: NamingClient):
-    client.client_model.client(models.ClientModel(default_name=True))
+    client.model_client.client(models.ClientModel(default_name=True))
 
 
 def test_model_language(client: NamingClient):
-    client.client_model.language(models.PythonModel(default_name=True))
+    client.model_client.language(models.PythonModel(default_name=True))
 
 
 def test_union_enum_member_name(client: NamingClient):
