@@ -4,7 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
-from client.naming import NamingClient, models
+from client.naming.main import NamingClient, models
 
 
 @pytest.fixture
