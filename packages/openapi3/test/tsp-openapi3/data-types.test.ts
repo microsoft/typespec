@@ -275,6 +275,35 @@ describe("converts top-level schemas", () => {
       expect(nullableUnionVariants[0].type).toMatchObject({ kind: "Scalar", name: "string" });
       expect(nullableUnionVariants[1].type).toMatchObject({ kind: "Intrinsic", name: "null" });
     });
+
+    it("nullable array with enum items", async () => {
+      const serviceNamespace = await tspForOpenAPI3({
+        schemas: {
+          ChatCompletionModalities: {
+            type: "array",
+            nullable: true,
+            items: {
+              type: "string",
+              enum: ["text", "audio"],
+            },
+          },
+        },
+      });
+
+      expect(serviceNamespace.unions.size).toBe(1);
+
+      /* union ChatCompletionModalities { ("text" | "audio")[], null, } */
+      const modalitiesUnion = serviceNamespace.unions.get("ChatCompletionModalities");
+      expect(modalitiesUnion?.decorators.length).toBe(0);
+      const modalitiesUnionVariants = [...(modalitiesUnion?.variants.values() ?? [])];
+      expect(modalitiesUnionVariants.length).toBe(2);
+
+      expect(modalitiesUnionVariants[0].type).toMatchObject({ kind: "Model" });
+      const arrayModel = modalitiesUnionVariants[0].type as Model;
+      expect(arrayModel.name).toBe("Array");
+
+      expect(modalitiesUnionVariants[1].type).toMatchObject({ kind: "Intrinsic", name: "null" });
+    });
   });
 
   describe("handles models", () => {
