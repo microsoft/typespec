@@ -59,3 +59,28 @@ namespace OptionalExplicit {
 @route("/required-implicit")
 @post
 op requiredImplicit(...BodyModel): NoContentResponse;
+
+@scenario
+@scenarioDoc("""
+  Scenario testing Content-Type header presence/absence for optional body.
+  
+  For `setContentType`: body is provided, Content-Type header must be present
+  Expected request body:
+  ```json
+  { "name": "foo" }
+  ```
+  Expected header: Content-Type: application/json
+  
+  For `omitContentType`: body is not provided, Content-Type header must NOT be present
+  Expected: no request body and no Content-Type header
+  """)
+@route("/content-type")
+namespace ContentTypeHeader {
+  @route("/set")
+  @post
+  op setContentType(@body body?: BodyModel): NoContentResponse;
+
+  @route("/omit")
+  @post
+  op omitContentType(@body body?: BodyModel): NoContentResponse;
+}
