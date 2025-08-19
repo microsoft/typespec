@@ -98,13 +98,11 @@ function generateUnion(union: TypeSpecUnion, context: Context): string {
 
     const memberSchema = "$ref" in member ? context.getSchemaByRef(member.$ref)! : member;
 
-    let value = (memberSchema.properties?.[union.schema.discriminator.propertyName] as any)
-      ?.enum?.[0];
-    if (!value && union.schema.discriminator?.mapping && "$ref" in member) {
-      value = Object.entries(union.schema.discriminator.mapping).find(
-        (x) => x[1] === member.$ref,
-      )?.[0];
-    }
+    const value =
+      (union.schema.discriminator?.mapping && "$ref" in member
+        ? Object.entries(union.schema.discriminator.mapping).find((x) => x[1] === member.$ref)?.[0]
+        : undefined) ??
+      (memberSchema.properties?.[union.schema.discriminator.propertyName] as any)?.enum?.[0];
     // checking whether the value is using an invalid character as an identifier
     const valueIdentifier = value ? printIdentifier(value, "disallow-reserved") : "";
     return value ? `${value === valueIdentifier ? value : valueIdentifier}: ` : "";
