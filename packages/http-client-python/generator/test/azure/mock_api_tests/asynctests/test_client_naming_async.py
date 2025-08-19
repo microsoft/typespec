@@ -51,12 +51,12 @@ async def test_header_response(client: NamingClient):
 
 @pytest.mark.asyncio
 async def test_model_client(client: NamingClient):
-    await client.client_model.client(models.ClientModel(default_name=True))
+    await client.model_client.client(models.ClientModel(default_name=True))
 
 
 @pytest.mark.asyncio
 async def test_model_language(client: NamingClient):
-    await client.client_model.language(models.PythonModel(default_name=True))
+    await client.model_client.language(models.PythonModel(default_name=True))
 
 
 @pytest.mark.asyncio
