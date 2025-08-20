@@ -1696,6 +1696,28 @@ Content-Type: application/octet-stream
 --abcde12345--
 ```
 
+### Payload_OptionalBody_omit
+
+- Endpoint: `post /payload/optional-body/omit`
+
+Test scenario for optional body payload where body is omitted.
+
+Expected: no request body and no content-type header
+
+### Payload_OptionalBody_set
+
+- Endpoint: `post /payload/optional-body/set`
+
+Test scenario for optional body payload where body is provided.
+
+Expected request body:
+
+```json
+{ "name": "foo" }
+```
+
+Expected content-type header: application/json
+
 ### Payload_Pageable_listWithoutContinuation
 
 - Endpoint: `get /payload/pageable/simple`
