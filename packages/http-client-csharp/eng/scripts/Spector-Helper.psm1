@@ -126,20 +126,6 @@ function Get-SubPath {
     return $subPath
 }
 
-function Get-Output-Directory
-{
-    param (
-      [string]$subPath
-    )
-    $folders = $subPath.Split([System.IO.Path]::DirectorySeparatorChar)
-    $outputDir = $spectorRoot
-    foreach ($folder in $folders)
-    {
-      $outputDir = Join-Path $outputDir $folder
-    }
-    return $outputDir
-}
-
 Export-ModuleMember -Function "Get-Namespace"
 Export-ModuleMember -Function "Get-Sorted-Specs"
 Export-ModuleMember -Function "Get-SubPath"
