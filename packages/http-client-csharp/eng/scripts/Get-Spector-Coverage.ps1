@@ -3,11 +3,9 @@
 Import-Module "$PSScriptRoot\Generation.psm1" -DisableNameChecking -Force;
 Import-Module "$PSScriptRoot\Spector-Helper.psm1" -DisableNameChecking -Force;
 
-$packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
-
 Refresh-Build
 
-$spectorRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'Spector'
+$packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
 $spectorCsproj = Join-Path $packageRoot 'generator' 'TestProjects' 'Spector.Tests' 'TestProjects.Spector.Tests.csproj'
 
 $coverageDir = Join-Path $packageRoot 'generator' 'artifacts' 'coverage'
@@ -16,10 +14,11 @@ if (-not (Test-Path $coverageDir)) {
     New-Item -ItemType Directory -Path $coverageDir | Out-Null
 }
 
+$specs = Get-Sorted-Specs
+
 # generate all
-foreach ($specFile in Get-Sorted-Specs) {
+foreach ($specFile in $specs) {
     $subPath = Get-SubPath $specFile
-    $folders = $subPath.Split([System.IO.Path]::DirectorySeparatorChar)
 
     Write-Host "Regenerating $subPath" -ForegroundColor Cyan
     
@@ -39,10 +38,7 @@ foreach ($specFile in Get-Sorted-Specs) {
         continue
     }
 
-    $outputDir = $spectorRoot
-    foreach ($folder in $folders) {
-      $outputDir = Join-Path $outputDir $folder
-    }
+    $outputDir = Get-Output-Directory $subPath
     $command = Get-TspCommand $specFile $outputDir
     Invoke $command
     # exit if the generation failed
@@ -72,22 +68,19 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 # restore all
-foreach ($directory in $directories) {
-    if (-not (IsGenerated $directory.FullName)) {
-        continue
-    }
-
-    $outputDir = $directory.FullName.Substring(0, $directory.FullName.IndexOf("src") - 1)
-    $subPath = $outputDir.Substring($spectorRoot.Length + 1)
-
+foreach ($specFile in $specs) {
+    $subPath = Get-SubPath $specFile
+   
     Write-Host "Restoring $subPath" -ForegroundColor Cyan
-    $command = "git clean -xfd $outputDir"
+    
+    $outputDir = Get-Output-Directory $subPath
+    $command = "git clean -xfd $subPath"
     Invoke $command
     # exit if the restore failed
     if ($LASTEXITCODE -ne 0) {
         exit $LASTEXITCODE
     }
-    $command = "git restore $outputDir"
+    $command = "git restore $subPath"
     Invoke $command
     # exit if the restore failed
     if ($LASTEXITCODE -ne 0) {

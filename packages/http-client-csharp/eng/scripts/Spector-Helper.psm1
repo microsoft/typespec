@@ -17,18 +17,8 @@ $azureAllowSpecs = @(
   Join-Path 'http' 'resiliency' 'srv-driven'
 )
 
-function IsGenerated {
-    param (
-        [string]$dir
-    )
-
-    if (-not ($dir.EndsWith("Generated"))) {
-        return $false
-    }
-
-    $csFiles = Get-ChildItem -Path $dir -Filter *.cs -File
-    return $csFiles.Count -gt 0
-}
+$packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
+$spectorRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'Spector'
 
 function Capitalize-FirstLetter {
     param (
@@ -139,7 +129,21 @@ function Get-SubPath {
     return $subPath
 }
 
-Export-ModuleMember -Function "IsGenerated"
+function Get-Output-Directory
+{
+    param (
+      [string]$subPath
+    )
+    $folders = $subPath.Split([System.IO.Path]::DirectorySeparatorChar)
+    $outputDir = $spectorRoot
+    foreach ($folder in $folders)
+    {
+      $outputDir = Join-Path $outputDir $folder
+    }
+    return $outputDir
+}
+
 Export-ModuleMember -Function "Get-Namespace"
 Export-ModuleMember -Function "Get-Sorted-Specs"
 Export-ModuleMember -Function "Get-SubPath"
+Export-ModuleMember -Function "Get-Output-Directory"
