@@ -28,8 +28,6 @@ components:
       properties:
         type:
           type: string
-          enum:
-            - BigDog # tests that the discriminator takes precedence over convention guessing on enums
         name:
           type: string
         age_in_dog_years:
@@ -43,8 +41,6 @@ components:
       properties:
         type:
           type: string
-          enum:
-            - BigCat
         name:
           type: string
         age_in_cat_years:
