@@ -83,13 +83,6 @@ foreach ($specFile in Get-Sorted-Specs) {
 
     Write-Host "Restoring $subPath" -ForegroundColor Cyan
     
-    # Get the relative path to the output directory from the package root
-    Write-Host "Package root: $packageRoot" -ForegroundColor Cyan
-    Write-Host "Output directory: $outputDir" -ForegroundColor Cyan
-    Write-Host "Package root length: $($spectorRoot.Length)" -ForegroundColor Cyan
-    $outputDir = $outputDir.Substring($spectorRoot.Length + 1)
-    Write-Host "Output directory: $outputDir" -ForegroundColor Cyan
-    
     $command = "git clean -xfd $outputDir"
     Invoke $command
     # exit if the restore failed
