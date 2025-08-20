@@ -9,10 +9,7 @@ $packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
 
 Refresh-Build
 
-$specsDirectory = Join-Path $packageRoot 'node_modules' '@typespec' 'http-specs' 'specs'
-$azureSpecsDirectory = Join-Path $packageRoot 'node_modules' '@azure-tools' 'azure-http-specs' 'specs'
 $spectorRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'Spector' 
-$spectorRootHttp = Join-Path $spectorRoot 'http'
 $SpectorCsproj = Join-Path $packageRoot 'generator' 'TestProjects' 'Spector.Tests' 'TestProjects.Spector.Tests.csproj'
 
 $coverageDir = Join-Path $packageRoot 'generator' 'artifacts' 'coverage'
@@ -56,12 +53,12 @@ foreach ($specFile in Get-Sorted-Specs) {
     if ($subPath.Contains("versioning")) {
         if ($subPath.Contains("v1")) {
             # this will generate v1 and v2 so we only need to call it once for one of the versions
-            Generate-Versioning ($(Join-Path $specsDirectory $subPath) | Split-Path) $($outputDir | Split-Path) -createOutputDirIfNotExist $false
+            Generate-Versioning (Split-Path $specFile) $($outputDir | Split-Path) -createOutputDirIfNotExist $false
         }
     }
     elseif ($subPath.Contains("srv-driven")) {
         if ($subPath.Contains("v1")) {
-            Generate-Srv-Driven ($(Join-Path $azureSpecsDirectory $subPath) | Split-Path) $($outputDir | Split-Path) -createOutputDirIfNotExist $false
+            Generate-Srv-Driven (Split-Path $specFile) $($outputDir | Split-Path) -createOutputDirIfNotExist $false
         }
     }
     else {
