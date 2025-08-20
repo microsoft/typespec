@@ -1,8 +1,8 @@
-import { Experimental_OverridableComponent } from "#core/index.js";
 import { For } from "@alloy-js/core";
 import { Reference, ValueExpression } from "@alloy-js/typescript";
 import type { IntrinsicType, Model, Scalar, Type } from "@typespec/compiler";
 import type { Typekit } from "@typespec/compiler/typekit";
+import { Experimental_OverridableComponent } from "../../core/components/overrides/component-overrides.jsx";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportTypescriptDiagnostic } from "../../typescript/lib.js";
 import { efRefkey } from "../utils/refkey.js";
