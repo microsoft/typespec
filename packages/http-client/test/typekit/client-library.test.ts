@@ -1,25 +1,18 @@
-import type { Namespace } from "@typespec/compiler";
-import type { BasicTestRunner } from "@typespec/compiler/testing";
+import { t } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import "../../src/typekit/index.js";
-import { createTypespecHttpClientLibraryTestRunner } from "../test-host.js";
-
-let runner: BasicTestRunner;
-
-beforeEach(async () => {
-  runner = await createTypespecHttpClientLibraryTestRunner();
-});
+import { Tester } from "../test-host.js";
 
 describe("listNamespaces", () => {
   it("basic", async () => {
-    await runner.compile(`
+    const { program } = await Tester.compile(t.code`
       @service(#{
         title: "Widget Service",
       })
         namespace DemoService;
       `);
-    const tk = $(runner.program);
+    const tk = $(program);
 
     expect(tk.clientLibrary.listNamespaces()).toHaveLength(1);
     expect(tk.clientLibrary.listNamespaces()[0].name).toEqual("DemoService");
@@ -27,7 +20,7 @@ describe("listNamespaces", () => {
 
   it("nested", async () => {
     // we only want to return the top level namespaces
-    await runner.compile(`
+    const { program } = await Tester.compile(t.code`
       @service(#{
         title: "Widget Service",
       })
@@ -38,7 +31,7 @@ describe("listNamespaces", () => {
         }
       }
     `);
-    const tk = $(runner.program);
+    const tk = $(program);
 
     expect(tk.clientLibrary.listNamespaces()).toHaveLength(1);
     expect(tk.clientLibrary.listNamespaces()[0].name).toEqual("DemoService");
@@ -55,10 +48,10 @@ describe("listNamespaces", () => {
 
 describe("listClients", () => {
   it("should only get clients for defined namespaces in the spec", async () => {
-    await runner.compile(`
+    const { program } = await Tester.compile(t.code`
            op foo(): void;
           `);
-    const tk = $(runner.program);
+    const tk = $(program);
 
     const namespace = tk.program.getGlobalNamespaceType();
     const client = tk.client.getClient(namespace);
@@ -69,28 +62,28 @@ describe("listClients", () => {
   });
 
   it("should get the client", async () => {
-    const { DemoService } = (await runner.compile(`
+    const { DemoService, program } = await Tester.compile(t.code`
       @service(#{
         title: "Widget Service",
       })
-      @test namespace DemoService;
-      `)) as { DemoService: Namespace };
-    const tk = $(runner.program);
+      namespace ${t.namespace("DemoService")};
+      `);
+    const tk = $(program);
 
     const responses = tk.clientLibrary.listClients(DemoService);
     expect(responses).toHaveLength(1);
     expect(responses[0].name).toEqual("DemoServiceClient");
   });
   it("get subclients", async () => {
-    const { DemoService } = (await runner.compile(`
+    const { DemoService, program } = await Tester.compile(t.code`
       @service(#{
         title: "Widget Service",
       })
-      @test namespace DemoService {
-        namespace NestedService {};
+      namespace ${t.namespace("DemoService")} {
+        namespace ${t.namespace("NestedService")} {};
       }
-      `)) as { DemoService: Namespace };
-    const tk = $(runner.program);
+      `);
+    const tk = $(program);
 
     const responses = tk.clientLibrary.listClients(DemoService);
     expect(responses).toHaveLength(1);
