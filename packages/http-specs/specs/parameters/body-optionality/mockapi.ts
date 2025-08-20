@@ -1,4 +1,10 @@
-import { json, MockRequest, passOnSuccess, ScenarioMockApi, ValidationError } from "@typespec/spec-api";
+import {
+  json,
+  MockRequest,
+  passOnSuccess,
+  ScenarioMockApi,
+  ValidationError,
+} from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 function createServerTests(uri: string, data: any) {
@@ -76,7 +82,7 @@ Scenarios.Parameters_BodyOptionality_ContentTypeHeader = passOnSuccess([
         throw new ValidationError(
           "Content-Type header is required when body is provided",
           "content-type header present",
-          "content-type header missing"
+          "content-type header missing",
         );
       }
       return { status: 204 };
@@ -97,7 +103,7 @@ Scenarios.Parameters_BodyOptionality_ContentTypeHeader = passOnSuccess([
         throw new ValidationError(
           "Content-Type header must NOT be present when body is omitted",
           "no content-type header",
-          `content-type: ${req.headers["content-type"]}`
+          `content-type: ${req.headers["content-type"]}`,
         );
       }
       return { status: 204 };
