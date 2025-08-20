@@ -21,20 +21,17 @@ $specs = Get-Sorted-Specs
      $subPath = Get-SubPath $specFile
 
      Write-Host "Regenerating $subPath" -ForegroundColor Cyan
+     $outputDir = Join-Path $spectorRoot $subPath
     
      if ($subPath.Contains("versioning")) {
-         if ($subPath.Contains("v1")) {
-             # this will generate v1 and v2 so we only need to call it once for one of the versions
-             Generate-Versioning ($specFile | Split-Path) $($outputDir | Split-Path) -createOutputDirIfNotExist $false
-         }
+         # this will generate v1 and v2 so we only need to call it once for one of the versions
+         Generate-Versioning ($specFile | Split-Path) $outputDir -createOutputDirIfNotExist $false
          continue
      }
 
      if ($subPath.Contains("srv-driven")) {
-         if ($subPath.Contains("v1")) {
-             # this will generate v1 and v2 so we only need to call it once for one of the versions
-             Generate-Srv-Driven ($specFile| Split-Path) $($outputDir | Split-Path) -createOutputDirIfNotExist $false
-         }
+         # this will generate v1 and v2 so we only need to call it once for one of the versions
+         Generate-Srv-Driven ($specFile| Split-Path) $outputDir -createOutputDirIfNotExist $false
          continue
      }
 

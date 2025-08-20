@@ -46,22 +46,15 @@ foreach ($specFile in Get-Sorted-Specs) {
     }
 
     Write-Host "Regenerating $subPath" -ForegroundColor Cyan
-
-    $outputDir = Join-Path $spectorRoot "http"
-    foreach ($folder in $folders) {
-      $outputDir = Join-Path $outputDir $folder
-    }
+    
+    $outputDir = Join-Path $spectorRoot $subPath
     
     if ($subPath.Contains("versioning")) {
-        if ($subPath.Contains("v1")) {
-            # this will generate v1 and v2 so we only need to call it once for one of the versions
-            Generate-Versioning (Split-Path $specFile) $($outputDir | Split-Path) -createOutputDirIfNotExist $false
-        }
+        # this will generate v1 and v2 so we only need to call it once for one of the versions
+        Generate-Versioning (Split-Path $specFile) $outputDir -createOutputDirIfNotExist $false
     }
     elseif ($subPath.Contains("srv-driven")) {
-        if ($subPath.Contains("v1")) {
-            Generate-Srv-Driven (Split-Path $specFile) $($outputDir | Split-Path) -createOutputDirIfNotExist $false
-        }
+        Generate-Srv-Driven (Split-Path $specFile) $outputDir -createOutputDirIfNotExist $false
     }
     else {
         $command = Get-TspCommand $specFile $outputDir
