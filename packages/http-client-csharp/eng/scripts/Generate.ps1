@@ -6,6 +6,7 @@ param(
 )
 
 Import-Module "$PSScriptRoot\Generation.psm1" -DisableNameChecking -Force;
+Import-Module "$PSScriptRoot\Spector-Helper.psm1" -DisableNameChecking -Force;
 
 # Start overall timer
 $totalStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
@@ -72,14 +73,6 @@ $specsDirectory = "$packageRoot/node_modules/@typespec/http-specs"
 $azureSpecsDirectory = "$packageRoot/node_modules/@azure-tools/azure-http-specs"
 $spectorRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'Spector'
 
-function IsSpecDir {
-    param (
-        [string]$dir
-    )
-    $subdirs = Get-ChildItem -Path $dir -Directory
-    return -not ($subdirs) -and (Test-Path "$dir/main.tsp")
-}
-
 $failingSpecs = @(
     Join-Path 'http' 'payload' 'xml'
     Join-Path 'http' 'type' 'model' 'flatten'
@@ -103,22 +96,15 @@ foreach ($directory in Get-Sorted-Specs) {
     if (-not (IsSpecDir $directory.FullName)) {
         continue
     }
-
-    $fromAzure = $directory.FullName.Contains("azure-http-specs")
-
-    $specFile = Join-Path $directory.FullName "client.tsp"
-    if (-not (Test-Path $specFile)) {
-        $specFile = Join-Path $directory.FullName "main.tsp"
-    }
-    $subPath = if ($fromAzure) {$directory.FullName.Substring($azureSpecsDirectory.Length + 1)} else {$directory.FullName.Substring($specsDirectory.Length + 1)}
-    $subPath = $subPath -replace '^specs', 'http' # Keep consistent with the previous folder name because 'http' makes more sense then current 'specs'
+    $subPath = Get-SubPath $directory
     $folders = $subPath.Split([System.IO.Path]::DirectorySeparatorChar)
 
     if (-not (Compare-Paths $subPath $filter)) {
         continue
     }
+    Write-Host $directory.FullName
 
-    if ($fromAzure -eq $true -and !$azureAllowSpecs.Contains($subPath)) {
+    if ($directory.FullName.Contains("azure-http-specs") -eq $true -and !$azureAllowSpecs.Contains($subPath)) {
         continue
     }
 

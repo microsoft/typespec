@@ -183,20 +183,6 @@ function Set-LaunchSettings {
   Set-Content $launchSettingsPath $content -NoNewLine
 }
 
-function Get-Sorted-Specs {
-  $packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
-  $specsDirectory = Join-Path $packageRoot 'node_modules' '@typespec' 'http-specs'
-  $azureSpecsDirectory = Join-Path $packageRoot 'node_modules' '@azure-tools' 'azure-http-specs'
-
-  $directories = @(Get-ChildItem -Path "$specsDirectory/specs" -Directory -Recurse)
-  $directories += @(Get-ChildItem -Path "$azureSpecsDirectory/specs" -Directory -Recurse)
-
-  return $directories | Sort-Object {
-    # relative path after "specs\"
-    $_.FullName.Substring($_.FullName.IndexOf("specs") + 6)
-  }
-}
-
 Export-ModuleMember -Function "Invoke"
 Export-ModuleMember -Function "Get-TspCommand"
 Export-ModuleMember -Function "Refresh-Build"
@@ -204,4 +190,3 @@ Export-ModuleMember -Function "Compare-Paths"
 Export-ModuleMember -Function "Generate-Srv-Driven"
 Export-ModuleMember -Function "Generate-Versioning"
 Export-ModuleMember -Function "Set-LaunchSettings"
-Export-ModuleMember -Function "Get-Sorted-Specs"

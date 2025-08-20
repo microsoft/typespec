@@ -10,7 +10,7 @@ Refresh-Build
 $specsDirectory = Join-Path $packageRoot 'node_modules' '@typespec' 'http-specs' 'specs'
 $azureSpecsDirectory = Join-Path $packageRoot 'node_modules' '@azure-tools' 'azure-http-specs' 'specs'
 $spectorRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'Spector' 'http'
-$directories = Get-Sorted-Specs
+$testDirectories = Get-ChildItem -Path "$spectorRoot" -Directory -Recurse
 $spectorCsproj = Join-Path $packageRoot 'generator' 'TestProjects' 'Spector.Tests' 'TestProjects.Spector.Tests.csproj'
 
 $coverageDir = Join-Path $packageRoot 'generator' 'artifacts' 'coverage'
@@ -23,11 +23,7 @@ $failingSpecs = @(
 )
 
 # generate all
-foreach ($directory in $directories) {
-    if (-not (IsGenerated $directory.FullName)) {
-        continue
-    }
-    
+foreach ($directory in Get-Sorted-Specs) {
     $outputDir = $directory.FullName.Substring(0, $directory.FullName.IndexOf("src") - 1)
     $subPath = $outputDir.Substring($spectorRoot.Length + 1)
     
