@@ -40,8 +40,9 @@ describe("Parameters.BodyOptionality", () => {
     );
     const baseUrl = await startServer(router, serverAbortController.signal);
     // Skipping optional explicit scenarios: https://github.com/microsoft/typespec/issues/6561
+    // Skipping content type header scenarios: not supported in http-server-js
     const { status } = await runScenario(
-      "parameters/bodyoptionality/**/!(optionalexplicit)*",
+      "parameters/bodyoptionality/**/!(optionalexplicit|contenttypeheader)*",
       baseUrl,
     );
     expect(status).toBe("pass");
