@@ -25,6 +25,7 @@ Scenarios.Payload_OptionalBody_omit = passOnSuccess({
   },
   handler: (req: MockRequest) => {
     req.expect.rawBodyEquals(undefined);
+    req.expect.deepEqual(req.headers["content-type"], undefined, "Expected no content-type header");
     return { status: 204 };
   },
   kind: "MockApiDefinition",
