@@ -1,5 +1,22 @@
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
 
+$failingSpecs = @(
+  Join-Path 'http' 'payload' 'xml'
+  Join-Path 'http' 'type' 'model' 'flatten'
+  Join-Path 'http' 'type' 'model' 'templated'
+  Join-Path 'http' 'client' 'naming' # pending until https://github.com/microsoft/typespec/issues/5653 is resolved
+  Join-Path 'http' 'streaming' 'jsonl'
+)
+
+$azureAllowSpecs = @(
+  Join-Path 'http' 'client' 'structure' 'client-operation-group'
+  Join-Path 'http' 'client' 'structure' 'default'
+  Join-Path 'http' 'client' 'structure' 'multi-client'
+  Join-Path 'http' 'client' 'structure' 'renamed-operation'
+  Join-Path 'http' 'client' 'structure' 'two-operation-group'
+  Join-Path 'http' 'resiliency' 'srv-driven'
+)
+
 function IsGenerated {
     param (
         [string]$dir
@@ -41,12 +58,27 @@ function Get-Namespace {
     return $namespace
 }
 
-function IsSpecDir {
+function IsValidSpecDir {
   param (
-    [string]$dir
+    [string]$fullPath
   )
-  $subdirs = Get-ChildItem -Path $dir -Directory
-  return -not ($subdirs) -and (Test-Path "$dir/main.tsp")
+  $subdirs = Get-ChildItem -Path $fullPath -Directory
+  if (($subdirs) -or -not(Test-Path "$fullPath/main.tsp")){
+    return $false;
+  }
+
+  $fromAzure = $fullPath.Contains("azure-http-specs")
+  $subPath = Get-SubPath $fullPath
+  if ($fromAzure) {
+    return $azureAllowSpecs.Contains($subPath)
+  }
+  
+  if ($failingSpecs.Contains($subPath)) {
+    Write-Host "Skipping $subPath" -ForegroundColor Yellow
+    return $false
+  }
+  
+  return $true
 }
 
 function Get-Specs-Directory {
@@ -69,12 +101,21 @@ function Get-Sorted-Specs {
   $sep = [System.IO.Path]::DirectorySeparatorChar
   $pattern = "${sep}specs${sep}"
 
-  return $directories | Where-Object { IsSpecDir $_.FullName } | Sort-Object {
-    # relative path after "\specs\"
-    $s = ($_.FullName -replace '[\\\/]','/')
-    $s.Substring($_.FullName.IndexOf($pattern) + $pattern.Length)
-  }
+  return $directories | Where-Object { IsValidSpecDir $_.FullName } | ForEach-Object {
+    
+    # Pick client.tsp if it exists, otherwise main.tsp
+    $specFile = Join-Path $_.FullName "client.tsp"
+    if (-not (Test-Path $specFile)) {
+      $specFile = Join-Path $_.FullName "main.tsp"
+    }
+
+    # Produce an object with both specFile and a sort key
+    [PSCustomObject]@{
+      SpecFile = $specFile
+      SortKey  = ($specFile -replace '[\\\/]', '/').Substring($_.FullName.IndexOf($pattern) + $pattern.Length) }
+    } | Sort-Object SortKey | ForEach-Object { $_.SpecFile }
 }
+
 
 function Get-SubPath {
     param (
@@ -82,17 +123,19 @@ function Get-SubPath {
     )
     $specsDirectory = Get-Specs-Directory
     $azureSpecsDirectory = Get-Azure-Specs-Directory
+    
+    $fromAzure = $fullPath.Contains("azure-http-specs")
+    $subPath = if ($fromAzure) {$fullPath.Substring($azureSpecsDirectory.Length + 1)} else {$fullPath.Substring($specsDirectory.Length + 1)}
 
-    Write-Host $fullPath -ForegroundColor Cyan
-    $fromAzure = $fullPath.FullName.Contains("azure-http-specs")
-
-    $specFile = Join-Path $fullPath.FullName "client.tsp"
-    if (-not (Test-Path $specFile)) {
-      $specFile = Join-Path $fullPath.FullName "main.tsp"
+    # Keep consistent with the previous folder name because 'http' makes more sense then current 'specs'
+    $subPath = $subPath -replace '^specs', 'http' 
+    
+    # also strip off the spec file name if present
+    if (Test-Path $subPath -PathType Leaf) {
+      return (Split-Path $subPath)
     }
-    $subPath = if ($fromAzure) {$fullPath.FullName.Substring($azureSpecsDirectory.Length + 1)} else {$fullPath.FullName.Substring($specsDirectory.Length + 1)}
-    Write-Host "SubPath: $subPath" -ForegroundColor Cyan
-    return $subPath -replace '^specs', 'http' # Keep consistent with the previous folder name because 'http' makes more sense then current 'specs'
+    
+    return $subPath
 }
 
 Export-ModuleMember -Function "IsGenerated"

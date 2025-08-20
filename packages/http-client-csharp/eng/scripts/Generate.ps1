@@ -73,46 +73,15 @@ $specsDirectory = "$packageRoot/node_modules/@typespec/http-specs"
 $azureSpecsDirectory = "$packageRoot/node_modules/@azure-tools/azure-http-specs"
 $spectorRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'Spector'
 
-$failingSpecs = @(
-    Join-Path 'http' 'payload' 'xml'
-    Join-Path 'http' 'type' 'model' 'flatten'
-    Join-Path 'http' 'type' 'model' 'templated'
-    Join-Path 'http' 'client' 'naming' # pending until https://github.com/microsoft/typespec/issues/5653 is resolved
-    Join-Path 'http' 'streaming' 'jsonl'
-)
-
-$azureAllowSpecs = @(
-    Join-Path 'http' 'client' 'structure' 'client-operation-group'
-    Join-Path 'http' 'client' 'structure' 'default'
-    Join-Path 'http' 'client' 'structure' 'multi-client'
-    Join-Path 'http' 'client' 'structure' 'renamed-operation'
-    Join-Path 'http' 'client' 'structure' 'two-operation-group'
-    Join-Path 'http' 'resiliency' 'srv-driven'
-)
-
 $spectorLaunchProjects = @{}
 
-foreach ($directory in Get-Sorted-Specs) {
-    if (-not (IsSpecDir $directory.FullName)) {
-        continue
-    }
-    $subPath = Get-SubPath $directory
+foreach ($specFile in Get-Sorted-Specs) {
+    $subPath = Get-SubPath $specFile
     $folders = $subPath.Split([System.IO.Path]::DirectorySeparatorChar)
 
     if (-not (Compare-Paths $subPath $filter)) {
         continue
     }
-    Write-Host $directory.FullName
-
-    if ($directory.FullName.Contains("azure-http-specs") -eq $true -and !$azureAllowSpecs.Contains($subPath)) {
-        continue
-    }
-
-    if ($failingSpecs.Contains($subPath)) {
-        Write-Host "Skipping $subPath" -ForegroundColor Yellow
-        continue
-    }
-
     $generationDir = $spectorRoot
     foreach ($folder in $folders) {
         $generationDir = Join-Path $generationDir $folder
@@ -122,10 +91,11 @@ foreach ($directory in Get-Sorted-Specs) {
     if (-not (Test-Path $generationDir)) {
         New-Item -ItemType Directory -Path $generationDir | Out-Null
     }
+
+    Write-Host "Generating $subPath" -ForegroundColor Cyan
     
     if ($folders.Contains("versioning")) {
-        Write-Host "Generating versioning for $subPath" -ForegroundColor Cyan
-        Generate-Versioning $directory.FullName $generationDir -generateStub $stubbed
+        Generate-Versioning (Split-Path $specFile) $generationDir -generateStub $stubbed
         $spectorLaunchProjects.Add($($folders -join "-") + "-v1", $("TestProjects/Spector/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))") + "/v1")
         $spectorLaunchProjects.Add($($folders -join "-") + "-v2", $("TestProjects/Spector/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))") + "/v2")
         continue
@@ -133,7 +103,7 @@ foreach ($directory in Get-Sorted-Specs) {
 
     # srv-driven contains two separate specs, for two separate clients. We need to generate both.
     if ($folders.Contains("srv-driven")) {
-        Generate-Srv-Driven $directory.FullName $generationDir -generateStub $stubbed
+        Generate-Srv-Driven (Split-Path $specFile) $generationDir -generateStub $stubbed
         $spectorLaunchProjects.Add($($folders -join "-") + "-v1", $("TestProjects/Spector/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))") + "/v1")
         $spectorLaunchProjects.Add($($folders -join "-") + "-v2", $("TestProjects/Spector/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))") + "/v2")
         continue
@@ -144,7 +114,6 @@ foreach ($directory in Get-Sorted-Specs) {
         continue
     }
     
-    Write-Host "Generating $subPath" -ForegroundColor Cyan
     Invoke (Get-TspCommand $specFile $generationDir $stubbed)
 
     # exit if the generation failed

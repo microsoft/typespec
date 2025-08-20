@@ -21,13 +21,8 @@ if (-not (Test-Path $coverageDir)) {
     New-Item -ItemType Directory -Path $coverageDir | Out-Null
 }
 
-foreach ($directory in Get-Sorted-Specs) {
-    if (-not (IsGenerated $directory.FullName)) {
-        continue
-    }
-
-    $outputDir = $directory.FullName.Substring(0, $directory.FullName.IndexOf("src") - 1)
-    $subPath = $outputDir.Substring($spectorRootHttp.Length + 1)
+foreach ($specFile in Get-Sorted-Specs) {
+    $subPath = Get-SubPath $specFile
     $folders = $subPath.Split([System.IO.Path]::DirectorySeparatorChar)
 
     if (-not (Compare-Paths $subPath $filter)) {
@@ -53,15 +48,9 @@ foreach ($directory in Get-Sorted-Specs) {
 
     Write-Host "Regenerating $subPath" -ForegroundColor Cyan
 
-    $specFile = Join-Path $specsDirectory $subPath "client.tsp"
-    if (-not (Test-Path $specFile)) {
-        $specFile = Join-Path $specsDirectory $subPath "main.tsp"
-    }
-    if (-not (Test-Path $specFile)) {
-        $specFile = Join-Path $azureSpecsDirectory $subPath "client.tsp"
-    }
-    if (-not (Test-Path $specFile)) {
-        $specFile = Join-Path $azureSpecsDirectory $subPath "main.tsp"
+    $outputDir = $spectorRoot
+    foreach ($folder in $folders) {
+      $outputDir = Join-Path $outputDir $folder
     }
     
     if ($subPath.Contains("versioning")) {
