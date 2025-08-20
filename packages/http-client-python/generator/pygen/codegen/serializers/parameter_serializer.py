@@ -17,6 +17,7 @@ from ..models import (
     ParameterType,
 )
 from ..models.parameter import _ParameterBase
+from ..models.parameter_list import BodyParameterType
 
 
 class PopKwargType(Enum):
@@ -173,6 +174,8 @@ class ParameterSerializer:
         pop_params_kwarg: PopKwargType,
         check_client_input: bool = False,
         operation_name: Optional[str] = None,
+        *,
+        body_parameter: Optional[BodyParameterType] = None,
     ) -> List[str]:
         retval = []
 
@@ -184,10 +187,14 @@ class ParameterSerializer:
 
         append_pop_kwarg("headers", pop_headers_kwarg)
         append_pop_kwarg("params", pop_params_kwarg)
+        is_body_optional = body_parameter.optional if body_parameter and body_parameter.optional else False
         if pop_headers_kwarg != PopKwargType.NO or pop_params_kwarg != PopKwargType.NO:
             retval.append("")
         for kwarg in parameters:
-            type_annotation = kwarg.type_annotation()
+            is_content_type_optional = getattr(kwarg, "is_content_type", False) and is_body_optional
+            type_annotation = (
+                "Optional[" + kwarg.type_annotation() + "]" if is_content_type_optional else kwarg.type_annotation()
+            )
             if kwarg.client_default_value is not None or kwarg.optional:
                 if check_client_input and kwarg.check_client_input:
                     default_value = f"self._config.{kwarg.client_name}"
@@ -203,11 +210,15 @@ class ParameterSerializer:
                         default_value = f"self._api_version{operation_name} or {default_value}"
                     default_value = f"_{kwarg_dict}.pop('{kwarg.wire_name}', {default_value})"
 
-                retval.append(
+                result = (
                     f"{kwarg.client_name}: {type_annotation} = kwargs.pop('{kwarg.client_name}', " + f"{default_value})"
                 )
             else:
-                retval.append(f"{kwarg.client_name}: {type_annotation} = kwargs.pop('{kwarg.client_name}')")
+                result = f"{kwarg.client_name}: {type_annotation} = kwargs.pop('{kwarg.client_name}')"
+            if is_content_type_optional and body_parameter:
+                retval.append(result + f" if {body_parameter.client_name} else None")
+            else:
+                retval.append(result)
         return retval
 
     @staticmethod

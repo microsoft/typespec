@@ -630,6 +630,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             ),
             check_client_input=not self.code_model.options["multiapi"],
             operation_name=f"('{builder.name}')" if builder.group_name == "" else "",
+            body_parameter=builder.parameters.body_parameter if builder.parameters.has_body else None,
         )
         for p in builder.parameters.parameters:
             if p.hide_in_operation_signature and not p.is_continuation_token:
