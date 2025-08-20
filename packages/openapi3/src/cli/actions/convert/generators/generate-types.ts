@@ -1,6 +1,9 @@
 import { printIdentifier } from "@typespec/compiler";
 import { OpenAPI3Schema, Refable } from "../../../../types.js";
-import { getDecoratorsForSchema } from "../utils/decorators.js";
+import {
+  getDecoratorsForSchema,
+  normalizeObjectValueToTSValueExpression,
+} from "../utils/decorators.js";
 import { getScopeAndName } from "../utils/get-scope-and-name.js";
 import { generateDecorators } from "./generate-decorators.js";
 
@@ -115,7 +118,7 @@ export class SchemaToExpressionGenerator {
     }
 
     if (schema.default) {
-      type += ` = ${JSON.stringify(schema.default)}`;
+      type += ` = ${typeof schema.default === "object" ? normalizeObjectValueToTSValueExpression(schema.default) : JSON.stringify(schema.default)}`;
     }
 
     return type;

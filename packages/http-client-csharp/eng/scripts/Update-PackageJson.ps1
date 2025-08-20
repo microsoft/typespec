@@ -28,7 +28,8 @@ Set-StrictMode -Version 3.0
 # Define the list of dependencies to inject
 $InjectedDependencies = @(
     '@azure-tools/typespec-azure-rulesets',
-    '@azure-tools/typespec-azure-resource-manager'
+    '@azure-tools/typespec-azure-resource-manager',
+    '@azure-tools/typespec-autorest'
 )
 
 # Resolve paths
