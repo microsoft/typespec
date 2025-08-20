@@ -192,8 +192,11 @@ class ParameterSerializer:
             retval.append("")
         for kwarg in parameters:
             is_content_type_optional = getattr(kwarg, "is_content_type", False) and is_body_optional
+            type_annotation = kwarg.type_annotation()
             type_annotation = (
-                "Optional[" + kwarg.type_annotation() + "]" if is_content_type_optional else kwarg.type_annotation()
+                "Optional[" + kwarg.type_annotation() + "]"
+                if is_content_type_optional and not type_annotation.startswith("Optional[")
+                else type_annotation
             )
             if kwarg.client_default_value is not None or kwarg.optional:
                 if check_client_input and kwarg.check_client_input:
