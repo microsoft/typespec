@@ -17,9 +17,6 @@ $azureAllowSpecs = @(
   Join-Path 'http' 'resiliency' 'srv-driven'
 )
 
-$packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
-$spectorRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'Spector'
-
 function Capitalize-FirstLetter {
     param (
         [string]$inputString
@@ -146,4 +143,3 @@ function Get-Output-Directory
 Export-ModuleMember -Function "Get-Namespace"
 Export-ModuleMember -Function "Get-Sorted-Specs"
 Export-ModuleMember -Function "Get-SubPath"
-Export-ModuleMember -Function "Get-Output-Directory"

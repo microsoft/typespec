@@ -82,10 +82,7 @@ foreach ($specFile in Get-Sorted-Specs) {
     if (-not (Compare-Paths $subPath $filter)) {
         continue
     }
-    $generationDir = $spectorRoot
-    foreach ($folder in $folders) {
-        $generationDir = Join-Path $generationDir $folder
-    }
+    $generationDir = Join-Path $spectorRoot $subPath
 
     # create the directory if it doesn't exist
     if (-not (Test-Path $generationDir)) {
