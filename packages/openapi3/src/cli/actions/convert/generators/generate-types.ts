@@ -1,5 +1,5 @@
 import { printIdentifier } from "@typespec/compiler";
-import { OpenAPI3Schema, Refable } from "../../../../types.js";
+import { OpenAPI3Encoding, OpenAPI3Schema, Refable } from "../../../../types.js";
 import {
   getDecoratorsForSchema,
   normalizeObjectValueToTSValueExpression,
@@ -13,11 +13,13 @@ export class SchemaToExpressionGenerator {
   public generateTypeFromRefableSchema(
     schema: Refable<OpenAPI3Schema>,
     callingScope: string[],
+    isHttpPart = false,
+    encoding?: Record<string, OpenAPI3Encoding>,
   ): string {
     const hasRef = "$ref" in schema;
     return hasRef
       ? this.getRefName(schema.$ref, callingScope)
-      : this.getTypeFromSchema(schema, callingScope);
+      : this.getTypeFromSchema(schema, callingScope, isHttpPart, encoding);
   }
 
   public generateArrayType(schema: OpenAPI3Schema, callingScope: string[]): string {
@@ -75,7 +77,12 @@ export class SchemaToExpressionGenerator {
     return scopeAndName;
   }
 
-  private getTypeFromSchema(schema: OpenAPI3Schema, callingScope: string[]): string {
+  private getTypeFromSchema(
+    schema: OpenAPI3Schema,
+    callingScope: string[],
+    isHttpPart = false,
+    encoding?: Record<string, OpenAPI3Encoding>,
+  ): string {
     let type = "unknown";
 
     if (schema.enum) {
@@ -100,14 +107,14 @@ export class SchemaToExpressionGenerator {
     ) {
       // we should never test on type object as it's not required
       // but rather on the presence of properties which indicates an object type
-      type = this.getObjectType(schema, callingScope);
+      type = this.getObjectType(schema, callingScope, isHttpPart, encoding);
     } else if (schema.oneOf?.length) {
       type = this.getOneOfType(schema, callingScope);
     } else if (schema.type === "string") {
       type = getStringType(schema);
     } else if (schema.type === "object") {
       // this is a fallback to maintain compatibility and it needs to be in the last cases
-      type = this.getObjectType(schema, callingScope);
+      type = this.getObjectType(schema, callingScope, isHttpPart, encoding);
     } else if (schema.type === "array") {
       // this is a fallback to maintain compatibility and it needs to be in the last cases
       type = this.generateArrayType(schema, callingScope);
@@ -181,7 +188,58 @@ export class SchemaToExpressionGenerator {
     return definitions.join(" | ");
   }
 
-  private getObjectType(schema: OpenAPI3Schema, callingScope: string[]): string {
+  private getPartType(
+    propType: string,
+    name: string,
+    isHttpPart: boolean,
+    encoding: Record<string, OpenAPI3Encoding> | undefined,
+  ): string {
+    if (!isHttpPart) {
+      return propType;
+    }
+    const encodingForProperty = encoding?.[name];
+    const filePartType =
+      encodingForProperty?.contentType && this.isFilePartMediaType(encodingForProperty?.contentType)
+        ? `File${this.isDefaultPartType("File", encodingForProperty.contentType) ? "" : `<"${encodingForProperty.contentType}">`}`
+        : undefined;
+    const contentTypeHeader =
+      encodingForProperty?.contentType &&
+      !filePartType &&
+      !this.isDefaultPartType(propType, encodingForProperty.contentType)
+        ? ` & { @header contentType "${encodingForProperty.contentType}" }`
+        : "";
+    return `HttpPart<${filePartType ?? propType}${contentTypeHeader}>`;
+  }
+
+  private isDefaultPartType(partType: string, partMediaType: string): boolean {
+    return (
+      (partType === "string" && partMediaType === "text/plain") ||
+      (partType === "File" && partMediaType === "application/octet-stream")
+    );
+  }
+
+  private readonly filePartMediaTypes: Record<string, boolean> = {
+    "application/octet-stream": true,
+    "application/pdf": true,
+    "image/jpeg": true,
+    "image/png": true,
+    "image/gif": true,
+    "image/webp": true,
+    "video/mp4": true,
+    "video/mpeg": true,
+    "audio/mpeg": true,
+  };
+
+  private isFilePartMediaType(partMediaType: string): boolean {
+    return this.filePartMediaTypes[partMediaType] === true;
+  }
+
+  private getObjectType(
+    schema: OpenAPI3Schema,
+    callingScope: string[],
+    isHttpPart = false,
+    encoding?: Record<string, OpenAPI3Encoding>,
+  ): string {
     // If we have `additionalProperties`, treat that as an 'indexer' and convert to a record.
     const recordType =
       typeof schema.additionalProperties === "object"
@@ -200,7 +258,9 @@ export class SchemaToExpressionGenerator {
           .map((d) => `${d}\n`)
           .join("");
         const isOptional = !requiredProps.includes(name) ? "?" : "";
-        props.push(`${decorators}${printIdentifier(name)}${isOptional}: ${propType}`);
+        props.push(
+          `${decorators}${printIdentifier(name)}${isOptional}: ${this.getPartType(propType, name, isHttpPart, encoding)}`,
+        );
       }
     }
 

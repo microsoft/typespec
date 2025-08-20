@@ -1,0 +1,54 @@
+openapi: 3.0.0
+info:
+  title: (title)
+  version: 0.0.0
+paths:
+  /:
+    post:
+      operationId: extensive
+      parameters: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                owner:
+                  $ref: "#/components/schemas/PetOwner"
+                file:
+                  type: string
+                  format: binary
+                referrer:
+                  type: string
+              required:
+                - owner
+                - file
+            encoding:
+              owner:
+                contentType: application/json
+              file:
+                contentType: image/png
+              referrer:
+                contentType: text/plain
+      responses:
+        "204":
+          description: The request has succeeded.
+components:
+  schemas:
+    Pet:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        age_in_pet_years:
+          type: integer
+          format: int32
+    PetOwner:
+      type: object
+      properties:
+        name:
+          type: string
+        pet:
+          $ref: "#/components/schemas/Pet"
