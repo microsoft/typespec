@@ -7,7 +7,7 @@ $packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
 
 Refresh-Build
 
-$spectorRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'Spector' 'http'
+$spectorRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'Spector'
 $spectorCsproj = Join-Path $packageRoot 'generator' 'TestProjects' 'Spector.Tests' 'TestProjects.Spector.Tests.csproj'
 
 $coverageDir = Join-Path $packageRoot 'generator' 'artifacts' 'coverage'
