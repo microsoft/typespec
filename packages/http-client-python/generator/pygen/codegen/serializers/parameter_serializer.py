@@ -213,15 +213,13 @@ class ParameterSerializer:
                         default_value = f"self._api_version{operation_name} or {default_value}"
                     default_value = f"_{kwarg_dict}.pop('{kwarg.wire_name}', {default_value})"
 
-                result = (
+                retval.append(
                     f"{kwarg.client_name}: {type_annotation} = kwargs.pop('{kwarg.client_name}', " + f"{default_value})"
                 )
             else:
-                result = f"{kwarg.client_name}: {type_annotation} = kwargs.pop('{kwarg.client_name}')"
-            if is_content_type_optional and body_parameter:
-                retval.append(result + f" if {body_parameter.client_name} else None")
-            else:
-                retval.append(result)
+                retval.append(f"{kwarg.client_name}: {type_annotation} = kwargs.pop('{kwarg.client_name}')")
+            if is_content_type_optional and body_parameter and not body_parameter.client_name.startswith("_"):
+                retval.append(f"content_type = content_type if {body_parameter.client_name} else None")
         return retval
 
     @staticmethod
