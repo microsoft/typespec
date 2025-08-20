@@ -17,8 +17,8 @@ if (-not (Test-Path $coverageDir)) {
 }
 
 # generate all
-foreach ($directory in Get-Sorted-Specs) {
-    $subPath = Get-SubPath $directory
+foreach ($specFile in Get-Sorted-Specs) {
+    $subPath = Get-SubPath $specFile
     $folders = $subPath.Split([System.IO.Path]::DirectorySeparatorChar)
 
     Write-Host "Regenerating $subPath" -ForegroundColor Cyan
@@ -26,7 +26,7 @@ foreach ($directory in Get-Sorted-Specs) {
     if ($subPath.Contains("versioning")) {
         if ($subPath.Contains("v1")) {
             # this will generate v1 and v2 so we only need to call it once for one of the versions
-            Generate-Versioning (directory | Split-Path) $($outputDir | Split-Path) -createOutputDirIfNotExist $false
+            Generate-Versioning ($specFile | Split-Path) $($outputDir | Split-Path) -createOutputDirIfNotExist $false
         }
         continue
     }
@@ -34,7 +34,7 @@ foreach ($directory in Get-Sorted-Specs) {
     if ($subPath.Contains("srv-driven")) {
         if ($subPath.Contains("v1")) {
             # this will generate v1 and v2 so we only need to call it once for one of the versions
-            Generate-Srv-Driven (directory| Split-Path) $($outputDir | Split-Path) -createOutputDirIfNotExist $false
+            Generate-Srv-Driven ($specFile| Split-Path) $($outputDir | Split-Path) -createOutputDirIfNotExist $false
         }
         continue
     }
