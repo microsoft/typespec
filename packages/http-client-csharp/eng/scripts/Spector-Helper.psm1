@@ -131,7 +131,8 @@ function Get-SubPath {
     $subPath = $subPath -replace '^specs', 'http' 
     
     # also strip off the spec file name if present
-    if (Test-Path $subPath -PathType Leaf) {
+    $leaf = Split-Path -Leaf $subPath
+    if ($leaf -like '*.tsp') {
       return (Split-Path $subPath)
     }
     
