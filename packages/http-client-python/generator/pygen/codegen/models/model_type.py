@@ -35,6 +35,10 @@ class UsageFlags(Enum):
     Json = 256
     Xml = 512
 
+class ReferredBy(Enum):
+    Default = 0
+    PagingOnly = 1
+    NonPagingOnly = 2
 
 def _get_properties(type: "ModelType", properties: List[Property]) -> List[Property]:
     for parent in type.parents:
@@ -83,6 +87,7 @@ class ModelType(BaseType):  # pylint: disable=too-many-instance-attributes, too-
         self.cross_language_definition_id: Optional[str] = self.yaml_data.get("crossLanguageDefinitionId")
         self.usage: int = self.yaml_data.get("usage", UsageFlags.Input.value | UsageFlags.Output.value)
         self.client_namespace: str = self.yaml_data.get("clientNamespace", code_model.namespace)
+        self.referred_by: ReferredBy = self.yaml_data.get("referredBy", ReferredBy.Default.value)
 
     @property
     def is_usage_output(self) -> bool:

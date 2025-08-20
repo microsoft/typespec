@@ -190,11 +190,6 @@ function addPagingInformation(
   method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
   operationGroupName: string,
 ) {
-  for (const response of method.operation.responses) {
-    if (response.type) {
-      getType(context, response.type)["usage"] = UsageFlags.None;
-    }
-  }
   const itemType = getType(context, method.response.type!);
   const base = emitHttpOperation(context, rootClient, operationGroupName, method.operation, method);
   const itemName = getWireNameWithDiagnostics(

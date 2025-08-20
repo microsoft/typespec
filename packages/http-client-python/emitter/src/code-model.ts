@@ -152,12 +152,28 @@ function emitMethodParameter(
   return [base];
 }
 
+enum ReferredTypes {
+  Default = 0,
+  PagingOnly = 1,
+  NonPagingOnly = 2,
+}
+
 function emitMethod<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext,
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkServiceMethod<TServiceOperation>,
   operationGroupName: string,
 ): Record<string, any>[] {
+  const referredBy = method.kind === "paging" ? ReferredTypes.PagingOnly : ReferredTypes.Default;
+  for (const response of method.operation.responses) {
+    if (response.type) {
+      const type = getType(context, response.type);
+      if (type["referredBy"] === undefined) {
+        type["referredBy"] = ReferredTypes.Default;
+      }
+      type["referredBy"] |= referredBy;
+    }
+  }
   switch (method.kind) {
     case "basic":
       return emitBasicMethod(context, rootClient, method, operationGroupName);
