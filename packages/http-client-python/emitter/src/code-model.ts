@@ -152,7 +152,7 @@ function emitMethodParameter(
   return [base];
 }
 
-enum ReferredTypes {
+enum ReferredByOperationTypes {
   Default = 0,
   PagingOnly = 1,
   NonPagingOnly = 2,
@@ -164,14 +164,17 @@ function emitMethod<TServiceOperation extends SdkServiceOperation>(
   method: SdkServiceMethod<TServiceOperation>,
   operationGroupName: string,
 ): Record<string, any>[] {
-  const referredBy = method.kind === "paging" ? ReferredTypes.PagingOnly : ReferredTypes.Default;
+  const referredBy =
+    method.kind === "paging"
+      ? ReferredByOperationTypes.PagingOnly
+      : ReferredByOperationTypes.NonPagingOnly;
   for (const response of method.operation.responses) {
     if (response.type) {
       const type = getType(context, response.type);
-      if (type["referredBy"] === undefined) {
-        type["referredBy"] = ReferredTypes.Default;
+      if (type["referredByOperationType"] === undefined) {
+        type["referredByOperationType"] = ReferredByOperationTypes.Default;
       }
-      type["referredBy"] |= referredBy;
+      type["referredByOperationType"] |= referredBy;
     }
   }
   switch (method.kind) {
@@ -333,6 +336,17 @@ export function emitCodeModel(sdkContext: PythonSdkContext) {
     }
     getType(sdkContext, sdkEnum);
   }
+
+  // clear usage when a model is only used by paging
+  for (const type of typesMap.values()) {
+    if (
+      type["type"] === "model" &&
+      type["referredByOperationType"] === ReferredByOperationTypes.PagingOnly
+    ) {
+      type["usage"] = UsageFlags.None;
+    }
+  }
+
   codeModel["types"] = [
     ...typesMap.values(),
     ...Object.values(KnownTypes),

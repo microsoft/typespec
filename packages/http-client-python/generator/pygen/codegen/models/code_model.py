@@ -8,7 +8,7 @@ from typing import List, Dict, Any, Set, Union, Literal, Optional, cast
 
 from .base import BaseType
 from .enum_type import EnumType
-from .model_type import ModelType, UsageFlags, ReferredBy
+from .model_type import ModelType, UsageFlags
 from .combined_type import CombinedType
 from .client import Client
 from .request_builder import RequestBuilder, OverloadedRequestBuilder
@@ -336,7 +336,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         """All of the model types in this class"""
         if not self._model_types:
             self._model_types = [
-                t for t in self.types_map.values() if isinstance(t, ModelType) and t.usage != UsageFlags.Default.value and t.referred_by != ReferredBy.PagingOnly
+                t for t in self.types_map.values() if isinstance(t, ModelType) and t.usage != UsageFlags.Default.value
             ]
         return self._model_types
 
