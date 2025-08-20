@@ -8,7 +8,6 @@ $packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
 Refresh-Build
 
 $spectorRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'Spector' 'http'
-$testDirectories = Get-ChildItem -Path "$spectorRoot" -Directory -Recurse
 $spectorCsproj = Join-Path $packageRoot 'generator' 'TestProjects' 'Spector.Tests' 'TestProjects.Spector.Tests.csproj'
 
 $coverageDir = Join-Path $packageRoot 'generator' 'artifacts' 'coverage'
@@ -16,9 +15,6 @@ $coverageDir = Join-Path $packageRoot 'generator' 'artifacts' 'coverage'
 if (-not (Test-Path $coverageDir)) {
     New-Item -ItemType Directory -Path $coverageDir | Out-Null
 }
-
-$failingSpecs = @(
-)
 
 # generate all
 foreach ($directory in Get-Sorted-Specs) {
