@@ -9,7 +9,7 @@ $packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
 
 Refresh-Build
 
-$spectorRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'Spector' 
+$spectorRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'Spector'
 $SpectorCsproj = Join-Path $packageRoot 'generator' 'TestProjects' 'Spector.Tests' 'TestProjects.Spector.Tests.csproj'
 
 $coverageDir = Join-Path $packageRoot 'generator' 'artifacts' 'coverage'
@@ -20,7 +20,9 @@ if (-not (Test-Path $coverageDir)) {
 
 foreach ($specFile in Get-Sorted-Specs) {
     $subPath = Get-SubPath $specFile
-    $folders = $subPath.Split([System.IO.Path]::DirectorySeparatorChar)
+    
+    # skip the HTTP root folder when computing the namespace filter
+    $folders = $subPath.Split([System.IO.Path]::DirectorySeparatorChar) | Select-Object -Skip 1
 
     if (-not (Compare-Paths $subPath $filter)) {
         continue
@@ -45,7 +47,7 @@ foreach ($specFile in Get-Sorted-Specs) {
 
     Write-Host "Regenerating $subPath" -ForegroundColor Cyan
 
-    $outputDir = $spectorRoot
+    $outputDir = Join-Path $spectorRoot "http"
     foreach ($folder in $folders) {
       $outputDir = Join-Path $outputDir $folder
     }
