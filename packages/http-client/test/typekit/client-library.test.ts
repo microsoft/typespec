@@ -100,4 +100,23 @@ describe("listClients", () => {
     expect(subClients).toHaveLength(1);
     expect(subClients[0].name).toEqual("NestedServiceClient");
   });
+  it("get subclients2", async () => {
+    const { DemoService } = (await runner.compile(`
+      @service(#{
+        title: "Widget Service",
+      })
+      @test namespace DemoService {
+        namespace NestedService {};
+      }
+      `)) as { DemoService: Namespace };
+    const tk = $(runner.program);
+
+    const responses = tk.clientLibrary.listClients(DemoService);
+    expect(responses).toHaveLength(1);
+    expect(responses[0].name).toEqual("DemoServiceClient");
+
+    const subClients = tk.clientLibrary.listClients(responses[0]);
+    expect(subClients).toHaveLength(1);
+    expect(subClients[0].name).toEqual("NestedServiceClient");
+  });
 });
