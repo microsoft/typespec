@@ -187,7 +187,7 @@ class ParameterSerializer:
 
         append_pop_kwarg("headers", pop_headers_kwarg)
         append_pop_kwarg("params", pop_params_kwarg)
-        is_body_optional = body_parameter.optional if body_parameter and body_parameter.optional else False
+        is_body_optional = body_parameter.optional if body_parameter and body_parameter.in_method_signature else False
         if pop_headers_kwarg != PopKwargType.NO or pop_params_kwarg != PopKwargType.NO:
             retval.append("")
         for kwarg in parameters:
@@ -218,7 +218,7 @@ class ParameterSerializer:
                 )
             else:
                 retval.append(f"{kwarg.client_name}: {type_annotation} = kwargs.pop('{kwarg.client_name}')")
-            if is_content_type_optional and body_parameter and not body_parameter.client_name.startswith("_"):
+            if is_content_type_optional and body_parameter:
                 retval.append(f"content_type = content_type if {body_parameter.client_name} else None")
         return retval
 
