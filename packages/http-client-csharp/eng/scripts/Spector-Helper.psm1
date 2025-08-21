@@ -49,8 +49,7 @@ function IsValidSpecDir {
   param (
     [string]$fullPath
   )
-  $subdirs = Get-ChildItem -Path $fullPath -Directory
-  if (($subdirs) -or -not(Test-Path "$fullPath/main.tsp")){
+  if (-not(Test-Path "$fullPath/main.tsp")){
     return $false;
   }
 
@@ -89,20 +88,26 @@ function Get-Sorted-Specs {
   $pattern = "${sep}specs${sep}"
 
   return $directories | Where-Object { IsValidSpecDir $_.FullName } | ForEach-Object {
-    
+
     # Pick client.tsp if it exists, otherwise main.tsp
     $specFile = Join-Path $_.FullName "client.tsp"
     if (-not (Test-Path $specFile)) {
       $specFile = Join-Path $_.FullName "main.tsp"
     }
 
-    # Produce an object with both specFile and a sort key
+    # Extract the relative path after "specs/" and normalize slashes
+    $relativePath = ($specFile -replace '[\\\/]', '/').Substring($_.FullName.IndexOf($pattern) + $pattern.Length)
+
+    # Remove the filename to get just the directory path
+    $dirPath = $relativePath -replace '/[^/]+\.tsp$', ''
+
+    # Produce an object with the path for sorting
     [PSCustomObject]@{
       SpecFile = $specFile
-      SortKey  = ($specFile -replace '[\\\/]', '/').Substring($_.FullName.IndexOf($pattern) + $pattern.Length) }
-    } | Sort-Object SortKey | ForEach-Object { $_.SpecFile }
+      DirPath = $dirPath
+    }
+  } | Sort-Object -Property @{Expression = { $_.DirPath -replace '/', '!' }; Ascending = $true} | ForEach-Object { $_.SpecFile }
 }
-
 
 function Get-SubPath {
     param (
