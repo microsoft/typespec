@@ -196,17 +196,13 @@ function addPagingInformation(
   method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
   operationGroupName: string,
 ) {
-  const referredBy =
-    method.kind === "paging"
-      ? ReferredByOperationTypes.PagingOnly
-      : ReferredByOperationTypes.NonPagingOnly;
   for (const response of method.operation.responses) {
     if (response.type) {
       const type = getType(context, response.type);
       if (type["referredByOperationType"] === undefined) {
         type["referredByOperationType"] = ReferredByOperationTypes.Default;
       }
-      type["referredByOperationType"] |= referredBy;
+      type["referredByOperationType"] |= ReferredByOperationTypes.PagingOnly;
     }
   }
   const itemType = getType(context, method.response.type!);
