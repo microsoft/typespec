@@ -79,3 +79,20 @@ describe("extension value", () => {
     expect(oapi.components.schemas.Foo["x-custom"]).toEqual(expected);
   });
 });
+
+describe("HttpPart extensions", () => {
+  it("extension on HttpPart should be emitted on schema property", async () => {
+    const oapi = await openApiFor(`
+      @route("/") @post op upload(
+        @header contentType: "multipart/form-data",
+        @multipartBody body: {
+          @extension("x-oaiTypeLabel", "file")
+          file: HttpPart<bytes>;
+        }
+      ): void;
+    `);
+    
+    const schema = oapi.paths["/"].post.requestBody.content["multipart/form-data"].schema;
+    expect(schema.properties.file["x-oaiTypeLabel"]).toEqual("file");
+  });
+});
