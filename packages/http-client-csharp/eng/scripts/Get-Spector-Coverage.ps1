@@ -35,7 +35,6 @@ $specs = Get-Sorted-Specs
          continue
      }
 
-     $outputDir = Join-Path $spectorRoot $subPath
      $command = Get-TspCommand $specFile $outputDir
      Invoke $command
      # exit if the generation failed
