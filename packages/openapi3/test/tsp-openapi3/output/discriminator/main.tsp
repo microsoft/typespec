@@ -10,13 +10,11 @@ using OpenAPI;
 namespace title;
 
 model Dog {
-  type: string;
   name: string;
   age_in_dog_years?: int32;
 }
 
 model Cat {
-  type: string;
   name: string;
   age_in_cat_years?: int32;
 }
