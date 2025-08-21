@@ -14,6 +14,7 @@ import { Context } from "../utils/context.js";
 import { getExtensions, getParameterDecorators } from "../utils/decorators.js";
 import { getScopeAndName } from "../utils/get-scope-and-name.js";
 import { supportedHttpMethods } from "../utils/supported-http-methods.js";
+import { inferOperationId } from "../utils/infer-operationid.js";
 
 /**
  * Transforms each operation defined under #/paths/{route}/{httpMethod} into a TypeSpec operation.
@@ -49,8 +50,13 @@ export function transformPaths(
         decorators.push({ name: "summary", args: [operation.summary] });
       }
 
+      let operationId = operation.operationId;
+      if (typeof operationId === 'undefined') {
+        operationId = inferOperationId(verb, route);
+      }
+
       operations.push({
-        ...getScopeAndName(operation.operationId!),
+        ...getScopeAndName(operationId),
         decorators,
         parameters: dedupeParameters([...routeParameters, ...parameters]),
         doc: operation.description,
