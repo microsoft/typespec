@@ -764,7 +764,9 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         if is_paging:
             return retval
         same_content_type = len(set(o.parameters.body_parameter.default_content_type for o in builder.overloads)) == 1
-        if same_content_type:
+        body_parameter = builder.parameters.body_parameter if builder.parameters.has_body else None
+        is_body_optional = body_parameter.optional if body_parameter and body_parameter.in_method_signature else False
+        if same_content_type and not is_body_optional:
             default_content_type = builder.overloads[0].parameters.body_parameter.default_content_type
             retval.append(f'content_type = content_type or "{default_content_type}"')
         client_names = [
@@ -780,7 +782,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             )
             binary_body_param = binary_overload.parameters.body_parameter
             retval.append(f"if {binary_body_param.type.instance_check_template.format(binary_body_param.client_name)}:")
-            if binary_body_param.default_content_type and not same_content_type:
+            if binary_body_param.default_content_type and not same_content_type and not is_body_optional:
                 retval.append(f'    content_type = content_type or "{binary_body_param.default_content_type}"')
             retval.extend(f"    {l}" for l in self._create_body_parameter(binary_overload))
             retval.append("else:")
@@ -789,7 +791,11 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 next((o for o in builder.overloads if not isinstance(o.parameters.body_parameter.type, BinaryType))),
             )
             retval.extend(f"    {l}" for l in self._create_body_parameter(other_overload))
-            if other_overload.parameters.body_parameter.default_content_type and not same_content_type:
+            if (
+                other_overload.parameters.body_parameter.default_content_type
+                and not same_content_type
+                and not is_body_optional
+            ):
                 retval.append(
                     "    content_type = content_type or "
                     f'"{other_overload.parameters.body_parameter.default_content_type}"'
@@ -801,7 +807,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 retval.append(
                     f"{if_statement} {body_param.type.instance_check_template.format(body_param.client_name)}:"
                 )
-                if body_param.default_content_type and not same_content_type:
+                if body_param.default_content_type and not same_content_type and not is_body_optional:
                     retval.append(f'    content_type = content_type or "{body_param.default_content_type}"')
                 retval.extend(f"    {l}" for l in self._create_body_parameter(cast(OperationType, overload)))
         return retval
