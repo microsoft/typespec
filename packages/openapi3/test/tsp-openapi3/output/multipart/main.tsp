@@ -25,7 +25,11 @@ model PetOwner {
     owner: HttpPart<PetOwner & {
       @header contentType: "application/json";
     }>;
+
+    @extension("x-oaiTypeLabel", "file")
     file: HttpPart<File<"image/png">>;
+
     referrer?: HttpPart<string>;
+    age: HttpPart<int32>;
   },
 ): NoContentResponse;

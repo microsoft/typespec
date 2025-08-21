@@ -213,10 +213,29 @@ export class SchemaToExpressionGenerator {
 
   private isDefaultPartType(partType: string, partMediaType: string): boolean {
     return (
-      (partType === "string" && partMediaType === "text/plain") ||
+      ((partType === "string" || this.numericTypes[partType]) && partMediaType === "text/plain") ||
       (partType === "File" && partMediaType === "application/octet-stream")
     );
   }
+  private readonly numericTypes: Record<string, boolean> = {
+    // https://typespec.io/docs/language-basics/built-in-types/
+    numeric: true,
+    integer: true,
+    float: true,
+    float32: true,
+    float64: true,
+    int8: true,
+    int16: true,
+    int32: true,
+    int64: true,
+    safeint: true,
+    uint8: true,
+    uint16: true,
+    uint32: true,
+    uint64: true,
+    decimal: true,
+    decimal128: true,
+  };
 
   private readonly filePartMediaTypes: Record<string, boolean> = {
     "application/octet-stream": true,

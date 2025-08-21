@@ -18,11 +18,17 @@ paths:
                 file:
                   type: string
                   format: binary
+                  # this validates extensions are indeed imported for http parts
+                  x-oaiTypeLabel: file
                 referrer:
                   type: string
+                age:
+                  type: integer
+                  format: int32
               required:
                 - owner
                 - file
+                - age
             encoding:
               owner:
                 contentType: application/json
