@@ -52,6 +52,11 @@ SPECIAL_HEADER_SERIALIZATION: Dict[str, List[str]] = {
 }
 
 
+def check_body_optional(body_parameter: Optional[BodyParameterType]) -> bool:
+    """Check if the body parameter is optional."""
+    return body_parameter.optional if body_parameter and body_parameter.in_method_signature else False
+
+
 class ParameterSerializer:
 
     def __init__(self, serialize_namespace: str) -> None:
@@ -187,7 +192,7 @@ class ParameterSerializer:
 
         append_pop_kwarg("headers", pop_headers_kwarg)
         append_pop_kwarg("params", pop_params_kwarg)
-        is_body_optional = body_parameter.optional if body_parameter and body_parameter.in_method_signature else False
+        is_body_optional = check_body_optional(body_parameter)
         if pop_headers_kwarg != PopKwargType.NO or pop_params_kwarg != PopKwargType.NO:
             retval.append("")
         for kwarg in parameters:

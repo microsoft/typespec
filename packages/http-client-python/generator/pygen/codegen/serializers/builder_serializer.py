@@ -33,7 +33,7 @@ from ..models import (
     ByteArraySchema,
 )
 from ..models.utils import NamespaceType
-from .parameter_serializer import ParameterSerializer, PopKwargType
+from .parameter_serializer import ParameterSerializer, PopKwargType, check_body_optional
 from ..models.parameter_list import ParameterType
 from . import utils
 from ...utils import xml_serializable, json_serializable
@@ -764,8 +764,9 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         if is_paging:
             return retval
         same_content_type = len(set(o.parameters.body_parameter.default_content_type for o in builder.overloads)) == 1
-        body_parameter = builder.parameters.body_parameter if builder.parameters.has_body else None
-        is_body_optional = body_parameter.optional if body_parameter and body_parameter.in_method_signature else False
+        is_body_optional = check_body_optional(
+            builder.parameters.body_parameter if builder.parameters.has_body else None
+        )
         if same_content_type and not is_body_optional:
             default_content_type = builder.overloads[0].parameters.body_parameter.default_content_type
             retval.append(f'content_type = content_type or "{default_content_type}"')
