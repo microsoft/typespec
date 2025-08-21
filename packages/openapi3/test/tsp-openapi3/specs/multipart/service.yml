@@ -39,6 +39,26 @@ paths:
       responses:
         "204":
           description: The request has succeeded.
+  /profile:
+  #alternative test for component schemas
+    post:
+      operationId: extensive
+      parameters: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/PetOwnerProfileRequestBody"
+            encoding:
+              owner:
+                contentType: application/json
+              file:
+                contentType: image/png
+              referrer:
+                contentType: text/plain
+      responses:
+        "204":
+          description: The request has succeeded.
 components:
   schemas:
     Pet:
@@ -58,3 +78,22 @@ components:
           type: string
         pet:
           $ref: "#/components/schemas/Pet"
+    PetOwnerProfileRequestBody:
+      type: object
+      properties:
+        owner:
+          $ref: "#/components/schemas/PetOwner"
+        file:
+          type: string
+          format: binary
+          # this validates extensions are indeed imported for http parts
+          x-oaiTypeLabel: file
+        referrer:
+          type: string
+        age:
+          type: integer
+          format: int32
+      required:
+        - owner
+        - file
+        - age
