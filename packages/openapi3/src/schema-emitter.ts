@@ -58,6 +58,7 @@ import { $ } from "@typespec/compiler/typekit";
 import { MetadataInfo, Visibility, getVisibilitySuffix } from "@typespec/http";
 import {
   checkDuplicateTypeName,
+  getExtensions,
   getExternalDocs,
   getOpenAPITypeName,
   isReadonlyProperty,

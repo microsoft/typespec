@@ -1155,12 +1155,10 @@ function createOAPIEmitter(
     visibility: Visibility,
     contentType: string,
   ): OpenAPI3MediaType {
-    console.log("=== MULTIPART FUNCTION CALLED ===");
     const properties: Record<string, OpenAPI3Schema> = {};
     const requiredProperties: string[] = [];
     const encodings: Record<string, OpenAPI3Encoding> = {};
     for (const [partIndex, part] of body.parts.entries()) {
-      console.log("Processing part:", partIndex, "name:", part.name);
       const partName = part.name ?? `part${partIndex}`;
       let schema =
         part.body.bodyKind === "file"
@@ -1197,7 +1195,24 @@ function createOAPIEmitter(
         }
 
         // Attach any OpenAPI extensions from the part property
-        attachExtensions(program, part.property, schema);
+        const extensions = getExtensions(program, part.property);
+        if (extensions.size > 0) {
+          for (const [key, value] of extensions) {
+            if (schema.$ref) {
+              // If we have a $ref, we need to update the allOf structure
+              if (schema.allOf) {
+                // We already have allOf due to doc, add extensions to the wrapper
+                (schema as any)[key] = value;
+              } else {
+                // Create allOf structure with extensions
+                schema = { allOf: [{ $ref: schema.$ref }], [key]: value };
+              }
+            } else {
+              // Direct assignment to schema
+              (schema as any)[key] = value;
+            }
+          }
+        }
       }
 
       properties[partName] = schema;
