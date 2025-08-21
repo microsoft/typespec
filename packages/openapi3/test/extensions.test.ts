@@ -81,11 +81,46 @@ describe("extension value", () => {
 });
 
 describe("HttpPart extensions", () => {
+  it("extension on normal model property works", async () => {
+    const oapi = await openApiFor(`
+      model Test {
+        @extension("x-test", "value") 
+        prop: string;
+      }
+      
+      @route("/") @get op get(): Test;
+    `);
+    
+    const schema = oapi.components.schemas.Test;
+    expect(schema.properties.prop["x-test"]).toEqual("value");
+  });
+
+  it("extension on HttpPart with named model should be emitted", async () => {
+    const oapi = await openApiFor(`
+      model MultipartForm {
+        /** My doc */
+        @extension("x-oaiTypeLabel", "file")
+        file: HttpPart<bytes>;
+      }
+
+      @route("/") @post op upload(
+        @header contentType: "multipart/form-data",
+        @multipartBody body: MultipartForm
+      ): void;
+    `);
+    
+    const schema = oapi.components.schemas.MultipartForm;
+    console.log("Named model schema properties:", JSON.stringify(schema.properties, null, 2));
+    expect(schema.properties.file.description).toEqual("My doc");
+    expect(schema.properties.file["x-oaiTypeLabel"]).toEqual("file");
+  });
+
   it("extension on HttpPart should be emitted on schema property", async () => {
     const oapi = await openApiFor(`
       @route("/") @post op upload(
         @header contentType: "multipart/form-data",
         @multipartBody body: {
+          /** My doc */
           @extension("x-oaiTypeLabel", "file")
           file: HttpPart<bytes>;
         }
@@ -93,6 +128,10 @@ describe("HttpPart extensions", () => {
     `);
     
     const schema = oapi.paths["/"].post.requestBody.content["multipart/form-data"].schema;
+    console.log("Schema properties:", JSON.stringify(schema.properties, null, 2));
+    // First check if doc is working
+    expect(schema.properties.file.description).toEqual("My doc");
+    // Then check if extension is working
     expect(schema.properties.file["x-oaiTypeLabel"]).toEqual("file");
   });
 });

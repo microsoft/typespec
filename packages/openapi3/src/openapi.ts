@@ -1155,10 +1155,12 @@ function createOAPIEmitter(
     visibility: Visibility,
     contentType: string,
   ): OpenAPI3MediaType {
+    console.log("=== MULTIPART FUNCTION CALLED ===");
     const properties: Record<string, OpenAPI3Schema> = {};
     const requiredProperties: string[] = [];
     const encodings: Record<string, OpenAPI3Encoding> = {};
     for (const [partIndex, part] of body.parts.entries()) {
+      console.log("Processing part:", partIndex, "name:", part.name);
       const partName = part.name ?? `part${partIndex}`;
       let schema =
         part.body.bodyKind === "file"
@@ -1193,6 +1195,9 @@ function createOAPIEmitter(
             schema = { ...schema, description: doc };
           }
         }
+
+        // Attach any OpenAPI extensions from the part property
+        attachExtensions(program, part.property, schema);
       }
 
       properties[partName] = schema;
