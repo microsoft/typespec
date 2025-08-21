@@ -18,6 +18,7 @@ import {
 } from "@azure-tools/typespec-client-generator-core";
 import { ignoreDiagnostics } from "@typespec/compiler";
 import {
+  ReferredByOperationTypes,
   emitBasicHttpMethod,
   emitLroHttpMethod,
   emitLroPagingHttpMethod,
@@ -152,31 +153,12 @@ function emitMethodParameter(
   return [base];
 }
 
-enum ReferredByOperationTypes {
-  Default = 0,
-  PagingOnly = 1,
-  NonPagingOnly = 2,
-}
-
 function emitMethod<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext,
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkServiceMethod<TServiceOperation>,
   operationGroupName: string,
 ): Record<string, any>[] {
-  const referredBy =
-    method.kind === "paging"
-      ? ReferredByOperationTypes.PagingOnly
-      : ReferredByOperationTypes.NonPagingOnly;
-  for (const response of method.operation.responses) {
-    if (response.type) {
-      const type = getType(context, response.type);
-      if (type["referredByOperationType"] === undefined) {
-        type["referredByOperationType"] = ReferredByOperationTypes.Default;
-      }
-      type["referredByOperationType"] |= referredBy;
-    }
-  }
   switch (method.kind) {
     case "basic":
       return emitBasicMethod(context, rootClient, method, operationGroupName);

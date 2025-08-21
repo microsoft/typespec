@@ -35,6 +35,12 @@ import {
   isContinuationToken,
 } from "./utils.js";
 
+export enum ReferredByOperationTypes {
+  Default = 0,
+  PagingOnly = 1,
+  NonPagingOnly = 2,
+}
+
 function isContentTypeParameter(parameter: SdkHeaderParameter) {
   return parameter.serializedName.toLowerCase() === "content-type";
 }
@@ -190,6 +196,19 @@ function addPagingInformation(
   method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
   operationGroupName: string,
 ) {
+  const referredBy =
+    method.kind === "paging"
+      ? ReferredByOperationTypes.PagingOnly
+      : ReferredByOperationTypes.NonPagingOnly;
+  for (const response of method.operation.responses) {
+    if (response.type) {
+      const type = getType(context, response.type);
+      if (type["referredByOperationType"] === undefined) {
+        type["referredByOperationType"] = ReferredByOperationTypes.Default;
+      }
+      type["referredByOperationType"] |= referredBy;
+    }
+  }
   const itemType = getType(context, method.response.type!);
   const base = emitHttpOperation(context, rootClient, operationGroupName, method.operation, method);
   const itemName = getWireNameWithDiagnostics(
@@ -493,6 +512,18 @@ function emitHttpResponse(
   } else if (response.type) {
     type = getType(context, response.type);
   }
+
+  if (method && type) {
+    const referredBy =
+      method.kind === "paging"
+        ? ReferredByOperationTypes.PagingOnly
+        : ReferredByOperationTypes.NonPagingOnly;
+    if (type["referredByOperationType"] === undefined) {
+      type["referredByOperationType"] = ReferredByOperationTypes.Default;
+    }
+    type["referredByOperationType"] |= referredBy;
+  }
+
   return {
     headers: response.headers.map((x) => emitHttpResponseHeader(context, x)),
     statusCodes:
