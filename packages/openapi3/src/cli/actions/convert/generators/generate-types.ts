@@ -199,8 +199,9 @@ export class SchemaToExpressionGenerator {
     }
     const encodingForProperty = encoding?.[name];
     const filePartType =
-      encodingForProperty?.contentType && this.isFilePartMediaType(encodingForProperty?.contentType)
-        ? `File${this.isDefaultPartType("File", encodingForProperty.contentType) ? "" : `<"${encodingForProperty.contentType}">`}`
+      encodingForProperty?.contentType &&
+      this.shouldUpgradeToFileDefinition(propType, encodingForProperty.contentType)
+        ? `File<"${encodingForProperty.contentType}">`
         : undefined;
     const contentTypeHeader =
       encodingForProperty?.contentType &&
@@ -214,8 +215,12 @@ export class SchemaToExpressionGenerator {
   private isDefaultPartType(partType: string, partMediaType: string): boolean {
     return (
       ((partType === "string" || this.numericTypes[partType]) && partMediaType === "text/plain") ||
-      (partType === "File" && partMediaType === "application/octet-stream")
+      (partType === "bytes" && partMediaType === "application/octet-stream")
     );
+  }
+
+  private shouldUpgradeToFileDefinition(partType: string, partMediaType: string): boolean {
+    return partType === "bytes" && !this.isDefaultPartType(partType, partMediaType);
   }
   private readonly numericTypes: Record<string, boolean> = {
     // https://typespec.io/docs/language-basics/built-in-types/
@@ -236,22 +241,6 @@ export class SchemaToExpressionGenerator {
     decimal: true,
     decimal128: true,
   };
-
-  private readonly filePartMediaTypes: Record<string, boolean> = {
-    "application/octet-stream": true,
-    "application/pdf": true,
-    "image/jpeg": true,
-    "image/png": true,
-    "image/gif": true,
-    "image/webp": true,
-    "video/mp4": true,
-    "video/mpeg": true,
-    "audio/mpeg": true,
-  };
-
-  private isFilePartMediaType(partMediaType: string): boolean {
-    return this.filePartMediaTypes[partMediaType] === true;
-  }
 
   private getObjectType(
     schema: OpenAPI3Schema,
