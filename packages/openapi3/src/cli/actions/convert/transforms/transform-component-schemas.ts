@@ -24,13 +24,14 @@ export function transformComponentSchemas(context: Context, models: TypeSpecMode
 
   for (const name of Object.keys(schemas)) {
     const schema = schemas[name];
-    transformComponentSchema(models, name, schema);
+    transformComponentSchema(models, name, context, schema);
   }
 
   return;
   function transformComponentSchema(
     types: TypeSpecDataTypes[],
     name: string,
+    context: Context,
     schema: OpenAPI3Schema,
   ): void {
     const kind = getTypeSpecKind(schema);
@@ -40,7 +41,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecMode
       case "enum":
         return populateEnum(types, name, schema);
       case "model":
-        return populateModel(types, name, schema);
+        return populateModel(types, name, context, schema);
       case "union":
         return populateUnion(types, name, schema);
       case "scalar":
@@ -83,11 +84,17 @@ export function transformComponentSchemas(context: Context, models: TypeSpecMode
   function populateModel(
     types: TypeSpecDataTypes[],
     rawName: string,
+    context: Context,
     schema: OpenAPI3Schema,
   ): void {
     const { name, scope } = getScopeAndName(rawName);
     const allOfDetails = getAllOfDetails(schema, scope);
     const isParent = getModelIs(schema, scope);
+    const isModelReferencedAsMultipartRequestBody =
+      context.isSchemaReferenceRegisteredForMultipartForm(name);
+    const encoding = isModelReferencedAsMultipartRequestBody
+      ? context.getMultipartSchemaEncoding(name)
+      : undefined;
     types.push({
       kind: "model",
       name,
@@ -101,6 +108,8 @@ export function transformComponentSchemas(context: Context, models: TypeSpecMode
       is: isParent,
       type: schema.type,
       spread: allOfDetails.spread,
+      isModelReferencedAsMultipartRequestBody,
+      encoding,
     });
   }
 

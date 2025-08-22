@@ -1,5 +1,5 @@
 import { printIdentifier } from "@typespec/compiler";
-import { OpenAPI3Schema, Refable } from "../../../../types.js";
+import { OpenAPI3Encoding, OpenAPI3Schema, Refable } from "../../../../types.js";
 import {
   TypeSpecAlias,
   TypeSpecDataTypes,
@@ -159,7 +159,15 @@ function generateModel(model: TypeSpecModel, context: Context): string {
   }
 
   definitions.push(
-    ...model.properties.map((prop) => generateModelProperty(prop, model.scope, context)),
+    ...model.properties.map((prop) =>
+      generateModelProperty(
+        prop,
+        model.scope,
+        context,
+        model.isModelReferencedAsMultipartRequestBody,
+        model.encoding,
+      ),
+    ),
   );
 
   if (model.additionalProperties) {
@@ -177,7 +185,16 @@ export function generateModelProperty(
   prop: TypeSpecModelProperty,
   containerScope: string[],
   context: Context,
+  isModelReferencedAsMultipartRequestBody?: boolean,
+  encoding?: Record<string, OpenAPI3Encoding>,
 ): string {
+  const propertyType = context.generateTypeFromRefableSchema(
+    prop.schema,
+    containerScope,
+    isModelReferencedAsMultipartRequestBody,
+    encoding,
+  );
+
   // Decorators will be a combination of top-level (parameters) and
   // schema-level decorators.
   const decorators = generateDecorators([
@@ -187,7 +204,7 @@ export function generateModelProperty(
 
   const doc = prop.doc ? generateDocs(prop.doc) : "";
 
-  return `${doc}${decorators} ${prop.name}${prop.isOptional ? "?" : ""}: ${context.generateTypeFromRefableSchema(prop.schema, containerScope)};`;
+  return `${doc}${decorators} ${prop.name}${prop.isOptional ? "?" : ""}: ${propertyType};`;
 }
 
 export function generateModelExpression(
