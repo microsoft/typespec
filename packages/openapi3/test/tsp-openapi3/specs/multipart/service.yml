@@ -40,9 +40,9 @@ paths:
         "204":
           description: The request has succeeded.
   /profile:
-  #alternative test for component schemas
+    #alternative test for component schemas
     post:
-      operationId: extensive
+      operationId: extensiveWithComponents
       parameters: []
       requestBody:
         content:

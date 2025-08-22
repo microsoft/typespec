@@ -43,7 +43,7 @@ model PetOwnerProfileRequestBody {
   },
 ): NoContentResponse;
 
-@route("/profile") @post op extensive(
+@route("/profile") @post op extensiveWithComponents(
   @header contentType: "multipart/form-data",
   @multipartBody body: PetOwnerProfileRequestBody,
 ): NoContentResponse;
