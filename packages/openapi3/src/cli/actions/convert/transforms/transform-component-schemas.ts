@@ -90,10 +90,11 @@ export function transformComponentSchemas(context: Context, models: TypeSpecMode
     const { name, scope } = getScopeAndName(rawName);
     const allOfDetails = getAllOfDetails(schema, scope);
     const isParent = getModelIs(schema, scope);
+    const refName = `#/components/schemas/${rawName}`;
     const isModelReferencedAsMultipartRequestBody =
-      context.isSchemaReferenceRegisteredForMultipartForm(name);
+      context.isSchemaReferenceRegisteredForMultipartForm(refName);
     const encoding = isModelReferencedAsMultipartRequestBody
-      ? context.getMultipartSchemaEncoding(name)
+      ? context.getMultipartSchemaEncoding(refName)
       : undefined;
     types.push({
       kind: "model",
