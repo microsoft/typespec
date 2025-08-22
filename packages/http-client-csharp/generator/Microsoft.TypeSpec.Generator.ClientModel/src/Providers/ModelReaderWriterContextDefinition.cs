@@ -150,7 +150,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 CollectBuildableTypesRecursive(propertyType.WithNullable(false), buildableTypes, visitedTypes, providers);
             }
 
-            // Process inheritance hierarchy
+            // Always traverse base types, regardless of whether the current type implements the interface
+            // This ensures we find nested types that might implement the interfaces
             if (provider is ModelProvider modelProvider && modelProvider.BaseModelProvider != null)
             {
                 CollectBuildableTypesRecursive(modelProvider.BaseModelProvider, buildableTypes, visitedTypes, providers);
@@ -212,19 +213,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static bool ShouldProcessType(CSharpType type, HashSet<CSharpType> visitedTypes)
         {
-            if (visitedTypes.Contains(type))
+            if (!visitedTypes.Add(type))
             {
                 return false;
             }
 
-            visitedTypes.Add(type);
-
-            if (IsModelReaderWriterInterfaceType(type))
-            {
-                return false;
-            }
-
-            return true;
+            return !IsModelReaderWriterInterfaceType(type);
         }
 
         private static CSharpType GetInnerMostElement(CSharpType type)
