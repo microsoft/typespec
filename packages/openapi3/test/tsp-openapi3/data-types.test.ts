@@ -4,6 +4,48 @@ import { expectDecorators } from "./utils/expect.js";
 import { tspForOpenAPI3 } from "./utils/tsp-for-openapi3.js";
 
 describe("converts top-level schemas", () => {
+  it("prioritizes discriminator information over enum convention", async () => {
+    const serviceNamespace = await tspForOpenAPI3({
+      schemas: {
+        Cat: {
+          type: "object",
+          properties: {
+            age: { type: "integer", format: "int32" },
+          },
+        },
+        Dog: {
+          type: "object",
+          properties: {
+            age: { type: "integer", format: "int32" },
+          },
+        },
+        Pet: {
+          type: "object",
+          properties: {
+            type: { type: "string", enum: ["cat", "dog", "BigCat", "BigDog"] },
+          },
+          oneOf: [{ $ref: "#/components/schemas/Cat" }, { $ref: "#/components/schemas/Dog" }],
+          discriminator: {
+            propertyName: "type",
+            mapping: {
+              cat: "#/components/schemas/Cat",
+              dog: "#/components/schemas/Dog",
+            },
+          },
+        },
+      },
+    });
+
+    const unions = serviceNamespace.unions;
+    const perUnion = unions.get("Pet");
+    expect(perUnion).toBeDefined();
+    expect(perUnion?.variants.size).toBe(2);
+    expect(perUnion?.variants.get("dog")).toBeDefined();
+    expect(perUnion?.variants.get("cat")).toBeDefined();
+    expect(perUnion?.variants.get("BigCat")).toBeUndefined();
+    expect(perUnion?.variants.get("BigDog")).toBeUndefined();
+  });
+
   it("handles scalars", async () => {
     const serviceNamespace = await tspForOpenAPI3({
       schemas: {
