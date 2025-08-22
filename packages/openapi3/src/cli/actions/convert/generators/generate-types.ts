@@ -197,19 +197,20 @@ export class SchemaToExpressionGenerator {
     if (!isHttpPart) {
       return propType;
     }
+    const propTypeWithoutDefault = propType.replace(/ = .*/, "");
     const encodingForProperty = encoding?.[name];
     const filePartType =
       encodingForProperty?.contentType &&
-      this.shouldUpgradeToFileDefinition(propType, encodingForProperty.contentType)
+      this.shouldUpgradeToFileDefinition(propTypeWithoutDefault, encodingForProperty.contentType)
         ? `File<"${encodingForProperty.contentType}">`
         : undefined;
     const contentTypeHeader =
       encodingForProperty?.contentType &&
       !filePartType &&
-      !this.isDefaultPartType(propType, encodingForProperty.contentType)
+      !this.isDefaultPartType(propTypeWithoutDefault, encodingForProperty.contentType)
         ? ` & { @header contentType: "${encodingForProperty.contentType}" }`
         : "";
-    return `HttpPart<${filePartType ?? propType}${contentTypeHeader}>`;
+    return `HttpPart<${filePartType ?? propTypeWithoutDefault}${contentTypeHeader}>`;
   }
 
   private isDefaultPartType(partType: string, partMediaType: string): boolean {
