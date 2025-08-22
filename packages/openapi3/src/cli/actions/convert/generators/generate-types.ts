@@ -207,7 +207,7 @@ export class SchemaToExpressionGenerator {
       encodingForProperty?.contentType &&
       !filePartType &&
       !this.isDefaultPartType(propType, encodingForProperty.contentType)
-        ? ` & { @header contentType "${encodingForProperty.contentType}" }`
+        ? ` & { @header contentType: "${encodingForProperty.contentType}" }`
         : "";
     return `HttpPart<${filePartType ?? propType}${contentTypeHeader}>`;
   }
