@@ -773,7 +773,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
 
         if same_content_type:
             default_content_type = builder.overloads[0].parameters.body_parameter.default_content_type
-            retval.append(f'content_type = content_type or "{default_content_type}{check_body_suffix}"')
+            retval.append(f'content_type = content_type or "{default_content_type}"{check_body_suffix}')
         client_names = [
             overload.request_builder.parameters.body_parameter.client_name for overload in builder.overloads
         ]
@@ -789,7 +789,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             retval.append(f"if {binary_body_param.type.instance_check_template.format(binary_body_param.client_name)}:")
             if binary_body_param.default_content_type and not same_content_type:
                 retval.append(
-                    f'    content_type = content_type or "{binary_body_param.default_content_type}{check_body_suffix}"'
+                    f'    content_type = content_type or "{binary_body_param.default_content_type}"{check_body_suffix}'
                 )
             retval.extend(f"    {l}" for l in self._create_body_parameter(binary_overload))
             retval.append("else:")
@@ -801,7 +801,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             if other_overload.parameters.body_parameter.default_content_type and not same_content_type:
                 retval.append(
                     "    content_type = content_type or "
-                    f'"{other_overload.parameters.body_parameter.default_content_type}{check_body_suffix}"'
+                    f'"{other_overload.parameters.body_parameter.default_content_type}"{check_body_suffix}'
                 )
         except StopIteration:
             for idx, overload in enumerate(builder.overloads):
@@ -812,7 +812,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 )
                 if body_param.default_content_type and not same_content_type:
                     retval.append(
-                        f'    content_type = content_type or "{body_param.default_content_type}{check_body_suffix}"'
+                        f'    content_type = content_type or "{body_param.default_content_type}"{check_body_suffix}'
                     )
                 retval.extend(f"    {l}" for l in self._create_body_parameter(cast(OperationType, overload)))
         return retval
