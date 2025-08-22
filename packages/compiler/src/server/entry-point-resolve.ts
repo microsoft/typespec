@@ -1,31 +1,30 @@
 import { NodeSystemHost } from "../core/node-system-host.js";
 import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
+import { existingFile } from "../utils/fs-utils.js";
 import { resolveTspMain } from "../utils/misc.js";
+import { ServerLog } from "./types.js";
 
 export async function resolveEntrypointFile(
   entrypoints: string[] | undefined,
   path: string,
-  log: (log: { level: string; message: string; detail?: unknown }) => void,
+  log: (log: ServerLog) => void,
 ): Promise<string> {
   let dir = getDirectoryPath(path);
   let packageJsonEntrypoint: string | undefined;
+  if (entrypoints === undefined) {
+    entrypoints = ["main.tsp"]; // add default entrypoint
+  }
 
   while (true) {
-    if (entrypoints) {
-      // Check for client provided entrypoints (highest priority)
-      if (entrypoints.length > 0) {
-        entrypoints.push("main.tsp"); // add default entrypoint
-      }
-
-      for (const entrypoint of entrypoints) {
-        const candidate = await existingFile(dir, entrypoint);
-        if (candidate) {
-          log({
-            level: "debug",
-            message: `main file found using client provided entrypoint: ${candidate}`,
-          });
-          return candidate;
-        }
+    // Check for client provided entrypoints (highest priority)
+    for (const entrypoint of entrypoints) {
+      const candidate = await existingFile(dir, entrypoint);
+      if (candidate) {
+        log({
+          level: "debug",
+          message: `main file found using client provided entrypoint: ${candidate}`,
+        });
+        return candidate;
       }
     }
 
@@ -60,10 +59,4 @@ export async function resolveEntrypointFile(
 
   log({ level: "debug", message: `reached directory root, using ${path} as main file` });
   return path;
-
-  async function existingFile(dir: string, fileName: string): Promise<string | undefined> {
-    const candidate = joinPaths(dir, fileName);
-    const stat = await NodeSystemHost.stat(candidate);
-    return stat?.isFile() ? candidate : undefined;
-  }
 }

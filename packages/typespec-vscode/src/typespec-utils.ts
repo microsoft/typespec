@@ -1,4 +1,4 @@
-import { SourceLocation } from "@typespec/compiler";
+import { ServerLog, SourceLocation } from "@typespec/compiler";
 import { resolveEntrypointFile, ServerDiagnostic } from "@typespec/compiler/internals";
 import vscode from "vscode";
 import { StartFileName } from "./const.js";
@@ -12,24 +12,8 @@ export async function getEntrypointTspFile(tspPath: string): Promise<string | un
   const configEntrypoints = vscode.workspace
     .getConfiguration()
     .get<string[]>(SettingName.CompileEntrypoint);
-  const logAdapter = (logInfo: { level: string; message: string; detail?: unknown }) => {
-    switch (logInfo.level) {
-      case "error":
-        logger.error(logInfo.message, logInfo.detail ? [logInfo.detail] : undefined);
-        break;
-      case "warning":
-      case "warn":
-        logger.warning(logInfo.message, logInfo.detail ? [logInfo.detail] : undefined);
-        break;
-      case "info":
-        logger.info(logInfo.message, logInfo.detail ? [logInfo.detail] : undefined);
-        break;
-      case "debug":
-      case "trace":
-      default:
-        logger.debug(logInfo.message, logInfo.detail ? [logInfo.detail] : undefined);
-        break;
-    }
+  const logAdapter = (log: ServerLog) => {
+    logger.log(log.level as any, log.message, log.detail as any);
   };
   return await resolveEntrypointFile(configEntrypoints, tspPath, logAdapter);
 }

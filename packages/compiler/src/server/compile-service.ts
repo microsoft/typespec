@@ -327,9 +327,6 @@ export function createCompileService({
     }
 
     const entrypoints = clientConfigsProvider?.config?.entrypoint;
-    const logAdapter = (logInfo: { level: string; message: string; detail?: unknown }) => {
-      log({ level: logInfo.level as any, message: logInfo.message, detail: logInfo.detail });
-    };
-    return resolveEntrypointFile(entrypoints, path, logAdapter);
+    return resolveEntrypointFile(entrypoints, path, log);
   }
 }

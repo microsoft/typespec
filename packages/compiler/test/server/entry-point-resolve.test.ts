@@ -1,0 +1,90 @@
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { NodeSystemHost } from "../../src/core/node-system-host.js";
+import { joinPaths } from "../../src/core/path-utils.js";
+import { resolveEntrypointFile } from "../../src/server/entry-point-resolve.js";
+import type { ServerLog } from "../../src/server/types.js";
+import * as fsUtils from "../../src/utils/fs-utils.js";
+
+describe("compiler: server: resolveEntrypointFile", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  function createLogger() {
+    const logs: ServerLog[] = [];
+    const log = (l: ServerLog) => logs.push(l);
+    return log;
+  }
+
+  it("returns client-provided entrypoint in current directory", async () => {
+    const cwd = "/ws/project";
+    const filePath = joinPaths(cwd, "src", "doc.tsp");
+    const expected = joinPaths(cwd, "custom.tsp");
+
+    // existingFile returns the expected path only for the matching candidate
+    vi.spyOn(fsUtils, "existingFile").mockImplementation(async (dir, file) => {
+      const candidate = joinPaths(dir, file);
+      return candidate === expected ? candidate : undefined;
+    });
+
+    // Always return an empty package.json to avoid read errors during directory walk
+    vi.spyOn(NodeSystemHost, "readFile").mockResolvedValue({ text: "{}" } as any);
+
+    const log = createLogger();
+    const result = await resolveEntrypointFile(["custom.tsp", "main.tsp"], filePath, log);
+
+    expect(result).toBe(expected);
+  });
+
+  it("finds client-provided entrypoint in parent directory when not in current", async () => {
+    const root = "/repo";
+    const sub = joinPaths(root, "pkg", "src");
+    const filePath = joinPaths(sub, "file.tsp");
+    const expected = joinPaths(root, "main.tsp");
+
+    vi.spyOn(fsUtils, "existingFile").mockImplementation(async (dir, file) => {
+      const candidate = joinPaths(dir, file);
+      // Only the parent root with main.tsp exists
+      return candidate === expected ? candidate : undefined;
+    });
+    vi.spyOn(NodeSystemHost, "readFile").mockResolvedValue({ text: "{}" } as any);
+
+    const log = createLogger();
+    const result = await resolveEntrypointFile(["missing.tsp", "main.tsp"], filePath, log);
+    expect(result).toBe(expected);
+  });
+
+  it("falls back to tspMain from package.json when no client entrypoints exist", async () => {
+    const dir = "/lib";
+    const filePath = joinPaths(dir, "src", "index.tsp");
+    const pkgPath = joinPaths(dir, "package.json");
+    const tspMain = "entry.tsp";
+    const expected = joinPaths(dir, tspMain);
+
+    vi.spyOn(fsUtils, "existingFile").mockImplementation(async (d, f) => {
+      const candidate = joinPaths(d, f);
+      return candidate === expected ? candidate : undefined;
+    });
+
+    vi.spyOn(NodeSystemHost, "readFile").mockImplementation(async (path: string) => {
+      // Provide tspMain only for the starting directory's package.json; others are empty
+      const text = path === pkgPath ? JSON.stringify({ tspMain }) : "{}";
+      return { text } as any;
+    });
+
+    const log = createLogger();
+    const result = await resolveEntrypointFile(undefined, filePath, log);
+    expect(result).toBe(expected);
+  });
+
+  it("uses the given path as main when nothing else is found", async () => {
+    const filePath = "/standalone/file.tsp";
+
+    vi.spyOn(fsUtils, "existingFile").mockResolvedValue(undefined);
+    vi.spyOn(NodeSystemHost, "readFile").mockResolvedValue({ text: "{}" } as any);
+
+    const log = createLogger();
+    const result = await resolveEntrypointFile(undefined, filePath, log);
+    expect(result).toBe(filePath);
+  });
+});
