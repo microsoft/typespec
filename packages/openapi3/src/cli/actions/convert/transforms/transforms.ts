@@ -2,7 +2,6 @@ import {
   OpenAPI3Document,
   OpenAPI3PathItem,
   OpenAPI3RequestBody,
-  OpenAPI3Schema,
   Refable,
 } from "../../../../types.js";
 import { TypeSpecModel, TypeSpecProgram } from "../interfaces.js";
