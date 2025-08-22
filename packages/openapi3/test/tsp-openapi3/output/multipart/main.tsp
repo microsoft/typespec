@@ -19,6 +19,15 @@ model PetOwner {
   pet?: Pet;
 }
 
+model PetOwnerProfileRequestBody {
+  owner: HttpPart<PetOwner & {
+    @header contentType: "application/json";
+  }>;
+  @extension("x-oaiTypeLabel", "file") file: HttpPart<File<"image/png">>;
+  referrer?: HttpPart<string>;
+  age: HttpPart<int32>;
+}
+
 @route("/") @post op extensive(
   @header contentType: "multipart/form-data",
   @multipartBody body: {
@@ -32,4 +41,9 @@ model PetOwner {
     referrer?: HttpPart<string>;
     age: HttpPart<int32>;
   },
+): NoContentResponse;
+
+@route("/profile") @post op extensive(
+  @header contentType: "multipart/form-data",
+  @multipartBody body: PetOwnerProfileRequestBody,
 ): NoContentResponse;

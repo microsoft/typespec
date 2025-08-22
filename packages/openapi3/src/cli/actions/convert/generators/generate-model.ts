@@ -191,12 +191,7 @@ export function generateModelProperty(
   isModelReferencedAsMultipartRequestBody?: boolean,
   encoding?: Record<string, OpenAPI3Encoding>,
 ): string {
-  const propertyType = context.generateTypeFromRefableSchema(
-    prop.schema,
-    containerScope,
-    isModelReferencedAsMultipartRequestBody,
-    encoding,
-  );
+  const propertyType = context.generateTypeFromRefableSchema(prop.schema, containerScope);
 
   // Decorators will be a combination of top-level (parameters) and
   // schema-level decorators.
@@ -207,7 +202,7 @@ export function generateModelProperty(
 
   const doc = prop.doc ? generateDocs(prop.doc) : "";
 
-  return `${doc}${decorators} ${prop.name}${prop.isOptional ? "?" : ""}: ${propertyType};`;
+  return `${doc}${decorators} ${prop.name}${prop.isOptional ? "?" : ""}: ${context.getPartType(propertyType, prop.name, isModelReferencedAsMultipartRequestBody ?? false, encoding)};`;
 }
 
 export function generateModelExpression(

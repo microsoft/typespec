@@ -188,7 +188,7 @@ export class SchemaToExpressionGenerator {
     return definitions.join(" | ");
   }
 
-  private getPartType(
+  public getPartType(
     propType: string,
     name: string,
     isHttpPart: boolean,

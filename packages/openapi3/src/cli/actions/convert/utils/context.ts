@@ -31,6 +31,16 @@ export interface Context {
    * Checks whether a component schema is registered for multipart forms.
    */
   isSchemaReferenceRegisteredForMultipartForm(ref: string): boolean;
+  /**
+   * Get the type to use for a property that may be an http part.
+   * If the property is an http part, it will be wrapped in HttpPart<...>.
+   */
+  getPartType(
+    propType: string,
+    name: string,
+    isHttpPart: boolean,
+    encoding: Record<string, OpenAPI3Encoding> | undefined,
+  ): string;
 }
 
 export type Parser = {
@@ -78,7 +88,15 @@ export function createContext(parser: Parser, openApi3Doc: OpenAPI3Document): Co
     },
     isSchemaReferenceRegisteredForMultipartForm(ref: string): boolean {
       return multipartSchemas.has(ref);
-    }
+    },
+    getPartType(
+      propType: string,
+      name: string,
+      isHttpPart: boolean,
+      encoding: Record<string, OpenAPI3Encoding> | undefined,
+    ): string {
+      return schemaExpressionGenerator.getPartType(propType, name, isHttpPart, encoding);
+    },
   };
 
   return context;
