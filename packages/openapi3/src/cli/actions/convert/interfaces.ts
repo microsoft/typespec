@@ -39,6 +39,7 @@ export interface TypeSpecDeclaration {
   doc?: string;
   decorators: TypeSpecDecorator[];
   scope: string[];
+  fixmes?: string[];
 }
 
 export interface TypeSpecNamespace {
