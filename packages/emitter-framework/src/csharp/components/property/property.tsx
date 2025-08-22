@@ -47,7 +47,6 @@ function JsonNameAttribute(props: JsonNameAttributeProps): Children {
 function preprocessPropertyType(prop: ModelProperty): { type: Type; nullable: boolean } {
   const type = prop.type;
 
-
   if (prop.optional) {
     return { type, nullable: true };
   }
