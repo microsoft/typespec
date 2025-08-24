@@ -50,7 +50,7 @@ function main() {
   const host: ServerHost = {
     compilerHost: NodeHost,
     sendDiagnostics(params: PublishDiagnosticsParams) {
-      void connection.sendDiagnostics(params);
+      return connection.sendDiagnostics(params);
     },
     log(log: ServerLog) {
       const message = log.message;
@@ -140,9 +140,6 @@ function main() {
   connection.languages.semanticTokens.on(profile(s.buildSemanticTokens));
   connection.workspace.onDidRenameFiles(profile(s.renameFiles));
 
-  connection.languages.diagnostics.on(profile(s.onDiagnostics));
-  connection.languages.diagnostics.onWorkspace(profile(s.onWorkspaceDiagnostics));
-
   const validateInitProjectTemplate: CustomRequestName = "typespec/validateInitProjectTemplate";
   connection.onRequest(validateInitProjectTemplate, profile(s.validateInitProjectTemplate));
   const getInitProjectContextRequestName: CustomRequestName = "typespec/getInitProjectContext";
@@ -154,6 +151,7 @@ function main() {
 
   documents.onDidChangeContent(profile(s.checkChange));
   documents.onDidClose(profile(s.documentClosed));
+  documents.onDidOpen(profile(s.documentOpened));
 
   documents.listen(connection);
   connection.listen();

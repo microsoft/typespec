@@ -262,8 +262,6 @@ export class TspLanguageClient {
         { scheme: "file", language: "typespec" },
         { scheme: "untitled", language: "typespec" },
         { scheme: "file", language: "yaml", pattern: `**/${TspConfigFileName}` },
-        // include package.json file so the diagnostic pull mode will be triggered for them too
-        { scheme: "file", language: "json", pattern: `**/package.json` },
       ],
       outputChannel,
     };

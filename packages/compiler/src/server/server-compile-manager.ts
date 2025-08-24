@@ -6,38 +6,56 @@ import {
   normalizePath,
   ProcessedLog,
   Program,
+  ServerHost,
   ServerLog,
 } from "../index.js";
+import { md5 } from "../utils/misc.js";
 import { trackActionFunc } from "./server-track-action-task.js";
 import { UpdateManger } from "./update-manager.js";
 
+const ENABLE_SERVER_COMPILE_LOGGING = "ENABLE_SERVER_COMPILE_LOGGING";
 /**
  * core: linter and emitter will be set to [] when trigger compilation
  * full: compile as it is
  */
-export type CompileMode = "core" | "full";
+export type ServerCompileMode = "core" | "full";
 
-export interface CompileTrackerOptions {
-  skipCache: boolean;
-  skipOldProgramFromCache: boolean;
-  mode: CompileMode;
+export interface ServerCompileOptions {
+  skipCache?: boolean;
+  skipOldProgramFromCache?: boolean;
+  /** Make this non-optinal on purpose so that the caller needs to determine the correct mode to compile explicitly */
+  mode: ServerCompileMode;
+  /** A simple func to check if the compilation is cancelled. After compiler supports cancellation, we may want to change to use it */
+  isCancelled?: () => boolean;
 }
 
 /** All server compilation should be triggered from me */
-export class CompileTrackerManager {
+export class ServerCompileManager {
   // We may want a ttl for this
-  private trackerCache = new CompileCache();
+  private trackerCache = new CompileCache((msg) => this.logDebug(msg));
   private compileId = 0;
 
   constructor(
     private updateManager: UpdateManger,
-    private host: CompilerHost,
+    private serverHost: ServerHost,
   ) {}
+
+  private logDebug(str: string) {
+    // there will be many logs here, so only enable when this env var is on
+    // TODO: remove before check-in
+    const enableLog = true;
+    if (enableLog || process.env[ENABLE_SERVER_COMPILE_LOGGING]) {
+      this.serverHost.log({
+        level: "debug",
+        message: str,
+      });
+    }
+  }
 
   async compile(
     mainFile: string,
     compileOptions: CompilerOptions = {},
-    trackerOptions: CompileTrackerOptions = {
+    serverCompileOptions: ServerCompileOptions = {
       skipCache: false,
       skipOldProgramFromCache: false,
       mode: "full",
@@ -47,45 +65,55 @@ export class CompileTrackerManager {
     const curId = this.compileId++;
     const err = new Error();
     const lines = err.stack?.split("\n") ?? [];
-    const caller = [lines[1], lines[2], lines[3]].join("\n");
-    console.debug(
-      `Server compile #${curId}: Triggered, version=${this.updateManager.version}, mainFile=${mainFile}\n${caller}`,
+    // log where the compiler is triggered, skip the first 2 frame and only log the next 2 if exists
+    const stackLines = lines.slice(2, 3).join("\n");
+    this.logDebug(
+      `Server compile #${curId}: Triggered, version=${this.updateManager.version}, mode=${serverCompileOptions.mode}, mainFile=${mainFile}, from\n${stackLines}`,
     );
-    if (!trackerOptions.skipCache) {
-      cache = this.trackerCache.get(mainFile, compileOptions, false, trackerOptions.mode);
+    if (!serverCompileOptions.skipCache) {
+      cache = this.trackerCache.get(
+        mainFile,
+        compileOptions,
+        false /*hasCompleted*/,
+        serverCompileOptions.mode,
+      );
       if (cache && cache.isUpToDate()) {
-        console.debug(`Server compile #${curId}: Return cache`);
+        this.logDebug(
+          `Server compile #${curId}: Return cache at #${cache.getCompileId()}(${cache.getMode()})`,
+        );
         return cache;
       } else {
-        console.debug(
+        this.logDebug(
           `Server compile #${curId}: Cache miss because ${cache ? `it's outdated with version ${cache.getVersion()}` : "no cache available"}`,
         );
       }
     }
     let oldProgram = undefined;
-    if (!trackerOptions.skipOldProgramFromCache) {
+    if (!serverCompileOptions.skipOldProgramFromCache) {
       const completedTracker = this.trackerCache.get(
         mainFile,
         compileOptions,
-        true,
-        trackerOptions.mode,
+        true /* hasCompleted */,
+        serverCompileOptions.mode,
       );
       oldProgram = await completedTracker?.getCompileResult();
-      console.debug(
-        `Server compile #${curId}: Use old program from cache: ${oldProgram ? "available" : "n/a"}`,
+      this.logDebug(
+        `Server compile #${curId}: Use old program from cache: ${oldProgram ? `from #${completedTracker?.getCompileId() ?? "undefined"}` : "n/a"}`,
       );
     }
-    // BEFORE CHECKIN: remove below
-    oldProgram = undefined;
 
     const tracker = CompileTracker.compile(
       curId,
       this.updateManager,
-      this.host,
+      this.serverHost.compilerHost,
       mainFile,
       compileOptions,
-      trackerOptions.mode,
+      serverCompileOptions.mode,
       oldProgram,
+      (msg) => this.logDebug(msg),
+    );
+    this.logDebug(
+      `Server compile #${curId}: Start compilation at ${tracker.getStartTime().toISOString()}, version = ${tracker.getVersion()}, mainFile = ${tracker.getEntryPoint()}, mode = ${tracker.getMode()}`,
     );
     this.trackerCache.set(mainFile, compileOptions, tracker);
 
@@ -94,14 +122,19 @@ export class CompileTrackerManager {
 }
 
 class CompileCache {
-  private coreCache = new CompileCacheInternal();
-  private fullCache = new CompileCacheInternal();
+  private coreCache: CompileCacheInternal;
+  private fullCache: CompileCacheInternal;
+
+  constructor(private log: (msg: string) => void) {
+    this.coreCache = new CompileCacheInternal(log);
+    this.fullCache = new CompileCacheInternal(log);
+  }
 
   get(
     entrypiont: string,
     compileOption: CompilerOptions,
     hasCompleted: boolean,
-    mode: CompileMode,
+    mode: ServerCompileMode,
   ) {
     switch (mode) {
       case "core":
@@ -111,7 +144,7 @@ class CompileCache {
         // only consider using full when it's already completed, otherwise, full compilation may take longer time
         if (core && full && full.isCompleted()) {
           if (full.getVersion() > core.getVersion()) {
-            console.debug(
+            this.log(
               `Server compile: Using full cache (version ${full.getVersion()}) over core cache (version ${core.getVersion()})`,
             );
             return full;
@@ -121,7 +154,7 @@ class CompileCache {
         } else if (core) {
           return core;
         } else if (full && full.isCompleted()) {
-          console.debug(
+          this.log(
             `Server compile: Using full cache (version ${full.getVersion()}) over core cache which is unavailable`,
           );
           return full;
@@ -131,8 +164,11 @@ class CompileCache {
       case "full":
         return this.fullCache.get(entrypiont, compileOption, hasCompleted);
       default:
-        // not expected, just in case;
-        throw new Error(`Unexpected compile mode: ${mode}`);
+        // not expected, just in case, and we dont want to terminal because of cache in prod
+        if (process.env.NODE_ENV === "development") {
+          throw new Error(`Unexpected compile mode: ${mode}`);
+        }
+        return undefined;
     }
   }
 
@@ -146,23 +182,26 @@ class CompileCache {
         this.fullCache.set(entrypoint, compileOption, tracker);
         break;
       default:
-        // not expected, just in case;
-        throw new Error(`Unexpected compile mode: ${mode}`);
+        if (process.env.NODE_ENV === "development") {
+          throw new Error(`Unexpected compile mode: ${mode}`);
+        }
+        return undefined;
     }
   }
 }
 
 class CompileCacheInternal {
   private cacheLatest = new Map<string, CompileTracker>();
-  /** Cache for completed compilation which is needed when we need a program but the latest one is still in progress */
+  /** Cache for completed compilation which is needed when we need an old program but the latest one is still in progress */
   private cacheCompleted = new Map<string, CompileTracker>();
 
-  constructor() {}
+  constructor(private log: (msg: string) => void) {}
 
   private getCacheKey(entrypoint: string, compileOption: CompilerOptions): string {
     const normalizedEntrypoint = normalizePath(entrypoint);
     const optionKey = JSON.stringify(compileOption);
-    return `${normalizedEntrypoint}:${optionKey}`;
+    const key = md5(`${normalizedEntrypoint}:${optionKey}`);
+    return key;
   }
 
   /** Get the latest completed compilation */
@@ -182,11 +221,7 @@ class CompileCacheInternal {
     if (tracker.isCompleted() === true) {
       return tracker;
     }
-    const completed = this.cacheCompleted.get(key);
-    if (!completed) {
-      return undefined;
-    }
-    return completed;
+    return this.cacheCompleted.get(key);
   }
 
   set(entrypoint: string, compileOption: CompilerOptions, tracker: CompileTracker) {
@@ -196,8 +231,8 @@ class CompileCacheInternal {
       const cur = this.cacheCompleted.get(key);
       if (!cur || cur.getVersion() < tracker.getVersion()) {
         this.cacheCompleted.set(key, tracker);
-        console.debug(
-          `Server compile #${tracker.getCompileId()}: Cache updated with new completed compilation`,
+        this.log(
+          `Server compile #${tracker.getCompileId()}: Completed Cache updated ( ${cur?.getVersion() ?? "n/a"} -> ${tracker.getVersion()} )`,
         );
       }
     };
@@ -221,8 +256,9 @@ export class CompileTracker {
     host: CompilerHost,
     mainFile: string,
     options: CompilerOptions = {},
-    mode: CompileMode,
-    oldProgram?: Program,
+    mode: ServerCompileMode,
+    oldProgram: Program | undefined,
+    log: (msg: string) => void,
   ) {
     const sLogs: ServerLog[] = [];
     // Clone an compilerhost instance with my logSink so that we can collect compiler logs
@@ -257,10 +293,10 @@ export class CompileTracker {
     const version = updateManager.version;
     const startTime = new Date();
     const p = compileProgram(myhost, mainFile, myOption, oldProgram);
-    console.debug(
+    log(
       `Server compile #${id}: Start compilation at ${startTime.toISOString()}, version = ${version}, mainFile = ${mainFile}, mode = ${mode}`,
     );
-    return new CompileTracker(id, updateManager, mainFile, p, version, startTime, mode, sLogs);
+    return new CompileTracker(id, updateManager, mainFile, p, version, startTime, mode, sLogs, log);
   }
 
   private constructor(
@@ -270,13 +306,14 @@ export class CompileTracker {
     private compileResultPromise: Promise<Program>,
     private version: number,
     private startTime: Date,
-    private mode: CompileMode,
+    private mode: ServerCompileMode,
     private logs: ServerLog[],
+    private log: (msg: string) => void,
   ) {
     this.startTime = startTime;
     const onComplete = () => {
       this.endTime = new Date();
-      console.debug(
+      log(
         `Server compile #${this.getCompileId()}: Compilation finished at ${this.endTime.toISOString()}. Duration = ${this.endTime.getTime() - this.startTime.getTime()}ms`,
       );
     };
@@ -322,7 +359,7 @@ export class CompileTracker {
     return this.version === this.updateManager.version;
   }
 
-  getMode(): CompileMode {
+  getMode(): ServerCompileMode {
     return this.mode;
   }
 

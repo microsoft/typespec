@@ -16,7 +16,6 @@ export class UpdateManger {
   #updateCb?: UpdateCallback;
   // overall version which should be bumped for any doc change
   #version = 0;
-  #lastUpdatedDocument: TextDocument | TextDocumentIdentifier | undefined;
 
   constructor() {}
 
@@ -28,13 +27,8 @@ export class UpdateManger {
     return this.#version;
   }
 
-  public get lastUpdatedDocument() {
-    return this.#lastUpdatedDocument;
-  }
-
   public scheduleUpdate(document: TextDocument | TextDocumentIdentifier) {
     this.#version++;
-    this.#lastUpdatedDocument = document;
     const existing = this.#pendingUpdates.get(document.uri);
     if (existing === undefined) {
       this.#pendingUpdates.set(document.uri, {
@@ -49,10 +43,10 @@ export class UpdateManger {
   }
 
   #scheduleBatchUpdate = debounceThrottle(async () => {
-    const updates = [...this.#pendingUpdates.values()];
-    this.#pendingUpdates.clear();
-    if (updates.length > 0) {
-      await this.#update(updates);
+    const updates = this.#pendingUpdates;
+    this.#pendingUpdates = new Map<string, PendingUpdate>();
+    if (updates.size > 0) {
+      await this.#update(Array.from(updates.values()));
     }
   }, UPDATE_DEBOUNCE_TIME);
 
@@ -73,33 +67,21 @@ export function debounceThrottle(fn: () => void | Promise<void>, milliseconds: n
   let timeout: any;
   let lastInvocation = Date.now() - milliseconds;
   let executingCount = 0;
-  let id = 0;
 
   function maybeCall() {
-    console.debug("clear timeout");
     clearTimeout(timeout);
 
     timeout = setTimeout(async () => {
-      // a new run is triggered, cancel the last one as early as possible
-      // Also give a parallel limitation
-      // TODO: may not be needed after we support cancellation in compile()
       if (Date.now() - lastInvocation < milliseconds || executingCount >= UPDATE_PARALLEL_LIMIT) {
         maybeCall();
         return;
       }
-      id++;
-      executingCount++;
-      const curId = id;
-      const s = new Date();
-      console.debug(
-        `Start debounce execution #${curId} (parallel: ${executingCount}): Start: ${s.toISOString()}`,
-      );
-      await fn();
-      executingCount--;
-      const e = new Date();
-      console.debug(
-        `End debounce execution #${curId} (parallel: ${executingCount}): end: ${e.toISOString()} duration ${e.getTime() - s.getTime()}ms`,
-      );
+      try {
+        executingCount++;
+        await fn();
+      } finally {
+        executingCount--;
+      }
       lastInvocation = Date.now();
     }, milliseconds);
   }

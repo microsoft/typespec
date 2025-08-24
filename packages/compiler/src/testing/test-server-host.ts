@@ -64,7 +64,7 @@ export async function createTestServerHost(options?: TestHostOptions & { workspa
     getDiagnostics(path) {
       return diagnostics.get(this.getURL(path)) ?? [];
     },
-    sendDiagnostics(params) {
+    async sendDiagnostics(params) {
       if (params.version && documents.get(params.uri)?.version !== params.version) {
         return;
       }

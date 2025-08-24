@@ -1,7 +1,5 @@
-import { pathToFileURL } from "url";
-import { DocumentUri, TextDocument } from "vscode-languageserver-textdocument";
+import { TextDocument } from "vscode-languageserver-textdocument";
 import {
-  CancellationToken,
   CodeAction,
   CodeActionKind,
   CodeActionParams,
@@ -11,9 +9,6 @@ import {
   DiagnosticSeverity,
   DiagnosticTag,
   DidChangeWatchedFilesParams,
-  DocumentDiagnosticParams,
-  DocumentDiagnosticReport,
-  DocumentDiagnosticReportKind,
   DocumentFormattingParams,
   DocumentHighlight,
   DocumentHighlightKind,
@@ -34,12 +29,10 @@ import {
   MarkupKind,
   ParameterInformation,
   PrepareRenameParams,
-  PublishDiagnosticsParams,
   Range,
   ReferenceParams,
   RenameFilesParams,
   RenameParams,
-  ResultProgressReporter,
   SemanticTokens,
   SemanticTokensBuilder,
   SemanticTokensLegend,
@@ -52,11 +45,6 @@ import {
   TextDocumentSyncKind,
   TextEdit,
   Diagnostic as VSDiagnostic,
-  WorkDoneProgressReporter,
-  WorkspaceDiagnosticParams,
-  WorkspaceDiagnosticReport,
-  WorkspaceDiagnosticReportPartialResult,
-  WorkspaceDocumentDiagnosticReport,
   WorkspaceEdit,
   WorkspaceFoldersChangeEvent,
 } from "vscode-languageserver/node.js";
@@ -75,12 +63,13 @@ import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../core/parser.js";
 import {
   ensureTrailingDirectorySeparator,
+  getBaseFileName,
   getDirectoryPath,
   joinPaths,
   normalizePath,
   resolvePath,
 } from "../core/path-utils.js";
-import type { Program } from "../core/program.js";
+import { type Program } from "../core/program.js";
 import { skipTrivia, skipWhiteSpace } from "../core/scanner.js";
 import { createSourceFile, getSourceFileKindFromExt } from "../core/source-file.js";
 import {
@@ -115,11 +104,7 @@ import { ClientConfigProvider } from "./client-config-provider.js";
 import { createCompileService } from "./compile-service.js";
 import { resolveCompletion } from "./completion.js";
 import { Commands } from "./constants.js";
-import {
-  convertDiagnosticToLsp,
-  createDiagnosticsResultId,
-  createWorkspaceDocumentDiagnosticReport,
-} from "./diagnostics.js";
+import { convertDiagnosticToLsp } from "./diagnostics.js";
 import { createFileService } from "./file-service.js";
 import { createFileSystemCache } from "./file-system-cache.js";
 import { LibraryProvider } from "./lib-provider.js";
@@ -175,6 +160,7 @@ export function createServer(
   );
 
   const updateManager = new UpdateManger();
+  let hasTspFileOpened: boolean;
 
   const compileService = createCompileService({
     fileService,
@@ -192,9 +178,6 @@ export function createServer(
   let isInitialized = false;
   let pendingMessages: ServerLog[] = [];
 
-  let lastOnDiagnosticDocument: TextDocumentIdentifier | undefined;
-  const documentWithDiagReported = new Set<DocumentUri>();
-
   return {
     get pendingMessages() {
       return pendingMessages;
@@ -202,7 +185,7 @@ export function createServer(
     get workspaceFolders() {
       return workspaceFolders;
     },
-    compileCore: (doc) => compileService.compile_server(doc, undefined, { mode: "core" }),
+    compileInCoreMode,
     initialize,
     initialized,
     workspaceFoldersChanged,
@@ -210,6 +193,7 @@ export function createServer(
     formatDocument,
     gotoDefinition,
     documentClosed,
+    documentOpened,
     complete,
     findReferences,
     findDocumentHighlight,
@@ -225,8 +209,6 @@ export function createServer(
     getDocumentSymbols,
     getCodeActions,
     executeCommand,
-    onDiagnostics,
-    onWorkspaceDiagnostics,
     log,
 
     getInitProjectContext,
@@ -245,35 +227,30 @@ export function createServer(
 
     // set the callback to send diagnostics proactively if the pull mode is not supported by the lsp client
     // VS Code has supported the pull mode but Visual Studio hasn't. Remove this after Visual Studio supports pull mode too
-    if (params.capabilities.textDocument?.diagnostic === undefined) {
-      updateManager.setCallback(async (updates) => {
-        if (updates.length === 0) {
-          return;
-        }
-        const lastUpdate = updates.reduce((pre, cur) => {
-          if (cur.latestUpdateTimestamp > pre.latestUpdateTimestamp) {
-            return cur;
-          } else {
-            return pre;
-          }
-        });
-        const curVersion = updateManager.version;
-        const result = await compileService.compile_server(lastUpdate.latest, undefined, {
-          mode: "full",
-        });
-        if (result && curVersion === updateManager.version) {
-          // dont send diagnostics if more updates have been triggered during the compilation
-          await reportDiagnostics(result);
-        }
+    updateManager.setCallback(async (updates) => {
+      if (updates.length === 0) {
+        return;
+      }
+      // we only need to compile the last update, the previous update will be overwritten by the last one anyway
+
+      // TODO: check before check-in, what if tspconfig.yaml and package.json is updated
+      const lastUpdate = updates.reduce((pre, cur) => {
+        return cur.latestUpdateTimestamp > pre.latestUpdateTimestamp ? cur : pre;
       });
-    }
+      const curVersion = updateManager.version;
+      const result = await compileService.compile(lastUpdate.latest, undefined, {
+        mode: "full",
+        // the callback should be or have been triggered for the new version, so this one should be
+        // cancelled in this case
+        isCancelled: () => updateManager.version > curVersion,
+      });
+      if (result && curVersion === updateManager.version) {
+        await reportDiagnostics(result);
+      }
+    });
 
     const capabilities: ServerCapabilities = {
       textDocumentSync: TextDocumentSyncKind.Incremental,
-      diagnosticProvider: {
-        interFileDependencies: true,
-        workspaceDiagnostics: true,
-      },
       definitionProvider: true,
       foldingRangeProvider: true,
       hoverProvider: true,
@@ -395,211 +372,16 @@ export function createServer(
     log({ level: "info", message: "Initialization complete." });
   }
 
-  async function onWorkspaceDiagnostics(
-    param: WorkspaceDiagnosticParams,
-    token: CancellationToken,
-    workDoneProgressReporter: WorkDoneProgressReporter,
-    resultReporter?: ResultProgressReporter<WorkspaceDiagnosticReportPartialResult>,
-  ): Promise<WorkspaceDiagnosticReport> {
-    console.debug("Collecting workspace diagnostics...");
-
-    if (updateManager.lastUpdatedDocument === undefined) {
-      return { items: [] };
-    }
-
-    updateManager.setCallback(async (updates) => {
-      if (updates.length === 0) {
-        return;
-      }
-      const lastUpdate = updates.reduce((pre, cur) => {
-        if (cur.latestUpdateTimestamp > pre.latestUpdateTimestamp) {
-          return cur;
-        } else {
-          return pre;
-        }
-      });
-      const curVersion = updateManager.version;
-      let diagFromException: PublishDiagnosticsParams | undefined = undefined;
-      const result = await compileService.compile_server(lastUpdate.latest, undefined, {
-        mode: "full",
-        onUnexpectedException: async (diag: PublishDiagnosticsParams) => {
-          diagFromException = diag;
-        },
-      });
-      if (!result) {
-        if (!diagFromException) {
-          return;
-        } else {
-          const p = diagFromException as PublishDiagnosticsParams;
-          const item = createWorkspaceDocumentDiagnosticReport(
-            { uri: p.uri },
-            p.diagnostics,
-            param.previousResultIds,
-          );
-          resultReporter?.report({ items: [item] });
-          return;
-        }
-      }
-      // if (result.tracker.getVersion() < updateManager.version) {
-      //   return {
-      //     items: param.previousResultIds.map((r) => {
-      //       const d = host.getOpenDocumentByURL(r.uri);
-      //       return {
-      //         kind: DocumentDiagnosticReportKind.Unchanged,
-      //         uri: r.uri,
-      //         version: d?.version ?? null,
-      //         resultId: r.value,
-      //       };
-      //     }),
-      //   };
-      // }
-
-      const map = getDiagnostics(result);
-      if (!map) {
-        return;
-      }
-
-      const results: WorkspaceDocumentDiagnosticReport[] = [];
-      for (const [doc, diagnostics] of map) {
-        // normalize the uri from text doc or identifier, the uri in doc is not in good format for this.
-        // TODO: we should normlize earlier
-        // resultid not make sense
-        const uri =
-          typeof doc === "string" ? pathToFileURL(doc).toString() : decodeURIComponent(doc.uri);
-        const newResultId = createDiagnosticsResultId(diagnostics);
-        const preview = param.previousResultIds.find((r) => r.uri === uri);
-        if (preview) {
-          console.debug(`Found preview for ${uri}: ${preview.value} -> ${newResultId}`);
-        } else {
-          console.debug(`No preview for ${uri}: -> ${newResultId}`);
-        }
-        const dr: WorkspaceDocumentDiagnosticReport = {
-          uri,
-          kind:
-            preview?.value === newResultId
-              ? DocumentDiagnosticReportKind.Unchanged
-              : DocumentDiagnosticReportKind.Full,
-          version: typeof doc === "string" ? null : (doc.version ?? null),
-          items: diagnostics,
-          resultId: newResultId,
-        };
-        results.push(dr);
-      }
-      resultReporter?.report({ items: results });
-    });
-
-    while (true) {
-      console.debug("keep workspace diagnostic alive");
-      await new Promise((resolve) => setTimeout(resolve, 60000));
-    }
-  }
-
-  async function onDiagnostics(
-    param: DocumentDiagnosticParams,
-    token: CancellationToken,
-  ): Promise<DocumentDiagnosticReport> {
-    // depends on onWorkspaceDiagnostics to send diagnostics
-    return {
-      kind: DocumentDiagnosticReportKind.Unchanged,
-      resultId: param.previousResultId ?? "0",
-    };
-
-    // if (!param.textDocument) {
-    //   return { kind: DocumentDiagnosticReportKind.Full, items: [] } as DocumentDiagnosticReport;
-    // }
-    // console.debug(`Collecting document diagnostics triggered by ${param.textDocument.uri}`);
-    // if (isTspConfigFile(param.textDocument)) {
-    //   return { kind: DocumentDiagnosticReportKind.Full, items: [] } as DocumentDiagnosticReport;
-    // }
-    // lastOnDiagnosticDocument = param.textDocument;
-    // let diagFromThrow: PublishDiagnosticsParams | undefined = undefined;
-    // const r = await compileService.compile_server(param.textDocument, undefined, {
-    //   mode: "full",
-    //   onUnexpectedException: async (diag: PublishDiagnosticsParams) => {
-    //     diagFromThrow = diag;
-    //   },
-    // });
-
-    // documentWithDiagReported.add(param.textDocument.uri);
-    // const dependencies: Record<
-    //   string,
-    //   FullDocumentDiagnosticReport | UnchangedDocumentDiagnosticReport
-    // > = {};
-    // // make sure other diagnostics are cleaned up
-    // for (const uri of documentWithDiagReported) {
-    //   if (uri !== param.textDocument.uri) {
-    //     dependencies[uri] = {
-    //       kind: DocumentDiagnosticReportKind.Full,
-    //       items: [],
-    //     };
-    //   }
-    // }
-    // if (!r) {
-    //   if (
-    //     !diagFromThrow ||
-    //     (diagFromThrow as PublishDiagnosticsParams).uri !== param.textDocument.uri
-    //   ) {
-    //     return { kind: DocumentDiagnosticReportKind.Full, items: [] } as DocumentDiagnosticReport;
-    //   } else {
-    //     const p = diagFromThrow as PublishDiagnosticsParams;
-    //     const newResultId = createDiagnosticsResultId(p.diagnostics);
-    //     if (newResultId === param.previousResultId) {
-    //       return {
-    //         kind: DocumentDiagnosticReportKind.Unchanged,
-    //         resultId: newResultId,
-    //         relatedDocuments: dependencies,
-    //       };
-    //     } else {
-    //       return {
-    //         kind: DocumentDiagnosticReportKind.Full,
-    //         items: p.diagnostics,
-    //         resultId: newResultId,
-    //         relatedDocuments: dependencies,
-    //       };
-    //     }
-    //   }
-    // } else {
-    //   const map = getDiagnostics(r);
-    //   const mainDiags: VSDiagnostic[] = [];
-    //   const allDiagnostics = Array.from(map?.values() ?? []).flatMap((d) => d);
-    //   const newResultId = createDiagnosticsResultId(allDiagnostics);
-    //   if (map) {
-    //     for (const [doc, value] of map) {
-    //       const uri = typeof doc === "string" ? TextDocumentIdentifier.create(doc).uri : doc.uri;
-    //       documentWithDiagReported.add(uri);
-    //       if (uri === param.textDocument.uri) {
-    //         mainDiags.push(...value);
-    //       } else {
-    //         const f: FullDocumentDiagnosticReport = {
-    //           kind: DocumentDiagnosticReportKind.Full,
-    //           items: value,
-    //         };
-    //         dependencies[uri] = f;
-    //       }
-    //     }
-    //   }
-    //   if (newResultId === param.previousResultId) {
-    //     return {
-    //       kind: DocumentDiagnosticReportKind.Unchanged,
-    //       resultId: newResultId,
-    //       relatedDocuments: dependencies,
-    //     };
-    //   } else {
-    //     return {
-    //       kind: DocumentDiagnosticReportKind.Full,
-    //       resultId: newResultId,
-    //       items: mainDiags,
-    //       relatedDocuments: dependencies,
-    //     };
-    //   }
-    // }
-    // TODO: update set
-  }
-
   async function getInitProjectContext(): Promise<InitProjectContext> {
     return {
       coreInitTemplates: await getTypeSpecCoreTemplates(host.compilerHost),
     };
+  }
+
+  async function compileInCoreMode(
+    doc: TextDocument | TextDocumentIdentifier,
+  ): Promise<CompileResult | undefined> {
+    return compileService.compile(doc, undefined, { mode: "core" });
   }
 
   async function validateInitProjectTemplate(param: { template: InitTemplate }): Promise<boolean> {
@@ -640,9 +422,9 @@ export function createServer(
       ...param.options,
     };
 
-    const result = await compileService.compile_server(param.doc, option, {
-      bypassCache: true,
-      trackAction: true,
+    const result = await compileService.compile(param.doc, option, {
+      skipCache: true,
+      skipOldProgramFromCache: true,
       mode: "full",
     });
     if (result === undefined) {
@@ -662,7 +444,7 @@ export function createServer(
         options: undefined,
       };
     } else {
-      result.tracker.getLogs().forEach((l) => host.log(l));
+      result.tracker.getLogs().forEach((logItem) => host.log(logItem));
       return {
         hasError: result.program.hasError(),
         diagnostics: result.program.diagnostics.map((diagnostic) => {
@@ -721,11 +503,7 @@ export function createServer(
     // to prevent `fs.stat` from getting the files before modification.
     // Currently the test requires a delay of 300ms
     await new Promise((resolve) => setTimeout(resolve, 300));
-    const result = await compileService.compile_server(
-      { uri: fileService.getURL(mainFile) },
-      undefined,
-      { mode: "core" },
-    );
+    const result = await compileInCoreMode({ uri: fileService.getURL(mainFile) });
     if (!result) {
       log({
         level: "debug",
@@ -783,13 +561,13 @@ export function createServer(
     fileSystemCache.notify(params.changes);
     npmPackageProvider.notify(params.changes);
     params.changes.forEach((p) => {
-      compileService.notifyChange(TextDocumentIdentifier.create(p.uri));
+      const doc = host.getOpenDocumentByURL(p.uri);
+      compileService.notifyChange(doc ?? TextDocumentIdentifier.create(p.uri));
     });
   }
 
-  // todo: rename to a better name
   function isTspConfigFile(doc: TextDocument | TextDocumentIdentifier) {
-    return doc.uri.endsWith("tspconfig.yaml") || doc.uri.endsWith("package.json");
+    return doc.uri.endsWith("tspconfig.yaml");
   }
 
   async function getFoldingRanges(params: FoldingRangeParams): Promise<FoldingRange[]> {
@@ -866,9 +644,7 @@ export function createServer(
   ): Promise<DocumentHighlight[]> {
     if (isTspConfigFile(params.textDocument)) return [];
 
-    const result = await compileService.compile_server(params.textDocument, undefined, {
-      mode: "core",
-    });
+    const result = await compileInCoreMode(params.textDocument);
     if (result === undefined) {
       return [];
     }
@@ -895,30 +671,7 @@ export function createServer(
     compileService.notifyChange(change.document);
   }
 
-  async function reportDiagnostics(cr: CompileResult) {
-    const s = new Date();
-    console.debug(`Start sending diagnostics at ${s.toISOString()}`);
-
-    const map = getDiagnostics(cr);
-    if (map) {
-      for (const [document, diagnostics] of map) {
-        if (typeof document !== "string") {
-          // send diagnostics only for those with TextDocument (opened)
-          await sendDiagnostics(document, diagnostics);
-        }
-      }
-    }
-    const e = new Date();
-    console.debug(
-      `Finished sending diagnostics at ${e.toISOString()}, duration=${e.getTime() - s.getTime()}ms`,
-    );
-  }
-
-  function getDiagnostics({
-    program,
-    document,
-    optionsFromConfig,
-  }: CompileResult): Map<TextDocument | string, VSDiagnostic[]> | undefined {
+  async function reportDiagnostics({ program, document, optionsFromConfig }: CompileResult) {
     if (!document) return undefined;
     if (isTspConfigFile(document)) return undefined;
 
@@ -929,7 +682,7 @@ export function createServer(
     // as we must send an empty array when a file has no diagnostics or else
     // stale diagnostics from a previous run will stick around in the IDE.
     //
-    const diagnosticMap: Map<TextDocument | string, VSDiagnostic[]> = new Map();
+    const diagnosticMap: Map<TextDocument, VSDiagnostic[]> = new Map();
     diagnosticMap.set(document, []);
     for (const each of program.sourceFiles.values()) {
       const document = (each.file as ServerSourceFile)?.document;
@@ -940,7 +693,6 @@ export function createServer(
 
     for (const each of program.diagnostics) {
       const results = convertDiagnosticToLsp(fileService, program, document, each);
-      // only check the diagnostics assosicated with a TextDocument
       for (const result of results) {
         const [diagnostic, diagDocument] = result;
         if (each.url) {
@@ -981,26 +733,25 @@ export function createServer(
           id: diagnosticIdCounter++,
           file: diagDocument.uri,
         };
-        const key = "version" in diagDocument ? diagDocument : diagDocument.uri;
-        const diagnostics = diagnosticMap.get(key);
-        if (!diagnostics) {
-          diagnosticMap.set(key, [diagnostic]);
-        } else {
-          diagnostics.push(diagnostic);
-        }
+        const diagnostics = diagnosticMap.get(diagDocument);
+        compilerAssert(
+          diagnostics,
+          "Diagnostic reported against a source file that was not added to the program.",
+        );
+        diagnostics.push(diagnostic);
         currentDiagnosticIndex.set(diagnostic.data.id, each);
       }
     }
 
-    return diagnosticMap;
+    for (const [document, diagnostics] of diagnosticMap) {
+      await sendDiagnostics(document, diagnostics);
+    }
   }
 
   async function getHover(params: HoverParams): Promise<Hover> {
     if (isTspConfigFile(params.textDocument)) return { contents: [] };
 
-    const result = await compileService.compile_server(params.textDocument, undefined, {
-      mode: "core",
-    });
+    const result = await compileInCoreMode(params.textDocument);
     if (result === undefined) {
       return { contents: [] };
     }
@@ -1055,9 +806,7 @@ export function createServer(
   async function getSignatureHelp(params: SignatureHelpParams): Promise<SignatureHelp | undefined> {
     if (isTspConfigFile(params.textDocument)) return undefined;
 
-    const result = await compileService.compile_server(params.textDocument, undefined, {
-      mode: "core",
-    });
+    const result = await compileInCoreMode(params.textDocument);
     if (result === undefined) {
       return undefined;
     }
@@ -1279,9 +1028,7 @@ export function createServer(
   async function gotoDefinition(params: DefinitionParams): Promise<Location[]> {
     if (isTspConfigFile(params.textDocument)) return [];
 
-    const result = await compileService.compile_server(params.textDocument, undefined, {
-      mode: "core",
-    });
+    const result = await compileInCoreMode(params.textDocument);
     if (result === undefined || result.document === undefined) {
       return [];
     }
@@ -1346,9 +1093,7 @@ export function createServer(
       isIncomplete: false,
       items: [],
     };
-    const result = await compileService.compile_server(params.textDocument, undefined, {
-      mode: "core",
-    });
+    const result = await compileInCoreMode(params.textDocument);
     if (result) {
       const { script, document, program } = result;
       if (!document) {
@@ -1373,9 +1118,7 @@ export function createServer(
   async function findReferences(params: ReferenceParams): Promise<Location[]> {
     if (isTspConfigFile(params.textDocument)) return [];
 
-    const result = await compileService.compile_server(params.textDocument, undefined, {
-      mode: "core",
-    });
+    const result = await compileInCoreMode(params.textDocument);
     if (result === undefined || result.document === undefined) {
       return [];
     }
@@ -1390,9 +1133,7 @@ export function createServer(
   async function prepareRename(params: PrepareRenameParams): Promise<Range | undefined> {
     if (isTspConfigFile(params.textDocument)) return undefined;
 
-    const result = await compileService.compile_server(params.textDocument, undefined, {
-      mode: "core",
-    });
+    const result = await compileInCoreMode(params.textDocument);
     if (result === undefined || result.document === undefined) {
       return undefined;
     }
@@ -1404,9 +1145,7 @@ export function createServer(
     if (isTspConfigFile(params.textDocument)) return { changes: {} };
 
     const changes: Record<string, TextEdit[]> = {};
-    const result = await compileService.compile_server(params.textDocument, undefined, {
-      mode: "core",
-    });
+    const result = await compileInCoreMode(params.textDocument);
     if (result && result.document) {
       const identifiers = findReferenceIdentifiers(
         result.program,
@@ -1551,9 +1290,23 @@ export function createServer(
     }
   }
 
-  async function documentClosed(change: TextDocumentChangeEvent<TextDocument>) {
+  function documentClosed(change: TextDocumentChangeEvent<TextDocument>) {
     // clear diagnostics on file close
-    await sendDiagnostics(change.document, []);
+    void sendDiagnostics(change.document, []);
+  }
+
+  function documentOpened(change: TextDocumentChangeEvent<TextDocument>): void {
+    if (!hasTspFileOpened) {
+      if (
+        change.document.uri.endsWith(".tsp") ||
+        getBaseFileName(change.document.uri) === "tspconfig.yaml"
+      ) {
+        // trigger an update explicitly for the first time a tsp file has been opened
+        // just in case user opens tsp files without changing anything.
+        updateManager.scheduleUpdate(change.document);
+        hasTspFileOpened = true;
+      }
+    }
   }
 
   function getLocations(targets: readonly DiagnosticTarget[] | undefined): Location[] {
@@ -1592,8 +1345,11 @@ export function createServer(
     host.log(log);
   }
 
-  async function sendDiagnostics(document: TextDocument, diagnostics: VSDiagnostic[]) {
-    await host.sendDiagnostics({
+  async function sendDiagnostics(
+    document: TextDocument,
+    diagnostics: VSDiagnostic[],
+  ): Promise<void> {
+    return host.sendDiagnostics({
       uri: document.uri,
       version: document.version,
       diagnostics,
@@ -1617,7 +1373,6 @@ export function createServer(
           };
           host.log(sLog);
         },
-        // todo:add trackAction for the emit scenario?
       },
     };
 

@@ -1,15 +1,12 @@
 import {
   ApplyWorkspaceEditParams,
   ApplyWorkspaceEditResult,
-  CancellationToken,
   CodeAction,
   CodeActionParams,
   CompletionList,
   CompletionParams,
   DefinitionParams,
   DidChangeWatchedFilesParams,
-  DocumentDiagnosticParams,
-  DocumentDiagnosticReport,
   DocumentFormattingParams,
   DocumentHighlight,
   DocumentHighlightParams,
@@ -30,17 +27,12 @@ import {
   ReferenceParams,
   RenameFilesParams,
   RenameParams,
-  ResultProgressReporter,
   SemanticTokens,
   SemanticTokensParams,
   SignatureHelp,
   SignatureHelpParams,
   TextDocumentChangeEvent,
   TextDocumentIdentifier,
-  WorkDoneProgressReporter,
-  WorkspaceDiagnosticParams,
-  WorkspaceDiagnosticReport,
-  WorkspaceDiagnosticReportPartialResult,
   WorkspaceEdit,
   WorkspaceFolder,
   WorkspaceFoldersChangeEvent,
@@ -59,7 +51,7 @@ import type {
 import { LoadedCoreTemplates } from "../init/core-templates.js";
 import { EmitterTemplate, InitTemplate, InitTemplateLibrarySpec } from "../init/init-template.js";
 import { ScaffoldingConfig } from "../init/scaffold.js";
-import { CompileTracker } from "./compile-tracker.js";
+import { CompileTracker } from "./server-compile-manager.js";
 
 export type ServerLogLevel = "trace" | "debug" | "info" | "warning" | "error";
 export interface ServerLog {
@@ -72,7 +64,7 @@ export interface ServerHost {
   readonly compilerHost: CompilerHost;
   readonly throwInternalErrors?: boolean;
   readonly getOpenDocumentByURL: (url: string) => TextDocument | undefined;
-  readonly sendDiagnostics: (params: PublishDiagnosticsParams) => void | Promise<void>;
+  readonly sendDiagnostics: (params: PublishDiagnosticsParams) => Promise<void>;
   readonly log: (log: ServerLog) => void;
   readonly applyEdit: (
     paramOrEdit: ApplyWorkspaceEditParams | WorkspaceEdit,
@@ -101,7 +93,9 @@ export interface InternalCompileResult {
 export interface Server {
   readonly pendingMessages: readonly ServerLog[];
   readonly workspaceFolders: readonly ServerWorkspaceFolder[];
-  compileCore(document: TextDocument | TextDocumentIdentifier): Promise<CompileResult | undefined>;
+  compileInCoreMode(
+    document: TextDocument | TextDocumentIdentifier,
+  ): Promise<CompileResult | undefined>;
   initialize(params: InitializeParams): Promise<InitializeResult>;
   initialized(params: InitializedParams): void;
   workspaceFoldersChanged(e: WorkspaceFoldersChangeEvent): Promise<void>;
@@ -122,18 +116,9 @@ export interface Server {
   getFoldingRanges(getFoldingRanges: FoldingRangeParams): Promise<FoldingRange[]>;
   getDocumentSymbols(params: DocumentSymbolParams): Promise<DocumentSymbol[]>;
   documentClosed(change: TextDocumentChangeEvent<TextDocument>): void;
+  documentOpened(change: TextDocumentChangeEvent<TextDocument>): void;
   getCodeActions(params: CodeActionParams): Promise<CodeAction[]>;
   executeCommand(params: ExecuteCommandParams): Promise<void>;
-  onWorkspaceDiagnostics(
-    param: WorkspaceDiagnosticParams,
-    token: CancellationToken,
-    workDoneProgressReporter: WorkDoneProgressReporter,
-    resultReporter?: ResultProgressReporter<WorkspaceDiagnosticReportPartialResult>,
-  ): Promise<WorkspaceDiagnosticReport>;
-  onDiagnostics(
-    params: DocumentDiagnosticParams,
-    token: CancellationToken,
-  ): Promise<DocumentDiagnosticReport>;
   log(log: ServerLog): void;
 
   // Following custom capacities are added for supporting tsp init project from IDE (vscode for now) so that IDE can trigger compiler

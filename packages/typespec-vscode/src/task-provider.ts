@@ -14,7 +14,7 @@ export function createTaskProvider() {
       // limit the built-in task generated to avoid potential perf impact
       // user can still create the task in task.json explicitly if their workspace contains more tsp project
       // than the limit here
-      const MAX_BUILTIN_RESULT = 10;
+      const MAX_BUILTIN_RESULT = 5;
       const targetPathes = await vscode.workspace
         .findFiles(`**/${StartFileName}`, "**/node_modules/**", MAX_BUILTIN_RESULT)
         .then((uris) =>
