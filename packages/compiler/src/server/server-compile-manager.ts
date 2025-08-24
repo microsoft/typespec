@@ -6,7 +6,6 @@ import {
   normalizePath,
   ProcessedLog,
   Program,
-  ServerHost,
   ServerLog,
 } from "../index.js";
 import { md5 } from "../utils/misc.js";
@@ -37,7 +36,8 @@ export class ServerCompileManager {
 
   constructor(
     private updateManager: UpdateManger,
-    private serverHost: ServerHost,
+    private compilerHost: CompilerHost,
+    private log: (log: ServerLog) => void,
   ) {}
 
   private logDebug(str: string) {
@@ -45,7 +45,7 @@ export class ServerCompileManager {
     // TODO: remove before check-in
     const enableLog = true;
     if (enableLog || process.env[ENABLE_SERVER_COMPILE_LOGGING]) {
-      this.serverHost.log({
+      this.log({
         level: "debug",
         message: str,
       });
@@ -66,7 +66,7 @@ export class ServerCompileManager {
     const err = new Error();
     const lines = err.stack?.split("\n") ?? [];
     // log where the compiler is triggered, skip the first 2 frame and only log the next 2 if exists
-    const stackLines = lines.slice(2, 3).join("\n");
+    const stackLines = lines.slice(3, 5).join("\n");
     this.logDebug(
       `Server compile #${curId}: Triggered, version=${this.updateManager.version}, mode=${serverCompileOptions.mode}, mainFile=${mainFile}, from\n${stackLines}`,
     );
@@ -105,15 +105,12 @@ export class ServerCompileManager {
     const tracker = CompileTracker.compile(
       curId,
       this.updateManager,
-      this.serverHost.compilerHost,
+      this.compilerHost,
       mainFile,
       compileOptions,
       serverCompileOptions.mode,
       oldProgram,
       (msg) => this.logDebug(msg),
-    );
-    this.logDebug(
-      `Server compile #${curId}: Start compilation at ${tracker.getStartTime().toISOString()}, version = ${tracker.getVersion()}, mainFile = ${tracker.getEntryPoint()}, mode = ${tracker.getMode()}`,
     );
     this.trackerCache.set(mainFile, compileOptions, tracker);
 
@@ -131,7 +128,7 @@ class CompileCache {
   }
 
   get(
-    entrypiont: string,
+    entrypoint: string,
     compileOption: CompilerOptions,
     hasCompleted: boolean,
     mode: ServerCompileMode,
@@ -139,8 +136,8 @@ class CompileCache {
     switch (mode) {
       case "core":
         // full cache can also be used for core, just return the latest one
-        const core = this.coreCache.get(entrypiont, compileOption, hasCompleted);
-        const full = this.fullCache.get(entrypiont, compileOption, hasCompleted);
+        const core = this.coreCache.get(entrypoint, compileOption, hasCompleted);
+        const full = this.fullCache.get(entrypoint, compileOption, hasCompleted);
         // only consider using full when it's already completed, otherwise, full compilation may take longer time
         if (core && full && full.isCompleted()) {
           if (full.getVersion() > core.getVersion()) {
@@ -162,7 +159,7 @@ class CompileCache {
           return undefined;
         }
       case "full":
-        return this.fullCache.get(entrypiont, compileOption, hasCompleted);
+        return this.fullCache.get(entrypoint, compileOption, hasCompleted);
       default:
         // not expected, just in case, and we dont want to terminal because of cache in prod
         if (process.env.NODE_ENV === "development") {
@@ -230,13 +227,16 @@ class CompileCacheInternal {
     const onComplete = () => {
       const cur = this.cacheCompleted.get(key);
       if (!cur || cur.getVersion() < tracker.getVersion()) {
+        // There may be a race condition here when two onComplete occur at the same time(both of them pass the check and try to set the cache)
+        // But the chance is very low, the cache status is still good (just set to a newer but not latest version), and the next compile can
+        // likely fix it, so dont do speical handling here for it
         this.cacheCompleted.set(key, tracker);
         this.log(
           `Server compile #${tracker.getCompileId()}: Completed Cache updated ( ${cur?.getVersion() ?? "n/a"} -> ${tracker.getVersion()} )`,
         );
       }
     };
-    void tracker.getCompileResult().then(
+    tracker.getCompileResult().then(
       () => {
         onComplete();
       },
@@ -317,7 +317,7 @@ export class CompileTracker {
         `Server compile #${this.getCompileId()}: Compilation finished at ${this.endTime.toISOString()}. Duration = ${this.endTime.getTime() - this.startTime.getTime()}ms`,
       );
     };
-    void compileResultPromise.then(
+    compileResultPromise.then(
       (r) => {
         onComplete();
       },

@@ -673,7 +673,6 @@ export function createServer(
 
   async function reportDiagnostics({ program, document, optionsFromConfig }: CompileResult) {
     if (!document) return undefined;
-    if (isTspConfigFile(document)) return undefined;
 
     currentDiagnosticIndex.clear();
     // Group diagnostics by file.

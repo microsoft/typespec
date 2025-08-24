@@ -93,7 +93,7 @@ export function createCompileService({
   clientConfigsProvider,
 }: CompileServiceOptions): CompileService {
   const eventListeners = new Map<string, (...args: unknown[]) => void | Promise<void>>();
-  const compileManager = new ServerCompileManager(updateManager, serverHost);
+  const compileManager = new ServerCompileManager(updateManager, compilerHost, log);
   let configFilePath: string | undefined;
 
   return { compile, getScript, on, notifyChange, getMainFileForDocument };
