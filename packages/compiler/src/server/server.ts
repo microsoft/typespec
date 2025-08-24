@@ -151,7 +151,6 @@ function main() {
 
   documents.onDidChangeContent(profile(s.checkChange));
   documents.onDidClose(profile(s.documentClosed));
-  documents.onDidOpen(profile(s.documentOpened));
 
   documents.listen(connection);
   connection.listen();

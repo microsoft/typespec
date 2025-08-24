@@ -63,7 +63,6 @@ import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../core/parser.js";
 import {
   ensureTrailingDirectorySeparator,
-  getBaseFileName,
   getDirectoryPath,
   joinPaths,
   normalizePath,
@@ -160,7 +159,6 @@ export function createServer(
   );
 
   const updateManager = new UpdateManger();
-  let hasTspFileOpened: boolean;
 
   const compileService = createCompileService({
     fileService,
@@ -193,7 +191,6 @@ export function createServer(
     formatDocument,
     gotoDefinition,
     documentClosed,
-    documentOpened,
     complete,
     findReferences,
     findDocumentHighlight,
@@ -1292,20 +1289,6 @@ export function createServer(
   function documentClosed(change: TextDocumentChangeEvent<TextDocument>) {
     // clear diagnostics on file close
     void sendDiagnostics(change.document, []);
-  }
-
-  function documentOpened(change: TextDocumentChangeEvent<TextDocument>): void {
-    if (!hasTspFileOpened) {
-      if (
-        change.document.uri.endsWith(".tsp") ||
-        getBaseFileName(change.document.uri) === "tspconfig.yaml"
-      ) {
-        // trigger an update explicitly for the first time a tsp file has been opened
-        // just in case user opens tsp files without changing anything.
-        updateManager.scheduleUpdate(change.document);
-        hasTspFileOpened = true;
-      }
-    }
   }
 
   function getLocations(targets: readonly DiagnosticTarget[] | undefined): Location[] {
