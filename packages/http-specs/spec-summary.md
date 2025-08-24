@@ -836,7 +836,10 @@ Expected request body for `set`
 { "name": "foo" }
 ```
 
+Expected Content-Type header: application/json
+
 Expected no request body for `omit`
+Expected Content-Type header: must NOT be present
 
 ### Parameters_BodyOptionality_requiredExplicit
 
