@@ -1,4 +1,10 @@
-import { DiagnosticSeverity, Range, TextDocumentIdentifier } from "vscode-languageserver";
+import {
+  CancellationToken,
+  DiagnosticSeverity,
+  PublishDiagnosticsParams,
+  Range,
+  TextDocumentIdentifier,
+} from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
   defaultConfig,
@@ -15,24 +21,30 @@ import { formatDiagnostic } from "../core/logger/console-sink.js";
 import { CompilerOptions } from "../core/options.js";
 import { parse } from "../core/parser.js";
 import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
-import { compile as compileProgram, Program } from "../core/program.js";
 import type {
   CompilerHost,
   Diagnostic as TypeSpecDiagnostic,
   TypeSpecScriptNode,
 } from "../core/types.js";
 import { doIO, loadFile } from "../utils/io.js";
-import { resolveTspMain } from "../utils/misc.js";
+import { distinctArray, resolveTspMain } from "../utils/misc.js";
 import { getLocationInYamlScript } from "../yaml/diagnostics.js";
 import { parseYaml } from "../yaml/parser.js";
 import { ClientConfigProvider } from "./client-config-provider.js";
+import { CompileMode, CompileTracker, CompileTrackerManager } from "./compile-tracker.js";
 import { serverOptions } from "./constants.js";
 import { FileService } from "./file-service.js";
 import { FileSystemCache } from "./file-system-cache.js";
-import { trackActionFunc } from "./server-track-action-task.js";
 import { CompileResult, ServerHost, ServerLog } from "./types.js";
 import { UpdateManger } from "./update-manager.js";
 
+interface ServerCompileOptions {
+  bypassCache?: boolean;
+  trackAction?: boolean;
+  /** by default: core mode */
+  mode: CompileMode;
+  onUnexpectedException?: (errAsDiag: PublishDiagnosticsParams) => void;
+}
 /**
  * Service managing compilation/caching of different TypeSpec projects
  */
@@ -46,13 +58,11 @@ export interface CompileService {
    * @param document The document to compile. This is not necessarily the entrypoint, compile will try to guess which entrypoint to compile to include this one.
    * @returns the compiled result or undefined if compilation was aborted.
    */
-  compile(
+  compile_server(
     document: TextDocument | TextDocumentIdentifier,
-    additionalOptions?: CompilerOptions,
-    compileOptions?: {
-      bypassCache?: boolean;
-      trackAction?: boolean;
-    },
+    additionalOptions: CompilerOptions | undefined,
+    serverCompileOptions: ServerCompileOptions,
+    cancellationToken?: CancellationToken,
   ): Promise<CompileResult | undefined>;
 
   /**
@@ -66,7 +76,7 @@ export interface CompileService {
    * It will recompile after a debounce timer so we don't recompile on every keystroke.
    * @param document Document that changed.
    */
-  notifyChange(document: TextDocument): void;
+  notifyChange(document: TextDocument | TextDocumentIdentifier): void;
 
   on(event: "compileEnd", listener: (result: CompileResult) => void): void;
 
@@ -78,6 +88,7 @@ export interface CompileServiceOptions {
   readonly fileService: FileService;
   readonly serverHost: ServerHost;
   readonly compilerHost: CompilerHost;
+  readonly updateManager: UpdateManger;
   readonly log: (log: ServerLog) => void;
   readonly clientConfigsProvider?: ClientConfigProvider;
 }
@@ -87,29 +98,29 @@ export function createCompileService({
   serverHost,
   fileService,
   fileSystemCache,
+  updateManager,
   log,
   clientConfigsProvider,
 }: CompileServiceOptions): CompileService {
-  const oldPrograms = new Map<string, Program>();
-  const eventListeners = new Map<string, (...args: unknown[]) => void>();
-  const updated = new UpdateManger((document) => compile(document));
+  const eventListeners = new Map<string, (...args: unknown[]) => void | Promise<void>>();
+  const compileManager = new CompileTrackerManager(updateManager, compilerHost);
   let configFilePath: string | undefined;
 
-  return { compile, getScript, on, notifyChange, getMainFileForDocument };
+  return { compile_server: compile, getScript, on, notifyChange, getMainFileForDocument };
 
   function on(event: string, listener: (...args: any[]) => void) {
     eventListeners.set(event, listener);
   }
 
-  function notify(event: string, ...args: unknown[]) {
+  async function notify(event: string, ...args: unknown[]) {
     const listener = eventListeners.get(event);
     if (listener) {
-      listener(...args);
+      await listener(...args);
     }
   }
 
-  function notifyChange(document: TextDocument) {
-    updated.scheduleUpdate(document);
+  function notifyChange(document: TextDocument | TextDocumentIdentifier) {
+    updateManager.scheduleUpdate(document);
   }
 
   /**
@@ -124,16 +135,13 @@ export function createCompileService({
   async function compile(
     document: TextDocument | TextDocumentIdentifier,
     additionalOptions?: CompilerOptions,
-    runOptions?: {
-      bypassCache?: boolean;
-      trackAction?: boolean;
-    },
+    serverCompileOptions?: ServerCompileOptions,
+    cancellationToken?: CancellationToken,
   ): Promise<CompileResult | undefined> {
     const path = await fileService.getPath(document);
     const mainFile = await getMainFileForDocument(path);
     const config = await getConfig(mainFile);
     configFilePath = config.filename;
-    log({ level: "debug", message: `config resolved`, detail: config });
     const [optionsFromConfig, _] = resolveOptionsFromConfig(config, {
       cwd: getDirectoryPath(path),
     });
@@ -148,7 +156,20 @@ export function createCompileService({
     if (additionalOptions?.emit === undefined) {
       const configEmits = clientConfigsProvider?.config?.lsp?.emit;
       if (configEmits) {
-        options.emit = configEmits;
+        if (configEmits.find((e) => e === "*")) {
+          // keep the emits in tspconfig only when user configs "*", and append other emits from vscode settings if there is any
+          options.emit = distinctArray(
+            [...(options.emit ?? []), ...configEmits.filter((e) => e !== "*")],
+            (s) => s,
+          );
+        } else {
+          // use the configured emits if no "*" is found
+          options.emit = configEmits;
+        }
+      } else {
+        // by default, exclude emits from compile which are not useful in most case
+        // but may cause perf issues in many case
+        options.emit = [];
       }
     }
 
@@ -174,32 +195,27 @@ export function createCompileService({
       options.linterRuleSet.enable[unusedTemplateParameterRule] = true;
     }
 
-    log({ level: "debug", message: `compiler options resolved`, detail: options });
-
     if (!fileService.upToDate(document)) {
       return undefined;
     }
 
-    let program: Program;
+    if (cancellationToken?.isCancellationRequested) {
+      return undefined;
+    }
+
+    let tracker: CompileTracker;
     try {
-      program = await compileProgram(
-        runOptions?.trackAction
-          ? {
-              ...compilerHost,
-              logSink: {
-                log: compilerHost.logSink.log,
-                getPath: compilerHost.logSink.getPath,
-                trackAction: (message, finalMessage, action) =>
-                  trackActionFunc(serverHost.log, message, finalMessage, action),
-              },
-            }
-          : compilerHost,
-        mainFile,
-        options,
-        runOptions?.bypassCache ? undefined : oldPrograms.get(mainFile),
-      );
-      oldPrograms.set(mainFile, program);
+      const skipOldProgramFromCache = serverCompileOptions?.bypassCache === true;
+      tracker = await compileManager.compile(mainFile, options, {
+        skipCache: false,
+        skipOldProgramFromCache,
+        mode: serverCompileOptions?.mode ?? "full",
+      });
+      let program = await tracker.getCompileResult();
       if (!fileService.upToDate(document)) {
+        return undefined;
+      }
+      if (cancellationToken?.isCancellationRequested) {
         return undefined;
       }
 
@@ -210,8 +226,12 @@ export function createCompileService({
           level: "debug",
           message: `target file was not included in compiling, try to compile ${path} as main file directly`,
         });
-        program = await compileProgram(compilerHost, path, options, oldPrograms.get(path));
-        oldPrograms.set(path, program);
+        tracker = await compileManager.compile(path, options, {
+          skipCache: false,
+          skipOldProgramFromCache,
+          mode: serverCompileOptions?.mode ?? "full",
+        });
+        program = await tracker.getCompileResult();
       }
 
       if (!fileService.upToDate(document)) {
@@ -222,8 +242,8 @@ export function createCompileService({
       const script = program.sourceFiles.get(path);
       compilerAssert(script, "Failed to get script.");
 
-      const result: CompileResult = { program, document: doc, script, optionsFromConfig };
-      notify("compileEnd", result);
+      const result: CompileResult = { program, document: doc, script, optionsFromConfig, tracker };
+      await notify("compileEnd", result);
       return result;
     } catch (err: any) {
       if (serverHost.throwInternalErrors) {
@@ -252,7 +272,7 @@ export function createCompileService({
         );
       }
 
-      serverHost.sendDiagnostics({
+      const param = {
         uri,
         diagnostics: [
           {
@@ -265,7 +285,26 @@ export function createCompileService({
               err.stack,
           },
         ],
-      });
+      };
+      if (serverCompileOptions?.onUnexpectedException) {
+        serverCompileOptions.onUnexpectedException(param);
+        return undefined;
+      }
+
+      // serverHost.sendDiagnostics({
+      //   uri,
+      //   diagnostics: [
+      //     {
+      //       severity: DiagnosticSeverity.Error,
+      //       range,
+      //       message:
+      //         (err.name === "ExternalError"
+      //           ? "External compiler error!\n"
+      //           : `Internal compiler error!\nFile issue at https://github.com/microsoft/typespec\n\n`) +
+      //         err.stack,
+      //     },
+      //   ],
+      // });
 
       return undefined;
     }

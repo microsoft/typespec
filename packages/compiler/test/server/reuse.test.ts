@@ -11,10 +11,10 @@ describe("compiler: server: reuse", () => {
   it("reuses unchanged programs", async () => {
     const host = await createTestServerHost();
     const document = host.addOrUpdateDocument("main.tsp", "model M  {}");
-    const oldResult = await host.server.compile(document);
+    const oldResult = await host.server.compileCore(document);
     ok(oldResult);
     expectDiagnosticEmpty(oldResult.program.diagnostics);
-    const newResult = await host.server.compile(document);
+    const newResult = await host.server.compileCore(document);
     ok(newResult);
     expectSameProgram(oldResult.program, newResult.program);
   });
@@ -28,12 +28,12 @@ describe("compiler: server: reuse", () => {
 
     host.addOrUpdateDocument("other.tsp", otherSource);
 
-    const oldResult = await host.server.compile(document);
+    const oldResult = await host.server.compileCore(document);
     ok(oldResult);
     expectDiagnosticEmpty(oldResult.program.diagnostics);
 
     host.addOrUpdateDocument("other.tsp", otherSource + "// force change");
-    const newResult = await host.server.compile(document);
+    const newResult = await host.server.compileCore(document);
     ok(newResult);
     expectDiagnosticEmpty(newResult.program.diagnostics);
 
@@ -89,14 +89,14 @@ describe("compiler: server: reuse", () => {
     const host = await createTestServerHost();
     host.addOrUpdateDocument("other.tsp", otherSource);
     const document = host.addOrUpdateDocument("main.tsp", source);
-    const oldResult = await host.server.compile(document);
+    const oldResult = await host.server.compileCore(document);
     ok(oldResult);
     expectDiagnosticEmpty(oldResult.program.diagnostics);
 
     freezeSymbolTables(oldResult.program);
 
     host.addOrUpdateDocument("other.tsp", otherSource + "// force change");
-    const newResult = await host.server.compile(document);
+    const newResult = await host.server.compileCore(document);
     ok(newResult);
     expectDiagnosticEmpty(newResult.program.diagnostics);
 

@@ -11,8 +11,12 @@ export function createTaskProvider() {
   return vscode.tasks.registerTaskProvider("typespec", {
     provideTasks: async () => {
       logger.info("Providing tsp tasks");
+      // limit the built-in task generated to avoid potential perf impact
+      // user can still create the task in task.json explicitly if their workspace contains more tsp project
+      // than the limit here
+      const MAX_BUILTIN_RESULT = 10;
       const targetPathes = await vscode.workspace
-        .findFiles(`**/${StartFileName}`, "**/node_modules/**")
+        .findFiles(`**/${StartFileName}`, "**/node_modules/**", MAX_BUILTIN_RESULT)
         .then((uris) =>
           uris
             .filter((uri) => uri.scheme === "file" && !uri.fsPath.includes("node_modules"))

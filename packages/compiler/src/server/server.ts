@@ -140,6 +140,9 @@ function main() {
   connection.languages.semanticTokens.on(profile(s.buildSemanticTokens));
   connection.workspace.onDidRenameFiles(profile(s.renameFiles));
 
+  connection.languages.diagnostics.on(profile(s.onDiagnostics));
+  connection.languages.diagnostics.onWorkspace(profile(s.onWorkspaceDiagnostics));
+
   const validateInitProjectTemplate: CustomRequestName = "typespec/validateInitProjectTemplate";
   connection.onRequest(validateInitProjectTemplate, profile(s.validateInitProjectTemplate));
   const getInitProjectContextRequestName: CustomRequestName = "typespec/getInitProjectContext";
