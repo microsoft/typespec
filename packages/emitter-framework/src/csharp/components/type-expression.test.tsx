@@ -131,3 +131,67 @@ describe("Record map to IDictionary", () => {
     );
   });
 });
+
+describe("Nullable union", () => {
+  it("nullable boolean", async () => {
+    const { Pet } = (await runner.compile(`
+      @test model Pet {
+        @test name: boolean | null;
+      }
+    `)) as { Pet: Model };
+
+    const res = render(
+      <Wrapper>
+        <ClassDeclaration type={Pet} />
+      </Wrapper>,
+    );
+
+    assertFileContents(
+      res,
+      d`
+          namespace TestNamespace
+          {
+              class Pet
+              {
+                  public required bool? name { get; set; }
+              }
+          }
+        `,
+    );
+  });
+});
+
+describe("Literal types", () => {
+  it("literal types (string, int, double, bool)", async () => {
+    const { Pet } = (await runner.compile(`
+      @test model Pet {
+        @test boolName: true;
+        @test intName: 42;
+        @test doubleName: 3.14;
+        @test stringName: "Hello";
+      }
+    `)) as { Pet: Model };
+
+    const res = render(
+      <Wrapper>
+        <ClassDeclaration type={Pet} />
+      </Wrapper>,
+    );
+
+    assertFileContents(
+      res,
+      d`
+          namespace TestNamespace
+          {
+              class Pet
+              {
+                  public required bool boolName { get; set; }
+                  public required int intName { get; set; }
+                  public required double doubleName { get; set; }
+                  public required string stringName { get; set; }
+              }
+          }
+        `,
+    );
+  });
+});

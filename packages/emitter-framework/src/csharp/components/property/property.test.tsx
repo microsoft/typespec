@@ -47,6 +47,28 @@ it("maps prop: string | null to nullable property", async () => {
   `);
 });
 
+it("maps optional properties to nullable properties", async () => {
+  const { prop1 } = await tester.compile(t.code`
+    model TestModel {
+      ${t.modelProperty("prop1")}?: string;
+    }
+  `);
+
+  expect(
+    <Wrapper>
+      <Property type={prop1} />
+    </Wrapper>,
+  ).toRenderTo(`
+      namespace TestNamespace
+      {
+          class Test
+          {
+              public string? Prop1 { get; set; }
+          }
+      }
+  `);
+});
+
 describe("jsonAttributes", () => {
   it("adds [JsonNameAttribute]", async () => {
     const { prop1 } = await tester.compile(t.code`
