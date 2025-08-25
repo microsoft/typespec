@@ -1,9 +1,9 @@
-import { Model } from "@typespec/compiler";
+import { Tester } from "#test/test-host.js";
+import type { Model } from "@typespec/compiler";
 import { t } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { describe, expect, it } from "vitest";
 import "../../src/experimental/typekit/index.js";
-import { Tester } from "./../test-host.js";
 
 describe("HttpRequest Body Parameters", () => {
   it("should handle model is array response", async () => {

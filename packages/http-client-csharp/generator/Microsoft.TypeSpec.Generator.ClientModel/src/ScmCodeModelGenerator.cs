@@ -15,7 +15,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
     public class ScmCodeModelGenerator : CodeModelGenerator
     {
         private static ScmCodeModelGenerator? _instance;
-        internal static ScmCodeModelGenerator Instance => _instance ?? throw new InvalidOperationException("ScmCodeModelGenerator is not loaded.");
+        internal static new ScmCodeModelGenerator Instance => _instance ?? throw new InvalidOperationException("ScmCodeModelGenerator is not loaded.");
 
         private ScmOutputLibrary? _scmOutputLibrary;
         public override OutputLibrary OutputLibrary => _scmOutputLibrary ??= new();
@@ -37,6 +37,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(BinaryData).Assembly.Location));
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(JsonSerializer).Assembly.Location));
             AddTypeToKeepPublic(ModelReaderWriterContextDefinition.s_name);
+            AddNonRootType(ModelReaderWriterContextDefinition.s_name);
         }
     }
 }

@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -10,6 +9,12 @@ namespace Microsoft.TypeSpec.Generator.Input
 {
     internal sealed class InputParameterConverter : JsonConverter<InputParameter>
     {
+        private const string HeaderParameterKind = "header";
+        private const string QueryParameterKind = "query";
+        private const string PathParameterKind = "path";
+        private const string BodyParameterKind = "body";
+        private const string EndpointParameterKind = "endpoint";
+        private const string MethodParameterKind = "method";
         private readonly TypeSpecReferenceHandler _referenceHandler;
 
         public InputParameterConverter(TypeSpecReferenceHandler referenceHandler)
@@ -17,112 +22,41 @@ namespace Microsoft.TypeSpec.Generator.Input
             _referenceHandler = referenceHandler;
         }
 
-        public override InputParameter? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => ReadInputParameter(ref reader, options, _referenceHandler.CurrentResolver);
+        public override InputParameter? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            => reader.ReadReferenceAndResolve<InputParameter>(_referenceHandler.CurrentResolver) ?? CreateInputParameter(ref reader, options, _referenceHandler.CurrentResolver);
 
         public override void Write(Utf8JsonWriter writer, InputParameter value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        private static InputParameter? ReadInputParameter(ref Utf8JsonReader reader, JsonSerializerOptions options, ReferenceResolver resolver)
-            => reader.ReadReferenceAndResolve<InputParameter>(resolver) ?? CreateInputParameter(ref reader, null, null, options, resolver);
-
-        public static InputParameter CreateInputParameter(ref Utf8JsonReader reader, string? id, string? name, JsonSerializerOptions options, ReferenceResolver resolver)
+        private static InputParameter CreateInputParameter(ref Utf8JsonReader reader, JsonSerializerOptions options, ReferenceResolver resolver)
         {
-            var isFirstProperty = id == null && name == null;
-
-            string? nameInRequest = null;
-            string? summary = null;
-            string? doc = null;
-            InputType? parameterType = null;
-            string? location = null;
-            InputConstant? defaultValue = null;
+            string? id = null;
             string? kind = null;
-            bool isRequired = false;
-            bool isApiVersion = false;
-            bool isContentType = false;
-            bool isEndpoint = false;
-            bool skipUrlEncoding = false;
-            bool explode = false;
-            string? arraySerializationDelimiter = null;
-            string? headerCollectionPrefix = null;
-            string? serverUrlTemplate = null;
-            IReadOnlyList<InputDecoratorInfo>? decorators = null;
+            InputParameter? parameter = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
-                var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
-                    || reader.TryReadString("name", ref name)
-                    || reader.TryReadString("nameInRequest", ref nameInRequest)
-                    || reader.TryReadString("summary", ref summary)
-                    || reader.TryReadString("doc", ref doc)
-                    || reader.TryReadComplexType("type", options, ref parameterType)
-                    || reader.TryReadString("location", ref location)
-                    || reader.TryReadComplexType("defaultValue", options, ref defaultValue)
-                    || reader.TryReadString("kind", ref kind)
-                    || reader.TryReadBoolean("isRequired", ref isRequired)
-                    || reader.TryReadBoolean("isApiVersion", ref isApiVersion)
-                    || reader.TryReadBoolean("isContentType", ref isContentType)
-                    || reader.TryReadBoolean("isEndpoint", ref isEndpoint)
-                    || reader.TryReadBoolean("skipUrlEncoding", ref skipUrlEncoding)
-                    || reader.TryReadBoolean("explode", ref explode)
-                    || reader.TryReadString("arraySerializationDelimiter", ref arraySerializationDelimiter)
-                    || reader.TryReadString("headerCollectionPrefix", ref headerCollectionPrefix)
-                    || reader.TryReadString("serverUrlTemplate", ref serverUrlTemplate)
-                    || reader.TryReadComplexType("decorators", options, ref decorators);
+                var isIdOrKind = reader.TryReadReferenceId(ref id) || reader.TryReadString("kind", ref kind);
 
-                if (!isKnownProperty)
+                if (isIdOrKind)
                 {
-                    reader.SkipProperty();
+                    continue;
                 }
+                parameter = CreateDerivedType(ref reader, id, kind, options, resolver);
             }
 
-            name = name ?? throw new JsonException("Parameter must have name");
-            nameInRequest = nameInRequest ?? throw new JsonException("Parameter must have nameInRequest");
-            parameterType = parameterType ?? throw new JsonException("Parameter must have type");
-
-            if (location == null)
-            {
-                throw new JsonException("Parameter must have location");
-            }
-            Enum.TryParse<InputRequestLocation>(location, ignoreCase: true, out var requestLocation);
-
-            if (kind == null)
-            {
-                throw new JsonException("Parameter must have kind");
-            }
-            Enum.TryParse<InputParameterKind>(kind, ignoreCase: true, out var parameterKind);
-
-            if (parameterKind == InputParameterKind.Constant && parameterType is not InputLiteralType)
-            {
-                throw new JsonException($"Operation parameter '{name}' is constant, but its type is '{parameterType.Name}'.");
-            }
-
-            var parameter = new InputParameter(
-                name: name,
-                nameInRequest: nameInRequest,
-                summary: summary,
-                doc: doc,
-                type: parameterType,
-                location: requestLocation,
-                defaultValue: defaultValue,
-                kind: parameterKind,
-                isRequired: isRequired,
-                isApiVersion: isApiVersion,
-                isContentType: isContentType,
-                isEndpoint: isEndpoint,
-                skipUrlEncoding: skipUrlEncoding,
-                explode: explode,
-                arraySerializationDelimiter: arraySerializationDelimiter,
-                headerCollectionPrefix: headerCollectionPrefix,
-                serverUrlTemplate: serverUrlTemplate)
-            {
-                Decorators = decorators ?? []
-            };
-
-            if (id != null)
-            {
-                resolver.AddReference(id, parameter);
-            }
-
-            return parameter;
+            return parameter ?? CreateDerivedType(ref reader, id, kind, options, resolver);
         }
+
+        private static InputParameter CreateDerivedType(ref Utf8JsonReader reader, string? id, string? kind, JsonSerializerOptions options, ReferenceResolver resolver) => kind switch
+        {
+            null => throw new JsonException($"InputParameter (id: '{id}') must have a 'kind' property"),
+            MethodParameterKind => InputMethodParameterConverter.ReadInputMethodParameter(ref reader, id, options, resolver),
+            HeaderParameterKind => InputHeaderParameterConverter.ReadInputHeaderParameter(ref reader, id, options, resolver),
+            QueryParameterKind => InputQueryParameterConverter.ReadInputQueryParameter(ref reader, id, options, resolver),
+            PathParameterKind => InputPathParameterConverter.ReadInputPathParameter(ref reader, id, options, resolver),
+            BodyParameterKind => InputBodyParameterConverter.ReadInputBodyParameter(ref reader, id, options, resolver),
+            EndpointParameterKind => InputEndpointParameterConverter.ReadInputEndpointParameter(ref reader, id, options, resolver),
+            _ => throw new JsonException($"Unknown kind for InputParameter (id: '{id}'): '{kind}'"),
+        };
     }
 }

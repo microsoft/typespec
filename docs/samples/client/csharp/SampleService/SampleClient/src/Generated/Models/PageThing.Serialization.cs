@@ -10,7 +10,7 @@ using System.Text.Json;
 
 namespace SampleTypeSpec
 {
-    /// <summary></summary>
+    /// <summary> The PageThing. </summary>
     internal partial class PageThing : IJsonModel<PageThing>
     {
         /// <summary> Initializes a new instance of <see cref="PageThing"/> for deserialization. </summary>
@@ -146,16 +146,6 @@ namespace SampleTypeSpec
 
         /// <param name="options"> The client options for reading and writing models. </param>
         string IPersistableModel<PageThing>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="pageThing"> The <see cref="PageThing"/> to serialize into <see cref="BinaryContent"/>. </param>
-        public static implicit operator BinaryContent(PageThing pageThing)
-        {
-            if (pageThing == null)
-            {
-                return null;
-            }
-            return BinaryContent.Create(pageThing, ModelSerializationExtensions.WireOptions);
-        }
 
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="PageThing"/> from. </param>
         public static explicit operator PageThing(ClientResult result)

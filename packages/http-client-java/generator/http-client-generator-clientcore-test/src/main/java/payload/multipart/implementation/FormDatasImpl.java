@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import payload.multipart.BinaryArrayPartsRequest;
 import payload.multipart.ComplexPartsRequest;
@@ -36,6 +37,11 @@ public final class FormDatasImpl {
     private final MultiPartClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of FormDatasImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -43,6 +49,7 @@ public final class FormDatasImpl {
     FormDatasImpl(MultiPartClientImpl client) {
         this.service = FormDatasService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -143,8 +150,11 @@ public final class FormDatasImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> basicWithResponse(MultiPartRequest body, RequestContext requestContext) {
-        final String contentType = "multipart/form-data";
-        return service.basic(this.client.getEndpoint(), contentType, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.FormData.basic", requestContext,
+            updatedContext -> {
+                final String contentType = "multipart/form-data";
+                return service.basic(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -159,8 +169,11 @@ public final class FormDatasImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> fileArrayAndBasicWithResponse(ComplexPartsRequest body, RequestContext requestContext) {
-        final String contentType = "multipart/form-data";
-        return service.fileArrayAndBasic(this.client.getEndpoint(), contentType, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.FormData.fileArrayAndBasic",
+            requestContext, updatedContext -> {
+                final String contentType = "multipart/form-data";
+                return service.fileArrayAndBasic(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -175,8 +188,11 @@ public final class FormDatasImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> jsonPartWithResponse(JsonPartRequest body, RequestContext requestContext) {
-        final String contentType = "multipart/form-data";
-        return service.jsonPart(this.client.getEndpoint(), contentType, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.FormData.jsonPart", requestContext,
+            updatedContext -> {
+                final String contentType = "multipart/form-data";
+                return service.jsonPart(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -191,8 +207,11 @@ public final class FormDatasImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> binaryArrayPartsWithResponse(BinaryArrayPartsRequest body, RequestContext requestContext) {
-        final String contentType = "multipart/form-data";
-        return service.binaryArrayParts(this.client.getEndpoint(), contentType, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.FormData.binaryArrayParts",
+            requestContext, updatedContext -> {
+                final String contentType = "multipart/form-data";
+                return service.binaryArrayParts(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -207,8 +226,11 @@ public final class FormDatasImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> multiBinaryPartsWithResponse(MultiBinaryPartsRequest body, RequestContext requestContext) {
-        final String contentType = "multipart/form-data";
-        return service.multiBinaryParts(this.client.getEndpoint(), contentType, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.FormData.multiBinaryParts",
+            requestContext, updatedContext -> {
+                final String contentType = "multipart/form-data";
+                return service.multiBinaryParts(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
@@ -224,8 +246,12 @@ public final class FormDatasImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> checkFileNameAndContentTypeWithResponse(MultiPartRequest body,
         RequestContext requestContext) {
-        final String contentType = "multipart/form-data";
-        return service.checkFileNameAndContentType(this.client.getEndpoint(), contentType, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.FormData.checkFileNameAndContentType",
+            requestContext, updatedContext -> {
+                final String contentType = "multipart/form-data";
+                return service.checkFileNameAndContentType(this.client.getEndpoint(), contentType, body,
+                    updatedContext);
+            });
     }
 
     /**
@@ -240,7 +266,10 @@ public final class FormDatasImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> anonymousModelWithResponse(AnonymousModelRequest body, RequestContext requestContext) {
-        final String contentType = "multipart/form-data";
-        return service.anonymousModel(this.client.getEndpoint(), contentType, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.FormData.anonymousModel", requestContext,
+            updatedContext -> {
+                final String contentType = "multipart/form-data";
+                return service.anonymousModel(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 }

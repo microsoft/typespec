@@ -12,6 +12,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -29,6 +30,11 @@ public final class QueryParametersImpl {
     private final RoutesClientImpl client;
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
      * Initializes an instance of QueryParametersImpl.
      * 
      * @param client the instance of the service client containing this operation class.
@@ -36,6 +42,7 @@ public final class QueryParametersImpl {
     QueryParametersImpl(RoutesClientImpl client) {
         this.service = QueryParametersService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+        this.instrumentation = client.getInstrumentation();
     }
 
     /**
@@ -90,7 +97,10 @@ public final class QueryParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> templateOnlyWithResponse(String param, RequestContext requestContext) {
-        return service.templateOnly(this.client.getEndpoint(), param, requestContext);
+        return this.instrumentation.instrumentWithResponse("Routes.QueryParameters.templateOnly", requestContext,
+            updatedContext -> {
+                return service.templateOnly(this.client.getEndpoint(), param, updatedContext);
+            });
     }
 
     /**
@@ -105,7 +115,10 @@ public final class QueryParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> explicitWithResponse(String param, RequestContext requestContext) {
-        return service.explicit(this.client.getEndpoint(), param, requestContext);
+        return this.instrumentation.instrumentWithResponse("Routes.QueryParameters.explicit", requestContext,
+            updatedContext -> {
+                return service.explicit(this.client.getEndpoint(), param, updatedContext);
+            });
     }
 
     /**
@@ -120,6 +133,9 @@ public final class QueryParametersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> annotationOnlyWithResponse(String param, RequestContext requestContext) {
-        return service.annotationOnly(this.client.getEndpoint(), param, requestContext);
+        return this.instrumentation.instrumentWithResponse("Routes.QueryParameters.annotationOnly", requestContext,
+            updatedContext -> {
+                return service.annotationOnly(this.client.getEndpoint(), param, updatedContext);
+            });
     }
 }

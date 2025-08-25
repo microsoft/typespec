@@ -2,7 +2,7 @@ import { createDiagnostic } from "../core/messages.js";
 import { getDirectoryPath, isPathAbsolute, joinPaths, resolvePath } from "../core/path-utils.js";
 import { createJSONSchemaValidator } from "../core/schema-validator.js";
 import { createSourceFile } from "../core/source-file.js";
-import { CompilerHost, Diagnostic, NoTarget, SourceFile } from "../core/types.js";
+import { Diagnostic, NoTarget, SourceFile, SystemHost } from "../core/types.js";
 import { doIO } from "../utils/io.js";
 import { deepClone, deepFreeze, omitUndefined } from "../utils/misc.js";
 import { getLocationInYamlScript } from "../yaml/index.js";
@@ -23,7 +23,7 @@ export const defaultConfig = deepFreeze({
  * @param path Path to the file or the folder to start looking
  */
 export async function findTypeSpecConfigPath(
-  host: CompilerHost,
+  host: SystemHost,
   path: string,
   lookup: boolean = true,
 ): Promise<string | undefined> {
@@ -78,7 +78,7 @@ export async function findTypeSpecConfigPath(
  * @param path
  */
 export async function loadTypeSpecConfigForPath(
-  host: CompilerHost,
+  host: SystemHost,
   path: string,
   errorIfNotFound: boolean = false,
   lookup: boolean = true,
@@ -109,7 +109,7 @@ export async function loadTypeSpecConfigForPath(
  * Load given file as a TypeSpec configuration
  */
 export async function loadTypeSpecConfigFile(
-  host: CompilerHost,
+  host: SystemHost,
   filePath: string,
 ): Promise<TypeSpecConfig> {
   const config = await loadConfigFile(host, filePath, parseYaml);
@@ -139,7 +139,7 @@ export async function loadTypeSpecConfigFile(
 const configValidator = createJSONSchemaValidator(TypeSpecConfigJsonSchema);
 
 async function searchConfigFile(
-  host: CompilerHost,
+  host: SystemHost,
   path: string,
   filename: string,
 ): Promise<string | undefined> {
@@ -154,7 +154,7 @@ async function searchConfigFile(
 }
 
 async function loadConfigFile(
-  host: CompilerHost,
+  host: SystemHost,
   filename: string,
   loadData: (content: SourceFile) => [YamlScript, readonly Diagnostic[]],
 ): Promise<TypeSpecConfig> {

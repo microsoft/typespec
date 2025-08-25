@@ -1,6 +1,6 @@
-import { Children } from "@alloy-js/core";
+import { type Children } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { compilerAssert, Value } from "@typespec/compiler";
+import { compilerAssert, type Value } from "@typespec/compiler";
 
 /**
  * Properties for the {@link ValueExpression} component.

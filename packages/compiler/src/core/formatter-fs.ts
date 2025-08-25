@@ -83,7 +83,7 @@ export async function checkFilesFormat(
         formatted.push(file);
         break;
       case "needs-format":
-        formatted.push(file);
+        needsFormat.push(file);
         break;
       case "ignored":
         ignored.push(file);

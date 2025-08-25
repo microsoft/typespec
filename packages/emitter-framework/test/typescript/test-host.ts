@@ -1,21 +1,12 @@
-import { Program } from "@typespec/compiler";
+import type { Program } from "@typespec/compiler";
 import {
   createTestHost,
   createTestWrapper,
   expectDiagnosticEmpty,
 } from "@typespec/compiler/testing";
-import { HttpTestLibrary } from "@typespec/http/testing";
 
-export async function createTypespecCliTestHost(
-  options: { libraries: "Http"[] } = { libraries: [] },
-) {
-  const libraries = [];
-  if (options.libraries.includes("Http")) {
-    libraries.push(HttpTestLibrary);
-  }
-  return createTestHost({
-    libraries,
-  });
+export async function createTypespecCliTestHost() {
+  return createTestHost({});
 }
 
 export async function createEmitterFrameworkTestRunner(options: { autoUsings?: string[] } = {}) {
@@ -25,11 +16,8 @@ export async function createEmitterFrameworkTestRunner(options: { autoUsings?: s
   });
 }
 
-export async function getProgram(
-  code: string,
-  options: { libraries: "Http"[] } = { libraries: [] },
-): Promise<Program> {
-  const host = await createTypespecCliTestHost(options);
+export async function getProgram(code: string): Promise<Program> {
+  const host = await createTypespecCliTestHost();
   const wrapper = createTestWrapper(host, {
     compilerOptions: {
       noEmit: true,

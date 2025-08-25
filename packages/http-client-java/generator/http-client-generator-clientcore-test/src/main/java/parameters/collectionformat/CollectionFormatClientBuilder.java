@@ -14,13 +14,17 @@ import io.clientcore.core.http.pipeline.HttpRedirectOptions;
 import io.clientcore.core.http.pipeline.HttpRedirectPolicy;
 import io.clientcore.core.http.pipeline.HttpRetryOptions;
 import io.clientcore.core.http.pipeline.HttpRetryPolicy;
+import io.clientcore.core.instrumentation.Instrumentation;
+import io.clientcore.core.instrumentation.SdkInstrumentationOptions;
 import io.clientcore.core.traits.ConfigurationTrait;
 import io.clientcore.core.traits.EndpointTrait;
 import io.clientcore.core.traits.HttpTrait;
 import io.clientcore.core.traits.ProxyTrait;
+import io.clientcore.core.utils.CoreUtils;
 import io.clientcore.core.utils.configuration.Configuration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import parameters.collectionformat.implementation.CollectionFormatClientImpl;
 
@@ -36,6 +40,10 @@ public final class CollectionFormatClientBuilder
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES
+        = CoreUtils.getProperties("parameters-collectionformat.properties");
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
@@ -181,7 +189,17 @@ public final class CollectionFormatClientBuilder
     private CollectionFormatClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        CollectionFormatClientImpl client = new CollectionFormatClientImpl(createHttpPipeline(), localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        CollectionFormatClientImpl client
+            = new CollectionFormatClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -215,7 +233,8 @@ public final class CollectionFormatClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public QueryClient buildQueryClient() {
-        return new QueryClient(buildInnerClient().getQueries());
+        CollectionFormatClientImpl innerClient = buildInnerClient();
+        return new QueryClient(innerClient.getQueries(), innerClient.getInstrumentation());
     }
 
     /**
@@ -225,6 +244,7 @@ public final class CollectionFormatClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public HeaderClient buildHeaderClient() {
-        return new HeaderClient(buildInnerClient().getHeaders());
+        CollectionFormatClientImpl innerClient = buildInnerClient();
+        return new HeaderClient(innerClient.getHeaders(), innerClient.getInstrumentation());
     }
 }

@@ -6,7 +6,7 @@
 export const hsjsDependencies: Record<string, string> = {
   "@types/express": "^5.0.1",
   "@types/morgan": "^1.9.9",
-  "@types/node": "~24.0.3",
+  "@types/node": "~24.1.0",
   "@types/swagger-ui-express": "^4.1.8",
   "@typespec/compiler": "workspace:^",
   "@typespec/http": "workspace:^",
@@ -33,6 +33,6 @@ export const hsjsDependencies: Record<string, string> = {
   "typescript": "~5.8.2",
   "vitest": "^3.1.2",
   "yargs": "~18.0.0",
-  "prettier": "~3.5.3",
+  "prettier": "~3.6.2",
   "yaml": "~2.8.0",
 };

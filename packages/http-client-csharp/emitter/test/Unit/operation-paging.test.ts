@@ -4,7 +4,6 @@ import { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
-import { RequestLocation } from "../../src/type/request-location.js";
 import { ResponseLocation } from "../../src/type/response-location.js";
 import {
   createCSharpSdkContext,
@@ -51,6 +50,71 @@ describe("Next link operations", () => {
     strictEqual(paging.nextLink?.responseLocation, ResponseLocation.Body);
     strictEqual(paging.nextLink?.responseSegments.length, 1);
     strictEqual(paging.nextLink?.responseSegments[0], "next");
+  });
+
+  it("parameterized next link", async () => {
+    const program = await typeSpecCompile(
+      `
+        @route("foo")
+        @list
+        op link(...RequestOptions): LinkResult;
+
+        model LinkResult {
+          @pageItems
+          items: Foo[];
+
+          @nextLink
+          next?: global.Azure.Core.Legacy.parameterizedNextLink<[RequestOptions.includePending, RequestOptions.includeExpired, RequestOptions.etagHeader, OtherRequestOptions.otherProp]>;
+        }
+  
+        model RequestOptions {
+          @query
+          includePending?: boolean;
+
+          @query
+          includeExpired?: boolean;
+
+          @header("ETag")
+          etagHeader?: string;
+        }
+
+        model OtherRequestOptions {
+          @query
+          otherProp?: string;
+        }
+
+        model Foo {
+          bar: string;
+          baz: int32;
+        };
+      `,
+      runner,
+      { IsNamespaceNeeded: true, IsAzureCoreNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const method = root.clients[0].methods[0];
+    strictEqual(method.kind, "paging");
+
+    const paging = method.pagingMetadata;
+    ok(paging);
+    ok(paging.itemPropertySegments);
+
+    strictEqual(paging.itemPropertySegments[0], "items");
+    strictEqual(paging.nextLink?.responseLocation, ResponseLocation.Body);
+    strictEqual(paging.nextLink?.responseSegments.length, 1);
+    strictEqual(paging.nextLink?.responseSegments[0], "next");
+
+    const parameterizedNextLink = paging.nextLink?.reInjectedParameters;
+    ok(parameterizedNextLink);
+    strictEqual(parameterizedNextLink.length, 3);
+    strictEqual(parameterizedNextLink[0].name, "includePending");
+    strictEqual(parameterizedNextLink[0].kind, "query");
+    strictEqual(parameterizedNextLink[1].name, "includeExpired");
+    strictEqual(parameterizedNextLink[1].kind, "query");
+    strictEqual(parameterizedNextLink[2].name, "etagHeader");
+    strictEqual(parameterizedNextLink[2].kind, "header");
   });
 
   // skipped until https://github.com/Azure/typespec-azure/issues/2341 is fixed
@@ -203,7 +267,7 @@ describe("Continuation token operations", () => {
     const continuationToken = paging.continuationToken;
     ok(continuationToken);
     strictEqual(continuationToken.parameter.name, "token");
-    strictEqual(continuationToken.parameter.location, RequestLocation.Header);
+    strictEqual(continuationToken.parameter.kind, "header");
     strictEqual(continuationToken.responseLocation, ResponseLocation.Header);
     strictEqual(continuationToken.responseSegments.length, 1);
     strictEqual(continuationToken.responseSegments[0], "next-token");
@@ -238,8 +302,8 @@ describe("Continuation token operations", () => {
     const continuationToken = paging.continuationToken;
     ok(continuationToken);
     strictEqual(continuationToken.parameter.name, "token");
-    strictEqual(continuationToken.parameter.nameInRequest, "token");
-    strictEqual(continuationToken.parameter.location, RequestLocation.Header);
+    strictEqual(continuationToken.parameter.serializedName, "token");
+    strictEqual(continuationToken.parameter.kind, "header");
     strictEqual(continuationToken.responseLocation, ResponseLocation.Body);
     strictEqual(continuationToken.responseSegments.length, 1);
     strictEqual(continuationToken.responseSegments[0], "nextToken");
@@ -274,8 +338,8 @@ describe("Continuation token operations", () => {
     const continuationToken = paging.continuationToken;
     ok(continuationToken);
     strictEqual(continuationToken.parameter.name, "token");
-    strictEqual(continuationToken.parameter.nameInRequest, "token");
-    strictEqual(continuationToken.parameter.location, RequestLocation.Query);
+    strictEqual(continuationToken.parameter.serializedName, "token");
+    strictEqual(continuationToken.parameter.kind, "query");
     strictEqual(continuationToken.responseLocation, ResponseLocation.Header);
     strictEqual(continuationToken.responseSegments.length, 1);
     strictEqual(continuationToken.responseSegments[0], "next-token");
@@ -310,8 +374,8 @@ describe("Continuation token operations", () => {
     const continuationToken = paging.continuationToken;
     ok(continuationToken);
     strictEqual(continuationToken.parameter.name, "token");
-    strictEqual(continuationToken.parameter.nameInRequest, "token");
-    strictEqual(continuationToken.parameter.location, RequestLocation.Query);
+    strictEqual(continuationToken.parameter.serializedName, "token");
+    strictEqual(continuationToken.parameter.kind, "query");
     strictEqual(continuationToken.responseLocation, ResponseLocation.Body);
     strictEqual(continuationToken.responseSegments.length, 1);
     strictEqual(continuationToken.responseSegments[0], "nextToken");
@@ -346,8 +410,8 @@ describe("Continuation token operations", () => {
     const continuationToken = paging.continuationToken;
     ok(continuationToken);
     strictEqual(continuationToken.parameter.name, "token");
-    strictEqual(continuationToken.parameter.nameInRequest, "token");
-    strictEqual(continuationToken.parameter.location, RequestLocation.Query);
+    strictEqual(continuationToken.parameter.serializedName, "token");
+    strictEqual(continuationToken.parameter.kind, "query");
     strictEqual(continuationToken.responseLocation, ResponseLocation.None);
     strictEqual(continuationToken.responseSegments.length, 1);
     strictEqual(continuationToken.responseSegments[0], "nextToken");

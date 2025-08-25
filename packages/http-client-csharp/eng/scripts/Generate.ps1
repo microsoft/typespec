@@ -6,6 +6,10 @@ param(
 )
 
 Import-Module "$PSScriptRoot\Generation.psm1" -DisableNameChecking -Force;
+Import-Module "$PSScriptRoot\Spector-Helper.psm1" -DisableNameChecking -Force;
+
+# Start overall timer
+$totalStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 
 $packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
 $solutionDir = Join-Path $packageRoot 'generator'
@@ -15,32 +19,32 @@ if (-not $LaunchOnly) {
 
     if ($null -eq $filter -or $filter -eq "Sample-TypeSpec") {
 
-        Write-Host "Building logging plugin" -ForegroundColor Cyan
-        $pluginDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'plugins' 'logging' 'Logging.Plugin' 'src'
-        Invoke "dotnet build" $pluginDir
+       Write-Host "Building logging plugin" -ForegroundColor Cyan
+       $pluginDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'plugins' 'logging' 'Logging.Plugin' 'src'
+       Invoke "dotnet build" $pluginDir
 
-        $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
+       $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
 
-        Write-Host "Installing SampleTypeSpec plugins" -ForegroundColor Cyan
+       Write-Host "Installing SampleTypeSpec plugins" -ForegroundColor Cyan
 
-        Invoke "npm install" $sampleDir
+       Invoke "npm install --force" $sampleDir
 
-        Write-Host "Generating SampleTypeSpec using plugins" -ForegroundColor Cyan
+       Write-Host "Generating SampleTypeSpec using plugins" -ForegroundColor Cyan
 
-        Invoke "npx tsp compile . --trace @typespec/http-client-csharp" $sampleDir
+       Invoke "npx tsp compile . --trace @typespec/http-client-csharp --option @typespec/http-client-csharp.new-project=true" $sampleDir
 
-        # exit if the generation failed
-        if ($LASTEXITCODE -ne 0) {
-          exit $LASTEXITCODE
-        }
+       # exit if the generation failed
+       if ($LASTEXITCODE -ne 0) {
+         exit $LASTEXITCODE
+       }
 
-        Write-Host "Building SampleTypeSpec plugin library" -ForegroundColor Cyan
-        Invoke "dotnet build $sampleDir/SampleClient/src/SampleTypeSpec.csproj"
+       Write-Host "Building SampleTypeSpec plugin library" -ForegroundColor Cyan
+       Invoke "dotnet build $sampleDir/SampleClient/src/SampleTypeSpec.csproj"
 
-        # exit if the generation failed
-        if ($LASTEXITCODE -ne 0) {
-          exit $LASTEXITCODE
-        }
+       # exit if the generation failed
+       if ($LASTEXITCODE -ne 0) {
+         exit $LASTEXITCODE
+       }
 
         Write-Host "Generating SampleTypeSpec" -ForegroundColor Cyan
         $testProjectsLocalDir = Join-Path $packageRoot 'generator' 'TestProjects' 'Local'
@@ -48,7 +52,7 @@ if (-not $LaunchOnly) {
         $SampleTypeSpecTestProject = Join-Path $testProjectsLocalDir "Sample-TypeSpec"
         $SampleTypeSpecTestProject = $SampleTypeSpecTestProject
 
-        Invoke (Get-TspCommand "$SampleTypeSpecTestProject/Sample-TypeSpec.tsp" $SampleTypeSpecTestProject -newProject $false)
+        Invoke (Get-TspCommand "$SampleTypeSpecTestProject/Sample-TypeSpec.tsp" $SampleTypeSpecTestProject)
 
         # exit if the generation failed
         if ($LASTEXITCODE -ne 0) {
@@ -69,77 +73,26 @@ $specsDirectory = "$packageRoot/node_modules/@typespec/http-specs"
 $azureSpecsDirectory = "$packageRoot/node_modules/@azure-tools/azure-http-specs"
 $spectorRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'Spector'
 
-function IsSpecDir {
-    param (
-        [string]$dir
-    )
-    $subdirs = Get-ChildItem -Path $dir -Directory
-    return -not ($subdirs) -and (Test-Path "$dir/main.tsp")
-}
-
-$failingSpecs = @(
-    Join-Path 'http' 'payload' 'xml'
-    Join-Path 'http' 'type' 'model' 'flatten'
-    Join-Path 'http' 'type' 'model' 'templated'
-    Join-Path 'http' 'client' 'naming' # pending until https://github.com/microsoft/typespec/issues/5653 is resolved
-    Join-Path 'http' 'streaming' 'jsonl'
-)
-
-$azureAllowSpecs = @(
-    Join-Path 'http' 'client' 'structure' 'client-operation-group'
-    Join-Path 'http' 'client' 'structure' 'default'
-    Join-Path 'http' 'client' 'structure' 'multi-client'
-    Join-Path 'http' 'client' 'structure' 'renamed-operation'
-    Join-Path 'http' 'client' 'structure' 'two-operation-group'
-    Join-Path 'http' 'resiliency' 'srv-driven'
-)
-
 $spectorLaunchProjects = @{}
 
-# Loop through all directories and subdirectories of the Spector specs
-$directories = @(Get-ChildItem -Path "$specsDirectory/specs" -Directory -Recurse)
-$directories += @(Get-ChildItem -Path "$azureSpecsDirectory/specs" -Directory -Recurse)
-foreach ($directory in $directories) {
-    if (-not (IsSpecDir $directory.FullName)) {
-        continue
-    }
-
-    $fromAzure = $directory.FullName.Contains("azure-http-specs")
-
-    $specFile = Join-Path $directory.FullName "client.tsp"
-    if (-not (Test-Path $specFile)) {
-        $specFile = Join-Path $directory.FullName "main.tsp"
-    }
-    $subPath = if ($fromAzure) {$directory.FullName.Substring($azureSpecsDirectory.Length + 1)} else {$directory.FullName.Substring($specsDirectory.Length + 1)}
-    $subPath = $subPath -replace '^specs', 'http' # Keep consistent with the previous folder name because 'http' makes more sense then current 'specs'
+foreach ($specFile in Get-Sorted-Specs) {
+    $subPath = Get-SubPath $specFile
     $folders = $subPath.Split([System.IO.Path]::DirectorySeparatorChar)
 
     if (-not (Compare-Paths $subPath $filter)) {
         continue
     }
-
-    if ($fromAzure -eq $true -and !$azureAllowSpecs.Contains($subPath)) {
-        continue
-    }
-
-    if ($failingSpecs.Contains($subPath)) {
-        Write-Host "Skipping $subPath" -ForegroundColor Yellow
-        continue
-    }
-
-    $generationDir = $spectorRoot
-    foreach ($folder in $folders) {
-        $generationDir = Join-Path $generationDir $folder
-    }
+    $generationDir = Join-Path $spectorRoot $subPath
 
     # create the directory if it doesn't exist
     if (-not (Test-Path $generationDir)) {
         New-Item -ItemType Directory -Path $generationDir | Out-Null
     }
+
+    Write-Host "Generating $subPath" -ForegroundColor Cyan
     
     if ($folders.Contains("versioning")) {
-        Write-Host "Generating versioning for $subPath" -ForegroundColor Cyan
-        Generate-Versioning $directory.FullName $generationDir -generateStub $stubbed
+        Generate-Versioning (Split-Path $specFile) $generationDir -generateStub $stubbed
         $spectorLaunchProjects.Add($($folders -join "-") + "-v1", $("TestProjects/Spector/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))") + "/v1")
         $spectorLaunchProjects.Add($($folders -join "-") + "-v2", $("TestProjects/Spector/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))") + "/v2")
         continue
@@ -147,7 +100,7 @@ foreach ($directory in $directories) {
 
     # srv-driven contains two separate specs, for two separate clients. We need to generate both.
     if ($folders.Contains("srv-driven")) {
-        Generate-Srv-Driven $directory.FullName $generationDir -generateStub $stubbed
+        Generate-Srv-Driven (Split-Path $specFile) $generationDir -generateStub $stubbed
         $spectorLaunchProjects.Add($($folders -join "-") + "-v1", $("TestProjects/Spector/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))") + "/v1")
         $spectorLaunchProjects.Add($($folders -join "-") + "-v2", $("TestProjects/Spector/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))") + "/v2")
         continue
@@ -158,7 +111,6 @@ foreach ($directory in $directories) {
         continue
     }
     
-    Write-Host "Generating $subPath" -ForegroundColor Cyan
     Invoke (Get-TspCommand $specFile $generationDir $stubbed)
 
     # exit if the generation failed
@@ -210,7 +162,12 @@ if ($null -eq $filter) {
     }
 
     # Write the launch settings to the launchSettings.json file
-    $launchSettingsPath = Join-Path $solutionDir "Microsoft.TypeSpec.Generator" "src" "Properties" "launchSettings.json"
-    # Write the settings to JSON and normalize line endings to Unix style (LF)
-    $sortedLaunchSettings | ConvertTo-Json | ForEach-Object { ($_ -replace "`r`n", "`n") + "`n" } | Set-Content -NoNewLine $launchSettingsPath
+    Set-LaunchSettings $sortedLaunchSettings
 }
+
+# Stop total timer
+$totalStopwatch.Stop()
+
+# Display timing summary
+Write-Host "`n==================== TIMING SUMMARY ====================" -ForegroundColor Cyan
+Write-Host "Total execution time: $($totalStopwatch.Elapsed.ToString('hh\:mm\:ss\.ff'))" -ForegroundColor Yellow

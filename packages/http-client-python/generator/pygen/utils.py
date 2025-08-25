@@ -7,6 +7,10 @@ from typing import Any, Dict, Tuple, List
 import re
 import argparse
 
+SWAGGER_PACKAGE_MODE = ["mgmtplane", "dataplane"]  # for backward compatibility
+TYPESPEC_PACKAGE_MODE = ["azure-mgmt", "azure-dataplane", "generic"]
+VALID_PACKAGE_MODE = SWAGGER_PACKAGE_MODE + TYPESPEC_PACKAGE_MODE
+
 
 def update_enum_value(name: str, value: Any, description: str, enum_type: Dict[str, Any]) -> Dict[str, Any]:
     return {

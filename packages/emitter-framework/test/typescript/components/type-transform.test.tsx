@@ -1,10 +1,9 @@
-import { code, Output, render } from "@alloy-js/core";
-import { d } from "@alloy-js/core/testing";
+import { code, Output } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { SourceFile } from "@alloy-js/typescript";
-import { Model } from "@typespec/compiler";
-import { BasicTestRunner } from "@typespec/compiler/testing";
-import { assert, beforeEach, describe, expect, it } from "vitest";
+import type { Model } from "@typespec/compiler";
+import type { BasicTestRunner } from "@typespec/compiler/testing";
+import { beforeEach, describe, expect, it } from "vitest";
 import {
   ArraySerializer,
   DateDeserializer,
@@ -39,7 +38,7 @@ describe.skip("Typescript Type Transform", () => {
 
         const { Widget } = (await testRunner.compile(spec)) as { Widget: Model };
 
-        const res = render(
+        expect(
           <Output namePolicy={namePolicy}>
             <SourceFile path="test.ts">
               {code`
@@ -53,19 +52,13 @@ describe.skip("Typescript Type Transform", () => {
               />
             </SourceFile>
           </Output>,
-        );
-
-        const testFile = res.contents.find((file) => file.path === "test.ts");
-        assert(testFile, "test.ts file not rendered");
-        const actualContent = testFile.contents;
-        const expectedContent = d`
+        ).toRenderTo(`
           const wireWidget = {id: "1", birth_year: 1988, color: "blue"};
           const clientWidget = {
             "id": wireWidget.id,
             "birthYear": wireWidget.birth_year,
             "color": wireWidget.color
-          }`;
-        expect(actualContent).toBe(expectedContent);
+          }`);
       });
 
       it("should render a transform expression to wire", async () => {
@@ -80,7 +73,7 @@ describe.skip("Typescript Type Transform", () => {
 
         const { Widget } = (await testRunner.compile(spec)) as { Widget: Model };
 
-        const res = render(
+        expect(
           <Output namePolicy={namePolicy}>
             <SourceFile path="test.ts">
               {code`
@@ -94,19 +87,13 @@ describe.skip("Typescript Type Transform", () => {
               />
             </SourceFile>
           </Output>,
-        );
-
-        const testFile = res.contents.find((file) => file.path === "test.ts");
-        assert(testFile, "test.ts file not rendered");
-        const actualContent = testFile.contents;
-        const expectedContent = d`
+        ).toRenderTo(`
           const clientWidget = {id: "1", birthYear: 1988, color: "blue"};
           const wireWidget = {
             "id": clientWidget.id,
             "birth_year": clientWidget.birthYear,
             "color": clientWidget.color
-          }`;
-        expect(actualContent).toBe(expectedContent);
+          }`);
       });
 
       it("should render a transform expression that contains a utcDateTime to client", async () => {
@@ -121,7 +108,7 @@ describe.skip("Typescript Type Transform", () => {
 
         const { Widget } = (await testRunner.compile(spec)) as { Widget: Model };
 
-        const res = render(
+        expect(
           <Output namePolicy={namePolicy}>
             <SourceFile path="static-serializers.ts">
               <DateDeserializer />
@@ -138,12 +125,7 @@ describe.skip("Typescript Type Transform", () => {
               />
             </SourceFile>
           </Output>,
-        );
-
-        const testFile = res.contents.find((file) => file.path === "test.ts");
-        assert(testFile, "test.ts file not rendered");
-        const actualContent = testFile.contents;
-        const expectedContent = d`
+        ).toRenderTo(`
           import { dateDeserializer } from "./static-serializers.js";
           
           const wireWidget = {id: "1", birth_date: "1988-04-29T19:30:00Z", color: "blue"};
@@ -151,8 +133,7 @@ describe.skip("Typescript Type Transform", () => {
             "id": wireWidget.id,
             "birthDate": dateDeserializer(wireWidget.birth_date),
             "color": wireWidget.color
-          }`;
-        expect(actualContent).toBe(expectedContent);
+          }`);
       });
     });
 
@@ -172,7 +153,7 @@ describe.skip("Typescript Type Transform", () => {
 
         const { Widget } = (await testRunner.compile(spec)) as { Widget: Model };
 
-        const res = render(
+        expect(
           <Output namePolicy={namePolicy}>
             <SourceFile path="serializers.ts">
               <ArraySerializer />
@@ -183,12 +164,7 @@ describe.skip("Typescript Type Transform", () => {
               <TypeTransformDeclaration type={Widget} target="transport" />
             </SourceFile>
           </Output>,
-        );
-
-        const testFile = res.contents.find((file) => file.path === "test.ts");
-        assert(testFile, "test.ts file not rendered");
-        const actualContent = testFile.contents;
-        const expectedContent = d`
+        ).toRenderTo(`
           import { arraySerializer } from "./serializers.js";
           
           export interface Widget {
@@ -219,8 +195,7 @@ describe.skip("Typescript Type Transform", () => {
               "optionalString": item.optionalString
             };
           }
-         `;
-        expect(actualContent).toBe(expectedContent);
+         `);
       });
       it("should render a transform functions for a model containing record", async () => {
         const spec = `
@@ -236,7 +211,7 @@ describe.skip("Typescript Type Transform", () => {
 
         const { Widget } = (await testRunner.compile(spec)) as { Widget: Model };
 
-        const res = render(
+        expect(
           <Output namePolicy={namePolicy}>
             <SourceFile path="serializers.ts">
               <RecordSerializer />
@@ -247,12 +222,7 @@ describe.skip("Typescript Type Transform", () => {
               <TypeTransformDeclaration type={Widget} target="transport" />
             </SourceFile>
           </Output>,
-        );
-
-        const testFile = res.contents.find((file) => file.path === "test.ts");
-        assert(testFile, "test.ts file not rendered");
-        const actualContent = testFile.contents;
-        const expectedContent = d`
+        ).toRenderTo(`
           import { recordSerializer } from "./serializers.js";
           
           export interface Widget {
@@ -280,8 +250,7 @@ describe.skip("Typescript Type Transform", () => {
               "nested": recordSerializer(item.nested, (i: any) => recordSerializer(i, widgetToTransport))
             };
           }
-         `;
-        expect(actualContent).toBe(expectedContent);
+         `);
       });
       it("should render a transform functions for a model", async () => {
         const spec = `
@@ -294,7 +263,7 @@ describe.skip("Typescript Type Transform", () => {
 
         const { Widget } = (await testRunner.compile(spec)) as { Widget: Model };
 
-        const res = render(
+        expect(
           <Output namePolicy={namePolicy}>
             <SourceFile path="test.ts">
               <TypeDeclaration export type={Widget} />
@@ -302,12 +271,7 @@ describe.skip("Typescript Type Transform", () => {
               <TypeTransformDeclaration type={Widget} target="transport" />
             </SourceFile>
           </Output>,
-        );
-
-        const testFile = res.contents.find((file) => file.path === "test.ts");
-        assert(testFile, "test.ts file not rendered");
-        const actualContent = testFile.contents;
-        const expectedContent = d`
+        ).toRenderTo(`
           export interface Widget {
             "id": string;
             "myColor": "blue" | "red";
@@ -324,8 +288,7 @@ describe.skip("Typescript Type Transform", () => {
               "my_color": item.myColor
             };
           }
-         `;
-        expect(actualContent).toBe(expectedContent);
+         `);
       });
     });
     describe("Calling a model transform functions", () => {
@@ -339,7 +302,7 @@ describe.skip("Typescript Type Transform", () => {
 
         const { Widget } = (await testRunner.compile(spec)) as { Widget: Model };
 
-        const res = render(
+        expect(
           <Output namePolicy={namePolicy}>
             <SourceFile path="test.ts">
               {code`
@@ -348,16 +311,10 @@ describe.skip("Typescript Type Transform", () => {
                 `}
             </SourceFile>
           </Output>,
-        );
-
-        const testFile = res.contents.find((file) => file.path === "test.ts");
-        assert(testFile, "test.ts file not rendered");
-        const actualContent = testFile.contents;
-        const expectedContent = d`
+        ).toRenderTo(`
           const clientWidget = {id: "1", my_color: "blue"};
           const wireWidget = clientWidget.id
-         `;
-        expect(actualContent).toBe(expectedContent);
+         `);
       });
 
       it("should call  transform functions for a model", async () => {
@@ -371,7 +328,7 @@ describe.skip("Typescript Type Transform", () => {
 
         const { Widget } = (await testRunner.compile(spec)) as { Widget: Model };
 
-        const res = render(
+        expect(
           <Output namePolicy={namePolicy}>
             <SourceFile path="types.ts">
               <TypeDeclaration export type={Widget} />
@@ -386,19 +343,13 @@ describe.skip("Typescript Type Transform", () => {
                 `}
             </SourceFile>
           </Output>,
-        );
-
-        const testFile = res.contents.find((file) => file.path === "test.ts");
-        assert(testFile, "test.ts file not rendered");
-        const actualContent = testFile.contents;
-        const expectedContent = d`
+        ).toRenderTo(`
           import { widgetToApplication, widgetToTransport } from "./types.js";
           
           const wireWidget = {id: "1", my_color: "blue"};
           const clientWidget = widgetToApplication(wireWidget);
           const wireWidget2 = widgetToTransport(clientWidget);
-         `;
-        expect(actualContent).toBe(expectedContent);
+         `);
       });
     });
   });
@@ -420,7 +371,7 @@ describe.skip("Typescript Type Transform", () => {
         }
       `)) as { Pet: Model; Cat: Model; Dog: Model };
 
-      const res = render(
+      expect(
         <Output namePolicy={namePolicy}>
           <SourceFile path="test.ts">
             <TypeDeclaration export type={Pet} />
@@ -434,12 +385,7 @@ describe.skip("Typescript Type Transform", () => {
             <TypeTransformDeclaration type={Pet} target="transport" />
           </SourceFile>
         </Output>,
-      );
-
-      const testFile = res.contents.find((file) => file.path === "test.ts");
-      assert(testFile, "test.ts file not rendered");
-      const actualContent = testFile.contents;
-      const expectedContent = d`
+      ).toRenderTo(`
       export interface Pet {
         "kind": string;
       }
@@ -485,8 +431,7 @@ describe.skip("Typescript Type Transform", () => {
           return dogToTransport(item)
         }
       }
-       `;
-      expect(actualContent).toBe(expectedContent);
+       `);
     });
   });
   describe("Discriminated Union Transforms", () => {
@@ -507,7 +452,7 @@ describe.skip("Typescript Type Transform", () => {
         }
       `)) as { Pet: Model; Cat: Model; Dog: Model };
 
-      const res = render(
+      expect(
         <Output namePolicy={namePolicy}>
           <SourceFile path="test.ts">
             <TypeDeclaration export type={Pet} />
@@ -521,12 +466,7 @@ describe.skip("Typescript Type Transform", () => {
             <TypeTransformDeclaration type={Pet} target="transport" />
           </SourceFile>
         </Output>,
-      );
-
-      const testFile = res.contents.find((file) => file.path === "test.ts");
-      assert(testFile, "test.ts file not rendered");
-      const actualContent = testFile.contents;
-      const expectedContent = d`
+      ).toRenderTo(`
       export type Pet = Cat | Dog;
       export interface Dog {
         "kind": "dog";
@@ -570,8 +510,7 @@ describe.skip("Typescript Type Transform", () => {
           return dogToTransport(item)
         }
       }
-       `;
-      expect(actualContent).toBe(expectedContent);
+       `);
     });
   });
 });

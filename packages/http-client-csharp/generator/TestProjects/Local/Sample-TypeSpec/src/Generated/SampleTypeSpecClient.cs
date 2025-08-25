@@ -23,6 +23,18 @@ namespace SampleTypeSpec
         /// <summary> A credential used to authenticate to the service. </summary>
         private readonly ApiKeyCredential _keyCredential;
         private const string AuthorizationHeader = "my-api-key";
+        /// <summary> A credential provider used to authenticate to the service. </summary>
+        private readonly AuthenticationTokenProvider _tokenProvider;
+        /// <summary> The OAuth2 flows supported by the service. </summary>
+        private readonly Dictionary<string, object>[] _flows = new Dictionary<string, object>[] 
+        {
+            new Dictionary<string, object>
+            {
+                { GetTokenOptions.ScopesPropertyName, new string[] { "read" } },
+                { GetTokenOptions.AuthorizationUrlPropertyName, "https://api.example.com/oauth2/authorize" },
+                { GetTokenOptions.RefreshUrlPropertyName, "https://api.example.com/oauth2/refresh" }
+            }
+        };
         private readonly string _apiVersion;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClient for mocking. </summary>
@@ -53,6 +65,24 @@ namespace SampleTypeSpec
             _endpoint = endpoint;
             _keyCredential = credential;
             Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(_keyCredential, AuthorizationHeader) }, Array.Empty<PipelinePolicy>());
+            _apiVersion = options.Version;
+        }
+
+        /// <summary> Initializes a new instance of SampleTypeSpecClient. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="tokenProvider"> A credential provider used to authenticate to the service. </param>
+        /// <param name="options"> The options for configuring the client. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="tokenProvider"/> is null. </exception>
+        public SampleTypeSpecClient(Uri endpoint, AuthenticationTokenProvider tokenProvider, SampleTypeSpecClientOptions options)
+        {
+            Argument.AssertNotNull(endpoint, nameof(endpoint));
+            Argument.AssertNotNull(tokenProvider, nameof(tokenProvider));
+
+            options ??= new SampleTypeSpecClientOptions();
+
+            _endpoint = endpoint;
+            _tokenProvider = tokenProvider;
+            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new BearerTokenPolicy(_tokenProvider, _flows) }, Array.Empty<PipelinePolicy>());
             _apiVersion = options.Version;
         }
 
@@ -657,6 +687,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNullOrEmpty(requiredBadDescription, nameof(requiredBadDescription));
 
             Thing spreadModel = new Thing(
+                null,
                 requiredUnion,
                 requiredLiteralString,
                 requiredNullableString,
@@ -671,7 +702,6 @@ namespace SampleTypeSpec
                 requiredBadDescription,
                 optionalNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
                 requiredNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
-                null,
                 null);
             ClientResult result = AnonymousBody(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
@@ -705,6 +735,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNullOrEmpty(requiredBadDescription, nameof(requiredBadDescription));
 
             Thing spreadModel = new Thing(
+                null,
                 requiredUnion,
                 requiredLiteralString,
                 requiredNullableString,
@@ -719,7 +750,6 @@ namespace SampleTypeSpec
                 requiredBadDescription,
                 optionalNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
                 requiredNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
-                null,
                 null);
             ClientResult result = await AnonymousBodyAsync(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
@@ -1347,6 +1377,54 @@ namespace SampleTypeSpec
         public virtual AsyncCollectionResult<Thing> GetWithNextLinkAsync(CancellationToken cancellationToken = default)
         {
             return new SampleTypeSpecClientGetWithNextLinkAsyncCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+        }
+
+        /// <summary>
+        /// [Protocol Method] List things with nextlink
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual CollectionResult GetWithStringNextLink(RequestOptions options)
+        {
+            return new SampleTypeSpecClientGetWithStringNextLinkCollectionResult(this, options);
+        }
+
+        /// <summary>
+        /// [Protocol Method] List things with nextlink
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual AsyncCollectionResult GetWithStringNextLinkAsync(RequestOptions options)
+        {
+            return new SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResult(this, options);
+        }
+
+        /// <summary> List things with nextlink. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual CollectionResult<Thing> GetWithStringNextLink(CancellationToken cancellationToken = default)
+        {
+            return new SampleTypeSpecClientGetWithStringNextLinkCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+        }
+
+        /// <summary> List things with nextlink. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual AsyncCollectionResult<Thing> GetWithStringNextLinkAsync(CancellationToken cancellationToken = default)
+        {
+            return new SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
 
         /// <summary>

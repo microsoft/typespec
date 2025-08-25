@@ -148,6 +148,18 @@ HEADERS_CONVERT_IN_METHOD = {
         },
     },
 }
+CLOUD_SETTING = {
+    "optional": True,
+    "description": "The cloud setting for which to get the ARM endpoint.",
+    "clientName": "cloud_setting",
+    "implementation": "Client",
+    "location": "keyword",
+    "type": {
+        "type": "sdkcore",
+        "name": "AzureClouds",
+        "isTypingOnly": True,
+    },
+}
 
 
 def get_wire_name_lower(parameter: Dict[str, Any]) -> str:
@@ -210,7 +222,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
             if not (self.is_tsp and has_multi_part_content_type(body_parameter)):
                 body_parameter["type"]["types"].append(KNOWN_TYPES["binary"])
 
-            if origin_type == "model" and is_dpg_model and self.models_mode == "dpg":
+            if origin_type == "model" and is_dpg_model and self.options["models-mode"] == "dpg":
                 body_parameter["type"]["types"].insert(1, KNOWN_TYPES["any-object"])
             code_model["types"].append(body_parameter["type"])
 
@@ -268,6 +280,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
         for v in HEADERS_CONVERT_IN_METHOD.values():
             if isinstance(v, dict) and "type" in v:
                 yaml_data.append(v["type"])
+        yaml_data.append(CLOUD_SETTING["type"])  # type: ignore
 
     def update_client(self, yaml_data: Dict[str, Any]) -> None:
         yaml_data["description"] = update_description(yaml_data["description"], default_description=yaml_data["name"])
@@ -324,6 +337,10 @@ class PreProcessPlugin(YamlUpdatePlugin):
 
                     o["hasEtag"] = True
                     yaml_data["hasEtag"] = True
+
+        # add client signature cloud_setting for arm
+        if self.azure_arm and yaml_data["parameters"]:
+            yaml_data["parameters"].append(CLOUD_SETTING)
 
     def get_operation_updater(self, yaml_data: Dict[str, Any]) -> Callable[[Dict[str, Any], Dict[str, Any]], None]:
         if yaml_data["discriminator"] == "lropaging":

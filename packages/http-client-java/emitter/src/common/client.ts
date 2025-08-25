@@ -9,6 +9,7 @@ import {
   Security,
 } from "@autorest/codemodel";
 import { DeepPartial } from "@azure-tools/codegen";
+import { XmlSerializationFormat } from "./formats/xml.js";
 
 export interface Client extends Aspect {
   /** All operations  */
@@ -123,4 +124,13 @@ export class PageableContinuationToken {
     this.responseProperty = responseProperty;
     this.responseHeader = responseHeader;
   }
+}
+
+export interface Serializable {
+  /**
+   * The serialization format for the type or property.
+   */
+  serialization?: {
+    xml?: XmlSerializationFormat;
+  };
 }

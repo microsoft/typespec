@@ -54,8 +54,28 @@ parameters:
     type: string
     default: "3.12"
 
+  - name: RunSDLTools
+    type: boolean
+    default: false
+
 jobs:
   - job: Build_${{ parameters.Os }}_${{ split(parameters.NodeVersion, '.')[0] }}
+    templateContext:
+      # Only run SDL tools on the main internal builds
+      ${{ if and(parameters.RunSDLTools, eq(variables['System.TeamProject'], 'internal')) }}:
+        sdl:
+          componentgovernance:
+            enabled: true
+          codeql:
+            compiled:
+              enabled: true
+
+      ${{ if parameters.EmitArtifacts }}:
+        outputs:
+          - output: pipelineArtifact
+            path: $(Build.ArtifactStagingDirectory)
+            artifact: ${{ parameters.BuildArtifactName }}
+
     ${{ if eq(parameters.Os, 'linux') }}:
       pool:
         name: $(LINUXPOOL)
@@ -78,9 +98,3 @@ jobs:
           PackagePath: ${{ parameters.PackagePath }}
           NodeVersion: ${{ parameters.NodeVersion }}
           PythonVersion: ${{ parameters.PythonVersion }}
-    ${{ if parameters.EmitArtifacts }}:
-      templateContext:
-        outputs:
-          - output: pipelineArtifact
-            path: $(Build.ArtifactStagingDirectory)
-            artifact: ${{ parameters.BuildArtifactName }}

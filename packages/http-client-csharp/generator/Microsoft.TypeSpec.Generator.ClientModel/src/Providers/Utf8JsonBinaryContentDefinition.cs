@@ -47,14 +47,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 enclosingType: this);
         }
 
-        protected override string BuildName() => $"Utf8Json{GetBaseType().Name}";
+        protected override string BuildName() => $"Utf8Json{BaseType!.Name}";
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
             => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
-        protected override CSharpType GetBaseType() => ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
+        protected override CSharpType BuildBaseType() => ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
 
         protected override FieldProvider[] BuildFields()
         {
@@ -69,10 +69,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override ConstructorProvider[] BuildConstructors()
         {
             var signature = new ConstructorSignature(
-                Type: Type,
-                Modifiers: MethodSignatureModifiers.Public,
-                Parameters: [],
-                Description: null);
+                type: Type,
+                modifiers: MethodSignatureModifiers.Public,
+                parameters: [],
+                description: null);
 
             var body = new MethodBodyStatement[]
             {

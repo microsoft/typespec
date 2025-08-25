@@ -1,6 +1,6 @@
 import {
+  isHttpMetadata,
   SdkArrayType,
-  SdkBodyModelPropertyType,
   SdkBuiltInType,
   SdkConstantType,
   SdkCredentialType,
@@ -10,6 +10,7 @@ import {
   SdkEndpointType,
   SdkEnumType,
   SdkEnumValueType,
+  SdkModelPropertyType,
   SdkModelType,
   SdkType,
   SdkUnionType,
@@ -223,22 +224,12 @@ function addDisableGenerationMap(type: SdkType): void {
 
 function emitProperty(
   context: PythonSdkContext,
-  model: SdkModelType,
-  property: SdkBodyModelPropertyType,
+  property: SdkModelPropertyType,
 ): Record<string, any> {
   const isMultipartFileInput = property.serializationOptions?.multipart?.isFilePart;
   let sourceType: SdkType | MultiPartFileType = property.type;
   if (isMultipartFileInput) {
     sourceType = createMultiPartFileType(property.type);
-  } else if (property.type.kind === "model") {
-    const body = property.type.properties.find((x) => x.kind === "body");
-    if (body) {
-      // for `temperature: HttpPart<{@body body: float64, @header contentType: "text/plain"}>`, the real type is float64
-      sourceType = body.type;
-      addDisableGenerationMap(property.type);
-    }
-  }
-  if (isMultipartFileInput) {
     // Python convert all the type of file part to FileType so clear these models' usage so that they won't be generated
     addDisableGenerationMap(property.type);
   }
@@ -301,8 +292,8 @@ function emitModel(context: PythonSdkContext, type: SdkModelType): Record<string
   typesMap.set(type, newValue);
   newValue.parents = type.baseModel ? [getType(context, type.baseModel)] : newValue.parents;
   for (const property of type.properties.values()) {
-    if (property.kind === "property") {
-      newValue.properties.push(emitProperty(context, type, property));
+    if (property.kind === "property" && !isHttpMetadata(context, property)) {
+      newValue.properties.push(emitProperty(context, property));
       // type for base discriminator returned by TCGC changes from constant to string while
       // autorest treat all discriminator as constant type, so we need to change to constant type here
       if (type.discriminatedSubtypes && property.discriminator) {
@@ -321,6 +312,14 @@ function emitModel(context: PythonSdkContext, type: SdkModelType): Record<string
   return newValue;
 }
 
+function getConstantFromEnumValueType(type: SdkEnumValueType): Record<string, any> {
+  return getSimpleTypeResult({
+    type: "constant",
+    value: type.value,
+    valueType: emitBuiltInType(type.valueType),
+  });
+}
+
 function emitEnum(context: PythonSdkContext, type: SdkEnumType): Record<string, any> {
   if (typesMap.has(type)) {
     return typesMap.get(type)!;
@@ -328,13 +327,7 @@ function emitEnum(context: PythonSdkContext, type: SdkEnumType): Record<string, 
   if (type.isGeneratedName) {
     const types = [];
     for (const value of type.values) {
-      types.push(
-        getSimpleTypeResult({
-          type: "constant",
-          value: value.value,
-          valueType: emitBuiltInType(type.valueType),
-        }),
-      );
+      types.push(getConstantFromEnumValueType(value));
     }
     if (!type.isFixed) {
       types.push(emitBuiltInType(type.valueType));
@@ -382,6 +375,11 @@ function emitEnumMember(
   type: SdkEnumValueType,
   enumType: Record<string, any>,
 ): Record<string, any> {
+  // python don't generate enum created by TCGC, so we shall not generate type for enum member of the enum, either.
+  if (type.enumType.isGeneratedName) {
+    return getConstantFromEnumValueType(type);
+  }
+
   return {
     name: enumName(type.name),
     value: type.value,
@@ -526,7 +524,7 @@ export function emitEndpointType(
 }
 
 function getXmlMetadata(
-  type: SdkModelType | SdkBodyModelPropertyType,
+  type: SdkModelType | SdkModelPropertyType,
 ): Record<string, any> | undefined {
   if (type.serializationOptions.xml) {
     return {

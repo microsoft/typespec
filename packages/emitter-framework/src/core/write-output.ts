@@ -1,5 +1,5 @@
-import { Children, OutputDirectory, render } from "@alloy-js/core";
-import { emitFile, joinPaths, Program } from "@typespec/compiler";
+import { type Children, type OutputDirectory, render } from "@alloy-js/core";
+import { emitFile, joinPaths, type Program } from "@typespec/compiler";
 
 export async function writeOutput(
   program: Program,
@@ -16,13 +16,17 @@ async function writeOutputDirectory(
   emitterOutputDir: string,
 ) {
   for (const sub of dir.contents) {
-    if (Array.isArray(sub.contents)) {
-      await writeOutputDirectory(program, sub as OutputDirectory, emitterOutputDir);
+    if ("contents" in sub) {
+      if (Array.isArray(sub.contents)) {
+        await writeOutputDirectory(program, sub as OutputDirectory, emitterOutputDir);
+      } else {
+        await emitFile(program, {
+          content: sub.contents as string,
+          path: joinPaths(emitterOutputDir, sub.path),
+        });
+      }
     } else {
-      await emitFile(program, {
-        content: sub.contents as string,
-        path: joinPaths(emitterOutputDir, sub.path),
-      });
+      // TODO: support copy file
     }
   }
 }

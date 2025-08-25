@@ -55,51 +55,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             }
         }
 
-        public static InputParameter ContentTypeParameter(string contentType)
-            => Parameter(
+        public static InputHeaderParameter ContentTypeParameter(string contentType)
+            => HeaderParameter(
                 "contentType",
                 Literal.String(contentType),
-                location: InputRequestLocation.Header,
                 isRequired: true,
                 defaultValue: Constant.String(contentType),
-                nameInRequest: "Content-Type",
+                serializedName: "Content-Type",
                 isContentType: true,
-                kind: InputParameterKind.Constant);
-
-        public static InputParameter Parameter(
-            string name,
-            InputType type,
-            string? nameInRequest = null,
-            InputConstant? defaultValue = null,
-            InputRequestLocation location = InputRequestLocation.Body,
-            bool isRequired = false,
-            InputParameterKind kind = InputParameterKind.Method,
-            bool isEndpoint = false,
-            bool isContentType = false,
-            bool isApiVersion = false,
-            bool explode = false,
-            string? delimiter = null,
-            string? serverUrlTemplate = null)
-        {
-            return new InputParameter(
-                name,
-                nameInRequest ?? name,
-                "",
-                $"{name} description",
-                type,
-                location,
-                defaultValue,
-                kind,
-                isRequired,
-                isApiVersion,
-                isContentType,
-                isEndpoint,
-                false,
-                explode,
-                delimiter,
-                null,
-                serverUrlTemplate);
-        }
+                scope: InputParameterScope.Constant);
 
         public static InputNamespace Namespace(
             string name,
@@ -223,6 +187,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             bool isRequired = false,
             bool isReadOnly = false,
             bool isDiscriminator = false,
+            bool isHttpMetadata = false,
+            bool isApiVersion = false,
+            InputConstant? defaultValue = null,
             string? wireName = null,
             string? summary = null,
             string? serializedName = null,
@@ -235,6 +202,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 type: type,
                 isRequired: isRequired,
                 isReadOnly: isReadOnly,
+                isApiVersion: isApiVersion,
+                defaultValue: defaultValue,
+                isHttpMetadata: isHttpMetadata,
                 access: null,
                 isDiscriminator: isDiscriminator,
                 serializedName: serializedName ?? wireName ?? name.ToVariableName(),
@@ -246,20 +216,29 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             InputType type,
             bool isRequired = false,
             bool isReadOnly = false,
+            bool isApiVersion = false,
+            bool isContentType = false,
             string? summary = null,
             string? doc = null,
             string? collectionFormat = null,
-            string? serializedName = null)
+            string? serializedName = null,
+            InputConstant? defaultValue = null,
+            InputParameterScope scope = InputParameterScope.Method)
         {
             return new InputHeaderParameter(
                 name: name,
                 summary: summary,
-                doc: doc ?? $"Description for {name}",
+                doc: doc ?? $"{name} description",
                 type: type,
                 isRequired: isRequired,
                 isReadOnly: isReadOnly,
+                isApiVersion: isApiVersion,
+                isContentType: isContentType,
                 access: null,
+                defaultValue: defaultValue,
                 collectionFormat: collectionFormat,
+                scope: scope,
+                arraySerializationDelimiter: null,
                 serializedName: serializedName ?? name);
         }
 
@@ -268,19 +247,27 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             InputType type,
             bool isRequired = false,
             bool isReadOnly = false,
+            bool isApiVersion = false,
+            InputConstant? defaultValue = null,
             string? summary = null,
             string? doc = null,
             string? collectionFormat = null,
             string? serializedName = null,
-            bool explode = false)
+            bool explode = false,
+            InputParameterScope scope = InputParameterScope.Method,
+            string? delimiter = null)
         {
             return new InputQueryParameter(
                 name: name,
                 summary: summary,
-                doc: doc ?? $"Description for {name}",
+                doc: doc ?? $"{name} description",
                 type: type,
                 isRequired: isRequired,
                 isReadOnly: isReadOnly,
+                isApiVersion: isApiVersion,
+                defaultValue: defaultValue,
+                scope: scope,
+                arraySerializationDelimiter: delimiter,
                 access: null,
                 serializedName: serializedName ?? name,
                 collectionFormat: collectionFormat,
@@ -292,21 +279,123 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             InputType type,
             bool isRequired = false,
             bool isReadOnly = false,
+            bool isApiVersion = false,
+            InputConstant? defaultValue = null,
             string? summary = null,
             string? doc = null,
             string? serializedName = null,
-            bool allowReserved = false)
+            bool allowReserved = false,
+            bool explode = false,
+            bool skipUrlEncoding = false,
+            string? serverUrlTemplate = null,
+            InputParameterScope scope = InputParameterScope.Method)
         {
             return new InputPathParameter(
                 name: name,
                 summary: summary,
-                doc: doc ?? $"Description for {name}",
+                doc: doc ?? $"{name} description",
                 type: type,
                 isRequired: isRequired,
                 isReadOnly: isReadOnly,
+                isApiVersion: isApiVersion,
+                explode: explode,
+                defaultValue: defaultValue,
+                scope: scope,
+                skipUrlEncoding: skipUrlEncoding,
+                serverUrlTemplate: serverUrlTemplate,
                 access: null,
                 serializedName: serializedName ?? name,
                 allowReserved: allowReserved);
+        }
+
+        public static InputEndpointParameter EndpointParameter(
+            string name,
+            InputType type,
+            bool isRequired = false,
+            bool isReadOnly = false,
+            bool isApiVersion = false,
+            InputConstant? defaultValue = null,
+            string? summary = null,
+            string? doc = null,
+            string? serializedName = null,
+            bool skipUrlEncoding = false,
+            bool isEndpoint = true,
+            string? serverUrlTemplate = null,
+            InputParameterScope scope = InputParameterScope.Client)
+        {
+            return new InputEndpointParameter(
+                name: name,
+                summary: summary,
+                doc: doc ?? $"{name} description",
+                type: type,
+                isRequired: isRequired,
+                isReadOnly: isReadOnly,
+                isApiVersion: isApiVersion,
+                defaultValue: defaultValue,
+                scope: scope,
+                skipUrlEncoding: skipUrlEncoding,
+                serverUrlTemplate: serverUrlTemplate,
+                isEndpoint: isEndpoint,
+                access: null,
+                serializedName: serializedName ?? name);
+        }
+
+        public static InputBodyParameter BodyParameter(
+            string name,
+            InputType type,
+            bool isRequired = false,
+            bool isReadOnly = false,
+            bool isApiVersion = false,
+            InputConstant? defaultValue = null,
+            string? summary = null,
+            string? doc = null,
+            string? serializedName = null,
+            string[]? contentTypes = null,
+            string? defaultContentType = null,
+            InputParameterScope scope = InputParameterScope.Method)
+        {
+            return new InputBodyParameter(
+                name: name,
+                summary: summary,
+                doc: doc ?? $"{name} description",
+                type: type,
+                isRequired: isRequired,
+                isReadOnly: isReadOnly,
+                isApiVersion: isApiVersion,
+                defaultValue: defaultValue,
+                defaultContentType: defaultContentType ?? "application/json",
+                contentTypes: contentTypes ?? ["application/json"],
+                scope: scope,
+                access: null,
+                serializedName: serializedName ?? name);
+        }
+
+        public static InputMethodParameter MethodParameter(
+            string name,
+            InputType type,
+            bool isRequired = false,
+            bool isReadOnly = false,
+            bool isApiVersion = false,
+            InputConstant? defaultValue = null,
+            string? summary = null,
+            string? doc = null,
+            string? serializedName = null,
+            InputRequestLocation location = InputRequestLocation.Body,
+            InputParameterScope scope = InputParameterScope.Method)
+        {
+            return new InputMethodParameter(
+                name: name,
+                summary: summary,
+                doc: doc ?? $"{name} description",
+                type: type,
+                isRequired: isRequired,
+                isReadOnly: isReadOnly,
+                isApiVersion: isApiVersion,
+                defaultValue: defaultValue,
+                scope: scope,
+                access: null,
+                location: location,
+                serializedName: serializedName ?? name);
         }
 
         // Replace reflection with InternalsVisibleTo after fixing https://github.com/microsoft/typespec/issues/7075")]
@@ -316,15 +405,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string @namespace = "Sample.Models",
             string access = "public",
             InputModelTypeUsage usage = InputModelTypeUsage.Output | InputModelTypeUsage.Input | InputModelTypeUsage.Json,
-            IEnumerable<InputProperty>? properties = null,
+            IEnumerable<InputModelProperty>? properties = null,
             InputModelType? baseModel = null,
             bool modelAsStruct = false,
             string? discriminatedKind = null,
             InputType? additionalProperties = null,
             IDictionary<string, InputModelType>? discriminatedModels = null,
-            IEnumerable<InputModelType>? derivedModels = null)
+            IEnumerable<InputModelType>? derivedModels = null,
+            InputModelProperty? discriminatorProperty = null)
         {
-            IEnumerable<InputProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
+            IEnumerable<InputModelProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
 
             var model = new InputModelType(
                 name,
@@ -339,7 +429,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 baseModel,
                 derivedModels is null ? [] : [.. derivedModels],
                 discriminatedKind,
-                propertiesList.FirstOrDefault(p => p is InputModelProperty modelProperty && modelProperty.IsDiscriminator),
+                discriminatorProperty ?? propertiesList.FirstOrDefault(p => p is InputModelProperty modelProperty && modelProperty.IsDiscriminator),
                 discriminatedModels is null ? new Dictionary<string, InputModelType>() : discriminatedModels.AsReadOnly(),
                 additionalProperties,
                 modelAsStruct,
@@ -370,7 +460,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string name,
             InputOperation operation,
             string access = "public",
-            IReadOnlyList<InputParameter>? parameters = null,
+            IReadOnlyList<InputMethodParameter>? parameters = null,
             InputServiceMethodResponse? response = null,
             InputServiceMethodResponse? exception = null)
         {
@@ -394,7 +484,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
            string name,
            InputOperation operation,
            string access = "public",
-           IReadOnlyList<InputParameter>? parameters = null,
+           IReadOnlyList<InputMethodParameter>? parameters = null,
            InputServiceMethodResponse? response = null,
            InputServiceMethodResponse? exception = null,
            InputPagingServiceMetadata? pagingMetadata = null)
@@ -452,20 +542,24 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 name);
         }
 
-        public static InputPagingServiceMetadata NextLinkPagingMetadata(string itemPropertyName, string nextLinkName, InputResponseLocation nextLinkLocation)
+        public static InputPagingServiceMetadata NextLinkPagingMetadata(
+            IReadOnlyList<string> itemSegments,
+            IReadOnlyList<string> nextLinkSegments,
+            InputResponseLocation nextLinkLocation,
+            IReadOnlyList<InputParameter>? reinjectedParameters = null)
         {
             return PagingMetadata(
-                [itemPropertyName],
-                new InputNextLink(null, [nextLinkName], nextLinkLocation),
+                itemSegments,
+                new InputNextLink(null, nextLinkSegments, nextLinkLocation, reinjectedParameters),
                 null);
         }
 
-        public static InputPagingServiceMetadata ContinuationTokenPagingMetadata(InputParameter parameter, string itemPropertyName, string continuationTokenName, InputResponseLocation continuationTokenLocation)
+        public static InputPagingServiceMetadata ContinuationTokenPagingMetadata(InputParameter parameter, IReadOnlyList<string> itemSegments, IReadOnlyList<string> continuationTokenSegments, InputResponseLocation continuationTokenLocation)
         {
             return new InputPagingServiceMetadata(
-                [itemPropertyName],
+                itemSegments,
                 null,
-                continuationToken: new InputContinuationToken(parameter, [continuationTokenName], continuationTokenLocation));
+                continuationToken: new InputContinuationToken(parameter, continuationTokenSegments, continuationTokenLocation));
         }
 
         public static InputOperationResponse OperationResponse(
@@ -489,7 +583,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
 
         private static readonly Dictionary<InputClient, IList<InputClient>> _childClientsCache = new();
 
-        public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputServiceMethod>? methods = null, IEnumerable<InputParameter>? parameters = null, InputClient? parent = null, string? crossLanguageDefinitionId = null)
+        public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputServiceMethod>? methods = null, IEnumerable<InputParameter>? parameters = null, InputClient? parent = null, string? crossLanguageDefinitionId = null, IEnumerable<string>? apiVersions = null)
         {
             // when this client has parent, we add the constructed client into the `children` list of the parent
             var clientChildren = new List<InputClient>();
@@ -502,7 +596,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 methods is null ? [] : [.. methods],
                 parameters is null ? [] : [.. parameters],
                 parent,
-                clientChildren);
+                clientChildren,
+                apiVersions is null ? [] : [.. apiVersions]);
             _childClientsCache[client] = clientChildren;
             // when we have a parent, we need to find the children list of this parent client and update accordingly.
             if (parent != null && _childClientsCache.TryGetValue(parent, out var children))

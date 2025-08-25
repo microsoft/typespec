@@ -1,6 +1,7 @@
 import { NoTarget } from "@typespec/compiler";
 
 import {
+  getHttpOperationParameter,
   SdkBasicServiceMethod,
   SdkBodyParameter,
   SdkClientType,
@@ -11,6 +12,7 @@ import {
   SdkHttpResponse,
   SdkLroPagingServiceMethod,
   SdkLroServiceMethod,
+  SdkMethodParameter,
   SdkModelPropertyType,
   SdkPagingServiceMethod,
   SdkPathParameter,
@@ -21,7 +23,7 @@ import {
 } from "@azure-tools/typespec-client-generator-core";
 import { HttpStatusCodeRange } from "@typespec/http";
 import { PythonSdkContext, reportDiagnostic } from "./lib.js";
-import { KnownTypes, getType } from "./types.js";
+import { getType, KnownTypes } from "./types.js";
 import {
   camelToSnakeCase,
   emitParamBase,
@@ -32,6 +34,12 @@ import {
   isAzureCoreErrorResponse,
   isContinuationToken,
 } from "./utils.js";
+
+export enum ReferredByOperationTypes {
+  Default = 0,
+  PagingOnly = 1,
+  NonPagingOnly = 2,
+}
 
 function isContentTypeParameter(parameter: SdkHeaderParameter) {
   return parameter.serializedName.toLowerCase() === "content-type";
@@ -98,7 +106,9 @@ function addLroInformation(
   };
 }
 
-function getWireNameFromPropertySegments(segments: SdkModelPropertyType[]): string | undefined {
+function getWireNameFromPropertySegments(
+  segments: (SdkModelPropertyType | SdkMethodParameter | SdkServiceResponseHeader)[],
+): string | undefined {
   if (segments[0].kind === "property") {
     return segments
       .filter((s) => s.kind === "property")
@@ -111,7 +121,7 @@ function getWireNameFromPropertySegments(segments: SdkModelPropertyType[]): stri
 
 function getWireNameWithDiagnostics(
   context: PythonSdkContext,
-  segments: SdkModelPropertyType[] | undefined,
+  segments: (SdkModelPropertyType | SdkServiceResponseHeader)[] | undefined,
   code: "invalid-paging-items" | "invalid-next-link" | "invalid-lro-result",
   method?: SdkServiceMethod<SdkHttpOperation>,
 ): string | undefined {
@@ -134,7 +144,7 @@ function getWireNameWithDiagnostics(
 function buildContinuationToken(
   context: PythonSdkContext,
   method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
-  segments: SdkModelPropertyType[],
+  segments: (SdkModelPropertyType | SdkMethodParameter | SdkServiceResponseHeader)[],
   input: boolean = true,
 ): Record<string, any> {
   if (segments[0].kind === "property") {
@@ -188,7 +198,11 @@ function addPagingInformation(
 ) {
   for (const response of method.operation.responses) {
     if (response.type) {
-      getType(context, response.type)["usage"] = UsageFlags.None;
+      const type = getType(context, response.type);
+      if (type["referredByOperationType"] === undefined) {
+        type["referredByOperationType"] = ReferredByOperationTypes.Default;
+      }
+      type["referredByOperationType"] |= ReferredByOperationTypes.PagingOnly;
     }
   }
   const itemType = getType(context, method.response.type!);
@@ -424,7 +438,23 @@ function emitHttpParameters(
   method: SdkServiceMethod<SdkHttpOperation>,
 ): Record<string, any>[] {
   const parameters: Record<string, any>[] = [...context.__endpointPathParameters];
-  for (const parameter of operation.parameters) {
+
+  // handle @override for parameters reorder
+  const httpParameters = method.isOverride
+    ? (() => {
+        const parametersFromMethod = method.parameters
+          .map((param) => getHttpOperationParameter(method, param))
+          .filter((result) => result !== undefined);
+
+        const parametersFromOperation = operation.parameters.filter(
+          (param) => !parametersFromMethod.includes(param),
+        );
+
+        return [...parametersFromMethod, ...parametersFromOperation];
+      })()
+    : operation.parameters;
+
+  for (const parameter of httpParameters) {
     switch (parameter.kind) {
       case "header":
         parameters.push(emitHttpHeaderParameter(context, parameter, method));
@@ -437,6 +467,7 @@ function emitHttpParameters(
         break;
     }
   }
+
   return parameters;
 }
 
@@ -477,6 +508,18 @@ function emitHttpResponse(
   } else if (response.type) {
     type = getType(context, response.type);
   }
+
+  if (method && type) {
+    const referredBy =
+      method.kind === "paging"
+        ? ReferredByOperationTypes.PagingOnly
+        : ReferredByOperationTypes.NonPagingOnly;
+    if (type["referredByOperationType"] === undefined) {
+      type["referredByOperationType"] = ReferredByOperationTypes.Default;
+    }
+    type["referredByOperationType"] |= referredBy;
+  }
+
   return {
     headers: response.headers.map((x) => emitHttpResponseHeader(context, x)),
     statusCodes:

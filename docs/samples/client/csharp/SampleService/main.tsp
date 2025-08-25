@@ -13,7 +13,7 @@ import "@azure-tools/typespec-azure-core";
     sampleTypeSpecUrl: url,
   }
 )
-@useAuth(ApiKeyAuth<ApiKeyLocation.header, "my-api-key">)
+@useAuth(ApiKeyAuth<ApiKeyLocation.header, "my-api-key"> | SampleOAuth2)
 namespace SampleTypeSpec;
 
 using TypeSpec.Http;
@@ -21,13 +21,21 @@ using TypeSpec.Versioning;
 using Azure.ClientGenerator.Core;
 using Azure.Core;
 
+alias SampleOAuth2 = OAuth2Auth<[
+  {
+    type: OAuth2FlowType.implicit;
+    authorizationUrl: "https://api.example.com/oauth2/authorize";
+    refreshUrl: "https://api.example.com/oauth2/refresh";
+    scopes: ["read"];
+  }
+]>;
+
 enum Versions {
   `2024-07-16-preview`,
   `2024-08-16-preview`,
 }
 
 @doc("float fixed enum")
-@fixed
 enum FloatFixedEnumWithIntValue {
   One: 1.0,
   Two: 2.0,
@@ -35,7 +43,6 @@ enum FloatFixedEnumWithIntValue {
 }
 
 @doc("float fixed enum")
-@fixed
 enum FloatFixedEnum {
   OneDotOne: 1.1,
   TwoDotTwo: 2.2,
@@ -43,7 +50,6 @@ enum FloatFixedEnum {
 }
 
 @doc("int fixed enum")
-@fixed
 enum IntFixedEnum {
   One: 1,
   Two: 2,
@@ -51,7 +57,6 @@ enum IntFixedEnum {
 }
 
 @doc("Simple enum")
-@fixed
 enum StringFixedEnum {
   One: "1",
   Two: "2",
@@ -408,6 +413,17 @@ op ListWithNextLink(): {
   things: Thing[];
 
   @nextLink next?: url;
+};
+
+@route("/linkString")
+@doc("List things with nextlink")
+@convenientAPI(true)
+@list
+op ListWithStringNextLink(): {
+  @pageItems
+  things: Thing[];
+
+  @nextLink next?: string;
 };
 
 @route("/continuation")

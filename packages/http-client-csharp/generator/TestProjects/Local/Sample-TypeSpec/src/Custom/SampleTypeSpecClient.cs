@@ -26,13 +26,13 @@ namespace SampleTypeSpec
         /// Initializes a new instance of the <see cref="SampleTypeSpecClient"/> class.
         /// </summary>
         /// <param name="uri">The URI of the service.</param>
-        /// <param name="authTokenProvider">The authentication token provider.</param>
-        public SampleTypeSpecClient(Uri uri, AuthenticationTokenProvider authTokenProvider)
+        /// <param name="tokenProvider">The authentication token provider.</param>
+        public SampleTypeSpecClient(Uri uri, AuthenticationTokenProvider tokenProvider)
         {
             var options = new ClientPipelineOptions();
             Pipeline = ClientPipeline.Create(options,
             perCallPolicies: ReadOnlySpan<PipelinePolicy>.Empty,
-            perTryPolicies: [new OAuth2BearerTokenAuthenticationPolicy(authTokenProvider, flows)],
+            perTryPolicies: [new BearerTokenPolicy(tokenProvider, flows)],
             beforeTransportPolicies: ReadOnlySpan<PipelinePolicy>.Empty);
         }
     }

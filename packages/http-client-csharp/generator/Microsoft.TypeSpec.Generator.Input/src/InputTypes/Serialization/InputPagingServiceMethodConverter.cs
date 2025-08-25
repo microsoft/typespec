@@ -20,7 +20,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public override InputPagingServiceMethod? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             return reader.ReadReferenceAndResolve<InputPagingServiceMethod>(_referenceHandler.CurrentResolver)
-                ?? CreateInputPagingServiceMethod(ref reader, null, null, options, _referenceHandler.CurrentResolver);
+                ?? CreateInputPagingServiceMethod(ref reader, null, options, _referenceHandler.CurrentResolver);
         }
 
         public override void Write(Utf8JsonWriter writer, InputPagingServiceMethod value, JsonSerializerOptions options)
@@ -29,17 +29,16 @@ namespace Microsoft.TypeSpec.Generator.Input
         public static InputPagingServiceMethod CreateInputPagingServiceMethod(
             ref Utf8JsonReader reader,
             string? id,
-            string? name,
             JsonSerializerOptions options,
             ReferenceResolver resolver)
         {
-            var isFirstProperty = id == null && name == null;
+            string? name = null;
             string? accessibility = null;
             string[]? apiVersions = null;
             string? doc = null;
             string? summary = null;
             InputOperation? operation = null;
-            IReadOnlyList<InputParameter>? parameters = null;
+            IReadOnlyList<InputMethodParameter>? parameters = null;
             InputServiceMethodResponse? response = null;
             InputServiceMethodResponse? exception = null;
             InputPagingServiceMetadata? pagingMetadata = null;
@@ -51,7 +50,7 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
-                var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
+                var isKnownProperty = reader.TryReadReferenceId(ref id)
                     || reader.TryReadString("name", ref name)
                     || reader.TryReadString("accessibility", ref accessibility)
                     || reader.TryReadComplexType("apiVersions", options, ref apiVersions)
