@@ -22,7 +22,7 @@ export const UPDATE_DEBOUNCE_TIME = 1000;
 /**
  * Maximum number of parallel compilations for update at once.
  */
-export const UPDATE_PARALLEL_LIMIT = 3;
+export const UPDATE_PARALLEL_LIMIT = 2;
 
 export const Commands = {
   APPLY_CODE_FIX: "typespec.applyCodeFix",
