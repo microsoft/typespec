@@ -150,7 +150,7 @@ describe("tsp-openapi: HTTP part generation methods", () => {
 
       const actualType = context.generateTypeFromRefableSchema(schema, [], true, encoding);
       const expected =
-        '{jsonField?: HttpPart<string & { @header contentType "application/json" }>; xmlField?: HttpPart<integer & { @header contentType "application/xml" }>; customBinaryField?: HttpPart<File<"image/png">>}';
+        '{jsonField?: HttpPart<string>; xmlField?: HttpPart<integer>; customBinaryField?: HttpPart<File<"image/png">>}';
 
       const wrappedActual = await formatWrappedType(actualType);
       const wrappedExpected = await formatWrappedType(expected);
@@ -245,7 +245,7 @@ describe("tsp-openapi: HTTP part generation methods", () => {
 
       const actualType = context.generateTypeFromRefableSchema(schema, [], true, encoding);
       const expected =
-        '{textField?: HttpPart<string & { @header contentType "image/png" }>; intField?: HttpPart<integer & { @header contentType "application/pdf" }>; objectField?: HttpPart<{id?: string} & { @header contentType "application/json" }>}';
+        '{textField?: HttpPart<string>; intField?: HttpPart<integer>; objectField?: HttpPart<{id?: string} & { @header contentType "application/json" }>}';
 
       const wrappedActual = await formatWrappedType(actualType);
       const wrappedExpected = await formatWrappedType(expected);
@@ -291,8 +291,7 @@ describe("tsp-openapi: HTTP part generation methods", () => {
         'metadata?: HttpPart<{id?: integer} & { @header contentType "application/json" }>'; // custom content type
       const defaultBinaryPart = "defaultBinary?: HttpPart<bytes>"; // default binary content type
       const avatarPart = 'avatar: HttpPart<File<"image/jpeg">>'; // required, bytes upgraded to File
-      const descriptionPart =
-        'description?: HttpPart<string & { @header contentType "application/xml" }>'; // custom content type
+      const descriptionPart = "description?: HttpPart<string>"; // custom content type
 
       const expected = `{${namePart}; ${agePart}; ${metadataPart}; ${defaultBinaryPart}; ${avatarPart}; ${descriptionPart}}`;
 
@@ -320,7 +319,7 @@ describe("tsp-openapi: HTTP part generation methods", () => {
 
       const actualType = context.generateTypeFromRefableSchema(schema, [], true, encoding);
       const expected =
-        '{fieldWithEncoding?: HttpPart<string & { @header contentType "application/json" }>; fieldWithoutEncoding?: HttpPart<integer>; fieldWithEmptyEncoding?: HttpPart<bytes>}';
+        "{fieldWithEncoding?: HttpPart<string>; fieldWithoutEncoding?: HttpPart<integer>; fieldWithEmptyEncoding?: HttpPart<bytes>}";
 
       const wrappedActual = await formatWrappedType(actualType);
       const wrappedExpected = await formatWrappedType(expected);
@@ -523,6 +522,26 @@ describe("tsp-openapi: HTTP part generation methods", () => {
 
     const actualType = context.generateTypeFromRefableSchema(mainObjectDef, [], true);
     const expected = "model Test { myInt?: HttpPart<numeric> }";
+
+    const wrappedActual = await formatTypeSpec(`model Test${actualType}`);
+    const wrappedExpected = await formatTypeSpec(expected);
+    strictEqual(wrappedActual, wrappedExpected);
+  });
+
+  it("does not set the content type for a nullable property", async () => {
+    const mainObjectDef: OpenAPI3Schema = {
+      type: "object",
+      properties: {
+        myString: { type: "string", nullable: true },
+      },
+    };
+
+    const encoding = {
+      myString: { contentType: "application/json" },
+    };
+
+    const actualType = context.generateTypeFromRefableSchema(mainObjectDef, [], true, encoding);
+    const expected = "model Test { myString?: HttpPart<string | null> }";
 
     const wrappedActual = await formatTypeSpec(`model Test${actualType}`);
     const wrappedExpected = await formatTypeSpec(expected);

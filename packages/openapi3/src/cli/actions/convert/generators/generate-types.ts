@@ -202,6 +202,7 @@ export class SchemaToExpressionGenerator {
       return propType;
     }
     const propTypeWithoutDefault = propType.replace(/ = .*/, "");
+    const propTypeWithoutNull = propTypeWithoutDefault.replace(/ \| null/g, "");
     const encodingForProperty = encoding?.[name];
     const filePartType =
       encodingForProperty?.contentType &&
@@ -211,11 +212,26 @@ export class SchemaToExpressionGenerator {
     const contentTypeHeader =
       encodingForProperty?.contentType &&
       !filePartType &&
-      !this.isDefaultPartType(propTypeWithoutDefault, encodingForProperty.contentType) &&
+      !this.isDefaultPartType(propTypeWithoutNull, encodingForProperty.contentType) &&
+      !this.isUnionType(propTypeWithoutNull) &&
+      !this.isScalarType(propTypeWithoutNull) &&
       !isEnumType
         ? ` & { @header contentType: "${encodingForProperty.contentType}" }`
         : "";
     return `HttpPart<${filePartType ?? propTypeWithoutDefault}${contentTypeHeader}>`;
+  }
+
+  private isUnionType(partType: string): boolean {
+    return partType.includes("|");
+  }
+
+  private isScalarType(partType: string): boolean {
+    return (
+      partType === "string" ||
+      partType === "boolean" ||
+      partType === "null" ||
+      this.numericTypes[partType]
+    );
   }
 
   private isDefaultPartType(partType: string, partMediaType: string): boolean {
