@@ -1100,5 +1100,66 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             Assert.AreEqual(updatedRelativeFilePath, modelTypeProvider.RelativeFilePath);
         }
+
+        [Test]
+        public async Task CanCustomizeModelNameWithCustomizedNamespace()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var props = new[]
+            {
+                InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String))
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            var namespaceVisitor = new TestNamespaceVisitor();
+            var nameVisitor = new TestNameVisitor();
+            var updatedModel = nameVisitor.InvokeVisit(namespaceVisitor.InvokeVisit(modelTypeProvider)!);
+            Assert.IsNotNull(updatedModel);
+            Assert.AreEqual("CustomizedModel", updatedModel!.Name);
+            Assert.AreEqual("NewNamespace", updatedModel.Type.Namespace);
+        }
+
+        private class NameSpaceVisitor : LibraryVisitor
+        {
+            protected override TypeProvider? VisitType(TypeProvider type)
+            {
+                if (type is ModelProvider model)
+                {
+                    model.Update(@namespace: "NewNamespace");
+                }
+                return base.VisitType(type);
+            }
+        }
+
+        private class NameVisitor : LibraryVisitor
+        {
+            protected override TypeProvider? VisitType(TypeProvider type)
+            {
+                if (type is ModelProvider model)
+                {
+                    model.Update(name: "CustomizedModel");
+                }
+                return base.VisitType(type);
+            }
+        }
+
+        private class TestNamespaceVisitor : NameSpaceVisitor
+        {
+            public TypeProvider? InvokeVisit(TypeProvider type)
+            {
+                return base.VisitType(type);
+            }
+        }
+
+        private class TestNameVisitor : NameVisitor
+        {
+            public TypeProvider? InvokeVisit(TypeProvider type)
+            {
+                return base.VisitType(type);
+            }
+        }
     }
 }
