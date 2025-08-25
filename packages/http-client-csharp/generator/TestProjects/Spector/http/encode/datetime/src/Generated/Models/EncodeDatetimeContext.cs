@@ -9,8 +9,8 @@ namespace Encode.Datetime
     [ModelReaderWriterBuildable(typeof(DefaultDatetimeProperty))]
     [ModelReaderWriterBuildable(typeof(Rfc3339DatetimeProperty))]
     [ModelReaderWriterBuildable(typeof(Rfc7231DatetimeProperty))]
-    [ModelReaderWriterBuildable(typeof(UnixTimestampDatetimeProperty))]
     [ModelReaderWriterBuildable(typeof(UnixTimestampArrayDatetimeProperty))]
+    [ModelReaderWriterBuildable(typeof(UnixTimestampDatetimeProperty))]
     public partial class EncodeDatetimeContext : ModelReaderWriterContext
     {
     }
