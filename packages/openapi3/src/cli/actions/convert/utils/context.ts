@@ -40,6 +40,7 @@ export interface Context {
     name: string,
     isHttpPart: boolean,
     encoding: Record<string, OpenAPI3Encoding> | undefined,
+    isEnumType: boolean,
   ): string;
 }
 
@@ -71,6 +72,7 @@ export function createContext(parser: Parser, openApi3Doc: OpenAPI3Document): Co
         callingScope,
         isHttpPart,
         encoding,
+        this,
       );
     },
     getSchemaByRef(ref) {
@@ -94,8 +96,15 @@ export function createContext(parser: Parser, openApi3Doc: OpenAPI3Document): Co
       name: string,
       isHttpPart: boolean,
       encoding: Record<string, OpenAPI3Encoding> | undefined,
+      isEnumType: boolean,
     ): string {
-      return schemaExpressionGenerator.getPartType(propType, name, isHttpPart, encoding);
+      return schemaExpressionGenerator.getPartType(
+        propType,
+        name,
+        isHttpPart,
+        encoding,
+        isEnumType,
+      );
     },
   };
 

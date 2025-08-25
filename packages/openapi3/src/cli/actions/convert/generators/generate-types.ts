@@ -1,5 +1,6 @@
 import { printIdentifier } from "@typespec/compiler";
 import { OpenAPI3Encoding, OpenAPI3Schema, Refable } from "../../../../types.js";
+import { Context } from "../utils/context.js";
 import {
   getDecoratorsForSchema,
   normalizeObjectValueToTSValueExpression,
@@ -15,11 +16,12 @@ export class SchemaToExpressionGenerator {
     callingScope: string[],
     isHttpPart = false,
     encoding?: Record<string, OpenAPI3Encoding>,
+    context?: Context,
   ): string {
     const hasRef = "$ref" in schema;
     return hasRef
       ? this.getRefName(schema.$ref, callingScope)
-      : this.getTypeFromSchema(schema, callingScope, isHttpPart, encoding);
+      : this.getTypeFromSchema(schema, callingScope, isHttpPart, encoding, context);
   }
 
   public generateArrayType(schema: OpenAPI3Schema, callingScope: string[]): string {
@@ -82,6 +84,7 @@ export class SchemaToExpressionGenerator {
     callingScope: string[],
     isHttpPart = false,
     encoding?: Record<string, OpenAPI3Encoding>,
+    context?: Context,
   ): string {
     let type = "unknown";
 
@@ -107,14 +110,14 @@ export class SchemaToExpressionGenerator {
     ) {
       // we should never test on type object as it's not required
       // but rather on the presence of properties which indicates an object type
-      type = this.getObjectType(schema, callingScope, isHttpPart, encoding);
+      type = this.getObjectType(schema, callingScope, isHttpPart, encoding, context);
     } else if (schema.oneOf?.length) {
       type = this.getOneOfType(schema, callingScope);
     } else if (schema.type === "string") {
       type = getStringType(schema);
     } else if (schema.type === "object") {
       // this is a fallback to maintain compatibility and it needs to be in the last cases
-      type = this.getObjectType(schema, callingScope, isHttpPart, encoding);
+      type = this.getObjectType(schema, callingScope, isHttpPart, encoding, context);
     } else if (schema.type === "array") {
       // this is a fallback to maintain compatibility and it needs to be in the last cases
       type = this.generateArrayType(schema, callingScope);
@@ -193,6 +196,7 @@ export class SchemaToExpressionGenerator {
     name: string,
     isHttpPart: boolean,
     encoding: Record<string, OpenAPI3Encoding> | undefined,
+    isEnumType: boolean,
   ): string {
     if (!isHttpPart) {
       return propType;
@@ -207,7 +211,8 @@ export class SchemaToExpressionGenerator {
     const contentTypeHeader =
       encodingForProperty?.contentType &&
       !filePartType &&
-      !this.isDefaultPartType(propTypeWithoutDefault, encodingForProperty.contentType)
+      !this.isDefaultPartType(propTypeWithoutDefault, encodingForProperty.contentType) &&
+      !isEnumType
         ? ` & { @header contentType: "${encodingForProperty.contentType}" }`
         : "";
     return `HttpPart<${filePartType ?? propTypeWithoutDefault}${contentTypeHeader}>`;
@@ -248,6 +253,7 @@ export class SchemaToExpressionGenerator {
     callingScope: string[],
     isHttpPart = false,
     encoding?: Record<string, OpenAPI3Encoding>,
+    context?: Context,
   ): string {
     // If we have `additionalProperties`, treat that as an 'indexer' and convert to a record.
     const recordType =
@@ -261,6 +267,10 @@ export class SchemaToExpressionGenerator {
     if (schema.properties) {
       for (const name of Object.keys(schema.properties)) {
         const originalPropSchema = schema.properties[name];
+        const isEnumType =
+          "$ref" in originalPropSchema && context?.getSchemaByRef(originalPropSchema.$ref)?.enum
+            ? true
+            : false;
         const propType = this.generateTypeFromRefableSchema(originalPropSchema, callingScope);
 
         const decorators = generateDecorators(getDecoratorsForSchema(originalPropSchema))
@@ -268,7 +278,7 @@ export class SchemaToExpressionGenerator {
           .join("");
         const isOptional = !requiredProps.includes(name) ? "?" : "";
         props.push(
-          `${decorators}${printIdentifier(name)}${isOptional}: ${this.getPartType(propType, name, isHttpPart, encoding)}`,
+          `${decorators}${printIdentifier(name)}${isOptional}: ${this.getPartType(propType, name, isHttpPart, encoding, isEnumType)}`,
         );
       }
     }

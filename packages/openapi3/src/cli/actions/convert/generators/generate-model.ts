@@ -200,9 +200,12 @@ export function generateModelProperty(
     ...getDecoratorsForSchema(prop.schema),
   ]).join(" ");
 
+  const isEnumType =
+    "$ref" in prop.schema && context?.getSchemaByRef(prop.schema.$ref)?.enum ? true : false;
+
   const doc = prop.doc ? generateDocs(prop.doc) : "";
 
-  return `${doc}${decorators} ${prop.name}${prop.isOptional ? "?" : ""}: ${context.getPartType(propertyType, prop.name, isModelReferencedAsMultipartRequestBody ?? false, encoding)};`;
+  return `${doc}${decorators} ${prop.name}${prop.isOptional ? "?" : ""}: ${context.getPartType(propertyType, prop.name, isModelReferencedAsMultipartRequestBody ?? false, encoding, isEnumType)};`;
 }
 
 export function generateModelExpression(

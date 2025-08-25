@@ -3,7 +3,7 @@ import { formatTypeSpec } from "@typespec/compiler";
 import { strictEqual } from "node:assert";
 import { beforeAll, describe, it } from "vitest";
 import { Context, createContext } from "../../src/cli/actions/convert/utils/context.js";
-import { OpenAPI3Document } from "../../src/types.js";
+import { OpenAPI3Document, OpenAPI3Schema } from "../../src/types.js";
 
 /**
  * Unit tests for the new HTTP part generation methods in SchemaToExpressionGenerator:
@@ -485,6 +485,32 @@ describe("tsp-openapi: HTTP part generation methods", () => {
       const wrappedExpected = await formatWrappedType(expected);
       strictEqual(wrappedActual, wrappedExpected);
     });
+  });
+
+  it("does not emit a content type header for enums", async () => {
+    const enumSchema: OpenAPI3Schema = {
+      type: "string",
+      enum: ["value1", "value2", "value3"],
+    };
+    context.openApi3Doc.components = { schemas: { MyEnum: enumSchema } };
+
+    const mainObjectDef: OpenAPI3Schema = {
+      type: "object",
+      properties: {
+        enum: { $ref: "#/components/schemas/MyEnum" },
+      },
+    };
+
+    const encoding = {
+      enum: { contentType: "application/json" },
+    };
+
+    const actualType = context.generateTypeFromRefableSchema(mainObjectDef, [], true, encoding);
+    const expected = "model Test { `enum`?: HttpPart<MyEnum> }";
+
+    const wrappedActual = await formatTypeSpec(`model Test${actualType}`);
+    const wrappedExpected = await formatTypeSpec(expected);
+    strictEqual(wrappedActual, wrappedExpected);
   });
 });
 
