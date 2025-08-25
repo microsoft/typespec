@@ -512,6 +512,22 @@ describe("tsp-openapi: HTTP part generation methods", () => {
     const wrappedExpected = await formatTypeSpec(expected);
     strictEqual(wrappedActual, wrappedExpected);
   });
+
+  it("does not generate min or max value for numeric parts", async () => {
+    const mainObjectDef: OpenAPI3Schema = {
+      type: "object",
+      properties: {
+        myInt: { type: "number", format: "int32", maximum: 100, minimum: 0 },
+      },
+    };
+
+    const actualType = context.generateTypeFromRefableSchema(mainObjectDef, [], true);
+    const expected = "model Test { myInt?: HttpPart<numeric> }";
+
+    const wrappedActual = await formatTypeSpec(`model Test${actualType}`);
+    const wrappedExpected = await formatTypeSpec(expected);
+    strictEqual(wrappedActual, wrappedExpected);
+  });
 });
 
 // Wrap the expected and actual types in this model to get formatted types.

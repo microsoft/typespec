@@ -248,6 +248,8 @@ export class SchemaToExpressionGenerator {
     decimal128: true,
   };
 
+  public static readonly decoratorNamesToExcludeForParts: string[] = ["minValue", "maxValue"];
+
   private getObjectType(
     schema: OpenAPI3Schema,
     callingScope: string[],
@@ -273,7 +275,10 @@ export class SchemaToExpressionGenerator {
             : false;
         const propType = this.generateTypeFromRefableSchema(originalPropSchema, callingScope);
 
-        const decorators = generateDecorators(getDecoratorsForSchema(originalPropSchema))
+        const decorators = generateDecorators(
+          getDecoratorsForSchema(originalPropSchema),
+          isHttpPart ? SchemaToExpressionGenerator.decoratorNamesToExcludeForParts : [],
+        )
           .map((d) => `${d}\n`)
           .join("");
         const isOptional = !requiredProps.includes(name) ? "?" : "";

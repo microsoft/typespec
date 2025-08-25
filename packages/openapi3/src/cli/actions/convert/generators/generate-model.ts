@@ -13,7 +13,7 @@ import { Context } from "../utils/context.js";
 import { getDecoratorsForSchema } from "../utils/decorators.js";
 import { generateDocs } from "../utils/docs.js";
 import { generateDecorators } from "./generate-decorators.js";
-import { getTypeSpecPrimitiveFromSchema } from "./generate-types.js";
+import { getTypeSpecPrimitiveFromSchema, SchemaToExpressionGenerator } from "./generate-types.js";
 
 export function generateDataType(type: TypeSpecDataTypes, context: Context): string {
   switch (type.kind) {
@@ -195,10 +195,12 @@ export function generateModelProperty(
 
   // Decorators will be a combination of top-level (parameters) and
   // schema-level decorators.
-  const decorators = generateDecorators([
-    ...prop.decorators,
-    ...getDecoratorsForSchema(prop.schema),
-  ]).join(" ");
+  const decorators = generateDecorators(
+    [...prop.decorators, ...getDecoratorsForSchema(prop.schema)],
+    isModelReferencedAsMultipartRequestBody
+      ? SchemaToExpressionGenerator.decoratorNamesToExcludeForParts
+      : [],
+  ).join(" ");
 
   const isEnumType =
     "$ref" in prop.schema && context?.getSchemaByRef(prop.schema.$ref)?.enum ? true : false;
