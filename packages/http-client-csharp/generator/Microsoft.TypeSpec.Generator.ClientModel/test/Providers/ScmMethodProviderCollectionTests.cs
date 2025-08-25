@@ -842,6 +842,47 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             }
         }
 
+        [TestCase(typeof(int))]
+        [TestCase(typeof(long))]
+        [TestCase(typeof(float))]
+        [TestCase(typeof(double))]
+        [TestCase(typeof(bool))]
+        [TestCase(typeof(string))]
+        [TestCase(typeof(Uri))]
+        public void ScalarReturnTypeMethods(Type type)
+        {
+            InputType? inputType = type switch
+            {
+                { } t when t == typeof(float) => InputPrimitiveType.Float32,
+                { } t when t == typeof(double) => InputPrimitiveType.Float64,
+                { } t when t == typeof(bool) => InputPrimitiveType.Boolean,
+                { } t when t == typeof(string) => InputPrimitiveType.String,
+                { } t when t == typeof(int) => InputPrimitiveType.Int32,
+                { } t when t == typeof(long) => InputPrimitiveType.Int64,
+                { } t when t == typeof(Uri) => InputPrimitiveType.Url,
+                _ => null
+            };
+
+            var inputOperation = InputFactory.Operation(
+                "GetScalar",
+                responses: [InputFactory.OperationResponse([200], inputType!)]);
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetScalar", inputOperation);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+            var convenienceMethod = methodCollection.FirstOrDefault(m
+                => m.Signature.Parameters.All(p => p.Name != "options")
+                   && m.Signature.Name == $"{inputOperation.Name.ToIdentifierName()}");
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(type.Name), convenienceMethod!.BodyStatements!.ToDisplayString());
+        }
+
         public static IEnumerable<TestCaseData> DefaultCSharpMethodCollectionTestCases
         {
             get

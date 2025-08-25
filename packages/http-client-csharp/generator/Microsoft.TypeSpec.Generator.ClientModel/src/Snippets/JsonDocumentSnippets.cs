@@ -16,10 +16,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
 
         public static ScopedApi<JsonDocument> ParseValue(ValueExpression reader) => Static<JsonDocument>().Invoke(nameof(JsonDocument.ParseValue), reader).As<JsonDocument>();
         public static ScopedApi<JsonDocument> Parse(ValueExpression json) => Static<JsonDocument>().Invoke(nameof(JsonDocument.Parse), json).As<JsonDocument>();
-        public static ScopedApi<JsonDocument> Parse(ScopedApi<BinaryData> binaryData) => Static<JsonDocument>().Invoke(nameof(JsonDocument.Parse), binaryData).As<JsonDocument>();
+        public static ScopedApi<JsonDocument> Parse(this ScopedApi<BinaryData> binaryData) => Static<JsonDocument>().Invoke(nameof(JsonDocument.Parse), binaryData).As<JsonDocument>();
         public static ScopedApi<JsonDocument> Parse(ScopedApi<Stream> stream) => Static<JsonDocument>().Invoke(nameof(JsonDocument.Parse), stream).As<JsonDocument>();
 
-        public static ScopedApi<JsonDocument> Parse(ScopedApi<Stream> stream, bool async)
+        public static ScopedApi<JsonDocument> Parse(this ScopedApi<Stream> stream, bool async)
         {
             // Sync and async methods have different set of parameters
             return async
