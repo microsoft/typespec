@@ -217,5 +217,24 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(1, typeProvider.Attributes.Count);
             Assert.AreEqual(new CSharpType(typeof(ObsoleteAttribute)), typeProvider.Attributes[0].Type);
         }
+
+        [Test]
+        public async Task TestCanCustomizeTypeWithChangedNamespace()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var testTypeProvider = new TestTypeProvider();
+
+
+            Assert.IsNotNull(testTypeProvider.CustomCodeView);
+            Assert.AreEqual("NewNamespace", testTypeProvider.Type.Namespace);
+            // reset the type
+            testTypeProvider.Reset();
+            Assert.AreEqual("NewNamespace", testTypeProvider.Type.Namespace);
+            Assert.AreEqual("NewNamespace", testTypeProvider.CanonicalView.Type.Namespace);
+
+            testTypeProvider.Type.Update(name: "foo");
+            Assert.AreEqual("NewNamespace", testTypeProvider.Type.Namespace);
+            Assert.AreEqual("NewNamespace", testTypeProvider.CanonicalView.Type.Namespace);
+        }
     }
 }
