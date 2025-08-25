@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel.Primitives;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -145,8 +146,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         {
                             UsingDeclare("document", result.GetRawResponse().Content().Parse(), out var jsonDocument),
                             Declare("element", jsonDocument.RootElement(), out var jsonElement),
-                            Return(ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(responseBodyType.FrameworkType,
-                                jsonElement, SerializationFormat.Default))
+                            Return(ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(
+                                responseBodyType.FrameworkType,
+                                jsonElement,
+                                ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.WireOptionsField.As<ModelReaderWriterOptions>(),
+                                SerializationFormat.Default))
                         },
                 ];
             }
