@@ -34,7 +34,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public override ValueExpression Create(ValueExpression options, ValueExpression perRetryPolicies)
             => Static<ClientPipeline>().Invoke(nameof(ClientPipeline.Create), [options, New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType), perRetryPolicies, New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType)]).As<ClientPipeline>();
 
-        public override ValueExpression CreateMessage(ValueExpression uri, ValueExpression method, ValueExpression responseClassifier)
+        public override ValueExpression CreateMessage(HttpRequestOptionsApi requestOptions, ValueExpression uri, ValueExpression method, ValueExpression responseClassifier)
             => new PipelineMessageProvider(Original.Invoke(nameof(ClientPipeline.CreateMessage), [uri, method, responseClassifier]));
 
         public override ClientPipelineApi FromExpression(ValueExpression expression)

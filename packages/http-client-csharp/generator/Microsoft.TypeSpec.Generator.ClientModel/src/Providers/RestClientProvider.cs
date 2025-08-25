@@ -134,7 +134,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new MethodBodyStatements(
                 [
                     .. buildUriStatements,
-                    Declare("message", pipelineField.CreateMessage(uri, Literal(operation.HttpMethod), classifier).ToApi<HttpMessageApi>(), out HttpMessageApi message),
+                    Declare("message", pipelineField.CreateMessage(options.ToApi<HttpRequestOptionsApi>(), uri, Literal(operation.HttpMethod), classifier).ToApi<HttpMessageApi>(), out HttpMessageApi message),
                     message.ApplyResponseClassifier(classifier.ToApi<StatusCodeClassifierApi>()),
                     Declare("request", message.Request().ToApi<HttpRequestApi>(), out HttpRequestApi request),
                     BuildRequestWithoutUri(serviceMethod, request, paramMap, signature, isNextLinkRequest: isNextLinkRequest),
