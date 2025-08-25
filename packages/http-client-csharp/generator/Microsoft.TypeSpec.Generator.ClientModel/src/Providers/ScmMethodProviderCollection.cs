@@ -380,6 +380,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static bool IsConvertibleFromBinaryData(CSharpType type)
         {
+            if (type.Equals(typeof(BinaryData)))
+            {
+                return true;
+            }
+
             if (!type.IsFrameworkType)
             {
                 // generated types will have the explicit operator from ClientResult defined

@@ -849,6 +849,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         [TestCase(typeof(bool))]
         [TestCase(typeof(string))]
         [TestCase(typeof(Uri))]
+        [TestCase(typeof(BinaryData))]
         public void ScalarReturnTypeMethods(Type type)
         {
             InputType? inputType = type switch
@@ -860,6 +861,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 { } t when t == typeof(int) => InputPrimitiveType.Int32,
                 { } t when t == typeof(long) => InputPrimitiveType.Int64,
                 { } t when t == typeof(Uri) => InputPrimitiveType.Url,
+                { } t when t == typeof(BinaryData) => InputPrimitiveType.Base64,
                 _ => null
             };
 
