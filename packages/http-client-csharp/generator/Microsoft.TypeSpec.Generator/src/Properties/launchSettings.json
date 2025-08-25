@@ -339,6 +339,11 @@
       "commandLineArgs": "$(SolutionDir)/TestProjects/Local/Sample-TypeSpec -g ScmCodeModelGenerator",
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    },
+    "Azure.ResourceManager.HealthDataAIServices": {
+      "commandName": "Executable",
+      "commandLineArgs": "\"C:\\work\\azure-sdk-for-net\\sdk\\healthdataaiservices\\Azure.ResourceManager.HealthDataAIServices/TempTypeSpecFiles/node_modules/@azure-typespec/http-client-csharp-mgmt/dist/generator/Microsoft.TypeSpec.Generator.dll\" \"C:\\work\\azure-sdk-for-net\\sdk\\healthdataaiservices\\Azure.ResourceManager.HealthDataAIServices\" -g ManagementClientGenerator",
+      "executablePath": "dotnet"
     }
   }
 }
