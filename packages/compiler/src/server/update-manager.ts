@@ -1,6 +1,11 @@
 import { TextDocumentIdentifier } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { UPDATE_DEBOUNCE_TIME, UPDATE_PARALLEL_LIMIT } from "./constants.js";
+import {
+  ENABLE_UPDATE_MANAGER_LOGGING,
+  UPDATE_DEBOUNCE_TIME,
+  UPDATE_PARALLEL_LIMIT,
+} from "./constants.js";
+import { ServerLog } from "./types.js";
 
 interface PendingUpdate {
   latest: TextDocument | TextDocumentIdentifier;
@@ -16,8 +21,25 @@ export class UpdateManger {
   #updateCb?: UpdateCallback;
   // overall version which should be bumped for any doc change
   #version = 0;
+  #scheduleBatchUpdate: () => void;
+  private _log: (sl: ServerLog) => void;
 
-  constructor() {}
+  constructor(log: (sl: ServerLog) => void) {
+    // TODO: remove the || true before checkin
+    this._log = process.env[ENABLE_UPDATE_MANAGER_LOGGING] || true ? log : () => {};
+
+    this.#scheduleBatchUpdate = debounceThrottle(
+      async () => {
+        const updates = this.#pendingUpdates;
+        this.#pendingUpdates = new Map<string, PendingUpdate>();
+        if (updates.size > 0) {
+          await this.#update(Array.from(updates.values()));
+        }
+      },
+      UPDATE_DEBOUNCE_TIME,
+      this._log,
+    );
+  }
 
   public setCallback(callback: UpdateCallback) {
     this.#updateCb = callback;
@@ -42,14 +64,6 @@ export class UpdateManger {
     this.#scheduleBatchUpdate();
   }
 
-  #scheduleBatchUpdate = debounceThrottle(async () => {
-    const updates = this.#pendingUpdates;
-    this.#pendingUpdates = new Map<string, PendingUpdate>();
-    if (updates.size > 0) {
-      await this.#update(Array.from(updates.values()));
-    }
-  }, UPDATE_DEBOUNCE_TIME);
-
   async #update(updates: PendingUpdate[]) {
     await this.#updateCb?.(updates);
   }
@@ -63,10 +77,15 @@ export class UpdateManger {
  * @param fn The function
  * @param milliseconds Number of milliseconds to debounce/throttle
  */
-export function debounceThrottle(fn: () => void | Promise<void>, milliseconds: number): () => void {
+export function debounceThrottle(
+  fn: () => void | Promise<void>,
+  milliseconds: number,
+  log: (sl: ServerLog) => void,
+): () => void {
   let timeout: any;
   let lastInvocation = Date.now() - milliseconds;
   let executingCount = 0;
+  let debounceExecutionId = 0;
 
   function maybeCall() {
     clearTimeout(timeout);
@@ -76,11 +95,22 @@ export function debounceThrottle(fn: () => void | Promise<void>, milliseconds: n
         maybeCall();
         return;
       }
+      const curId = debounceExecutionId++;
+      const s = new Date();
       try {
         executingCount++;
+        log({
+          level: "debug",
+          message: `Starting debounce execution #${curId} at ${s.toISOString()}. Current parallel count: ${executingCount}`,
+        });
         await fn();
       } finally {
         executingCount--;
+        const e = new Date();
+        log({
+          level: "debug",
+          message: `Finish debounce execution #${curId} at ${e.toISOString()}, duration=${e.getTime() - s.getTime()}. Current parallel count: ${executingCount}`,
+        });
       }
       lastInvocation = Date.now();
     }, milliseconds);

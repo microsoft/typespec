@@ -9,10 +9,10 @@ import {
   ServerLog,
 } from "../index.js";
 import { md5 } from "../utils/misc.js";
+import { ENABLE_SERVER_COMPILE_LOGGING } from "./constants.js";
 import { trackActionFunc } from "./server-track-action-task.js";
 import { UpdateManger } from "./update-manager.js";
 
-const ENABLE_SERVER_COMPILE_LOGGING = "ENABLE_SERVER_COMPILE_LOGGING";
 /**
  * core: linter and emitter will be set to [] when trigger compilation
  * full: compile as it is
@@ -33,23 +33,18 @@ export class ServerCompileManager {
   // We may want a ttl for this
   private trackerCache = new CompileCache((msg) => this.logDebug(msg));
   private compileId = 0;
+  private logDebug: (msg: string) => void;
 
   constructor(
     private updateManager: UpdateManger,
     private compilerHost: CompilerHost,
     private log: (log: ServerLog) => void,
-  ) {}
-
-  private logDebug(str: string) {
-    // there will be many logs here, so only enable when this env var is on
-    // TODO: remove before check-in
-    const enableLog = true;
-    if (enableLog || process.env[ENABLE_SERVER_COMPILE_LOGGING]) {
-      this.log({
-        level: "debug",
-        message: str,
-      });
-    }
+  ) {
+    // TODO: remove the || true before check-in
+    this.logDebug =
+      process.env[ENABLE_SERVER_COMPILE_LOGGING] || true
+        ? (msg) => this.log({ level: "debug", message: msg })
+        : () => {};
   }
 
   async compile(

@@ -158,7 +158,7 @@ export function createServer(
     (exports) => exports.$linter !== undefined,
   );
 
-  const updateManager = new UpdateManger();
+  const updateManager = new UpdateManger(log);
 
   const compileService = createCompileService({
     fileService,
