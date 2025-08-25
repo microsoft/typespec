@@ -16,7 +16,7 @@ export interface PropertyProps {
  * Create a C# property declaration from a TypeSpec property type.
  */
 export function Property(props: PropertyProps): Children {
-  const result = preprocessPropertyType(props.type.type);
+  const result = preprocessPropertyType(props.type);
   const { $ } = useTsp();
 
   return (
@@ -44,7 +44,13 @@ function JsonNameAttribute(props: JsonNameAttributeProps): Children {
   return <Attribute name="System.Text.Json.JsonPropertyName" args={[JSON.stringify(jsonName)]} />;
 }
 
-function preprocessPropertyType(type: Type): { type: Type; nullable: boolean } {
+function preprocessPropertyType(prop: ModelProperty): { type: Type; nullable: boolean } {
+  const type = prop.type;
+
+  if (prop.optional) {
+    return { type, nullable: true };
+  }
+
   const { $ } = useTsp();
 
   if (type.kind === "Union") {

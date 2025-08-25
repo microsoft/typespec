@@ -108,7 +108,7 @@ it("renders a class declaration with properties using component override", async
         {
             public required string Prop1 { get; set; }
             public required int Prop2 { get; set; }
-            public Bar Prop3 { get; set; }
+            public Bar? Prop3 { get; set; }
         }
     }
   `);
