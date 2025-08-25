@@ -18,6 +18,7 @@ import {
 } from "@azure-tools/typespec-client-generator-core";
 import { ignoreDiagnostics } from "@typespec/compiler";
 import {
+  ReferredByOperationTypes,
   emitBasicHttpMethod,
   emitLroHttpMethod,
   emitLroPagingHttpMethod,
@@ -317,6 +318,17 @@ export function emitCodeModel(sdkContext: PythonSdkContext) {
     }
     getType(sdkContext, sdkEnum);
   }
+
+  // clear usage when a model is only used by paging
+  for (const type of typesMap.values()) {
+    if (
+      type["type"] === "model" &&
+      type["referredByOperationType"] === ReferredByOperationTypes.PagingOnly
+    ) {
+      type["usage"] = UsageFlags.None;
+    }
+  }
+
   codeModel["types"] = [
     ...typesMap.values(),
     ...Object.values(KnownTypes),

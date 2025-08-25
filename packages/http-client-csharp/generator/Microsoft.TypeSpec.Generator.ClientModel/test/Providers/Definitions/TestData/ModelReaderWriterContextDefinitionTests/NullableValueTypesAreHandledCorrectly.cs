@@ -7,8 +7,8 @@ using Sample.Models;
 
 namespace Sample
 {
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Sample.Models.RegularModel))]
     [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Sample.Models.CustomizedModel))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Sample.Models.RegularModel))]
     public partial class SampleContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }

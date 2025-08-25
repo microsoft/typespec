@@ -16,6 +16,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
     public class ModelReaderWriterContextDefinition : TypeProvider
     {
+        private const string DefaultObsoleteDiagnosticId = "CS0618";
+
         internal static readonly string s_name = $"{RemovePeriods(ScmCodeModelGenerator.Instance.TypeFactory.PrimaryNamespace)}Context";
 
         protected override string BuildName() => s_name;
@@ -32,43 +34,35 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var attributes = new List<MethodBodyStatement>();
 
             // Add ModelReaderWriterBuildableAttribute for all IPersistableModel types
-            var buildableTypes = CollectBuildableTypes();
+            var buildableTypes = CollectBuildableTypes().OrderBy(pair => pair.Key.Name);
             foreach (KeyValuePair<CSharpType, TypeProvider?> buildableType in buildableTypes)
             {
                 // Use the full attribute type name to ensure proper compilation
                 var attributeType = new CSharpType(typeof(ModelReaderWriterBuildableAttribute));
                 var attributeStatement = new AttributeStatement(attributeType, TypeOf(buildableType.Key));
 
-                // If the type is experimental, we add a suppression for it
-                string justification = $"{buildableType.Key} is experimental and may change in future versions.";
+                string experimentalTypeJustification = $"{buildableType.Key} is experimental and may change in future versions.";
+                string obsoleteTypeJustification = $"{buildableType.Key} is obsolete and may be removed in future versions.";
+
                 if (buildableType.Value is not null)
                 {
-                    var experimentalAttribute =
-                        buildableType.Value.CanonicalView.Attributes.FirstOrDefault(a => a.Type.Equals(typeof(ExperimentalAttribute)));
-                    if (experimentalAttribute != null)
-                    {
-                        var key = experimentalAttribute.Arguments[0];
-                        attributes.Add(new SuppressionStatement(attributeStatement, key, justification));
-                    }
-                    else
-                    {
-                        attributes.Add(attributeStatement);
-                    }
+                    // If the type is experimental or obsolete, we add a suppression for it
+                    AddAttributeForType(
+                        attributes,
+                        attributeStatement,
+                        buildableType.Value,
+                        experimentalTypeJustification,
+                        obsoleteTypeJustification);
                 }
                 // A dependency model - need to use reflection to get the attribute data
                 else if (buildableType.Key.IsFrameworkType)
                 {
-                    var experimentalAttr = buildableType.Key.FrameworkType.GetCustomAttributes(typeof(ExperimentalAttribute), false)
-                        .FirstOrDefault();
-                    if (experimentalAttr != null)
-                    {
-                        var key = experimentalAttr.GetType().GetProperty("DiagnosticId")?.GetValue(experimentalAttr);
-                        attributes.Add(new SuppressionStatement(attributeStatement, Literal(key), justification));
-                    }
-                    else
-                    {
-                        attributes.Add(attributeStatement);
-                    }
+                    AddAttributeForType(
+                        attributes,
+                        attributeStatement,
+                        buildableType.Key.FrameworkType,
+                        experimentalTypeJustification,
+                        obsoleteTypeJustification);
                 }
             }
 
@@ -92,7 +86,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Process each provider recursively
             foreach (var provider in providers.Values)
             {
-                CollectBuildableTypesRecursive(provider.Type, buildableTypes, visitedTypes, providers);
+                CollectBuildableTypesRecursive(provider, buildableTypes, visitedTypes, providers);
             }
 
             return buildableTypes;
@@ -107,51 +101,67 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             HashSet<CSharpType> visitedTypes,
             Dictionary<CSharpType, TypeProvider> providers)
         {
-            // Avoid infinite recursion by checking if we've already visited this type
-            if (visitedTypes.Contains(currentType))
+            // Avoid duplicate processing
+            if (!ShouldProcessType(currentType, visitedTypes))
             {
                 return;
             }
 
-            visitedTypes.Add(currentType);
-
-            if (IsModelReaderWriterInterfaceType(currentType))
-            {
-                return;
-            }
-
-            // Check if this type implements IPersistableModel
+            // If we have a provider for this type, use that for processing
             bool implementsInterface = ImplementsIPersistableModel(currentType, providers, out TypeProvider? provider);
             if (implementsInterface)
             {
                 buildableTypes.Add(currentType, provider);
             }
 
-            // Always traverse properties and base types, regardless of whether the current type implements the interface
-            // This ensures we find nested types that might implement the interfaces
             if (provider is not null)
             {
-                foreach (var property in provider.Properties)
-                {
-                    var propertyType = property.Type.IsCollection ? GetInnerMostElement(property.Type) : property.Type;
-                    CollectBuildableTypesRecursive(propertyType.WithNullable(false), buildableTypes, visitedTypes, providers);
-                }
-
-                if (provider is ModelProvider modelProvider && modelProvider.BaseModelProvider != null)
-                {
-                    CollectBuildableTypesRecursive(modelProvider.BaseModelProvider.Type, buildableTypes, visitedTypes, providers);
-                }
-                else
-                {
-                    foreach (var implementedType in provider.Implements)
-                    {
-                        CollectBuildableTypesRecursive(implementedType, buildableTypes, visitedTypes, providers);
-                    }
-                }
+                CollectBuildableTypesRecursive(provider, buildableTypes, visitedTypes, providers);
             }
             else if (currentType.IsFrameworkType)
             {
                 CollectBuildableTypesFromFrameworkType(currentType, buildableTypes, visitedTypes, providers);
+            }
+        }
+
+        private void CollectBuildableTypesRecursive(
+            TypeProvider provider,
+            Dictionary<CSharpType, TypeProvider?> buildableTypes,
+            HashSet<CSharpType> visitedTypes,
+            Dictionary<CSharpType, TypeProvider> providers)
+        {
+            // Avoid duplicate processing
+            if (!ShouldProcessType(provider.Type, visitedTypes))
+            {
+                return;
+            }
+
+            // Check if this type implements IPersistableModel and is part of the output library
+            bool implementsInterface = ImplementsModelReaderWriter(provider);
+            if (implementsInterface && providers.ContainsKey(provider.Type))
+            {
+                buildableTypes.Add(provider.Type, provider);
+            }
+
+            // Process all properties of the provider
+            foreach (var property in provider.Properties)
+            {
+                var propertyType = property.Type.IsCollection ? GetInnerMostElement(property.Type) : property.Type;
+                CollectBuildableTypesRecursive(propertyType.WithNullable(false), buildableTypes, visitedTypes, providers);
+            }
+
+            // Always traverse base types, regardless of whether the current type implements the interface
+            // This ensures we find nested types that might implement the interfaces
+            if (provider is ModelProvider modelProvider && modelProvider.BaseModelProvider != null)
+            {
+                CollectBuildableTypesRecursive(modelProvider.BaseModelProvider, buildableTypes, visitedTypes, providers);
+            }
+            else
+            {
+                foreach (var implementedType in provider.Implements)
+                {
+                    CollectBuildableTypesRecursive(implementedType, buildableTypes, visitedTypes, providers);
+                }
             }
         }
 
@@ -175,8 +185,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     var propertyType = property.PropertyType;
 
-                    // Handle generic types by getting their concrete types if available
-                    if (propertyType.IsGenericTypeDefinition && frameworkType.Arguments.Count > 0)
+                    if (!propertyType.IsVisible || propertyType.IsGenericTypeDefinition && frameworkType.Arguments.Count > 0)
                     {
                         continue;
                     }
@@ -200,6 +209,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // This can happen with certain generic types or types that aren't fully constructed
                 ScmCodeModelGenerator.Instance.Emitter.Debug($"Failed to get type for {frameworkType.Name}.");
             }
+        }
+
+        private static bool ShouldProcessType(CSharpType type, HashSet<CSharpType> visitedTypes)
+        {
+            if (!visitedTypes.Add(type))
+            {
+                return false;
+            }
+
+            return !IsModelReaderWriterInterfaceType(type);
         }
 
         private static CSharpType GetInnerMostElement(CSharpType type)
@@ -273,6 +292,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return false;
             }
 
+            if (typeProvider.SerializationProviders.OfType<MrwSerializationTypeDefinition>().Any())
+            {
+                return true;
+            }
+
             // check if the provider implements IPersistableModel or IJsonModel
             foreach (var implementedType in typeProvider.Implements)
             {
@@ -283,6 +307,59 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return false;
+        }
+
+        private static void AddAttributeForType(
+            List<MethodBodyStatement> attributes,
+            AttributeStatement attributeStatement,
+            TypeProvider typeProvider,
+            string experimentalTypeJustification,
+            string obsoleteTypeJustification)
+        {
+            AttributeStatement? experimentalOrObsoleteAttribute = typeProvider.CanonicalView.Attributes
+                .FirstOrDefault(a => a.Type.Equals(typeof(ExperimentalAttribute)) || a.Type.Equals(typeof(ObsoleteAttribute)));
+
+            if (experimentalOrObsoleteAttribute?.Type.Equals(typeof(ExperimentalAttribute)) == true)
+            {
+                attributes.Add(new SuppressionStatement(attributeStatement, experimentalOrObsoleteAttribute.Arguments[0], experimentalTypeJustification));
+            }
+            else if (experimentalOrObsoleteAttribute?.Type.Equals(typeof(ObsoleteAttribute)) == true)
+            {
+                attributes.Add(new SuppressionStatement(attributeStatement, Literal(DefaultObsoleteDiagnosticId), obsoleteTypeJustification));
+            }
+            else
+            {
+                attributes.Add(attributeStatement);
+            }
+        }
+
+        private static void AddAttributeForType(
+            List<MethodBodyStatement> attributes,
+            AttributeStatement attributeStatement,
+            Type frameworkType,
+            string experimentalTypeJustification,
+            string obsoleteTypeJustification)
+        {
+            var experimentalAttr = frameworkType.GetCustomAttributes(typeof(ExperimentalAttribute), false)
+                .FirstOrDefault();
+            if (experimentalAttr != null)
+            {
+                var key = experimentalAttr.GetType().GetProperty("DiagnosticId")?.GetValue(experimentalAttr);
+                attributes.Add(new SuppressionStatement(attributeStatement, Literal(key), experimentalTypeJustification));
+                return;
+            }
+
+            var obsoleteAttr = frameworkType.GetCustomAttributes(typeof(ObsoleteAttribute), false)
+                .FirstOrDefault();
+            if (obsoleteAttr != null)
+            {
+                var key = obsoleteAttr.GetType().GetProperty("DiagnosticId")?.GetValue(obsoleteAttr)
+                    ?? DefaultObsoleteDiagnosticId;
+                attributes.Add(new SuppressionStatement(attributeStatement, Literal(key), obsoleteTypeJustification));
+                return;
+            }
+
+            attributes.Add(attributeStatement);
         }
 
         private static bool IsModelReaderWriterInterfaceType(CSharpType type)

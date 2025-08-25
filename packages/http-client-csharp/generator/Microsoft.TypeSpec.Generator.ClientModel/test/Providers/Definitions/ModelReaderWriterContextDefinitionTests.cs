@@ -101,12 +101,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             // Check that exactly one ModelReaderWriterBuildableAttribute exists
             var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
             Assert.AreEqual(2, buildableAttributes.Count(), "Exactly one ModelReaderWriterBuildableAttribute should be generated for TestModel");
-            Assert.AreEqual("typeof(global::Sample.TestMrwSerialization)", buildableAttributes[0].Arguments.First().ToDisplayString(),
-                "The ModelReaderWriterBuildableAttribute should be generated for TestMrwSerialization");
             Assert.AreEqual(
                 "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.DependencyModel)",
-                buildableAttributes[1].Arguments.First().ToDisplayString(),
-                "The ModelReaderWriterBuildableAttribute should be generated for DependencyModel");
+                buildableAttributes[0].Arguments.First().ToDisplayString());
+            Assert.AreEqual("typeof(global::Sample.TestMrwSerialization)", buildableAttributes[1].Arguments.First().ToDisplayString(),
+                "The ModelReaderWriterBuildableAttribute should be generated for TestMrwSerialization");
         }
 
         [Test]
@@ -421,10 +420,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
             Assert.AreEqual(2, buildableAttributes.Count(), "Should include both ParentModel and FrameworkModelWithMRW");
             Assert.AreEqual(
-                "typeof(global::Sample.Models.ParentModel)",
+                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.FrameworkModelWithMRW)",
                 buildableAttributes[0].Arguments.First().ToDisplayString());
             Assert.AreEqual(
-                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.FrameworkModelWithMRW)",
+                "typeof(global::Sample.Models.ParentModel)",
                 buildableAttributes[1].Arguments.First().ToDisplayString());
         }
 
@@ -574,10 +573,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
             Assert.AreEqual(2, buildableAttributes.Count());
             Assert.AreEqual(
-                "typeof(global::Sample.Models.ParentModel)",
+                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.FrameworkModelWithMRW)",
                 buildableAttributes[0].Arguments.First().ToDisplayString());
             Assert.AreEqual(
-                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.FrameworkModelWithMRW)",
+                "typeof(global::Sample.Models.ParentModel)",
                 buildableAttributes[1].Arguments.First().ToDisplayString());
         }
 
@@ -680,8 +679,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                     if (input == InputPrimitiveType.String)
                         return new CSharpType(typeof(NestedFrameworkType));
                     return ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(input)!;
-                },
-                createCSharpTypeCoreFallback: input => input == InputPrimitiveType.String);
+                });
 
             var contextDefinition = new ModelReaderWriterContextDefinition();
             var attributes = contextDefinition.Attributes;
@@ -696,10 +694,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                 "typeof(global::Sample.Models.ComplexModel)",
                 buildableAttributes[0].Arguments.First().ToDisplayString());
             Assert.AreEqual(
-                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.NestedFrameworkType)",
+                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.FrameworkModelWithMRW)",
                 buildableAttributes[1].Arguments.First().ToDisplayString());
             Assert.AreEqual(
-                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.FrameworkModelWithMRW)",
+                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.NestedFrameworkType)",
                 buildableAttributes[2].Arguments.First().ToDisplayString());
         }
 
@@ -720,15 +718,160 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             int expectedCount = 2;
             Assert.AreEqual(expectedCount, attributes.Count);
 
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
+            Assert.AreEqual(expectedCount, buildableAttributes.Count);
+            Assert.AreEqual(
+                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.FrameworkModelWithMRW)",
+                buildableAttributes[0].Arguments.First().ToDisplayString());
+            Assert.AreEqual(
+                "typeof(global::Sample.MRWTypeProvider)",
+                buildableAttributes[1].Arguments.First().ToDisplayString());
+        }
+
+        // This test validates that the correct attributes are generated for a type provider
+        // that implements a base model which is not in the output library.
+        [Test]
+        public void ValidateTypeProviderImplementsBaseNotInOutputLibrary()
+        {
+            var baseInputModel = InputFactory.Model("BaseModel", properties:
+            [
+                InputFactory.Property("BaseProperty", InputPrimitiveType.String)
+            ]);
+            var inputModel = InputFactory.Model("TypeProviderWithBase", properties:
+            [
+                InputFactory.Property("BaseModelProperty", baseInputModel),
+                InputFactory.Property("SimpleProperty", InputPrimitiveType.String)
+            ], baseModel: baseInputModel);
+            var outputLibrary = new TestOutputLibrary([new TypeProviderWithBase(inputModel)]);
+            var mockGenerator = MockHelpers.LoadMockGenerator(createOutputLibrary: () => outputLibrary);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+
+            int expectedCount = 1;
+            Assert.AreEqual(expectedCount, attributes.Count);
+
             // Check that exactly one ModelReaderWriterBuildableAttribute exists
             var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
             Assert.AreEqual(expectedCount, buildableAttributes.Count);
             Assert.AreEqual(
-                "typeof(global::Sample.MRWTypeProvider)",
+                "typeof(global::Sample.Models.TypeProviderWithBase)",
                 buildableAttributes[0].Arguments.First().ToDisplayString());
-            Assert.AreEqual(
-                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.FrameworkModelWithMRW)",
-                buildableAttributes[1].Arguments.First().ToDisplayString());
+        }
+
+        [Test]
+        public void ValidateObsoleteFrameworkTypeHasAttributeSuppression()
+        {
+            // Create a model with a property that references an obsolete framework type
+            var parentModel = InputFactory.Model("ParentModel", properties:
+            [
+                InputFactory.Property("ObsoleteProperty", InputPrimitiveType.String),
+                InputFactory.Property("SimpleProperty", InputPrimitiveType.String)
+            ]);
+
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [parentModel],
+                createCSharpTypeCore: input =>
+                {
+                    if (input == InputPrimitiveType.String)
+                    {
+                        if (input.Name == "ObsoleteProperty")
+                        {
+                            return new CSharpType(typeof(FrameworkModelWithMRW));
+                        }
+                        else
+                        {
+#pragma warning disable CS0618 // Type or member is obsolete
+                            return new CSharpType(typeof(ObsoleteFrameworkType));
+#pragma warning restore CS0618 // Type or member is obsolete
+                        }
+                    }
+                    return ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(input)!;
+                });
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+            Assert.AreEqual(2, attributes.Count);
+
+            // Check that we have the right number of attributes including the suppression for the obsolete type
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && 
+                a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
+            Assert.AreEqual(2, buildableAttributes.Count());
+
+            var writer = new TypeProviderWriter(contextDefinition);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task ValidateCustomObsoleteTypeHasAttributeSuppression()
+        {
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                inputModels: () => new List<InputModelType>
+                {
+                    InputFactory.Model("CustomizedObsoleteModel", properties:
+                    [
+                        InputFactory.Property("StringProperty", InputPrimitiveType.String),
+                        InputFactory.Property("IntProperty", InputPrimitiveType.Int32)
+                    ]),
+                    InputFactory.Model("RegularModel", properties:
+                    [
+                        InputFactory.Property("StringProperty", InputPrimitiveType.String)
+                    ])
+                });
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+            Assert.IsTrue(attributes.Count > 0);
+
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute));
+            Assert.AreEqual(2, buildableAttributes.Count());
+
+            var writer = new TypeProviderWriter(contextDefinition);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void ValidateObsoleteGeneratedTypeHasAttributeSuppression()
+        {
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => new List<InputModelType>
+                {
+                    InputFactory.Model("DeprecatedModel", properties:
+                    [
+                        InputFactory.Property("StringProperty", InputPrimitiveType.String),
+                        InputFactory.Property("IntProperty", InputPrimitiveType.Int32)
+                    ]),
+                    InputFactory.Model("RegularModel", properties:
+                    [
+                        InputFactory.Property("StringProperty", InputPrimitiveType.String),
+                        InputFactory.Property("DeprecatedModelRef", InputFactory.Model("DeprecatedModel"))
+                    ])
+                },
+                createModelCore: input => input.Name == "DeprecatedModel" ? 
+                    new ObsoleteModelProvider(input) : new ModelProvider(input));
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+            Assert.IsTrue(attributes.Count > 0);
+
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && 
+                a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
+            Assert.AreEqual(2, buildableAttributes.Count());
+
+            var writer = new TypeProviderWriter(contextDefinition);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         private class DependencyModel : IJsonModel<DependencyModel>
@@ -823,7 +966,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             }
         }
 
-        private class FrameworkModelWithMRW : IJsonModel<FrameworkModelWithMRW>, IPersistableModel<FrameworkModelWithMRW>
+        public class FrameworkModelWithMRW : IJsonModel<FrameworkModelWithMRW>, IPersistableModel<FrameworkModelWithMRW>
         {
             public string Value { get; set; } = string.Empty;
 
@@ -872,7 +1015,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             }
         }
 
-        private class MRWTypeProvider : TypeProvider
+        public class MRWTypeProvider : TypeProvider
         {
             public MRWTypeProvider() : base()
             {
@@ -881,7 +1024,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             protected override CSharpType[] BuildImplements()
             {
                 // Implement a framework type that does not implement MRW interfaces
-                return [new CSharpType(typeof(FrameworkTypeImplementingOtherFrameworkType)), new CSharpType(typeof(IPersistableModel<object>))];
+                return
+                [
+                    new CSharpType(typeof(FrameworkTypeImplementingOtherFrameworkType)),
+                    new CSharpType(typeof(IPersistableModel<object>))
+                ];
             }
 
             protected override string BuildName() => "MRWTypeProvider";
@@ -898,19 +1045,65 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             }
         }
 
-        private class FrameworkTypeImplementingOtherFrameworkType : ComplexFrameworkType
+        public class TypeProviderWithBase : ModelProvider
+        {
+            public TypeProviderWithBase(InputModelType inputModelType) : base(inputModelType)
+            {
+
+            }
+
+            protected override string BuildName() => "TypeProviderWithBase";
+
+            protected override string BuildRelativeFilePath()
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public class FrameworkTypeImplementingOtherFrameworkType : ComplexFrameworkType
         {
             public string AnotherProperty { get; set; } = string.Empty;
         }
 
-        private class ComplexFrameworkType
+        public class ComplexFrameworkType
         {
             public FrameworkModelWithMRW NestedProperty { get; set; } = new();
+            internal TestInternalType SomeInternalType { get; set; } = new();
             public string SimpleProperty { get; set; } = string.Empty;
             public List<FrameworkModelWithMRW> ListProperty { get; set; } = new();
         }
 
-        private class NestedFrameworkType : IJsonModel<NestedFrameworkType>
+        internal class TestInternalType : IJsonModel<TestInternalType>
+        {
+            public TestInternalType() { }
+
+            public TestInternalType? Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+            {
+                throw new NotImplementedException();
+            }
+
+            public TestInternalType? Create(BinaryData data, ModelReaderWriterOptions options)
+            {
+                throw new NotImplementedException();
+            }
+
+            public string GetFormatFromOptions(ModelReaderWriterOptions options)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+            {
+                throw new NotImplementedException();
+            }
+
+            public BinaryData Write(ModelReaderWriterOptions options)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public class NestedFrameworkType : IJsonModel<NestedFrameworkType>
         {
             public ComplexFrameworkType ComplexProperty { get; set; } = new();
             public FrameworkModelWithMRW DirectProperty { get; set; } = new();
@@ -974,6 +1167,56 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                 [
                     .. providers,
                     new TestMrwSerialization(_implementsPersistableModel, _includeTypeWithDepModelProperty)
+                ];
+            }
+        }
+
+        // Test class for a framework type marked with [Obsolete]
+        [Obsolete("This type is obsolete. Use NewFrameworkType instead.")]
+        public class ObsoleteFrameworkType : IJsonModel<ObsoleteFrameworkType>, IPersistableModel<ObsoleteFrameworkType>
+        {
+            public string Value { get; set; } = string.Empty;
+
+            ObsoleteFrameworkType? IJsonModel<ObsoleteFrameworkType>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+            {
+                throw new NotImplementedException();
+            }
+
+            ObsoleteFrameworkType? IPersistableModel<ObsoleteFrameworkType>.Create(BinaryData data, ModelReaderWriterOptions options)
+            {
+                throw new NotImplementedException();
+            }
+
+            string IPersistableModel<ObsoleteFrameworkType>.GetFormatFromOptions(ModelReaderWriterOptions options)
+            {
+                throw new NotImplementedException();
+            }
+
+            void IJsonModel<ObsoleteFrameworkType>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+            {
+                throw new NotImplementedException();
+            }
+
+            BinaryData IPersistableModel<ObsoleteFrameworkType>.Write(ModelReaderWriterOptions options)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        // Model provider for a Obsolete type
+        private class ObsoleteModelProvider : ModelProvider
+        {
+            public ObsoleteModelProvider(InputModelType inputModel) : base(inputModel)
+            {
+            }
+
+            protected override IReadOnlyList<MethodBodyStatement> BuildAttributes()
+            {
+                return
+                [
+                    // Use both Obsolete and a custom Obsolete attribute
+                    new AttributeStatement(typeof(ObsoleteAttribute), Snippet.Literal("This model is obsolete. Use NewModel instead."), Snippet.Literal("true")),
+                    .. base.BuildAttributes()
                 ];
             }
         }
