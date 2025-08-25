@@ -34,7 +34,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var attributes = new List<MethodBodyStatement>();
 
             // Add ModelReaderWriterBuildableAttribute for all IPersistableModel types
-            var buildableTypes = CollectBuildableTypes();
+            var buildableTypes = CollectBuildableTypes().OrderBy(pair => pair.Key.Name);
             foreach (KeyValuePair<CSharpType, TypeProvider?> buildableType in buildableTypes)
             {
                 // Use the full attribute type name to ensure proper compilation
@@ -86,7 +86,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Process each provider recursively
             foreach (var provider in providers.Values)
             {
-                CollectBuildableTypesRecursive(provider.Type, buildableTypes, visitedTypes, providers);
+                CollectBuildableTypesRecursive(provider, buildableTypes, visitedTypes, providers);
             }
 
             return buildableTypes;
@@ -101,51 +101,67 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             HashSet<CSharpType> visitedTypes,
             Dictionary<CSharpType, TypeProvider> providers)
         {
-            // Avoid infinite recursion by checking if we've already visited this type
-            if (visitedTypes.Contains(currentType))
+            // Avoid duplicate processing
+            if (!ShouldProcessType(currentType, visitedTypes))
             {
                 return;
             }
 
-            visitedTypes.Add(currentType);
-
-            if (IsModelReaderWriterInterfaceType(currentType))
-            {
-                return;
-            }
-
-            // Check if this type implements IPersistableModel
+            // If we have a provider for this type, use that for processing
             bool implementsInterface = ImplementsIPersistableModel(currentType, providers, out TypeProvider? provider);
             if (implementsInterface)
             {
                 buildableTypes.Add(currentType, provider);
             }
 
-            // Always traverse properties and base types, regardless of whether the current type implements the interface
-            // This ensures we find nested types that might implement the interfaces
             if (provider is not null)
             {
-                foreach (var property in provider.Properties)
-                {
-                    var propertyType = property.Type.IsCollection ? GetInnerMostElement(property.Type) : property.Type;
-                    CollectBuildableTypesRecursive(propertyType.WithNullable(false), buildableTypes, visitedTypes, providers);
-                }
-
-                if (provider is ModelProvider modelProvider && modelProvider.BaseModelProvider != null)
-                {
-                    CollectBuildableTypesRecursive(modelProvider.BaseModelProvider.Type, buildableTypes, visitedTypes, providers);
-                }
-                else
-                {
-                    foreach (var implementedType in provider.Implements)
-                    {
-                        CollectBuildableTypesRecursive(implementedType, buildableTypes, visitedTypes, providers);
-                    }
-                }
+                CollectBuildableTypesRecursive(provider, buildableTypes, visitedTypes, providers);
             }
             else if (currentType.IsFrameworkType)
             {
                 CollectBuildableTypesFromFrameworkType(currentType, buildableTypes, visitedTypes, providers);
+            }
+        }
+
+        private void CollectBuildableTypesRecursive(
+            TypeProvider provider,
+            Dictionary<CSharpType, TypeProvider?> buildableTypes,
+            HashSet<CSharpType> visitedTypes,
+            Dictionary<CSharpType, TypeProvider> providers)
+        {
+            // Avoid duplicate processing
+            if (!ShouldProcessType(provider.Type, visitedTypes))
+            {
+                return;
+            }
+
+            // Check if this type implements IPersistableModel and is part of the output library
+            bool implementsInterface = ImplementsModelReaderWriter(provider);
+            if (implementsInterface && providers.ContainsKey(provider.Type))
+            {
+                buildableTypes.Add(provider.Type, provider);
+            }
+
+            // Process all properties of the provider
+            foreach (var property in provider.Properties)
+            {
+                var propertyType = property.Type.IsCollection ? GetInnerMostElement(property.Type) : property.Type;
+                CollectBuildableTypesRecursive(propertyType.WithNullable(false), buildableTypes, visitedTypes, providers);
+            }
+
+            // Always traverse base types, regardless of whether the current type implements the interface
+            // This ensures we find nested types that might implement the interfaces
+            if (provider is ModelProvider modelProvider && modelProvider.BaseModelProvider != null)
+            {
+                CollectBuildableTypesRecursive(modelProvider.BaseModelProvider, buildableTypes, visitedTypes, providers);
+            }
+            else
+            {
+                foreach (var implementedType in provider.Implements)
+                {
+                    CollectBuildableTypesRecursive(implementedType, buildableTypes, visitedTypes, providers);
+                }
             }
         }
 
@@ -193,6 +209,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // This can happen with certain generic types or types that aren't fully constructed
                 ScmCodeModelGenerator.Instance.Emitter.Debug($"Failed to get type for {frameworkType.Name}.");
             }
+        }
+
+        private static bool ShouldProcessType(CSharpType type, HashSet<CSharpType> visitedTypes)
+        {
+            if (!visitedTypes.Add(type))
+            {
+                return false;
+            }
+
+            return !IsModelReaderWriterInterfaceType(type);
         }
 
         private static CSharpType GetInnerMostElement(CSharpType type)
@@ -264,6 +290,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (typeProvider is MrwSerializationTypeDefinition)
             {
                 return false;
+            }
+
+            if (typeProvider.SerializationProviders.OfType<MrwSerializationTypeDefinition>().Any())
+            {
+                return true;
             }
 
             // check if the provider implements IPersistableModel or IJsonModel
