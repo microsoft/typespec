@@ -4,7 +4,9 @@ import { transformComponentParameters } from "./transform-component-parameters.j
 import { transformComponentSchemas } from "./transform-component-schemas.js";
 import { transformNamespaces } from "./transform-namespaces.js";
 import { transformPaths } from "./transform-paths.js";
+import { transformServers } from "./transform-servers.js";
 import { transformServiceInfo } from "./transform-service-info.js";
+import { transformTags } from "./transform-tags.js";
 
 export function transform(context: Context): TypeSpecProgram {
   const openapi = context.openApi3Doc;
@@ -15,6 +17,8 @@ export function transform(context: Context): TypeSpecProgram {
     serviceInfo: transformServiceInfo(openapi.info),
     ...transformNamespaces(models, operations),
     augmentations: [],
+    servers: transformServers(openapi.servers ?? []),
+    tags: transformTags(openapi.tags ?? []),
   };
 }
 

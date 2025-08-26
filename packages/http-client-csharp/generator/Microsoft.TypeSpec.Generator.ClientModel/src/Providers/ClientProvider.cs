@@ -193,10 +193,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var operationName = serviceMethod.Operation.Name.ToIdentifierName();
             // Replace List with Get as .NET convention is to use Get for list operations.
-            if (operationName.StartsWith("List", StringComparison.Ordinal))
+            if (operationName == "List")
             {
-                operationName = $"Get{operationName.Substring(4)}";
+                return "GetAll";
             }
+            if (operationName.StartsWith("List", StringComparison.Ordinal) &&
+                operationName.Length > 4 && char.IsUpper(operationName[4]))
+            {
+                // If the operation name starts with List and has a capital letter after it, we replace List with Get.
+                return $"Get{operationName.Substring(4)}";
+            }
+
             return operationName;
         }
 
@@ -301,14 +308,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         private Lazy<string?> _endpointParameterName;
-        private InputParameter? _inputEndpointParam;
+        private InputEndpointParameter? _inputEndpointParam;
         internal string? EndpointParameterName => _endpointParameterName.Value;
 
         private string? GetEndpointParameterName()
         {
             foreach (var param in _inputClient.Parameters)
             {
-                if (param.IsEndpoint)
+                if (param is InputEndpointParameter endpointParameter && endpointParameter.IsEndpoint)
                 {
                     //this will be the beginning of the url string so we will skip it when creating the uri builder
                     return $"{{{param.Name}}}";
@@ -372,7 +379,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Add optional client parameters as fields
             foreach (var p in _allClientParameters)
             {
-                if (!p.IsEndpoint)
+                if (p is not InputEndpointParameter || p is InputEndpointParameter endpointParameter && !endpointParameter.IsEndpoint)
                 {
                     var type = p is { IsApiVersion: true, Type: InputEnumType enumType }
                         ? ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(enumType.ValueType)
@@ -391,7 +398,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                 false,
                                 p.Type is InputNullableType,
                                 false,
-                                p.NameInRequest,
+                                p.SerializedName,
                                 false));
                         if (p.IsApiVersion)
                         {
@@ -493,7 +500,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (var parameter in _allClientParameters)
             {
-                if (parameter.IsRequired && !parameter.IsEndpoint && !parameter.IsApiVersion)
+                if (parameter.IsRequired && !parameter.IsApiVersion &&
+                    (parameter is not InputEndpointParameter ||
+                     parameter is InputEndpointParameter endpointParameter && !endpointParameter.IsEndpoint))
                 {
                     ParameterProvider? currentParam = CreateParameter(parameter);
                     if (currentParam != null)
@@ -705,7 +714,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private ParameterProvider BuildClientEndpointParameter()
         {
-            _inputEndpointParam = _inputClient.Parameters.FirstOrDefault(p => p.IsEndpoint);
+            _inputEndpointParam = _inputClient.Parameters
+                .FirstOrDefault(p => p is InputEndpointParameter endpointParameter && endpointParameter.IsEndpoint) as InputEndpointParameter;
             if (_inputEndpointParam == null)
             {
                 return KnownParameters.Endpoint;
@@ -758,7 +768,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Get all parameters from the client and its methods
             var parameters = _inputClient.Parameters.Concat(
                 _inputClient.Methods.SelectMany(m => m.Operation.Parameters)
-                    .Where(p => p.Kind == InputParameterKind.Client)).DistinctBy(p => p.Name).ToArray();
+                    .Where(p => p.Scope == InputParameterScope.Client)).DistinctBy(p => p.Name).ToArray();
 
             foreach (var subClient in _subClients.Value)
             {

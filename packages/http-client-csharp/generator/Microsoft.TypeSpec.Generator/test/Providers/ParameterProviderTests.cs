@@ -40,7 +40,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         {
             MockHelpers.LoadMockGenerator();
 
-            var param = InputFactory.Parameter("name", InputPrimitiveType.String, kind: InputParameterKind.Spread);
+            var param = InputFactory.BodyParameter("name", InputPrimitiveType.String, scope: InputParameterScope.Spread);
             var paramProvider1 = CodeModelGenerator.Instance.TypeFactory.CreateParameter(param);
             var paramProvider2 = CodeModelGenerator.Instance.TypeFactory.CreateParameter(param);
             Assert.IsFalse(ReferenceEquals(paramProvider1, paramProvider2));
@@ -50,7 +50,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         public void ValueTypeHasNoValidation(InputType paramType)
         {
             MockHelpers.LoadMockGenerator();
-            var inputType = InputFactory.Parameter("testParam", paramType, isRequired: true);
+            var inputType = InputFactory.BodyParameter("testParam", paramType, isRequired: true);
             var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(inputType);
             Assert.IsNotNull(parameter);
             Assert.AreEqual(ParameterValidationType.None, parameter!.Validation);
@@ -60,7 +60,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         public void ValidateArrayHandling()
         {
             MockHelpers.LoadMockGenerator();
-            var inputType = InputFactory.Parameter("testParam", InputFactory.Array(InputPrimitiveType.String), isRequired: true);
+            var inputType = InputFactory.BodyParameter("testParam", InputFactory.Array(InputPrimitiveType.String), isRequired: true);
             var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(inputType);
             Assert.IsNotNull(parameter);
             Assert.IsTrue(parameter!.Type.Equals(typeof(IList<string>)));
@@ -102,7 +102,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         public void ToPublicInputParameterCopiesProperties()
         {
             MockHelpers.LoadMockGenerator();
-            var inputType = InputFactory.Parameter("testParam", InputPrimitiveType.Int32, isRequired: true);
+            var inputType = InputFactory.BodyParameter("testParam", InputPrimitiveType.Int32, isRequired: true);
             var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(inputType);
             Assert.IsNotNull(parameter);
             var publicParameter = parameter!.ToPublicInputParameter();
@@ -129,7 +129,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         public void WithRefCopiesProperties()
         {
             MockHelpers.LoadMockGenerator();
-            var inputType = InputFactory.Parameter("testParam", InputPrimitiveType.Int32, isRequired: true);
+            var inputType = InputFactory.BodyParameter("testParam", InputPrimitiveType.Int32, isRequired: true);
             var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(inputType);
             Assert.IsNotNull(parameter);
             var refParemeter = parameter!.WithRef();
@@ -173,7 +173,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             ParameterValidationType expectedValidation)
         {
             MockHelpers.LoadMockGenerator();
-            var inputTypeInstance = InputFactory.Parameter("testParam", new InputPrimitiveType(primitiveType, "foo", "bar"), isRequired: isRequired);
+            var inputTypeInstance = InputFactory.BodyParameter("testParam", new InputPrimitiveType(primitiveType, "foo", "bar"), isRequired: isRequired);
             var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(inputTypeInstance);
 
             Assert.IsNotNull(parameter);

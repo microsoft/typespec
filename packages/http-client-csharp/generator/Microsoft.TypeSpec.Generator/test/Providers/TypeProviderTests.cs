@@ -189,5 +189,52 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             // The BuildX methods should be called again, which will return the original state.
             Assert.AreEqual(1, typeProvider.Methods.Count);
         }
+
+        [Test]
+        public void TestCanUpdateAttributes()
+        {
+            var typeProvider = new TestTypeProvider(name: "OriginalName",
+               methods: [new MethodProvider(
+                    new MethodSignature("TestMethod", $"", MethodSignatureModifiers.Public, null, $"", []),
+                    Snippet.Throw(Snippet.Null), new TestTypeProvider())]);
+            typeProvider.Update(attributes: [
+                    new(typeof(ObsoleteAttribute))
+                ]);
+
+            Assert.IsNotNull(typeProvider.Attributes);
+            Assert.AreEqual(1, typeProvider.Attributes.Count);
+            Assert.AreEqual(new CSharpType(typeof(ObsoleteAttribute)), typeProvider.Attributes[0].Type);
+
+            // now reset and validate
+            typeProvider.Reset();
+            Assert.AreEqual(0, typeProvider.Attributes.Count);
+
+            // re-add the attributes
+            typeProvider.Update(attributes: [
+                new(typeof(ObsoleteAttribute))
+            ]);
+
+            Assert.AreEqual(1, typeProvider.Attributes.Count);
+            Assert.AreEqual(new CSharpType(typeof(ObsoleteAttribute)), typeProvider.Attributes[0].Type);
+        }
+
+        [Test]
+        public async Task TestCanCustomizeTypeWithChangedNamespace()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var testTypeProvider = new TestTypeProvider();
+
+
+            Assert.IsNotNull(testTypeProvider.CustomCodeView);
+            Assert.AreEqual("NewNamespace", testTypeProvider.Type.Namespace);
+            // reset the type
+            testTypeProvider.Reset();
+            Assert.AreEqual("NewNamespace", testTypeProvider.Type.Namespace);
+            Assert.AreEqual("NewNamespace", testTypeProvider.CanonicalView.Type.Namespace);
+
+            testTypeProvider.Type.Update(name: "foo");
+            Assert.AreEqual("NewNamespace", testTypeProvider.Type.Namespace);
+            Assert.AreEqual("NewNamespace", testTypeProvider.CanonicalView.Type.Namespace);
+        }
     }
 }

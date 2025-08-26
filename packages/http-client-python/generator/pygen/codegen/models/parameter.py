@@ -33,6 +33,7 @@ class ParameterLocation(str, Enum):
     ENDPOINT_PATH = "endpointPath"
     QUERY = "query"
     BODY = "body"
+    KEYWORD = "keyword"
     OTHER = "other"
 
 
@@ -392,6 +393,8 @@ class ClientParameter(Parameter):
             and self.code_model.options["from-typespec"]
             and not self.code_model.options["azure-arm"]
         ):
+            return ParameterMethodLocation.KEYWORD_ONLY
+        if self.location == ParameterLocation.KEYWORD:
             return ParameterMethodLocation.KEYWORD_ONLY
         return ParameterMethodLocation.POSITIONAL
 

@@ -62,6 +62,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private List<PropertyProvider>? _additionalPropertyProperties;
         private ModelProvider? _baseModelProvider;
         private ConstructorProvider? _fullConstructor;
+        internal PropertyProvider? DiscriminatorProperty { get; private set; }
 
         public ModelProvider(InputModelType inputModel) : base(inputModel)
         {
@@ -389,6 +390,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
 
                 var outputProperty = CodeModelGenerator.Instance.TypeFactory.CreateProperty(property, this);
+                if (_inputModel.DiscriminatorProperty == property)
+                {
+                    DiscriminatorProperty = outputProperty;
+                }
                 if (outputProperty is null)
                     continue;
 

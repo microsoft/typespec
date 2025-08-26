@@ -33,7 +33,7 @@ from ..models import (
     ByteArraySchema,
 )
 from ..models.utils import NamespaceType
-from .parameter_serializer import ParameterSerializer, PopKwargType
+from .parameter_serializer import ParameterSerializer, PopKwargType, check_body_optional
 from ..models.parameter_list import ParameterType
 from . import utils
 from ...utils import xml_serializable, json_serializable
@@ -630,6 +630,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             ),
             check_client_input=not self.code_model.options["multiapi"],
             operation_name=f"('{builder.name}')" if builder.group_name == "" else "",
+            body_parameter=builder.parameters.body_parameter if builder.parameters.has_body else None,
         )
         for p in builder.parameters.parameters:
             if p.hide_in_operation_signature and not p.is_continuation_token:
@@ -763,9 +764,16 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         if is_paging:
             return retval
         same_content_type = len(set(o.parameters.body_parameter.default_content_type for o in builder.overloads)) == 1
+        check_body_suffix = ""
+        if builder.parameters.has_body:
+            body_parameter = builder.parameters.body_parameter
+            is_body_optional = check_body_optional(body_parameter)
+            if is_body_optional:
+                check_body_suffix = f" if {body_parameter.client_name} else None" if is_body_optional else ""
+
         if same_content_type:
             default_content_type = builder.overloads[0].parameters.body_parameter.default_content_type
-            retval.append(f'content_type = content_type or "{default_content_type}"')
+            retval.append(f'content_type = content_type or "{default_content_type}"{check_body_suffix}')
         client_names = [
             overload.request_builder.parameters.body_parameter.client_name for overload in builder.overloads
         ]
@@ -780,7 +788,9 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             binary_body_param = binary_overload.parameters.body_parameter
             retval.append(f"if {binary_body_param.type.instance_check_template.format(binary_body_param.client_name)}:")
             if binary_body_param.default_content_type and not same_content_type:
-                retval.append(f'    content_type = content_type or "{binary_body_param.default_content_type}"')
+                retval.append(
+                    f'    content_type = content_type or "{binary_body_param.default_content_type}"{check_body_suffix}'
+                )
             retval.extend(f"    {l}" for l in self._create_body_parameter(binary_overload))
             retval.append("else:")
             other_overload = cast(
@@ -791,7 +801,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             if other_overload.parameters.body_parameter.default_content_type and not same_content_type:
                 retval.append(
                     "    content_type = content_type or "
-                    f'"{other_overload.parameters.body_parameter.default_content_type}"'
+                    f'"{other_overload.parameters.body_parameter.default_content_type}"{check_body_suffix}'
                 )
         except StopIteration:
             for idx, overload in enumerate(builder.overloads):
@@ -801,7 +811,9 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     f"{if_statement} {body_param.type.instance_check_template.format(body_param.client_name)}:"
                 )
                 if body_param.default_content_type and not same_content_type:
-                    retval.append(f'    content_type = content_type or "{body_param.default_content_type}"')
+                    retval.append(
+                        f'    content_type = content_type or "{body_param.default_content_type}"{check_body_suffix}'
+                    )
                 retval.extend(f"    {l}" for l in self._create_body_parameter(cast(OperationType, overload)))
         return retval
 
@@ -1032,7 +1044,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                             is_operation_file=True, skip_quote=True, serialize_namespace=self.serialize_namespace
                         )
                         if self.code_model.options["models-mode"] == "dpg":
-                            retval.append(f"        error = _failsafe_deserialize({type_annotation},  response.json())")
+                            retval.append(f"        error = _failsafe_deserialize({type_annotation},  response)")
                         else:
                             retval.append(
                                 f"        error = self._deserialize.failsafe_deserialize({type_annotation}, "
@@ -1067,11 +1079,9 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     )
                     if self.code_model.options["models-mode"] == "dpg":
                         if xml_serializable(str(e.default_content_type)):
-                            retval.append(
-                                f"        error = _failsafe_deserialize_xml({type_annotation},  response.text())"
-                            )
+                            retval.append(f"        error = _failsafe_deserialize_xml({type_annotation}, response)")
                         else:
-                            retval.append(f"        error = _failsafe_deserialize({type_annotation},  response.json())")
+                            retval.append(f"        error = _failsafe_deserialize({type_annotation}, response)")
                     else:
                         retval.append(
                             f"        error = self._deserialize.failsafe_deserialize({type_annotation}, "
@@ -1086,9 +1096,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             if builder.non_default_errors:
                 retval.append("    else:")
             if self.code_model.options["models-mode"] == "dpg":
-                retval.append(
-                    f"{indent}error = _failsafe_deserialize({default_error_deserialization},  response.json())"
-                )
+                retval.append(f"{indent}error = _failsafe_deserialize({default_error_deserialization}, response)")
             else:
                 retval.append(
                     f"{indent}error = self._deserialize.failsafe_deserialize({default_error_deserialization}, "

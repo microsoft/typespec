@@ -244,7 +244,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 [
                     InputFactory.Property("IntProperty", InputPrimitiveType.Int32, wireName: "intProperty"),
                     InputFactory.Property("StringProperty", InputPrimitiveType.String, wireName: "stringProperty"),
-                    new InputModelProperty("NullWireInfoProperty", null, null, InputPrimitiveType.String, false, false, null, false, "NullWireInfoProperty", false, new InputSerializationOptions())
+                    new InputModelProperty("NullWireInfoProperty", null, null, InputPrimitiveType.String, false, false, null, false, "NullWireInfoProperty", false, false, null, new InputSerializationOptions())
                 ];
                 return InputFactory.Model("TestName", "Sample.Models", properties: properties);
             }

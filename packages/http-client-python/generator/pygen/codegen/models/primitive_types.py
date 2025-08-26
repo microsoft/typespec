@@ -589,16 +589,22 @@ class SdkCoreType(PrimitiveType):
         super().__init__(yaml_data=yaml_data, code_model=code_model)
         self.name = yaml_data.get("name", "")
         self.submodule = yaml_data.get("submodule", "")
+        self.is_typing_only = yaml_data.get("isTypingOnly", False)
 
     def docstring_type(self, **kwargs: Any) -> str:
-        return f"~{self.code_model.core_library}.{self.type_annotation(**kwargs)}"
+        return f"~{self.code_model.core_library}.{self.name}"
 
     def type_annotation(self, **kwargs: Any) -> str:
-        return self.name
+        return f'"{self.name}"' if self.is_typing_only else self.name
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = super().imports(**kwargs)
-        file_import.add_submodule_import(self.submodule, self.name, ImportType.SDKCORE)
+        file_import.add_submodule_import(
+            self.submodule,
+            self.name,
+            ImportType.SDKCORE,
+            typing_section=TypingSection.TYPING if self.is_typing_only else TypingSection.REGULAR,
+        )
         return file_import
 
     @property

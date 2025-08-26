@@ -36,10 +36,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private FieldProvider? _requestOptionsField;
         protected virtual string RequestOptionsFieldName => "_options";
 
-        protected IReadOnlyList<FieldProvider> RequestFields { get; }
+        private IReadOnlyList<FieldProvider>? _requestFields;
+        protected IReadOnlyList<FieldProvider> RequestFields
+            => _requestFields ??= BuildRequestFields();
+
+        private IReadOnlyList<ParameterProvider>? _createRequestParameters;
+        private IReadOnlyList<ParameterProvider> CreateRequestParameters
+            => _createRequestParameters ??= Client.RestClient.GetCreateRequestMethod(Operation).Signature.Parameters;
+
+        private string? _createRequestMethodName;
+        private string CreateRequestMethodName
+            => _createRequestMethodName ??= Client.RestClient.GetCreateRequestMethod(Operation).Signature.Name;
 
         protected ModelProvider ResponseModel { get; }
-        protected CSharpType ResponseType { get; }
+        protected CSharpType ResponseModelType { get; }
 
         protected virtual CSharpType? ItemModelType { get; }
         protected FieldProvider? NextTokenField { get; }
@@ -52,9 +62,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static readonly ParameterProvider PageParameter =
             new("page", FormattableStringHelpers.Empty, new CSharpType(typeof(ClientResult)));
-
-        private readonly IReadOnlyList<ParameterProvider> _createRequestParameters;
-        private readonly string _createRequestMethodName;
 
         public CollectionResultDefinition(ClientProvider client, InputPagingServiceMethod serviceMethod, CSharpType? itemModelType, bool isAsync)
         {
@@ -71,29 +78,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var response = Operation.Responses.FirstOrDefault(r => !r.IsErrorResponse);
             ResponseModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel((InputModelType)response!.BodyType!)!;
-            ResponseType = ResponseModel.Type;
+            ResponseModelType = ResponseModel.Type;
 
-            var createRequestMethodSignature = Client.RestClient.GetCreateRequestMethod(Operation).Signature;
-            _createRequestParameters = createRequestMethodSignature.Parameters;
-            _createRequestMethodName = createRequestMethodSignature.Name;
-
-            var fields = new List<FieldProvider>();
-            for (int paramIndex = 0; paramIndex < _createRequestParameters.Count; paramIndex++)
+            foreach (var field in RequestFields)
             {
-                var parameter = _createRequestParameters[paramIndex];
-                var field = new FieldProvider(
-                    FieldModifiers.Private | FieldModifiers.ReadOnly,
-                    parameter.Type,
-                    $"_{parameter.Name.ToVariableName()}",
-                    this);
-                fields.Add(field);
-                if (parameter.Name == Paging.ContinuationToken?.Parameter.Name)
+                if (field.AsParameter.Name == Paging.ContinuationToken?.Parameter.Name)
                 {
                     NextTokenField = field;
                 }
             }
-
-            RequestFields = fields;
 
             NextPageLocation = Paging.NextLink?.ResponseLocation ?? Paging.ContinuationToken?.ResponseLocation;
             NextPagePropertySegments = Paging.NextLink?.ResponseSegments ?? Paging.ContinuationToken?.ResponseSegments ?? [];
@@ -108,6 +101,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Operation.CrossLanguageDefinitionId,
                     EmitterDiagnosticSeverity.Error);
             }
+        }
+
+        private IReadOnlyList<FieldProvider> BuildRequestFields()
+        {
+            var fields = new List<FieldProvider>();
+            for (int paramIndex = 0; paramIndex < CreateRequestParameters.Count; paramIndex++)
+            {
+                var parameter = CreateRequestParameters[paramIndex];
+                var field = new FieldProvider(
+                    FieldModifiers.Private | FieldModifiers.ReadOnly,
+                    parameter.Type,
+                    $"_{parameter.Name.ToVariableName()}",
+                    this);
+                fields.Add(field);
+            }
+
+            return fields;
         }
 
         private CSharpType GetNextPagePropertyType()
@@ -168,17 +178,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         MethodSignatureModifiers.Public,
                         [
                             clientParameter,
-                            .. _createRequestParameters
+                            .. CreateRequestParameters
                         ]),
                     BuildConstructorBody(clientParameter),
                     this)
             ];
         }
 
-        protected ValueExpression BuildGetPropertyExpression(IReadOnlyList<string> segments, ValueExpression response)
+        private ValueExpression GetPropertyExpression(IReadOnlyList<string> segments, ValueExpression response)
         {
-            ValueExpression expression = response.CastTo(ResponseType);
+            return BuildGetPropertyExpression(segments, response.CastTo(ResponseModelType));
+        }
+
+        protected ValueExpression BuildGetPropertyExpression(IReadOnlyList<string> segments, ValueExpression responseModel)
+        {
             TypeProvider model = ResponseModel;
+            ValueExpression getPropertyExpression = responseModel;
 
             for (int i = 0; i < segments.Count; i++)
             {
@@ -186,10 +201,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (i > 0)
                 {
-                    expression = expression.NullConditional();
+                    getPropertyExpression = getPropertyExpression.NullConditional();
                 }
 
-                expression = expression.Property(property.Name);
+                getPropertyExpression = getPropertyExpression.Property(property.Name);
 
                 if (i < segments.Count - 1)
                 {
@@ -197,18 +212,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
 
-            return expression;
+            return getPropertyExpression;
         }
 
         private MethodBodyStatement[] BuildConstructorBody(ParameterProvider clientParameter)
         {
-            var statements = new List<MethodBodyStatement>(_createRequestParameters.Count + 1);
+            var statements = new List<MethodBodyStatement>(CreateRequestParameters.Count + 1);
 
             statements.Add(ClientField.Assign(clientParameter).Terminate());
 
-            for (int parameterNumber = 0; parameterNumber < _createRequestParameters.Count; parameterNumber++)
+            for (int parameterNumber = 0; parameterNumber < CreateRequestParameters.Count; parameterNumber++)
             {
-                var parameter = _createRequestParameters[parameterNumber];
+                var parameter = CreateRequestParameters[parameterNumber];
                 var field = RequestFields[parameterNumber];
                 statements.Add(field.Assign(parameter).Terminate());
             }
@@ -276,7 +291,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement[] BuildGetValuesFromPages()
         {
-            var items = BuildGetPropertyExpression(Paging.ItemPropertySegments, PageParameter.AsExpression());
+            var items = GetPropertyExpression(Paging.ItemPropertySegments, PageParameter.AsExpression());
             return
             IsAsync ?
                 [
@@ -307,7 +322,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             switch (NextPageLocation)
             {
                 case InputResponseLocation.Body:
-                    var resultExpression = BuildGetPropertyExpression(nextPagePropertySegments!, PageParameter.AsExpression());
+                    var resultExpression = GetPropertyExpression(nextPagePropertySegments!, PageParameter.AsExpression());
                     return
                     [
                         Declare(nextPageVariable, resultExpression),
@@ -369,7 +384,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     MethodBodyStatement.EmptyLine,
 
                     // Assign nextLinkUri from the result and check if it is null
-                    AssignAndCheckNextPageVariable(result, nextPageVariable),
+                    AssignAndCheckNextPageVariable(result, result.CastTo(ResponseModelType), nextPageVariable),
 
                     // Update message for next iteration
                     message.Assign(InvokeCreateRequestForNextLink(nextPageVariable)).Terminate()
@@ -408,7 +423,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     MethodBodyStatement.EmptyLine,
 
                     // Assign nextLinkUri from the result and check if it is null
-                    AssignAndCheckNextPageVariable(result, nextTokenVariable),
+                    AssignAndCheckNextPageVariable(result, result.CastTo(ResponseModelType), nextTokenVariable),
 
                     // Update message for next iteration
                     message.Assign(InvokeCreateRequestForContinuationToken(nextTokenVariable)).Terminate()
@@ -435,12 +450,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ];
         }
 
-        protected MethodBodyStatement[] AssignAndCheckNextPageVariable(ClientResponseApi result, VariableExpression nextPage)
+        protected MethodBodyStatement[] AssignAndCheckNextPageVariable(ClientResponseApi result, ValueExpression responseModel, VariableExpression nextPage)
         {
             switch (NextPageLocation)
             {
                 case InputResponseLocation.Body:
-                    var resultExpression = BuildGetPropertyExpression(NextPagePropertySegments, result);
+                    var resultExpression = BuildGetPropertyExpression(NextPagePropertySegments, responseModel);
                     if (Paging.ContinuationToken != null || NextPagePropertyType.Equals(typeof(Uri)))
                     {
                         return
@@ -492,16 +507,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private ScopedApi<PipelineMessage> InvokeCreateRequestForContinuationToken(ValueExpression nextToken)
         {
             // Replace the nextToken field with the nextToken variable
-            var arguments = RequestFields.Select(f => f == NextTokenField ? nextToken : f.AsValueExpression);
+            var arguments = RequestFields.Select(f => f.Name.Equals(NextTokenField?.Name) == true ? nextToken : f.AsValueExpression);
 
-            return ClientField.Invoke(_createRequestMethodName, arguments).As<PipelineMessage>();
+            return ClientField.Invoke(CreateRequestMethodName, arguments).As<PipelineMessage>();
         }
 
         private ScopedApi<PipelineMessage> InvokeCreateInitialRequest()
         {
             ValueExpression[] arguments = [.. RequestFields.Select(f => f.AsValueExpression)];
 
-            return ClientField.Invoke(_createRequestMethodName, arguments).As<PipelineMessage>();
+            return ClientField.Invoke(CreateRequestMethodName, arguments).As<PipelineMessage>();
+        }
+
+        public override void Reset()
+        {
+            base.Reset();
+            _requestFields = null;
+            _createRequestParameters = null;
+            _createRequestMethodName = null;
+            _requestOptionsField = null;
         }
     }
 }

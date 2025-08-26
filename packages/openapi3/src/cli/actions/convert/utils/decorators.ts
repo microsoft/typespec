@@ -1,3 +1,4 @@
+import { printIdentifier } from "@typespec/compiler";
 import { ExtensionKey } from "@typespec/openapi";
 import { Extensions, OpenAPI3Parameter, OpenAPI3Schema, Refable } from "../../../../types.js";
 import { TSValue, TypeSpecDecorator } from "../interfaces.js";
@@ -12,12 +13,21 @@ export function getExtensions(element: Extensions): TypeSpecDecorator[] {
     if (isExtensionKey(key)) {
       decorators.push({
         name: extensionDecoratorName,
-        args: [key, element[key]],
+        args: [key, normalizeObjectValue(element[key])],
       });
     }
   }
 
   return decorators;
+}
+function normalizeObjectValue(source: unknown): string | number | object | TSValue {
+  if (typeof source === "object") {
+    const result = createTSValueFromObjectValue(source as object);
+    if (result) {
+      return result;
+    }
+  }
+  return source as string | number;
 }
 
 function isExtensionKey(key: string): key is ExtensionKey {
@@ -61,20 +71,30 @@ function getLocationDecorator(parameter: OpenAPI3Parameter): TypeSpecDecorator |
   return decorator;
 }
 
-function getQueryArgs(parameter: OpenAPI3Parameter): TSValue | undefined {
-  const queryOptions = getNormalizedQueryOptions(parameter);
-  if (Object.keys(queryOptions).length) {
+function createTSValueFromObjectValue(value: object): TSValue | undefined {
+  if (Object.keys(value).length || Array.isArray(value)) {
     return {
       __kind: "value",
-      value: `#{${Object.entries(queryOptions)
-        .map(([key, value]) => {
-          return `${key}: ${JSON.stringify(value)}`;
-        })
-        .join(", ")}}`,
+      value: normalizeObjectValueToTSValueExpression(value),
     };
   }
+  return undefined;
+}
+export function normalizeObjectValueToTSValueExpression(value: any): string {
+  if (typeof value === "object" && !Array.isArray(value)) {
+    return `#{${Object.entries(value)
+      .map(([key, v]) => {
+        return `${printIdentifier(key, "disallow-reserved")}: ${normalizeObjectValueToTSValueExpression(v)}`;
+      })
+      .join(", ")}}`;
+  } else if (Array.isArray(value)) {
+    return `#[${value.map((v) => normalizeObjectValueToTSValueExpression(v)).join(", ")}]`;
+  } else return `${JSON.stringify(value)}`;
+}
 
-  return;
+function getQueryArgs(parameter: OpenAPI3Parameter): TSValue | undefined {
+  const queryOptions = getNormalizedQueryOptions(parameter);
+  return createTSValueFromObjectValue(queryOptions);
 }
 
 type QueryOptions = { explode?: boolean; format?: string };
@@ -119,7 +139,7 @@ function getHeaderArgs({ explode }: OpenAPI3Parameter): TSValue | undefined {
     return createTSValue(`#{ explode: true }`);
   }
 
-  return;
+  return undefined;
 }
 
 export function getDecoratorsForSchema(schema: Refable<OpenAPI3Schema>): TypeSpecDecorator[] {
