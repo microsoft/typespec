@@ -10,6 +10,8 @@ namespace Sample
     {
         internal global::System.ClientModel.Primitives.PipelineMessage CreateSingleServiceMethodInputClientOperationRequest(global::System.ClientModel.Primitives.RequestOptions options)
         {
+            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
+            uri.Reset(_endpoint);
             global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             message.ResponseClassifier = PipelineMessageClassifier200;
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
