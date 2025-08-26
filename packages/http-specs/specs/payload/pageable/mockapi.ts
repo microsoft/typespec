@@ -118,6 +118,29 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_link = passOnSuccess([
   },
 ]);
 
+Scenarios.Payload_Pageable_ServerDrivenPagination_linkString = passOnSuccess([
+  {
+    uri: "/payload/pageable/server-driven-pagination/link-string",
+    method: "get",
+    request: {},
+    response: {
+      status: 200,
+      body: json({
+        pets: FirstPage,
+        next: dyn`${dynItem("baseUrl")}/payload/pageable/server-driven-pagination/link-string/nextPage`,
+      }),
+    },
+    kind: "MockApiDefinition",
+  },
+  {
+    uri: "/payload/pageable/server-driven-pagination/link-string/nextPage",
+    method: "get",
+    request: {},
+    response: SecondResponse,
+    kind: "MockApiDefinition",
+  },
+]);
+
 Scenarios.Payload_Pageable_ServerDrivenPagination_nestedLink = passOnSuccess([
   {
     uri: "/payload/pageable/server-driven-pagination/nested-link",
@@ -163,6 +186,26 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestQuery
 
 Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeaderResponseHeader =
   createTests("header", "header");
+
+Scenarios.Payload_Pageable_listWithoutContinuation = passOnSuccess([
+  {
+    uri: "/payload/pageable/simple",
+    method: "get",
+    request: {},
+    response: {
+      status: 200,
+      body: json({
+        pets: [
+          { id: "1", name: "dog" },
+          { id: "2", name: "cat" },
+          { id: "3", name: "bird" },
+          { id: "4", name: "fish" },
+        ],
+      }),
+    },
+    kind: "MockApiDefinition",
+  },
+]);
 
 Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestQueryNestedResponseBody =
   passOnSuccess([

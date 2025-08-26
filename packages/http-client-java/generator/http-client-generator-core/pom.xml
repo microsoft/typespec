@@ -24,7 +24,7 @@
     <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-core</artifactId>
-      <version>1.55.5</version>
+      <version>1.56.0</version>
     </dependency>
     <dependency>
       <groupId>io.clientcore</groupId>

@@ -14,7 +14,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? documentation,
             string? summary,
             InputOperation operation,
-            IReadOnlyList<InputParameter> parameters,
+            IReadOnlyList<InputMethodParameter> parameters,
             InputServiceMethodResponse response,
             InputServiceMethodResponse? exception,
             bool isOverride,
@@ -43,7 +43,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public string? Documentation { get; internal set; }
         public string? Summary { get; internal set; }
         public InputOperation Operation { get; internal set; }
-        public IReadOnlyList<InputParameter> Parameters { get; internal set; }
+        public IReadOnlyList<InputMethodParameter> Parameters { get; internal set; }
         public InputServiceMethodResponse Response { get; internal set; }
         public InputServiceMethodResponse? Exception { get; internal set; }
         public bool IsOverride { get; internal set; }
@@ -58,7 +58,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? documentation = null,
             string? summary = null,
             InputOperation? operation = null,
-            IEnumerable<InputParameter>? parameters = null,
+            IEnumerable<InputMethodParameter>? parameters = null,
             InputServiceMethodResponse? response = null,
             InputServiceMethodResponse? exception = null,
             bool? isOverride = null,
@@ -98,7 +98,7 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             if (parameters != null)
             {
-                Parameters = new List<InputParameter>(parameters);
+                Parameters = [.. parameters];
             }
 
             if (response != null)

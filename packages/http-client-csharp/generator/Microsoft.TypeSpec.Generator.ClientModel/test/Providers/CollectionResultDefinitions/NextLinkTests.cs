@@ -225,9 +225,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
                 InputFactory.Model(
                     "page",
                     properties: [InputFactory.Property("cats", InputFactory.Array(inputModel)), InputFactory.Property("nextCat", InputPrimitiveType.Url)]));
-            IReadOnlyList<InputParameter> parameters = [InputFactory.Parameter("$foo", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Header)];
+            IReadOnlyList<InputHeaderParameter> parameters = [InputFactory.HeaderParameter("$foo", InputPrimitiveType.String, isRequired: true)];
+            IReadOnlyList<InputMethodParameter> methodParameters = [InputFactory.MethodParameter("$foo", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Header)];
             var operation = InputFactory.Operation("getCats", responses: [response], parameters: parameters);
-            var inputServiceMethod = InputFactory.PagingServiceMethod("getCats", operation, pagingMetadata: pagingMetadata, parameters: parameters);
+            var inputServiceMethod = InputFactory.PagingServiceMethod("getCats", operation, pagingMetadata: pagingMetadata, parameters: methodParameters);
             var catClient = InputFactory.Client("catClient", methods: [inputServiceMethod], clientNamespace: "Cats");
             var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(catClient);
             var modelType = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);

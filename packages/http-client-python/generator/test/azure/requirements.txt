@@ -4,6 +4,9 @@ azure-mgmt-core==1.6.0
 
 # only for azure
 -e ./generated/azure-client-generator-core-access
+-e ./generated/azure-client-generator-core-api-version-header
+-e ./generated/azure-client-generator-core-api-version-path
+-e ./generated/azure-client-generator-core-api-version-query
 -e ./generated/azure-client-generator-core-client-initialization
 -e ./generated/azure-client-generator-core-deserialize-empty-string-as-null
 -e ./generated/azure-client-generator-core-flatten-property
@@ -28,6 +31,8 @@ azure-mgmt-core==1.6.0
 -e ./generated/client-namespace
 -e ./generated/azure-payload-pageable
 -e ./generated/client-naming
+-e ./generated/client-naming-enum-conflict
+-e ./generated/client-overload
 -e ./generated/client-structure-default
 -e ./generated/client-structure-multiclient
 -e ./generated/client-structure-renamedoperation

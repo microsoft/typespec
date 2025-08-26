@@ -55,7 +55,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         private static InputParameterExample BuildParameterExample(InputParameter parameter, bool useAllParameters)
         {
             // if the parameter is constant, we just put the constant into the example value instead of mocking a new one
-            if (parameter.Kind == InputParameterKind.Constant)
+            if (parameter.Scope == InputParameterScope.Constant)
             {
                 InputExampleValue value;
                 if (parameter is { Type: InputLiteralType { Value: { } literalValue } })
@@ -82,7 +82,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             }
 
             // if the parameter is endpoint
-            if (parameter.IsEndpoint)
+            if (parameter is InputEndpointParameter endpointParameter && endpointParameter.IsEndpoint)
             {
                 var value = InputExampleValue.Value(parameter.Type, EndpointMockValue);
                 return new(parameter, value);

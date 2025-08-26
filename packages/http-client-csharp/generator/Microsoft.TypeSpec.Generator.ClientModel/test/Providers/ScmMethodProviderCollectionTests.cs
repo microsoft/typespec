@@ -7,6 +7,8 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -62,7 +64,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var convenienceMethodParams = convenienceMethod!.Signature.Parameters;
             Assert.IsNotNull(convenienceMethodParams);
 
-            var spreadInputParameter = operation.Parameters.FirstOrDefault(p => p.Kind == InputParameterKind.Spread);
+            var spreadInputParameter = operation.Parameters.FirstOrDefault(p => p.Scope == InputParameterScope.Spread);
             if (spreadInputParameter != null)
             {
                 var spreadModelProperties = _spreadModel.Properties;
@@ -113,6 +115,56 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsTrue(lastParameter.Type.Equals(typeof(CancellationToken)));
             Assert.IsFalse(lastParameter.Type.IsNullable);
             Assert.AreEqual(Snippet.Default, lastParameter.DefaultValue);
+        }
+
+        [Test]
+        public async Task SpreadModelCanonicalViewIsUsedToFindConstructor()
+        {
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "CreateMessage",
+                InputFactory.Operation(
+                    "CreateMessage",
+                    parameters:
+                    [
+                        InputFactory.BodyParameter(
+                            "spread",
+                            _spreadModel,
+                            isRequired: true,
+                            scope: InputParameterScope.Spread),
+                        InputFactory.PathParameter(
+                            "p1",
+                            InputPrimitiveType.Boolean,
+                            isRequired: true,
+                            scope: InputParameterScope.Method)
+                    ]),
+                parameters:
+                [
+                    InputFactory.MethodParameter("p2", InputPrimitiveType.String, isRequired: true, scope: InputParameterScope.Spread),
+                    InputFactory.MethodParameter(
+                        "p1",
+                        InputPrimitiveType.Boolean,
+                        location: InputRequestLocation.Path,
+                        isRequired: true,
+                        scope: InputParameterScope.Method)
+                ]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+
+            var convenienceMethods = methodCollection.Where(m => m.Signature.Parameters.All(p => p.Name != "content")).ToList();
+            Assert.AreEqual(2, convenienceMethods.Count);
+            foreach (var method in convenienceMethods)
+            {
+                StringAssert.Contains(
+                    "global::Sample.Models.SpreadModel spreadModel = new global::Sample.Models.SpreadModel(p2, null);",
+                    method.BodyStatements!.ToDisplayString());
+            }
+
         }
 
         [Test]
@@ -198,13 +250,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         public void ListMethodWithEnumParameter(bool isExtensible, InputRequestLocation location)
         {
             var enumType = InputFactory.StringEnum("color", [("red", "red")], isExtensible: isExtensible);
-            IReadOnlyList<InputParameter> parameters =
+            InputParameter parameter = InputFactory.BodyParameter("color", enumType, isRequired: true);
+            switch (location)
+            {
+                case InputRequestLocation.Header:
+                    parameter = InputFactory.HeaderParameter("color", enumType, isRequired: true);
+                    break;
+                case InputRequestLocation.Body:
+                    parameter = InputFactory.BodyParameter("color", enumType, isRequired: true);
+                    break;
+            }
+            IReadOnlyList<InputParameter> parameters = [parameter];
+            IReadOnlyList<InputMethodParameter> methodParameters =
             [
-                InputFactory.Parameter(
-                    "color",
-                    enumType,
-                    location: location,
-                    isRequired: true)
+                InputFactory.MethodParameter(
+                "color",
+                enumType,
+                location: location,
+                isRequired: true)
             ];
             var pagingMetadata = InputFactory.PagingMetadata(
                 ["items"],
@@ -221,7 +284,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                     "page",
                     properties: [InputFactory.Property("cats", InputFactory.Array(inputModel))]));
             var operation = InputFactory.Operation("getCats", responses: [response], parameters: parameters);
-            var inputServiceMethod = InputFactory.PagingServiceMethod("Test", operation, pagingMetadata: pagingMetadata, parameters: parameters);
+            var inputServiceMethod = InputFactory.PagingServiceMethod("Test", operation, pagingMetadata: pagingMetadata, parameters: methodParameters);
             var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [inputClient]);
@@ -283,18 +346,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         public void RequestOptionsOptionality(bool inBody, bool hasOptionalParameter, bool shouldBeOptional)
         {
             MockHelpers.LoadMockGenerator();
-            List<InputParameter> parameters =
+            InputParameter parameter = inBody
+                ? InputFactory.BodyParameter("message", InputPrimitiveType.Boolean, isRequired: !hasOptionalParameter)
+                : InputFactory.QueryParameter("message", InputPrimitiveType.Boolean, isRequired: !hasOptionalParameter);
+            IReadOnlyList<InputParameter> parameters = [parameter];
+            IReadOnlyList<InputMethodParameter> methodParameters =
             [
-                InputFactory.Parameter(
-                    "message",
-                    InputPrimitiveType.Boolean,
-                    isRequired: !hasOptionalParameter,
-                    location: inBody ? InputRequestLocation.Body : InputRequestLocation.Query)
+                InputFactory.MethodParameter(
+                "message",
+                InputPrimitiveType.Boolean,
+                location: inBody ? InputRequestLocation.Body : InputRequestLocation.Query,
+                isRequired: !hasOptionalParameter)
             ];
             var inputOperation = InputFactory.Operation(
                 "TestOperation",
                 parameters: parameters);
-            var inputServiceMethod = InputFactory.BasicServiceMethod("Test", inputOperation, parameters: parameters);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("Test", inputOperation, parameters: methodParameters);
             var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
@@ -336,24 +403,43 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         public void ProtocolMethodWithMultipleOptionalParameters()
         {
             MockHelpers.LoadMockGenerator();
-            List<InputParameter> parameters =
+            List<InputQueryParameter> parameters =
             [
-                InputFactory.Parameter(
+                InputFactory.QueryParameter(
+                    "required1",
+                    InputPrimitiveType.String,
+                    isRequired: true),
+                InputFactory.QueryParameter(
+                    "optional1",
+                    InputPrimitiveType.String,
+                    isRequired: false),
+                InputFactory.QueryParameter(
+                    "optional2",
+                    InputPrimitiveType.Int32,
+                    isRequired: false),
+                InputFactory.QueryParameter(
+                    "optional3",
+                    InputPrimitiveType.Boolean,
+                    isRequired: false)
+            ];
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter(
                     "required1",
                     InputPrimitiveType.String,
                     isRequired: true,
                     location: InputRequestLocation.Query),
-                InputFactory.Parameter(
+                InputFactory.MethodParameter(
                     "optional1",
                     InputPrimitiveType.String,
                     isRequired: false,
                     location: InputRequestLocation.Query),
-                InputFactory.Parameter(
+                InputFactory.MethodParameter(
                     "optional2",
                     InputPrimitiveType.Int32,
                     isRequired: false,
                     location: InputRequestLocation.Query),
-                InputFactory.Parameter(
+                InputFactory.MethodParameter(
                     "optional3",
                     InputPrimitiveType.Boolean,
                     isRequired: false,
@@ -362,7 +448,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var inputOperation = InputFactory.Operation(
                 "TestOperation",
                 parameters: parameters);
-            var inputServiceMethod = InputFactory.BasicServiceMethod("Test", inputOperation, parameters: parameters);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("Test", inputOperation, parameters: methodParameters);
             var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
@@ -374,29 +460,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             {
                 Assert.AreEqual(inputServiceMethod, protocolMethod.ServiceMethod);
 
-                var methodParameters = protocolMethod.Signature.Parameters;
+                var protocolMethodParameters = protocolMethod.Signature.Parameters;
 
                 // First required parameter should remain required
-                var required1Param = methodParameters.Single(p => p.Name == "required1");
+                var required1Param = protocolMethodParameters.Single(p => p.Name == "required1");
                 Assert.IsNull(required1Param.DefaultValue, "Required parameter should remain required");
                 Assert.IsFalse(required1Param.Type.IsNullable, "Required parameter should not be nullable");
 
                 // First optional parameter should become required nullable
-                var optional1Param = methodParameters.Single(p => p.Name == "optional1");
+                var optional1Param = protocolMethodParameters.Single(p => p.Name == "optional1");
                 Assert.IsNull(optional1Param.DefaultValue, "First optional parameter should become required");
                 Assert.IsTrue(optional1Param.Type.IsNullable, "First optional parameter should be nullable");
 
                 // Subsequent optional parameters still need to be made required
-                var optional2Param = methodParameters.Single(p => p.Name == "optional2");
+                var optional2Param = protocolMethodParameters.Single(p => p.Name == "optional2");
                 Assert.IsNull(optional2Param.DefaultValue, "Second optional parameter should be required");
                 Assert.IsTrue(optional2Param.Type.IsNullable, "Second optional parameter should be nullable");
 
-                var optional3Param = methodParameters.Single(p => p.Name == "optional3");
+                var optional3Param = protocolMethodParameters.Single(p => p.Name == "optional3");
                 Assert.IsNull(optional3Param.DefaultValue, "Third optional parameter should be required");
                 Assert.IsTrue(optional3Param.Type.IsNullable, "Third optional parameter should be nullable");
 
                 // RequestOptions should be required
-                var optionsParameter = methodParameters.Single(p => p.Name == "options");
+                var optionsParameter = protocolMethodParameters.Single(p => p.Name == "options");
                 Assert.IsNull(optionsParameter.DefaultValue, "RequestOptions should be required");
             }
         }
@@ -406,18 +492,33 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         {
             MockHelpers.LoadMockGenerator();
             List<InputParameter> parameters =
+           [
+               InputFactory.QueryParameter(
+                    "required1",
+                    InputPrimitiveType.String,
+                    isRequired: true),
+                InputFactory.BodyParameter(
+                    "optional1",
+                    InputPrimitiveType.String,
+                    isRequired: false),
+                InputFactory.QueryParameter(
+                    "optional2",
+                    InputPrimitiveType.Int32,
+                    isRequired: false),
+            ];
+            List<InputMethodParameter> methodParameters =
             [
-                InputFactory.Parameter(
+                InputFactory.MethodParameter(
                     "required1",
                     InputPrimitiveType.String,
                     isRequired: true,
                     location: InputRequestLocation.Query),
-                InputFactory.Parameter(
+                InputFactory.MethodParameter(
                     "optional1",
                     InputPrimitiveType.String,
                     isRequired: false,
                     location: InputRequestLocation.Body),
-                InputFactory.Parameter(
+                InputFactory.MethodParameter(
                     "optional2",
                     InputPrimitiveType.Int32,
                     isRequired: false,
@@ -426,7 +527,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var inputOperation = InputFactory.Operation(
                 "TestOperation",
                 parameters: parameters);
-            var inputServiceMethod = InputFactory.BasicServiceMethod("Test", inputOperation, parameters: parameters);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("Test", inputOperation, parameters: methodParameters);
             var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
@@ -438,25 +539,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             {
                 Assert.AreEqual(inputServiceMethod, protocolMethod.ServiceMethod);
 
-                var methodParameters = protocolMethod.Signature.Parameters;
+                var protocolMethodParameters = protocolMethod.Signature.Parameters;
 
                 // First required parameter should remain required
-                var required1Param = methodParameters.Single(p => p.Name == "required1");
+                var required1Param = protocolMethodParameters.Single(p => p.Name == "required1");
                 Assert.IsNull(required1Param.DefaultValue, "Required parameter should remain required");
                 Assert.IsFalse(required1Param.Type.IsNullable, "Required parameter should not be nullable");
 
                 // Body parameter should become required nullable
-                var bodyParam = methodParameters.Single(p => p.Name == "content");
+                var bodyParam = protocolMethodParameters.Single(p => p.Name == "content");
                 Assert.IsNull(bodyParam.DefaultValue, "Body parameter should become required");
                 Assert.AreEqual(ParameterValidationType.None, bodyParam.Validation, "Body parameter should not have any validation");
 
                 // Subsequent optional parameters should remain optional
-                var optional2Param = methodParameters.Single(p => p.Name == "optional2");
+                var optional2Param = protocolMethodParameters.Single(p => p.Name == "optional2");
                 Assert.IsNotNull(optional2Param.DefaultValue, "Second optional parameter should remain optional");
                 Assert.IsTrue(optional2Param.Type.IsNullable, "Second optional parameter should not be nullable");
 
                 // RequestOptions should be optional
-                var optionsParameter = methodParameters.Single(p => p.Name == "options");
+                var optionsParameter = protocolMethodParameters.Single(p => p.Name == "options");
                 Assert.IsNotNull(optionsParameter.DefaultValue, "RequestOptions should be optional");
             }
         }
@@ -505,7 +606,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         {
             List<InputParameter> parameters =
             [
-                InputFactory.Parameter(
+                InputFactory.QueryParameter(
+                    "choice",
+                    useInt
+                        ? InputFactory.Int32Enum("TestEnum", [("Value1", 1), ("Value2", 2)], isExtensible: isExtensible)
+                        : InputFactory.StringEnum("TestEnum", [("Value1", "value1"), ("Value2", "value2")], isExtensible: isExtensible),
+                    isRequired: false)
+            ];
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter(
                     "choice",
                     useInt
                         ? InputFactory.Int32Enum("TestEnum", [("Value1", 1), ("Value2", 2)], isExtensible: isExtensible)
@@ -516,7 +626,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var inputOperation = InputFactory.Operation(
                 "TestOperation",
                 parameters: parameters);
-            var inputServiceMethod = InputFactory.BasicServiceMethod("Test", inputOperation, parameters: parameters);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("Test", inputOperation, parameters: methodParameters);
             var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
@@ -552,14 +662,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         public void RequestBodyConstructedUsingBinaryContentHelpers(InputType inputType)
         {
             MockHelpers.LoadMockGenerator();
-            var parameter = InputFactory.Parameter("message", inputType, isRequired: true);
+            var parameter = InputFactory.BodyParameter("message", inputType, isRequired: true);
+            var methodParameter = InputFactory.MethodParameter(
+                "message",
+                inputType,
+                location: InputRequestLocation.Body,
+                isRequired: true);
 
             var inputOperation = InputFactory.Operation(
                 "TestOperation",
                 parameters: [parameter]);
 
             var inputServiceMethod = InputFactory.BasicServiceMethod("TestOperation", inputOperation,
-                parameters: [parameter]);
+                parameters: [methodParameter]);
 
             var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
 
@@ -592,14 +707,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             MockHelpers.LoadMockGenerator(createCSharpTypeCore: _ => new CSharpType(typeof(ReadOnlyMemory<int>)));
             var inputType = InputFactory.Array(InputPrimitiveType.Int32);
 
-            var parameter = InputFactory.Parameter("data", inputType, isRequired: true);
+            var parameter = InputFactory.BodyParameter("data", inputType, isRequired: true);
+            var methodParameter = InputFactory.MethodParameter(
+                "data",
+                inputType,
+                location: InputRequestLocation.Body,
+                isRequired: true);
 
             var inputOperation = InputFactory.Operation(
                 "TestOperation",
                 parameters: [parameter]);
 
             var inputServiceMethod = InputFactory.BasicServiceMethod("TestOperation", inputOperation,
-                parameters: [parameter]);
+                parameters: [methodParameter]);
 
             var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
@@ -616,15 +736,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         [Test]
         public void CanRemoveParameterFromMethods()
         {
-            var parameter1 = InputFactory.Parameter("toRemove", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Header);
-            var parameter2 = InputFactory.Parameter("data", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Header);
+            var parameter1 = InputFactory.HeaderParameter("toRemove", InputPrimitiveType.String, isRequired: true);
+            var parameter2 = InputFactory.HeaderParameter("data", InputPrimitiveType.String, isRequired: true);
+            var methodParameter1 = InputFactory.MethodParameter("toRemove", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Header);
+            var methodParameter2 = InputFactory.MethodParameter("data", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Header);
 
             var inputOperation = InputFactory.Operation(
                 "TestOperation",
                 parameters: [parameter1, parameter2]);
 
             var inputServiceMethod = InputFactory.BasicServiceMethod("TestOperation", inputOperation,
-                parameters: [parameter1, parameter2]);
+                parameters: [methodParameter1, methodParameter2]);
 
             var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
             MockHelpers.LoadMockGenerator(createParameterCore: parameter =>
@@ -656,14 +778,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         public void RequestBodyConstructedRespectingRequestContentApi(InputType inputType)
         {
             MockHelpers.LoadMockGenerator(requestContentApi: TestRequestContentApi.Instance);
-            var parameter = InputFactory.Parameter("message", inputType, isRequired: true);
+            var parameter = InputFactory.BodyParameter("message", inputType, isRequired: true);
+            var methodParameter = InputFactory.MethodParameter("message", inputType, isRequired: true);
 
             var inputOperation = InputFactory.Operation(
                 "TestOperation",
                 parameters: [parameter]);
 
             var inputServiceMethod = InputFactory.BasicServiceMethod("TestOperation", inputOperation,
-                parameters: [parameter]);
+                parameters: [methodParameter]);
 
             var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
 
@@ -729,14 +852,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                         "CreateMessage",
                         parameters:
                         [
-                            InputFactory.Parameter(
+                            InputFactory.BodyParameter(
                                 "message",
                                 InputPrimitiveType.Boolean,
                                 isRequired: true)
                         ]),
                     parameters:
                     [
-                        InputFactory.Parameter(
+                        InputFactory.MethodParameter(
                             "message",
                             InputPrimitiveType.Boolean,
                             isRequired: true)
@@ -749,28 +872,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                         "CreateMessage",
                         parameters:
                         [
-                            InputFactory.Parameter(
+                            InputFactory.BodyParameter(
                                 "spread",
                                 _spreadModel,
-                                location: InputRequestLocation.Body,
                                 isRequired: true,
-                                kind: InputParameterKind.Spread),
-                            InputFactory.Parameter(
+                                scope: InputParameterScope.Spread),
+                            InputFactory.PathParameter(
                                 "p1",
                                 InputPrimitiveType.Boolean,
-                                location: InputRequestLocation.Path,
                                 isRequired: true,
-                                kind: InputParameterKind.Method)
+                                scope: InputParameterScope.Method)
                         ]),
                     parameters:
                     [
-                        InputFactory.Parameter("p2", InputPrimitiveType.String, isRequired: true, kind: InputParameterKind.Spread),
-                        InputFactory.Parameter(
+                        InputFactory.MethodParameter("p2", InputPrimitiveType.String, isRequired: true, scope: InputParameterScope.Spread),
+                        InputFactory.MethodParameter(
                                 "p1",
                                 InputPrimitiveType.Boolean,
                                 location: InputRequestLocation.Path,
                                 isRequired: true,
-                                kind: InputParameterKind.Method)
+                                scope: InputParameterScope.Method)
                     ]));
             }
         }

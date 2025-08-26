@@ -36,17 +36,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
         }
 
-        private protected virtual TypeProvider? BuildCustomCodeView(string? generatedTypeName = null)
+        private protected virtual TypeProvider? BuildCustomCodeView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
             => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
-                BuildNamespace(),
+                generatedTypeNamespace ?? BuildNamespace(),
                 generatedTypeName ?? BuildName(),
                 // Use the Type.Name so that any customizations to the declaring type are applied for the lookup.
                 DeclaringTypeProvider?.Type.Name);
 
-        private protected virtual TypeProvider? BuildLastContractView(string? generatedTypeName = null)
+        private protected virtual TypeProvider? BuildLastContractView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
             => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
-                BuildNamespace(),
-                generatedTypeName?? BuildName(),
+                generatedTypeNamespace ?? BuildNamespace(),
+                generatedTypeName ?? BuildName(),
                 DeclaringTypeProvider?.Type.Name);
 
         public TypeProvider? CustomCodeView => _customCodeView.Value;
@@ -234,7 +234,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProviders();
 
-        private IReadOnlyList<AttributeStatement>? _attributeStatements;
         private IReadOnlyList<MethodBodyStatement>? _attributes;
 
         public IReadOnlyList<AttributeStatement> Attributes
@@ -242,7 +241,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             get
             {
                 _attributes ??= BuildAttributes();
-                _attributeStatements ??= _attributes
+                return [.. _attributes
                     .Select(a => a switch
                     {
                         SuppressionStatement suppression => suppression.AsStatement<AttributeStatement>() ??
@@ -250,8 +249,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                                                                 $"Unexpected suppression statement in {Name}."),
                         AttributeStatement attribute => attribute,
                         _ => throw new InvalidOperationException($"Unexpected attribute type {a.GetType()} in {Name}.")
-                    }).ToList();
-                return _attributeStatements;
+                    })];
             }
         }
 
@@ -396,7 +394,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// Resets the type provider to its initial state, clearing all cached properties and fields.
         /// This allows for the type provider to rebuild its state on subsequent calls to its properties.
         /// </summary>
-        public void Reset()
+        public virtual void Reset()
         {
             _methods = null;
             _properties = null;
@@ -506,6 +504,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (@namespace != null)
             {
+                // Reset the custom code view to reflect the new namespace
+                _customCodeView = new(BuildCustomCodeView(Name, @namespace));
+                _lastContractView = new(BuildLastContractView(Name, @namespace));
+
                 Type.Update(@namespace: @namespace);
             }
 

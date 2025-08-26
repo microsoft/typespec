@@ -98,4 +98,11 @@ interface Patch {
     @header("content-type") contentType: "application/merge-patch+json",
     @body fish: Fish,
   ): Fish;
+
+  @patch
+  @route("/fish/salmon")
+  createOrUpdateSalmon(
+    @header("content-type") contentType: "application/merge-patch+json",
+    @body fish: Salmon,
+  ): Salmon;
 }

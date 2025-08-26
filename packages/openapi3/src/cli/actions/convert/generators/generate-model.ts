@@ -1,3 +1,4 @@
+import { printIdentifier } from "@typespec/compiler";
 import { OpenAPI3Schema, Refable } from "../../../../types.js";
 import {
   TypeSpecAlias,
@@ -97,9 +98,14 @@ function generateUnion(union: TypeSpecUnion, context: Context): string {
 
     const memberSchema = "$ref" in member ? context.getSchemaByRef(member.$ref)! : member;
 
-    const value = (memberSchema.properties?.[union.schema.discriminator.propertyName] as any)
-      ?.enum?.[0];
-    return value ? `${value}: ` : "";
+    const value =
+      (union.schema.discriminator?.mapping && "$ref" in member
+        ? Object.entries(union.schema.discriminator.mapping).find((x) => x[1] === member.$ref)?.[0]
+        : undefined) ??
+      (memberSchema.properties?.[union.schema.discriminator.propertyName] as any)?.enum?.[0];
+    // checking whether the value is using an invalid character as an identifier
+    const valueIdentifier = value ? printIdentifier(value, "disallow-reserved") : "";
+    return value ? `${value === valueIdentifier ? value : valueIdentifier}: ` : "";
   };
   if (schema.enum) {
     definitions.push(...schema.enum.map((e) => `${JSON.stringify(e)},`));
@@ -107,14 +113,14 @@ function generateUnion(union: TypeSpecUnion, context: Context): string {
     definitions.push(
       ...schema.oneOf.map(
         (member) =>
-          getVariantName(member) + context.generateTypeFromRefableSchema(member, union.scope),
+          getVariantName(member) + context.generateTypeFromRefableSchema(member, union.scope) + ",",
       ),
     );
   } else if (schema.anyOf) {
     definitions.push(
       ...schema.anyOf.map(
         (member) =>
-          getVariantName(member) + context.generateTypeFromRefableSchema(member, union.scope),
+          getVariantName(member) + context.generateTypeFromRefableSchema(member, union.scope) + ",",
       ),
     );
   } else {
@@ -122,6 +128,12 @@ function generateUnion(union: TypeSpecUnion, context: Context): string {
     const primitiveType = getTypeSpecPrimitiveFromSchema(schema);
     if (primitiveType) {
       definitions.push(`${primitiveType},`);
+    } else if (schema.type === "array" || schema.items) {
+      // For arrays, we'll create a non-nullable schema and let the union itself handle
+      // the nullability of the schema overall.
+      const schemaWithoutNullable = { ...schema, nullable: undefined };
+      const arrayType = context.generateTypeFromRefableSchema(schemaWithoutNullable, union.scope);
+      definitions.push(`${arrayType},`);
     }
   }
 
