@@ -36,6 +36,8 @@ namespace Sample
 
         internal global::System.ClientModel.Primitives.PipelineMessage CreateTestOperation204Request(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options)
         {
+            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
+            uri.Reset(_endpoint);
             global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier204);
             message.ResponseClassifier = PipelineMessageClassifier204;
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
@@ -48,8 +50,7 @@ namespace Sample
         {
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
-
-            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier204);
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier205);
             message.ResponseClassifier = PipelineMessageClassifier205;
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Content = content;
@@ -61,11 +62,7 @@ namespace Sample
         {
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
-
-            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
-            uri.Reset(_endpoint);
-
-            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier204);
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier206);
             message.ResponseClassifier = PipelineMessageClassifier206;
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Content = content;
@@ -77,14 +74,7 @@ namespace Sample
         {
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
-
-            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
-            uri.Reset(_endpoint);
-
-            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
-            uri.Reset(_endpoint);
-
-            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier204);
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             message.ResponseClassifier = PipelineMessageClassifier200;
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Content = content;
@@ -96,17 +86,7 @@ namespace Sample
         {
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
-
-            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
-            uri.Reset(_endpoint);
-
-            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
-            uri.Reset(_endpoint);
-
-            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
-            uri.Reset(_endpoint);
-
-            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier204);
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier202);
             message.ResponseClassifier = PipelineMessageClassifier202;
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Content = content;
@@ -118,20 +98,7 @@ namespace Sample
         {
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
-
-            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
-            uri.Reset(_endpoint);
-
-            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
-            uri.Reset(_endpoint);
-
-            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
-            uri.Reset(_endpoint);
-
-            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
-            uri.Reset(_endpoint);
-
-            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier204);
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier201);
             message.ResponseClassifier = PipelineMessageClassifier201;
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Content = content;
@@ -143,23 +110,7 @@ namespace Sample
         {
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
-
-            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
-            uri.Reset(_endpoint);
-
-            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
-            uri.Reset(_endpoint);
-
-            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
-            uri.Reset(_endpoint);
-
-            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
-            uri.Reset(_endpoint);
-
-            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
-            uri.Reset(_endpoint);
-
-            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier204);
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier203);
             message.ResponseClassifier = PipelineMessageClassifier203;
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Content = content;
@@ -171,26 +122,7 @@ namespace Sample
         {
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
-
-            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
-            uri.Reset(_endpoint);
-
-            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
-            uri.Reset(_endpoint);
-
-            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
-            uri.Reset(_endpoint);
-
-            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
-            uri.Reset(_endpoint);
-
-            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
-            uri.Reset(_endpoint);
-
-            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
-            uri.Reset(_endpoint);
-
-            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier204);
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200201202);
             message.ResponseClassifier = PipelineMessageClassifier200201202;
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Content = content;
@@ -202,29 +134,7 @@ namespace Sample
         {
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
-
-            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
-            uri.Reset(_endpoint);
-
-            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
-            uri.Reset(_endpoint);
-
-            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
-            uri.Reset(_endpoint);
-
-            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
-            uri.Reset(_endpoint);
-
-            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
-            uri.Reset(_endpoint);
-
-            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
-            uri.Reset(_endpoint);
-
-            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
-            uri.Reset(_endpoint);
-
-            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier204);
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200201202);
             message.ResponseClassifier = PipelineMessageClassifier200201202;
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Content = content;
