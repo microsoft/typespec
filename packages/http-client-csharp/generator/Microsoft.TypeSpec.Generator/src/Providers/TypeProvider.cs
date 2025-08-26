@@ -498,8 +498,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // Reset the custom code view to reflect the new name
                 // Type never got populated so we don't need to update the namespace
                 _customCodeView = new(BuildCustomCodeView(name));
-                _lastContractView = new(BuildLastContractView(name, Type.Namespace));
-                // Give precedence to the custom code view name and namespace if it exists
+                _lastContractView = new(BuildLastContractView(name, Type.Namespace)); // This is the first time Type is populated so it gets the correct namespace from custom code
+                // Give precedence to the custom code view name if it exists
                 Type.Update(name: _customCodeView.Value?.Name ?? name);
             }
 
