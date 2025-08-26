@@ -393,12 +393,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (type.IsList)
             {
-                IsConvertibleFromBinaryData(type.Arguments[0]);
+                return IsConvertibleFromBinaryData(type.Arguments[0]);
             }
 
             if (type.IsDictionary)
             {
-                IsConvertibleFromBinaryData(type.Arguments[1]);
+                return IsConvertibleFromBinaryData(type.Arguments[1]);
             }
 
             return type.Equals(typeof(string)) ||
