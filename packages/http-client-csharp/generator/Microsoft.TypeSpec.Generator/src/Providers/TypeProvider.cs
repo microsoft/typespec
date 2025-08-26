@@ -504,10 +504,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (@namespace != null)
             {
-                // Reset the custom code view to reflect the new namespace
-                _customCodeView = new(BuildCustomCodeView(Name, @namespace));
-                _lastContractView = new(BuildLastContractView(Name, @namespace));
-
                 Type.Update(@namespace: @namespace);
             }
 
