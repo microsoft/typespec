@@ -22,3 +22,8 @@ export { CSharpEmitterContext, createCSharpEmitterContext } from "./sdk-context.
 export { CodeModel } from "./type/code-model.js";
 export { InputClient, InputModelType } from "./type/input-type.js";
 export { $dynamicModel, isDynamicModel } from "./lib/decorators.js";
+
+/** @internal */
+export { $decorators } from "./tsp-index.js";
+
+export type { DynamicModelDecorator } from "../generated-defs/TypeSpec.Http.Client.CSharp.js";

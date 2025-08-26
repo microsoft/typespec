@@ -3,6 +3,7 @@
 
 import { SdkContext } from "@azure-tools/typespec-client-generator-core";
 import { DecoratedType, DecoratorContext, Model, Namespace, Operation, Program, Type } from "@typespec/compiler";
+import type { DynamicModelDecorator } from "../../generated-defs/TypeSpec.Http.Client.CSharp.js";
 import { ExternalDocs } from "../type/external-docs.js";
 
 const externalDocsKey = Symbol("externalDocs");
@@ -30,9 +31,9 @@ const dynamicModelKey = Symbol("dynamicModel");
  * @param context - The decorator context
  * @param target - The model or namespace to mark as dynamic
  */
-export function $dynamicModel(context: DecoratorContext, target: Model | Namespace): void {
+export const $dynamicModel: DynamicModelDecorator = (context: DecoratorContext, target: Model | Namespace): void => {
   context.program.stateSet(dynamicModelKey).add(target);
-}
+};
 
 /**
  * Check if the given model or namespace is marked as dynamic.
