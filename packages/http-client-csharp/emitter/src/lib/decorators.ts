@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import { SdkContext } from "@azure-tools/typespec-client-generator-core";
-import { DecoratedType, Operation, Type } from "@typespec/compiler";
+import { DecoratedType, DecoratorContext, Model, Namespace, Operation, Program, Type } from "@typespec/compiler";
 import { ExternalDocs } from "../type/external-docs.js";
 
 const externalDocsKey = Symbol("externalDocs");
@@ -20,4 +20,26 @@ export function getOperationId(context: SdkContext, entity: Operation): string |
 
 export function hasDecorator(type: DecoratedType, name: string): boolean {
   return type.decorators.find((it) => it.decorator.name === name) !== undefined;
+}
+
+const dynamicModelKey = Symbol("dynamicModel");
+
+/**
+ * Marks a model or namespace as dynamic, indicating it should generate dynamic model code.
+ * Can be applied to Model or Namespace types.
+ * @param context - The decorator context
+ * @param target - The model or namespace to mark as dynamic
+ */
+export function $dynamicModel(context: DecoratorContext, target: Model | Namespace): void {
+  context.program.stateSet(dynamicModelKey).add(target);
+}
+
+/**
+ * Check if the given model or namespace is marked as dynamic.
+ * @param program - The TypeSpec program
+ * @param target - The model or namespace to check
+ * @returns true if the target is marked as dynamic, false otherwise
+ */
+export function isDynamicModel(program: Program, target: Model | Namespace): boolean {
+  return program.stateSet(dynamicModelKey).has(target);
 }
