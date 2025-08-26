@@ -11,7 +11,7 @@ export async function resolveEntrypointFile(
 ): Promise<string> {
   let dir = getDirectoryPath(path);
   let packageJsonEntrypoint: string | undefined;
-  if (entrypoints === undefined) {
+  if (entrypoints === undefined || entrypoints.length === 0) {
     entrypoints = ["main.tsp"]; // add default entrypoint
   }
 

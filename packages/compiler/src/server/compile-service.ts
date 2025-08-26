@@ -20,7 +20,7 @@ import { getLocationInYamlScript } from "../yaml/diagnostics.js";
 import { parseYaml } from "../yaml/parser.js";
 import { ClientConfigProvider } from "./client-config-provider.js";
 import { serverOptions } from "./constants.js";
-import { resolveEntrypointFile } from "./entry-point-resolve.js";
+import { resolveEntrypointFile } from "./entrypoint-resolver.js";
 import { FileService } from "./file-service.js";
 import { FileSystemCache } from "./file-system-cache.js";
 import { trackActionFunc } from "./server-track-action-task.js";

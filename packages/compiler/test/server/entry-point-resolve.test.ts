@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { NodeSystemHost } from "../../src/core/node-system-host.js";
 import { joinPaths } from "../../src/core/path-utils.js";
-import { resolveEntrypointFile } from "../../src/server/entry-point-resolve.js";
+import { resolveEntrypointFile } from "../../src/server/entrypoint-resolver.js";
 import type { ServerLog } from "../../src/server/types.js";
 import * as fsUtils from "../../src/utils/fs-utils.js";
 
