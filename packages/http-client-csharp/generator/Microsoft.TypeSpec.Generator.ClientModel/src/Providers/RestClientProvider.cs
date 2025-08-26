@@ -126,15 +126,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var classifier = GetClassifier(operation);
 
-            // Build URI first since new CreateMessage overload needs it
-            var (buildUriStatements, uri) = BuildUri(serviceMethod, paramMap, signature, isNextLinkRequest);
+            // Get URI and build statements
+            var (uriStatements, uriExpression) = GetUriAndStatements(serviceMethod, paramMap, signature, isNextLinkRequest);
 
             return new ScmMethodProvider(
                 signature,
                 new MethodBodyStatements(
                 [
-                    .. buildUriStatements,
-                    Declare("message", pipelineField.CreateMessage(options.ToApi<HttpRequestOptionsApi>(), uri, Literal(operation.HttpMethod), classifier).ToApi<HttpMessageApi>(), out HttpMessageApi message),
+                    .. uriStatements,
+                    Declare("message", pipelineField.CreateMessage(options.ToApi<HttpRequestOptionsApi>(), uriExpression, Literal(operation.HttpMethod), classifier).ToApi<HttpMessageApi>(), out HttpMessageApi message),
                     message.ApplyResponseClassifier(classifier.ToApi<StatusCodeClassifierApi>()),
                     Declare("request", message.Request().ToApi<HttpRequestApi>(), out HttpRequestApi request),
                     BuildRequestWithoutUri(serviceMethod, request, paramMap, signature, isNextLinkRequest: isNextLinkRequest),
@@ -146,7 +146,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 serviceMethod: serviceMethod);
         }
 
-        private (List<MethodBodyStatement> Statements, ValueExpression Uri) BuildUri(
+        private (List<MethodBodyStatement> Statements, ValueExpression UriExpression) GetUriAndStatements(
             InputServiceMethod serviceMethod,
             Dictionary<string, ParameterProvider> paramMap,
             MethodSignature signature,
@@ -236,11 +236,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                     if (reinjectedParamsMap.Count > 0)
                     {
-                        return new MethodBodyStatements([.. AppendHeaderParameters(request, operation, reinjectedParamsMap)]);
+                        return new MethodBodyStatements(AppendHeaderParameters(request, operation, reinjectedParamsMap).ToArray());
                     }
                 }
 
-                return new MethodBodyStatements([.. AppendHeaderParameters(request, operation, paramMap, isNextLink: true)]);
+                return new MethodBodyStatements(AppendHeaderParameters(request, operation, paramMap, isNextLink: true).ToArray());
             }
 
             return new MethodBodyStatements(
