@@ -504,6 +504,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (@namespace != null)
             {
+                // There is no need to reset the custom code view when namespace updated
                 Type.Update(@namespace: @namespace);
             }
 
