@@ -112,16 +112,19 @@ Due to the integration with `@azure-tools/typespec-python`, we require downstrea
 After your PR is created and CI passes:
 
 1. **Get the build artifact URL**:
+
    - In your PR's CI results, click on "5 published; 1 consumed" (or similar)
    - Navigate to: `Published artifacts` → `build_artifacts_python` → `packages` → `typespec-http-client-python-x.x.x.tgz`
    - Click the three dots and select "Copy download url"
 
 2. **Trigger downstream testing**:
+
    - Run [this pipeline](https://dev.azure.com/azure-sdk/internal/_build/results?buildId=4278466&view=results) with:
      - `PULL-REQUEST-URL`: Your PR URL from step 1
      - `ARTIFACTS-URL`: The artifact URL from step 1
 
 3. **Review downstream changes**:
+
    - The pipeline will create a PR in [autorest.python](https://github.com/Azure/autorest.python)
    - Follow the [autorest.python CONTRIBUTING.md](https://github.com/Azure/autorest.python/blob/main/CONTRIBUTING.md) for any additional changes needed
 

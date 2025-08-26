@@ -40,7 +40,14 @@ class ListType(BaseType):
         ):
             # this means we're version tolerant XML, we just return the XML element
             return self.element_type.type_annotation(**kwargs)
-        return f"list[{self.element_type.type_annotation(**kwargs)}]"
+        has_operation_named_list = any(
+            o.name.lower() == "list"
+            for c in self.code_model.clients
+            for og in c.operation_groups
+            for o in og.operations
+        )
+        list_type = "List" if has_operation_named_list and kwargs.get("is_operation_file") else "list"
+        return f"{list_type}[{self.element_type.type_annotation(**kwargs)}]"
 
     def description(self, *, is_operation_file: bool) -> str:
         return "" if is_operation_file else self.yaml_data.get("description", "")
