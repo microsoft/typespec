@@ -1,11 +1,13 @@
 import type OpenAPIParser from "@apidevtools/swagger-parser";
 import { OpenAPI3Document, OpenAPI3Encoding, OpenAPI3Schema, Refable } from "../../../../types.js";
+import { Logger } from "../../../types.js";
 import { SchemaToExpressionGenerator } from "../generators/generate-types.js";
 import { generateNamespaceName } from "./generate-namespace-name.js";
 
 export interface Context {
   readonly openApi3Doc: OpenAPI3Document;
   readonly rootNamespace: string;
+  readonly logger: Logger;
 
   generateTypeFromRefableSchema(
     schema: Refable<OpenAPI3Schema>,
@@ -48,16 +50,28 @@ export type Parser = {
   $refs: OpenAPIParser["$refs"];
 };
 
-export function createContext(parser: Parser, openApi3Doc: OpenAPI3Document): Context {
+export function createContext(
+  parser: Parser,
+  openApi3Doc: OpenAPI3Document,
+  logger?: Logger,
+): Context {
   const rootNamespace = generateNamespaceName(openApi3Doc.info.title);
   const schemaExpressionGenerator = new SchemaToExpressionGenerator(rootNamespace);
 
   // Track schemas that are used in multipart forms with their encoding information
   const multipartSchemas = new Map<string, Record<string, OpenAPI3Encoding> | null>();
 
+  // Create a default no-op logger if none provided
+  const defaultLogger: Logger = {
+    trace: () => {},
+    warn: () => {},
+    error: () => {},
+  };
+
   const context: Context = {
     openApi3Doc,
     rootNamespace,
+    logger: logger ?? defaultLogger,
     getRefName(ref: string, callingScope: string[]) {
       return schemaExpressionGenerator.getRefName(ref, callingScope);
     },
