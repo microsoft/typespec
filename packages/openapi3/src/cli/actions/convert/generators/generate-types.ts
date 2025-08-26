@@ -285,10 +285,15 @@ export class SchemaToExpressionGenerator {
     if (schema.properties) {
       for (const name of Object.keys(schema.properties)) {
         const originalPropSchema = schema.properties[name];
-        const isEnumType =
-          "$ref" in originalPropSchema && context?.getSchemaByRef(originalPropSchema.$ref)?.enum
-            ? true
-            : false;
+        let isEnumType = false;
+        try {
+          isEnumType =
+            "$ref" in originalPropSchema && context?.getSchemaByRef(originalPropSchema.$ref)?.enum
+              ? true
+              : false;
+        } catch {
+          // ignore errors - we couldn't resolve the reference - so we assume it's not an enum
+        }
         const propType = this.generateTypeFromRefableSchema(originalPropSchema, callingScope);
 
         const decorators = generateDecorators(
