@@ -7,9 +7,9 @@ import {
 } from "@typespec/compiler";
 import { useStateMap } from "@typespec/compiler/utils";
 import { RouteDecorator } from "../../generated-defs/TypeSpec.Http.js";
-import { setSharedRoute } from "./shared-route.js";
 import { HttpStateKeys, reportDiagnostic } from "../lib.js";
 import type { RoutePath } from "../types.js";
+import { setSharedRoute } from "./shared-route.js";
 
 const [getRouteState, setRouteState] = useStateMap<Operation | Interface | Namespace, string>(
   HttpStateKeys.routes,
