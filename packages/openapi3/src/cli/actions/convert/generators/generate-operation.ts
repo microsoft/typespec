@@ -28,6 +28,10 @@ export function generateOperation(operation: TypeSpecOperation, context: Context
 
   const responses = generateOperationReturnType(operation, context);
 
+  if (operation.fixmes?.length) {
+    definitions.push("\n", ...operation.fixmes.map((f) => `// FIXME: ${f}\n`));
+  }
+
   definitions.push(`op ${operation.name}(${parameters.join(", ")}): ${responses};`);
 
   return definitions.join(" ");
