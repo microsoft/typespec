@@ -33,7 +33,10 @@ export function JsonTransformDiscriminator(props: JsonTransformDiscriminatorProp
     (name, variant) => {
       return code`
     if( discriminatorValue === ${JSON.stringify(name)}) {
-      return ${(<JsonTransform type={variant} target={props.target} itemRef={itemRef} />)}!
+      return {
+        ${props.discriminator.propertyName}: ${JSON.stringify(name)},
+        ...${(<JsonTransform type={variant} target={props.target} itemRef={itemRef} />)}!,
+      };
     }
     `;
     },
