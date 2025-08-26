@@ -393,14 +393,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (type.IsList)
             {
-                // Timespan in a list has special handling
-                return type.Arguments[0].Equals(typeof(TimeSpan)) || IsConvertibleFromBinaryData(type.Arguments[0]);
+                IsConvertibleFromBinaryData(type.Arguments[0]);
             }
 
             if (type.IsDictionary)
             {
-                // Timespan in a dictionary has special handling
-                return type.Arguments[1].Equals(typeof(TimeSpan)) || IsConvertibleFromBinaryData(type.Arguments[1]);
+                IsConvertibleFromBinaryData(type.Arguments[1]);
             }
 
             return type.Equals(typeof(string)) ||
@@ -415,7 +413,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                    type.Equals(typeof(decimal)) ||
                    type.Equals(typeof(decimal?)) ||
                    type.Equals(typeof(bool)) ||
-                   type.Equals(typeof(bool?));
+                   type.Equals(typeof(bool?)) ||
+                   type.Equals(typeof(DateTimeOffset)) ||
+                   type.Equals(typeof(DateTimeOffset?)) ||
+                   type.Equals(typeof(TimeSpan)) ||
+                   type.Equals(typeof(TimeSpan?));
         }
 
         private IReadOnlyList<ValueExpression> GetProtocolMethodArguments(Dictionary<string, ValueExpression> declarations)

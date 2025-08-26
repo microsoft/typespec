@@ -850,6 +850,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         [TestCase(typeof(string))]
         [TestCase(typeof(Uri))]
         [TestCase(typeof(BinaryData))]
+        [TestCase(typeof(DateTimeOffset))]
+        [TestCase(typeof(TimeSpan))]
         public void ScalarReturnTypeMethods(Type type)
         {
             InputType? inputType = type switch
@@ -858,6 +860,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 { } t when t == typeof(double) => InputPrimitiveType.Float64,
                 { } t when t == typeof(bool) => InputPrimitiveType.Boolean,
                 { } t when t == typeof(string) => InputPrimitiveType.String,
+                { } t when t == typeof(DateTimeOffset) => InputPrimitiveType.PlainDate,
+                { } t when t == typeof(TimeSpan) => InputPrimitiveType.PlainTime,
                 { } t when t == typeof(int) => InputPrimitiveType.Int32,
                 { } t when t == typeof(long) => InputPrimitiveType.Int64,
                 { } t when t == typeof(Uri) => InputPrimitiveType.Url,
