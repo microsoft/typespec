@@ -876,9 +876,15 @@ function getConfigEntriesFromEmitterOptions(
     } = propertySchema as any;
 
     const commentParts: string[] = [];
-    if (description) commentParts.push(description);
-    if (type) commentParts.push(`Type: ${type}`);
-    if (Array.isArray(enumValues)) commentParts.push(`Options: ${enumValues.join(", ")}`);
+    if (description) {
+      commentParts.push(description);
+    }
+    if (type) {
+      commentParts.push(`Type: ${type}`);
+    }
+    if (Array.isArray(enumValues)) {
+      commentParts.push(`Options: ${enumValues.join(", ")}`);
+    }
     const comment = commentParts.join(" ");
 
     let value = defaultValue;
@@ -942,13 +948,25 @@ async function generateAnnotatedYamlFile(
       const maxNameLength = Math.max(...packageNodeOptions.map((x) => x.name.length));
       const maxValueLength = Math.max(...packageNodeOptions.map((x) => String(x.value).length));
       const commentAlignmentSpacing = 10;
+      const totalPadding = maxNameLength + maxValueLength + 3 + commentAlignmentSpacing; // 3 for ": " and space
+
       parentMap.comment = packageNodeOptions
         .map((x) => {
           const nameValuePart = ` ${x.name}: ${x.value}`;
-          const totalPadding = maxNameLength + maxValueLength + 3 + commentAlignmentSpacing; // 3 for ": " and space
           const currentLength = nameValuePart.length;
           const spacesToAdd = totalPadding - currentLength;
-          return `${nameValuePart}${" ".repeat(spacesToAdd)}# ${x.comment}`;
+          const whitespacePadding = " ".repeat(totalPadding);
+
+          // First standardize the behavior of the change \n, then insert aligned spaces and inline "#" for the continuation line
+          let processedComment = x.comment.replace(/\r\n|\r/g, "\n");
+          if (processedComment.includes("\n")) {
+            processedComment = processedComment
+              .split("\n")
+              .map((line, i) => (i === 0 ? line : `# ${line}`))
+              .join(`\n${whitespacePadding}`);
+          }
+
+          return `${nameValuePart}${" ".repeat(spacesToAdd)}# ${processedComment}`;
         })
         .join("\n");
       configYaml.setIn(["options", packageName], parentMap);
