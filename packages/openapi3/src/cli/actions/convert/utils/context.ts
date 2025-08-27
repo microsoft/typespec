@@ -43,6 +43,7 @@ export interface Context {
     isHttpPart: boolean,
     encoding: Record<string, OpenAPI3Encoding> | undefined,
     isEnumType: boolean,
+    isUnionType: boolean,
   ): string;
 }
 
@@ -111,6 +112,7 @@ export function createContext(
       isHttpPart: boolean,
       encoding: Record<string, OpenAPI3Encoding> | undefined,
       isEnumType: boolean,
+      isUnionType: boolean,
     ): string {
       return schemaExpressionGenerator.getPartType(
         propType,
@@ -118,6 +120,7 @@ export function createContext(
         isHttpPart,
         encoding,
         isEnumType,
+        isUnionType,
       );
     },
   };

@@ -16,6 +16,7 @@ import { generateDecorators } from "./generate-decorators.js";
 import {
   getTypeSpecPrimitiveFromSchema,
   isReferencedEnumType,
+  isReferencedUnionType,
   SchemaToExpressionGenerator,
 } from "./generate-types.js";
 
@@ -207,10 +208,11 @@ export function generateModelProperty(
   ).join(" ");
 
   const isEnumType = isReferencedEnumType(prop.schema, context);
+  const isUnionType = isReferencedUnionType(prop.schema, context);
 
   const doc = prop.doc ? generateDocs(prop.doc) : "";
 
-  return `${doc}${decorators} ${prop.name}${prop.isOptional ? "?" : ""}: ${context.getPartType(propertyType, prop.name, isModelReferencedAsMultipartRequestBody ?? false, encoding, isEnumType)};`;
+  return `${doc}${decorators} ${prop.name}${prop.isOptional ? "?" : ""}: ${context.getPartType(propertyType, prop.name, isModelReferencedAsMultipartRequestBody ?? false, encoding, isEnumType, isUnionType)};`;
 }
 
 export function generateModelExpression(

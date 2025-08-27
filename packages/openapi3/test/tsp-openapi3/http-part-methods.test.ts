@@ -576,6 +576,53 @@ describe("tsp-openapi: HTTP part generation methods", () => {
     const wrappedExpected = await formatTypeSpec(expected);
     strictEqual(wrappedActual, wrappedExpected);
   });
+
+  it("does not emit a content type header for referenced union types", async () => {
+    const objectTypeSchema: OpenAPI3Schema = {
+      type: "object",
+      properties: {
+        id: { type: "string" },
+      },
+      required: ["id"],
+    };
+    const unionSchema: OpenAPI3Schema = {
+      anyOf: [
+        {
+          type: "string",
+          enum: ["value1", "value2", "value3"],
+        },
+        {
+          nullable: true,
+        },
+        {
+          $ref: "#/components/schemas/MyObject",
+        },
+      ],
+    };
+    context.openApi3Doc.components = {
+      schemas: { MyUnion: unionSchema, MyObject: objectTypeSchema },
+    };
+
+    const mainObjectDef: OpenAPI3Schema = {
+      type: "object",
+      properties: {
+        unionProp: {
+          $ref: "#/components/schemas/MyUnion",
+        },
+      },
+    };
+
+    const encoding = {
+      unionProp: { contentType: "application/json" },
+    };
+
+    const actualType = context.generateTypeFromRefableSchema(mainObjectDef, [], true, encoding);
+    const expected = "model Test { unionProp?: HttpPart<MyUnion> }";
+
+    const wrappedActual = await formatTypeSpec(`model Test${actualType}`);
+    const wrappedExpected = await formatTypeSpec(expected);
+    strictEqual(wrappedActual, wrappedExpected);
+  });
 });
 
 // Wrap the expected and actual types in this model to get formatted types.

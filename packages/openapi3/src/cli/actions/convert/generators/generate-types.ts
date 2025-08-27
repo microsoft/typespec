@@ -202,6 +202,7 @@ export class SchemaToExpressionGenerator {
     isHttpPart: boolean,
     encoding: Record<string, OpenAPI3Encoding> | undefined,
     isEnumType: boolean,
+    isUnionType: boolean,
   ): string {
     if (!isHttpPart) {
       return propType;
@@ -218,7 +219,8 @@ export class SchemaToExpressionGenerator {
       encodingForProperty?.contentType &&
       !filePartType &&
       !this.isDefaultPartType(propTypeWithoutNull, encodingForProperty.contentType) &&
-      !this.isUnionType(propTypeWithoutNull) &&
+      !this.isInlineUnionType(propTypeWithoutNull) &&
+      !isUnionType &&
       !this.isScalarType(propTypeWithoutNull) &&
       !isEnumType
         ? ` & { @header contentType: "${encodingForProperty.contentType}" }`
@@ -226,7 +228,7 @@ export class SchemaToExpressionGenerator {
     return `HttpPart<${filePartType ?? propTypeWithoutDefault}${contentTypeHeader}>`;
   }
 
-  private isUnionType(partType: string): boolean {
+  private isInlineUnionType(partType: string): boolean {
     return partType.includes("|");
   }
 
@@ -291,6 +293,7 @@ export class SchemaToExpressionGenerator {
       for (const name of Object.keys(schema.properties)) {
         const originalPropSchema = schema.properties[name];
         const isEnumType = !!context && isReferencedEnumType(originalPropSchema, context);
+        const isUnionType = !!context && isReferencedUnionType(originalPropSchema, context);
         const propType = this.generateTypeFromRefableSchema(originalPropSchema, callingScope);
 
         const decorators = generateDecorators(
@@ -301,7 +304,7 @@ export class SchemaToExpressionGenerator {
           .join("");
         const isOptional = !requiredProps.includes(name) ? "?" : "";
         props.push(
-          `${decorators}${printIdentifier(name)}${isOptional}: ${this.getPartType(propType, name, isHttpPart, encoding, isEnumType)}`,
+          `${decorators}${printIdentifier(name)}${isOptional}: ${this.getPartType(propType, name, isHttpPart, encoding, isEnumType, isUnionType)}`,
         );
       }
     }
@@ -333,17 +336,41 @@ export function isReferencedEnumType(
   let isEnumType = false;
   try {
     isEnumType =
-      ("$ref" in propSchema && context?.getSchemaByRef(propSchema.$ref)?.enum) ||
+      ("$ref" in propSchema && context.getSchemaByRef(propSchema.$ref)?.enum) ||
       ("items" in propSchema &&
         propSchema.items &&
         "$ref" in propSchema.items &&
-        context?.getSchemaByRef(propSchema.items.$ref)?.enum)
+        context.getSchemaByRef(propSchema.items.$ref)?.enum)
         ? true
         : false;
   } catch {
     // ignore errors - we couldn't resolve the reference - so we assume it's not an enum
   }
   return isEnumType;
+}
+
+export function isReferencedUnionType(
+  propSchema: OpenAPI3SchemaProperty,
+  context: Context,
+): boolean {
+  let isUnionType = false;
+  try {
+    const resolvedSchema =
+      "$ref" in propSchema ? context.getSchemaByRef(propSchema.$ref) : undefined;
+    const resolvedItemsSchema =
+      "items" in propSchema && propSchema.items && "$ref" in propSchema.items
+        ? context.getSchemaByRef(propSchema.items.$ref)
+        : undefined;
+    isUnionType =
+      (resolvedSchema && (resolvedSchema.oneOf?.length || resolvedSchema.anyOf?.length)) ||
+      (resolvedItemsSchema &&
+        (resolvedItemsSchema.oneOf?.length || resolvedItemsSchema.anyOf?.length))
+        ? true
+        : false;
+  } catch {
+    // ignore errors - we couldn't resolve the reference - so we assume it's not a union
+  }
+  return isUnionType;
 }
 
 export function getTypeSpecPrimitiveFromSchema(schema: OpenAPI3Schema): string | undefined {
