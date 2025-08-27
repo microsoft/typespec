@@ -45,6 +45,10 @@ public class FileUtil {
         Path parent = outputPath.getParent();
 
         try {
+            // Ensure parent directories exist before writing the file.
+            if (parent != null && !Files.exists(parent)) {
+                Files.createDirectories(parent);
+            }
             Files.writeString(outputPath, content, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new IllegalStateException(e);
