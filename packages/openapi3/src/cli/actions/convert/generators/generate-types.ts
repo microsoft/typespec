@@ -78,7 +78,9 @@ export class SchemaToExpressionGenerator {
   private getTypeFromSchema(schema: OpenAPI3Schema, callingScope: string[]): string {
     let type = "unknown";
 
-    if (schema.enum) {
+    if (schema.const !== undefined) {
+      type = JSON.stringify(schema.const);
+    } else if (schema.enum) {
       type = getEnum(schema.enum);
     } else if (schema.anyOf?.length) {
       type = this.getAnyOfType(schema, callingScope);
