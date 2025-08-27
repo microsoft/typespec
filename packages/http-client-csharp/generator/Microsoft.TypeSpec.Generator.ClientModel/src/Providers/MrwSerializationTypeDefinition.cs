@@ -10,6 +10,8 @@ using System.Linq;
 using System.Net;
 using System.Text.Json;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
+using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -859,14 +861,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (_additionalBinaryDataProperty.Value != null)
             {
                 var binaryDataDeserializationValue = ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(
-                    _additionalBinaryDataProperty.Value.Type.ElementType.FrameworkType, jsonProperty.Value(), SerializationFormat.Default);
+                    _additionalBinaryDataProperty.Value.Type.ElementType.FrameworkType, jsonProperty.Value(), _mrwOptionsParameterSnippet, SerializationFormat.Default);
                 propertyDeserializationStatements.Add(
                     _additionalBinaryDataProperty.Value.AsVariableExpression.AsDictionary(_additionalBinaryDataProperty.Value.Type).Add(jsonProperty.Name(), binaryDataDeserializationValue));
             }
             else if (rawBinaryData != null)
             {
                 var elementType = rawBinaryData.Type.Arguments[1].FrameworkType;
-                var rawDataDeserializationValue = ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(elementType, jsonProperty.Value(), SerializationFormat.Default);
+                var rawDataDeserializationValue = ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(elementType, jsonProperty.Value(), _mrwOptionsParameterSnippet, SerializationFormat.Default);
                 propertyDeserializationStatements.Add(new IfStatement(_isNotEqualToWireConditionSnippet)
                 {
                     rawBinaryData.AsVariableExpression.AsDictionary(rawBinaryData.Type).Add(jsonProperty.Name(), rawDataDeserializationValue)
@@ -1279,28 +1281,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private ValueExpression CreateDeserializeValueExpression(CSharpType valueType,
-            SerializationFormat serializationFormat,
-            ScopedApi<JsonElement> jsonElement)
-        {
-            return valueType switch
+        private ValueExpression CreateDeserializeValueExpression(CSharpType valueType, SerializationFormat serializationFormat, ScopedApi<JsonElement> jsonElement) =>
+            valueType switch
             {
                 { IsFrameworkType: true } when valueType.FrameworkType == typeof(Nullable<>) =>
-                    ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(
-                        valueType.Arguments[0].FrameworkType, jsonElement, serializationFormat),
+                    ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(valueType.Arguments[0].FrameworkType, jsonElement, _mrwOptionsParameterSnippet, serializationFormat),
                 { IsFrameworkType: true } =>
-                    ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(valueType.FrameworkType,
-                        jsonElement, serializationFormat),
+                    ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(valueType.FrameworkType, jsonElement, _mrwOptionsParameterSnippet, serializationFormat),
                 { IsEnum: true } =>
-                    valueType.ToEnum(
-                        ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(valueType.UnderlyingEnumType!,
-                            jsonElement, serializationFormat)),
-                // Is it a dependency type rather than a type defined in the library we are generating?
-                _ when !ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(valueType, out _) =>
-                    ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(valueType, jsonElement, serializationFormat),
+                    valueType.ToEnum(ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(valueType.UnderlyingEnumType!, jsonElement, _mrwOptionsParameterSnippet, serializationFormat)),
                 _ => valueType.Deserialize(jsonElement, _mrwOptionsParameterSnippet)
             };
-        }
 
         private MethodBodyStatement CreateDeserializeDictionaryValueStatement(
             CSharpType dictionaryItemType,
@@ -1519,11 +1510,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// <param name="value">The value to be serialized.</param>
         /// <param name="serializationFormat">The serialization format.</param>
         /// <returns>The serialization statement.</returns>
-        /// <exception cref="NotSupportedException">Thrown when the serialization type is not supported.</exception>
         private MethodBodyStatement CreateSerializationStatement(
             CSharpType serializationType,
             ValueExpression value,
-            SerializationFormat serializationFormat) => serializationType switch
+            SerializationFormat serializationFormat)
+        {
+            MethodBodyStatement? statement = serializationType switch
             {
                 { IsDictionary: true } =>
                     CreateDictionarySerializationStatement(
@@ -1534,9 +1526,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         serializationFormat),
                 { IsCollection: false } =>
                     CreateValueSerializationStatement(serializationType, serializationFormat, value),
-                _ => throw new NotSupportedException(
-                    $"Serialization of type {serializationType.Name} is not supported.")
+                _ => null,
             };
+
+            if (statement == null)
+            {
+                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                   DiagnosticCodes.UnsupportedSerialization,
+                   $"Serialization of type {serializationType.Name} is not supported.",
+                   severity: EmitterDiagnosticSeverity.Warning);
+                return CreateValueSerializationStatement(serializationType, serializationFormat, value);
+            }
+
+            return statement;
+        }
 
         private MethodBodyStatement CreateDictionarySerializationStatement(
             DictionaryExpression dictionary,
@@ -1616,127 +1619,151 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         internal static MethodBodyStatement SerializeJsonValueCore(
-            CSharpType valueType,
+            Type valueType,
             ValueExpression value,
             ScopedApi<Utf8JsonWriter> utf8JsonWriter,
             ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter,
             SerializationFormat serializationFormat)
         {
-            return valueType switch
+            MethodBodyStatement? statement = valueType switch
             {
-                var t when t.Equals(typeof(JsonElement)) =>
+                var t when t == typeof(JsonElement) =>
                     value.As<JsonElement>().WriteTo(utf8JsonWriter),
                 var t when ValueTypeIsInt(t) && serializationFormat == SerializationFormat.Int_String =>
                     utf8JsonWriter.WriteStringValue(value.InvokeToString()),
                 var t when ValueTypeIsNumber(t) =>
                     utf8JsonWriter.WriteNumberValue(value),
-                var t when t.Equals(typeof(object)) =>
+                var t when t == typeof(object) =>
                     utf8JsonWriter.WriteObjectValue(value.As(valueType), mrwOptionsParameter),
-                var t when t.Equals(typeof(string)) || t.Equals(typeof(char)) || t.Equals(typeof(Guid)) =>
+                var t when t == typeof(string) || t == typeof(char) || t == typeof(Guid) =>
                     utf8JsonWriter.WriteStringValue(value),
-                var t when t.Equals(typeof(bool)) =>
+                var t when t == typeof(bool) =>
                     utf8JsonWriter.WriteBooleanValue(value),
-                var t when t.Equals(typeof(byte[])) =>
+                var t when t == typeof(byte[]) =>
                     utf8JsonWriter.WriteBase64StringValue(value, serializationFormat.ToFormatSpecifier()),
-                var t when t.Equals(typeof(DateTimeOffset)) || t.Equals(typeof(DateTime)) || t.Equals(typeof(TimeSpan)) =>
-                    SerializeDateTimeRelatedTypes(serializationFormat, value, utf8JsonWriter, mrwOptionsParameter),
-                var t when t.Equals(typeof(IPAddress)) =>
+                var t when t == typeof(DateTimeOffset) || t == typeof(DateTime) || t == typeof(TimeSpan) =>
+                    SerializeDateTimeRelatedTypes(valueType, serializationFormat, value, utf8JsonWriter, mrwOptionsParameter),
+                var t when t == typeof(IPAddress) =>
                     utf8JsonWriter.WriteStringValue(value.InvokeToString()),
-                var t when t.Equals(typeof(Uri)) =>
+                var t when t == typeof(Uri) =>
                     utf8JsonWriter.WriteStringValue(new MemberExpression(value, nameof(Uri.AbsoluteUri))),
-                var t when t.Equals(typeof(BinaryData)) =>
-                    SerializeBinaryData(serializationFormat, value, utf8JsonWriter),
-                var t when t.Equals(typeof(Stream)) =>
+                var t when t == typeof(BinaryData) =>
+                    SerializeBinaryData(valueType, serializationFormat, value, utf8JsonWriter),
+                var t when t == typeof(Stream) =>
                     utf8JsonWriter.WriteBinaryData(BinaryDataSnippets.FromStream(value, false)),
-                _ => throw new NotSupportedException($"Type {valueType} serialization is not supported.")
+                _ => null
             };
+
+            if (statement is null)
+            {
+                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                    DiagnosticCodes.UnsupportedSerialization,
+                    $"Serialization of type {valueType.Name} is not supported.",
+                    severity: EmitterDiagnosticSeverity.Warning);
+
+                return utf8JsonWriter.WriteObjectValue(value.As(valueType), mrwOptionsParameter);
+            }
+
+            return statement;
         }
 
         internal static ValueExpression DeserializeJsonValueCore(
-            CSharpType valueType,
+            Type valueType,
             ScopedApi<JsonElement> element,
+            ScopedApi<ModelReaderWriterOptions> mrwOptions,
             SerializationFormat format)
         {
-            return valueType switch
+            ValueExpression? exp = valueType switch
             {
-                var t when t.Equals(typeof(Uri)) =>
+                Type t when t == typeof(Uri) =>
                     New.Instance(valueType, element.GetString()),
-                var t when t.Equals(typeof(IPAddress)) =>
+                Type t when t == typeof(IPAddress) =>
                     Static<IPAddress>().Invoke(nameof(IPAddress.Parse), element.GetString()),
-                var t when t.Equals(typeof(BinaryData)) =>
+                Type t when t == typeof(BinaryData) =>
                     format is SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url
                         ? BinaryDataSnippets.FromBytes(element.GetBytesFromBase64(format.ToFormatSpecifier()))
                         : BinaryDataSnippets.FromString(element.GetRawText()),
-                var t when t.Equals(typeof(Stream)) =>
+                Type t when t == typeof(Stream) =>
                     BinaryDataSnippets.FromString(element.GetRawText()).ToStream(),
-                var t when t.Equals(typeof(JsonElement)) =>
+                Type t when t == typeof(JsonElement) =>
                     element.InvokeClone(),
-                var t when t.Equals(typeof(object)) =>
+                Type t when t == typeof(object) =>
                     element.GetObject(),
-                var t when t.Equals(typeof(bool)) =>
+                Type t when t == typeof(bool) =>
                     element.GetBoolean(),
-                var t when t.Equals(typeof(char)) =>
+                Type t when t == typeof(char) =>
                     element.GetChar(),
-                var t when ValueTypeIsInt(t) =>
+                Type t when ValueTypeIsInt(t) =>
                     GetIntTypeDeserializationExpress(element, t, format),
-                var t when t.Equals(typeof(float)) =>
+                Type t when t == typeof(float) =>
                     element.GetSingle(),
-                var t when t.Equals(typeof(double)) =>
+                Type t when t == typeof(double) =>
                     element.GetDouble(),
-                var t when t.Equals(typeof(decimal)) =>
+                Type t when t == typeof(decimal) =>
                     element.GetDecimal(),
-                var t when t.Equals(typeof(string)) =>
+                Type t when t == typeof(string) =>
                     element.GetString(),
-                var t when t.Equals(typeof(Guid)) =>
+                Type t when t == typeof(Guid) =>
                     element.GetGuid(),
-                var t when t.Equals(typeof(byte[])) =>
+                Type t when t == typeof(byte[]) =>
                     element.GetBytesFromBase64(format.ToFormatSpecifier()),
-                var t when t.Equals(typeof(DateTimeOffset)) =>
+                Type t when t == typeof(DateTimeOffset) =>
                     format == SerializationFormat.DateTime_Unix
                         ? DateTimeOffsetSnippets.FromUnixTimeSeconds(element.GetInt64())
                         : element.GetDateTimeOffset(format.ToFormatSpecifier()),
-                var t when t.Equals(typeof(DateTime)) =>
+                Type t when t == typeof(DateTime) =>
                     element.GetDateTime(),
-                var t when t.Equals(typeof(TimeSpan)) => format switch
+                Type t when t == typeof(TimeSpan) => format switch
                 {
                     SerializationFormat.Duration_Seconds => TimeSpanSnippets.FromSeconds(element.GetInt32()),
                     SerializationFormat.Duration_Seconds_Float or SerializationFormat.Duration_Seconds_Double => TimeSpanSnippets.FromSeconds(element.GetDouble()),
                     _ => element.GetTimeSpan(format.ToFormatSpecifier())
                 },
-                _ => throw new NotSupportedException($"Framework type {valueType} is not supported.")
+                _ => null,
             };
+
+            if (exp is null)
+            {
+                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                    DiagnosticCodes.UnsupportedSerialization,
+                    $"Deserialization of type {valueType.Name} is not supported.",
+                    severity: EmitterDiagnosticSeverity.Warning);
+                return new CSharpType(valueType).Deserialize(element);
+            }
+
+            return exp;
         }
 
-        private static bool ValueTypeIsInt(CSharpType valueType) =>
-            valueType.Equals(typeof(long)) ||
-            valueType.Equals(typeof(int)) ||
-            valueType.Equals(typeof(short)) ||
-            valueType.Equals(typeof(sbyte)) ||
-            valueType.Equals(typeof(byte));
+        private static bool ValueTypeIsInt(Type valueType) =>
+            valueType == typeof(long) ||
+            valueType == typeof(int) ||
+            valueType == typeof(short) ||
+            valueType == typeof(sbyte) ||
+            valueType == typeof(byte);
 
-        private static bool ValueTypeIsNumber(CSharpType valueType) =>
-            valueType.Equals(typeof(decimal)) ||
-            valueType.Equals(typeof(double)) ||
-            valueType.Equals(typeof(float)) ||
+        private static bool ValueTypeIsNumber(Type valueType) =>
+            valueType == typeof(decimal) ||
+            valueType == typeof(double) ||
+            valueType == typeof(float) ||
             ValueTypeIsInt(valueType);
 
-        private static ValueExpression GetIntTypeDeserializationExpress(ScopedApi<JsonElement> element, CSharpType type, SerializationFormat format) => format switch
+        private static ValueExpression GetIntTypeDeserializationExpress(ScopedApi<JsonElement> element, Type type, SerializationFormat format) => format switch
         {
             // when `@encode(string)`, the type is serialized as string, so we need to deserialize it from string
             // sbyte.Parse(element.GetString())
             SerializationFormat.Int_String => new InvokeMethodExpression(type, nameof(int.Parse), [element.GetString()]),
             _ => type switch
             {
-                var t when t.Equals(typeof(long)) => element.GetInt64(),
-                var t when t.Equals(typeof(int)) => element.GetInt32(),
-                var t when t.Equals(typeof(short)) => element.GetInt16(),
-                var t when t.Equals(typeof(sbyte)) => element.GetSByte(),
-                var t when t.Equals(typeof(byte)) => element.GetByte(),
+                Type t when t == typeof(long) => element.GetInt64(),
+                Type t when t == typeof(int) => element.GetInt32(),
+                Type t when t == typeof(short) => element.GetInt16(),
+                Type t when t == typeof(sbyte) => element.GetSByte(),
+                Type t when t == typeof(byte) => element.GetByte(),
                 _ => throw new NotSupportedException($"Framework type {type} is not int.")
             }
         };
 
-        private static MethodBodyStatement SerializeDateTimeRelatedTypes(SerializationFormat serializationFormat, ValueExpression value, ScopedApi<Utf8JsonWriter> utf8JsonWriter, ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter)
+        private static MethodBodyStatement SerializeDateTimeRelatedTypes(Type valueType, SerializationFormat serializationFormat, ValueExpression value, ScopedApi<Utf8JsonWriter> utf8JsonWriter, ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter)
         {
             var format = serializationFormat.ToFormatSpecifier();
             return serializationFormat switch
@@ -1748,7 +1775,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             };
         }
 
-        private static MethodBodyStatement SerializeBinaryData(SerializationFormat serializationFormat, ValueExpression value, ScopedApi<Utf8JsonWriter> utf8JsonWriter)
+        private static MethodBodyStatement SerializeBinaryData(Type valueType, SerializationFormat serializationFormat, ValueExpression value, ScopedApi<Utf8JsonWriter> utf8JsonWriter)
         {
             if (serializationFormat is SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url)
             {

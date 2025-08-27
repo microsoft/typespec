@@ -8,10 +8,10 @@ using Sample.Models;
 
 namespace Sample
 {
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Sample.Models.ParentModel))]
 #pragma warning disable TEST001 // global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.ExperimentalDependencyModel is experimental and may change in future versions.
     [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.ExperimentalDependencyModel))]
 #pragma warning restore TEST001 // global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.ExperimentalDependencyModel is experimental and may change in future versions.
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Sample.Models.ParentModel))]
     public partial class SampleContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }

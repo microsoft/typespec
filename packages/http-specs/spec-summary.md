@@ -836,7 +836,10 @@ Expected request body for `set`
 { "name": "foo" }
 ```
 
+Expected Content-Type header: application/json
+
 Expected no request body for `omit`
+Expected Content-Type header: must NOT be present
 
 ### Parameters_BodyOptionality_requiredExplicit
 
@@ -1696,6 +1699,28 @@ Content-Type: application/octet-stream
 --abcde12345--
 ```
 
+### Payload_Pageable_listWithoutContinuation
+
+- Endpoint: `get /payload/pageable/simple`
+
+Test case for simple pagination without nextlink or continuationToken.
+
+Single request:
+Expected route: /payload/pageable/simple
+
+Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "1", "name": "dog" },
+    { "id": "2", "name": "cat" },
+    { "id": "3", "name": "bird" },
+    { "id": "4", "name": "fish" }
+  ]
+}
+```
+
 ### Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeaderNestedResponseBody
 
 - Endpoint: `get /payload/pageable/server-driven-pagination/continuationtoken/request-header-nested-response-body`
@@ -1997,6 +2022,41 @@ Two requests need to be tested.
 
 2. Next page request:
    Expected route: /payload/pageable/server-driven-pagination/link/nextPage
+   Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "3", "name": "bird" },
+    { "id": "4", "name": "fish" }
+  ]
+}
+```
+
+### Payload_Pageable_ServerDrivenPagination_linkString
+
+- Endpoint: `get /payload/pageable/server-driven-pagination/link-string`
+
+Test case for using link as pagination with string nextLink.
+
+Two requests need to be tested.
+
+1. Initial request:
+   Expected route: /payload/pageable/server-driven-pagination/link-string
+   Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "1", "name": "dog" },
+    { "id": "2", "name": "cat" }
+  ],
+  "next": "http://[host]:[port]/payload/pageable/server-driven-pagination/link-string/nextPage"
+}
+```
+
+2. Next page request:
+   Expected route: /payload/pageable/server-driven-pagination/link-string/nextPage
    Expected response body:
 
 ```json

@@ -5,7 +5,7 @@
 {% endif %}
 
 [build-system]
-requires = ["setuptools>=61.0.0", "wheel"]  # Requires 61.0.0 for dynamic version
+requires = ["setuptools>=77.0.3", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -14,8 +14,12 @@ name = "{{ options.get('package-name')|lower }}"
 authors = [
   { name = "{{ code_model.company_name }}"{% if code_model.is_azure_flavor %}, email = "azpysdkhelp@microsoft.com"{% endif %} },
 ]
+{% if options.get("azure-arm") %}
+description = "Microsoft Azure {{ options.get('package-pprint-name') }} Client Library for Python"
+{% else %}
 description = "{{ code_model.company_name }} {% if code_model.is_azure_flavor and not options.get('package-pprint-name').startswith('Azure ') %}Azure {% endif %}{{ options.get('package-pprint-name') }} Client Library for Python"
-license = {text = "MIT License"}
+{% endif %}
+license = "MIT"
 classifiers = [
     "Development Status :: {{ dev_status }}",
     "Programming Language :: Python",
@@ -24,7 +28,6 @@ classifiers = [
     {% for version in range(min_version, max_version + 1) %}
     "Programming Language :: Python :: 3.{{ version }}",
     {% endfor %}
-    "License :: OSI Approved :: MIT License",
 ]
 requires-python = ">={{ MIN_PYTHON_VERSION }}"
 {% else %}
@@ -74,7 +77,7 @@ version = "{{ options.get("package-version", "unknown") }}"
 {% if code_model.is_azure_flavor %}
 
 [project.urls]
-repository = "https://github.com/Azure/azure-sdk-for-python/tree/main/sdk"
+repository = "https://github.com/Azure/azure-sdk-for-python"
 {% endif %}
 
 [tool.setuptools.dynamic]
@@ -85,13 +88,14 @@ version = {attr = "{{ code_model.namespace|lower }}._version.VERSION"}
 version = {attr = "{{ options.get('package-name')|lower|replace('-', '.') }}._version.VERSION"}
     {% endif %}
 {% endif %}
-readme = {file = ["README.md"], content-type = "text/markdown"}
+readme = {file = ["README.md", "CHANGELOG.md"], content-type = "text/markdown"}
 {% if options.get('package-mode') %}
 
 [tool.setuptools.packages.find]
 exclude = [
     "tests*",
     "samples*",
+    "doc*",
     {% for pkgutil_name in pkgutil_names %}
     "{{ pkgutil_name }}",
     {% endfor %}
@@ -104,6 +108,13 @@ pytyped = ["py.typed"]
 
 [tool.azure-sdk-build]
 {% for key, val in KEEP_FIELDS.get('tool.azure-sdk-build').items() %}
+{{ key }} = {{ val|tojson }}
+{% endfor %}
+{% endif %}
+{% if KEEP_FIELDS and KEEP_FIELDS.get('packaging') %}
+
+[packaging]
+{% for key, val in KEEP_FIELDS.get('packaging').items() %}
 {{ key }} = {{ val|tojson }}
 {% endfor %}
 {% endif %}

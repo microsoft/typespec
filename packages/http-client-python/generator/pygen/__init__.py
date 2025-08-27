@@ -46,7 +46,7 @@ class OptionsDict(MutableMapping):
         self._data = options.copy() if options else {}
         self._validate_combinations()
 
-    def __getitem__(self, key: str) -> Any: # pylint: disable=too-many-return-statements
+    def __getitem__(self, key: str) -> Any:  # pylint: disable=too-many-return-statements
         if key == "head-as-boolean" and self.get("azure-arm"):
             # override to always true if azure-arm is set
             return True
@@ -109,7 +109,12 @@ class OptionsDict(MutableMapping):
         if key == "combine-operation-files":
             return self.get("version-tolerant")
         if key == "package-pprint-name":
-            return " ".join([i.capitalize() for i in str(self.get("package-name", "")).split("-")])
+            package_names = self.get("package-name", "").split("-")
+            return (
+                (package_names[-1].capitalize() + " Management")
+                if self.get("azure-arm")
+                else " ".join([i.capitalize() for i in package_names])
+            )
         if key == "builders-visibility":
             # Default to public if low-level client is not set, otherwise embedded
             return "embedded" if not self.get("low-level-client") else "public"
@@ -228,9 +233,6 @@ class ReaderAndWriter:
         if python_json:
             _LOGGER.warning("Loading python.json file. This behavior will be depreacted")
         self.options.update(python_json)
-
-    def get_output_folder(self) -> Path:
-        return self.output_folder
 
     def read_file(self, path: Union[str, Path]) -> str:
         """Directly reading from disk"""
