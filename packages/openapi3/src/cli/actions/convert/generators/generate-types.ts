@@ -288,7 +288,12 @@ export class SchemaToExpressionGenerator {
         let isEnumType = false;
         try {
           isEnumType =
-            "$ref" in originalPropSchema && context?.getSchemaByRef(originalPropSchema.$ref)?.enum
+            ("$ref" in originalPropSchema &&
+              context?.getSchemaByRef(originalPropSchema.$ref)?.enum) ||
+            ("items" in originalPropSchema &&
+              originalPropSchema.items &&
+              "$ref" in originalPropSchema.items &&
+              context?.getSchemaByRef(originalPropSchema.items.$ref)?.enum)
               ? true
               : false;
         } catch {

@@ -202,8 +202,19 @@ export function generateModelProperty(
       : [],
   ).join(" ");
 
-  const isEnumType =
-    "$ref" in prop.schema && context?.getSchemaByRef(prop.schema.$ref)?.enum ? true : false;
+  let isEnumType = false;
+  try {
+    isEnumType =
+      ("$ref" in prop.schema && context?.getSchemaByRef(prop.schema.$ref)?.enum) ||
+      ("items" in prop.schema &&
+        prop.schema.items &&
+        "$ref" in prop.schema.items &&
+        context?.getSchemaByRef(prop.schema.items.$ref)?.enum)
+        ? true
+        : false;
+  } catch {
+    // ignore errors - we couldn't resolve the reference - so we assume it's not an enum
+  }
 
   const doc = prop.doc ? generateDocs(prop.doc) : "";
 

@@ -512,6 +512,35 @@ describe("tsp-openapi: HTTP part generation methods", () => {
     strictEqual(wrappedActual, wrappedExpected);
   });
 
+  it("does not emit a content type header for enums arrays", async () => {
+    const enumSchema: OpenAPI3Schema = {
+      type: "string",
+      enum: ["value1", "value2", "value3"],
+    };
+    context.openApi3Doc.components = { schemas: { MyEnum: enumSchema } };
+
+    const mainObjectDef: OpenAPI3Schema = {
+      type: "object",
+      properties: {
+        enum: {
+          type: "array",
+          items: { $ref: "#/components/schemas/MyEnum" },
+        },
+      },
+    };
+
+    const encoding = {
+      enum: { contentType: "application/json" },
+    };
+
+    const actualType = context.generateTypeFromRefableSchema(mainObjectDef, [], true, encoding);
+    const expected = "model Test { `enum`?: HttpPart<MyEnum[]> }";
+
+    const wrappedActual = await formatTypeSpec(`model Test${actualType}`);
+    const wrappedExpected = await formatTypeSpec(expected);
+    strictEqual(wrappedActual, wrappedExpected);
+  });
+
   it("does not generate min or max value for numeric parts", async () => {
     const mainObjectDef: OpenAPI3Schema = {
       type: "object",
