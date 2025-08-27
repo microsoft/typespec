@@ -1,5 +1,23 @@
 # Change Log - @typespec/http-client-python
 
+## 0.16.0
+
+### Features
+
+- [#8209](https://github.com/microsoft/typespec/pull/8209) Add keyword only signature `cloud_setting` into ARM client
+- [#7824](https://github.com/microsoft/typespec/pull/7824) Upgrade typing for dict, list, set, and tuple to be from stdlib
+
+### Bump dependencies
+
+- [#8233](https://github.com/microsoft/typespec/pull/8233) Upgrade azure-http-specs version.
+
+### Bug Fixes
+
+- [#8189](https://github.com/microsoft/typespec/pull/8189) fix to keep some existing parts of pyproject.toml
+- [#8248](https://github.com/microsoft/typespec/pull/8248) Generated model which is not only used in paging response
+- [#8250](https://github.com/microsoft/typespec/pull/8250) don't send content-type when no request body
+
+
 ## 0.15.2
 
 ### Bug Fixes
