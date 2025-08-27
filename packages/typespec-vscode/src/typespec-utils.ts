@@ -6,7 +6,7 @@ import logger from "./log/logger.js";
 import { joinPaths, normalizeSlashes } from "./path-utils.js";
 import { Result, ResultCode, SettingName } from "./types.js";
 import { ConfirmOptions, QuickPickOptionsWithExternalLink, tryExecuteWithUi } from "./ui-utils.js";
-import { isFile, loadPackageJsonFile, spawnExecutionAndLogToOutput } from "./utils.js";
+import { isFile, loadModule, loadPackageJsonFile, spawnExecutionAndLogToOutput } from "./utils.js";
 
 export async function getEntrypointTspFile(tspPath: string): Promise<string | undefined> {
   const configEntrypoints = vscode.workspace
@@ -167,4 +167,29 @@ export async function installCompilerWithUi(
     );
   }
   return result;
+}
+
+export async function loadEmitterOptions(
+  baseDir: string,
+  packageName: string,
+): Promise<Record<string, any> | undefined> {
+  try {
+    const moduleResult = await loadModule(baseDir, packageName);
+    if (!moduleResult) {
+      logger.debug(`Failed to resolve module ${packageName}`);
+      return undefined;
+    }
+
+    const mainFilePath = moduleResult.type === "file" ? moduleResult.path : moduleResult.mainFile;
+    const moduleExports = await import(vscode.Uri.file(mainFilePath).toString());
+    if (moduleExports.$lib?.emitter?.options) {
+      return moduleExports.$lib.emitter.options;
+    }
+
+    logger.debug(`No emitter options schema found in ${packageName}`);
+    return undefined;
+  } catch (error) {
+    logger.debug(`Error extracting schema from ${packageName}:`, [error]);
+    return undefined;
+  }
 }
