@@ -46,7 +46,7 @@ function scanForMultipartSchemas(openapi: OpenAPI3Document, context: Context): v
 }
 
 function scanPathForMultipartSchemas(path: OpenAPI3PathItem, context: Context): void {
-  const methods = ["get", "post", "put", "patch", "delete", "options", "head", "trace"] as const;
+  const methods = ["get", "post", "put", "patch", "delete", "head"] as const;
 
   for (const method of methods) {
     const operation = path[method];
