@@ -18,9 +18,6 @@ import type { DecoratorContext, Model, Namespace } from "@typespec/compiler";
  *     breed: string;
  *   }
  * }
- *
- * // Using augment decorator pattern where target needs to be passed
- * @@dynamicModel(Pet);
  * ```
  */
 export type DynamicModelDecorator = (context: DecoratorContext, target: Model | Namespace) => void;

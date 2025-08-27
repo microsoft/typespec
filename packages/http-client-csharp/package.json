@@ -27,7 +27,7 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./emitter/temp && dotnet clean ./generator",
-    "build:emitter": "npm run gen-extern-signature && tsc -p ./emitter/tsconfig.build.json",
+    "build:emitter": "tsc -p ./emitter/tsconfig.build.json",
     "build:generator": "dotnet build ./generator",
     "build": "npm run build:emitter && npm run build:generator && npm run extract-api",
     "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
