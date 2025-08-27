@@ -26,32 +26,61 @@ public class FileUtil {
     }
 
     /**
-     * Write given content to the given file under given path.
+     * Writes the provided content to a file under the specified output directory.
      *
-     * @param outputDir output directory, will create if not exist
-     * @param fileName filename
+     * <p>The file path is resolved by joining {@code outputDir} and {@code fileName}. Parent
+     * directories will be created if they do not exist. The content is written using UTF-8 and
+     * any existing file at the same path will be overwritten.</p>
+     *
+     * @param outputDir output directory under which the file will be created; if it does not
+     * exist, parent directories will be created
+     * @param fileName name of the file to create (may include subdirectories)
      * @param content content to write to the file
-     * @return the file
+     * @return the {@link Path} that was written
+     * @throws IllegalStateException if an I/O error occurs while creating directories or writing the file
      */
-    public static File writeToFile(String outputDir, String fileName, String content) {
-        File outputFile = Paths.get(outputDir, fileName).toAbsolutePath().toFile();
-        File parentFile = outputFile.getParentFile();
-        if (!parentFile.exists()) {
-            parentFile.mkdirs();
-        }
+    public static Path writeToFile(String outputDir, String fileName, String content) {
+        Path outputPath = Paths.get(outputDir, fileName).toAbsolutePath();
+        Path parent = outputPath.getParent();
 
         try {
-            Files.writeString(outputFile.toPath(), content);
+            Files.writeString(outputPath, content, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
-        return outputFile;
+        return outputPath;
     }
 
+    /**
+     * Deletes generated Java source files under the specified output directory.
+     *
+     * <p>Only files that contain a known generated-file marker are deleted. The check reads up to
+     * the first 30 lines of each file and looks for generator markers inserted by TypeSpec/AutoRest.
+     * If the provided output directory does not exist or is not a directory, the method returns
+     * without performing any action. Individual file deletion failures are logged and processing
+     * continues for other files.</p>
+     *
+     * @param outputDir root directory under which generated .java files will be deleted.
+     * @throws IllegalStateException if an I/O error occurs while traversing the directory tree.
+     */
     public static void deleteGeneratedJavaFiles(String outputDir) {
         deleteGeneratedJavaFiles(outputDir, Collections.emptySet());
     }
 
+    /**
+     * Deletes generated Java source files under the specified output directory, except those whose
+     * relative paths are included in the supplied set.
+     *
+     * <p>Relative paths are computed relative to {@code outputDir} and use forward slashes ('/')
+     * as separators. Files are considered generated when their content contains one of the
+     * recognized generator markers within the first 30 lines. The method will continue on file
+     * deletion or access failures and will log warnings for those errors.</p>
+     *
+     * @param outputDir root directory under which generated .java files will be deleted.
+     * @param relativePathOfJavaFilesToKeep set of relative (forward-slash separated) file paths
+     * that should be preserved and not deleted.
+     * @throws IllegalStateException if an I/O error occurs while traversing the directory tree.
+     */
     public static void deleteGeneratedJavaFiles(String outputDir, Set<String> relativePathOfJavaFilesToKeep) {
         Path rootPath = Paths.get(outputDir);
         if (!Files.exists(rootPath) || !Files.isDirectory(rootPath)) {
