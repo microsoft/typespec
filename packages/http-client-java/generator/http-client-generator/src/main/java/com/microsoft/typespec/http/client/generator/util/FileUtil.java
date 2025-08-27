@@ -53,21 +53,21 @@ public class FileUtil {
     }
 
     public static void deleteGeneratedJavaFiles(String outputDir, Set<String> relativePathOfJavaFilesToKeep) {
-        Path start = Paths.get(outputDir);
-        if (!Files.exists(start) || !Files.isDirectory(start)) {
+        Path rootPath = Paths.get(outputDir);
+        if (!Files.exists(rootPath) || !Files.isDirectory(rootPath)) {
             return;
         }
 
         try {
-            Files.walkFileTree(start, new SimpleFileVisitor<Path>() {
+            Files.walkFileTree(rootPath, new SimpleFileVisitor<Path>() {
                 @Override
                 public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
-                    File file = filePath.toFile();
-                    if (isGeneratedJavaFile(file)) {
+                    String relativeFilePath = rootPath.relativize(filePath).toString().replace(File.separatorChar, '/');
+                    if (!relativePathOfJavaFilesToKeep.contains(relativeFilePath) && isGeneratedJavaFile(filePath)) {
                         try {
                             Files.deleteIfExists(filePath);
                         } catch (IOException e) {
-                            LOGGER.warn("Failed to delete generated file: {}", file.getAbsolutePath(), e);
+                            LOGGER.warn("Failed to delete generated file: {}", filePath.toAbsolutePath().toString(), e);
                         }
                     }
                     return FileVisitResult.CONTINUE;
@@ -84,12 +84,14 @@ public class FileUtil {
         }
     }
 
-    private static boolean isGeneratedJavaFile(File file) {
-        if (file == null || !file.isFile() || !file.getName().endsWith(".java")) {
+    private static boolean isGeneratedJavaFile(Path filePath) {
+        if (filePath == null
+            || !Files.isRegularFile(filePath)
+            || !filePath.getFileName().toString().endsWith(".java")) {
             return false;
         }
 
-        try (BufferedReader reader = Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8)) {
+        try (BufferedReader reader = Files.newBufferedReader(filePath, StandardCharsets.UTF_8)) {
             String line;
             int lines = 0;
             while ((line = reader.readLine()) != null && lines < 30) {
@@ -101,7 +103,8 @@ public class FileUtil {
                 ++lines;
             }
         } catch (IOException e) {
-            LOGGER.warn("Unable to read file when checking for generated marker: {}", file.getAbsolutePath(), e);
+            LOGGER.warn("Unable to read file when checking for generated marker: {}",
+                filePath.toAbsolutePath().toString(), e);
         }
 
         return false;
