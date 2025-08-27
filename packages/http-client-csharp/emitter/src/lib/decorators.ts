@@ -11,7 +11,7 @@ import {
   Program,
   Type,
 } from "@typespec/compiler";
-import type { DynamicModelDecorator } from "../../../generated-defs/TypeSpec.Http.Client.CSharp.js";
+import type { DynamicModelDecorator } from "../../../generated-defs/TypeSpec.HttpClient.CSharp.js";
 import { ExternalDocs } from "../type/external-docs.js";
 
 const externalDocsKey = Symbol("externalDocs");
