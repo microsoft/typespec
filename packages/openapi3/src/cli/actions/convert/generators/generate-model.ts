@@ -13,7 +13,11 @@ import { Context } from "../utils/context.js";
 import { getDecoratorsForSchema } from "../utils/decorators.js";
 import { generateDocs } from "../utils/docs.js";
 import { generateDecorators } from "./generate-decorators.js";
-import { getTypeSpecPrimitiveFromSchema, SchemaToExpressionGenerator } from "./generate-types.js";
+import {
+  getTypeSpecPrimitiveFromSchema,
+  isReferencedEnumType,
+  SchemaToExpressionGenerator,
+} from "./generate-types.js";
 
 export function generateDataType(type: TypeSpecDataTypes, context: Context): string {
   switch (type.kind) {
@@ -202,19 +206,7 @@ export function generateModelProperty(
       : [],
   ).join(" ");
 
-  let isEnumType = false;
-  try {
-    isEnumType =
-      ("$ref" in prop.schema && context?.getSchemaByRef(prop.schema.$ref)?.enum) ||
-      ("items" in prop.schema &&
-        prop.schema.items &&
-        "$ref" in prop.schema.items &&
-        context?.getSchemaByRef(prop.schema.items.$ref)?.enum)
-        ? true
-        : false;
-  } catch {
-    // ignore errors - we couldn't resolve the reference - so we assume it's not an enum
-  }
+  const isEnumType = isReferencedEnumType(prop.schema, context);
 
   const doc = prop.doc ? generateDocs(prop.doc) : "";
 

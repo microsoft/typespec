@@ -1,5 +1,10 @@
 import { printIdentifier } from "@typespec/compiler";
-import { OpenAPI3Encoding, OpenAPI3Schema, Refable } from "../../../../types.js";
+import {
+  OpenAPI3Encoding,
+  OpenAPI3Schema,
+  OpenAPI3SchemaProperty,
+  Refable,
+} from "../../../../types.js";
 import { Context } from "../utils/context.js";
 import {
   getDecoratorsForSchema,
@@ -285,20 +290,7 @@ export class SchemaToExpressionGenerator {
     if (schema.properties) {
       for (const name of Object.keys(schema.properties)) {
         const originalPropSchema = schema.properties[name];
-        let isEnumType = false;
-        try {
-          isEnumType =
-            ("$ref" in originalPropSchema &&
-              context?.getSchemaByRef(originalPropSchema.$ref)?.enum) ||
-            ("items" in originalPropSchema &&
-              originalPropSchema.items &&
-              "$ref" in originalPropSchema.items &&
-              context?.getSchemaByRef(originalPropSchema.items.$ref)?.enum)
-              ? true
-              : false;
-        } catch {
-          // ignore errors - we couldn't resolve the reference - so we assume it's not an enum
-        }
+        const isEnumType = !!context && isReferencedEnumType(originalPropSchema, context);
         const propType = this.generateTypeFromRefableSchema(originalPropSchema, callingScope);
 
         const decorators = generateDecorators(
@@ -332,6 +324,26 @@ export class SchemaToExpressionGenerator {
     }
     return objectBody;
   }
+}
+
+export function isReferencedEnumType(
+  propSchema: OpenAPI3SchemaProperty,
+  context: Context,
+): boolean {
+  let isEnumType = false;
+  try {
+    isEnumType =
+      ("$ref" in propSchema && context?.getSchemaByRef(propSchema.$ref)?.enum) ||
+      ("items" in propSchema &&
+        propSchema.items &&
+        "$ref" in propSchema.items &&
+        context?.getSchemaByRef(propSchema.items.$ref)?.enum)
+        ? true
+        : false;
+  } catch {
+    // ignore errors - we couldn't resolve the reference - so we assume it's not an enum
+  }
+  return isEnumType;
 }
 
 export function getTypeSpecPrimitiveFromSchema(schema: OpenAPI3Schema): string | undefined {
