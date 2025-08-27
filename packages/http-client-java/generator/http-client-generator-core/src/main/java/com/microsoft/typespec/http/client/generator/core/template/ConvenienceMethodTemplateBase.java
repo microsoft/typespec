@@ -194,8 +194,13 @@ abstract class ConvenienceMethodTemplateBase {
                 && ClientModelUtil.isJsonMergePatchModel(
                     ClientModelUtil.getClientModel(((ClassType) parameterRawType).getName()),
                     JavaSettings.getInstance())) {
+                ClientModel clientModel = ClientModelUtil.getClientModel(((ClassType) parameterRawType).getName());
+                // If it is polymorphic model, we need to enable json merge patch through root parent model
+                ClientModel rootParentModel = ClientModelUtil.getRootParent(clientModel);
+                IType rootParentModelType = rootParentModel.getType();
+
                 return writeParameterConversionExpressionWithJsonMergePatchEnabled(methodBlock,
-                    parameterRawType.toString(), parameterName, expression);
+                    rootParentModelType.toString(), parameterName, expression);
             } else {
                 return expression == null ? parameterName : expression;
             }

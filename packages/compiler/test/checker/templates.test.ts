@@ -13,7 +13,9 @@ import {
   expectTypeEquals,
   extractCursor,
   extractSquiggles,
+  t,
 } from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
 describe("compiler: templates", () => {
   let testHost: TestHost;
@@ -1134,5 +1136,37 @@ describe("compiler: templates", () => {
           "Argument of type '{ foo: string }' is not assignable to parameter of type '{ foo: int32 }'",
       });
     });
+  });
+});
+
+describe("ensure default pointing back to template are resolved correctly", () => {
+  it("declared before", async () => {
+    const { B } = await Tester.compile(t.code`
+      model A<T = B> {
+        t: T;
+      }
+
+      model ${t.model("B")} {
+        a: A;
+      }
+    `);
+    const A = B.properties.get("a")?.type;
+    strictEqual(A?.kind, "Model");
+    expectTypeEquals(A.properties.get("t")?.type, B);
+  });
+
+  it("declared after", async () => {
+    const { B } = await Tester.compile(t.code`
+      model ${t.model("B")} {
+        a: A;
+      }
+
+      model A<T = B> {
+        t: T;
+      }
+    `);
+    const A = B.properties.get("a")?.type;
+    strictEqual(A?.kind, "Model");
+    expectTypeEquals(A.properties.get("t")?.type, B);
   });
 });

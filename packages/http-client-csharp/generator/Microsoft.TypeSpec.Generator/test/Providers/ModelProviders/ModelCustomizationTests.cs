@@ -104,13 +104,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNull(modelTypeProvider.CustomCodeView.Properties[1].WireInfo);
 
             // validate canonical view
-            Assert.AreEqual(2, modelTypeProvider.CanonicalView!.Properties.Count);
+            Assert.AreEqual(1, modelTypeProvider.CanonicalView!.Properties.Count);
             Assert.AreEqual("Prop2", modelTypeProvider.CanonicalView.Properties[0].Name);
-            Assert.AreEqual("Prop1", modelTypeProvider.CanonicalView.Properties[1].Name);
             wireInfo = modelTypeProvider.CanonicalView.Properties[0].WireInfo;
             Assert.IsNotNull(wireInfo);
-            Assert.AreEqual("prop1", wireInfo!.SerializedName);
-            Assert.IsNull(modelTypeProvider.CanonicalView.Properties[1].WireInfo);
 
             Assert.AreEqual(0, modelTypeProvider.Properties.Count);
         }
@@ -1102,6 +1099,67 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             modelTypeProvider.Update(relativeFilePath: updatedRelativeFilePath);
 
             Assert.AreEqual(updatedRelativeFilePath, modelTypeProvider.RelativeFilePath);
+        }
+
+        [Test]
+        public async Task CanCustomizeModelNameWithCustomizedNamespace()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var props = new[]
+            {
+                InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String))
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            var namespaceVisitor = new TestNamespaceVisitor();
+            var nameVisitor = new TestNameVisitor();
+            var updatedModel = nameVisitor.InvokeVisit(namespaceVisitor.InvokeVisit(modelTypeProvider)!);
+            Assert.IsNotNull(updatedModel);
+            Assert.AreEqual("CustomizedModel", updatedModel!.Name);
+            Assert.AreEqual("NewNamespace", updatedModel.Type.Namespace);
+        }
+
+        private class NameSpaceVisitor : LibraryVisitor
+        {
+            protected override TypeProvider? VisitType(TypeProvider type)
+            {
+                if (type is ModelProvider model)
+                {
+                    model.Update(@namespace: "NewNamespace");
+                }
+                return base.VisitType(type);
+            }
+        }
+
+        private class NameVisitor : LibraryVisitor
+        {
+            protected override TypeProvider? VisitType(TypeProvider type)
+            {
+                if (type is ModelProvider model)
+                {
+                    model.Update(name: "CustomizedModel");
+                }
+                return base.VisitType(type);
+            }
+        }
+
+        private class TestNamespaceVisitor : NameSpaceVisitor
+        {
+            public TypeProvider? InvokeVisit(TypeProvider type)
+            {
+                return base.VisitType(type);
+            }
+        }
+
+        private class TestNameVisitor : NameVisitor
+        {
+            public TypeProvider? InvokeVisit(TypeProvider type)
+            {
+                return base.VisitType(type);
+            }
         }
     }
 }

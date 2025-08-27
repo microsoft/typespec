@@ -12,11 +12,11 @@ namespace Microsoft.TypeSpec.Generator.Input
     public class InputModelType : InputType
     {
         private const string UnknownDiscriminatorValue = "unknown";
-        private IReadOnlyList<InputProperty> _properties = [];
+        private IReadOnlyList<InputModelProperty> _properties = [];
         private IList<InputModelType> _derivedModels = [];
 
         // TODO: Follow up issue https://github.com/microsoft/typespec/issues/3619. After https://github.com/Azure/typespec-azure/pull/966 is completed, update this type and remove the "modelAsStruct" parameter.
-        public InputModelType(string name, string @namespace, string crossLanguageDefinitionId, string? access, string? deprecation, string? summary, string? doc, InputModelTypeUsage usage, IReadOnlyList<InputProperty> properties, InputModelType? baseModel, IReadOnlyList<InputModelType> derivedModels, string? discriminatorValue, InputProperty? discriminatorProperty, IReadOnlyDictionary<string, InputModelType> discriminatedSubtypes, InputType? additionalProperties, bool modelAsStruct, InputSerializationOptions serializationOptions)
+        public InputModelType(string name, string @namespace, string crossLanguageDefinitionId, string? access, string? deprecation, string? summary, string? doc, InputModelTypeUsage usage, IReadOnlyList<InputModelProperty> properties, InputModelType? baseModel, IReadOnlyList<InputModelType> derivedModels, string? discriminatorValue, InputModelProperty? discriminatorProperty, IReadOnlyDictionary<string, InputModelType> discriminatedSubtypes, InputType? additionalProperties, bool modelAsStruct, InputSerializationOptions serializationOptions)
             : base(name)
         {
             Namespace = @namespace;
@@ -57,7 +57,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public string? Doc { get; internal set; }
         public InputModelTypeUsage Usage { get; internal set; }
 
-        public IReadOnlyList<InputProperty> Properties
+        public IReadOnlyList<InputModelProperty> Properties
         {
             get => _properties;
             internal set
@@ -80,7 +80,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             _derivedModels.Add(model);
         }
         public string? DiscriminatorValue { get; internal set; }
-        public InputProperty? DiscriminatorProperty { get; internal set; }
+        public InputModelProperty? DiscriminatorProperty { get; internal set; }
         private Dictionary<string, InputModelType>? _discriminatedSubtypes;
         public IReadOnlyDictionary<string, InputModelType> DiscriminatedSubtypes
         {

@@ -43,6 +43,9 @@ namespace Microsoft.TypeSpec.Generator.Input
                 access: null,
                 isDiscriminator: false,
                 serializedName: null!,
+                isHttpMetadata: false,
+                isApiVersion: false,
+                defaultValue: null,
                 serializationOptions: null!);
             resolver.AddReference(id, property);
 
@@ -50,9 +53,12 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? summary = null;
             string? doc = null;
             string? serializedName = null;
+            bool isApiVersion = false;
+            InputConstant? defaultValue = null;
             InputType? propertyType = null;
             bool isReadOnly = false;
             bool isOptional = false;
+            bool isHttpMetadata = false;
             string? access = null;
             bool isDiscriminator = false;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
@@ -67,11 +73,14 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("doc", ref doc)
                     || reader.TryReadComplexType("type", options, ref propertyType)
                     || reader.TryReadBoolean("readOnly", ref isReadOnly)
+                    || reader.TryReadBoolean("isHttpMetadata", ref isHttpMetadata)
                     || reader.TryReadBoolean("optional", ref isOptional)
                     || reader.TryReadString("access", ref access)
                     || reader.TryReadBoolean("discriminator", ref isDiscriminator)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
                     || reader.TryReadString("serializedName", ref serializedName)
+                    || reader.TryReadBoolean("isApiVersion", ref isApiVersion)
+                    || reader.TryReadComplexType("defaultValue", options, ref defaultValue)
                     || reader.TryReadComplexType("serializationOptions", options, ref serializationOptions);
 
                 if (!isKnownProperty)
@@ -86,11 +95,14 @@ namespace Microsoft.TypeSpec.Generator.Input
             property.Type = propertyType ?? throw new JsonException($"{nameof(InputModelProperty)} must have a property type.");
             property.IsRequired = !isOptional;
             property.IsReadOnly = isReadOnly;
+            property.IsHttpMetadata = isHttpMetadata;
             property.Access = access;
             property.IsDiscriminator = isDiscriminator;
             property.Decorators = decorators ?? [];
             property.SerializationOptions = serializationOptions;
             property.SerializedName = serializedName ?? serializationOptions?.Json?.Name ?? name;
+            property.IsApiVersion = isApiVersion;
+            property.DefaultValue = defaultValue;
 
             return property;
         }

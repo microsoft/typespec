@@ -1,15 +1,14 @@
 import {
   createDiagnosticCollector,
-  DecoratorContext,
   Diagnostic,
   DiagnosticResult,
   Interface,
   Namespace,
   Operation,
   Program,
-  Type,
 } from "@typespec/compiler";
-import { createDiagnostic, HttpStateKeys, reportDiagnostic } from "./lib.js";
+import { isSharedRoute } from "./decorators/shared-route.js";
+import { createDiagnostic, HttpStateKeys } from "./lib.js";
 import { getOperationParameters } from "./parameters.js";
 import {
   HttpOperation,
@@ -296,47 +295,6 @@ export function getRouteProducer(program: Program, operation: Operation): RouteP
   return program.stateMap(HttpStateKeys.routeProducer).get(operation);
 }
 
-export function setRoute(context: DecoratorContext, entity: Type, details: RoutePath) {
-  const state = context.program.stateMap(HttpStateKeys.routes);
-
-  if (state.has(entity) && entity.kind === "Namespace") {
-    const existingPath: string | undefined = state.get(entity);
-    if (existingPath !== details.path) {
-      reportDiagnostic(context.program, {
-        code: "duplicate-route-decorator",
-        messageId: "namespace",
-        target: entity,
-      });
-    }
-  } else {
-    state.set(entity, details.path);
-    if (entity.kind === "Operation" && details.shared) {
-      setSharedRoute(context.program, entity as Operation);
-    }
-  }
-}
-
-export function setSharedRoute(program: Program, operation: Operation) {
-  program.stateMap(HttpStateKeys.sharedRoutes).set(operation, true);
-}
-
-export function isSharedRoute(program: Program, operation: Operation): boolean {
-  return program.stateMap(HttpStateKeys.sharedRoutes).get(operation) === true;
-}
-
-export function getRoutePath(
-  program: Program,
-  entity: Namespace | Interface | Operation,
-): RoutePath | undefined {
-  const path = program.stateMap(HttpStateKeys.routes).get(entity);
-  return path
-    ? {
-        path,
-        shared: entity.kind === "Operation" && isSharedRoute(program, entity as Operation),
-      }
-    : undefined;
-}
-
 export function setRouteOptionsForNamespace(
   program: Program,
   namespace: Namespace,
@@ -350,4 +308,17 @@ export function getRouteOptionsForNamespace(
   namespace: Namespace,
 ): RouteOptions | undefined {
   return program.stateMap(HttpStateKeys.routeOptions).get(namespace);
+}
+
+export function getRoutePath(
+  program: Program,
+  entity: Namespace | Interface | Operation,
+): RoutePath | undefined {
+  const path = program.stateMap(HttpStateKeys.routes).get(entity);
+  return path
+    ? {
+        path,
+        shared: entity.kind === "Operation" && isSharedRoute(program, entity as Operation),
+      }
+    : undefined;
 }

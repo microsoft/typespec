@@ -1,5 +1,13 @@
 # Changelog - @typespec/emitter-framework
 
+## 0.10.0
+
+### Bump dependencies
+
+- [#8050](https://github.com/microsoft/typespec/pull/8050) Upgrade alloy 0.19
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+
 ## 0.9.0
 
 ### Features

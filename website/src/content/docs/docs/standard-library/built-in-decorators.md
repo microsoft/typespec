@@ -1185,13 +1185,6 @@ namespace PetStore;
 namespace PetStore;
 ```
 
-##### Setting service version
-
-```typespec
-@service(#{version: "1.0"})
-namespace PetStore;
-```
-
 
 ### `@summary` {#@summary}
 

@@ -12,6 +12,7 @@ import {
 } from "../interfaces.js";
 import { Context } from "../utils/context.js";
 import { getExtensions, getParameterDecorators } from "../utils/decorators.js";
+import { generateOperationId } from "../utils/generate-operation-id.js";
 import { getScopeAndName } from "../utils/get-scope-and-name.js";
 import { supportedHttpMethods } from "../utils/supported-http-methods.js";
 
@@ -26,6 +27,7 @@ export function transformPaths(
   context: Context,
 ): TypeSpecOperation[] {
   const operations: TypeSpecOperation[] = [];
+  const usedOperationIds = new Set<string>();
 
   for (const route of Object.keys(paths)) {
     const routeParameters = paths[route].parameters?.map(transformOperationParameter) ?? [];
@@ -49,15 +51,29 @@ export function transformPaths(
         decorators.push({ name: "summary", args: [operation.summary] });
       }
 
+      const fixmes: string[] = [];
+
+      // Handle missing operationId
+      let operationId = operation.operationId;
+      if (!operationId) {
+        operationId = generateOperationId(verb, route, usedOperationIds);
+        const warning = `Open API operation '${verb.toUpperCase()} ${route}' is missing an operationId. Generated: '${operationId}'`;
+        context.logger.warn(warning);
+        fixmes.push(warning);
+      } else {
+        usedOperationIds.add(operationId);
+      }
+
       operations.push({
-        ...getScopeAndName(operation.operationId!),
+        ...getScopeAndName(operationId),
         decorators,
         parameters: dedupeParameters([...routeParameters, ...parameters]),
         doc: operation.description,
-        operationId: operation.operationId,
+        operationId: operationId,
         requestBodies: transformRequestBodies(operation.requestBody, context),
         responses: operationResponses,
         tags: tags,
+        fixmes,
       });
     }
   }

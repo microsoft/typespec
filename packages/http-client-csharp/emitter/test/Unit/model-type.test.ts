@@ -564,10 +564,22 @@ op testOperation(@bodyRoot body: HeaderModel): void;
     const headerProperty = isEmptyModel?.properties.find((p) => p.name === "foo");
     ok(headerProperty);
     strictEqual(headerProperty.name, "foo");
-    strictEqual(headerProperty.serializedName, "x-foo");
+    strictEqual(headerProperty.serializedName, "foo");
     strictEqual(headerProperty.type.kind, "string");
     strictEqual(headerProperty.optional, false);
     strictEqual(headerProperty.readOnly, false);
+
+    strictEqual(root.clients.length, 1);
+    const client = root.clients[0];
+    strictEqual(client.methods.length, 1);
+
+    const method = client.methods[0];
+    ok(method);
+    strictEqual(method.operation.parameters.length, 3);
+
+    const fooParameter = method.operation.parameters.find((p) => p.name === "foo");
+    ok(fooParameter);
+    strictEqual(fooParameter.serializedName, "x-foo");
   });
 
   it("Header property should be included in the model if it's read-only", async () => {
@@ -597,7 +609,7 @@ op testOperation(@bodyRoot body: HeaderModel): void;
     const headerProperty = isEmptyModel?.properties.find((p) => p.name === "foo");
     ok(headerProperty);
     strictEqual(headerProperty.name, "foo");
-    strictEqual(headerProperty.serializedName, "x-foo");
+    strictEqual(headerProperty.serializedName, "foo");
     strictEqual(headerProperty.type.kind, "string");
     strictEqual(headerProperty.optional, false);
     strictEqual(headerProperty.readOnly, true);
@@ -657,11 +669,23 @@ op testOperation(@bodyRoot body: HeaderModel): void;
     const headerProperty = isEmptyModel?.properties.find((p) => p.name === "foo");
     ok(headerProperty);
     strictEqual(headerProperty.name, "foo");
-    strictEqual(headerProperty.serializedName, "x-foo");
+    strictEqual(headerProperty.serializedName, "foo");
     strictEqual(headerProperty.type.kind, "constant");
     strictEqual(headerProperty.type.value, "cat");
     strictEqual(headerProperty.optional, false);
     strictEqual(headerProperty.readOnly, false);
+
+    strictEqual(root.clients.length, 1);
+    const client = root.clients[0];
+    strictEqual(client.methods.length, 1);
+
+    const method = client.methods[0];
+    ok(method);
+    strictEqual(method.operation.parameters.length, 3);
+
+    const fooParameter = method.operation.parameters.find((p) => p.name === "foo");
+    ok(fooParameter);
+    strictEqual(fooParameter.serializedName, "x-foo");
   });
 });
 

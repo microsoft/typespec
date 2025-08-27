@@ -14,7 +14,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? documentation,
             string? summary,
             InputOperation operation,
-            IReadOnlyList<InputParameter> parameters,
+            IReadOnlyList<InputMethodParameter> parameters,
             InputServiceMethodResponse response,
             InputServiceMethodResponse? exception,
             bool isOverride,
