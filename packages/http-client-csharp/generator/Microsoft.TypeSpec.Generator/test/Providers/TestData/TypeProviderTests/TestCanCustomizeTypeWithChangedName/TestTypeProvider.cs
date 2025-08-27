@@ -3,9 +3,9 @@
 using System;
 using SampleTypeSpec;
 
-namespace NewNamespace;
+namespace Foo;
 
-[CodeGenType("Foo")]
+[CodeGenType("TestName")]
 public partial class TestTypeProvider
 {
 }
