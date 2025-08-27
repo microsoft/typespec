@@ -25,6 +25,6 @@ import type { DecoratorContext, Model, Namespace } from "@typespec/compiler";
  */
 export type DynamicModelDecorator = (context: DecoratorContext, target: Model | Namespace) => void;
 
-export type TypeSpecHttpClientDecorators = {
+export type TypeSpecHttpClientCSharpDecorators = {
   dynamicModel: DynamicModelDecorator;
 };

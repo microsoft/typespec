@@ -2,9 +2,9 @@
 // doesn't have the right name.
 
 import { $decorators } from "@typespec/http-client-csharp";
-import type { TypeSpecHttpClientDecorators } from "./TypeSpec.HttpClient.js";
+import type { TypeSpecHttpClientCSharpDecorators } from "./TypeSpec.Http.Client.CSharp.js";
 
 /**
  * An error here would mean that the exported decorator is not using the same signature. Make sure to have export const $decName: DecNameDecorator = (...) => ...
  */
-const _: TypeSpecHttpClientDecorators = $decorators["TypeSpec.HttpClient"];
+const _: TypeSpecHttpClientCSharpDecorators = $decorators["TypeSpec.Http.Client.CSharp"];

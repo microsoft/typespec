@@ -26,4 +26,4 @@ export { InputClient, InputModelType } from "./type/input-type.js";
 /** @internal */
 export { $decorators } from "./tsp-index.js";
 
-export type { DynamicModelDecorator } from "../../generated-defs/TypeSpec.HttpClient.js";
+export type { DynamicModelDecorator } from "../../generated-defs/TypeSpec.Http.Client.CSharp.js";

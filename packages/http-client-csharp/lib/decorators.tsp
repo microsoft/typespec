@@ -2,7 +2,7 @@ import "../dist/emitter/src/lib/decorators.js";
 
 using TypeSpec.Reflection;
 
-namespace TypeSpec.HttpClient;
+namespace TypeSpec.Http.Client.CSharp;
 
 /**
  * Marks a model or namespace as dynamic, indicating it should generate dynamic model code.

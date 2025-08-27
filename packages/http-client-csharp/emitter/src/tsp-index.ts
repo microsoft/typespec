@@ -1,11 +1,11 @@
-import type { TypeSpecHttpClientDecorators } from "../../generated-defs/TypeSpec.HttpClient.js";
+import type { TypeSpecHttpClientCSharpDecorators } from "../../generated-defs/TypeSpec.Http.Client.CSharp.js";
 import { $dynamicModel } from "./lib/decorators.js";
 
 export { $lib } from "./lib/lib.js";
 
 /** @internal */
 export const $decorators = {
-  "TypeSpec.HttpClient": {
+  "TypeSpec.Http.Client.CSharp": {
     dynamicModel: $dynamicModel,
-  } satisfies TypeSpecHttpClientDecorators,
+  } satisfies TypeSpecHttpClientCSharpDecorators,
 };
