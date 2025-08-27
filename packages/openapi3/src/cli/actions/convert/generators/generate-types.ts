@@ -1,5 +1,11 @@
 import { printIdentifier } from "@typespec/compiler";
-import { OpenAPI3Schema, Refable } from "../../../../types.js";
+import {
+  OpenAPI3Encoding,
+  OpenAPI3Schema,
+  OpenAPI3SchemaProperty,
+  Refable,
+} from "../../../../types.js";
+import { Context } from "../utils/context.js";
 import {
   getDecoratorsForSchema,
   normalizeObjectValueToTSValueExpression,
@@ -13,11 +19,14 @@ export class SchemaToExpressionGenerator {
   public generateTypeFromRefableSchema(
     schema: Refable<OpenAPI3Schema>,
     callingScope: string[],
+    isHttpPart = false,
+    encoding?: Record<string, OpenAPI3Encoding>,
+    context?: Context,
   ): string {
     const hasRef = "$ref" in schema;
     return hasRef
       ? this.getRefName(schema.$ref, callingScope)
-      : this.getTypeFromSchema(schema, callingScope);
+      : this.getTypeFromSchema(schema, callingScope, isHttpPart, encoding, context);
   }
 
   public generateArrayType(schema: OpenAPI3Schema, callingScope: string[]): string {
@@ -75,7 +84,13 @@ export class SchemaToExpressionGenerator {
     return scopeAndName;
   }
 
-  private getTypeFromSchema(schema: OpenAPI3Schema, callingScope: string[]): string {
+  private getTypeFromSchema(
+    schema: OpenAPI3Schema,
+    callingScope: string[],
+    isHttpPart = false,
+    encoding?: Record<string, OpenAPI3Encoding>,
+    context?: Context,
+  ): string {
     let type = "unknown";
 
     if (schema.const !== undefined) {
@@ -102,14 +117,14 @@ export class SchemaToExpressionGenerator {
     ) {
       // we should never test on type object as it's not required
       // but rather on the presence of properties which indicates an object type
-      type = this.getObjectType(schema, callingScope);
+      type = this.getObjectType(schema, callingScope, isHttpPart, encoding, context);
     } else if (schema.oneOf?.length) {
       type = this.getOneOfType(schema, callingScope);
     } else if (schema.type === "string") {
       type = getStringType(schema);
     } else if (schema.type === "object") {
       // this is a fallback to maintain compatibility and it needs to be in the last cases
-      type = this.getObjectType(schema, callingScope);
+      type = this.getObjectType(schema, callingScope, isHttpPart, encoding, context);
     } else if (schema.type === "array") {
       // this is a fallback to maintain compatibility and it needs to be in the last cases
       type = this.generateArrayType(schema, callingScope);
@@ -183,7 +198,90 @@ export class SchemaToExpressionGenerator {
     return definitions.join(" | ");
   }
 
-  private getObjectType(schema: OpenAPI3Schema, callingScope: string[]): string {
+  public getPartType(
+    propType: string,
+    name: string,
+    isHttpPart: boolean,
+    encoding: Record<string, OpenAPI3Encoding> | undefined,
+    isEnumType: boolean,
+    isUnionType: boolean,
+  ): string {
+    if (!isHttpPart) {
+      return propType;
+    }
+    const propTypeWithoutDefault = propType.replace(/ = .*/, "");
+    const propTypeWithoutNull = propTypeWithoutDefault.replace(/ \| null/g, "");
+    const encodingForProperty = encoding?.[name];
+    const filePartType =
+      encodingForProperty?.contentType &&
+      this.shouldUpgradeToFileDefinition(propTypeWithoutDefault, encodingForProperty.contentType)
+        ? `File<"${encodingForProperty.contentType}">`
+        : undefined;
+    const contentTypeHeader =
+      encodingForProperty?.contentType &&
+      !filePartType &&
+      !this.isDefaultPartType(propTypeWithoutNull, encodingForProperty.contentType) &&
+      !this.isInlineUnionType(propTypeWithoutNull) &&
+      !isUnionType &&
+      !this.isScalarType(propTypeWithoutNull) &&
+      !isEnumType
+        ? ` & { @header contentType: "${encodingForProperty.contentType}" }`
+        : "";
+    return `HttpPart<${filePartType ?? propTypeWithoutDefault}${contentTypeHeader}>`;
+  }
+
+  private isInlineUnionType(partType: string): boolean {
+    return partType.includes("|");
+  }
+
+  private isScalarType(partType: string): boolean {
+    return (
+      partType === "string" ||
+      partType === "boolean" ||
+      partType === "null" ||
+      this.numericTypes[partType]
+    );
+  }
+
+  private isDefaultPartType(partType: string, partMediaType: string): boolean {
+    return (
+      ((partType === "string" || this.numericTypes[partType]) && partMediaType === "text/plain") ||
+      (partType === "bytes" && partMediaType === "application/octet-stream")
+    );
+  }
+
+  private shouldUpgradeToFileDefinition(partType: string, partMediaType: string): boolean {
+    return partType === "bytes" && !this.isDefaultPartType(partType, partMediaType);
+  }
+  private readonly numericTypes: Record<string, boolean> = {
+    // https://typespec.io/docs/language-basics/built-in-types/
+    numeric: true,
+    integer: true,
+    float: true,
+    float32: true,
+    float64: true,
+    int8: true,
+    int16: true,
+    int32: true,
+    int64: true,
+    safeint: true,
+    uint8: true,
+    uint16: true,
+    uint32: true,
+    uint64: true,
+    decimal: true,
+    decimal128: true,
+  };
+
+  public static readonly decoratorNamesToExcludeForParts: string[] = ["minValue", "maxValue"];
+
+  private getObjectType(
+    schema: OpenAPI3Schema,
+    callingScope: string[],
+    isHttpPart = false,
+    encoding?: Record<string, OpenAPI3Encoding>,
+    context?: Context,
+  ): string {
     // If we have `additionalProperties`, treat that as an 'indexer' and convert to a record.
     const recordType =
       typeof schema.additionalProperties === "object"
@@ -196,13 +294,20 @@ export class SchemaToExpressionGenerator {
     if (schema.properties) {
       for (const name of Object.keys(schema.properties)) {
         const originalPropSchema = schema.properties[name];
+        const isEnumType = !!context && isReferencedEnumType(originalPropSchema, context);
+        const isUnionType = !!context && isReferencedUnionType(originalPropSchema, context);
         const propType = this.generateTypeFromRefableSchema(originalPropSchema, callingScope);
 
-        const decorators = generateDecorators(getDecoratorsForSchema(originalPropSchema))
+        const decorators = generateDecorators(
+          getDecoratorsForSchema(originalPropSchema),
+          isHttpPart ? SchemaToExpressionGenerator.decoratorNamesToExcludeForParts : [],
+        )
           .map((d) => `${d}\n`)
           .join("");
         const isOptional = !requiredProps.includes(name) ? "?" : "";
-        props.push(`${decorators}${printIdentifier(name)}${isOptional}: ${propType}`);
+        props.push(
+          `${decorators}${printIdentifier(name)}${isOptional}: ${this.getPartType(propType, name, isHttpPart, encoding, isEnumType, isUnionType)}`,
+        );
       }
     }
 
@@ -224,6 +329,50 @@ export class SchemaToExpressionGenerator {
     }
     return objectBody;
   }
+}
+
+export function isReferencedEnumType(
+  propSchema: OpenAPI3SchemaProperty,
+  context: Context,
+): boolean {
+  let isEnumType = false;
+  try {
+    isEnumType =
+      ("$ref" in propSchema && context.getSchemaByRef(propSchema.$ref)?.enum) ||
+      ("items" in propSchema &&
+        propSchema.items &&
+        "$ref" in propSchema.items &&
+        context.getSchemaByRef(propSchema.items.$ref)?.enum)
+        ? true
+        : false;
+  } catch {
+    // ignore errors - we couldn't resolve the reference - so we assume it's not an enum
+  }
+  return isEnumType;
+}
+
+export function isReferencedUnionType(
+  propSchema: OpenAPI3SchemaProperty,
+  context: Context,
+): boolean {
+  let isUnionType = false;
+  try {
+    const resolvedSchema =
+      "$ref" in propSchema ? context.getSchemaByRef(propSchema.$ref) : undefined;
+    const resolvedItemsSchema =
+      "items" in propSchema && propSchema.items && "$ref" in propSchema.items
+        ? context.getSchemaByRef(propSchema.items.$ref)
+        : undefined;
+    isUnionType =
+      (resolvedSchema && (resolvedSchema.oneOf?.length || resolvedSchema.anyOf?.length)) ||
+      (resolvedItemsSchema &&
+        (resolvedItemsSchema.oneOf?.length || resolvedItemsSchema.anyOf?.length))
+        ? true
+        : false;
+  } catch {
+    // ignore errors - we couldn't resolve the reference - so we assume it's not a union
+  }
+  return isUnionType;
 }
 
 export function getTypeSpecPrimitiveFromSchema(schema: OpenAPI3Schema): string | undefined {
