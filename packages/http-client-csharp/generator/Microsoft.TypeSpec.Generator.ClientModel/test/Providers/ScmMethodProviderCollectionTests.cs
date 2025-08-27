@@ -937,7 +937,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 => m.Signature.Parameters.All(p => p.Name != "options")
                    && m.Signature.Name == $"{inputOperation.Name.ToIdentifierName()}");
 
-            var expected = convenienceMethod!.BodyStatements!.ToDisplayString();
             Assert.AreEqual(Helpers.GetExpectedFromFile(type.Name), convenienceMethod!.BodyStatements!.ToDisplayString());
         }
 

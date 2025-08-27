@@ -208,7 +208,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromObject(parameter), out var content));
                         declarations["content"] = content;
                     }
-                    else if (parameter.Type.IsFrameworkType)
+                    else if (parameter.Type.IsFrameworkType && !parameter.Type.Equals(typeof(BinaryData)))
                     {
                         statements.Add(Declare("content", New.Instance<Utf8JsonBinaryContentDefinition>(), out var content));
                         statements.Add(ScmCodeModelGenerator.Instance.TypeFactory.SerializeJsonValue(
@@ -220,6 +220,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         declarations["content"] = content;
                     }
                     // else rely on implicit operator to convert to BinaryContent
+                    // For BinaryData we have special handling as well
                 }
             }
 
