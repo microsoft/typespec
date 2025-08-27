@@ -15,6 +15,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,17 +83,23 @@ public class FileUtil {
      * @throws IllegalStateException if an I/O error occurs while traversing the directory tree.
      */
     public static void deleteGeneratedJavaFiles(String outputDir, Set<String> relativePathOfJavaFilesToKeep) {
-        Path rootPath = Paths.get(outputDir);
+        Path rootPath = Paths.get(outputDir).resolve("src");
         if (!Files.exists(rootPath) || !Files.isDirectory(rootPath)) {
             return;
         }
+
+        final Set<String> rebasedRelativePathOfJavaFilesToKeep = relativePathOfJavaFilesToKeep.stream()
+            .filter(f -> f.startsWith("src/"))
+            .map(f -> f.substring(4))
+            .collect(Collectors.toSet());
 
         try {
             Files.walkFileTree(rootPath, new SimpleFileVisitor<Path>() {
                 @Override
                 public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
                     String relativeFilePath = rootPath.relativize(filePath).toString().replace(File.separatorChar, '/');
-                    if (!relativePathOfJavaFilesToKeep.contains(relativeFilePath) && isGeneratedJavaFile(filePath)) {
+                    if (!rebasedRelativePathOfJavaFilesToKeep.contains(relativeFilePath)
+                        && isGeneratedJavaFile(filePath)) {
                         try {
                             Files.deleteIfExists(filePath);
                         } catch (IOException e) {
