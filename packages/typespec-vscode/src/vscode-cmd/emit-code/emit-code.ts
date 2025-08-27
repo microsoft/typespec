@@ -958,11 +958,7 @@ async function generateAnnotatedYamlFile(
           const whitespacePadding = " ".repeat(totalPadding);
 
           // First standardize the behavior of the change \n, then insert aligned spaces and inline "#" for the continuation line
-          let processedComment = x.comment.replace(/\r\n|\r/g, "\n");
-          if (processedComment.includes("\n")) {
-            processedComment = processedComment.replaceAll("\n", `\n${whitespacePadding}# `);
-          }
-
+          const processedComment = x.comment.replaceAll(/\r\n|\r|\n/g, `\n${whitespacePadding}# `);
           return `${nameValuePart}${" ".repeat(spacesToAdd)}# ${processedComment}`;
         })
         .join("\n");
