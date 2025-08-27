@@ -876,16 +876,16 @@ function getConfigEntriesFromEmitterOptions(
     } = propertySchema as any;
 
     const commentParts: string[] = [];
-    if (description) {
-      commentParts.push(description);
-    }
     if (type) {
       commentParts.push(`Type: ${type}`);
     }
     if (Array.isArray(enumValues)) {
-      commentParts.push(`Options: ${enumValues.join(", ")}`);
+      commentParts.push(`Options: [${enumValues.join(", ")}]`);
     }
-    const comment = commentParts.join(" ");
+    if (description) {
+      commentParts.push(`Description: ${description}`);
+    }
+    const comment = commentParts.join(", ");
 
     let value = defaultValue;
     if (value === undefined) {
