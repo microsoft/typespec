@@ -774,7 +774,7 @@ def _sorted_annotations(types: list[typing.Any]) -> list[typing.Any]:
         key=lambda x: hasattr(x, "__name__") and x.__name__.lower() in ("str", "float", "int", "bool"),
     )
 
-def _get_deserialize_callable_from_annotation(  # pylint: disable=too-many-return-statements, too-many-branches
+def _get_deserialize_callable_from_annotation(  # pylint: disable=too-many-return-statements, too-many-statements, too-many-branches
     annotation: typing.Any,
     module: typing.Optional[str],
     rf: typing.Optional["_RestField"] = None,
