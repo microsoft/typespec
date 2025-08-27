@@ -13,6 +13,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Collections;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +49,10 @@ public class FileUtil {
     }
 
     public static void deleteGeneratedJavaFiles(String outputDir) {
+        deleteGeneratedJavaFiles(outputDir, Collections.emptySet());
+    }
+
+    public static void deleteGeneratedJavaFiles(String outputDir, Set<String> relativePathOfJavaFilesToKeep) {
         Path start = Paths.get(outputDir);
         if (!Files.exists(start) || !Files.isDirectory(start)) {
             return;

@@ -20,11 +20,13 @@ import com.microsoft.typespec.http.client.generator.fluent.TypeSpecFluentPlugin;
 import com.microsoft.typespec.http.client.generator.mgmt.model.javamodel.FluentJavaPackage;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
+import com.microsoft.typespec.http.client.generator.util.FileUtil;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -109,9 +111,11 @@ public class Main {
         // template
         FluentJavaPackage javaPackage = fluentPlugin.processTemplates(codeModel, client);
 
-        // write
+        // delete generated Java files
+        deleteGeneratedJavaFiles(emitterOptions.getOutputDir(), javaPackage.getJavaFiles(),
+            JavaSettings.getInstance().isHandlePartialUpdate());
 
-        // java files
+        // write java files
         Postprocessor.writeToFiles(
             javaPackage.getJavaFiles()
                 .stream()
@@ -139,6 +143,8 @@ public class Main {
         // initialize plugin
         TypeSpecPlugin typeSpecPlugin = new TypeSpecPlugin(emitterOptions, sdkIntegration);
 
+        JavaSettings settings = JavaSettings.getInstance();
+
         // client
         Client client = typeSpecPlugin.processClient(codeModel);
 
@@ -149,16 +155,16 @@ public class Main {
         LOGGER.info("Count of XML files: {}", javaPackage.getXmlFiles().size());
         LOGGER.info("Count of text files: {}", javaPackage.getTextFiles().size());
 
-        // handle partial update
+        // delete generated Java files
+        deleteGeneratedJavaFiles(outputDir, javaPackage.getJavaFiles(), settings.isHandlePartialUpdate());
+
         Map<String, String> javaFiles = new ConcurrentHashMap<>();
-        JavaSettings settings = JavaSettings.getInstance();
         javaPackage.getJavaFiles()
             .parallelStream()
             .forEach(javaFile -> javaFiles.put(javaFile.getFilePath(), javaFile.getContents().toString()));
-
+        // handle partial update
         // handle customization
-        // write output
-        // java files
+        // write output java files
         new Postprocessor(typeSpecPlugin).postProcess(javaFiles);
 
         // XML include POM
@@ -175,6 +181,15 @@ public class Main {
                 typeSpecPlugin.writeFile("src/main/resources/" + artifactId + ".properties",
                     "name=${project.artifactId}\nversion=${project.version}\n", null);
             }
+        }
+    }
+
+    private static void deleteGeneratedJavaFiles(String outputDir, List<JavaFile> javaFiles, boolean isPartialUpdate) {
+        if (isPartialUpdate) {
+            FileUtil.deleteGeneratedJavaFiles(outputDir,
+                javaFiles.stream().map(JavaFile::getFilePath).collect(Collectors.toSet()));
+        } else {
+            FileUtil.deleteGeneratedJavaFiles(outputDir);
         }
     }
 
