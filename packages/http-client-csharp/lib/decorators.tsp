@@ -7,7 +7,7 @@ namespace TypeSpec.Http.Client.CSharp;
 /**
  * Marks a model or namespace as dynamic, indicating it should generate dynamic model code.
  * Can be applied to Model or Namespace types.
- * 
+ *
  * @example
  * ```tsp
  * @dynamicModel
@@ -15,7 +15,7 @@ namespace TypeSpec.Http.Client.CSharp;
  *   name: string;
  *   kind: string;
  * }
- * 
+ *
  * @dynamicModel
  * namespace PetStore {
  *   model Dog extends Pet {

@@ -23,7 +23,7 @@ namespace PetStore {
   model Dog extends Pet {
     breed: string;
   }
-  
+
   model Cat extends Pet {
     isIndoor: boolean;
   }
@@ -31,7 +31,7 @@ namespace PetStore {
 
 // Regular operations that use the dynamic models
 @service({
-  title: "Pet Store Service"
+  title: "Pet Store Service",
 })
 namespace PetStoreService {
   @get op getPet(): Pet;

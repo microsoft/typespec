@@ -3,7 +3,7 @@ import type { DecoratorContext, Model, Namespace } from "@typespec/compiler";
 /**
  * Marks a model or namespace as dynamic, indicating it should generate dynamic model code.
  * Can be applied to Model or Namespace types.
- * 
+ *
  * @example
  * ```tsp
  * @dynamicModel
@@ -11,7 +11,7 @@ import type { DecoratorContext, Model, Namespace } from "@typespec/compiler";
  *   name: string;
  *   kind: string;
  * }
- * 
+ *
  * @dynamicModel
  * namespace PetStore {
  *   model Dog extends Pet {
@@ -20,10 +20,7 @@ import type { DecoratorContext, Model, Namespace } from "@typespec/compiler";
  * }
  * ```
  */
-export type DynamicModelDecorator = (
-  context: DecoratorContext,
-  target: Model | Namespace,
-) => void;
+export type DynamicModelDecorator = (context: DecoratorContext, target: Model | Namespace) => void;
 
 export type TypeSpecHttpClientCSharpDecorators = {
   dynamicModel: DynamicModelDecorator;

@@ -9,6 +9,15 @@
     "declarationMap": true
   },
   "references": [],
-  "include": ["../emitter/src/", "../emitter/test/", "../generated-defs/TypeSpec.Http.Client.CSharp.ts"],
-  "exclude": ["../generated-defs/**/*.d.ts", "../generated-defs/**/*.js", "../generated-defs/**/*.js.map", "../generated-defs/**/*-test.ts"]
+  "include": [
+    "../emitter/src/",
+    "../emitter/test/",
+    "../generated-defs/TypeSpec.Http.Client.CSharp.ts"
+  ],
+  "exclude": [
+    "../generated-defs/**/*.d.ts",
+    "../generated-defs/**/*.js",
+    "../generated-defs/**/*.js.map",
+    "../generated-defs/**/*-test.ts"
+  ]
 }

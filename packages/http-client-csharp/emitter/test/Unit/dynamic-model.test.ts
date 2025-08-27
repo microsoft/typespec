@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { $dynamicModel, isDynamicModel } from "../../src/lib/decorators.js";
 
 describe("Test dynamicModel decorator", () => {
@@ -13,11 +13,11 @@ describe("Test dynamicModel decorator", () => {
     const mockProgram = {
       stateSet: () => mockStateSet,
     };
-    
+
     const mockContext = {
       program: mockProgram,
     };
-    
+
     const mockModel = {
       kind: "Model",
       name: "TestModel",
@@ -28,7 +28,7 @@ describe("Test dynamicModel decorator", () => {
 
     // Check that the model was added to the state set
     expect(mockStateSet.has(mockModel)).toBe(true);
-    
+
     // Check using the helper function
     expect(isDynamicModel(mockProgram as any, mockModel as any)).toBe(true);
   });
@@ -39,11 +39,11 @@ describe("Test dynamicModel decorator", () => {
     const mockProgram = {
       stateSet: () => mockStateSet,
     };
-    
+
     const mockContext = {
       program: mockProgram,
     };
-    
+
     const mockNamespace = {
       kind: "Namespace",
       name: "TestNamespace",
@@ -54,7 +54,7 @@ describe("Test dynamicModel decorator", () => {
 
     // Check that the namespace was added to the state set
     expect(mockStateSet.has(mockNamespace)).toBe(true);
-    
+
     // Check using the helper function
     expect(isDynamicModel(mockProgram as any, mockNamespace as any)).toBe(true);
   });
@@ -65,7 +65,7 @@ describe("Test dynamicModel decorator", () => {
     const mockProgram = {
       stateSet: () => mockStateSet,
     };
-    
+
     const mockModel = {
       kind: "Model",
       name: "NotDynamicModel",
