@@ -3,7 +3,7 @@
   "compilerOptions": {
     "noEmit": false,
     "rootDir": "../",
-    "outDir": "../dist/emitter",
+    "outDir": "../dist",
     "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
     "declaration": true,
     "declarationMap": true
