@@ -19,7 +19,7 @@
     """
 
     {% if model.is_polymorphic %}
-    __mapping__: Dict[str, _Model] = {}
+    __mapping__: dict[str, _Model] = {}
     {% endif %}
     {% for p in serializer.get_properties_to_declare(model)%}
     {{ serializer.declare_property(p) }}

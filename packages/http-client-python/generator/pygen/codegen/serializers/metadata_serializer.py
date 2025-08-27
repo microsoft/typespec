@@ -5,7 +5,7 @@
 # --------------------------------------------------------------------------
 import functools
 import json
-from typing import List, Optional, Set, Tuple, Dict, Union, Any
+from typing import Optional, Union, Any
 from jinja2 import Environment
 from ..models import (
     OperationGroup,
@@ -20,28 +20,28 @@ from .base_serializer import BaseSerializer
 from .import_serializer import FileImportSerializer
 
 
-def _to_string(data: Union[Tuple[Any], List[Any], str]) -> str:
+def _to_string(data: Union[tuple[Any], list[Any], str]) -> str:
     if isinstance(data, (list, tuple)):
         return "".join([_to_string(item) for item in data])
     return str(data)
 
 
 def _json_serialize_imports(
-    imports: Dict[
+    imports: dict[
         TypingSection,
-        Dict[
+        dict[
             ImportType,
-            Dict[
+            dict[
                 str,
-                Set[
+                set[
                     Optional[
                         Union[
                             str,
-                            Tuple[str, str],
-                            Tuple[
+                            tuple[str, str],
+                            tuple[
                                 str,
                                 Optional[str],
-                                Tuple[Tuple[Tuple[int, int], str, Optional[str]]],
+                                tuple[tuple[tuple[int, int], str, Optional[str]]],
                             ],
                         ]
                     ]
@@ -81,7 +81,7 @@ def _json_serialize_imports(
 
 def _mixin_imports(
     mixin_operation_group: Optional[OperationGroup],
-) -> Tuple[Optional[str], Optional[str]]:
+) -> tuple[Optional[str], Optional[str]]:
     if not mixin_operation_group:
         return None, None
 
@@ -93,7 +93,7 @@ def _mixin_imports(
 
 def _mixin_typing_definitions(
     mixin_operation_group: Optional[OperationGroup],
-) -> Tuple[Optional[str], Optional[str]]:
+) -> tuple[Optional[str], Optional[str]]:
     if not mixin_operation_group:
         return None, None
 
@@ -110,9 +110,9 @@ class MetadataSerializer(BaseSerializer):
         super().__init__(code_model, env, client_namespace=client_namespace)
         self.client = self.code_model.clients[0]  # we only do one client for multiapi
 
-    def _choose_api_version(self) -> Tuple[str, List[str]]:
+    def _choose_api_version(self) -> tuple[str, list[str]]:
         chosen_version = ""
-        total_api_version_set: Set[str] = set()
+        total_api_version_set: set[str] = set()
         for client in self.code_model.clients:
             for operation_group in client.operation_groups:
                 total_api_version_set.update(operation_group.api_versions)
