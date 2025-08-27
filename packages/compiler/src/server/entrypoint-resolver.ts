@@ -11,13 +11,11 @@ export async function resolveEntrypointFile(
 ): Promise<string> {
   let dir = getDirectoryPath(path);
   let packageJsonEntrypoint: string | undefined;
-  if (entrypoints === undefined || entrypoints.length === 0) {
-    entrypoints = ["main.tsp"]; // add default entrypoint
-  }
+  let defaultEntrypoint: string | undefined;
 
   while (true) {
     // Check for client provided entrypoints (highest priority)
-    for (const entrypoint of entrypoints) {
+    for (const entrypoint of entrypoints ?? []) {
       const candidate = await existingFile(dir, entrypoint);
       if (candidate) {
         log({
@@ -45,6 +43,13 @@ export async function resolveEntrypointFile(
       }
     }
 
+    if (!defaultEntrypoint && (entrypoints === undefined || entrypoints.length === 0)) {
+      defaultEntrypoint = await existingFile(dir, "main.tsp");
+      if (defaultEntrypoint && log) {
+        log({ level: "debug", message: `main file found as ${defaultEntrypoint}` });
+      }
+    }
+
     const parentDir = getDirectoryPath(dir);
     if (parentDir === dir) {
       break;
@@ -55,6 +60,10 @@ export async function resolveEntrypointFile(
 
   if (packageJsonEntrypoint) {
     return packageJsonEntrypoint;
+  }
+
+  if (defaultEntrypoint) {
+    return defaultEntrypoint;
   }
 
   log({ level: "debug", message: `reached directory root, using ${path} as main file` });

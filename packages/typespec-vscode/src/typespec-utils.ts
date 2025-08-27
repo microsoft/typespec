@@ -13,7 +13,7 @@ export async function getEntrypointTspFile(tspPath: string): Promise<string | un
     .getConfiguration()
     .get<string[]>(SettingName.CompileEntrypoint);
   const logAdapter = (log: ServerLog) => {
-    logger.log(log.level as any, log.message, log.detail as any);
+    logger.log(log.level, log.message, log.detail as any);
   };
   return await resolveEntrypointFile(configEntrypoints, tspPath, logAdapter);
 }
