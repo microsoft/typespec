@@ -11,6 +11,7 @@ import {
   Program,
   Type,
 } from "@typespec/compiler";
+import type { DynamicModelDecorator } from "../../../generated-defs/TypeSpec.Http.Client.CSharp.js";
 import { ExternalDocs } from "../type/external-docs.js";
 
 const externalDocsKey = Symbol("externalDocs");
@@ -39,7 +40,7 @@ const dynamicModelKey = Symbol("dynamicModel");
  * @param target - The model or namespace to mark as dynamic
  * @beta
  */
-export const $dynamicModel: DynamicModeDecorator = (
+export const $dynamicModel: DynamicModelDecorator = (
   context: DecoratorContext,
   target: Model | Namespace,
 ): void => {
