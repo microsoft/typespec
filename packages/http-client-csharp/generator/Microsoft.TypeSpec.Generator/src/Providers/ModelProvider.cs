@@ -20,7 +20,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
     {
         private const string AdditionalBinaryDataPropsFieldDescription = "Keeps track of any properties unknown to the library.";
         private readonly InputModelType _inputModel;
-
         // Note the description cannot be built from the constructor as it would lead to a circular dependency between the base
         // and derived models resulting in a stack overflow.
         protected override FormattableString BuildDescription()
@@ -113,8 +112,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public ModelProvider? BaseModelProvider
             => _baseModelProvider ??= (_baseTypeProvider?.Value is ModelProvider baseModelProvider ? baseModelProvider : null);
-        private FieldProvider? RawDataField => _rawDataField ??= BuildRawDataField();
-        private List<FieldProvider> AdditionalPropertyFields => _additionalPropertyFields ??= BuildAdditionalPropertyFields();
+        protected FieldProvider? RawDataField => _rawDataField ??= BuildRawDataField();
+        protected List<FieldProvider> AdditionalPropertyFields => _additionalPropertyFields ??= BuildAdditionalPropertyFields();
         private List<PropertyProvider> AdditionalPropertyProperties => _additionalPropertyProperties ??= BuildAdditionalPropertyProperties();
         internal bool SupportsBinaryDataAdditionalProperties => AdditionalPropertyProperties.Any(p => p.Type.ElementType.Equals(_additionalPropsUnknownType));
         public ConstructorProvider FullConstructor => _fullConstructor ??= BuildFullConstructor();

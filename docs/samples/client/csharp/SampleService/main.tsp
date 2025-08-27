@@ -1,5 +1,6 @@
 import "@typespec/rest";
 import "@typespec/http";
+import "@typespec/http-client-csharp";
 import "@azure-tools/typespec-client-generator-core";
 import "@azure-tools/typespec-azure-core";
 
@@ -18,8 +19,8 @@ namespace SampleTypeSpec;
 
 using TypeSpec.Http;
 using TypeSpec.Versioning;
+using TypeSpec.HttpClient.CSharp;
 using Azure.ClientGenerator.Core;
-using Azure.Core;
 
 alias SampleOAuth2 = OAuth2Auth<[
   {
@@ -157,6 +158,7 @@ model ModelWithRequiredNullableProperties {
 
 @doc("this is not a friendly model but with a friendly name")
 @friendlyName("Friend")
+@dynamicModel
 model NotFriend {
   @doc("name of the NotFriend")
   name: string;
