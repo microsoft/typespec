@@ -59,13 +59,16 @@ public class FileUtil {
     /**
      * Deletes generated Java source files under the specified output directory.
      *
-     * <p>Only files that contain a known generated-file marker are deleted. The check reads up to
-     * the first 30 lines of each file and looks for generator markers inserted by TypeSpec/AutoRest.
-     * If the provided output directory does not exist or is not a directory, the method returns
-     * without performing any action. Individual file deletion failures are logged and processing
-     * continues for other files.</p>
+     * <p>The generator expects Java sources to be placed under a 'src' subdirectory of the given
+     * output directory (for example: <code>&lt;outputDir&gt;/src</code>). This method operates only on
+     * files under that 'src' directory. Only files that contain a known generated-file marker are deleted.
+     * The check reads up to the first 30 lines of each file and looks for generator markers inserted by
+     * TypeSpec/AutoRest. If the provided output directory does not contain a 'src' subdirectory, or the
+     * resolved 'src' path does not exist or is not a directory, the method returns without performing
+     * any action. Individual file deletion failures are logged and processing continues for other files.</p>
      *
-     * @param outputDir root directory under which generated .java files will be deleted.
+     * @param outputDir root directory under which generated .java files will be deleted; the method
+     * looks for a 'src' subdirectory beneath this directory and operates under it.
      * @throws IllegalStateException if an I/O error occurs while traversing the directory tree.
      */
     public static void deleteGeneratedJavaFiles(String outputDir) {
@@ -76,14 +79,23 @@ public class FileUtil {
      * Deletes generated Java source files under the specified output directory, except those whose
      * relative paths are included in the supplied set.
      *
-     * <p>Relative paths are computed relative to {@code outputDir} and use forward slashes ('/')
-     * as separators. Files are considered generated when their content contains one of the
-     * recognized generator markers within the first 30 lines. The method will continue on file
-     * deletion or access failures and will log warnings for those errors.</p>
+     * <p>The generator expects Java sources to be placed under a 'src' subdirectory of the given
+     * output directory (for example: <code>&lt;outputDir&gt;/src</code>). This method operates only on
+     * files under that 'src' directory. The {@code relativePathOfJavaFilesToKeep} set should contain
+     * forward-slash ('/') separated file paths computed relative to the {@code outputDir} and must
+     * include the leading {@code src/} segment (for example: {@code src/com/example/Foo.java}). The
+     * method will internally rebase such entries by stripping the leading {@code src/} before comparing
+     * them against paths relative to the 'src' directory. Files are considered generated when their
+     * content contains one of the recognized generator markers within the first 30 lines. The method
+     * will continue on file deletion or access failures and will log warnings for those errors. If the
+     * provided output directory does not contain a 'src' subdirectory, or the resolved 'src' path does
+     * not exist or is not a directory, the method returns without performing any action.</p>
      *
-     * @param outputDir root directory under which generated .java files will be deleted.
-     * @param relativePathOfJavaFilesToKeep set of relative (forward-slash separated) file paths
-     * that should be preserved and not deleted.
+     * @param outputDir root directory under which generated .java files will be deleted; the method
+     * looks for a 'src' subdirectory beneath this directory and operates under it.
+     * @param relativePathOfJavaFilesToKeep set of relative (forward-slash separated) file paths,
+     * which must include the leading {@code src/} segment, that
+     * should be preserved and not deleted.
      * @throws IllegalStateException if an I/O error occurs while traversing the directory tree.
      */
     public static void deleteGeneratedJavaFiles(String outputDir, Set<String> relativePathOfJavaFilesToKeep) {
