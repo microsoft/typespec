@@ -145,7 +145,7 @@ The SDK context options that implement the `CreateSdkContextOptions` interface f
 
 ## Decorators
 
-### TypeSpec.Http.Client.CSharp
+### TypeSpec.HttpClient.CSharp
 
 - [`@dynamicModel`](#@dynamicmodel)
 
@@ -155,7 +155,7 @@ Marks a model or namespace as dynamic, indicating it should generate dynamic mod
 Can be applied to Model or Namespace types.
 
 ```typespec
-@TypeSpec.Http.Client.CSharp.dynamicModel
+@TypeSpec.HttpClient.CSharp.dynamicModel
 ```
 
 ##### Target

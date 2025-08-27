@@ -4,15 +4,15 @@ toc_min_heading_level: 2
 toc_max_heading_level: 3
 ---
 
-## TypeSpec.Http.Client.CSharp
+## TypeSpec.HttpClient.CSharp
 
-### `@dynamicModel` {#@TypeSpec.Http.Client.CSharp.dynamicModel}
+### `@dynamicModel` {#@TypeSpec.HttpClient.CSharp.dynamicModel}
 
 Marks a model or namespace as dynamic, indicating it should generate dynamic model code.
 Can be applied to Model or Namespace types.
 
 ```typespec
-@TypeSpec.Http.Client.CSharp.dynamicModel
+@TypeSpec.HttpClient.CSharp.dynamicModel
 ```
 
 #### Target
