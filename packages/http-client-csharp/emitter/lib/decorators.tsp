@@ -22,9 +22,6 @@ namespace TypeSpec.Http.Client.CSharp;
  *     breed: string;
  *   }
  * }
- *
- * // Using augment decorator pattern where target needs to be passed
- * @@dynamicModel(Pet);
  * ```
  */
 extern dec dynamicModel(target: Model | Namespace);
