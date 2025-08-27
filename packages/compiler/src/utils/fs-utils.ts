@@ -1,4 +1,3 @@
-import { NodeSystemHost } from "../core/node-system-host.js";
 import { joinPaths, resolvePath } from "../core/path-utils.js";
 import type { CompilerHost, SystemHost } from "../core/types.js";
 
@@ -43,10 +42,4 @@ export async function listAllFilesInDir(host: SystemHost, dir: string): Promise<
 
   await readDirs("");
   return files;
-}
-
-export async function existingFile(dir: string, fileName: string): Promise<string | undefined> {
-  const candidate = joinPaths(dir, fileName);
-  const stat = await NodeSystemHost.stat(candidate);
-  return stat?.isFile() ? candidate : undefined;
 }

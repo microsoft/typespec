@@ -1,6 +1,5 @@
 import { NodeSystemHost } from "../core/node-system-host.js";
 import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
-import { existingFile } from "../utils/fs-utils.js";
 import { resolveTspMain } from "../utils/misc.js";
 import { ServerLog } from "./types.js";
 
@@ -16,8 +15,9 @@ export async function resolveEntrypointFile(
   while (true) {
     // Check for client provided entrypoints (highest priority)
     for (const entrypoint of entrypoints ?? []) {
-      const candidate = await existingFile(dir, entrypoint);
-      if (candidate) {
+      const candidate = joinPaths(dir, entrypoint);
+      const stat = await NodeSystemHost.stat(candidate);
+      if (stat?.isFile()) {
         log({
           level: "debug",
           message: `main file found using client provided entrypoint: ${candidate}`,
@@ -36,15 +36,21 @@ export async function resolveEntrypointFile(
           level: "debug",
           message: `tspMain resolved from package.json (${pkgPath}) as ${tspMain}`,
         });
-        packageJsonEntrypoint = await existingFile(dir, tspMain);
-        if (packageJsonEntrypoint) {
-          log({ level: "debug", message: `main file found as ${packageJsonEntrypoint}` });
+        const candidate = joinPaths(dir, tspMain);
+        const stat = await NodeSystemHost.stat(candidate);
+        if (stat?.isFile()) {
+          log({ level: "debug", message: `main file found as ${candidate}` });
+          packageJsonEntrypoint = candidate;
         }
       }
     }
 
     if (!defaultEntrypoint && (entrypoints === undefined || entrypoints.length === 0)) {
-      defaultEntrypoint = await existingFile(dir, "main.tsp");
+      const candidate = joinPaths(dir, "main.tsp");
+      const stat = await NodeSystemHost.stat(candidate);
+      if (stat?.isFile()) {
+        defaultEntrypoint = candidate;
+      }
       if (defaultEntrypoint && log) {
         log({ level: "debug", message: `main file found as ${defaultEntrypoint}` });
       }
