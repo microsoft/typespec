@@ -96,10 +96,9 @@ describe("HttpPart extensions", () => {
         @multipartBody body: MultipartForm
       ): void;
     `);
-    
+
     const schema = oapi.components.schemas.MultipartForm;
-    console.log("Full schema:", JSON.stringify(schema, null, 2));
-    
+
     // Check regular property extension
     expect(schema.properties.regularProp["x-regular"]).toEqual("regular-value");
     // Check HttpPart property extension
@@ -117,9 +116,8 @@ describe("HttpPart extensions", () => {
         }
       ): void;
     `);
-    
+
     const schema = oapi.paths["/"].post.requestBody.content["multipart/form-data"].schema;
-    console.log("Schema properties:", JSON.stringify(schema.properties, null, 2));
     // First check if doc is working
     expect(schema.properties.file.description).toEqual("My doc");
     // Then check if extension is working
