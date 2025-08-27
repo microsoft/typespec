@@ -1,7 +1,5 @@
-import { resolveCodeFixCreateFile } from "../codefix-create-file-resolve.js";
 import { defineCodeFix, getSourceLocation } from "../diagnostics.js";
 import {
-  CodeFixOptions,
   SyntaxKind,
   type CodeFixEdit,
   type ModelExpressionNode,
@@ -11,39 +9,21 @@ import {
 /**
  * Quick fix that convert a tuple to an array value.
  */
-export function createTupleToArrayValueCodeFix(
-  node: TupleExpressionNode,
-  options: CodeFixOptions | undefined = undefined,
-) {
-  const { fileOptions, customLabel } = options || {};
-
-  const defaultLabel = `Convert to an array value \`#[]\``;
-  const label =
-    customLabel ||
-    (fileOptions?.creationLabel
-      ? `${defaultLabel} in ${fileOptions.targetFilePath}`
-      : defaultLabel);
-
+export function createTupleToArrayValueCodeFix(node: TupleExpressionNode) {
   return defineCodeFix({
-    id: fileOptions
-      ? `tuple-to-array-value-in-file-${fileOptions.targetFilePath}`
-      : "tuple-to-array-value",
-    label,
-    fix: async (context) => {
-      if (fileOptions) {
-        return await resolveCodeFixCreateFile(fileOptions, `\n// tuple-to-array-value`);
-      } else {
-        const result: CodeFixEdit[] = [];
+    id: "tuple-to-array-value",
+    label: `Convert to an array value \`#[]\``,
+    fix: (context) => {
+      const result: CodeFixEdit[] = [];
 
-        addCreatedCodeFixResult(node);
-        createChildTupleToArrValCodeFix(node, addCreatedCodeFixResult);
+      addCreatedCodeFixResult(node);
+      createChildTupleToArrValCodeFix(node, addCreatedCodeFixResult);
 
-        return result;
+      return result;
 
-        function addCreatedCodeFixResult(node: ModelExpressionNode | TupleExpressionNode) {
-          const location = getSourceLocation(node);
-          result.push(context.prependText(location, "#"));
-        }
+      function addCreatedCodeFixResult(node: ModelExpressionNode | TupleExpressionNode) {
+        const location = getSourceLocation(node);
+        result.push(context.prependText(location, "#"));
       }
     },
   });

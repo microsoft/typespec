@@ -5,6 +5,7 @@ import {
   CodeActionParams,
   CompletionList,
   CompletionParams,
+  CreateFile,
   DefinitionParams,
   DiagnosticSeverity,
   DiagnosticTag,
@@ -41,6 +42,7 @@ import {
   SignatureHelp,
   SignatureHelpParams,
   TextDocumentChangeEvent,
+  TextDocumentEdit,
   TextDocumentIdentifier,
   TextDocumentSyncKind,
   TextEdit,
@@ -1215,21 +1217,36 @@ export function createServer(
 
   async function executeCommand(params: ExecuteCommandParams) {
     if (params.command === Commands.APPLY_CODE_FIX) {
-      const [documentUri, diagId, fixId] = params.arguments ?? [];
-      if (documentUri && diagId && fixId) {
+      const [diagId, fixId] = params.arguments ?? [];
+      if (diagId && fixId) {
         const diag = currentDiagnosticIndex.get(diagId);
         const codeFix = diag?.codefixes?.find((x) => x.id === fixId);
         if (codeFix) {
           const edits = await resolveCodeFix(codeFix);
-          const vsEdits = convertCodeFixEdits(edits);
-          await host.applyEdit({ changes: { [documentUri]: vsEdits } });
+
+          // Group edits by file and convert to VS Code TextEdit
+          const editsByFile = new Map<string, TextEdit[]>();
+          for (const edit of edits) {
+            const uri = fileService.getURL(edit.file.path);
+            const textEdits = editsByFile.get(uri) ?? [];
+            textEdits.push(convertCodeFixEdit(edit));
+            editsByFile.set(uri, textEdits);
+          }
+
+          // Use documentChanges to create files when needed
+          const documentChanges: Array<CreateFile | TextDocumentEdit> = [];
+          for (const [uri, vsEdits] of editsByFile) {
+            // Ignore creation if the file already exists; if it does not exist, create it first
+            documentChanges.push({ kind: "create", uri, options: { ignoreIfExists: true } });
+            documentChanges.push({ textDocument: { uri, version: null }, edits: vsEdits });
+          }
+
+          await host.applyEdit({ documentChanges });
         }
       }
     }
   }
-  function convertCodeFixEdits(edits: CodeFixEdit[]): TextEdit[] {
-    return edits.map(convertCodeFixEdit);
-  }
+
   function convertCodeFixEdit(edit: CodeFixEdit): TextEdit {
     switch (edit.kind) {
       case "insert-text":
