@@ -12,7 +12,7 @@
   "include": [
     "../emitter/src/",
     "../emitter/test/",
-    "../generated-defs/TypeSpec.Http.Client.CSharp.ts"
+    "../generated-defs/TypeSpec.HttpClient.ts"
   ],
   "exclude": [
     "../generated-defs/**/*.d.ts",
