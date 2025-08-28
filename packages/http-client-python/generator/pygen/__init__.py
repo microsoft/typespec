@@ -49,6 +49,9 @@ class OptionsDict(MutableMapping):
         if key == "head-as-boolean" and self.get("azure-arm"):
             # override to always true if azure-arm is set
             return True
+        if key == "multiapi":
+            # multiapi has been deprecated and removed - always return False
+            return False
         if key in self._data:
             retval = self._data[key]
             if key == "package-files-config":
