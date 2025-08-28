@@ -8,6 +8,7 @@ export default mergeConfig(
     test: {
       include: ["test/**/*.test.ts"],
       passWithNoTests: true,
+      testTimeout: 10_000,
     },
     esbuild: {
       jsx: "preserve",
