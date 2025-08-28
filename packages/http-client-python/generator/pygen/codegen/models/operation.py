@@ -227,33 +227,6 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
     def need_import_iobase(self) -> bool:
         return self.parameters.has_body and isinstance(self.parameters.body_parameter.type, CombinedType)
 
-    def imports_for_multiapi(self, async_mode: bool, **kwargs: Any) -> FileImport:
-        if self.abstract:
-            return FileImport(self.code_model)
-        file_import = self._imports_shared(async_mode, **kwargs)
-        for param in self.parameters.method:
-            file_import.merge(
-                param.imports_for_multiapi(
-                    async_mode,
-                    need_import_iobase=self.need_import_iobase,
-                    **kwargs,
-                )
-            )
-        for response in self.responses:
-            file_import.merge(
-                response.imports_for_multiapi(
-                    async_mode=async_mode, need_import_iobase=self.need_import_iobase, **kwargs
-                )
-            )
-        if self.code_model.options["models-mode"]:
-            for exception in self.exceptions:
-                file_import.merge(
-                    exception.imports_for_multiapi(
-                        async_mode=async_mode, need_import_iobase=self.need_import_iobase, **kwargs
-                    )
-                )
-        return file_import
-
     @staticmethod
     def has_kwargs_to_pop_with_default(
         kwargs_to_pop: list[

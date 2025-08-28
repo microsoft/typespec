@@ -33,7 +33,6 @@ class OptionsDict(MutableMapping):
         "head-as-boolean": True,
         "keep-version-file": False,
         "low-level-client": False,
-        "multiapi": False,
         "no-async": False,
         "no-namespace-folders": False,
         "polymorphic-examples": 5,
@@ -147,16 +146,6 @@ class OptionsDict(MutableMapping):
                 "Can not combine operation files if you are not showing operations. "
                 "If you want operation files, pass in flag --show-operations"
             )
-
-        if self.get("multiapi") and self.get("version-tolerant"):
-            raise ValueError(
-                "Can not currently generate version tolerant multiapi SDKs. "
-                "We are working on creating a new multiapi SDK for version tolerant and it is not available yet."
-            )
-
-        # If multiapi, do not generate default pyproject.toml
-        if self.get("multiapi"):
-            self["keep-setup-py"] = True
 
         if self.get("client-side-validation") and self.get("version-tolerant"):
             raise ValueError("Can not generate version tolerant with --client-side-validation. ")

@@ -265,10 +265,6 @@ class FileImport:
         else:
             # _utils/serialization.py is always in root namespace
             imported_namespace = f"{self.code_model.namespace}._utils"
-            if self.code_model.options["multiapi"]:
-                # for multiapi, the namespace is azure.mgmt.xxx.v20XX_XX_XX
-                # while _utils/serialization.py is in azure.mgmt.xxx
-                imported_namespace = f"{get_parent_namespace(imported_namespace)}._utils"
             if msrest_import_type == MsrestImportType.Module:
                 self.add_submodule_import(
                     self.code_model.get_relative_import_path(serialize_namespace, imported_namespace),

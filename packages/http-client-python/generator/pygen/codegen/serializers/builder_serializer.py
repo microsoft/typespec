@@ -628,7 +628,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 if builder.has_kwargs_to_pop_with_default(kwargs_to_pop, ParameterLocation.QUERY)  # type: ignore
                 else PopKwargType.SIMPLE
             ),
-            check_client_input=not self.code_model.options["multiapi"],
+            check_client_input=True,
             operation_name=f"('{builder.name}')" if builder.group_name == "" else "",
             body_parameter=builder.parameters.body_parameter if builder.parameters.has_body else None,
         )
@@ -1281,11 +1281,7 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
                     "})",
                 ]
             )
-            api_version = (
-                "self._api_version"
-                if self.code_model.options["multiapi"] and builder.group_name
-                else api_version_param.full_client_name
-            )
+            api_version = api_version_param.full_client_name
             retval.append(f'_next_request_params["api-version"] = {api_version}')
             if builder.next_link_reinjected_parameters:
                 for param in builder.next_link_reinjected_parameters:

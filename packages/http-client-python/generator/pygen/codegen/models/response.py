@@ -130,9 +130,6 @@ class Response(BaseModel):
     def imports(self, **kwargs: Any) -> FileImport:
         return self._imports_shared(**kwargs)
 
-    def imports_for_multiapi(self, **kwargs: Any) -> FileImport:
-        return self._imports_shared(**kwargs)
-
     def _get_import_type(self, input_path: str) -> ImportType:
         # helper function to return imports for responses based off
         # of whether we're importing from the core library, or users
@@ -219,9 +216,6 @@ class PagingResponse(Response):
 
         return file_import
 
-    def imports_for_multiapi(self, **kwargs: Any) -> FileImport:
-        return self._imports_shared(**kwargs)
-
 
 class LROResponse(Response):
     def get_poller_path(self, async_mode: bool) -> str:
@@ -306,10 +300,6 @@ class LROResponse(Response):
         )
         return file_import
 
-    def imports_for_multiapi(self, **kwargs: Any) -> FileImport:
-        return self._imports_shared(**kwargs)
-
-
 class LROPagingResponse(LROResponse, PagingResponse):
     def type_annotation(self, **kwargs: Any) -> str:
         paging_type_annotation = PagingResponse.type_annotation(self, **kwargs)
@@ -324,11 +314,6 @@ class LROPagingResponse(LROResponse, PagingResponse):
         if not self.code_model.options["version-tolerant"]:
             base_description += "either "
         return base_description + Response.docstring_text(self)
-
-    def imports_for_multiapi(self, **kwargs: Any) -> FileImport:
-        file_import = LROResponse.imports_for_multiapi(self, **kwargs)
-        file_import.merge(PagingResponse.imports_for_multiapi(self, **kwargs))
-        return file_import
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = LROResponse.imports(self, **kwargs)

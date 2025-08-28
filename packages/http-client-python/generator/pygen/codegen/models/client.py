@@ -343,23 +343,6 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):  # pylint: disable=t
         file_import.add_submodule_import("copy", "deepcopy", ImportType.STDLIB)
         return file_import
 
-    def imports_for_multiapi(self, async_mode: bool, **kwargs) -> FileImport:
-        file_import = self._imports_shared(async_mode, **kwargs)
-        file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB, TypingSection.CONDITIONAL)
-        try:
-            mixin_operation = next(og for og in self.operation_groups if og.is_mixin)
-            file_import.add_submodule_import("._operations_mixin", mixin_operation.class_name, ImportType.LOCAL)
-        except StopIteration:
-            pass
-        file_import.add_submodule_import("azure.profiles", "KnownProfiles", import_type=ImportType.SDKCORE)
-        file_import.add_submodule_import("azure.profiles", "ProfileDefinition", import_type=ImportType.SDKCORE)
-        file_import.add_submodule_import(
-            "azure.profiles.multiapiclient",
-            "MultiApiClientMixin",
-            import_type=ImportType.SDKCORE,
-        )
-        return file_import
-
     @property
     def credential_scopes(self) -> Optional[list[str]]:
         """Credential scopes for this client"""
@@ -444,23 +427,6 @@ class Config(_ClientConfigBase[ConfigGlobalParameterList]):
                 continue
             file_import.merge(
                 gp.imports(
-                    async_mode=async_mode,
-                    **kwargs,
-                )
-            )
-        return file_import
-
-    def imports_for_multiapi(self, async_mode: bool, **kwargs: Any) -> FileImport:
-        file_import = self._imports_shared(async_mode, **kwargs)
-        for gp in self.parameters:
-            if (
-                gp.method_location == ParameterMethodLocation.KWARG
-                and gp not in self.parameters.kwargs_to_pop
-                and gp.client_name == "api_version"
-            ):
-                continue
-            file_import.merge(
-                gp.imports_for_multiapi(
                     async_mode=async_mode,
                     **kwargs,
                 )

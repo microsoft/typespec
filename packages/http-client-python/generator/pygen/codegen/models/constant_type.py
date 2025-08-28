@@ -114,9 +114,6 @@ class ConstantType(BaseType):
         file_import.merge(self.value_type.imports(**kwargs))
         return file_import
 
-    def imports_for_multiapi(self, **kwargs: Any) -> FileImport:
-        return self._imports_shared(**kwargs)
-
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = self._imports_shared(**kwargs)
         if self._is_literal:
