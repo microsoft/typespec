@@ -53,14 +53,42 @@ public class FileUtil {
     }
 
     /**
-     * Deletes generated Java source files under the specified output directory.
-     *
-     * @param outputDir root directory under which generated .java files will be deleted; the method
-     * looks for a 'src' subdirectory beneath this directory and operates under it.
-     * @throws IllegalStateException if an I/O error occurs while traversing the directory tree.
+     * Options for configuring the deletion of generated Java files.
+     * This class provides configuration options to control which directories and files
+     * are included when deleting generated Java source files.
      */
-    public static void deleteGeneratedJavaFiles(String outputDir) {
-        deleteGeneratedJavaFiles(outputDir, Collections.emptySet());
+    public static class DeleteGeneratedJavaFilesOptions {
+        private Set<String> relativePathOfJavaFilesToKeep = Collections.emptySet();
+        private boolean includeSamplesDir = false;
+        private boolean includeTestDir = false;
+
+        public Set<String> getRelativePathOfJavaFilesToKeep() {
+            return relativePathOfJavaFilesToKeep;
+        }
+
+        public DeleteGeneratedJavaFilesOptions
+            setRelativePathOfJavaFilesToKeep(Set<String> relativePathOfJavaFilesToKeep) {
+            this.relativePathOfJavaFilesToKeep = relativePathOfJavaFilesToKeep;
+            return this;
+        }
+
+        public boolean isIncludeSamplesDir() {
+            return includeSamplesDir;
+        }
+
+        public DeleteGeneratedJavaFilesOptions setIncludeSamplesDir(boolean includeSamplesDir) {
+            this.includeSamplesDir = includeSamplesDir;
+            return this;
+        }
+
+        public boolean isIncludeTestDir() {
+            return includeTestDir;
+        }
+
+        public DeleteGeneratedJavaFilesOptions setIncludeTestDir(boolean includeTestDir) {
+            this.includeTestDir = includeTestDir;
+            return this;
+        }
     }
 
     /**
@@ -69,19 +97,38 @@ public class FileUtil {
      *
      * @param outputDir root directory under which generated .java files will be deleted; the method
      * looks for a 'src' subdirectory beneath this directory and operates under it.
-     * @param relativePathOfJavaFilesToKeep set of relative (forward-slash separated) file paths,
-     * that should be preserved and not deleted.
+     * @param deleteGeneratedJavaFilesOptions configuration options that control which directories to include
+     * (samples and test directories) and which specific Java files to preserve during the deletion process.
      * @throws IllegalStateException if an I/O error occurs while traversing the directory tree.
      */
-    public static void deleteGeneratedJavaFiles(String outputDir, Set<String> relativePathOfJavaFilesToKeep) {
-        Path rootPath = Paths.get(outputDir).resolve("src");
+    public static void deleteGeneratedJavaFiles(String outputDir,
+        DeleteGeneratedJavaFilesOptions deleteGeneratedJavaFilesOptions) {
+        Set<String> relativePathOfJavaFilesToKeep = deleteGeneratedJavaFilesOptions.getRelativePathOfJavaFilesToKeep();
+        if (deleteGeneratedJavaFilesOptions.isIncludeSamplesDir()
+            && deleteGeneratedJavaFilesOptions.isIncludeTestDir()) {
+            deleteGeneratedJavaFiles(outputDir, "src/", relativePathOfJavaFilesToKeep);
+        } else {
+            deleteGeneratedJavaFiles(outputDir, "src/main/", relativePathOfJavaFilesToKeep);
+            if (deleteGeneratedJavaFilesOptions.isIncludeSamplesDir()) {
+                // delete generated files in samples dir, if emitter need to generate samples
+                deleteGeneratedJavaFiles(outputDir, "src/samples/", relativePathOfJavaFilesToKeep);
+            } else if (deleteGeneratedJavaFilesOptions.isIncludeTestDir()) {
+                // delete generated files in test dir, if emitter need to generate test
+                deleteGeneratedJavaFiles(outputDir, "src/test/", relativePathOfJavaFilesToKeep);
+            }
+        }
+    }
+
+    private static void deleteGeneratedJavaFiles(String outputDir, String subDir,
+        Set<String> relativePathOfJavaFilesToKeep) {
+        // scope rootPath and relativePathOfJavaFilesToKeep to subDir
+        Path rootPath = Paths.get(outputDir).resolve(subDir);
         if (!Files.exists(rootPath) || !Files.isDirectory(rootPath)) {
             return;
         }
-
         final Set<String> rebasedRelativePathOfJavaFilesToKeep = relativePathOfJavaFilesToKeep.stream()
-            .filter(f -> f.startsWith("src/"))
-            .map(f -> f.substring(4))
+            .filter(f -> f.startsWith(subDir))
+            .map(f -> f.substring(subDir.length()))
             .collect(Collectors.toSet());
 
         try {

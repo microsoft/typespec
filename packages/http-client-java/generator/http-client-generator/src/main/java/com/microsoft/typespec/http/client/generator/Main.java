@@ -112,8 +112,7 @@ public class Main {
         FluentJavaPackage javaPackage = fluentPlugin.processTemplates(codeModel, client);
 
         // delete generated Java files
-        deleteGeneratedJavaFiles(emitterOptions.getOutputDir(), javaPackage.getJavaFiles(),
-            JavaSettings.getInstance().isHandlePartialUpdate());
+        deleteGeneratedJavaFiles(emitterOptions.getOutputDir(), javaPackage.getJavaFiles(), JavaSettings.getInstance());
 
         // write java files
         Postprocessor.writeToFiles(
@@ -156,7 +155,7 @@ public class Main {
         LOGGER.info("Count of text files: {}", javaPackage.getTextFiles().size());
 
         // delete generated Java files
-        deleteGeneratedJavaFiles(outputDir, javaPackage.getJavaFiles(), settings.isHandlePartialUpdate());
+        deleteGeneratedJavaFiles(outputDir, javaPackage.getJavaFiles(), settings);
 
         Map<String, String> javaFiles = new ConcurrentHashMap<>();
         javaPackage.getJavaFiles()
@@ -184,12 +183,18 @@ public class Main {
         }
     }
 
-    private static void deleteGeneratedJavaFiles(String outputDir, List<JavaFile> javaFiles, boolean isPartialUpdate) {
-        if (isPartialUpdate) {
+    private static void deleteGeneratedJavaFiles(String outputDir, List<JavaFile> javaFiles, JavaSettings settings) {
+        if (settings.isHandlePartialUpdate()) {
             FileUtil.deleteGeneratedJavaFiles(outputDir,
-                javaFiles.stream().map(JavaFile::getFilePath).collect(Collectors.toSet()));
+                new FileUtil.DeleteGeneratedJavaFilesOptions()
+                    .setRelativePathOfJavaFilesToKeep(
+                        javaFiles.stream().map(JavaFile::getFilePath).collect(Collectors.toSet()))
+                    .setIncludeSamplesDir(settings.isGenerateSamples())
+                    .setIncludeTestDir(settings.isGenerateTests()));
         } else {
-            FileUtil.deleteGeneratedJavaFiles(outputDir);
+            FileUtil.deleteGeneratedJavaFiles(outputDir,
+                new FileUtil.DeleteGeneratedJavaFilesOptions().setIncludeSamplesDir(settings.isGenerateSamples())
+                    .setIncludeTestDir(settings.isGenerateTests()));
         }
     }
 
