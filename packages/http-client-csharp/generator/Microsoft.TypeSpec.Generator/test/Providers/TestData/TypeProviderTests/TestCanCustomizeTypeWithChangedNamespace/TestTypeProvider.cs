@@ -5,7 +5,7 @@ using SampleTypeSpec;
 
 namespace NewNamespace;
 
-[CodeGenType("TestName")]
+[CodeGenType("Foo")]
 public partial class TestTypeProvider
 {
 }

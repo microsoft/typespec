@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import Any, Dict, TYPE_CHECKING, List, Optional
+from typing import Any, TYPE_CHECKING, Optional
 from abc import ABC, abstractmethod
 from .imports import FileImport
 
@@ -20,7 +20,7 @@ class BaseModel:
     :type yaml_data: dict[str, Any]
     """
 
-    def __init__(self, yaml_data: Dict[str, Any], code_model: "CodeModel") -> None:
+    def __init__(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
         self.yaml_data = yaml_data
         self.code_model = code_model
 
@@ -39,13 +39,13 @@ class BaseType(BaseModel, ABC):  # pylint: disable=too-many-public-methods
     :type yaml_data: dict[str, Any]
     """
 
-    def __init__(self, yaml_data: Dict[str, Any], code_model: "CodeModel") -> None:
+    def __init__(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
         super().__init__(yaml_data, code_model)
         self.type = yaml_data["type"]  # the type discriminator
-        self.api_versions: List[str] = yaml_data.get("apiVersions", [])  # api versions this type is in.
+        self.api_versions: list[str] = yaml_data.get("apiVersions", [])  # api versions this type is in.
 
     @classmethod
-    def from_yaml(cls, yaml_data: Dict[str, Any], code_model: "CodeModel") -> "BaseType":
+    def from_yaml(cls, yaml_data: dict[str, Any], code_model: "CodeModel") -> "BaseType":
         return cls(yaml_data=yaml_data, code_model=code_model)
 
     def imports(self, **kwargs) -> FileImport:  # pylint: disable=unused-argument
@@ -62,7 +62,7 @@ class BaseType(BaseModel, ABC):  # pylint: disable=too-many-public-methods
         return repr(value)
 
     @property
-    def xml_metadata(self) -> Dict[str, Any]:
+    def xml_metadata(self) -> dict[str, Any]:
         """XML metadata for the type, if the type has it."""
         return self.yaml_data.get("xmlMetadata", {})
 
@@ -132,7 +132,7 @@ class BaseType(BaseModel, ABC):  # pylint: disable=too-many-public-methods
         """
 
     @property
-    def validation(self) -> Optional[Dict[str, Any]]:
+    def validation(self) -> Optional[dict[str, Any]]:
         """Whether there's any validation constraints on this type.
 
         Even though we generate validation maps if there are validation constraints,
@@ -162,7 +162,7 @@ class BaseType(BaseModel, ABC):  # pylint: disable=too-many-public-methods
         """Template of what this schema would look like as JSON input"""
 
     def get_polymorphic_subtypes(
-        self, polymorphic_subtypes: List["ModelType"]  # pylint: disable=unused-argument
+        self, polymorphic_subtypes: list["ModelType"]  # pylint: disable=unused-argument
     ) -> None:
         return None
 
@@ -172,7 +172,7 @@ class BaseType(BaseModel, ABC):  # pylint: disable=too-many-public-methods
         """Template of what an instance check of a variable for this type would look like"""
 
     @property
-    def serialization_constraints(self) -> List[str]:
+    def serialization_constraints(self) -> list[str]:
         """Whether there are any serialization constraints when serializing this type."""
         return []
 

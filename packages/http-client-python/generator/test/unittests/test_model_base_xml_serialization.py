@@ -4,11 +4,7 @@
 # ------------------------------------
 import xml.etree.ElementTree as ET
 
-from typing import (
-    List,
-    Literal,
-    Dict,
-)
+from typing import Literal
 
 from specialwords._utils.model_base import (
     _get_element,
@@ -124,7 +120,7 @@ class TestXmlDeserialization:
             </Data>"""
 
         class XmlModel(Model):
-            metadata: Dict[str, str] = rest_field(name="Metadata", xml={"name": "Metadata"})
+            metadata: dict[str, str] = rest_field(name="Metadata", xml={"name": "Metadata"})
 
             def __init__(self, *args, **kwargs):
                 super().__init__(*args, **kwargs)
@@ -145,7 +141,7 @@ class TestXmlDeserialization:
             </Data>"""
 
         class XmlModel(Model):
-            age: List[str] = rest_field(name="age", xml={"name": "Age"})
+            age: list[str] = rest_field(name="age", xml={"name": "Age"})
 
             def __init__(self, *args, **kwargs):
                 super().__init__(*args, **kwargs)
@@ -161,7 +157,7 @@ class TestXmlDeserialization:
             <Data/>"""
 
         class XmlModel(Model):
-            age: List[str] = rest_field(name="age", xml={"name": "Age", "unwrapped": True})
+            age: list[str] = rest_field(name="age", xml={"name": "Age", "unwrapped": True})
 
             def __init__(self, *args, **kwargs):
                 super().__init__(*args, **kwargs)
@@ -183,7 +179,7 @@ class TestXmlDeserialization:
             </AppleBarrel>"""
 
         class AppleBarrel(Model):
-            good_apples: List[str] = rest_field(name="GoodApples", xml={"name": "GoodApples", "itemsName": "Apple"})
+            good_apples: list[str] = rest_field(name="GoodApples", xml={"name": "GoodApples", "itemsName": "Apple"})
 
             def __init__(self, *args, **kwargs):
                 super().__init__(*args, **kwargs)
@@ -203,7 +199,7 @@ class TestXmlDeserialization:
             </AppleBarrel>"""
 
         class AppleBarrel(Model):
-            good_apples: List[str] = rest_field(
+            good_apples: list[str] = rest_field(
                 name="GoodApples",
                 xml={"name": "GoodApples", "unwrapped": True, "itemsName": "Apple"},
             )
@@ -236,7 +232,7 @@ class TestXmlDeserialization:
             _xml = {"name": "Apple"}
 
         class AppleBarrel(Model):
-            good_apples: List[Apple] = rest_field(name="GoodApples", xml={"name": "GoodApples", "itemsName": "Apple"})
+            good_apples: list[Apple] = rest_field(name="GoodApples", xml={"name": "GoodApples", "itemsName": "Apple"})
 
             def __init__(self, *args, **kwargs):
                 super().__init__(*args, **kwargs)
@@ -264,7 +260,7 @@ class TestXmlDeserialization:
             _xml = {"name": "Apple"}
 
         class AppleBarrel(Model):
-            good_apples: List[Apple] = rest_field(
+            good_apples: list[Apple] = rest_field(
                 name="GoodApples",
                 xml={"name": "GoodApples", "unwrapped": True, "itemsName": "Apple"},
             )
@@ -295,7 +291,7 @@ class TestXmlDeserialization:
             _xml = {"name": "Apple"}
 
         class AppleBarrel(Model):
-            good_apples: List[Apple] = rest_field(
+            good_apples: list[Apple] = rest_field(
                 name="GoodApples",
                 xml={"name": "GoodApples", "unwrapped": True, "itemsName": "Apple"},
             )
@@ -427,7 +423,7 @@ class TestXmlDeserialization:
 
         class XmlRoot(Model):
             author: QueueDescriptionResponseAuthor = rest_field(name="author")
-            authorization_rules: List[AuthorizationRule] = rest_field(
+            authorization_rules: list[AuthorizationRule] = rest_field(
                 name="AuthorizationRules",
                 xml={
                     "ns": "http://schemas.microsoft.com/netservices/2010/10/servicebus/connect",
@@ -461,7 +457,7 @@ class TestXmlDeserialization:
             </entry>"""
 
         class RuleFilter(Model):
-            __mapping__: Dict[str, Model] = {}
+            __mapping__: dict[str, Model] = {}
             type: Literal[None] = rest_discriminator(
                 name="type",
                 xml={
@@ -641,7 +637,7 @@ class TestXmlSerialization:
         )
 
         class XmlModel(Model):
-            metadata: Dict[str, str] = rest_field(name="Metadata", xml={"name": "Metadata"})
+            metadata: dict[str, str] = rest_field(name="Metadata", xml={"name": "Metadata"})
 
             def __init__(self, *args, **kwargs):
                 super().__init__(*args, **kwargs)
@@ -707,7 +703,7 @@ class TestXmlSerialization:
         )
 
         class AppleBarrel(Model):
-            good_apples: List[str] = rest_field(name="GoodApples", xml={"name": "GoodApples"})
+            good_apples: list[str] = rest_field(name="GoodApples", xml={"name": "GoodApples"})
 
             def __init__(self, *args, **kwargs):
                 super().__init__(*args, **kwargs)
@@ -729,7 +725,7 @@ class TestXmlSerialization:
         )
 
         class AppleBarrel(Model):
-            good_apples: List[str] = rest_field(name="GoodApples", xml={"name": "GoodApples", "unwrapped": True})
+            good_apples: list[str] = rest_field(name="GoodApples", xml={"name": "GoodApples", "unwrapped": True})
 
             def __init__(self, *args, **kwargs):
                 super().__init__(*args, **kwargs)
@@ -753,7 +749,7 @@ class TestXmlSerialization:
         )
 
         class AppleBarrel(Model):
-            good_apples: List[str] = rest_field(name="GoodApples", xml={"name": "GoodApples", "itemsName": "string"})
+            good_apples: list[str] = rest_field(name="GoodApples", xml={"name": "GoodApples", "itemsName": "string"})
 
             def __init__(self, *args, **kwargs):
                 super().__init__(*args, **kwargs)
@@ -775,7 +771,7 @@ class TestXmlSerialization:
         )
 
         class AppleBarrel(Model):
-            good_apples: List[str] = rest_field(
+            good_apples: list[str] = rest_field(
                 name="GoodApples",
                 xml={"name": "GoodApples", "unwrapped": True, "itemsName": "string"},
             )
@@ -810,7 +806,7 @@ class TestXmlSerialization:
             _xml = {"name": "Apple"}
 
         class AppleBarrel(Model):
-            good_apples: List[Apple] = rest_field(name="GoodApples", xml={"name": "GoodApples"})
+            good_apples: list[Apple] = rest_field(name="GoodApples", xml={"name": "GoodApples"})
 
             def __init__(self, *args, **kwargs):
                 super().__init__(*args, **kwargs)
@@ -841,7 +837,7 @@ class TestXmlSerialization:
             _xml = {"name": "Apple"}
 
         class AppleBarrel(Model):
-            good_apples: List[Apple] = rest_field(name="GoodApples", xml={"name": "GoodApples", "unwrapped": True})
+            good_apples: list[Apple] = rest_field(name="GoodApples", xml={"name": "GoodApples", "unwrapped": True})
 
             def __init__(self, *args, **kwargs):
                 super().__init__(*args, **kwargs)
@@ -975,7 +971,7 @@ class TestXmlSerialization:
 
         class XmlRoot(Model):
             author: QueueDescriptionResponseAuthor = rest_field(name="author")
-            authorization_rules: List[AuthorizationRule] = rest_field(
+            authorization_rules: list[AuthorizationRule] = rest_field(
                 name="AuthorizationRules",
                 xml={
                     "ns": "http://schemas.microsoft.com/netservices/2010/10/servicebus/connect",
