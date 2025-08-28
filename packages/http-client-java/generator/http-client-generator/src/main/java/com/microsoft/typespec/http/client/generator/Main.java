@@ -189,6 +189,7 @@ public class Main {
         // keep ReadmeSamples.java
         filesToKeep.add("src/samples/" + settings.getPackage().replace(".", "/") + "/ReadmeSamples.java");
         if (settings.isHandlePartialUpdate()) {
+            // keep files that is known to be generated, as they are candidate for partial update process
             filesToKeep.addAll(javaFiles.stream().map(JavaFile::getFilePath).collect(Collectors.toSet()));
         }
         FileUtil.deleteGeneratedJavaFiles(outputDir,
