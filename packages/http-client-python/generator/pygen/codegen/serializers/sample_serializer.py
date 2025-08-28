@@ -20,7 +20,6 @@ from ..models import (
     BodyParameter,
     FileImport,
 )
-from .._utils import get_parent_namespace
 
 _LOGGER = logging.getLogger(__name__)
 

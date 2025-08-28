@@ -54,7 +54,7 @@ class _ClientConfigBase(Generic[ParameterListType], BaseModel):
         return self.yaml_data["name"]
 
 
-class Client(_ClientConfigBase[ClientGlobalParameterList]):  # pylint: disable=too-many-public-methods
+class Client(_ClientConfigBase[ClientGlobalParameterList]):
     """Model representing our service client"""
 
     def __init__(

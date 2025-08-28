@@ -8,7 +8,7 @@ from jinja2 import Environment
 from ..models import CodeModel, OperationGroup
 
 
-def get_pylint_disable(code_model: CodeModel, og: OperationGroup) -> str:
+def get_pylint_disable(og: OperationGroup) -> str:
     if og.is_mixin:
         return " # pylint: disable=unused-import"
     return ""
@@ -32,7 +32,7 @@ class OperationsInitSerializer:
             return "_operations" if self.code_model.options["combine-operation-files"] else operation_group.filename
 
         return [
-            f"from .{_get_filename(og)} import {og.class_name} # type: ignore{get_pylint_disable(self.code_model, og)}"
+            f"from .{_get_filename(og)} import {og.class_name} # type: ignore{get_pylint_disable(og)}"
             for og in self.operation_groups
         ]
 

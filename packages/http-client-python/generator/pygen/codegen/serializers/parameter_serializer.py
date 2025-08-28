@@ -178,7 +178,7 @@ class ParameterSerializer:
         pop_headers_kwarg: PopKwargType,
         pop_params_kwarg: PopKwargType,
         check_client_input: bool = False,
-        operation_name: Optional[str] = None,
+        _operation_name: Optional[str] = None,
         *,
         body_parameter: Optional[BodyParameterType] = None,
     ) -> list[str]:

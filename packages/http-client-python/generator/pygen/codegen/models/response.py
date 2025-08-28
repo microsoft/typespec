@@ -300,6 +300,7 @@ class LROResponse(Response):
         )
         return file_import
 
+
 class LROPagingResponse(LROResponse, PagingResponse):
     def type_annotation(self, **kwargs: Any) -> str:
         paging_type_annotation = PagingResponse.type_annotation(self, **kwargs)

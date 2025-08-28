@@ -5,7 +5,6 @@
 # --------------------------------------------------------------------------
 from enum import Enum, auto
 from typing import Optional, Union, TYPE_CHECKING
-from .._utils import get_parent_namespace
 
 if TYPE_CHECKING:
     from .code_model import CodeModel
