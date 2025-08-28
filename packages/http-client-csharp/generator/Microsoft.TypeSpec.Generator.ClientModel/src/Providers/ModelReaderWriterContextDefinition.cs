@@ -114,7 +114,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Avoid duplicate processing
             if (currentType != null)
             {
-                if (!ShouldProcessType(currentType, visitedTypes, buildableTypes))
+                if (!ShouldProcessCSharpType(currentType, visitedTypes, buildableTypes))
                 {
                     return;
                 }
@@ -122,15 +122,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             else if (currentProvider != null)
             {
-                // Check if this type implements IPersistableModel and is part of the output library
-                if (ImplementsModelReaderWriter(currentProvider))
+                if (!ShouldProcessTypeProvider(currentProvider, visitedTypeProviders, buildableProviders))
                 {
-                    buildableProviders.Add(currentProvider);
+                    return;
                 }
+                buildableProviders.Add(currentProvider);
 
                 if (currentProvider is not null)
                 {
-                    CollectBuildableTypesRecursiveCore(currentProvider, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
+                    CollectBuildableTypesRecursiveCore(currentProvider, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes, skipDuplicationCheck: true); // we already did duplication check above
                 }
             }
         }
@@ -140,10 +140,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             HashSet<CSharpType> visitedTypes,
             HashSet<TypeProvider> visitedTypeProviders,
             HashSet<TypeProvider> buildableProviders,
-            HashSet<CSharpType> buildableTypes)
+            HashSet<CSharpType> buildableTypes,
+            bool skipDuplicationCheck = false)
         {
-            // Avoid duplicate processing
-            if (!ShouldProcessType(provider, visitedTypeProviders, buildableProviders))
+            // Avoid duplicate processing and we don't actually process the type provider here
+            if (!skipDuplicationCheck && !ShouldProcessTypeProvider(provider, visitedTypeProviders, buildableProviders, actualProcess: false))
             {
                 return;
             }
@@ -160,16 +161,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
 
-            // Always traverse base types, regardless of whether the current type implements the interface
-            // This ensures we find nested types that might implement the interfaces
             if (provider is ModelProvider modelProvider && modelProvider.BaseModelProvider != null)
             {
+                // For base model types, we need to process their properties as well, but we don't need to add the base model type itself
                 CollectBuildableTypesRecursiveCore(modelProvider.BaseModelProvider, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
             }
             else
             {
                 foreach (var implementedType in provider.Implements)
                 {
+                    // we only care about types that is framework type
                     if (implementedType.IsFrameworkType)
                     {
                         CollectBuildableTypesRecursive(implementedType.WithNullable(false), null, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
@@ -226,16 +227,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private static bool ShouldProcessType(TypeProvider provider, HashSet<TypeProvider> visitedTypeProviders, HashSet<TypeProvider> buildableProviders)
+        private static bool ShouldProcessTypeProvider(TypeProvider provider, HashSet<TypeProvider> visitedTypeProviders, HashSet<TypeProvider> buildableProviders, bool actualProcess = true)
         {
-            if (!visitedTypeProviders.Add(provider))
+            if (visitedTypeProviders.Contains(provider))
             {
                 return false;
+            }
+
+            // we only actually process TypeProvider in one place, but we are checking in multiple places, not everycheck should mark it as visited
+            if (actualProcess)
+            {
+                visitedTypeProviders.Add(provider);
             }
             return ImplementsModelReaderWriter(provider);
         }
 
-        private static bool ShouldProcessType(CSharpType type, HashSet<CSharpType> visitedTypes, HashSet<CSharpType> buildableTypes)
+        private static bool ShouldProcessCSharpType(CSharpType type, HashSet<CSharpType> visitedTypes, HashSet<CSharpType> buildableTypes)
         {
             if (!visitedTypes.Add(type))
             {
