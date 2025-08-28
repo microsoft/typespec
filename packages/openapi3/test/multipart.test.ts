@@ -419,7 +419,7 @@ worksFor(["3.1.0"], ({ openApiFor }) => {
           {},
           { contentType: "image/png" },
         ],
-        [`File`, {}, { contentType: "application/octet-stream" }],
+        [`File`, {}, { contentType: "*/*" }],
         [
           `{@header extra: string, @body body: string}`,
           { type: "string" },
