@@ -134,6 +134,7 @@ words:
   - lzutf
   - MACVMIMAGE
   - MACVMIMAGEM
+  - marshal
   - mday
   - mgmt
   - mgmtplane
@@ -257,6 +258,7 @@ words:
   - Ungroup
   - uninstantiated
   - unioned
+  - unmarshal
   - unparented
   - unprefixed
   - unprojected
