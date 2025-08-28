@@ -53,7 +53,7 @@ class OperationGroup(BaseModel):
     @property
     def class_name(self) -> str:
         """The class name of the operation group."""
-        if self.is_mixin and not self.code_model.options["multiapi"]:
+        if self.is_mixin:
             return "_" + self.yaml_data["className"]
         return self.yaml_data["className"]
 
@@ -77,17 +77,6 @@ class OperationGroup(BaseModel):
         if self.is_mixin:
             base_classes.append(f"ClientMixinABC[{pipeline_client}, {self.client.name}Configuration]")
         return ", ".join(base_classes)
-
-    def imports_for_multiapi(self, async_mode: bool, **kwargs) -> FileImport:
-        file_import = FileImport(self.code_model)
-        relative_path = ".." if async_mode else "."
-        for operation in self.operations:
-            file_import.merge(operation.imports_for_multiapi(async_mode, **kwargs))
-        if (self.code_model.model_types or self.code_model.enums) and self.code_model.options[
-            "models-mode"
-        ] == "msrest":
-            file_import.add_submodule_import(relative_path, "models", ImportType.LOCAL, alias="_models")
-        return file_import
 
     def pylint_disable(self) -> str:
         retval: str = ""
@@ -141,7 +130,7 @@ class OperationGroup(BaseModel):
                         og.class_name,
                         ImportType.LOCAL,
                     )
-        # for multiapi
+        # shared code for imports
         if (
             (self.code_model.public_model_types)
             and self.code_model.options["models-mode"] == "msrest"

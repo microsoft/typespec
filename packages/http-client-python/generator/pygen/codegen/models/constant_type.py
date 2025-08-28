@@ -109,16 +109,9 @@ class ConstantType(BaseType):
             client_default_value_declaration=self.get_declaration(),
         )
 
-    def _imports_shared(self, **kwargs: Any):
+    def imports(self, **kwargs: Any) -> FileImport:
         file_import = super().imports(**kwargs)
         file_import.merge(self.value_type.imports(**kwargs))
-        return file_import
-
-    def imports_for_multiapi(self, **kwargs: Any) -> FileImport:
-        return self._imports_shared(**kwargs)
-
-    def imports(self, **kwargs: Any) -> FileImport:
-        file_import = self._imports_shared(**kwargs)
         if self._is_literal:
             file_import.add_submodule_import("typing", "Literal", ImportType.STDLIB, TypingSection.REGULAR)
         return file_import

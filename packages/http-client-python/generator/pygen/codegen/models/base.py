@@ -51,9 +51,6 @@ class BaseType(BaseModel, ABC):  # pylint: disable=too-many-public-methods
     def imports(self, **kwargs) -> FileImport:  # pylint: disable=unused-argument
         return FileImport(self.code_model)
 
-    def imports_for_multiapi(self, **kwargs: Any) -> FileImport:
-        return self.imports(**kwargs)
-
     def imports_for_sample(self) -> FileImport:
         return FileImport(self.code_model)
 
