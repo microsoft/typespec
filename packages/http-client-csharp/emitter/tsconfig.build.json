@@ -9,5 +9,5 @@
     "declarationMap": true
   },
   "references": [],
-  "include": ["../emitter/src/", "../emitter/test/", "../generated-defs/**/*.ts"]
+  "include": ["../emitter/src/", "../emitter/test/", "../generated-defs/"]
 }
