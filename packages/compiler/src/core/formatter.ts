@@ -3,6 +3,29 @@ import YamlPlugin from "prettier/plugins/yaml.js";
 import { check, format as prettierFormat } from "prettier/standalone";
 import * as typespecPrettierPlugin from "../formatter/index.js";
 import { getAnyExtensionFromPath } from "./path-utils.js";
+import type { Node } from "./types.js";
+
+/**
+ * Print the given TypeSpec AST node with the TypeSpec formatter.
+ * @param node TypeSpec AST node to print.
+ * @returns Printed TypeSpec.
+ */
+export function printTypeSpecNode(node: Node): Promise<string> {
+  return prettierFormat(".", {
+    parser: "typespec",
+    plugins: [
+      {
+        ...typespecPrettierPlugin,
+        parsers: {
+          typespec: {
+            ...typespecPrettierPlugin.parsers.typespec,
+            parse: () => node,
+          },
+        },
+      },
+    ],
+  });
+}
 
 export type Formatter = "typespec" | "tspconfig";
 
