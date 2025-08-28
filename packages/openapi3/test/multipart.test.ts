@@ -16,6 +16,11 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
       schema: {
         $ref: "#/components/schemas/Form",
       },
+      encoding: {
+        profileImage: {
+          contentType: "application/octet-stream",
+        },
+      },
     });
   });
 
@@ -65,6 +70,11 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
         },
         required: ["address"],
       },
+      encoding: {
+        address: {
+          contentType: "application/json",
+        },
+      },
     });
   });
 
@@ -103,6 +113,11 @@ worksFor(["3.0.0"], ({ openApiFor }) => {
       );
       const op = res.paths["/"].post;
       deepStrictEqual(op.requestBody.content["multipart/form-data"], {
+        encoding: {
+          profileImage: {
+            contentType: "application/octet-stream",
+          },
+        },
         schema: {
           type: "object",
           properties: {
@@ -133,11 +148,6 @@ worksFor(["3.0.0"], ({ openApiFor }) => {
             },
           },
           required: ["profileImage"],
-        },
-        encoding: {
-          profileImage: {
-            contentType: "text/plain",
-          },
         },
       });
     });
@@ -197,6 +207,11 @@ worksFor(["3.0.0"], ({ openApiFor }) => {
           },
           required: ["profileImage"],
         },
+        encoding: {
+          profileImage: {
+            contentType: "application/octet-stream",
+          },
+        },
       });
     });
 
@@ -218,7 +233,7 @@ worksFor(["3.0.0"], ({ openApiFor }) => {
 
     describe("part mapping", () => {
       it.each([
-        [`string`, { type: "string" }],
+        [`string`, { type: "string" }, { contentType: "application/octet-stream" }],
         [`bytes`, { type: "string", format: "binary" }],
         [
           `string[]`,
@@ -291,10 +306,10 @@ worksFor(["3.1.0"], ({ openApiFor }) => {
             profileImage: {},
           },
           required: ["profileImage"],
-          encoding: {
-            profileImage: {
-              contentType: "application/octet-stream",
-            },
+        },
+        encoding: {
+          profileImage: {
+            contentType: "application/octet-stream",
           },
         },
       });
@@ -345,6 +360,11 @@ worksFor(["3.1.0"], ({ openApiFor }) => {
       );
       const op = res.paths["/"].post;
       deepStrictEqual(op.requestBody.content["multipart/form-data"], {
+        encoding: {
+          profileImage: {
+            contentType: "application/octet-stream",
+          },
+        },
         schema: {
           type: "object",
           properties: {
