@@ -34,7 +34,12 @@ describe("compiler: server: resolveEntrypointFile", () => {
     });
 
     const log = createLogger();
-    const result = await resolveEntrypointFile(["custom.tsp", "main.tsp"], filePath, log);
+    const result = await resolveEntrypointFile(
+      NodeSystemHost,
+      ["custom.tsp", "main.tsp"],
+      filePath,
+      log,
+    );
 
     expect(result).toBe(expected);
   });
@@ -52,7 +57,12 @@ describe("compiler: server: resolveEntrypointFile", () => {
     vi.spyOn(NodeSystemHost, "readFile").mockResolvedValue({ text: "{}" } as any);
 
     const log = createLogger();
-    const result = await resolveEntrypointFile(["missing.tsp", "main.tsp"], filePath, log);
+    const result = await resolveEntrypointFile(
+      NodeSystemHost,
+      ["missing.tsp", "main.tsp"],
+      filePath,
+      log,
+    );
     expect(result).toBe(expected);
   });
 
@@ -74,7 +84,7 @@ describe("compiler: server: resolveEntrypointFile", () => {
     });
 
     const log = createLogger();
-    const result = await resolveEntrypointFile(undefined, filePath, log);
+    const result = await resolveEntrypointFile(NodeSystemHost, undefined, filePath, log);
     expect(result).toBe(expected);
   });
 
@@ -87,7 +97,7 @@ describe("compiler: server: resolveEntrypointFile", () => {
     vi.spyOn(NodeSystemHost, "readFile").mockResolvedValue({ text: "{}" } as any);
 
     const log = createLogger();
-    const result = await resolveEntrypointFile(undefined, filePath, log);
+    const result = await resolveEntrypointFile(NodeSystemHost, undefined, filePath, log);
     expect(result).toBe(filePath);
   });
 });

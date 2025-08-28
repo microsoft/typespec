@@ -1,5 +1,9 @@
 import { ServerLog, SourceLocation } from "@typespec/compiler";
-import { resolveEntrypointFile, ServerDiagnostic } from "@typespec/compiler/internals";
+import {
+  NodeSystemHost,
+  resolveEntrypointFile,
+  ServerDiagnostic,
+} from "@typespec/compiler/internals";
 import vscode from "vscode";
 import { StartFileName } from "./const.js";
 import logger from "./log/logger.js";
@@ -15,7 +19,7 @@ export async function getEntrypointTspFile(tspPath: string): Promise<string | un
   const logAdapter = (log: ServerLog) => {
     logger.log(log.level, log.message, log.detail as any);
   };
-  return await resolveEntrypointFile(configEntrypoints, tspPath, logAdapter);
+  return await resolveEntrypointFile(NodeSystemHost, configEntrypoints, tspPath, logAdapter);
 }
 
 export async function TraverseMainTspFileInWorkspace() {
