@@ -191,10 +191,10 @@ public class Main {
         if (settings.isHandlePartialUpdate()) {
             filesToKeep.addAll(javaFiles.stream().map(JavaFile::getFilePath).collect(Collectors.toSet()));
         }
-        FileUtil.deleteGeneratedJavaFiles(outputDir, new FileUtil.DeleteGeneratedJavaFilesOptions()
-            .setRelativePathOfJavaFilesToKeep(filesToKeep)
-            .setIncludeSamplesDir(settings.isGenerateSamples())
-            .setIncludeTestDir(settings.isGenerateTests()));
+        FileUtil.deleteGeneratedJavaFiles(outputDir,
+            new FileUtil.DeleteGeneratedJavaFilesOptions().setRelativePathOfJavaFilesToKeep(filesToKeep)
+                .setIncludeSamplesDir(settings.isGenerateSamples())
+                .setIncludeTestDir(settings.isGenerateTests()));
     }
 
     private static EmitterOptions loadEmitterOptions(CodeModel codeModel) {
