@@ -75,7 +75,7 @@ export async function makeServiceCall(
       body = formData;
     } else {
       if (typeof request.body.rawContent === "string" || Buffer.isBuffer(request.body.rawContent)) {
-        body = request.body.rawContent;
+        body = request.body.rawContent as any;
       } else {
         body = request.body.rawContent?.serialize(config);
       }
