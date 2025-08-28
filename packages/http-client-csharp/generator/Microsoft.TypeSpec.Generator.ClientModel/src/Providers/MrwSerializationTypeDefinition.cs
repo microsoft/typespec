@@ -10,6 +10,8 @@ using System.Linq;
 using System.Net;
 using System.Text.Json;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
+using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -189,7 +191,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var document = UsingDeclare(
                 "document",
                 typeof(JsonDocument),
-                JsonDocumentSnippets.Parse(response.Property(nameof(HttpResponseApi.Content)).As<BinaryData>()),
+                response.Property(nameof(HttpResponseApi.Content)).As<BinaryData>().Parse(),
                 out var docVariable);
             // return DeserializeT(doc.RootElement, ModelSerializationExtensions.WireOptions);
             var deserialize = Return(_model.Type.Deserialize(docVariable.As<JsonDocument>().RootElement(), ModelSerializationExtensionsSnippets.Wire));
@@ -641,6 +643,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     var variableRef = property.AsVariableExpression;
                     if (property.IsAdditionalProperties)
                     {
+                        if (variableRef.Type.IsReadOnlyDictionary)
+                        {
+                            variableRef.Update(type: variableRef.Type.PropertyInitializationType);
+                        }
                         // IDictionary<string, T> additionalTProperties = new Dictionary<string, T>();
                         propertyDeclarationStatements.Add(Declare(variableRef, new DictionaryExpression(property.Type, New.Instance(property.Type.PropertyInitializationType))));
                     }
@@ -755,7 +761,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (!propertyProvider.Type.IsFrameworkType || propertyProvider.IsAdditionalProperties)
             {
-                return propertyProvider.AsVariableExpression;
+                return propertyProvider.Type.IsReadOnlyDictionary
+                    ? New.ReadOnlyDictionary(propertyProvider.Type.Arguments[0], propertyProvider.Type.ElementType, propertyProvider.AsVariableExpression)
+                    : propertyProvider.AsVariableExpression;
             }
             else if (!isRequired)
             {
@@ -806,7 +814,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                     // By default, we should only deserialize properties with wire info that are payload properties.
                     // Those properties without wire info indicate they are not spec properties.
-                    if (wireInfo?.Location != PropertyLocation.Body)
+                    if (wireInfo == null || wireInfo.IsHttpMetadata == true)
                     {
                         continue;
                     }
@@ -853,14 +861,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (_additionalBinaryDataProperty.Value != null)
             {
                 var binaryDataDeserializationValue = ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(
-                    _additionalBinaryDataProperty.Value.Type.ElementType.FrameworkType, jsonProperty.Value(), SerializationFormat.Default);
+                    _additionalBinaryDataProperty.Value.Type.ElementType.FrameworkType, jsonProperty.Value(), _mrwOptionsParameterSnippet, SerializationFormat.Default);
                 propertyDeserializationStatements.Add(
                     _additionalBinaryDataProperty.Value.AsVariableExpression.AsDictionary(_additionalBinaryDataProperty.Value.Type).Add(jsonProperty.Name(), binaryDataDeserializationValue));
             }
             else if (rawBinaryData != null)
             {
                 var elementType = rawBinaryData.Type.Arguments[1].FrameworkType;
-                var rawDataDeserializationValue = ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(elementType, jsonProperty.Value(), SerializationFormat.Default);
+                var rawDataDeserializationValue = ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(elementType, jsonProperty.Value(), _mrwOptionsParameterSnippet, SerializationFormat.Default);
                 propertyDeserializationStatements.Add(new IfStatement(_isNotEqualToWireConditionSnippet)
                 {
                     rawBinaryData.AsVariableExpression.AsDictionary(rawBinaryData.Type).Add(jsonProperty.Name(), rawDataDeserializationValue)
@@ -1277,11 +1285,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             valueType switch
             {
                 { IsFrameworkType: true } when valueType.FrameworkType == typeof(Nullable<>) =>
-                    ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(valueType.Arguments[0].FrameworkType, jsonElement, serializationFormat),
+                    ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(valueType.Arguments[0].FrameworkType, jsonElement, _mrwOptionsParameterSnippet, serializationFormat),
                 { IsFrameworkType: true } =>
-                    ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(valueType.FrameworkType, jsonElement, serializationFormat),
+                    ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(valueType.FrameworkType, jsonElement, _mrwOptionsParameterSnippet, serializationFormat),
                 { IsEnum: true } =>
-                    valueType.ToEnum(ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(valueType.UnderlyingEnumType!, jsonElement, serializationFormat)),
+                    valueType.ToEnum(ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(valueType.UnderlyingEnumType!, jsonElement, _mrwOptionsParameterSnippet, serializationFormat)),
                 _ => valueType.Deserialize(jsonElement, _mrwOptionsParameterSnippet)
             };
 
@@ -1385,7 +1393,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Those properties without wireinfo indicate they are not spec properties.
             foreach (var property in _model.CanonicalView.Properties)
             {
-                if (property.WireInfo?.Location != PropertyLocation.Body)
+                if (property.WireInfo == null || property.WireInfo.IsHttpMetadata)
                 {
                     continue;
                 }
@@ -1395,7 +1403,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (var field in _model.CanonicalView.Fields)
             {
-                if (field.WireInfo?.Location != PropertyLocation.Body)
+                if (field.WireInfo == null || field.WireInfo.IsHttpMetadata)
                 {
                     continue;
                 }
@@ -1502,11 +1510,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// <param name="value">The value to be serialized.</param>
         /// <param name="serializationFormat">The serialization format.</param>
         /// <returns>The serialization statement.</returns>
-        /// <exception cref="NotSupportedException">Thrown when the serialization type is not supported.</exception>
         private MethodBodyStatement CreateSerializationStatement(
             CSharpType serializationType,
             ValueExpression value,
-            SerializationFormat serializationFormat) => serializationType switch
+            SerializationFormat serializationFormat)
+        {
+            MethodBodyStatement? statement = serializationType switch
             {
                 { IsDictionary: true } =>
                     CreateDictionarySerializationStatement(
@@ -1517,9 +1526,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         serializationFormat),
                 { IsCollection: false } =>
                     CreateValueSerializationStatement(serializationType, serializationFormat, value),
-                _ => throw new NotSupportedException(
-                    $"Serialization of type {serializationType.Name} is not supported.")
+                _ => null,
             };
+
+            if (statement == null)
+            {
+                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                   DiagnosticCodes.UnsupportedSerialization,
+                   $"Serialization of type {serializationType.Name} is not supported.",
+                   severity: EmitterDiagnosticSeverity.Warning);
+                return CreateValueSerializationStatement(serializationType, serializationFormat, value);
+            }
+
+            return statement;
+        }
 
         private MethodBodyStatement CreateDictionarySerializationStatement(
             DictionaryExpression dictionary,
@@ -1605,7 +1625,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter,
             SerializationFormat serializationFormat)
         {
-            return valueType switch
+            MethodBodyStatement? statement = valueType switch
             {
                 var t when t == typeof(JsonElement) =>
                     value.As<JsonElement>().WriteTo(utf8JsonWriter),
@@ -1631,16 +1651,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     SerializeBinaryData(valueType, serializationFormat, value, utf8JsonWriter),
                 var t when t == typeof(Stream) =>
                     utf8JsonWriter.WriteBinaryData(BinaryDataSnippets.FromStream(value, false)),
-                _ => throw new NotSupportedException($"Type {valueType} serialization is not supported.")
+                _ => null
             };
+
+            if (statement is null)
+            {
+                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                    DiagnosticCodes.UnsupportedSerialization,
+                    $"Serialization of type {valueType.Name} is not supported.",
+                    severity: EmitterDiagnosticSeverity.Warning);
+
+                return utf8JsonWriter.WriteObjectValue(value.As(valueType), mrwOptionsParameter);
+            }
+
+            return statement;
         }
 
         internal static ValueExpression DeserializeJsonValueCore(
             Type valueType,
             ScopedApi<JsonElement> element,
+            ScopedApi<ModelReaderWriterOptions> mrwOptions,
             SerializationFormat format)
         {
-            return valueType switch
+            ValueExpression? exp = valueType switch
             {
                 Type t when t == typeof(Uri) =>
                     New.Instance(valueType, element.GetString()),
@@ -1686,8 +1719,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     SerializationFormat.Duration_Seconds_Float or SerializationFormat.Duration_Seconds_Double => TimeSpanSnippets.FromSeconds(element.GetDouble()),
                     _ => element.GetTimeSpan(format.ToFormatSpecifier())
                 },
-                _ => throw new NotSupportedException($"Framework type {valueType} is not supported.")
+                _ => null,
             };
+
+            if (exp is null)
+            {
+                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                    DiagnosticCodes.UnsupportedSerialization,
+                    $"Deserialization of type {valueType.Name} is not supported.",
+                    severity: EmitterDiagnosticSeverity.Warning);
+                return new CSharpType(valueType).Deserialize(element);
+            }
+
+            return exp;
         }
 
         private static bool ValueTypeIsInt(Type valueType) =>

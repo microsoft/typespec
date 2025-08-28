@@ -3,7 +3,8 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import List, Dict, Any, Set, Union, Literal, Optional, cast
+from pathlib import Path
+from typing import Any, Union, Literal, Optional, cast
 
 from .base import BaseType
 from .enum_type import EnumType
@@ -21,7 +22,7 @@ def _is_legacy(options) -> bool:
     return not (options.get("version-tolerant") or options.get("low-level-client"))
 
 
-def get_all_operation_groups_recursively(clients: List[Client]) -> List[OperationGroup]:
+def get_all_operation_groups_recursively(clients: list[Client]) -> list[OperationGroup]:
     operation_groups = []
     queue = []
     for client in clients:
@@ -36,10 +37,10 @@ def get_all_operation_groups_recursively(clients: List[Client]) -> List[Operatio
 class ClientNamespaceType:
     def __init__(
         self,
-        clients: Optional[List[Client]] = None,
-        models: Optional[List[ModelType]] = None,
-        enums: Optional[List[EnumType]] = None,
-        operation_groups: Optional[List[OperationGroup]] = None,
+        clients: Optional[list[Client]] = None,
+        models: Optional[list[ModelType]] = None,
+        enums: Optional[list[EnumType]] = None,
+        operation_groups: Optional[list[OperationGroup]] = None,
     ):
         self.clients = clients or []
         self.models = models or []
@@ -72,34 +73,34 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
 
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         options: OptionsDict,
     ) -> None:
         self.yaml_data = yaml_data
         self.options = options
         self.namespace = self.yaml_data["namespace"]
-        self.types_map: Dict[int, BaseType] = {}  # map yaml id to schema
-        self._model_types: List[ModelType] = []
+        self.types_map: dict[int, BaseType] = {}  # map yaml id to schema
+        self._model_types: list[ModelType] = []
         from . import build_type
 
         for type_yaml in yaml_data.get("types", []):
             build_type(yaml_data=type_yaml, code_model=self)
-        self.clients: List[Client] = [
+        self.clients: list[Client] = [
             Client.from_yaml(client_yaml_data, self) for client_yaml_data in yaml_data["clients"]
         ]
         if self.options["models-mode"] and self.model_types:
             self.sort_model_types()
-        self.named_unions: List[CombinedType] = [
+        self.named_unions: list[CombinedType] = [
             t for t in self.types_map.values() if isinstance(t, CombinedType) and t.name
         ]
         self.cross_language_package_id = self.yaml_data.get("crossLanguagePackageId")
         self.for_test: bool = False
         # key is typespec namespace, value is models/clients/opeartion_groups/enums cache in the namespace
-        self._client_namespace_types: Dict[str, ClientNamespaceType] = {}
+        self._client_namespace_types: dict[str, ClientNamespaceType] = {}
         self.has_subnamespace = False
-        self._operations_folder_name: Dict[str, str] = {}
-        self._relative_import_path: Dict[str, str] = {}
-        self.metadata: Dict[str, Any] = yaml_data.get("metadata", {})
+        self._operations_folder_name: dict[str, str] = {}
+        self._relative_import_path: dict[str, str] = {}
+        self.metadata: dict[str, Any] = yaml_data.get("metadata", {})
 
     @staticmethod
     def get_imported_namespace_for_client(imported_namespace: str, async_mode: bool = False) -> str:
@@ -159,7 +160,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         return "_".join(parts) + (str(dot_num) if dot_num > 0 else "")
 
     @property
-    def client_namespace_types(self) -> Dict[str, ClientNamespaceType]:
+    def client_namespace_types(self) -> dict[str, ClientNamespaceType]:
         if not self._client_namespace_types:
             # calculate client namespace types for each kind of client namespace
             for client in self.clients:
@@ -201,7 +202,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         return any(client.has_etag for client in self.clients)
 
     @staticmethod
-    def clients_has_operations(clients: List[Client]) -> bool:
+    def clients_has_operations(clients: list[Client]) -> bool:
         return any(c for c in clients if c.has_operations)
 
     @property
@@ -234,7 +235,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
     def client_filename(self) -> str:
         return self.clients[0].filename
 
-    def get_clients(self, client_namespace: str) -> List[Client]:
+    def get_clients(self, client_namespace: str) -> list[Client]:
         """Get all clients in specific namespace"""
         return self.client_namespace_types.get(client_namespace, ClientNamespaceType()).clients
 
@@ -331,7 +332,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
             raise KeyError(f"Couldn't find schema with id {schema_id}") from exc
 
     @property
-    def model_types(self) -> List[ModelType]:
+    def model_types(self) -> list[ModelType]:
         """All of the model types in this class"""
         if not self._model_types:
             self._model_types = [
@@ -340,19 +341,19 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         return self._model_types
 
     @model_types.setter
-    def model_types(self, val: List[ModelType]) -> None:
+    def model_types(self, val: list[ModelType]) -> None:
         self._model_types = val
 
     @staticmethod
-    def get_public_model_types(models: List[ModelType]) -> List[ModelType]:
+    def get_public_model_types(models: list[ModelType]) -> list[ModelType]:
         return [m for m in models if not m.internal and not m.base == "json"]
 
     @property
-    def public_model_types(self) -> List[ModelType]:
+    def public_model_types(self) -> list[ModelType]:
         return self.get_public_model_types(self.model_types)
 
     @property
-    def enums(self) -> List[EnumType]:
+    def enums(self) -> list[EnumType]:
         """All of the enums"""
         return [t for t in self.types_map.values() if isinstance(t, EnumType)]
 
@@ -363,8 +364,8 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
     def _sort_model_types_helper(
         self,
         current: ModelType,
-        seen_schema_names: Set[str],
-        seen_schema_yaml_ids: Set[int],
+        seen_schema_names: set[str],
+        seen_schema_yaml_ids: set[int],
     ):
         if current.id in seen_schema_yaml_ids:
             return []
@@ -388,9 +389,9 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         :return: None
         :rtype: None
         """
-        seen_schema_names: Set[str] = set()
-        seen_schema_yaml_ids: Set[int] = set()
-        sorted_object_schemas: List[ModelType] = []
+        seen_schema_names: set[str] = set()
+        seen_schema_yaml_ids: set[int] = set()
+        sorted_object_schemas: list[ModelType] = []
         for schema in sorted(self.model_types, key=lambda x: x.name.lower()):
             sorted_object_schemas.extend(self._sort_model_types_helper(schema, seen_schema_names, seen_schema_yaml_ids))
         self.model_types = sorted_object_schemas
@@ -414,7 +415,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         return _is_legacy(self.options)
 
     @staticmethod
-    def has_non_json_models(models: List[ModelType]) -> bool:
+    def has_non_json_models(models: list[ModelType]) -> bool:
         return any(m for m in models if m.base != "json")
 
     @property
@@ -452,3 +453,34 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
             return self.yaml_data.get("licenseInfo", {}).get("company", "")
         # typespec azure case without custom license and swagger case
         return "Microsoft Corporation"
+
+    def get_root_dir(self) -> Path:
+        if self.options["no-namespace-folders"]:
+            # when output folder contains parts different from the namespace, we fall back to current folder directly.
+            return Path(".")
+        return Path(*self.namespace.split("."))
+
+    def get_generation_dir(self, namespace: str) -> Path:
+        """The directory to generate the code in.
+
+        If 'generation-subdir' is specified, it will be used as a subdirectory.
+        """
+        root_dir = self.get_root_dir()
+        retval = self._get_relative_generation_dir(root_dir, namespace)
+        return retval
+
+    def _get_relative_generation_dir(self, root_dir: Path, namespace: str) -> Path:
+        if self.options["no-namespace-folders"]:
+            return Path(".")
+        if self.options.get("generation-subdir"):
+            # For the main namespace, return root_dir + generation-subdir
+            if namespace in ("", self.namespace):
+                return root_dir / self.options["generation-subdir"]
+
+            # For subnamespaces, extract the subnamespace part and append it to generation-subdir
+            if namespace.startswith(self.namespace + "."):
+                subnamespace_parts = namespace[len(self.namespace) + 1 :].split(".")
+                return root_dir / self.options["generation-subdir"] / Path(*subnamespace_parts)
+
+        # No generation-subdir specified, use the namespace path directly
+        return Path(*namespace.split("."))

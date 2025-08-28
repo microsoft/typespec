@@ -3,7 +3,6 @@
 
 import {
   SdkArrayType,
-  SdkBodyModelPropertyType,
   SdkBuiltInType,
   SdkConstantType,
   SdkDateTimeType,
@@ -11,19 +10,15 @@ import {
   SdkDurationType,
   SdkEnumType,
   SdkEnumValueType,
-  SdkHeaderParameter,
   SdkModelPropertyType,
   SdkModelType,
-  SdkPathParameter,
-  SdkQueryParameter,
   SdkType,
   SdkUnionType,
   UsageFlags,
   getAccessOverride,
-  isReadOnly as tcgcIsReadOnly,
+  isHttpMetadata,
 } from "@azure-tools/typespec-client-generator-core";
 import { Model, NoTarget } from "@typespec/compiler";
-import { Visibility } from "@typespec/http";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import {
   InputArrayType,
@@ -32,18 +27,15 @@ import {
   InputDurationType,
   InputEnumType,
   InputEnumValueType,
-  InputHeaderParameter,
   InputLiteralType,
   InputModelProperty,
   InputModelType,
   InputNullableType,
-  InputPathParameter,
   InputPrimitiveType,
-  InputProperty,
-  InputQueryParameter,
   InputType,
   InputUnionType,
 } from "../type/input-type.js";
+import { isReadOnly } from "./utils.js";
 
 // we have this complicated type here to let the caller of fromSdkType could infer the real return type of this function.
 type InputReturnType<T extends SdkType> = T extends { kind: "nullable" }
@@ -187,7 +179,7 @@ function fromSdkModelType(
     ? fromSdkType(sdkContext, modelType.additionalProperties)
     : undefined;
 
-  const properties: InputProperty[] = [];
+  const properties: InputModelProperty[] = [];
   for (const property of modelType.properties) {
     const ourProperty = fromSdkModelProperty(sdkContext, property);
 
@@ -216,128 +208,47 @@ function fromSdkModelType(
   }
 
   return inputModelType;
+}
 
-  function fromSdkModelProperty(
-    sdkContext: CSharpEmitterContext,
-    sdkProperty: SdkModelPropertyType,
-  ): InputProperty | undefined {
-    // TODO -- this returns undefined because some properties we do not support yet.
-    let property = sdkContext.__typeCache.properties.get(sdkProperty) as InputProperty | undefined;
-    if (property) {
-      return property;
-    }
-    switch (sdkProperty.kind) {
-      case "property":
-        property = fromSdkBodyModelProperty(sdkContext, sdkProperty);
-        break;
-      case "header":
-        property = fromSdkHeaderParameter(sdkContext, sdkProperty);
-        break;
-      case "query":
-        property = fromSdkQueryParameter(sdkContext, sdkProperty);
-        break;
-      case "path":
-        property = fromSdkPathParameter(sdkContext, sdkProperty);
-        break;
-    }
-
-    if (property) {
-      sdkContext.__typeCache.updateSdkPropertyReferences(sdkProperty, property);
-    }
-
+function fromSdkModelProperty(
+  sdkContext: CSharpEmitterContext,
+  sdkProperty: SdkModelPropertyType,
+): InputModelProperty | undefined {
+  // TODO -- this returns undefined because some properties we do not support yet.
+  let property = sdkContext.__typeCache.properties.get(sdkProperty) as
+    | InputModelProperty
+    | undefined;
+  if (property) {
     return property;
   }
 
-  function fromSdkHeaderParameter(
-    sdkContext: CSharpEmitterContext,
-    property: SdkHeaderParameter,
-  ): InputHeaderParameter {
-    return {
-      kind: property.kind,
-      name: property.name,
-      serializedName: property.serializedName,
-      summary: property.summary,
-      doc: property.doc,
-      type: fromSdkType(sdkContext, property.type),
-      optional: property.optional,
-      readOnly: isReadOnly(property),
-      decorators: property.decorators,
-      crossLanguageDefinitionId: property.crossLanguageDefinitionId,
-      collectionFormat: property.collectionFormat,
-      correspondingMethodParams: [], // TODO - this should be a ref of other properties
-    };
+  const serializedName =
+    sdkProperty.serializationOptions?.json?.name ??
+    sdkProperty.serializationOptions?.xml?.name ??
+    sdkProperty.serializationOptions?.multipart?.name;
+  property = {
+    kind: sdkProperty.kind,
+    name: sdkProperty.name,
+    serializedName: serializedName,
+    summary: sdkProperty.summary,
+    doc: sdkProperty.doc,
+    type: fromSdkType(sdkContext, sdkProperty.type),
+    optional: sdkProperty.optional,
+    readOnly: isReadOnly(sdkProperty),
+    discriminator: sdkProperty.discriminator,
+    flatten: sdkProperty.flatten,
+    decorators: sdkProperty.decorators,
+    crossLanguageDefinitionId: sdkProperty.crossLanguageDefinitionId,
+    serializationOptions: sdkProperty.serializationOptions,
+    // A property is defined to be metadata if it is marked `@header`, `@cookie`, `@query`, `@path`.
+    isHttpMetadata: isHttpMetadata(sdkContext, sdkProperty),
+  } as InputModelProperty;
+
+  if (property) {
+    sdkContext.__typeCache.updateSdkPropertyReferences(sdkProperty, property);
   }
 
-  function fromSdkQueryParameter(
-    sdkContext: CSharpEmitterContext,
-    property: SdkQueryParameter,
-  ): InputQueryParameter {
-    return {
-      kind: property.kind,
-      name: property.name,
-      serializedName: property.serializedName,
-      summary: property.summary,
-      doc: property.doc,
-      type: fromSdkType(sdkContext, property.type),
-      optional: property.optional,
-      readOnly: isReadOnly(property),
-      decorators: property.decorators,
-      crossLanguageDefinitionId: property.crossLanguageDefinitionId,
-      correspondingMethodParams: [], // TODO - this should be a ref of other properties
-      explode: property.explode,
-    };
-  }
-
-  function fromSdkPathParameter(
-    sdkContext: CSharpEmitterContext,
-    property: SdkPathParameter,
-  ): InputPathParameter {
-    return {
-      kind: property.kind,
-      name: property.name,
-      serializedName: property.serializedName,
-      summary: property.summary,
-      doc: property.doc,
-      type: fromSdkType(sdkContext, property.type),
-      optional: property.optional,
-      readOnly: isReadOnly(property),
-      decorators: property.decorators,
-      crossLanguageDefinitionId: property.crossLanguageDefinitionId,
-      explode: property.explode,
-      style: property.style,
-      allowReserved: property.allowReserved,
-      correspondingMethodParams: [], // TODO - this should be a ref of other properties
-    };
-  }
-
-  function fromSdkBodyModelProperty(
-    sdkContext: CSharpEmitterContext,
-    property: SdkBodyModelPropertyType,
-  ): InputModelProperty {
-    let targetType = property.type;
-    if (targetType.kind === "model") {
-      const body = targetType.properties.find((x) => x.kind === "body");
-      if (body) targetType = body.type;
-    }
-
-    const modelProperty: InputModelProperty = {
-      kind: property.kind,
-      name: property.name,
-      serializedName: property.serializedName,
-      summary: property.summary,
-      doc: property.doc,
-      type: fromSdkType(sdkContext, targetType),
-      optional: property.optional,
-      readOnly: isReadOnly(property),
-      discriminator: property.discriminator,
-      flatten: property.flatten,
-      decorators: property.decorators,
-      crossLanguageDefinitionId: property.crossLanguageDefinitionId,
-      serializationOptions: property.serializationOptions,
-    };
-
-    return modelProperty;
-  }
+  return property;
 }
 
 function fromSdkEnumType(sdkContext: CSharpEmitterContext, enumType: SdkEnumType): InputEnumType {
@@ -494,16 +405,4 @@ function fromSdkEndpointType(): InputPrimitiveType {
     name: "string",
     crossLanguageDefinitionId: "TypeSpec.string",
   };
-}
-
-function isReadOnly(prop: SdkModelPropertyType): boolean {
-  if (prop.kind === "property") {
-    return tcgcIsReadOnly(prop);
-  }
-
-  if (prop.visibility?.includes(Visibility.Read) && prop.visibility.length === 1) {
-    return true;
-  } else {
-    return false;
-  }
 }

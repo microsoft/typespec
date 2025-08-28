@@ -68,8 +68,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             HttpMessageApi? httpMessageApi = null,
             RequestContentApi? requestContentApi = null,
             Func<InputAuth>? auth = null,
+            Func<OutputLibrary>? createOutputLibrary = null,
             bool includeXmlDocs = false,
-            Func<InputType, bool>? createCSharpTypeCoreFallback = null)
+            Func<InputType, bool>? createCSharpTypeCoreFallback = null,
+            Func<InputModelType, ModelProvider?>? createModelCore = null)
         {
             IReadOnlyList<string> inputNsApiVersions = apiVersions?.Invoke() ?? [];
             IReadOnlyList<InputLiteralType> inputNsLiterals = inputLiterals?.Invoke() ?? [];
@@ -107,6 +109,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             if (createSerializationsCore is not null)
             {
                 mockTypeFactory.Protected().Setup<IReadOnlyList<TypeProvider>>("CreateSerializationsCore", ItExpr.IsAny<InputType>(), ItExpr.IsAny<TypeProvider>()).Returns(createSerializationsCore);
+            }
+
+            if (createModelCore is not null)
+            {
+                mockTypeFactory.Protected().Setup<ModelProvider?>("CreateModelCore", ItExpr.IsAny<InputModelType>()).Returns(createModelCore);
             }
 
             if (createCSharpTypeCore is not null)
@@ -169,6 +176,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             if (createInputLibrary is not null)
             {
                 mockGeneratorInstance.Setup(p => p.InputLibrary).Returns(createInputLibrary);
+            }
+
+            if (createOutputLibrary != null)
+            {
+                mockGeneratorInstance.Setup(p => p.OutputLibrary).Returns(createOutputLibrary);
             }
 
             var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(null, null)) { CallBase = true };

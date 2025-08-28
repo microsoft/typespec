@@ -270,6 +270,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     },
+    "http-type-union-discriminated": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/type/union/discriminated -g StubLibraryGenerator",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    },
     "http-versioning-added-v1": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/versioning/added/v1 -g StubLibraryGenerator",
       "commandName": "Executable",

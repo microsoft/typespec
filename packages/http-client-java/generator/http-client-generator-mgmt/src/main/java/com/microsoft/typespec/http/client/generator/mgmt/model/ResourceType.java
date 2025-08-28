@@ -9,7 +9,7 @@ public enum ResourceType {
     PROXY_RESOURCE(ResourceTypeName.PROXY_RESOURCE),
     SUB_RESOURCE(ResourceTypeName.SUB_RESOURCE);
 
-    private String className;
+    private final String className;
 
     ResourceType(String className) {
         this.className = className;

@@ -186,6 +186,7 @@ words:
   - proto
   - protobuf
   - protoc
+  - pscore
   - psscriptanalyzer
   - ptvsd
   - pwsh
@@ -200,6 +201,7 @@ words:
   - pyright
   - pyrightconfig
   - pytest
+  - pytyped
   - pyyaml
   - rcfile
   - reactivex
@@ -220,6 +222,7 @@ words:
   - sdkcore
   - segmentof
   - serde
+  - setuppy
   - sfixed
   - shiki
   - sint
@@ -268,6 +271,7 @@ words:
   - vitest
   - VNEXT
   - vsix
+  - vsmarketplace
   - VSSDK
   - Vsts
   - vswhere

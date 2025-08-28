@@ -1,5 +1,10 @@
+import {
+  Experimental_ComponentOverrides,
+  Experimental_ComponentOverridesConfig,
+} from "#core/index.js";
 import { Tester } from "#test/test-host.js";
-import { type Children } from "@alloy-js/core";
+import { List, type Children } from "@alloy-js/core";
+import { d } from "@alloy-js/core/testing";
 import { createCSharpNamePolicy, Namespace, SourceFile } from "@alloy-js/csharp";
 import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
@@ -66,6 +71,65 @@ it("renders a class declaration with properties", async () => {
     }
   `);
 });
+
+it("renders a class declaration with properties using component override", async () => {
+  const { TestModel, Foo, Bar } = await runner.compile(t.code`
+    model ${t.model("Foo")} {}
+    model ${t.model("Bar")} {}
+    model ${t.model("TestModel")} {
+      Prop1: string;
+      Prop2: int32;
+      Prop3?: Foo;
+    }
+  `);
+
+  expect(
+    <Wrapper>
+      <TestClientOverrides>
+        <List hardline>
+          <ClassDeclaration type={Foo} />
+          <ClassDeclaration type={Bar} />
+          <ClassDeclaration type={TestModel} />
+        </List>
+      </TestClientOverrides>
+    </Wrapper>,
+  ).toRenderTo(d`
+    namespace TestNamespace
+    {
+        class Foo
+        {
+
+        }
+        class Bar
+        {
+
+        }
+        class TestModel
+        {
+            public required string Prop1 { get; set; }
+            public required int Prop2 { get; set; }
+            public Bar? Prop3 { get; set; }
+        }
+    }
+  `);
+});
+
+function TestClientOverrides(props: { children?: Children }) {
+  const overrides = Experimental_ComponentOverridesConfig().forTypeKind("Model", {
+    reference: (props) => {
+      if (props.type.name === "Foo") {
+        return "Bar";
+      } else {
+        return props.default;
+      }
+    },
+  });
+  return (
+    <Experimental_ComponentOverrides overrides={overrides}>
+      {props.children}
+    </Experimental_ComponentOverrides>
+  );
+}
 
 it("can override class name", async () => {
   const { TestModel } = await runner.compile(t.code`

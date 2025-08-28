@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { InputParameter } from "./input-parameter.js";
 import {
   InputArrayType,
   InputDictionaryType,
+  InputHttpParameter,
   InputLiteralType,
   InputModelType,
   InputNullableType,
@@ -28,7 +28,7 @@ export interface InputHttpOperationExample extends InputExampleBase {
 }
 
 export interface InputParameterExampleValue {
-  parameter: InputParameter;
+  parameter: InputHttpParameter;
   value: InputExampleValue;
 }
 

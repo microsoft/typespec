@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import List, Optional
+from typing import Optional
 from abc import ABC, abstractmethod
 
 from ..models import ModelType, Property, ConstantType, EnumValue
@@ -13,8 +13,8 @@ from .base_serializer import BaseSerializer
 from ..models.utils import NamespaceType
 
 
-def _documentation_string(prop: Property, description_keyword: str, docstring_type_keyword: str) -> List[str]:
-    retval: List[str] = []
+def _documentation_string(prop: Property, description_keyword: str, docstring_type_keyword: str) -> list[str]:
+    retval: list[str] = []
     sphinx_prefix = f":{description_keyword} {prop.client_name}:"
     description = prop.description(is_operation_file=False).replace("\\", "\\\\")
     retval.append(f"{sphinx_prefix} {description}" if description else sphinx_prefix)
@@ -24,7 +24,7 @@ def _documentation_string(prop: Property, description_keyword: str, docstring_ty
 
 class _ModelSerializer(BaseSerializer, ABC):
     def __init__(
-        self, code_model, env, async_mode=False, *, models: List[ModelType], client_namespace: Optional[str] = None
+        self, code_model, env, async_mode=False, *, models: list[ModelType], client_namespace: Optional[str] = None
     ):
         super().__init__(code_model, env, async_mode, client_namespace=client_namespace)
         self.models = models
@@ -51,15 +51,15 @@ class _ModelSerializer(BaseSerializer, ABC):
         return s.replace(".", "\\\\.")
 
     @staticmethod
-    def input_documentation_string(prop: Property) -> List[str]:
+    def input_documentation_string(prop: Property) -> list[str]:
         # building the param line of the property doc
         return _documentation_string(prop, "keyword", "paramtype")
 
     @staticmethod
-    def variable_documentation_string(prop: Property) -> List[str]:
+    def variable_documentation_string(prop: Property) -> list[str]:
         return _documentation_string(prop, "ivar", "vartype")
 
-    def super_call(self, model: ModelType) -> List[str]:
+    def super_call(self, model: ModelType) -> list[str]:
         return [f"super().__init__({self.properties_to_pass_to_super(model)})"]
 
     @staticmethod
@@ -91,7 +91,7 @@ class _ModelSerializer(BaseSerializer, ABC):
     def _init_line_parameters(model: ModelType):
         return [p for p in model.properties if not p.readonly and not p.is_discriminator and not p.constant]
 
-    def init_line(self, model: ModelType) -> List[str]:
+    def init_line(self, model: ModelType) -> list[str]:
         init_properties_declaration = []
         init_line_parameters = self._init_line_parameters(model)
         init_line_parameters.sort(key=lambda x: x.optional)
@@ -113,12 +113,12 @@ class _ModelSerializer(BaseSerializer, ABC):
         return ", ".join(properties_to_pass_to_super)
 
     @abstractmethod
-    def initialize_properties(self, model: ModelType) -> List[str]: ...
+    def initialize_properties(self, model: ModelType) -> list[str]: ...
 
     def need_init(self, model: ModelType) -> bool:
         return bool(self.init_line(model) or model.discriminator)
 
-    def pylint_disable_items(self, model: ModelType) -> List[str]:
+    def pylint_disable_items(self, model: ModelType) -> list[str]:
         if model.flattened_property or self.initialize_properties(model):
             return [""]
         if any(p for p in model.properties if p.is_discriminator and model.discriminator_value):
@@ -172,7 +172,7 @@ class MsrestModelSerializer(_ModelSerializer):
         return f"class {model.name}({basename}):{model.pylint_disable()}"
 
     @staticmethod
-    def get_properties_to_initialize(model: ModelType) -> List[Property]:
+    def get_properties_to_initialize(model: ModelType) -> list[Property]:
         if model.parents:
             properties_to_initialize = list(
                 {
@@ -186,7 +186,7 @@ class MsrestModelSerializer(_ModelSerializer):
             properties_to_initialize = model.properties
         return properties_to_initialize
 
-    def initialize_properties(self, model: ModelType) -> List[str]:
+    def initialize_properties(self, model: ModelType) -> list[str]:
         init_args = []
         for prop in self.get_properties_to_initialize(model):
             if prop.is_discriminator:
@@ -215,7 +215,7 @@ class MsrestModelSerializer(_ModelSerializer):
 
 
 class DpgModelSerializer(_ModelSerializer):
-    def super_call(self, model: ModelType) -> List[str]:
+    def super_call(self, model: ModelType) -> list[str]:
         super_call = f"super().__init__({self.properties_to_pass_to_super(model)})"
         if model.flattened_property:
             return [
@@ -264,9 +264,7 @@ class DpgModelSerializer(_ModelSerializer):
                         parent.name,
                         ImportType.LOCAL,
                     )
-            if model.is_polymorphic:
-                file_import.add_submodule_import("typing", "Dict", ImportType.STDLIB)
-            if not model.internal and self.init_line(model):
+            if self.need_init(model):
                 file_import.add_submodule_import("typing", "overload", ImportType.STDLIB)
                 file_import.add_submodule_import("typing", "Mapping", ImportType.STDLIB)
                 file_import.add_submodule_import("typing", "Any", ImportType.STDLIB)
@@ -281,7 +279,7 @@ class DpgModelSerializer(_ModelSerializer):
         return f"class {model.name}({basename}):{model.pylint_disable()}"
 
     @staticmethod
-    def get_properties_to_declare(model: ModelType) -> List[Property]:
+    def get_properties_to_declare(model: ModelType) -> list[Property]:
         if model.parents:
             parent_properties = [p for bm in model.parents for p in bm.properties]
             properties_to_declare = [
@@ -328,7 +326,7 @@ class DpgModelSerializer(_ModelSerializer):
         generated_code = f'{prop.client_name}: {type_annotation} = {field}({", ".join(args)})'
         return f"{generated_code}{type_ignore}"
 
-    def initialize_properties(self, model: ModelType) -> List[str]:
+    def initialize_properties(self, model: ModelType) -> list[str]:
         init_args = []
         for prop in self.get_properties_to_declare(model):
             if prop.constant and not prop.is_base_discriminator:

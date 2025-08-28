@@ -531,6 +531,51 @@ model Foo {
   });
 });
 
+describe("Anonymous models should be included in library", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("Anonymous enum should be returned", async () => {
+    const program = await typeSpecCompile(
+      `
+          model Animal {
+            name: string;
+            hair?:
+              | string
+              | "orange"
+              | "black"
+              | "white"
+              | null
+        }
+
+          @post
+          op anonymousBody(@body animal: Animal): void;
+          `,
+      runner,
+      { IsVersionNeeded: false, IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    ok(root);
+
+    // validate service method
+    const serviceMethod = root.clients[0].methods[0];
+    ok(serviceMethod);
+
+    // validate the root model
+    const animalModel = root.models.find((m) => m.name === "Animal");
+    ok(animalModel);
+
+    // validate the anonymous enum
+    const anonymousEnum = root.enums.find((m) => m.name === "AnimalHair");
+    ok(anonymousEnum);
+  });
+});
+
 describe("Header property", () => {
   let runner: TestHost;
 
@@ -564,10 +609,22 @@ op testOperation(@bodyRoot body: HeaderModel): void;
     const headerProperty = isEmptyModel?.properties.find((p) => p.name === "foo");
     ok(headerProperty);
     strictEqual(headerProperty.name, "foo");
-    strictEqual(headerProperty.serializedName, "x-foo");
+    strictEqual(headerProperty.serializedName, "foo");
     strictEqual(headerProperty.type.kind, "string");
     strictEqual(headerProperty.optional, false);
     strictEqual(headerProperty.readOnly, false);
+
+    strictEqual(root.clients.length, 1);
+    const client = root.clients[0];
+    strictEqual(client.methods.length, 1);
+
+    const method = client.methods[0];
+    ok(method);
+    strictEqual(method.operation.parameters.length, 3);
+
+    const fooParameter = method.operation.parameters.find((p) => p.name === "foo");
+    ok(fooParameter);
+    strictEqual(fooParameter.serializedName, "x-foo");
   });
 
   it("Header property should be included in the model if it's read-only", async () => {
@@ -597,7 +654,7 @@ op testOperation(@bodyRoot body: HeaderModel): void;
     const headerProperty = isEmptyModel?.properties.find((p) => p.name === "foo");
     ok(headerProperty);
     strictEqual(headerProperty.name, "foo");
-    strictEqual(headerProperty.serializedName, "x-foo");
+    strictEqual(headerProperty.serializedName, "foo");
     strictEqual(headerProperty.type.kind, "string");
     strictEqual(headerProperty.optional, false);
     strictEqual(headerProperty.readOnly, true);
@@ -657,11 +714,23 @@ op testOperation(@bodyRoot body: HeaderModel): void;
     const headerProperty = isEmptyModel?.properties.find((p) => p.name === "foo");
     ok(headerProperty);
     strictEqual(headerProperty.name, "foo");
-    strictEqual(headerProperty.serializedName, "x-foo");
+    strictEqual(headerProperty.serializedName, "foo");
     strictEqual(headerProperty.type.kind, "constant");
     strictEqual(headerProperty.type.value, "cat");
     strictEqual(headerProperty.optional, false);
     strictEqual(headerProperty.readOnly, false);
+
+    strictEqual(root.clients.length, 1);
+    const client = root.clients[0];
+    strictEqual(client.methods.length, 1);
+
+    const method = client.methods[0];
+    ok(method);
+    strictEqual(method.operation.parameters.length, 3);
+
+    const fooParameter = method.operation.parameters.find((p) => p.name === "foo");
+    ok(fooParameter);
+    strictEqual(fooParameter.serializedName, "x-foo");
   });
 });
 

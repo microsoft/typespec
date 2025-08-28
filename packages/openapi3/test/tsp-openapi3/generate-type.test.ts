@@ -61,6 +61,16 @@ const testScenarios: TestScenario[] = [
     schema: { type: "string", default: "foo", enum: ["foo", "bar"] },
     expected: `"foo" | "bar" = "foo"`,
   },
+  // const schemas
+  { schema: { const: "output_audio_buffer.started" }, expected: `"output_audio_buffer.started"` },
+  { schema: { const: 42 }, expected: `42` },
+  { schema: { const: true }, expected: `true` },
+  { schema: { const: false }, expected: `false` },
+  { schema: { const: null }, expected: `null` },
+  {
+    schema: { const: "output_audio_buffer.started", nullable: true },
+    expected: `"output_audio_buffer.started" | null`,
+  },
   // refs
   { schema: { $ref: "#/Path/To/Some/Model" }, expected: "Model" },
   { schema: { $ref: "#/Path/To/Some/Model.Prop" }, expected: "Model.Prop" },
@@ -232,7 +242,7 @@ const testScenarios: TestScenario[] = [
         missingTypeProp: { properties: { foo: { type: "string" } } },
       },
     },
-    expected: "{missingTypeProp: unknown}",
+    expected: "{missingTypeProp: { foo?: string}}",
   },
 ];
 

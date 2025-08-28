@@ -268,6 +268,16 @@ model ListResult {
 
 model Result {
   name: string;
+
+  @visibility(Lifecycle.Read)
+  data: ResultData;
+}
+
+model ResultData {
+  prop1: string;
+
+  @visibility(Lifecycle.Read)
+  prop2: string;
 }
 
 @@flattenProperty(Fish.properties);
@@ -275,3 +285,4 @@ model Result {
 @@flattenProperty(Fish.anotherProperties);
 @@flattenProperty(AnotherFishProperties.eyeProperties);
 @@flattenProperty(FunctionProperties.properties);
+@@flattenProperty(Result.data);

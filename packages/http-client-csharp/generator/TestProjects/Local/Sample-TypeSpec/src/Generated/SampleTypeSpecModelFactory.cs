@@ -16,6 +16,7 @@ namespace SampleTypeSpec
     public static partial class SampleTypeSpecModelFactory
     {
         /// <summary> A model with a few properties of literal types. </summary>
+        /// <param name="rename"></param>
         /// <param name="requiredUnion"> required Union. </param>
         /// <param name="requiredLiteralString"> required literal string. </param>
         /// <param name="requiredNullableString"> required nullable string. </param>
@@ -30,14 +31,14 @@ namespace SampleTypeSpec
         /// <param name="requiredBadDescription"> description with xml &lt;|endoftext|&gt;. </param>
         /// <param name="optionalNullableList"> optional nullable collection. </param>
         /// <param name="requiredNullableList"> required nullable collection. </param>
-        /// <param name="rename"></param>
         /// <returns> A new <see cref="SampleTypeSpec.Thing"/> instance for mocking. </returns>
-        public static Thing Thing(BinaryData requiredUnion = default, string requiredLiteralString = default, string requiredNullableString = default, string optionalNullableString = default, int requiredLiteralInt = default, float requiredLiteralFloat = default, bool requiredLiteralBool = default, string optionalLiteralString = default, int? optionalLiteralInt = default, float? optionalLiteralFloat = default, bool? optionalLiteralBool = default, string requiredBadDescription = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default, string rename = default)
+        public static Thing Thing(string rename = default, BinaryData requiredUnion = default, string requiredLiteralString = default, string requiredNullableString = default, string optionalNullableString = default, int requiredLiteralInt = default, float requiredLiteralFloat = default, bool requiredLiteralBool = default, string optionalLiteralString = default, int? optionalLiteralInt = default, float? optionalLiteralFloat = default, bool? optionalLiteralBool = default, string requiredBadDescription = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default)
         {
             optionalNullableList ??= new ChangeTrackingList<int>();
             requiredNullableList ??= new ChangeTrackingList<int>();
 
             return new Thing(
+                rename,
                 requiredUnion,
                 requiredLiteralString,
                 requiredNullableString,
@@ -52,7 +53,6 @@ namespace SampleTypeSpec
                 requiredBadDescription,
                 optionalNullableList.ToList(),
                 requiredNullableList.ToList(),
-                rename,
                 additionalBinaryDataProperties: null);
         }
 
