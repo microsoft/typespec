@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -184,18 +185,16 @@ public class Main {
     }
 
     private static void deleteGeneratedJavaFiles(String outputDir, List<JavaFile> javaFiles, JavaSettings settings) {
+        Set<String> filesToKeep = new HashSet<>();
+        // keep ReadmeSamples.java
+        filesToKeep.add("src/samples/" + settings.getPackage().replace(".", "/") + "/ReadmeSamples.java");
         if (settings.isHandlePartialUpdate()) {
-            FileUtil.deleteGeneratedJavaFiles(outputDir,
-                new FileUtil.DeleteGeneratedJavaFilesOptions()
-                    .setRelativePathOfJavaFilesToKeep(
-                        javaFiles.stream().map(JavaFile::getFilePath).collect(Collectors.toSet()))
-                    .setIncludeSamplesDir(settings.isGenerateSamples())
-                    .setIncludeTestDir(settings.isGenerateTests()));
-        } else {
-            FileUtil.deleteGeneratedJavaFiles(outputDir,
-                new FileUtil.DeleteGeneratedJavaFilesOptions().setIncludeSamplesDir(settings.isGenerateSamples())
-                    .setIncludeTestDir(settings.isGenerateTests()));
+            filesToKeep.addAll(javaFiles.stream().map(JavaFile::getFilePath).collect(Collectors.toSet()));
         }
+        FileUtil.deleteGeneratedJavaFiles(outputDir, new FileUtil.DeleteGeneratedJavaFilesOptions()
+            .setRelativePathOfJavaFilesToKeep(filesToKeep)
+            .setIncludeSamplesDir(settings.isGenerateSamples())
+            .setIncludeTestDir(settings.isGenerateTests()));
     }
 
     private static EmitterOptions loadEmitterOptions(CodeModel codeModel) {
