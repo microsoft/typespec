@@ -10,6 +10,7 @@ import {
   Operation,
   Program,
   Type,
+  setTypeSpecNamespace,
 } from "@typespec/compiler";
 import type { DynamicModelDecorator } from "../../../generated-defs/TypeSpec.HttpClient.CSharp.js";
 import { ExternalDocs } from "../type/external-docs.js";
@@ -46,6 +47,9 @@ export const $dynamicModel: DynamicModelDecorator = (
 ): void => {
   context.program.stateSet(dynamicModelKey).add(target);
 };
+
+// Set the namespace for the decorator
+setTypeSpecNamespace("TypeSpec.HttpClient.CSharp", $dynamicModel);
 
 /**
  * Check if the given model or namespace is marked as dynamic.

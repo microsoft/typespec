@@ -1,4 +1,4 @@
-import "../dist/emitter/src/lib/decorators.js";
+import "../../dist/emitter/src/lib/decorators.js";
 
 using TypeSpec.Reflection;
 
