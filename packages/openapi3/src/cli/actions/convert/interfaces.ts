@@ -102,6 +102,15 @@ export interface TypeSpecModel extends TypeSpecDeclaration {
   type?: OpenAPI3Schema["type"];
 
   spread?: string[];
+
+  /**
+   * Whether the model is referenced as a multipart request body and needs to be emitted as a set of http parts
+   */
+  isModelReferencedAsMultipartRequestBody?: boolean;
+  /**
+   * The encoding information to use, if any, for the multipart request body.
+   */
+  encoding?: Record<string, OpenAPI3Encoding>;
 }
 
 export interface TypeSpecAlias extends Pick<TypeSpecDeclaration, "name" | "doc" | "scope"> {
