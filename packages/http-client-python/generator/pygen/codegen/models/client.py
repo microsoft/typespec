@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import Any, Dict, TYPE_CHECKING, TypeVar, Generic, Union, List, Optional
+from typing import Any, TYPE_CHECKING, TypeVar, Generic, Union, Optional
 
 from .base import BaseModel
 from .parameter_list import ClientGlobalParameterList, ConfigGlobalParameterList
@@ -35,7 +35,7 @@ class _ClientConfigBase(Generic[ParameterListType], BaseModel):
 
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         parameters: ParameterListType,
     ):
@@ -59,14 +59,14 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):  # pylint: disable=t
 
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         parameters: ClientGlobalParameterList,
         *,
         is_subclient: bool = False,
     ):
         super().__init__(yaml_data, code_model, parameters)
-        self.operation_groups: List[OperationGroup] = []
+        self.operation_groups: list[OperationGroup] = []
         self.config = Config.from_yaml(yaml_data, self.code_model)
         self.is_subclient = is_subclient
         self.request_builders = self._build_request_builders()
@@ -108,10 +108,10 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):  # pylint: disable=t
 
     def _build_request_builders(
         self,
-    ) -> List[Union[RequestBuilder, OverloadedRequestBuilder]]:
-        request_builders: List[Union[RequestBuilder, OverloadedRequestBuilder]] = []
+    ) -> list[Union[RequestBuilder, OverloadedRequestBuilder]]:
+        request_builders: list[Union[RequestBuilder, OverloadedRequestBuilder]] = []
 
-        def add_og_request_builder(og: Dict[str, Any]):
+        def add_og_request_builder(og: dict[str, Any]):
             for operation_yaml in og["operations"]:
                 request_builder = get_request_builder(
                     operation_yaml,
@@ -273,7 +273,7 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):  # pylint: disable=t
         return any(og for og in self.operation_groups if og.is_mixin)
 
     @property
-    def lro_operations(self) -> List["OperationType"]:
+    def lro_operations(self) -> list["OperationType"]:
         """all LRO operations in this SDK?"""
         return [operation for operation_group in self.operation_groups for operation in operation_group.lro_operations]
 
@@ -340,10 +340,6 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):  # pylint: disable=t
         if self.code_model.model_types and self.code_model.options["models-mode"] == "msrest":
             path_to_models = ".." if async_mode else "."
             file_import.add_submodule_import(path_to_models, "models", ImportType.LOCAL, alias="_models")
-        elif self.code_model.options["models-mode"] == "msrest":
-            # in this case, we have client_models = {} in the service client, which needs a type annotation
-            # this import will always be commented, so will always add it to the typing section
-            file_import.add_submodule_import("typing", "Dict", ImportType.STDLIB)
         file_import.add_submodule_import("copy", "deepcopy", ImportType.STDLIB)
         return file_import
 
@@ -365,7 +361,7 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):  # pylint: disable=t
         return file_import
 
     @property
-    def credential_scopes(self) -> Optional[List[str]]:
+    def credential_scopes(self) -> Optional[list[str]]:
         """Credential scopes for this client"""
 
         if self.credential:
@@ -379,7 +375,7 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):  # pylint: disable=t
     @classmethod
     def from_yaml(
         cls,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         *,
         is_subclient: bool = False,
@@ -472,7 +468,7 @@ class Config(_ClientConfigBase[ConfigGlobalParameterList]):
         return file_import
 
     @classmethod
-    def from_yaml(cls, yaml_data: Dict[str, Any], code_model: "CodeModel") -> "Config":
+    def from_yaml(cls, yaml_data: dict[str, Any], code_model: "CodeModel") -> "Config":
         return cls(
             yaml_data=yaml_data,
             code_model=code_model,
