@@ -1699,6 +1699,56 @@ Content-Type: application/octet-stream
 --abcde12345--
 ```
 
+### Payload_Pageable_listWithNestedPageSize
+
+- Endpoint: `get /payload/pageable/pagesize-nested`
+
+Test case for pagination with a nested @pageSize parameter.
+
+Two requests need to be tested:
+
+1. Request with nested pageSize=2:
+   Expected route: /payload/pageable/pagesize-nested
+
+Expected request body:
+
+```json
+{ "pagination": { "maxPageSize": 2 } }
+```
+
+Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "1", "name": "dog" },
+    { "id": "2", "name": "cat" }
+  ]
+}
+```
+
+2. Request with nested pageSize=4:
+   Expected route: /payload/pageable/pagesize-nested
+
+Expected request body:
+
+```json
+{ "pagination": { "maxPageSize": 4 } }
+```
+
+Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "1", "name": "dog" },
+    { "id": "2", "name": "cat" },
+    { "id": "3", "name": "bird" },
+    { "id": "4", "name": "fish" }
+  ]
+}
+```
+
 ### Payload_Pageable_listWithoutContinuation
 
 - Endpoint: `get /payload/pageable/simple`
@@ -1707,6 +1757,44 @@ Test case for simple pagination without nextlink or continuationToken.
 
 Single request:
 Expected route: /payload/pageable/simple
+
+Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "1", "name": "dog" },
+    { "id": "2", "name": "cat" },
+    { "id": "3", "name": "bird" },
+    { "id": "4", "name": "fish" }
+  ]
+}
+```
+
+### Payload_Pageable_listWithPageSize
+
+- Endpoint: `get /payload/pageable/pagesize`
+
+Test case for pagination with a regular @pageSize parameter.
+
+Two requests need to be tested:
+
+1. Request with pageSize=2:
+   Expected route: /payload/pageable/pagesize?pageSize=2
+
+Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "1", "name": "dog" },
+    { "id": "2", "name": "cat" }
+  ]
+}
+```
+
+2. Request with pageSize=4:
+   Expected route: /payload/pageable/pagesize?pageSize=4
 
 Expected response body:
 
