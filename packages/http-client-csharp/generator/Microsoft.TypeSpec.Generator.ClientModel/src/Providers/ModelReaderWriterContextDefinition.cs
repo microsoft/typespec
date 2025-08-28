@@ -7,8 +7,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using Microsoft.Build.ObjectModelRemoting;
-using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -132,7 +130,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (currentProvider is not null)
                 {
-                    CollectBuildableTypesRecursiveCore(currentProvider, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes, true); // skip the duplicaetion check here since we already did it above
+                    CollectBuildableTypesRecursiveCore(currentProvider, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
                 }
             }
         }
@@ -142,11 +140,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             HashSet<CSharpType> visitedTypes,
             HashSet<TypeProvider> visitedTypeProviders,
             HashSet<TypeProvider> buildableProviders,
-            HashSet<CSharpType> buildableTypes,
-            bool skipDuplicationCheck = false)
+            HashSet<CSharpType> buildableTypes)
         {
             // Avoid duplicate processing
-            if (!skipDuplicationCheck && !ShouldProcessType(provider, visitedTypeProviders, buildableProviders))
+            if (!ShouldProcessType(provider, visitedTypeProviders, buildableProviders))
             {
                 return;
             }
