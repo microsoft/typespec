@@ -50,4 +50,4 @@ jobs:
           scriptLocation: inlineScript
           workingDirectory: packages/typespec-vscode
           inlineScript: |
-            npm run deploy -- --skip-duplicate --packagePath $(Pipeline.Workspace)/vscode-extension-signed/typespec-vscode-*.vsix
+            npm run deploy -- --azure-credential --skip-duplicate --packagePath $(Pipeline.Workspace)/vscode-extension-signed/typespec-vscode-*.vsix
