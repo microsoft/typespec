@@ -26,7 +26,7 @@ function renderMultipartRequest(body: MockMultipartBody) {
     body.files.forEach((file) => {
       formData.append(
         `${file.fieldname}`,
-        new Blob([file.buffer], { type: file.mimetype }),
+        new Blob([file.buffer as any], { type: file.mimetype }),
         file.originalname,
       );
     });
