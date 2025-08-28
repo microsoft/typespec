@@ -1,5 +1,7 @@
+import { formatDiagnostic } from "../core/logger/console-sink.js";
 import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
-import { SystemHost } from "../core/types.js";
+import { SystemHost, Diagnostic as TypeSpecDiagnostic } from "../core/types.js";
+import { doIO, loadFile } from "../utils/io.js";
 import { resolveTspMain } from "../utils/misc.js";
 import { ServerLog } from "./types.js";
 
@@ -12,12 +14,18 @@ export async function resolveEntrypointFile(
   let dir = getDirectoryPath(path);
   let packageJsonEntrypoint: string | undefined;
   let defaultEntrypoint: string | undefined;
+  const options = { allowFileNotFound: true };
 
   while (true) {
     // Check for client provided entrypoints (highest priority)
     for (const entrypoint of entrypoints ?? []) {
       const candidate = joinPaths(dir, entrypoint);
-      const stat = await host.stat(candidate);
+      const stat = await doIO(
+        () => host.stat(candidate),
+        candidate,
+        logMainFileSearchDiagnostic,
+        options,
+      );
       if (stat?.isFile()) {
         log({
           level: "debug",
@@ -29,8 +37,7 @@ export async function resolveEntrypointFile(
 
     if (!packageJsonEntrypoint) {
       const pkgPath = joinPaths(dir, "package.json");
-      const content = await host.readFile(pkgPath);
-      const pkg = JSON.parse(content.text);
+      const [pkg] = await loadFile(host, pkgPath, JSON.parse, logMainFileSearchDiagnostic, options);
       const tspMain = resolveTspMain(pkg);
       if (typeof tspMain === "string") {
         log({
@@ -38,7 +45,12 @@ export async function resolveEntrypointFile(
           message: `tspMain resolved from package.json (${pkgPath}) as ${tspMain}`,
         });
         const candidate = joinPaths(dir, tspMain);
-        const stat = await host.stat(candidate);
+        const stat = await doIO(
+          () => host.stat(candidate),
+          candidate,
+          logMainFileSearchDiagnostic,
+          options,
+        );
         if (stat?.isFile()) {
           log({ level: "debug", message: `main file found as ${candidate}` });
           packageJsonEntrypoint = candidate;
@@ -48,7 +60,12 @@ export async function resolveEntrypointFile(
 
     if (!defaultEntrypoint && (entrypoints === undefined || entrypoints.length === 0)) {
       const candidate = joinPaths(dir, "main.tsp");
-      const stat = await host.stat(candidate);
+      const stat = await doIO(
+        () => host.stat(candidate),
+        candidate,
+        logMainFileSearchDiagnostic,
+        options,
+      );
       if (stat?.isFile()) {
         defaultEntrypoint = candidate;
       }
@@ -75,4 +92,12 @@ export async function resolveEntrypointFile(
 
   log({ level: "debug", message: `reached directory root, using ${path} as main file` });
   return path;
+
+  function logMainFileSearchDiagnostic(diagnostic: TypeSpecDiagnostic) {
+    log({
+      level: `error`,
+      message: `Unexpected diagnostic while looking for main file of ${path}`,
+      detail: formatDiagnostic(diagnostic),
+    });
+  }
 }
