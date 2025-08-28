@@ -629,7 +629,6 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 else PopKwargType.SIMPLE
             ),
             check_client_input=True,
-            operation_name=f"('{builder.name}')" if builder.group_name == "" else "",
             body_parameter=builder.parameters.body_parameter if builder.parameters.has_body else None,
         )
         for p in builder.parameters.parameters:
