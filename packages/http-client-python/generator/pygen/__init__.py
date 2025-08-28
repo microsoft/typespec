@@ -8,7 +8,7 @@ import logging
 from pathlib import Path
 import json
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Iterator, Optional, Union, List
+from typing import Any, Iterator, Optional, Union
 
 import yaml
 from .utils import TYPESPEC_PACKAGE_MODE, VALID_PACKAGE_MODE
@@ -42,7 +42,7 @@ class OptionsDict(MutableMapping):
         "generation-subdir": None,  # subdirectory to generate the code in
     }
 
-    def __init__(self, options: Optional[Dict[str, Any]] = None) -> None:
+    def __init__(self, options: Optional[dict[str, Any]] = None) -> None:
         self._data = options.copy() if options else {}
         self._validate_combinations()
 
@@ -205,7 +205,7 @@ class OptionsDict(MutableMapping):
         for key in self.DEFAULTS:
             if key not in all_keys:
                 all_keys.add(key)
-        all_keys.update(self.DEFAULTS.keys())
+        all_keys |= self.DEFAULTS.keys()
         return KeysView({key: None for key in all_keys})
 
     def values(self) -> ValuesView[Any]:
@@ -218,7 +218,7 @@ class OptionsDict(MutableMapping):
 class ReaderAndWriter:
     def __init__(self, *, output_folder: Union[str, Path], **kwargs: Any) -> None:
         self.output_folder = Path(output_folder)
-        self._list_file: List[str] = []
+        self._list_file: list[str] = []
         try:
             with open(
                 Path(self.output_folder) / Path("..") / Path("python.json"),
@@ -259,7 +259,7 @@ class ReaderAndWriter:
         except FileNotFoundError:
             pass
 
-    def list_file(self) -> List[str]:
+    def list_file(self) -> list[str]:
         return [str(f.relative_to(self.output_folder)) for f in self.output_folder.glob("**/*") if f.is_file()]
 
 
@@ -283,7 +283,7 @@ class Plugin(ReaderAndWriter, ABC):
 class YamlUpdatePlugin(Plugin):
     """A plugin that update the YAML as input."""
 
-    def get_yaml(self) -> Dict[str, Any]:
+    def get_yaml(self) -> dict[str, Any]:
         # tsp file doesn't have to be relative to output folder
         with open(self.options["tsp_file"], "r", encoding="utf-8-sig") as fd:
             return yaml.safe_load(fd.read())
@@ -304,7 +304,7 @@ class YamlUpdatePlugin(Plugin):
         return True
 
     @abstractmethod
-    def update_yaml(self, yaml_data: Dict[str, Any]) -> None:
+    def update_yaml(self, yaml_data: dict[str, Any]) -> None:
         """The code-model-v4-no-tags yaml model tree.
 
         :rtype: updated yaml
