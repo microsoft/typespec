@@ -233,8 +233,12 @@ worksFor(["3.0.0"], ({ openApiFor }) => {
 
     describe("part mapping", () => {
       it.each([
-        [`string`, { type: "string" }, { contentType: "application/octet-stream" }],
-        [`bytes`, { type: "string", format: "binary" }],
+        [`string`, { type: "string" }],
+        [
+          `bytes`,
+          { type: "string", format: "binary" },
+          { contentType: "application/octet-stream" },
+        ],
         [
           `string[]`,
           { type: "array", items: { type: "string" } },
