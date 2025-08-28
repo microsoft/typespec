@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { NodeSystemHost } from "../../src/core/node-system-host.js";
-import { joinPaths } from "../../src/core/path-utils.js";
+import { getDirectoryPath, joinPaths } from "../../src/core/path-utils.js";
 import { resolveEntrypointFile } from "../../src/server/entrypoint-resolver.js";
 import type { ServerLog } from "../../src/server/types.js";
 
@@ -37,8 +37,9 @@ describe("compiler: server: resolveEntrypointFile", () => {
     const result = await resolveEntrypointFile(
       NodeSystemHost,
       ["custom.tsp", "main.tsp"],
-      filePath,
+      cwd,
       log,
+      filePath,
     );
 
     expect(result).toBe(expected);
@@ -60,8 +61,9 @@ describe("compiler: server: resolveEntrypointFile", () => {
     const result = await resolveEntrypointFile(
       NodeSystemHost,
       ["missing.tsp", "main.tsp"],
-      filePath,
+      sub,
       log,
+      filePath,
     );
     expect(result).toBe(expected);
   });
@@ -84,12 +86,13 @@ describe("compiler: server: resolveEntrypointFile", () => {
     });
 
     const log = createLogger();
-    const result = await resolveEntrypointFile(NodeSystemHost, undefined, filePath, log);
+    const result = await resolveEntrypointFile(NodeSystemHost, undefined, dir, log, filePath);
     expect(result).toBe(expected);
   });
 
   it("uses the given path as main when nothing else is found", async () => {
     const filePath = "/standalone/file.tsp";
+    const dir = getDirectoryPath(filePath);
 
     vi.spyOn(NodeSystemHost, "stat").mockImplementation(async () => {
       return { isFile: () => false } as any;
@@ -97,7 +100,7 @@ describe("compiler: server: resolveEntrypointFile", () => {
     vi.spyOn(NodeSystemHost, "readFile").mockResolvedValue({ text: "{}" } as any);
 
     const log = createLogger();
-    const result = await resolveEntrypointFile(NodeSystemHost, undefined, filePath, log);
+    const result = await resolveEntrypointFile(NodeSystemHost, undefined, dir, log, filePath);
     expect(result).toBe(filePath);
   });
 });

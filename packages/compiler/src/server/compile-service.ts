@@ -327,6 +327,7 @@ export function createCompileService({
     }
 
     const entrypoints = clientConfigsProvider?.config?.entrypoint;
-    return resolveEntrypointFile(compilerHost, entrypoints, path, log);
+    const dir = getDirectoryPath(path);
+    return resolveEntrypointFile(compilerHost, entrypoints, dir, log, path);
   }
 }

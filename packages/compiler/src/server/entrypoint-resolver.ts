@@ -8,10 +8,10 @@ import { ServerLog } from "./types.js";
 export async function resolveEntrypointFile(
   host: SystemHost,
   entrypoints: string[] | undefined,
-  path: string,
+  dir: string,
   log: (log: ServerLog) => void,
+  path: string,
 ): Promise<string> {
-  let dir = getDirectoryPath(path);
   let packageJsonEntrypoint: string | undefined;
   let defaultEntrypoint: string | undefined;
   const options = { allowFileNotFound: true };
@@ -19,14 +19,8 @@ export async function resolveEntrypointFile(
   while (true) {
     // Check for client provided entrypoints (highest priority)
     for (const entrypoint of entrypoints ?? []) {
-      const candidate = joinPaths(dir, entrypoint);
-      const stat = await doIO(
-        () => host.stat(candidate),
-        candidate,
-        logMainFileSearchDiagnostic,
-        options,
-      );
-      if (stat?.isFile()) {
+      const candidate = await existingFile(dir, entrypoint);
+      if (candidate) {
         log({
           level: "debug",
           message: `main file found using client provided entrypoint: ${candidate}`,
@@ -44,32 +38,16 @@ export async function resolveEntrypointFile(
           level: "debug",
           message: `tspMain resolved from package.json (${pkgPath}) as ${tspMain}`,
         });
-        const candidate = joinPaths(dir, tspMain);
-        const stat = await doIO(
-          () => host.stat(candidate),
-          candidate,
-          logMainFileSearchDiagnostic,
-          options,
-        );
-        if (stat?.isFile()) {
-          log({ level: "debug", message: `main file found as ${candidate}` });
-          packageJsonEntrypoint = candidate;
+        packageJsonEntrypoint = await existingFile(dir, tspMain);
+        if (packageJsonEntrypoint) {
+          log({ level: "debug", message: `main file found as ${packageJsonEntrypoint}` });
         }
       }
     }
 
     if (!defaultEntrypoint && (entrypoints === undefined || entrypoints.length === 0)) {
-      const candidate = joinPaths(dir, "main.tsp");
-      const stat = await doIO(
-        () => host.stat(candidate),
-        candidate,
-        logMainFileSearchDiagnostic,
-        options,
-      );
-      if (stat?.isFile()) {
-        defaultEntrypoint = candidate;
-      }
-      if (defaultEntrypoint && log) {
+      defaultEntrypoint = await existingFile(dir, "main.tsp");
+      if (defaultEntrypoint) {
         log({ level: "debug", message: `main file found as ${defaultEntrypoint}` });
       }
     }
@@ -90,7 +68,7 @@ export async function resolveEntrypointFile(
     return defaultEntrypoint;
   }
 
-  log({ level: "debug", message: `reached directory root, using ${path} as main file` });
+  log({ level: "debug", message: `reached directory root, using '${path}' as main file` });
   return path;
 
   function logMainFileSearchDiagnostic(diagnostic: TypeSpecDiagnostic) {
@@ -99,5 +77,17 @@ export async function resolveEntrypointFile(
       message: `Unexpected diagnostic while looking for main file of ${path}`,
       detail: formatDiagnostic(diagnostic),
     });
+  }
+
+  async function existingFile(dir: string, file: string): Promise<string | undefined> {
+    const candidate = joinPaths(dir, file);
+    const stat = await doIO(
+      () => host.stat(candidate),
+      candidate,
+      logMainFileSearchDiagnostic,
+      options,
+    );
+
+    return stat?.isFile() ? candidate : undefined;
   }
 }
