@@ -232,13 +232,8 @@ function createOAPIEmitter(
   options: ResolvedOpenAPI3EmitterOptions,
   specVersion: OpenAPIVersion = "3.0.0",
 ) {
-  const {
-    applyEncoding,
-    createRootDoc,
-    createSchemaEmitter,
-    getRawBinarySchema,
-    isRawBinarySchema,
-  } = getOpenApiSpecProps(specVersion);
+  const { applyEncoding, createRootDoc, createSchemaEmitter, getRawBinarySchema } =
+    getOpenApiSpecProps(specVersion);
   const program = context.program;
   let schemaEmitter: AssetEmitter<OpenAPI3Schema | OpenAPISchema3_1, OpenAPI3EmitterOptions>;
 
@@ -1238,7 +1233,7 @@ function createOAPIEmitter(
     schema: OpenAPI3Schema,
   ): OpenAPI3Encoding | undefined {
     const encoding: OpenAPI3Encoding = {};
-    if (!isDefaultContentTypeForOpenAPI3(part.body.contentTypes, schema)) {
+    if (!isDefaultContentTypeForMultipartPart(part.body.contentTypes)) {
       encoding.contentType = part.body.contentTypes.join(", ");
     }
     const headers = part.headers;
@@ -1257,10 +1252,7 @@ function createOAPIEmitter(
     return encoding;
   }
 
-  function isDefaultContentTypeForOpenAPI3(
-    contentTypes: string[],
-    schema: OpenAPI3Schema,
-  ): boolean {
+  function isDefaultContentTypeForMultipartPart(contentTypes: string[]): boolean {
     if (contentTypes.length === 0) {
       return false;
     }
@@ -1269,19 +1261,10 @@ function createOAPIEmitter(
     }
     const contentType = contentTypes[0];
 
-    switch (contentType) {
-      case "text/plain":
-        return schema.type === "string" || schema.type === "number";
-      case "application/octet-stream":
-        return (
-          isRawBinarySchema(schema) ||
-          (schema.type === "array" && !!schema.items && isRawBinarySchema(schema.items as any))
-        );
-      case "application/json":
-        return schema.type === "object";
-    }
-
-    return false;
+    return contentType === "text/plain";
+    // text/plain is the default content type for a multipart form part
+    // other content types need to be added to the encoding section of the multipart request
+    // it doesn't matter which schema type and format we have, this behavior is defined by RFC1341 Section 7.2.1
   }
 
   function getParameter(

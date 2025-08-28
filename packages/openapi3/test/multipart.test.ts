@@ -291,6 +291,11 @@ worksFor(["3.1.0"], ({ openApiFor }) => {
             profileImage: {},
           },
           required: ["profileImage"],
+          encoding: {
+            profileImage: {
+              contentType: "application/octet-stream",
+            },
+          },
         },
       });
     });
@@ -372,7 +377,7 @@ worksFor(["3.1.0"], ({ openApiFor }) => {
     describe("part mapping", () => {
       it.each([
         [`string`, { type: "string" }],
-        [`bytes`, {}],
+        [`bytes`, {}, { contentType: "application/octet-stream" }],
         [
           `string[]`,
           { type: "array", items: { type: "string" } },
@@ -394,7 +399,7 @@ worksFor(["3.1.0"], ({ openApiFor }) => {
           {},
           { contentType: "image/png" },
         ],
-        [`File`, {}, { contentType: "*/*" }],
+        [`File`, {}, { contentType: "application/octet-stream" }],
         [
           `{@header extra: string, @body body: string}`,
           { type: "string" },
