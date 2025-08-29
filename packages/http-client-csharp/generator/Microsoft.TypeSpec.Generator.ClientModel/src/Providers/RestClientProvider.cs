@@ -145,7 +145,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             InputPagingServiceMethod? pagingServiceMethod = serviceMethod as InputPagingServiceMethod;
-            var declareUri = Declare("uri", New.Instance(typeof(ClientUriBuilderDefinition)), out ScopedApi uri);
+            var uriBuilderType =
+                ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestApi.ToExpression().UriBuilderType;
+            var declareUri = Declare("uri", New.Instance(uriBuilderType), out ScopedApi uri);
 
             // For next request methods, handle URI differently
             var nextLink = isNextLinkRequest
