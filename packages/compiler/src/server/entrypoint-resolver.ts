@@ -13,12 +13,13 @@ export async function resolveEntrypointFile(
   fileSystemCache: FileSystemCache | undefined,
   log: (log: ServerLog) => void,
 ): Promise<string | undefined> {
-  const isFilePath = (await host.stat(path)).isFile();
-  let dir = isFilePath ? getDirectoryPath(path) : path;
-
   let packageJsonEntrypoint: string | undefined;
   let defaultEntrypoint: string | undefined;
   const options = { allowFileNotFound: true };
+
+  const pathStat = await doIO(() => host.stat(path), path, logMainFileSearchDiagnostic, options);
+  const isFilePath = pathStat?.isFile() ?? false;
+  let dir = isFilePath ? getDirectoryPath(path) : path;
 
   while (true) {
     // Check for client provided entrypoints (highest priority)
