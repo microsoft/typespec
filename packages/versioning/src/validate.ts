@@ -751,6 +751,18 @@ function validateAvailabilityForRef(
   target: Type,
   versionMap?: Map<Version, Version>,
 ) {
+  // Skip validation if source is a model property in a template declaration
+  if (source.kind === "ModelProperty" && source.model) {
+    // Check if the containing model is a template declaration
+    const model = source.model;
+    if (model.node && 
+        (model.node as any).templateParameters && 
+        (model.node as any).templateParameters.length > 0 &&
+        !model.templateMapper) {
+      return;
+    }
+  }
+
   // if source is unversioned and target is versioned
   if (sourceAvail === undefined) {
     if (!isAvailableInAllVersion(targetAvail)) {
