@@ -34,7 +34,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var attributes = new Dictionary<string, MethodBodyStatement>();
 
             // Add ModelReaderWriterBuildableAttribute for all IPersistableModel types
-            (HashSet<CSharpType> buildableTypes, HashSet<TypeProvider> buildableProviders) = CollectBuildableTypes();
+            (HashSet<Type> buildableTypes, HashSet<TypeProvider> buildableProviders) = CollectBuildableTypes();
             foreach (var type in buildableTypes)
             {
                 // Use the full attribute type name to ensure proper compilation
@@ -44,15 +44,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 string experimentalTypeJustification = $"{type} is experimental and may change in future versions.";
                 string obsoleteTypeJustification = $"{type} is obsolete and may be removed in future versions.";
 
-                if (type.IsFrameworkType)
-                {
-                    AddAttributeForType(
-                        attributes,
-                        attributeStatement,
-                        type.FrameworkType,
-                        experimentalTypeJustification,
-                        obsoleteTypeJustification);
-                }
+                AddAttributeForType(
+                    attributes,
+                    attributeStatement,
+                    type,
+                    experimentalTypeJustification,
+                    obsoleteTypeJustification);
             }
             foreach (var provider in buildableProviders)
             {
@@ -79,12 +76,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// Collects all types that implement IPersistableModel, including all models and their properties
         /// that are also IPersistableModel types, recursively without duplicates.
         /// </summary>
-        private (HashSet<CSharpType> BUildableTypes, HashSet<TypeProvider> BuildableProviders) CollectBuildableTypes()
+        private (HashSet<Type> BuildableTypes, HashSet<TypeProvider> BuildableProviders) CollectBuildableTypes()
         {
-            var visitedTypes = new HashSet<CSharpType>(new CSharpTypeNameComparer());
+            var visitedTypes = new HashSet<CSharpType>();
             var visitedTypeProviders = new HashSet<TypeProvider>();
             var buildableProviders = new HashSet<TypeProvider>();
-            var buildableTypes = new HashSet<CSharpType>(new CSharpTypeNameComparer());
+            var buildableTypes = new HashSet<Type>();
 
             // Get all providers from the output library that are models or implement MRW interface types
             var providers = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
@@ -94,7 +91,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Process each provider recursively
             foreach (var provider in providers)
             {
-                CollectBuildableTypesRecursive(null, provider, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
+                CollectBuildableTypeProvidersRecursive(provider, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
             }
 
             return (buildableTypes, buildableProviders);
@@ -104,34 +101,38 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// Recursively collects all types that implement IPersistableModel.
         /// </summary>
         private void CollectBuildableTypesRecursive(
-            CSharpType? currentType,
-            TypeProvider? currentProvider,
+            CSharpType currentType,
+            HashSet<CSharpType> visitedTypes,
+            HashSet<Type> buildableTypes)
+        {
+            // Avoid duplicate processing
+            if (!ShouldProcessCSharpType(currentType, visitedTypes))
+            {
+                return;
+            }
+            CollectBuildableTypesFromFrameworkType(currentType, visitedTypes, buildableTypes);
+        }
+
+        /// <summary>
+        /// Recursively collects all type providers that implement IPersistableModel.
+        /// </summary>
+        private void CollectBuildableTypeProvidersRecursive(
+            TypeProvider currentProvider,
             HashSet<CSharpType> visitedTypes,
             HashSet<TypeProvider> visitedTypeProviders,
             HashSet<TypeProvider> buildableProviders,
-            HashSet<CSharpType> buildableTypes)
+            HashSet<Type> buildableTypes)
         {
             // Avoid duplicate processing
-            if (currentType != null)
+            if (!ShouldProcessTypeProvider(currentProvider, visitedTypeProviders))
             {
-                if (!ShouldProcessCSharpType(currentType, visitedTypes, buildableTypes))
-                {
-                    return;
-                }
-                CollectBuildableTypesFromFrameworkType(currentType, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
+                return;
             }
-            else if (currentProvider != null)
-            {
-                if (!ShouldProcessTypeProvider(currentProvider, visitedTypeProviders, buildableProviders))
-                {
-                    return;
-                }
-                buildableProviders.Add(currentProvider);
+            buildableProviders.Add(currentProvider);
 
-                if (currentProvider is not null)
-                {
-                    CollectBuildableTypesRecursiveCore(currentProvider, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes, skipDuplicationCheck: true); // we already did duplication check above
-                }
+            if (currentProvider is not null)
+            {
+                CollectBuildableTypesRecursiveCore(currentProvider, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
             }
         }
 
@@ -140,15 +141,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             HashSet<CSharpType> visitedTypes,
             HashSet<TypeProvider> visitedTypeProviders,
             HashSet<TypeProvider> buildableProviders,
-            HashSet<CSharpType> buildableTypes,
-            bool skipDuplicationCheck = false)
+            HashSet<Type> buildableTypes)
         {
-            // Avoid duplicate processing and we don't actually process the type provider here
-            if (!skipDuplicationCheck && !ShouldProcessTypeProvider(provider, visitedTypeProviders, buildableProviders, actualProcess: false))
-            {
-                return;
-            }
-
             // Process all properties of the provider
             foreach (var property in provider.Properties)
             {
@@ -157,7 +151,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // we only care about types that is framework type
                 if (propertyType.IsFrameworkType)
                 {
-                    CollectBuildableTypesRecursive(propertyType.WithNullable(false), null, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
+                    CollectBuildableTypesRecursive(propertyType.WithNullable(false), visitedTypes, buildableTypes);
                 }
             }
 
@@ -173,7 +167,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     // we only care about types that is framework type
                     if (implementedType.IsFrameworkType)
                     {
-                        CollectBuildableTypesRecursive(implementedType.WithNullable(false), null, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
+                        CollectBuildableTypesRecursive(implementedType.WithNullable(false), visitedTypes, buildableTypes);
                     }
                 }
             }
@@ -182,9 +176,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private void CollectBuildableTypesFromFrameworkType(
             CSharpType frameworkType,
             HashSet<CSharpType> visitedTypes,
-            HashSet<TypeProvider> visitedTypeProviders,
-            HashSet<TypeProvider> buildableProviders,
-            HashSet<CSharpType> buildableTypes)
+            HashSet<Type> buildableTypes)
         {
             if (!frameworkType.IsFrameworkType)
             {
@@ -193,7 +185,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             try
             {
-                buildableTypes.Add(frameworkType);
+                buildableTypes.Add(frameworkType.FrameworkType);
                 var type = frameworkType.FrameworkType;
                 var properties = type.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
 
@@ -209,14 +201,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     var csharpPropertyType = new CSharpType(propertyType);
                     var typeToCheck = csharpPropertyType.IsCollection ? csharpPropertyType.ElementType : csharpPropertyType;
 
-                    CollectBuildableTypesRecursive(typeToCheck.WithNullable(false), null, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
+                    if (typeToCheck.IsFrameworkType)
+                    {
+                        CollectBuildableTypesRecursive(typeToCheck.WithNullable(false).FrameworkType, visitedTypes, buildableTypes);
+                    }
                 }
 
                 // Also check base types of the framework type
                 if (type.BaseType != null && type.BaseType != typeof(object))
                 {
                     var baseFrameworkType = new CSharpType(type.BaseType);
-                    CollectBuildableTypesRecursive(baseFrameworkType, null, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
+                    CollectBuildableTypesRecursive(baseFrameworkType, visitedTypes, buildableTypes);
                 }
             }
             catch (Exception)
@@ -227,31 +222,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private static bool ShouldProcessTypeProvider(TypeProvider provider, HashSet<TypeProvider> visitedTypeProviders, HashSet<TypeProvider> buildableProviders, bool actualProcess = true)
+        private static bool ShouldProcessTypeProvider(TypeProvider provider, HashSet<TypeProvider> visitedTypeProviders)
         {
-            if (visitedTypeProviders.Contains(provider))
+            if (!visitedTypeProviders.Add(provider))
             {
                 return false;
             }
 
-            // we only actually process TypeProvider in one place, but we are checking in multiple places, not everycheck should mark it as visited
-            if (actualProcess)
-            {
-                visitedTypeProviders.Add(provider);
-            }
+            // Check if the type provider implements the model reader/writer interface
             return ImplementsModelReaderWriter(provider);
         }
 
-        private static bool ShouldProcessCSharpType(CSharpType type, HashSet<CSharpType> visitedTypes, HashSet<CSharpType> buildableTypes)
+        private static bool ShouldProcessCSharpType(CSharpType type, HashSet<CSharpType> visitedTypes)
         {
-            if (!visitedTypes.Add(type))
+            if (!type.IsFrameworkType || !visitedTypes.Add(type))
             {
                 return false;
             }
 
             // Check if the type is a framework type and implements the model reader/writer interface, also skip MRW interface types
             // If the type doesn't implement MRW, we don't need to process its properties, it can't apply MRW anyway
-            return ImplementsModelReaderWriter(type) && !IsModelReaderWriterInterfaceType(type);
+            return ImplementsModelReaderWriter(type.FrameworkType) && !IsModelReaderWriterInterfaceType(type);
         }
 
         private static CSharpType GetInnerMostElement(CSharpType type)
@@ -319,12 +310,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return buffer.Slice(0, index).ToString();
         }
 
-        private static bool ImplementsModelReaderWriter(CSharpType type)
+        private static bool ImplementsModelReaderWriter(Type type)
         {
-            if (!type.IsFrameworkType || type.IsEnum || type.IsLiteral)
+            if (type.IsEnum || type.IsValueType)
                 return false;
 
-            return type.FrameworkType.GetInterfaces().Any(i => i.Name == "IPersistableModel`1" || i.Name == "IJsonModel`1");
+            return type.GetInterfaces().Any(i => i.Name == "IPersistableModel`1" || i.Name == "IJsonModel`1");
         }
 
         private static bool ImplementsModelReaderWriter(TypeProvider typeProvider)
