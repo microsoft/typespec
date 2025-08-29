@@ -98,8 +98,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private ScmMethodProvider BuildCreateRequestMethod(InputServiceMethod serviceMethod, bool isNextLinkRequest = false)
         {
-            var pipelineField = ClientProvider.PipelineProperty.ToApi<ClientPipelineApi>();
-
             var options = ScmKnownParameters.RequestOptions;
             var parameters = GetMethodParameters(serviceMethod, MethodType.CreateRequest);
             if (isNextLinkRequest)
@@ -117,17 +115,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ScmCodeModelGenerator.Instance.TypeFactory.HttpMessageApi.HttpMessageType,
                 null,
                 [.. parameters, options]);
-            var paramMap = new Dictionary<string, ParameterProvider>(signature.Parameters.ToDictionary(p => p.Name));
-
-            foreach (var param in ClientProvider.ClientParameters)
-            {
-                paramMap[param.Name] = param;
-            }
-
-            var classifier = GetClassifier(operation);
 
             // Build message and all request modifications
-            var messageStatements = BuildMessage(serviceMethod, paramMap, signature, pipelineField, options, classifier, isNextLinkRequest);
+            var messageStatements = BuildMessage(serviceMethod, signature, isNextLinkRequest);
 
             return new ScmMethodProvider(
                 signature,
@@ -139,15 +129,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private List<MethodBodyStatement> BuildMessage(
             InputServiceMethod serviceMethod,
-            Dictionary<string, ParameterProvider> paramMap,
             MethodSignature signature,
-            ClientPipelineApi pipelineField,
-            ParameterProvider options,
-            PropertyProvider classifier,
             bool isNextLinkRequest = false)
         {
-            InputPagingServiceMethod? pagingServiceMethod = serviceMethod as InputPagingServiceMethod;
+            // Create required components
+            var pipelineField = ClientProvider.PipelineProperty.ToApi<ClientPipelineApi>();
+            var options = ScmKnownParameters.RequestOptions;
             var operation = serviceMethod.Operation;
+            var classifier = GetClassifier(operation);
+            
+            var paramMap = new Dictionary<string, ParameterProvider>(signature.Parameters.ToDictionary(p => p.Name));
+            foreach (var param in ClientProvider.ClientParameters)
+            {
+                paramMap[param.Name] = param;
+            }
+
+            InputPagingServiceMethod? pagingServiceMethod = serviceMethod as InputPagingServiceMethod;
             var declareUri = Declare("uri", New.Instance(typeof(ClientUriBuilderDefinition)), out ScopedApi uri);
 
             // For next request methods, handle URI differently
