@@ -198,30 +198,7 @@ export async function activate(context: ExtensionContext) {
           await telemetryClient.doOperationWithTelemetry(
             TelemetryEventName.PreviewOpenApi3,
             async (tel): Promise<ResultCode> => {
-              // Add try-catch blocks to trace E2E issues.
-              try {
-                return await showOpenApi3(uri, context, tspLanguageClient!, tel);
-              } catch (error) {
-                const errorDetails = {
-                  message: error instanceof Error ? error.message : String(error),
-                  stack: error instanceof Error ? error.stack : undefined,
-                  file: "extension.ts",
-                  line: 201,
-                  function: "ShowOpenApi3Command",
-                  uri: uri?.toString(),
-                };
-
-                logger.error(`Failed to show OpenAPI3 preview: ${errorDetails.message}`, [error], {
-                  showPopup: true,
-                  details:
-                    `Error in ${errorDetails.file}:${errorDetails.line} (${errorDetails.function})\n` +
-                    `URI: ${errorDetails.uri}\n` +
-                    `Stack: ${errorDetails.stack || "No stack trace available"}`,
-                });
-
-                tel.lastStep = `Error in showOpenApi3: ${errorDetails.message}`;
-                return ResultCode.Fail;
-              }
+              return await showOpenApi3(uri, context, tspLanguageClient!, tel);
             },
           );
         }),

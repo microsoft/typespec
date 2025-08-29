@@ -8,7 +8,7 @@ import { ServerLog } from "./types.js";
 
 export async function resolveEntrypointFile(
   host: SystemHost,
-  entrypoints: string[] | undefined,
+  entrypoints: string[] | undefined | null,
   path: string,
   fileSystemCache: FileSystemCache | undefined,
   log: (log: ServerLog) => void,
@@ -57,7 +57,11 @@ export async function resolveEntrypointFile(
       }
     }
 
-    if (!defaultEntrypoint && (entrypoints === undefined || entrypoints.length === 0)) {
+    // If there is no configuration, null is passed in vscode while undefined is passed in the compiler.
+    if (
+      !defaultEntrypoint &&
+      (entrypoints === null || entrypoints === undefined || entrypoints.length === 0)
+    ) {
       defaultEntrypoint = await existingFile(dir, "main.tsp");
     }
 
