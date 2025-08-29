@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 
 public class FluentProject extends Project {
@@ -101,6 +102,10 @@ public class FluentProject extends Project {
     public void integrateWithSdk() {
 //        FluentPomTemplate.setProject(this);
 
+        if (FluentStatic.getFluentJavaSettings().getArtifactVersion().isEmpty()) {
+            findMyVersion().ifPresent(version -> this.version = version);
+        }
+
         findPackageVersions();
 
         findPomDependencies();
@@ -155,6 +160,34 @@ public class FluentProject extends Project {
         } else {
             LOGGER.warn("'output-folder' parameter is not an absolute path, skip code samples");
         }
+    }
+
+    private Optional<String> findMyVersion() {
+        if (this.sdkFolder == null) {
+            // abort, if this is not in azure-sdk-for-java repository
+            return Optional.empty();
+        }
+
+        Path sdkPath = Paths.get(this.sdkFolder);
+        Path versionClientPath = sdkPath.resolve(Paths.get("eng", "versioning", "version_client.txt"));
+        if (Files.isReadable(versionClientPath)) {
+            try (BufferedReader reader = Files.newBufferedReader(versionClientPath, StandardCharsets.UTF_8)) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String artifact = getVersionUpdateTag(this.groupId, this.artifactId);
+                    Optional<String> versionOpt = checkArtifact(line, artifact);
+                    if (versionOpt.isPresent()) {
+                        return versionOpt;
+                    }
+                }
+            } catch (IOException e) {
+                LOGGER.warn("Failed to parse 'version_client.txt'", e);
+            }
+        } else {
+            LOGGER.warn("'version_client.txt' not found or not readable");
+        }
+
+        return Optional.empty();
     }
 
     @Override

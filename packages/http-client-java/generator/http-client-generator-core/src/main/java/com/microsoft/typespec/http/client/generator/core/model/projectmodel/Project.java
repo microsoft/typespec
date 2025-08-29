@@ -53,6 +53,7 @@ public class Project {
 
     private List<String> apiVersions;
 
+    protected String sdkFolder;
     private boolean integratedWithSdk = false;
 
     public enum Dependency {
@@ -181,18 +182,18 @@ public class Project {
 
     private String findSdkFolder() {
         JavaSettings settings = JavaSettings.getInstance();
-        String sdkFolderOpt = settings.getAutorestSettings().getJavaSdksFolder();
-        if (sdkFolderOpt == null) {
+        String sdkFolder = settings.getAutorestSettings().getJavaSdksFolder();
+        if (sdkFolder == null) {
             LOGGER.info("'java-sdks-folder' parameter not available");
         } else {
-            if (!Paths.get(sdkFolderOpt).isAbsolute()) {
+            if (!Paths.get(sdkFolder).isAbsolute()) {
                 LOGGER.info("'java-sdks-folder' parameter is not an absolute path");
-                sdkFolderOpt = null;
+                sdkFolder = null;
             }
         }
 
         // try to deduct it from "output-folder"
-        if (sdkFolderOpt == null) {
+        if (sdkFolder == null) {
             String outputFolder = settings.getAutorestSettings().getOutputFolder();
             if (outputFolder != null && Paths.get(outputFolder).isAbsolute()) {
                 Path path = Paths.get(outputFolder).normalize();
@@ -214,16 +215,16 @@ public class Project {
                 if (path != null) {
                     LOGGER.info("'azure-sdk-for-java' SDK folder '{}' deduced from 'output-folder' parameter",
                         path.toString());
-                    sdkFolderOpt = path.toString();
+                    sdkFolder = path.toString();
                 }
             }
         }
 
-        if (sdkFolderOpt == null) {
+        if (sdkFolder == null) {
             LOGGER.warn("'azure-sdk-for-java' SDK folder not found, fallback to default versions for dependencies");
         }
 
-        return sdkFolderOpt;
+        return sdkFolder;
     }
 
     private static boolean isRepoSdkFolder(Path path) {
@@ -256,14 +257,14 @@ public class Project {
     }
 
     protected void findPackageVersions() {
-        String sdkFolderOpt = findSdkFolder();
-        this.integratedWithSdk = sdkFolderOpt != null;
-        if (sdkFolderOpt == null) {
+        sdkFolder = findSdkFolder();
+        this.integratedWithSdk = sdkFolder != null;
+        if (sdkFolder == null) {
             return;
         }
 
         // find dependency version from versioning txt
-        Path sdkPath = Paths.get(sdkFolderOpt);
+        Path sdkPath = Paths.get(sdkFolder);
         Path versionClientPath = sdkPath.resolve(Paths.get("eng", "versioning", "version_client.txt"));
         Path versionExternalPath = sdkPath.resolve(Paths.get("eng", "versioning", "external_dependencies.txt"));
         if (Files.isReadable(versionClientPath) && Files.isReadable(versionExternalPath)) {
