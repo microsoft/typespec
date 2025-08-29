@@ -288,19 +288,38 @@ public class Project {
             reader.lines().forEach(line -> {
                 for (Dependency dependency : Dependency.values()) {
                     String artifact = getVersionUpdateTag(dependency.getGroupId(), dependency.getArtifactId());
-                    checkArtifact(line, artifact).ifPresent(dependency::setVersion);
+                    checkArtifact(line, artifact, false).ifPresent(dependency::setVersion);
                 }
             });
         }
     }
 
-    public static Optional<String> checkArtifact(String line, String artifact) {
+    public static Optional<String> checkArtifact(String line, String artifact, boolean takeCurrentVersion) {
+        /*
+         * example in version_client.txt
+         * com.azure:azure-core;1.56.0;1.57.0-beta.1
+         * com.azure.resourcemanager:azure-resourcemanager;2.54.0;2.55.0-beta.1
+         *
+         * example in external_dependencies.txt
+         * junit:junit;4.13.2
+         *
+         * dependency-version is the 2nd segment
+         * current-version is the 3rd segment
+         */
         if (line.startsWith(artifact + ";")) {
             String[] segments = line.split(";");
-            if (segments.length >= 2) {
-                String version = segments[1];
-                LOGGER.info("Found version '{}' for artifact '{}'", version, artifact);
-                return Optional.of(version);
+            if (takeCurrentVersion) {
+                if (segments.length >= 3) {
+                    String version = segments[2];
+                    LOGGER.info("Found current version '{}' for artifact '{}'", version, artifact);
+                    return Optional.of(version);
+                }
+            } else {
+                if (segments.length >= 2) {
+                    String version = segments[1];
+                    LOGGER.info("Found dependency version '{}' for artifact '{}'", version, artifact);
+                    return Optional.of(version);
+                }
             }
         }
         return Optional.empty();

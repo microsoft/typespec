@@ -176,7 +176,7 @@ public class FluentProject extends Project {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     String artifact = getVersionUpdateTag(this.groupId, this.artifactId);
-                    Optional<String> versionOpt = checkArtifact(line, artifact);
+                    Optional<String> versionOpt = checkArtifact(line, artifact, true);
                     if (versionOpt.isPresent()) {
                         return versionOpt;
                     }
