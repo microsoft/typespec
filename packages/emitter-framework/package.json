@@ -72,7 +72,7 @@
     "tree-sitter-javascript": "^0.23.0",
     "tree-sitter-python": "^0.23.2",
     "tree-sitter-typescript": "^0.23.0",
-    "typescript": "~5.8.2",
+    "typescript": "~5.9.2",
     "vitest": "^3.1.2",
     "web-tree-sitter": "^0.25.4"
   }
