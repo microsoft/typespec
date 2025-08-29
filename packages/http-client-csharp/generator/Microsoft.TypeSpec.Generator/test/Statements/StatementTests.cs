@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Xml.Linq;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -604,6 +605,41 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
         {
             var comment = new SingleLineCommentStatement("This is a comment");
             Assert.AreEqual("// This is a comment\n", comment.ToDisplayString());
+        }
+
+        [Test]
+        public void PragmaWarningDisableStatementWrite()
+        {
+            var code = Literal("CS1234");
+            var justification = "Test warning suppression";
+            var pragmaStatement = new PragmaWarningDisableStatement(code, justification);
+
+            Assert.AreEqual("#pragma warning disable CS1234 // Test warning suppression\n", pragmaStatement.ToDisplayString());
+        }
+
+        [Test]
+        public void PragmaWarningRestoreStatementWrite()
+        {
+            var code = Literal("CS1234");
+            var justification = "Test warning restoration";
+            var pragmaStatement = new PragmaWarningRestoreStatement(code, justification);
+
+            Assert.AreEqual("#pragma warning restore CS1234 // Test warning restoration\n", pragmaStatement.ToDisplayString());
+        }
+
+        [Test]
+        public void SuppressionStatementWrite()
+        {
+            var code = Literal("CS0618");
+            var justification = "Using obsolete method for backward compatibility";
+            var innerStatement = Return(True);
+            var suppressionStatement = new SuppressionStatement(innerStatement, code, justification);
+
+            var expected = "#pragma warning disable CS0618 // Using obsolete method for backward compatibility\n" +
+                          "return true;\n" +
+                          "#pragma warning restore CS0618 // Using obsolete method for backward compatibility\n";
+
+            Assert.AreEqual(expected, suppressionStatement.ToDisplayString());
         }
     }
 }

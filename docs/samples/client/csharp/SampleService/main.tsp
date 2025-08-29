@@ -1,5 +1,6 @@
 import "@typespec/rest";
 import "@typespec/http";
+import "@typespec/http-client-csharp";
 import "@azure-tools/typespec-client-generator-core";
 import "@azure-tools/typespec-azure-core";
 
@@ -18,8 +19,8 @@ namespace SampleTypeSpec;
 
 using TypeSpec.Http;
 using TypeSpec.Versioning;
+using TypeSpec.HttpClient.CSharp;
 using Azure.ClientGenerator.Core;
-using Azure.Core;
 
 alias SampleOAuth2 = OAuth2Auth<[
   {
@@ -268,6 +269,12 @@ model RoundTripModel {
   requiredBytes: bytes;
 }
 
+@doc("A sample dynamic model.")
+@dynamicModel
+model DynamicModel {
+  name: string;
+}
+
 union DaysOfWeekExtensibleEnum {
   string,
   Monday: "Monday",
@@ -462,3 +469,8 @@ op ListWithPaging(): Page<Thing>;
 @doc("An operation with embedded parameters within the body")
 @post
 op EmbeddedParameters(@bodyRoot body: ModelWithEmbeddedNonBodyParameters): void;
+
+@route("dynamicModel")
+@doc("An operation with a dynamic model")
+@post
+op DynamicModelOperation(@body body: DynamicModel): void;

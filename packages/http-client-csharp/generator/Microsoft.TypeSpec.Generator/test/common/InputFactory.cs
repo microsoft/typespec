@@ -408,6 +408,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             IEnumerable<InputModelProperty>? properties = null,
             InputModelType? baseModel = null,
             bool modelAsStruct = false,
+            bool isDynamicModel = false,
             string? discriminatedKind = null,
             InputType? additionalProperties = null,
             IDictionary<string, InputModelType>? discriminatedModels = null,
@@ -437,6 +438,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             if (baseModel is not null)
             {
                 _addDerivedModelMethod.Invoke(baseModel, new object[] { model });
+            }
+            if (isDynamicModel)
+            {
+                model.IsDynamicModel = true;
             }
             return model;
         }
