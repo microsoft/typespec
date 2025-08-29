@@ -80,7 +80,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var visitedTypes = new HashSet<CSharpType>();
             var visitedTypeProviders = new HashSet<TypeProvider>();
-            var buildableProviders = new HashSet<TypeProvider>();
+            var buildableProviders = new HashSet<TypeProvider>(new TypeProviderTypeComparer());
             var buildableTypes = new HashSet<Type>();
 
             // Get all providers from the output library that are models or implement MRW interface types
@@ -355,15 +355,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (experimentalOrObsoleteAttribute?.Type.Equals(typeof(ExperimentalAttribute)) == true)
             {
-                attributes[typeProvider.Type.Name] = new SuppressionStatement(attributeStatement, experimentalOrObsoleteAttribute.Arguments[0], experimentalTypeJustification);
+                attributes.Add(typeProvider.Type.Name, new SuppressionStatement(attributeStatement, experimentalOrObsoleteAttribute.Arguments[0], experimentalTypeJustification));
             }
             else if (experimentalOrObsoleteAttribute?.Type.Equals(typeof(ObsoleteAttribute)) == true)
             {
-                attributes[typeProvider.Type.Name] = new SuppressionStatement(attributeStatement, Literal(DefaultObsoleteDiagnosticId), obsoleteTypeJustification);
+                attributes.Add(typeProvider.Type.Name, new SuppressionStatement(attributeStatement, Literal(DefaultObsoleteDiagnosticId), obsoleteTypeJustification));
             }
             else
             {
-                attributes[typeProvider.Type.Name] = attributeStatement;
+                attributes.Add(typeProvider.Type.Name, attributeStatement);
             }
         }
 
@@ -401,27 +401,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return type.Name.StartsWith("IPersistableModel") || type.Name.StartsWith("IJsonModel");
         }
 
-        private class CSharpTypeNameComparer : IEqualityComparer<CSharpType>
+        private class TypeProviderTypeComparer : IEqualityComparer<TypeProvider>
         {
-            public bool Equals(CSharpType? x, CSharpType? y)
+            public bool Equals(TypeProvider? x, TypeProvider? y)
             {
-                if (x is null && y is null)
-                {
-                    return true;
-                }
                 if (x is null || y is null)
-                {
                     return false;
-                }
-                return x.Namespace == y.Namespace && x.Name == y.Name;
+                return x.Type.AreNamesEqual(y.Type);
             }
 
-            public int GetHashCode(CSharpType obj)
+            public int GetHashCode(TypeProvider obj)
             {
-                HashCode hashCode = new HashCode();
-                hashCode.Add(obj.Namespace);
-                hashCode.Add(obj.Name);
-                return hashCode.ToHashCode();
+                return obj.Type is null ? 0 : obj.Type.GetHashCode();
             }
         }
     }
