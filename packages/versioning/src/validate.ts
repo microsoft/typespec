@@ -510,14 +510,6 @@ interface IncompatibleVersionValidateOptions {
  * @param target Type being referenced from the source
  */
 function validateReference(program: Program, source: Type | Type[], target: Type) {
-  // Skip validation if source is a property belonging to a template declaration model
-  const sources = Array.isArray(source) ? source : [source];
-  for (const src of sources) {
-    if (src.kind === "ModelProperty" && src.model && isTemplateDeclaration(src.model)) {
-      return;
-    }
-  }
-
   validateTargetVersionCompatible(program, source, target);
 
   if ("templateMapper" in target) {
@@ -602,24 +594,6 @@ function validateTargetVersionCompatible(
   target: Type | Type[],
   validateOptions: IncompatibleVersionValidateOptions = {},
 ) {
-  // Skip validation if source contains a type from a template declaration
-  const sources = Array.isArray(source) ? source : [source];
-  for (const src of sources) {
-    if (src.kind === "ModelProperty" && src.model && isTemplateDeclaration(src.model)) {
-      return;
-    }
-    if (isTemplateDeclaration(src)) {
-      return;
-    }
-  }
-
-  // Skip validation if target contains a template declaration
-  const targets = Array.isArray(target) ? target : [target];
-  for (const tgt of targets) {
-    if (isTemplateDeclaration(tgt)) {
-      return;
-    }
-  }
   const sourceAvailability = resolveAvailabilityForStack(program, source);
   const [sourceNamespace] = getVersions(program, sourceAvailability.type);
   // If we cannot get source availability check if there is some different versioning across the stack which would mean we verify across namespace and is causing issues.
@@ -777,17 +751,6 @@ function validateAvailabilityForRef(
   target: Type,
   versionMap?: Map<Version, Version>,
 ) {
-  // Skip validation if source is a property belonging to a template declaration model
-  if (source.kind === "ModelProperty" && source.model) {
-    const model = source.model;
-    if (model.node && 
-        (model.node as any).templateParameters && 
-        (model.node as any).templateParameters.length > 0 &&
-        model.templateMapper === undefined) {
-      return;
-    }
-  }
-
   // if source is unversioned and target is versioned
   if (sourceAvail === undefined) {
     if (!isAvailableInAllVersion(targetAvail)) {
