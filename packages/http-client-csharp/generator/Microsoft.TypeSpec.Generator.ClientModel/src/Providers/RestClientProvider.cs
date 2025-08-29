@@ -126,17 +126,83 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var classifier = GetClassifier(operation);
 
-            // Get URI and build statements
-            var (uriStatements, uriExpression) = GetUriAndStatements(serviceMethod, paramMap, signature, isNextLinkRequest);
+            // Build message and all request modifications
+            var messageStatements = BuildMessage(serviceMethod, paramMap, signature, pipelineField, options, classifier, isNextLinkRequest);
 
-            // Inline request building logic
+            return new ScmMethodProvider(
+                signature,
+                new MethodBodyStatements(messageStatements),
+                this,
+                xmlDocProvider: XmlDocProvider.Empty,
+                serviceMethod: serviceMethod);
+        }
+
+        private List<MethodBodyStatement> BuildMessage(
+            InputServiceMethod serviceMethod,
+            Dictionary<string, ParameterProvider> paramMap,
+            MethodSignature signature,
+            ClientPipelineApi pipelineField,
+            ParameterProvider options,
+            PropertyProvider classifier,
+            bool isNextLinkRequest = false)
+        {
             InputPagingServiceMethod? pagingServiceMethod = serviceMethod as InputPagingServiceMethod;
+            var operation = serviceMethod.Operation;
+            var declareUri = Declare("uri", New.Instance(typeof(ClientUriBuilderDefinition)), out ScopedApi uri);
+
+            // For next request methods, handle URI differently
             var nextLink = isNextLinkRequest
                 ? pagingServiceMethod?.PagingMetadata.NextLink
                 : null;
 
-            var requestStatements = new List<MethodBodyStatement>();
+            var statements = new List<MethodBodyStatement>();
 
+            if (isNextLinkRequest && nextLink != null)
+            {
+                statements.AddRange([
+                    declareUri,
+                    uri.Reset(ScmKnownParameters.NextPage.AsExpression()).Terminate()
+                ]);
+
+                // handle reinjected parameters for URI
+                if (nextLink.ReInjectedParameters?.Count > 0)
+                {
+                    // map of the reinjected parameter name to its' corresponding parameter in the method signature
+                    var reinjectedParamsMap = new Dictionary<string, ParameterProvider>(nextLink.ReInjectedParameters.Count);
+                    foreach (var param in nextLink.ReInjectedParameters)
+                    {
+                        var reinjectedParameter = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(param);
+                        if (reinjectedParameter != null && paramMap.TryGetValue(reinjectedParameter.Name, out var paramInSignature))
+                        {
+                            reinjectedParamsMap[param.Name] = paramInSignature;
+                        }
+                    }
+
+                    if (reinjectedParamsMap.Count > 0)
+                    {
+                        statements.AddRange(AppendQueryParameters(uri, operation, reinjectedParamsMap));
+                    }
+                }
+            }
+            else
+            {
+                statements.AddRange([
+                    declareUri,
+                    uri.Reset(ClientProvider.EndpointField).Terminate()
+                ]);
+                statements.AddRange(AppendPathParameters(uri, operation, paramMap));
+                statements.AddRange(AppendQueryParameters(uri, operation, paramMap));
+            }
+
+            // Create the message
+            var uriExpression = uri.Invoke("ToUri");
+            statements.AddRange([
+                Declare("message", pipelineField.CreateMessage(options.ToApi<HttpRequestOptionsApi>(), uriExpression, Literal(operation.HttpMethod), classifier).ToApi<HttpMessageApi>(), out HttpMessageApi message),
+                message.ApplyResponseClassifier(classifier.ToApi<StatusCodeClassifierApi>()),
+                Declare("request", message.Request().ToApi<HttpRequestApi>(), out HttpRequestApi request)
+            ]);
+
+            // Handle request modifications
             if (isNextLinkRequest && nextLink != null)
             {
                 // handle reinjected parameters for headers
@@ -155,99 +221,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                     if (reinjectedParamsMap.Count > 0)
                     {
-                        requestStatements.AddRange(AppendHeaderParameters(Variable("request").ToApi<HttpRequestApi>(), operation, reinjectedParamsMap));
+                        statements.AddRange(AppendHeaderParameters(request, operation, reinjectedParamsMap));
                     }
                     else
                     {
-                        requestStatements.AddRange(AppendHeaderParameters(Variable("request").ToApi<HttpRequestApi>(), operation, paramMap, isNextLink: true));
+                        statements.AddRange(AppendHeaderParameters(request, operation, paramMap, isNextLink: true));
                     }
                 }
                 else
                 {
-                    requestStatements.AddRange(AppendHeaderParameters(Variable("request").ToApi<HttpRequestApi>(), operation, paramMap, isNextLink: true));
+                    statements.AddRange(AppendHeaderParameters(request, operation, paramMap, isNextLink: true));
                 }
             }
             else
             {
-                requestStatements.AddRange(AppendHeaderParameters(Variable("request").ToApi<HttpRequestApi>(), operation, paramMap));
-                requestStatements.AddRange(GetSetContent(Variable("request").ToApi<HttpRequestApi>(), signature.Parameters));
+                statements.AddRange(AppendHeaderParameters(request, operation, paramMap));
+                statements.AddRange(GetSetContent(request, signature.Parameters));
             }
 
-            return new ScmMethodProvider(
-                signature,
-                new MethodBodyStatements(
-                [
-                    .. uriStatements,
-                    Declare("message", pipelineField.CreateMessage(options.ToApi<HttpRequestOptionsApi>(), uriExpression, Literal(operation.HttpMethod), classifier).ToApi<HttpMessageApi>(), out HttpMessageApi message),
-                    message.ApplyResponseClassifier(classifier.ToApi<StatusCodeClassifierApi>()),
-                    Declare("request", message.Request().ToApi<HttpRequestApi>(), out HttpRequestApi request),
-                    .. requestStatements,
-                    message.ApplyRequestOptions(options.ToApi<HttpRequestOptionsApi>()),
-                    Return(message)
-                ]),
-                this,
-                xmlDocProvider: XmlDocProvider.Empty,
-                serviceMethod: serviceMethod);
+            // Apply request options and return message
+            statements.AddRange([
+                message.ApplyRequestOptions(options.ToApi<HttpRequestOptionsApi>()),
+                Return(message)
+            ]);
+
+            return statements;
         }
-
-        private (List<MethodBodyStatement> Statements, ValueExpression UriExpression) GetUriAndStatements(
-            InputServiceMethod serviceMethod,
-            Dictionary<string, ParameterProvider> paramMap,
-            MethodSignature signature,
-            bool isNextLinkRequest = false)
-        {
-            InputPagingServiceMethod? pagingServiceMethod = serviceMethod as InputPagingServiceMethod;
-            var operation = serviceMethod.Operation;
-            var declareUri = Declare("uri", New.Instance(typeof(ClientUriBuilderDefinition)), out ScopedApi uri);
-
-            // For next request methods, handle URI differently
-            var nextLink = isNextLinkRequest
-                ? pagingServiceMethod?.PagingMetadata.NextLink
-                : null;
-
-            if (isNextLinkRequest && nextLink != null)
-            {
-                List<MethodBodyStatement> nextLinkBodyStatements =
-                [
-                    declareUri,
-                    uri.Reset(ScmKnownParameters.NextPage.AsExpression()).Terminate()
-                ];
-
-                // handle reinjected parameters
-                if (nextLink.ReInjectedParameters?.Count > 0)
-                {
-                    // map of the reinjected parameter name to its' corresponding parameter in the method signature
-                    var reinjectedParamsMap = new Dictionary<string, ParameterProvider>(nextLink.ReInjectedParameters.Count);
-                    foreach (var param in nextLink.ReInjectedParameters)
-                    {
-                        var reinjectedParameter = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(param);
-                        if (reinjectedParameter != null && paramMap.TryGetValue(reinjectedParameter.Name, out var paramInSignature))
-                        {
-                            reinjectedParamsMap[param.Name] = paramInSignature;
-                        }
-                    }
-
-                    if (reinjectedParamsMap.Count > 0)
-                    {
-                        nextLinkBodyStatements.AddRange(AppendQueryParameters(uri, operation, reinjectedParamsMap));
-                    }
-                }
-
-                return (nextLinkBodyStatements, uri.Invoke("ToUri"));
-            }
-
-            var statements = new List<MethodBodyStatement>
-            {
-                declareUri,
-                uri.Reset(ClientProvider.EndpointField).Terminate()
-            };
-            statements.AddRange(AppendPathParameters(uri, operation, paramMap));
-            statements.AddRange(AppendQueryParameters(uri, operation, paramMap));
-
-            return (statements, uri.Invoke("ToUri"));
-        }
-
-
 
         private IReadOnlyList<MethodBodyStatement> GetSetContent(HttpRequestApi request, IReadOnlyList<ParameterProvider> parameters)
         {
