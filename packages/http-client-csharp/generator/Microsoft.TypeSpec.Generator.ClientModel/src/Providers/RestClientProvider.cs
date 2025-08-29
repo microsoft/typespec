@@ -121,13 +121,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             return new ScmMethodProvider(
                 signature,
-                new MethodBodyStatements(messageStatements),
+                messageStatements,
                 this,
                 xmlDocProvider: XmlDocProvider.Empty,
                 serviceMethod: serviceMethod);
         }
 
-        private List<MethodBodyStatement> BuildMessage(
+        private MethodBodyStatements BuildMessage(
             InputServiceMethod serviceMethod,
             MethodSignature signature,
             bool isNextLinkRequest = false)
@@ -137,7 +137,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var options = ScmKnownParameters.RequestOptions;
             var operation = serviceMethod.Operation;
             var classifier = GetClassifier(operation);
-            
+
             var paramMap = new Dictionary<string, ParameterProvider>(signature.Parameters.ToDictionary(p => p.Name));
             foreach (var param in ClientProvider.ClientParameters)
             {
@@ -242,7 +242,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Return(message)
             ]);
 
-            return statements;
+            return new MethodBodyStatements(statements);
         }
 
         private IReadOnlyList<MethodBodyStatement> GetSetContent(HttpRequestApi request, IReadOnlyList<ParameterProvider> parameters)
