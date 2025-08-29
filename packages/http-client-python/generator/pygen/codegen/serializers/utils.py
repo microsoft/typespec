@@ -25,8 +25,8 @@ def strip_end(namespace: str) -> str:
     return ".".join(namespace.split(".")[:-1])
 
 
-def get_namespace_config(namespace: str, multiapi: bool) -> str:
-    return strip_end(namespace) if multiapi else namespace
+def get_namespace_config(namespace: str) -> str:
+    return namespace
 
 
 def get_namespace_from_package_name(package_name: Optional[str]) -> str:

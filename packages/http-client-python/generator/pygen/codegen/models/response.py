@@ -111,7 +111,7 @@ class Response(BaseModel):
             return f"{self.type.docstring_type(**kwargs)} or None"
         return self.type.docstring_type(**kwargs) if self.type else "None"
 
-    def _imports_shared(self, **kwargs: Any) -> FileImport:
+    def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
         if self.type:
             file_import.merge(self.type.imports(**kwargs))
@@ -126,12 +126,6 @@ class Response(BaseModel):
                 TypingSection.TYPING,
             )
         return file_import
-
-    def imports(self, **kwargs: Any) -> FileImport:
-        return self._imports_shared(**kwargs)
-
-    def imports_for_multiapi(self, **kwargs: Any) -> FileImport:
-        return self._imports_shared(**kwargs)
 
     def _get_import_type(self, input_path: str) -> ImportType:
         # helper function to return imports for responses based off
@@ -198,17 +192,13 @@ class PagingResponse(Response):
     def docstring_type(self, **kwargs: Any) -> str:
         return f"~{self.get_pager_path(kwargs['async_mode'])}[{self.item_type.docstring_type(**kwargs)}]"
 
-    def _imports_shared(self, **kwargs: Any) -> FileImport:
-        file_import = super()._imports_shared(**kwargs)
+    def imports(self, **kwargs: Any) -> FileImport:
+        file_import = super().imports(**kwargs)
         async_mode = kwargs.get("async_mode", False)
         pager = self.get_pager(async_mode)
         pager_path = self.get_pager_import_path(async_mode)
 
         file_import.add_submodule_import(pager_path, pager, self._get_import_type(pager_path))
-        return file_import
-
-    def imports(self, **kwargs: Any) -> FileImport:
-        file_import = self._imports_shared(**kwargs)
         async_mode = kwargs.get("async_mode")
         if async_mode:
             file_import.add_submodule_import(
@@ -218,9 +208,6 @@ class PagingResponse(Response):
             )
 
         return file_import
-
-    def imports_for_multiapi(self, **kwargs: Any) -> FileImport:
-        return self._imports_shared(**kwargs)
 
 
 class LROResponse(Response):
@@ -270,16 +257,12 @@ class LROResponse(Response):
             base_description += "either "
         return base_description + super_text
 
-    def _imports_shared(self, **kwargs: Any) -> FileImport:
-        file_import = super()._imports_shared(**kwargs)
+    def imports(self, **kwargs: Any) -> FileImport:
+        file_import = super().imports(**kwargs)
         async_mode = kwargs["async_mode"]
         poller_import_path = ".".join(self.get_poller_path(async_mode).split(".")[:-1])
         poller = self.get_poller(async_mode)
         file_import.add_submodule_import(poller_import_path, poller, self._get_import_type(poller_import_path))
-        return file_import
-
-    def imports(self, **kwargs: Any) -> FileImport:
-        file_import = self._imports_shared(**kwargs)
         async_mode = kwargs["async_mode"]
 
         default_polling_method_import_path = ".".join(self.get_polling_method_path(async_mode).split(".")[:-1])
@@ -306,9 +289,6 @@ class LROResponse(Response):
         )
         return file_import
 
-    def imports_for_multiapi(self, **kwargs: Any) -> FileImport:
-        return self._imports_shared(**kwargs)
-
 
 class LROPagingResponse(LROResponse, PagingResponse):
     def type_annotation(self, **kwargs: Any) -> str:
@@ -324,11 +304,6 @@ class LROPagingResponse(LROResponse, PagingResponse):
         if not self.code_model.options["version-tolerant"]:
             base_description += "either "
         return base_description + Response.docstring_text(self)
-
-    def imports_for_multiapi(self, **kwargs: Any) -> FileImport:
-        file_import = LROResponse.imports_for_multiapi(self, **kwargs)
-        file_import.merge(PagingResponse.imports_for_multiapi(self, **kwargs))
-        return file_import
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = LROResponse.imports(self, **kwargs)

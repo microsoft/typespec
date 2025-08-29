@@ -20,7 +20,6 @@ from ..models import (
     BodyParameter,
     FileImport,
 )
-from .._utils import get_parent_namespace
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -45,11 +44,7 @@ class SampleSerializer(BaseSerializer):
     def _imports(self) -> FileImportSerializer:
         imports = FileImport(self.code_model)
         client = self.operation_group.client
-        namespace = (
-            get_parent_namespace(client.client_namespace)
-            if self.code_model.options["multiapi"]
-            else client.client_namespace
-        )
+        namespace = client.client_namespace
         imports.add_submodule_import(namespace, client.name, ImportType.LOCAL)
         credential_type = getattr(client.credential, "type", None)
         if isinstance(credential_type, TokenCredentialType):
