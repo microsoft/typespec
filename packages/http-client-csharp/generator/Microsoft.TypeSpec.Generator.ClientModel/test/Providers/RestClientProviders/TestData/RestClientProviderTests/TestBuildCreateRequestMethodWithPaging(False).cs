@@ -20,7 +20,6 @@ namespace Sample
                 uri.AppendQueryDelimited("p2", p2, " ", null, true);
             }
             global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
-            message.ResponseClassifier = PipelineMessageClassifier200;
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             if (((p3 != null) && !((p3 is global::Sample.ChangeTrackingDictionary<string, int> changeTrackingDictionary) && changeTrackingDictionary.IsUndefined)))
             {
@@ -36,7 +35,6 @@ namespace Sample
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(nextPage);
             global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
-            message.ResponseClassifier = PipelineMessageClassifier200;
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("Accept", accept);
             message.Apply(options);
