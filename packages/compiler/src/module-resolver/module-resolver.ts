@@ -116,10 +116,6 @@ export async function resolveModule(
   const { baseDir } = options;
   const absoluteStart = await realpath(resolvePath(baseDir));
 
-  if (!(await isDirectory(host, absoluteStart))) {
-    throw new TypeError(`Provided basedir '${baseDir}'is not a directory.`);
-  }
-
   // Check if the module name is referencing a path(./foo, /foo, file:/foo)
   if (/^(?:\.\.?(?:\/|$)|\/|([A-Za-z]:)?[/\\])/.test(specifier)) {
     const res = resolvePath(absoluteStart, specifier);
@@ -324,7 +320,7 @@ export async function resolveModule(
       type: "module",
       mainFile: resolved,
       manifest: pkg,
-      path: pkgDir,
+      path: await realpath(pkgDir),
     };
   }
 
@@ -452,18 +448,6 @@ async function readPackage(host: ResolveModuleHost, pkgfile: string): Promise<Pa
       text: content,
     },
   };
-}
-
-async function isDirectory(host: ResolveModuleHost, path: string) {
-  try {
-    const stats = await host.stat(path);
-    return stats.isDirectory();
-  } catch (e: any) {
-    if (e.code === "ENOENT" || e.code === "ENOTDIR") {
-      return false;
-    }
-    throw e;
-  }
 }
 
 async function isFile(host: ResolveModuleHost, path: string) {

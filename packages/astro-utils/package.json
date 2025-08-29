@@ -29,12 +29,12 @@
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
-    "@astrojs/starlight": "^0.34.3",
+    "@astrojs/starlight": "^0.35.1",
     "@expressive-code/core": "^0.41.2",
     "@typespec/playground": "workspace:^",
     "astro-expressive-code": "^0.41.2",
     "pathe": "^2.0.3",
     "react": "~18.3.1",
-    "typescript": "~5.8.2"
+    "typescript": "~5.9.2"
   }
 }

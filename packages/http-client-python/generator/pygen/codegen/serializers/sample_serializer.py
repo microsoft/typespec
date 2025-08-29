@@ -4,7 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import logging
-from typing import Dict, Any, Union, Tuple
+from typing import Any, Union
 from jinja2 import Environment
 
 from ..models.operation import OperationBase
@@ -20,7 +20,6 @@ from ..models import (
     BodyParameter,
     FileImport,
 )
-from .._utils import get_parent_namespace
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -32,7 +31,7 @@ class SampleSerializer(BaseSerializer):
         env: Environment,
         operation_group: OperationGroup,
         operation: OperationBase[Any],
-        sample: Dict[str, Any],
+        sample: dict[str, Any],
         file_name: str,
     ) -> None:
         super().__init__(code_model, env)
@@ -45,11 +44,7 @@ class SampleSerializer(BaseSerializer):
     def _imports(self) -> FileImportSerializer:
         imports = FileImport(self.code_model)
         client = self.operation_group.client
-        namespace = (
-            get_parent_namespace(client.client_namespace)
-            if self.code_model.options["multiapi"]
-            else client.client_namespace
-        )
+        namespace = client.client_namespace
         imports.add_submodule_import(namespace, client.name, ImportType.LOCAL)
         credential_type = getattr(client.credential, "type", None)
         if isinstance(credential_type, TokenCredentialType):
@@ -66,19 +61,19 @@ class SampleSerializer(BaseSerializer):
                 imports.merge(param.type.imports_for_sample())
         return FileImportSerializer(imports, True)
 
-    def _client_params(self) -> Dict[str, Any]:
+    def _client_params(self) -> dict[str, Any]:
         # client params
-        special_param = {}
-        credential_type = getattr(self.code_model.clients[0].credential, "type", None)
+        special_param: dict[str, str] = {}
+        credential_type = getattr(self.operation_group.client.credential, "type", None)
         if isinstance(credential_type, TokenCredentialType):
-            special_param.update({"credential": "DefaultAzureCredential()"})
+            special_param |= {"credential": "DefaultAzureCredential()"}
         elif isinstance(credential_type, KeyCredentialType):
-            special_param.update({"credential": 'AzureKeyCredential(key=os.getenv("AZURE_KEY"))'})
+            special_param |= {"credential": 'AzureKeyCredential(key=os.getenv("AZURE_KEY"))'}
 
         params = [
             p
             for p in (
-                self.code_model.clients[0].parameters.positional + self.code_model.clients[0].parameters.keyword_only
+                self.operation_group.client.parameters.positional + self.operation_group.client.parameters.keyword_only
             )
             if not p.optional and p.client_default_value is None
         ]
@@ -101,7 +96,7 @@ class SampleSerializer(BaseSerializer):
         return param.type.serialize_sample_value(param_value)
 
     # prepare operation parameters
-    def _operation_params(self) -> Dict[str, Any]:
+    def _operation_params(self) -> dict[str, Any]:
         params = [
             p
             for p in (self.operation.parameters.positional + self.operation.parameters.keyword_only)
@@ -122,7 +117,7 @@ class SampleSerializer(BaseSerializer):
             return ""
         return f".{self.operation_group.property_name}"
 
-    def _operation_result(self) -> Tuple[str, str]:
+    def _operation_result(self) -> tuple[str, str]:
         is_response_none = "None" in self.operation.response_type_annotation(async_mode=False)
         lro = ".result()"
         if is_response_none:
@@ -153,6 +148,7 @@ class SampleSerializer(BaseSerializer):
         operation_result, return_var = self._operation_result()
         return self.env.get_template("sample.py.jinja2").render(
             code_model=self.code_model,
+            client=self.operation_group.client,
             file_name=self.file_name,
             operation_result=operation_result,
             operation_params=self._operation_params(),

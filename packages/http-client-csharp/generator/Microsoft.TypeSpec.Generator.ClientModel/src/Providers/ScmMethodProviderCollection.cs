@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel.Primitives;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +10,10 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
+using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
-using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
@@ -137,7 +139,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var paramDeclarations),
                     Declare("result", This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(paramDeclarations)], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
                     .. GetStackVariablesForReturnValueConversion(result, responseBodyType, isAsync, out var resultDeclarations),
-                    Return(result.FromValue(GetResultConversion(result, result.GetRawResponse(), responseBodyType, resultDeclarations), result.GetRawResponse())),
+                    IsConvertibleFromBinaryData(responseBodyType)
+                        ? Return(result.FromValue(GetResultConversion(result, result.GetRawResponse(), responseBodyType, resultDeclarations), result.GetRawResponse()))
+                        :
+                        new[]
+                        {
+                            UsingDeclare("document", result.GetRawResponse().Content().Parse(), out var jsonDocument),
+                            Declare("element", jsonDocument.RootElement(), out var jsonElement),
+                            Return(result.FromValue(ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(
+                                responseBodyType.FrameworkType,
+                                jsonElement,
+                                ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.WireOptionsField.As<ModelReaderWriterOptions>(),
+                                SerializationFormat.Default),
+                                result.GetRawResponse()))
+                        },
                 ];
             }
 
@@ -189,12 +204,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         statements.Add(UsingDeclare("content", RequestContentApiSnippets.Create(bdExpression), out var content));
                         declarations["content"] = content;
                     }
-                    else if (parameter.Type.IsFrameworkType && !parameter.Type.Equals(typeof(BinaryData)))
+                    else if (parameter.Type.IsFrameworkType && !parameter.Type.Equals(typeof(BinaryData)) && IsConvertibleFromBinaryData(parameter.Type))
                     {
                         statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromObject(parameter), out var content));
                         declarations["content"] = content;
                     }
+                    else if (parameter.Type.IsFrameworkType && !parameter.Type.Equals(typeof(BinaryData)))
+                    {
+                        statements.Add(Declare("content", New.Instance<Utf8JsonBinaryContentDefinition>(), out var content));
+                        statements.Add(ScmCodeModelGenerator.Instance.TypeFactory.SerializeJsonValue(
+                            parameter.Type.FrameworkType,
+                            parameter,
+                            content.JsonWriter(),
+                            ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.WireOptionsField.As<ModelReaderWriterOptions>(),
+                            SerializationFormat.Default));
+                        declarations["content"] = content;
+                    }
                     // else rely on implicit operator to convert to BinaryContent
+                    // For BinaryData we have special handling as well
                 }
             }
 
@@ -214,7 +241,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var convenienceMethodParams = ConvenienceMethodParameters.ToDictionary(p => p.Name);
             List<ValueExpression> expressions = new(spreadSource.Properties.Count);
             // we should make this find more deterministic
-            var ctor = spreadSource.Constructors.First(c => c.Signature.Parameters.Count == spreadSource.CanonicalView.Properties.Count + 1 &&
+            var ctor = spreadSource.CanonicalView.Constructors.First(c => c.Signature.Parameters.Count == spreadSource.CanonicalView.Properties.Count + 1 &&
                 c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
 
             foreach (var param in ctor.Signature.Parameters)
@@ -254,7 +281,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     MethodBodyStatement[] statements =
                     [
                         valueDeclaration,
-                        UsingDeclare("document", JsonDocumentSnippets.Parse(result.GetRawResponse().ContentStream(), isAsync), out var document),
+                        UsingDeclare("document", result.GetRawResponse().ContentStream().Parse(isAsync), out var document),
                         ForEachStatement.Create("item", document.RootElement().EnumerateArray(), out ScopedApi<JsonElement> item)
                             .Add(GetElementConversion(elementType, item, value))
                     ];
@@ -275,7 +302,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     MethodBodyStatement[] statements =
                     [
                         valueDeclaration,
-                        UsingDeclare("document", JsonDocumentSnippets.Parse(result.GetRawResponse().ContentStream(), isAsync), out var document),
+                        UsingDeclare("document", result.GetRawResponse().ContentStream().Parse(isAsync), out var document),
                         ForEachStatement.Create("item", document.RootElement().EnumerateObject(), out ScopedApi<JsonProperty> item)
                             .Add(GetElementConversion(valueType, item.Value(), value, item.Name()))
                     ];
@@ -362,6 +389,48 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return responseBodyType.ToEnum(response.Content().ToObjectFromJson(responseBodyType.UnderlyingEnumType));
             }
             return result.CastTo(responseBodyType);
+        }
+
+        private static bool IsConvertibleFromBinaryData(CSharpType type)
+        {
+            if (type.Equals(typeof(BinaryData)))
+            {
+                return true;
+            }
+
+            if (!type.IsFrameworkType)
+            {
+                // generated types will have the explicit operator from ClientResult defined
+                return true;
+            }
+
+            if (type.IsList)
+            {
+                return IsConvertibleFromBinaryData(type.Arguments[0]);
+            }
+
+            if (type.IsDictionary)
+            {
+                return IsConvertibleFromBinaryData(type.Arguments[1]);
+            }
+
+            return type.Equals(typeof(string)) ||
+                   type.Equals(typeof(int)) ||
+                   type.Equals(typeof(int?)) ||
+                   type.Equals(typeof(long)) ||
+                   type.Equals(typeof(long?)) ||
+                   type.Equals(typeof(double)) ||
+                   type.Equals(typeof(double?)) ||
+                   type.Equals(typeof(float)) ||
+                   type.Equals(typeof(float?)) ||
+                   type.Equals(typeof(decimal)) ||
+                   type.Equals(typeof(decimal?)) ||
+                   type.Equals(typeof(bool)) ||
+                   type.Equals(typeof(bool?)) ||
+                   type.Equals(typeof(DateTimeOffset)) ||
+                   type.Equals(typeof(DateTimeOffset?)) ||
+                   type.Equals(typeof(TimeSpan)) ||
+                   type.Equals(typeof(TimeSpan?));
         }
 
         private IReadOnlyList<ValueExpression> GetProtocolMethodArguments(Dictionary<string, ValueExpression> declarations)
@@ -457,9 +526,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             // Extract non-body properties from the body model
             var nonBodyProperties = bodyModel.CanonicalView.Properties
-                .Where(p => p.WireInfo != null &&
-                          p.WireInfo.Location != PropertyLocation.Unknown &&
-                          p.WireInfo.Location != PropertyLocation.Body)
+                .Where(p => p.WireInfo?.IsHttpMetadata == true)
                 .ToDictionary(p => p.WireInfo!.SerializedName, p => p);
 
             if (nonBodyProperties.Count == 0)
@@ -472,7 +539,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var protocolParameter in ProtocolMethodParameters)
             {
                 if (protocolParameter.Location != ParameterLocation.Body &&
-                    nonBodyProperties.TryGetValue(protocolParameter.WireInfo.SerializedName, out var nonBodyProperty))
+                    (nonBodyProperties.TryGetValue(protocolParameter.WireInfo.SerializedName, out var nonBodyProperty) ||
+                    nonBodyProperties.TryGetValue(protocolParameter.Name, out nonBodyProperty)))
                 {
                     var conversion = bodyParam.Property(nonBodyProperty.Name);
                     if (protocolParameter.DefaultValue != null)
@@ -697,14 +765,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private CSharpType GetConvenienceReturnType(IReadOnlyList<InputOperationResponse> responses, bool isAsync, out CSharpType? responseBodyType)
         {
             var response = responses.FirstOrDefault(r => !r.IsErrorResponse);
+            responseBodyType = GetResponseBodyType(response?.BodyType);
+
             if (_pagingServiceMethod != null)
             {
-                var type = (response?.BodyType as InputModelType)?.Properties.FirstOrDefault(p =>
-                    p.SerializedName == _pagingServiceMethod.PagingMetadata.ItemPropertySegments[0]);
-
-                responseBodyType = response?.BodyType is null || type is null ? null : GetResponseBodyType((type.Type as InputArrayType)!.ValueType);
-
-                if (response == null || responseBodyType == null)
+                if (responseBodyType == null)
                 {
                     return isAsync ?
                         ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientCollectionAsyncResponseType :
@@ -718,24 +783,57 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     responseBodyType);
             }
 
-            responseBodyType = response?.BodyType is null ? null : GetResponseBodyType(response.BodyType);
-
-            var returnType = response == null || responseBodyType == null
+            var returnType = responseBodyType == null
                 ? ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseType
                 : new CSharpType(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType, responseBodyType.OutputType);
 
             return isAsync ? new CSharpType(typeof(Task<>), returnType) : returnType;
         }
 
-        private static CSharpType? GetResponseBodyType(InputType inputType)
+        private CSharpType? GetResponseBodyType(InputType? responseType)
         {
-            if (inputType is InputModelType inputModelType)
+            if (responseType is null)
+            {
+                return null;
+            }
+
+            if (_pagingServiceMethod != null)
+            {
+                var modelType = responseType as InputModelType;
+
+                foreach (var segment in _pagingServiceMethod!.PagingMetadata.ItemPropertySegments)
+                {
+                    var property = modelType!.Properties.FirstOrDefault(p => p.SerializedName == segment);
+                    var propertyType = property?.Type;
+
+                    if (propertyType is InputArrayType arrayType)
+                    {
+                        var valueType = arrayType.ValueType;
+                        return ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(valueType);
+                    }
+
+                    if (propertyType is InputModelType type)
+                    {
+                        modelType = type;
+                    }
+                }
+
+                // Never found an array property, so there was invalid paging metadata.
+                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                    DiagnosticCodes.NoMatchingItemsProperty,
+                    "No property was found in the response model matching the items property",
+                    ServiceMethod.Operation.CrossLanguageDefinitionId,
+                    EmitterDiagnosticSeverity.Error);
+                return null;
+            }
+
+            if (responseType is InputModelType inputModelType)
             {
                 var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModelType);
                 return model?.Type;
             }
 
-            return ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputType);
+            return ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(responseType);
         }
 
         private bool ShouldMakeProtocolMethodParametersRequired()

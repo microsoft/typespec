@@ -2,8 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import { InputOperation } from "./input-operation.js";
-import { InputParameter } from "./input-parameter.js";
-import { InputType } from "./input-type.js";
+import { InputMethodParameter, InputParameter, InputType } from "./input-type.js";
 import { OperationFinalStateVia } from "./operation-final-state-via.js";
 import { OperationResponse } from "./operation-response.js";
 import { ResponseLocation } from "./response-location.js";
@@ -22,7 +21,7 @@ interface InputServiceMethodBase {
   doc?: string;
   summary?: string;
   operation: InputOperation;
-  parameters: InputParameter[];
+  parameters: InputMethodParameter[];
   response: InputServiceMethodResponse;
   exception?: InputServiceMethodResponse;
   isOverride: boolean;

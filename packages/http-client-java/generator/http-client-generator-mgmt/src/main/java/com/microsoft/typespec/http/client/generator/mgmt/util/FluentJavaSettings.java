@@ -66,8 +66,6 @@ public class FluentJavaSettings {
      */
     private final Map<String, String> namingOverride = new HashMap<>();
 
-    private final Map<String, String> renameModel = new HashMap<>();
-
     private final Set<String> javaNamesForPropertyIncludeAlways = new HashSet<>();
 
     private final Map<String, String> renameOperationGroup = new HashMap<>();
@@ -121,10 +119,6 @@ public class FluentJavaSettings {
         return namingOverride;
     }
 
-    public Map<String, String> getJavaNamesForRenameModel() {
-        return renameModel;
-    }
-
     public Set<String> getJavaNamesForRemoveModel() {
         return javaNamesForRemoveModel;
     }
@@ -137,6 +131,12 @@ public class FluentJavaSettings {
         return javaNamesForRemoveOperationGroup;
     }
 
+    /**
+     * The set of model property that should always be serialized, even its value is null.
+     * The model property is in the form of "<modelName>.<propertyName>".
+     *
+     * @return the set of model property names that should always be serialized.
+     */
     public Set<String> getJavaNamesForPropertyIncludeAlways() {
         return javaNamesForPropertyIncludeAlways;
     }
@@ -177,22 +177,6 @@ public class FluentJavaSettings {
         loadStringSetting("add-inner", s -> splitStringToSet(s, javaNamesForAddInner));
 
         loadStringSetting("remove-inner", s -> splitStringToSet(s, javaNamesForRemoveInner));
-
-        loadStringSetting("rename-model", s -> {
-            if (!CoreUtils.isNullOrEmpty(s)) {
-                String[] renamePairs = s.split(Pattern.quote(","));
-                for (String pair : renamePairs) {
-                    String[] fromAndTo = pair.split(Pattern.quote(":"));
-                    if (fromAndTo.length == 2) {
-                        String from = fromAndTo[0];
-                        String to = fromAndTo[1];
-                        if (!CoreUtils.isNullOrEmpty(from) && !CoreUtils.isNullOrEmpty(to)) {
-                            renameModel.put(from, to);
-                        }
-                    }
-                }
-            }
-        });
 
         loadStringSetting("remove-model", s -> splitStringToSet(s, javaNamesForRemoveModel));
 

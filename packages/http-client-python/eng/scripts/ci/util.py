@@ -25,7 +25,7 @@ def run_check(name, call_back, log_info):
         "-t",
         "--test-folder",
         dest="test_folder",
-        help="The test folder we're in. Can be 'azure', 'multiapi', or 'vanilla'",
+        help="The test folder we're in. Can be 'azure' or 'vanilla'",
         required=True,
     )
     parser.add_argument(

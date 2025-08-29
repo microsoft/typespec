@@ -60,6 +60,42 @@ namespace ServerDrivenPagination {
 
   @scenario
   @scenarioDoc("""
+    Test case for using link as pagination with string nextLink.
+    
+    Two requests need to be tested.
+    1. Initial request:
+    Expected route: /payload/pageable/server-driven-pagination/link-string
+    Expected response body:
+    ```json
+    { "pets": [
+        { "id": "1", "name": "dog" },
+        { "id": "2", "name": "cat" }
+      ],
+      "next": "http://[host]:[port]/payload/pageable/server-driven-pagination/link-string/nextPage"
+    }
+    ```
+    2. Next page request:
+    Expected route: /payload/pageable/server-driven-pagination/link-string/nextPage
+    Expected response body:
+    ```json
+    { "pets": [
+        { "id": "3", "name": "bird" },
+        { "id": "4", "name": "fish" }
+      ]
+    }
+    ```
+    """)
+  @route("/link-string")
+  @list
+  op linkString(): {
+    @pageItems
+    pets: Pet[];
+
+    @nextLink next?: string;
+  };
+
+  @scenario
+  @scenarioDoc("""
     Test case for using link as pagination with nested structure.
     
     Two requests need to be tested.
@@ -412,3 +448,28 @@ namespace ServerDrivenPagination {
     };
   }
 }
+
+@scenario
+@scenarioDoc("""
+  Test case for simple pagination without nextlink or continuationToken.
+  
+  Single request:
+  Expected route: /payload/pageable/simple
+  
+  Expected response body:
+  ```json
+  { "pets": [
+      { "id": "1", "name": "dog" },
+      { "id": "2", "name": "cat" },
+      { "id": "3", "name": "bird" },
+      { "id": "4", "name": "fish" }
+    ]
+  }
+  ```
+  """)
+@route("/simple")
+@list
+op listWithoutContinuation(): {
+  @pageItems
+  pets: Pet[];
+};

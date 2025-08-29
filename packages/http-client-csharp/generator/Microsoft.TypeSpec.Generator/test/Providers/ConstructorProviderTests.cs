@@ -37,7 +37,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                     $"TestClass",
                     MethodSignatureModifiers.Public,
                     parameters,
-                    Initializer: new ConstructorInitializer(false, parameters)),
+                    initializer: new ConstructorInitializer(false, parameters)),
                 ThrowExpression(Null),
                 new TestTypeProvider(),
                 new XmlDocProvider());
@@ -67,7 +67,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                   $"TestClass",
                   MethodSignatureModifiers.Public,
                   parameters,
-                  Initializer: new ConstructorInitializer(false, parameters)),
+                  initializer: new ConstructorInitializer(false, parameters)),
               ThrowExpression(Null),
               new TestTypeProvider(),
               new XmlDocProvider(),

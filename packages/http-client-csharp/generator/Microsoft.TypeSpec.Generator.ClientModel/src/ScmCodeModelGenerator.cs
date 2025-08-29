@@ -22,6 +22,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
         public override ScmTypeFactory TypeFactory { get; }
 
+        internal ModelSerializationExtensionsDefinition ModelSerializationExtensionsDefinition { get; } =
+            new ModelSerializationExtensionsDefinition();
+
         [ImportingConstructor]
         public ScmCodeModelGenerator(GeneratorContext context)
             : base(context)
@@ -37,6 +40,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(BinaryData).Assembly.Location));
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(JsonSerializer).Assembly.Location));
             AddTypeToKeepPublic(ModelReaderWriterContextDefinition.s_name);
+            AddNonRootType(ModelReaderWriterContextDefinition.s_name);
         }
     }
 }

@@ -4,6 +4,7 @@
 import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { CodeModel } from "../type/code-model.js";
+import { InputEnumType, InputModelType } from "../type/input-type.js";
 import { fromSdkClients } from "./client-converter.js";
 import { processServiceAuthentication } from "./service-authentication.js";
 import { fromSdkType } from "./type-converter.js";
@@ -16,10 +17,17 @@ import { firstLetterToUpperCase, getClientNamespaceString } from "./utils.js";
  * @beta
  */
 export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
-  // convert all the models and enums in the sdkPackage to the type cache.
+  const sdkPackage = sdkContext.sdkPackage;
+
+  // TO-DO: Consider using the TCGC model + enum cache once https://github.com/Azure/typespec-azure/issues/3180 is resolved
   navigateModels(sdkContext);
 
-  const sdkPackage = sdkContext.sdkPackage;
+  const types = Array.from(sdkContext.__typeCache.types.values());
+  const [models, enums] = [
+    types.filter((type) => type.kind === "model") as InputModelType[],
+    types.filter((type) => type.kind === "enum") as InputEnumType[],
+  ];
+
   const sdkApiVersionEnums = sdkPackage.enums.filter((e) => e.usage === UsageFlags.ApiVersionEnum);
   const rootClients = sdkPackage.clients;
   const rootApiVersions =
@@ -29,15 +37,6 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
 
   const inputClients = fromSdkClients(sdkContext, rootClients, rootApiVersions);
 
-  // TODO -- because of an implementation bug in autorest.csharp,
-  // we have to do this in this way instead the nicer way of
-  // const enums = fromSdkEnums(sdkContext, sdkPackage.enums);
-  // we could change it back once autorest.csharp is deprecated for DPG.
-  const enums = Array.from(sdkContext.__typeCache.enums.values());
-  // TODO -- for models, because we do not have a way to deal with models with the same name in different namespaces,
-  // we collapse all models with the same name into one model.
-  // until we find a solution for that, we would always need this workaround.
-  const models = Array.from(sdkContext.__typeCache.models.values());
   // TODO -- TCGC now does not have constants field in its sdkPackage, they might add it in the future.
   const constants = Array.from(sdkContext.__typeCache.constants.values());
 
@@ -47,7 +46,7 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   // - https://github.com/Azure/typespec-azure/issues/2572 (constants in operations)
   // - https://github.com/Azure/typespec-azure/issues/2563 (constants in models)
   // First we correct the names of the constants in models.
-  for (const model of sdkContext.__typeCache.models.values()) {
+  for (const model of models) {
     // because this `models` list already contains all the models, therefore we just need to iterate all of them to find if any their properties is constant
     for (const property of model.properties) {
       const type = property.type;
