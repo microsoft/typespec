@@ -4,6 +4,7 @@ import { _defaultGeneratorName } from "./constants.js";
 import { CSharpEmitterContext } from "./index.js";
 import { LoggerLevel } from "./lib/logger-level.js";
 import { CodeModel } from "./type/code-model.js";
+import { DYNAMIC_MODEL_DECORATOR_PATTERN } from "./lib/decorators.js";
 
 /**
  * The emitter options for the CSharp emitter.
@@ -160,7 +161,9 @@ export const defaultOptions = {
   logLevel: LoggerLevel.INFO,
   "generator-name": _defaultGeneratorName,
   "update-code-model": (model: CodeModel, context: CSharpEmitterContext) => model,
-  "sdk-context-options": undefined,
+  "sdk-context-options": {
+    additionalDecorators: [DYNAMIC_MODEL_DECORATOR_PATTERN]
+  }
 };
 
 /**

@@ -807,7 +807,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNullOrEmpty(name, nameof(name));
 
-            Friend spreadModel = new Friend(name, null);
+            Friend spreadModel = new Friend(name);
             ClientResult result = FriendlyModel(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             return ClientResult.FromValue((Friend)result, result.GetRawResponse());
         }
@@ -822,7 +822,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNullOrEmpty(name, nameof(name));
 
-            Friend spreadModel = new Friend(name, null);
+            Friend spreadModel = new Friend(name);
             ClientResult result = await FriendlyModelAsync(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
             return ClientResult.FromValue((Friend)result, result.GetRawResponse());
         }
@@ -929,7 +929,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNullOrEmpty(name, nameof(name));
 
-            RenamedModelCustom spreadModel = new RenamedModelCustom(name, null);
+            RenamedModelCustom spreadModel = new RenamedModelCustom(name);
             ClientResult result = ProjectedNameModel(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             return ClientResult.FromValue((RenamedModelCustom)result, result.GetRawResponse());
         }
@@ -944,7 +944,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNullOrEmpty(name, nameof(name));
 
-            RenamedModelCustom spreadModel = new RenamedModelCustom(name, null);
+            RenamedModelCustom spreadModel = new RenamedModelCustom(name);
             ClientResult result = await ProjectedNameModelAsync(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
             return ClientResult.FromValue((RenamedModelCustom)result, result.GetRawResponse());
         }

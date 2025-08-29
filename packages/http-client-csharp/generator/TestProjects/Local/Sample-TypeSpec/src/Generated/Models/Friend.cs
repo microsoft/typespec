@@ -5,16 +5,16 @@
 
 #nullable disable
 
-using System;
-using System.Collections.Generic;
+using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SampleTypeSpec.Models.Custom
 {
     /// <summary> this is not a friendly model but with a friendly name. </summary>
     public partial class Friend
     {
-        /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
+        [Experimental("SCME0001")]
+        private JsonPatch _patch;
 
         /// <summary> Initializes a new instance of <see cref="Friend"/>. </summary>
         /// <param name="name"> name of the NotFriend. </param>
@@ -26,7 +26,7 @@ namespace SampleTypeSpec.Models.Custom
         /// <summary> Initializes a new instance of <see cref="Friend"/>. </summary>
         /// <param name="name"> name of the NotFriend. </param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal Friend(string name, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        internal Friend(string name, in JsonPatch patch)
         {
             Name = name;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;

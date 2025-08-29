@@ -6,6 +6,7 @@
 #nullable disable
 
 using System;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using SampleTypeSpec.Models.Custom;
@@ -135,10 +136,11 @@ namespace SampleTypeSpec
 
         /// <summary> this is not a friendly model but with a friendly name. </summary>
         /// <param name="name"> name of the NotFriend. </param>
+        /// <param name="patch"></param>
         /// <returns> A new <see cref="Models.Custom.Friend"/> instance for mocking. </returns>
-        public static Friend Friend(string name = default)
+        public static Friend Friend(string name = default, in JsonPatch patch = default)
         {
-            return new Friend(name, additionalBinaryDataProperties: null);
+            return new Friend(name, patch);
         }
 
         /// <summary> this is a model with a client name. </summary>

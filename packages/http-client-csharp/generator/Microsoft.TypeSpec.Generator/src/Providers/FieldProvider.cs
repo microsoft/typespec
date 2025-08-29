@@ -135,7 +135,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private void InitializeParameter()
         {
             _parameter = new(() => new ParameterProvider(
-                Name.ToVariableName(), Description ?? FormattableStringHelpers.Empty, Type, field: this, wireInfo: WireInfo, attributes: Attributes));
+                Name.ToVariableName(), Description ?? FormattableStringHelpers.Empty, Type, field: this, wireInfo: WireInfo));
         }
 
         private MemberExpression? _asMember;
