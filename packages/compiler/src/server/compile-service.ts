@@ -64,7 +64,7 @@ export interface CompileService {
 
   on(event: "compileEnd", listener: (result: CompileResult) => void): void;
 
-  getMainFileForDocument(path: string): Promise<string>;
+  getMainFileForDocument(path: string): Promise<string | undefined>;
 }
 
 export interface CompileServiceOptions {
@@ -125,6 +125,10 @@ export function createCompileService({
   ): Promise<CompileResult | undefined> {
     const path = await fileService.getPath(document);
     const mainFile = await getMainFileForDocument(path);
+    if (mainFile === undefined) {
+      log({ level: "debug", message: `failed to resolve main file for ${path}` });
+      return undefined;
+    }
     const config = await getConfig(mainFile);
     configFilePath = config.filename;
     log({ level: "debug", message: `config resolved`, detail: config });
@@ -327,7 +331,6 @@ export function createCompileService({
     }
 
     const entrypoints = clientConfigsProvider?.config?.entrypoint;
-    const dir = getDirectoryPath(path);
-    return resolveEntrypointFile(compilerHost, entrypoints, dir, path, fileSystemCache, log);
+    return resolveEntrypointFile(compilerHost, entrypoints, path, fileSystemCache, log);
   }
 }

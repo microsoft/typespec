@@ -461,6 +461,11 @@ export function createServer(
       await fileService.getPath({ uri: firstFilePath.newUri }),
     );
 
+    if (mainFile === undefined) {
+      log({ level: "debug", message: `failed to resolve main file for ${firstFilePath.newUri}` });
+      return;
+    }
+
     // Add this method to resolve timing issues between renamed files and `fs.stat`
     // to prevent `fs.stat` from getting the files before modification.
     // Currently the test requires a delay of 300ms

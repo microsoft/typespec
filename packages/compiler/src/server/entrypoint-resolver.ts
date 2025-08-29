@@ -9,11 +9,13 @@ import { ServerLog } from "./types.js";
 export async function resolveEntrypointFile(
   host: SystemHost,
   entrypoints: string[] | undefined,
-  dir: string,
   path: string,
   fileSystemCache: FileSystemCache | undefined,
   log: (log: ServerLog) => void,
-): Promise<string> {
+): Promise<string | undefined> {
+  const isFilePath = (await host.stat(path)).isFile();
+  let dir = isFilePath ? getDirectoryPath(path) : path;
+
   let packageJsonEntrypoint: string | undefined;
   let defaultEntrypoint: string | undefined;
   const options = { allowFileNotFound: true };
@@ -36,17 +38,12 @@ export async function resolveEntrypointFile(
     if (!packageJsonEntrypoint) {
       let pkg: any;
       const pkgPath = joinPaths(dir, "package.json");
-      if (fileSystemCache === undefined) {
-        [pkg] = await loadFile(host, pkgPath, JSON.parse, logMainFileSearchDiagnostic, options);
+      const cached = await fileSystemCache?.get(pkgPath);
+      if (cached?.data) {
+        pkg = cached.data;
       } else {
-        const cached = await fileSystemCache.get(pkgPath);
-
-        if (cached?.data) {
-          pkg = cached.data;
-        } else {
-          [pkg] = await loadFile(host, pkgPath, JSON.parse, logMainFileSearchDiagnostic, options);
-          await fileSystemCache.setData(pkgPath, pkg ?? {});
-        }
+        [pkg] = await loadFile(host, pkgPath, JSON.parse, logMainFileSearchDiagnostic, options);
+        await fileSystemCache?.setData(pkgPath, pkg ?? {});
       }
 
       const tspMain = resolveTspMain(pkg);
@@ -82,7 +79,7 @@ export async function resolveEntrypointFile(
   }
 
   log({ level: "debug", message: `reached directory root, using '${path}' as main file` });
-  return path;
+  return isFilePath ? path : undefined;
 
   function logMainFileSearchDiagnostic(diagnostic: TypeSpecDiagnostic) {
     log({

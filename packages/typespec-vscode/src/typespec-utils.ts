@@ -7,7 +7,7 @@ import {
 import vscode from "vscode";
 import { StartFileName } from "./const.js";
 import logger from "./log/logger.js";
-import { getDirectoryPath, joinPaths, normalizeSlashes } from "./path-utils.js";
+import { joinPaths, normalizeSlashes } from "./path-utils.js";
 import { Result, ResultCode, SettingName } from "./types.js";
 import { ConfirmOptions, QuickPickOptionsWithExternalLink, tryExecuteWithUi } from "./ui-utils.js";
 import { isFile, loadModule, loadPackageJsonFile, spawnExecutionAndLogToOutput } from "./utils.js";
@@ -19,13 +19,10 @@ export async function getEntrypointTspFile(tspPath: string): Promise<string | un
   const logAdapter = (log: ServerLog) => {
     logger.log(log.level, log.message, log.detail as any);
   };
-  const isFilePath = await isFile(tspPath);
-  const baseDir = isFilePath ? getDirectoryPath(tspPath) : tspPath;
   return await resolveEntrypointFile(
     NodeSystemHost,
     configEntrypoints,
-    baseDir,
-    isFilePath ? tspPath : "",
+    tspPath,
     undefined,
     logAdapter,
   );

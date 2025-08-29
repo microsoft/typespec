@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { getDirectoryPath, joinPaths } from "../../src/core/path-utils.js";
+import { joinPaths } from "../../src/core/path-utils.js";
 import type { SystemHost } from "../../src/core/types.js";
 import { resolveEntrypointFile } from "../../src/server/entrypoint-resolver.js";
 import type { ServerLog } from "../../src/server/types.js";
@@ -45,7 +45,6 @@ describe("compiler: server: resolveEntrypointFile", () => {
     const result = await resolveEntrypointFile(
       host,
       ["custom.tsp", "main.tsp"],
-      cwd,
       filePath,
       undefined,
       log,
@@ -71,7 +70,6 @@ describe("compiler: server: resolveEntrypointFile", () => {
     const result = await resolveEntrypointFile(
       host,
       ["missing.tsp", "main.tsp"],
-      sub,
       filePath,
       undefined,
       log,
@@ -98,7 +96,7 @@ describe("compiler: server: resolveEntrypointFile", () => {
     });
 
     const { log } = createLogger();
-    const result = await resolveEntrypointFile(host, undefined, dir, filePath, undefined, log);
+    const result = await resolveEntrypointFile(host, undefined, filePath, undefined, log);
     expect(result).toBe(expected);
   });
 
@@ -118,22 +116,22 @@ describe("compiler: server: resolveEntrypointFile", () => {
     });
 
     const { log } = createLogger();
-    const result = await resolveEntrypointFile(host, undefined, dir, filePath, undefined, log);
+    const result = await resolveEntrypointFile(host, undefined, filePath, undefined, log);
     expect(result).toBe(expected);
   });
 
   it("uses the given path as main when nothing else is found", async () => {
     const host = createMockHost();
     const filePath = "/standalone/file.tsp";
-    const dir = getDirectoryPath(filePath);
 
-    vi.mocked(host.stat).mockImplementation(async () => {
-      return { isFile: () => false } as any;
+    vi.mocked(host.stat).mockImplementation(async (path) => {
+      // The initial path should be treated as a file, but no other files exist
+      return path === filePath ? ({ isFile: () => true } as any) : ({ isFile: () => false } as any);
     });
     vi.mocked(host.readFile).mockResolvedValue({ text: "{}" } as any);
 
     const { log } = createLogger();
-    const result = await resolveEntrypointFile(host, undefined, dir, filePath, undefined, log);
+    const result = await resolveEntrypointFile(host, undefined, filePath, undefined, log);
     expect(result).toBe(filePath);
   });
 });
