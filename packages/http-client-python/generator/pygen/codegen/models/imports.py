@@ -4,8 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 from enum import Enum, auto
-from typing import Dict, List, Optional, Tuple, Union, Set, TYPE_CHECKING
-from .._utils import get_parent_namespace
+from typing import Optional, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .code_model import CodeModel
@@ -46,7 +45,7 @@ class ImportModel:
         *,
         submodule_name: Optional[str] = None,
         alias: Optional[str] = None,
-        version_modules: Optional[Tuple[Tuple[Tuple[int, int], str, Optional[str]]]] = None,
+        version_modules: Optional[tuple[tuple[tuple[int, int], str, Optional[str]]]] = None,
     ):
         self.typing_section = typing_section
         self.import_type = import_type
@@ -90,10 +89,10 @@ class TypeDefinition:
 
 class FileImport:
     def __init__(self, code_model: "CodeModel") -> None:
-        self.imports: List[ImportModel] = []
+        self.imports: list[ImportModel] = []
         self.code_model = code_model
         # has sync and async type definitions
-        self.type_definitions: Dict[str, TypeDefinition] = {}
+        self.type_definitions: dict[str, TypeDefinition] = {}
         self.core_library = self.code_model.core_library
 
     def _append_import(self, import_model: ImportModel) -> None:
@@ -114,7 +113,7 @@ class FileImport:
         ):
             self.imports.append(import_model)
 
-    def get_imports_from_section(self, typing_section: TypingSection) -> List[ImportModel]:
+    def get_imports_from_section(self, typing_section: TypingSection) -> list[ImportModel]:
         return [i for i in self.imports if i.typing_section == typing_section]
 
     def add_submodule_import(
@@ -124,7 +123,7 @@ class FileImport:
         import_type: ImportType,
         typing_section: TypingSection = TypingSection.REGULAR,
         alias: Optional[str] = None,
-        version_modules: Optional[Tuple[Tuple[Tuple[int, int], str, Optional[str]]]] = None,
+        version_modules: Optional[tuple[tuple[tuple[int, int], str, Optional[str]]]] = None,
     ) -> None:
         """Add an import to this import block."""
         self._append_import(
@@ -167,7 +166,7 @@ class FileImport:
         """Merge the given file import format."""
         for i in file_import.imports:
             self._append_import(i)
-        self.type_definitions.update(file_import.type_definitions)
+        self.type_definitions |= file_import.type_definitions
 
     def add_mutable_mapping_import(self) -> None:
         self.add_submodule_import("collections.abc", "MutableMapping", ImportType.STDLIB)
@@ -180,21 +179,21 @@ class FileImport:
 
     def to_dict(
         self,
-    ) -> Dict[
+    ) -> dict[
         TypingSection,
-        Dict[
+        dict[
             ImportType,
-            Dict[
+            dict[
                 str,
-                Set[
+                set[
                     Optional[
                         Union[
                             str,
-                            Tuple[str, str],
-                            Tuple[
+                            tuple[str, str],
+                            tuple[
                                 str,
                                 Optional[str],
-                                Tuple[Tuple[Tuple[int, int], str, Optional[str]]],
+                                tuple[tuple[tuple[int, int], str, Optional[str]]],
                             ],
                         ]
                     ]
@@ -202,21 +201,21 @@ class FileImport:
             ],
         ],
     ]:
-        retval: Dict[
+        retval: dict[
             TypingSection,
-            Dict[
+            dict[
                 ImportType,
-                Dict[
+                dict[
                     str,
-                    Set[
+                    set[
                         Optional[
                             Union[
                                 str,
-                                Tuple[str, str],
-                                Tuple[
+                                tuple[str, str],
+                                tuple[
                                     str,
                                     Optional[str],
-                                    Tuple[Tuple[Tuple[int, int], str, Optional[str]]],
+                                    tuple[tuple[tuple[int, int], str, Optional[str]]],
                                 ],
                             ]
                         ]
@@ -228,11 +227,11 @@ class FileImport:
             name_import: Optional[
                 Union[
                     str,
-                    Tuple[str, str],
-                    Tuple[
+                    tuple[str, str],
+                    tuple[
                         str,
                         Optional[str],
-                        Tuple[Tuple[Tuple[int, int], str, Optional[str]]],
+                        tuple[tuple[tuple[int, int], str, Optional[str]]],
                     ],
                 ]
             ] = None
@@ -265,10 +264,6 @@ class FileImport:
         else:
             # _utils/serialization.py is always in root namespace
             imported_namespace = f"{self.code_model.namespace}._utils"
-            if self.code_model.options["multiapi"]:
-                # for multiapi, the namespace is azure.mgmt.xxx.v20XX_XX_XX
-                # while _utils/serialization.py is in azure.mgmt.xxx
-                imported_namespace = f"{get_parent_namespace(imported_namespace)}._utils"
             if msrest_import_type == MsrestImportType.Module:
                 self.add_submodule_import(
                     self.code_model.get_relative_import_path(serialize_namespace, imported_namespace),

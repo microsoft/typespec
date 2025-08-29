@@ -4,7 +4,6 @@
 # license information.
 # --------------------------------------------------------------------------
 from copy import deepcopy
-from typing import List
 from ..models.imports import (
     ImportType,
     FileImport,
@@ -14,7 +13,7 @@ from ..models.imports import (
 )
 
 
-def _serialize_package(imports: List[ImportModel], delimiter: str) -> str:
+def _serialize_package(imports: list[ImportModel], delimiter: str) -> str:
     buffer = []
     if any(i for i in imports if i.submodule_name is None):
         buffer.append(f"import {imports[0].module_name}{f' as {imports[0].alias}' if imports[0].alias else ''}")
@@ -47,7 +46,7 @@ def _serialize_versioned_package(i: ImportModel, delimiter: str) -> str:
     return delimiter.join(buffer)
 
 
-def _serialize_import_type(imports: List[ImportModel], delimiter: str) -> str:
+def _serialize_import_type(imports: list[ImportModel], delimiter: str) -> str:
     """Serialize a given import type."""
     import_list = []
     for module_name in sorted(set(i.module_name for i in imports)):
@@ -60,7 +59,7 @@ def _serialize_import_type(imports: List[ImportModel], delimiter: str) -> str:
     return delimiter.join(import_list)
 
 
-def _get_import_clauses(imports: List[ImportModel], delimiter: str) -> List[str]:
+def _get_import_clauses(imports: list[ImportModel], delimiter: str) -> list[str]:
     import_clause = []
     for import_type in ImportType:
         imports_with_import_type = [i for i in imports if i.import_type == import_type]
@@ -91,15 +90,15 @@ class FileImportSerializer:
             self.file_import.add_submodule_import("typing", "TYPE_CHECKING", ImportType.STDLIB)
 
     def get_typing_definitions(self) -> str:
-        def declare_definition(type_name: str, type_definition: TypeDefinition) -> List[str]:
-            ret: List[str] = []
+        def declare_definition(type_name: str, type_definition: TypeDefinition) -> list[str]:
+            ret: list[str] = []
             definition_value = type_definition.async_definition if self.async_mode else type_definition.sync_definition
             ret.append("{} = {}".format(type_name, definition_value))
             return ret
 
         if not self.file_import.type_definitions:
             return ""
-        declarations: List[str] = [""]
+        declarations: list[str] = [""]
         for type_name, value in self.file_import.type_definitions.items():
             declarations.extend(declare_definition(type_name, value))
         return "\n".join(declarations)

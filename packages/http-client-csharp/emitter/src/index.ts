@@ -18,6 +18,12 @@ export {
 } from "./options.js";
 // we export `createCSharpEmitterContext` only for autorest.csharp because it uses the emitter to generate the code model file but not calling the dll here
 // we could remove this export when in the future we deprecate autorest.csharp
+export { $dynamicModel, isDynamicModel } from "./lib/decorators.js";
 export { CSharpEmitterContext, createCSharpEmitterContext } from "./sdk-context.js";
 export { CodeModel } from "./type/code-model.js";
 export { InputClient, InputModelType } from "./type/input-type.js";
+
+/** @internal */
+export { $decorators } from "./tsp-index.js";
+
+export type { DynamicModelDecorator } from "../../generated-defs/TypeSpec.HttpClient.CSharp.js";
