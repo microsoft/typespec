@@ -11,10 +11,6 @@ namespace Sample
     {
         internal global::System.ClientModel.Primitives.PipelineMessage CreateSampleOpRequest(global::System.Collections.Generic.IEnumerable<string> p1Explode, global::System.Collections.Generic.IEnumerable<string> p1, global::System.Collections.Generic.IEnumerable<int> p2Explode, global::System.Collections.Generic.IEnumerable<int> p2, global::System.Collections.Generic.IDictionary<string, int> p3Explode, global::System.Collections.Generic.IDictionary<string, int> p3, string optionalParam, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage();
-            message.ResponseClassifier = PipelineMessageClassifier200;
-            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
-            request.Method = "GET";
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
             if (((p1Explode != null) && !((p1Explode is global::Sample.ChangeTrackingList<string> changeTrackingList) && changeTrackingList.IsUndefined)))
@@ -60,7 +56,8 @@ namespace Sample
                 }
                 uri.AppendQueryDelimited("p3", list, ",", null, true);
             }
-            request.Uri = uri.ToUri();
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             message.Apply(options);
             return message;
         }

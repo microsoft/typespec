@@ -12,10 +12,6 @@ namespace Sample
     {
         internal global::System.ClientModel.Primitives.PipelineMessage CreateGetCatsRequest(string p1, global::System.Collections.Generic.IEnumerable<int> p2, global::System.Collections.Generic.IDictionary<string, int> p3, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage();
-            message.ResponseClassifier = PipelineMessageClassifier200;
-            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
-            request.Method = "GET";
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendQuery("someOtherName", p1, true);
@@ -23,7 +19,8 @@ namespace Sample
             {
                 uri.AppendQueryDelimited("p2", p2, " ", null, true);
             }
-            request.Uri = uri.ToUri();
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             if (((p3 != null) && !((p3 is global::Sample.ChangeTrackingDictionary<string, int> changeTrackingDictionary) && changeTrackingDictionary.IsUndefined)))
             {
                 request.Headers.SetDelimited("p3", p3, null);
@@ -35,13 +32,10 @@ namespace Sample
 
         internal global::System.ClientModel.Primitives.PipelineMessage CreateNextGetCatsRequest(global::System.Uri nextPage, string p1, global::System.Collections.Generic.IEnumerable<int> p2, global::System.Collections.Generic.IDictionary<string, int> p3, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage();
-            message.ResponseClassifier = PipelineMessageClassifier200;
-            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
-            request.Method = "GET";
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(nextPage);
-            request.Uri = uri.ToUri();
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;

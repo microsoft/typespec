@@ -85,8 +85,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
             public override ValueExpression Create(ValueExpression options, ValueExpression perRetryPolicies)
                 => Original.Invoke("GetFakeCreate", [options, perRetryPolicies]);
 
-            public override ValueExpression CreateMessage(HttpRequestOptionsApi requestOptions, ValueExpression responseClassifier)
-                => Original.Invoke("GetFakeCreateMessage", [requestOptions, responseClassifier]);
+            public override ValueExpression CreateMessage(HttpRequestOptionsApi requestOptions, ValueExpression uri, ValueExpression method, ValueExpression responseClassifier)
+                => Original.Invoke("GetFakeCreateMessage", [requestOptions, uri, method, responseClassifier]);
 
             public override ClientPipelineApi FromExpression(ValueExpression expression)
                 => new TestClientPipelineApi(expression);
