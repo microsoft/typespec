@@ -764,6 +764,21 @@ describe("versioning: validate incompatible references", () => {
       expectDiagnosticEmpty(diagnostics);
     });
 
+    it("should not emit diagnostic for non-templated model with versioned property and type added in same version", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added(Versions.v2)
+        model UsageDetails {
+          data: string;
+        }
+
+        model Widget {
+          @added(Versions.v2)
+          usage: UsageDetails;
+        }
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
     it("emit diagnostic when using versioned union variant of array in non versioned source", async () => {
       const diagnostics = await runner.diagnose(`
         @added(Versions.v2)
