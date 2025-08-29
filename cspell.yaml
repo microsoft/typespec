@@ -49,6 +49,7 @@ words:
   - debouncer
   - debugpy
   - Declipse
+  - dedented
   - Dedupes
   - deps
   - destructures
@@ -185,6 +186,7 @@ words:
   - proto
   - protobuf
   - protoc
+  - pscore
   - psscriptanalyzer
   - ptvsd
   - pwsh
@@ -219,8 +221,8 @@ words:
   - safeint
   - sdkcore
   - segmentof
-  - setuppy
   - serde
+  - setuppy
   - sfixed
   - shiki
   - sint
@@ -269,6 +271,7 @@ words:
   - vitest
   - VNEXT
   - vsix
+  - vsmarketplace
   - VSSDK
   - Vsts
   - vswhere

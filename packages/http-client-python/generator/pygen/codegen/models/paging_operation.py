@@ -119,8 +119,14 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
     def cls_type_annotation(self, *, async_mode: bool, **kwargs: Any) -> str:
         return f"ClsType[{Response.type_annotation(self.responses[0], async_mode=async_mode, **kwargs)}]"
 
-    def _imports_shared(self, async_mode: bool, **kwargs: Any) -> FileImport:
-        file_import = super()._imports_shared(async_mode, **kwargs)
+    @property
+    def has_optional_return_type(self) -> bool:
+        return False
+
+    def imports(self, async_mode: bool, **kwargs: Any) -> FileImport:
+        if self.abstract:
+            return FileImport(self.code_model)
+        file_import = super().imports(async_mode, **kwargs)
         if async_mode:
             default_paging_submodule = f"{'async_' if self.code_model.is_azure_flavor else ''}paging"
             file_import.add_submodule_import(
@@ -139,16 +145,6 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
             and not async_mode
         ):
             file_import.merge(self.next_request_builder.imports(**kwargs))
-        return file_import
-
-    @property
-    def has_optional_return_type(self) -> bool:
-        return False
-
-    def imports(self, async_mode: bool, **kwargs: Any) -> FileImport:
-        if self.abstract:
-            return FileImport(self.code_model)
-        file_import = self._imports_shared(async_mode, **kwargs)
         file_import.merge(super().imports(async_mode, **kwargs))
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         if self.code_model.options["tracing"] and self.want_tracing:

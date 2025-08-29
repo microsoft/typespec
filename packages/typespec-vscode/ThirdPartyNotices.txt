@@ -8,60 +8,6 @@ original copyright notices and the licenses under which Microsoft received such
 components are set forth below. Microsoft reserves all rights not expressly
 granted herein, whether by implication, estoppel or otherwise.
 
-1. @babel/code-frame version 7.27.1 (https://github.com/babel/babel)
-2. @babel/helper-validator-identifier version 7.27.1 (https://github.com/babel/babel)
-3. ajv version 8.17.1 (ajv-validator/ajv)
-4. balanced-match version 1.0.2 (https://github.com/juliangruber/balanced-match)
-5. brace-expansion version 2.0.2 (https://github.com/juliangruber/brace-expansion)
-6. change-case version 5.4.4 (https://github.com/blakeembrey/change-case)
-7. cross-spawn version 7.0.6 (git@github.com:moxystudio/node-cross-spawn)
-8. fast-deep-equal version 3.1.3 (https://github.com/epoberezkin/fast-deep-equal)
-9. fast-uri version 3.0.6 (https://github.com/fastify/fast-uri)
-10. is-unicode-supported version 2.1.0 (sindresorhus/is-unicode-supported)
-11. isexe version 2.0.0 (https://github.com/isaacs/isexe)
-12. isexe version 3.1.1 (https://github.com/isaacs/isexe)
-13. js-tokens version 4.0.0 (lydell/js-tokens)
-14. json-schema-traverse version 1.0.0 (https://github.com/epoberezkin/json-schema-traverse)
-15. minimatch version 5.1.6 (https://github.com/isaacs/minimatch)
-16. mustache version 4.2.0 (https://github.com/janl/mustache.js)
-17. path-key version 3.1.1 (sindresorhus/path-key)
-18. picocolors version 1.1.1 (alexeyraspopov/picocolors)
-19. semver version 7.7.2 (https://github.com/npm/node-semver)
-20. shebang-command version 2.0.0 (kevva/shebang-command)
-21. shebang-regex version 3.0.0 (sindresorhus/shebang-regex)
-22. which version 2.0.2 (https://github.com/isaacs/node-which)
-23. which version 5.0.0 (https://github.com/npm/node-which)
-24. yaml version 2.8.0 (github:eemeli/yaml)
-
-
-%% @babel/code-frame NOTICES AND INFORMATION BEGIN HERE
-=====================================================
-MIT License
-
-Copyright (c) 2014-present Sebastian McKenzie and other contributors
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-=====================================================");
-END OF @babel/code-frame NOTICES AND INFORMATION
-
 
 %% @babel/helper-validator-identifier NOTICES AND INFORMATION BEGIN HERE
 =====================================================
@@ -90,7 +36,26 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 =====================================================");
 END OF @babel/helper-validator-identifier NOTICES AND INFORMATION
-
+=======
+1. ajv version 8.17.1 (ajv-validator/ajv)
+2. balanced-match version 1.0.2 (https://github.com/juliangruber/balanced-match)
+3. brace-expansion version 2.0.2 (https://github.com/juliangruber/brace-expansion)
+4. change-case version 5.4.4 (https://github.com/blakeembrey/change-case)
+5. cross-spawn version 7.0.6 (git@github.com:moxystudio/node-cross-spawn)
+6. fast-deep-equal version 3.1.3 (https://github.com/epoberezkin/fast-deep-equal)
+7. fast-uri version 3.1.0 (https://github.com/fastify/fast-uri)
+8. isexe version 2.0.0 (https://github.com/isaacs/isexe)
+9. isexe version 3.1.1 (https://github.com/isaacs/isexe)
+10. json-schema-traverse version 1.0.0 (https://github.com/epoberezkin/json-schema-traverse)
+11. minimatch version 5.1.6 (https://github.com/isaacs/minimatch)
+12. mustache version 4.2.0 (https://github.com/janl/mustache.js)
+13. path-key version 3.1.1 (sindresorhus/path-key)
+14. semver version 7.7.2 (https://github.com/npm/node-semver)
+15. shebang-command version 2.0.0 (kevva/shebang-command)
+16. shebang-regex version 3.0.0 (sindresorhus/shebang-regex)
+17. which version 2.0.2 (https://github.com/isaacs/node-which)
+18. which version 5.0.0 (https://github.com/npm/node-which)
+19. yaml version 2.8.1 (github:eemeli/yaml)
 
 %% ajv NOTICES AND INFORMATION BEGIN HERE
 =====================================================
@@ -263,9 +228,11 @@ END OF fast-deep-equal NOTICES AND INFORMATION
 
 %% fast-uri NOTICES AND INFORMATION BEGIN HERE
 =====================================================
-Copyright (c) 2021 The Fastify Team
 Copyright (c) 2011-2021, Gary Court until https://github.com/garycourt/uri-js/commit/a1acf730b4bba3f1097c9f52e7d9d3aba8cdcaae
+Copyright (c) 2021-present The Fastify team
 All rights reserved.
+
+The Fastify team members are listed at https://github.com/fastify/fastify#team.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:

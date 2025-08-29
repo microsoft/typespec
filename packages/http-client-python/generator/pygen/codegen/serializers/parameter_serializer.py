@@ -178,7 +178,6 @@ class ParameterSerializer:
         pop_headers_kwarg: PopKwargType,
         pop_params_kwarg: PopKwargType,
         check_client_input: bool = False,
-        operation_name: Optional[str] = None,
         *,
         body_parameter: Optional[BodyParameterType] = None,
     ) -> list[str]:
@@ -210,12 +209,6 @@ class ParameterSerializer:
                     default_value = kwarg.client_default_value_declaration
                 if check_kwarg_dict and (kwarg.location in [ParameterLocation.HEADER, ParameterLocation.QUERY]):
                     kwarg_dict = "headers" if kwarg.location == ParameterLocation.HEADER else "params"
-                    if (
-                        kwarg.client_name == "api_version"
-                        and kwarg.code_model.options["multiapi"]
-                        and operation_name is not None
-                    ):
-                        default_value = f"self._api_version{operation_name} or {default_value}"
                     default_value = f"_{kwarg_dict}.pop('{kwarg.wire_name}', {default_value})"
 
                 retval.append(
