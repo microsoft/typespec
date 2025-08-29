@@ -102,11 +102,12 @@ public class FluentProject extends Project {
     public void integrateWithSdk() {
 //        FluentPomTemplate.setProject(this);
 
+        findPackageVersions();
+
+        // call after findPackageVersions, as findPackageVersions will populate "sdkFolder" variable
         if (FluentStatic.getFluentJavaSettings().getArtifactVersion().isEmpty()) {
             findMyVersion().ifPresent(version -> this.version = version);
         }
-
-        findPackageVersions();
 
         findPomDependencies();
 
