@@ -25,8 +25,9 @@ export async function getEntrypointTspFile(tspPath: string): Promise<string | un
     NodeSystemHost,
     configEntrypoints,
     baseDir,
-    logAdapter,
     isFilePath ? tspPath : "",
+    undefined,
+    logAdapter,
   );
 }
 
