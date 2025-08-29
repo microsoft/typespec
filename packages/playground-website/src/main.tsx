@@ -10,7 +10,7 @@ import {
 import { SwaggerUIViewer } from "@typespec/playground/react/viewers";
 import "@typespec/playground/styles.css";
 import samples from "../samples/dist/samples.js";
-import { ImportToolbarButton } from "./import-openapi3.js";
+import { ImportToolbarButton } from "./import.js";
 import "./style.css";
 
 registerMonacoDefaultWorkersForVite();

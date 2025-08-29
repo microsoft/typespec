@@ -3,19 +3,35 @@
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
-    public class InputPathParameter : InputProperty
+    public sealed class InputPathParameter : InputParameter
     {
-        public InputPathParameter(string name, string? summary, string? doc, InputType type, bool isRequired, bool isReadOnly, string? access, bool allowReserved, string serializedName) : base(name, summary, doc, type, isRequired, isReadOnly, access, serializedName)
+        public InputPathParameter(
+            string name,
+            string? summary,
+            string? doc,
+            InputType type,
+            bool isRequired,
+            bool isReadOnly,
+            string? access,
+            bool allowReserved,
+            string serializedName,
+            bool isApiVersion,
+            InputConstant? defaultValue,
+            InputParameterScope scope,
+            bool explode,
+            bool skipUrlEncoding,
+            string? serverUrlTemplate)
+            : base(name, summary, doc, type, isRequired, isReadOnly, access, serializedName, isApiVersion, defaultValue, scope)
         {
-            Name = name;
-            Summary = summary;
-            Doc = doc;
-            Type = type;
-            IsRequired = isRequired;
-            IsReadOnly = isReadOnly;
+            Explode = explode;
             AllowReserved = allowReserved;
+            SkipUrlEncoding = skipUrlEncoding;
+            ServerUrlTemplate = serverUrlTemplate;
         }
 
+        public bool Explode { get; internal set; }
         public bool AllowReserved { get; internal set; }
+        public bool SkipUrlEncoding { get; internal set; }
+        public string? ServerUrlTemplate { get; internal set; }
     }
 }

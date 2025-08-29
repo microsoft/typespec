@@ -16,7 +16,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         [Test]
         public void ContinuationTokenInBody()
         {
-            CreatePagingOperation(InputResponseLocation.Body);
+            CollectionResultDefinitionTests.CreatePagingOperation(InputResponseLocation.Body);
 
             var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
                 t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResult");
@@ -30,7 +30,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         [Test]
         public void ContinuationTokenInBodyAsync()
         {
-            CreatePagingOperation(InputResponseLocation.Body);
+            CollectionResultDefinitionTests.CreatePagingOperation(InputResponseLocation.Body);
 
             var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
                 t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsAsyncCollectionResult");
@@ -44,7 +44,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         [Test]
         public void NestedContinuationTokenInBody()
         {
-            CreatePagingOperation(InputResponseLocation.Body, isNested: true);
+            CollectionResultDefinitionTests.CreatePagingOperation(InputResponseLocation.Body, isNested: true);
 
             var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
                 t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResult");
@@ -58,7 +58,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         [Test]
         public void NestedContinuationTokenInBodyAsync()
         {
-            CreatePagingOperation(InputResponseLocation.Body, isNested: true);
+            CollectionResultDefinitionTests.CreatePagingOperation(InputResponseLocation.Body, isNested: true);
 
             var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
                 t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsAsyncCollectionResult");
@@ -72,7 +72,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         [Test]
         public void ContinuationTokenInHeader()
         {
-            CreatePagingOperation(InputResponseLocation.Header);
+            CollectionResultDefinitionTests.CreatePagingOperation(InputResponseLocation.Header);
 
             var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
                 t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResult");
@@ -86,7 +86,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         [Test]
         public void ContinuationTokenInHeaderAsync()
         {
-            CreatePagingOperation(InputResponseLocation.Header);
+            CollectionResultDefinitionTests.CreatePagingOperation(InputResponseLocation.Header);
 
             var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
                 t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsAsyncCollectionResult");
@@ -100,7 +100,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         [Test]
         public void ContinuationTokenInBodyOfT()
         {
-            CreatePagingOperation(InputResponseLocation.Body);
+            CollectionResultDefinitionTests.CreatePagingOperation(InputResponseLocation.Body);
 
             var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
                 t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResultOfT");
@@ -114,7 +114,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         [Test]
         public void ContinuationTokenInBodyOfTAsync()
         {
-            CreatePagingOperation(InputResponseLocation.Body);
+            CollectionResultDefinitionTests.CreatePagingOperation(InputResponseLocation.Body);
 
             var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
                 t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsAsyncCollectionResultOfT");
@@ -128,7 +128,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         [Test]
         public void NestedContinuationTokenInBodyOfT()
         {
-            CreatePagingOperation(InputResponseLocation.Body, isNested: true);
+            CollectionResultDefinitionTests.CreatePagingOperation(InputResponseLocation.Body, isNested: true);
 
             var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
                 t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResultOfT");
@@ -142,7 +142,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         [Test]
         public void NestedContinuationTokenInBodyOfTAsync()
         {
-            CreatePagingOperation(InputResponseLocation.Body, isNested: true);
+            CollectionResultDefinitionTests.CreatePagingOperation(InputResponseLocation.Body, isNested: true);
 
             var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
                 t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsAsyncCollectionResultOfT");
@@ -156,7 +156,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         [Test]
         public void ContinuationTokenInHeaderOfT()
         {
-            CreatePagingOperation(InputResponseLocation.Header);
+            CollectionResultDefinitionTests.CreatePagingOperation(InputResponseLocation.Header);
 
             var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
                 t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResultOfT");
@@ -170,7 +170,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         [Test]
         public void ContinuationTokenInHeaderOfTAsync()
         {
-            CreatePagingOperation(InputResponseLocation.Header);
+            CollectionResultDefinitionTests.CreatePagingOperation(InputResponseLocation.Header);
 
             var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
                 t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsAsyncCollectionResultOfT");
@@ -179,37 +179,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             var writer = new TypeProviderWriter(collectionResultDefinition!);
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
-        }
-
-        private static void CreatePagingOperation(InputResponseLocation responseLocation, bool isNested = false)
-        {
-            var inputModel = InputFactory.Model("cat", properties:
-            [
-                InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
-            ]);
-            var parameter = InputFactory.Parameter("myToken", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query);
-            var pagingMetadata = isNested ?
-                InputFactory.ContinuationTokenPagingMetadata(parameter, ["nestedItems", "cats"], ["nestedNext", "nextPage"], responseLocation)
-                : InputFactory.ContinuationTokenPagingMetadata(parameter, ["cats"], ["nextPage"], responseLocation);
-            var catsProperty = InputFactory.Property("cats", InputFactory.Array(inputModel));
-            var nextCatProperty = InputFactory.Property("nextPage", InputPrimitiveType.String);
-            IEnumerable<InputModelProperty> properties = isNested
-                ?
-                [
-                    InputFactory.Property("nestedItems", InputFactory.Model("nestedItems", properties: [catsProperty])),
-                    InputFactory.Property("nestedNext", InputFactory.Model("nestedNext", properties: [nextCatProperty]))
-                ]
-                : [catsProperty, nextCatProperty];
-            var response = InputFactory.OperationResponse(
-                [200],
-                InputFactory.Model(
-                    "page",
-                    properties: properties));
-            var operation = InputFactory.Operation("getCats", parameters: [parameter], responses: [response]);
-            var inputServiceMethod = InputFactory.PagingServiceMethod("getCats", operation, pagingMetadata: pagingMetadata);
-            var client = InputFactory.Client("catClient", methods: [inputServiceMethod]);
-
-            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [client]);
         }
     }
 }

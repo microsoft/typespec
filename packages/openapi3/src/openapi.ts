@@ -1193,6 +1193,9 @@ function createOAPIEmitter(
             schema = { ...schema, description: doc };
           }
         }
+
+        // Attach any OpenAPI extensions from the part property
+        attachExtensions(program, part.property, schema);
       }
 
       properties[partName] = schema;

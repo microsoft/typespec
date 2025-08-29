@@ -38,15 +38,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private protected virtual TypeProvider? BuildCustomCodeView(string? generatedTypeName = null)
             => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
-                BuildNamespace(),
+                BuildNamespace(), // we always use the primary namespace for customization lookups because the only case need to cover is the fullyQualifiedMetadataName match
                 generatedTypeName ?? BuildName(),
                 // Use the Type.Name so that any customizations to the declaring type are applied for the lookup.
                 DeclaringTypeProvider?.Type.Name);
 
-        private protected virtual TypeProvider? BuildLastContractView(string? generatedTypeName = null)
+        private protected virtual TypeProvider? BuildLastContractView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
             => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
-                BuildNamespace(),
-                generatedTypeName?? BuildName(),
+                generatedTypeNamespace ?? BuildNamespace(),
+                generatedTypeName ?? BuildName(),
                 DeclaringTypeProvider?.Type.Name);
 
         public TypeProvider? CustomCodeView => _customCodeView.Value;
@@ -394,7 +394,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// Resets the type provider to its initial state, clearing all cached properties and fields.
         /// This allows for the type provider to rebuild its state on subsequent calls to its properties.
         /// </summary>
-        public void Reset()
+        public virtual void Reset()
         {
             _methods = null;
             _properties = null;
@@ -496,14 +496,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (name != null)
             {
                 // Reset the custom code view to reflect the new name
+                // Type never got populated so we don't need to update the namespace
                 _customCodeView = new(BuildCustomCodeView(name));
-                _lastContractView = new(BuildLastContractView(name));
+                _lastContractView = new(BuildLastContractView(name, Type.Namespace));
                 // Give precedence to the custom code view name if it exists
-                Type.Update(_customCodeView.Value?.Name ?? name);
+                Type.Update(name: _customCodeView.Value?.Name ?? name, @namespace: _customCodeView.Value?.Type.Namespace);
             }
 
             if (@namespace != null)
             {
+                _lastContractView = new(BuildLastContractView(Type.Name, @namespace));
                 Type.Update(@namespace: @namespace);
             }
 

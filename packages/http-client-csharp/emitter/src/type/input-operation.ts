@@ -3,7 +3,7 @@
 
 import { DecoratorInfo } from "@azure-tools/typespec-client-generator-core";
 import { InputHttpOperationExample } from "./input-examples.js";
-import { InputParameter } from "./input-parameter.js";
+import { InputHttpParameter } from "./input-type.js";
 import { OperationResponse } from "./operation-response.js";
 import { RequestMethod } from "./request-method.js";
 
@@ -14,7 +14,7 @@ export interface InputOperation {
   deprecated?: string;
   doc?: string;
   accessibility?: string;
-  parameters: InputParameter[];
+  parameters: InputHttpParameter[];
   responses: OperationResponse[];
   httpMethod: RequestMethod;
   uri: string;

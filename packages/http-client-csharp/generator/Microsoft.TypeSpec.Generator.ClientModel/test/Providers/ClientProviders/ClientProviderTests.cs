@@ -516,7 +516,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             if (endpointParam?.DefaultValue != null)
             {
-                var inputEndpointParam = inputParameters.FirstOrDefault(p => p.IsEndpoint);
+                var inputEndpointParam = inputParameters
+                    .FirstOrDefault(p => p is InputEndpointParameter endpointParameter && endpointParameter.IsEndpoint);
                 var parsedValue = inputEndpointParam?.DefaultValue?.Value;
                 Assert.AreEqual(Literal(parsedValue), endpointParam?.InitializationValue);
             }
@@ -751,7 +752,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         public void ValidateMethodSignatureUsesIEnumerable()
         {
             MockHelpers.LoadMockGenerator();
-            List<InputParameter> parameters = [InputFactory.Parameter("arrayParam", InputFactory.Array(InputPrimitiveType.String))];
+            List<InputMethodParameter> methodParameters = [InputFactory.MethodParameter("arrayParam", InputFactory.Array(InputPrimitiveType.String), isRequired: true, location: InputRequestLocation.Body)];
+            List<InputParameter> parameters = [InputFactory.BodyParameter("arrayParam", InputFactory.Array(InputPrimitiveType.String))];
             var inputClient = InputFactory.Client(
                 TestClientName,
                 methods:
@@ -761,7 +763,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                         InputFactory.Operation(
                             "Foo",
                             parameters: parameters),
-                        parameters: parameters)
+                        parameters: methodParameters)
                 ]);
             var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(clientProvider);
@@ -858,7 +860,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                         "test",
                         InputFactory.Operation(
                             "OperationWithApiVersion",
-                            parameters: [InputFactory.Parameter("apiVersion", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query, kind: InputParameterKind.Client, isApiVersion: true)]))
+                            parameters: [InputFactory.QueryParameter("apiVersion", InputPrimitiveType.String, isRequired: true, scope: InputParameterScope.Client, isApiVersion: true)]))
                 ]);
             var clientProvider = new ClientProvider(client);
             Assert.IsNotNull(clientProvider);
@@ -931,8 +933,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 parent: rootClient,
                 parameters:
                 [
-                    InputFactory.Parameter("apiVersion", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Path, kind: InputParameterKind.Client, isApiVersion: true),
-                    InputFactory.Parameter("someOtherParameter", InputPrimitiveType.Url, isRequired: true, kind: InputParameterKind.Client)
+                    InputFactory.PathParameter("apiVersion", InputPrimitiveType.String, isRequired: true, scope: InputParameterScope.Client, isApiVersion: true),
+                    InputFactory.PathParameter("someOtherParameter", InputPrimitiveType.Url, isRequired: true, scope: InputParameterScope.Client)
                 ]);
 
             MockHelpers.LoadMockGenerator(clients: () => [rootClient]);
@@ -978,7 +980,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         public void ClientProviderSummaryIsPopulatedWithDefaultDocs()
         {
             var mockGenerator = MockHelpers.LoadMockGenerator(
-                clients: () => [new InputClient("testClient", @namespace: "test", string.Empty, null, null, [], [], null, null)]);
+                clients: () => [new InputClient("testClient", @namespace: "test", string.Empty, null, null, [], [], null, null, null)]);
 
             var client = mockGenerator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().SingleOrDefault();
             Assert.IsNotNull(client);
@@ -1043,21 +1045,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                             name: "Foo",
                             parameters:
                             [
-                                InputFactory.Parameter(
+                                InputFactory.QueryParameter(
                                     "queryParam",
                                     InputPrimitiveType.String,
                                     isRequired: true,
-                                    location: InputRequestLocation.Query,
-                                    kind: InputParameterKind.Client)
+                                    scope: InputParameterScope.Client)
                             ]),
                         parameters:
                         [
-                            InputFactory.Parameter(
+                            InputFactory.MethodParameter(
                                 "queryParam",
                                 InputPrimitiveType.String,
                                 isRequired: true,
                                 location: InputRequestLocation.Query,
-                                kind: InputParameterKind.Client)
+                                scope: InputParameterScope.Client)
                         ])
                 ]);
             var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
@@ -1075,11 +1076,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             MockHelpers.LoadMockGenerator();
             var client = InputFactory.Client(
                 TestClientName,
-                parameters: [InputFactory.Parameter(
+                parameters: [InputFactory.EndpointParameter(
                     "endpoint",
                     InputPrimitiveType.Url,
                     isRequired: true,
-                    kind: InputParameterKind.Client,
+                    scope: InputParameterScope.Client,
                     isEndpoint: true)]);
             var clientProvider = new ClientProvider(client);
             var constructor = clientProvider.Constructors.FirstOrDefault(
@@ -1095,11 +1096,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             MockHelpers.LoadMockGenerator();
             var client = InputFactory.Client(
                 TestClientName,
-                parameters: [InputFactory.Parameter(
+                parameters: [InputFactory.EndpointParameter(
                     parameterName,
                     InputPrimitiveType.String,
                     isRequired: true,
-                    kind: InputParameterKind.Client,
+                    scope: InputParameterScope.Client,
                     serverUrlTemplate: serverTemplate,
                     isEndpoint: true)]);
             var clientProvider = new ClientProvider(client);
@@ -1118,11 +1119,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var client = InputFactory.Client(
                 TestClientName,
                 methods: [InputFactory.BasicServiceMethod("Foo", InputFactory.Operation("bar", uri: $"{serverTemplate}/foo"))],
-                parameters: [InputFactory.Parameter(
+                parameters: [InputFactory.EndpointParameter(
                     parameterName,
                     InputPrimitiveType.String,
                     isRequired: true,
-                    kind: InputParameterKind.Client,
+                    scope: InputParameterScope.Client,
                     serverUrlTemplate: serverTemplate,
                     isEndpoint: true)]);
             var clientProvider = new ClientProvider(client);
@@ -1217,7 +1218,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                             "Operation",
                             parameters:
                             [
-                                InputFactory.Parameter(
+                                InputFactory.QueryParameter(
                                     "queryParam",
                                     InputFactory.StringEnum(
                                         "InputEnum",
@@ -1227,12 +1228,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                         ],
                                         usage: InputModelTypeUsage.Input,
                                         isExtensible: true),
-                                    isRequired: true,
-                                    location: InputRequestLocation.Query)
+                                    isRequired: true)
                             ]),
                     parameters:
                     [
-                        InputFactory.Parameter(
+                        InputFactory.MethodParameter(
                             "queryParam",
                             InputFactory.StringEnum(
                                 "InputEnum",
@@ -1307,48 +1307,43 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             {
                 yield return new TestCaseData(new List<InputParameter>
                 {
-                    InputFactory.Parameter(
+                    InputFactory.EndpointParameter(
                         "optionalParam",
                         InputPrimitiveType.String,
-                        location: InputRequestLocation.None,
-                        kind: InputParameterKind.Client),
-                    InputFactory.Parameter(
+                        scope: InputParameterScope.Client),
+
+                    InputFactory.EndpointParameter(
                         KnownParameters.Endpoint.Name,
                         InputPrimitiveType.String,
-                        location:InputRequestLocation.None,
-                        kind: InputParameterKind.Client,
+                        scope: InputParameterScope.Client,
                         isEndpoint: true)
                 });
                 yield return new TestCaseData(new List<InputParameter>
                 {
                     // have to explicitly set isRequired because we now call CreateParameter in buildFields
-                    InputFactory.Parameter(
+                    InputFactory.EndpointParameter(
                         "optionalNullableParam",
                         InputPrimitiveType.String,
-                        location: InputRequestLocation.None,
                         defaultValue: InputFactory.Constant.String("someValue"),
-                        kind: InputParameterKind.Client,
+                        scope: InputParameterScope.Client,
                         isRequired: false),
-                    InputFactory.Parameter(
+                    InputFactory.EndpointParameter(
                         "requiredParam2",
                         InputPrimitiveType.String,
-                        location: InputRequestLocation.None,
                         defaultValue: InputFactory.Constant.String("someValue"),
-                        kind: InputParameterKind.Client,
+                        scope: InputParameterScope.Client,
                         isRequired: true),
-                    InputFactory.Parameter(
+                    InputFactory.EndpointParameter(
                         "requiredParam3",
                         InputPrimitiveType.Int64,
-                        location: InputRequestLocation.None,
                         defaultValue: InputFactory.Constant.Int64(2),
-                        kind: InputParameterKind.Client,
+                        scope: InputParameterScope.Client,
                         isRequired: true),
-                    InputFactory.Parameter(
+                    InputFactory.EndpointParameter(
                         KnownParameters.Endpoint.Name,
                         InputPrimitiveType.String,
-                        location: InputRequestLocation.None,
                         defaultValue: null,
-                        kind: InputParameterKind.Client,
+                        scope: InputParameterScope.Client,
                         isEndpoint: true)
                 });
             }
@@ -1409,16 +1404,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             {
                 yield return new TestCaseData(new List<InputParameter>
                 {
-                    InputFactory.Parameter(
+                    InputFactory.PathParameter(
                         "optionalParam",
                         InputPrimitiveType.String,
-                        location: InputRequestLocation.None,
-                        kind: InputParameterKind.Client),
-                    InputFactory.Parameter(
+                        scope: InputParameterScope.Client),
+                    InputFactory.EndpointParameter(
                         KnownParameters.Endpoint.Name,
                         InputPrimitiveType.String,
-                        location:InputRequestLocation.None,
-                        kind: InputParameterKind.Client,
+                        scope: InputParameterScope.Client,
                         isEndpoint: true)
                 },
                 new List<ExpectedFieldProvider>
@@ -1430,33 +1423,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 yield return new TestCaseData(new List<InputParameter>
                 {
                     // have to explicitly set isRequired because we now call CreateParameter in buildFields
-                    InputFactory.Parameter(
+                    InputFactory.PathParameter(
                         "optionalNullableParam",
                         InputPrimitiveType.String,
-                        location: InputRequestLocation.None,
                         defaultValue: InputFactory.Constant.String("someValue"),
-                        kind: InputParameterKind.Client,
+                        scope: InputParameterScope.Client,
                         isRequired: false),
-                    InputFactory.Parameter(
+                    InputFactory.PathParameter(
                         "requiredParam2",
                         InputPrimitiveType.String,
-                        location: InputRequestLocation.None,
                         defaultValue: InputFactory.Constant.String("someValue"),
-                        kind: InputParameterKind.Client,
+                        scope: InputParameterScope.Client,
                         isRequired: true),
-                    InputFactory.Parameter(
+                    InputFactory.PathParameter(
                         "requiredParam3",
                         InputPrimitiveType.Int64,
-                        location: InputRequestLocation.None,
                         defaultValue: InputFactory.Constant.Int64(2),
-                        kind: InputParameterKind.Client,
+                        scope: InputParameterScope.Client,
                         isRequired: true),
-                    InputFactory.Parameter(
+                    InputFactory.EndpointParameter(
                         KnownParameters.Endpoint.Name,
                         InputPrimitiveType.String,
-                        location: InputRequestLocation.None,
                         defaultValue: null,
-                        kind: InputParameterKind.Client,
+                        scope: InputParameterScope.Client,
                         isEndpoint: true)
                 },
                 new List<ExpectedFieldProvider>
@@ -1526,14 +1515,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                             "CreateMessage",
                             parameters:
                             [
-                                InputFactory.Parameter(
+                                InputFactory.BodyParameter(
                                     "spread",
                                     _spreadModel,
-                                    location: InputRequestLocation.Body,
                                     isRequired: true,
-                                    kind: InputParameterKind.Spread),
+                                    scope: InputParameterScope.Spread),
                             ]),
-                            parameters:  [InputFactory.Parameter("p1", InputPrimitiveType.String, kind: InputParameterKind.Spread, isRequired: true)])
+                            parameters:  [InputFactory.MethodParameter("p1", InputPrimitiveType.String, scope: InputParameterScope.Spread, isRequired: true)])
                     ]));
             }
         }
@@ -1555,34 +1543,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             {
                 yield return new TestCaseData(new List<InputParameter>
                 {
-                    InputFactory.Parameter(
+                    InputFactory.PathParameter(
                         "optionalParam",
                         InputPrimitiveType.String,
-                        location: InputRequestLocation.None,
-                        kind: InputParameterKind.Client),
-                    InputFactory.Parameter(
+                        scope: InputParameterScope.Client),
+                    InputFactory.EndpointParameter(
                         KnownParameters.Endpoint.Name,
                         InputPrimitiveType.String,
-                        location: InputRequestLocation.None,
                         defaultValue: InputFactory.Constant.String("someValue"),
-                        kind: InputParameterKind.Client,
+                        scope: InputParameterScope.Client,
                         isEndpoint: true)
                 }).SetProperty("caseName", "WithDefault");
                 // scenario where endpoint is required
                 yield return new TestCaseData(new List<InputParameter>
                 {
-                    InputFactory.Parameter(
+                    InputFactory.EndpointParameter(
                         KnownParameters.Endpoint.Name,
                         InputPrimitiveType.String,
-                        location: InputRequestLocation.None,
-                        kind: InputParameterKind.Client,
+                        scope: InputParameterScope.Client,
                         isRequired: true,
                         isEndpoint: true),
-                    InputFactory.Parameter(
+                    InputFactory.PathParameter(
                         "optionalParam",
                         InputPrimitiveType.String,
-                        location: InputRequestLocation.None,
-                        kind: InputParameterKind.Client)
+                        scope: InputParameterScope.Client)
                 }).SetProperty("caseName", "WithRequired");
             }
         }
@@ -1598,7 +1582,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                         "TestOperation",
                         parameters:
                         [
-                            InputFactory.Parameter(
+                            InputFactory.BodyParameter(
                                 "body",
                                 InputFactory.Model(
                                     "ModelWithHeader",
@@ -1607,13 +1591,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                         InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true, isHttpMetadata: true),
                                         InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
                                     ]),
-                                location: InputRequestLocation.Body,
                                 isRequired: true),
-                            InputFactory.Parameter("foo", InputPrimitiveType.String, location: InputRequestLocation.Header, isRequired: true),
+                            InputFactory.HeaderParameter("foo", InputPrimitiveType.String, isRequired: true),
                         ]),
                     parameters:
                     [
-                        InputFactory.Parameter(
+                        InputFactory.MethodParameter(
                             "body",
                             InputFactory.Model(
                                 "ModelWithHeader",
@@ -1632,7 +1615,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                         "TestOperation",
                         parameters:
                         [
-                            InputFactory.Parameter(
+                            InputFactory.BodyParameter(
                                 "body",
                                 InputFactory.Model(
                                     "ModelWithQuery",
@@ -1641,13 +1624,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                         InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true, isHttpMetadata: true),
                                         InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
                                     ]),
-                                location: InputRequestLocation.Body,
                                 isRequired: true),
-                            InputFactory.Parameter("foo", InputPrimitiveType.String, location: InputRequestLocation.Query, isRequired: true),
+                            InputFactory.QueryParameter("foo", InputPrimitiveType.String, isRequired: true),
                         ]),
                     parameters:
                     [
-                        InputFactory.Parameter(
+                        InputFactory.MethodParameter(
                             "body",
                             InputFactory.Model(
                                 "ModelWithQuery",
@@ -1666,7 +1648,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                         "TestOperation",
                         parameters:
                         [
-                            InputFactory.Parameter(
+                            InputFactory.BodyParameter(
                                 "body",
                                 InputFactory.Model(
                                     "ModelWithPathParam",
@@ -1675,13 +1657,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                         InputFactory.Property("foo", InputPrimitiveType.String, isRequired : true, isHttpMetadata : true),
                                         InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
                                     ]),
-                                location: InputRequestLocation.Body,
                                 isRequired: true),
-                            InputFactory.Parameter("foo", InputPrimitiveType.String, location: InputRequestLocation.Path, isRequired: true),
+                            InputFactory.HeaderParameter("foo", InputPrimitiveType.String, isRequired : true),
                         ]),
                     parameters:
                     [
-                        InputFactory.Parameter(
+                        InputFactory.MethodParameter(
                             "body",
                             InputFactory.Model(
                                 "ModelWithPathParam",
@@ -1700,7 +1681,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                         "TestOperation",
                         parameters:
                         [
-                            InputFactory.Parameter(
+                            InputFactory.BodyParameter(
                                 "body",
                                 InputFactory.Model(
                                     "ModelWithMixedParams",
@@ -1711,15 +1692,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                         InputFactory.Property("bird", InputPrimitiveType.String, isRequired : true, isHttpMetadata : true),
                                         InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
                                     ]),
-                                location: InputRequestLocation.Body,
                                 isRequired: true),
-                            InputFactory.Parameter("cat", InputPrimitiveType.String, location: InputRequestLocation.Path, isRequired: true),
-                            InputFactory.Parameter("dog", InputPrimitiveType.String, location: InputRequestLocation.Query, isRequired: true),
-                            InputFactory.Parameter("bird", InputPrimitiveType.String, location: InputRequestLocation.Header, isRequired: true),
+                            InputFactory.PathParameter("cat", InputPrimitiveType.String, isRequired: true),
+                            InputFactory.QueryParameter("dog", InputPrimitiveType.String, isRequired: true),
+                            InputFactory.HeaderParameter("bird", InputPrimitiveType.String, isRequired: true),
                         ]),
                     parameters:
                     [
-                        InputFactory.Parameter(
+                        InputFactory.MethodParameter(
                             "body",
                             InputFactory.Model(
                                 "ModelWithPathParam",
@@ -1746,28 +1726,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                         "TestOperation",
                         parameters:
                         [
-                            InputFactory.Parameter(
+                            InputFactory.QueryParameter(
                                     "p1",
                                     InputPrimitiveType.String,
-                                    location: InputRequestLocation.None,
                                     isRequired: true),
-                                InputFactory.Parameter(
+                                InputFactory.QueryParameter(
                                     "p2",
                                     InputPrimitiveType.Int64,
-                                    location: InputRequestLocation.None,
                                     isRequired: true),
                         ]),
                     parameters:
                     [
-                        InputFactory.Parameter(
+                        InputFactory.MethodParameter(
                                 "p1",
                                 InputPrimitiveType.String,
-                                location: InputRequestLocation.None,
+                                location: InputRequestLocation.Query,
                                 isRequired: true),
-                            InputFactory.Parameter(
+                            InputFactory.MethodParameter(
                                 "p2",
                                 InputPrimitiveType.Int64,
-                                location: InputRequestLocation.None,
+                                location: InputRequestLocation.Query,
                                 isRequired: true),
                     ]), false, false);
 
@@ -1780,28 +1758,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                             "TestOperation2",
                             parameters:
                             [
-                                InputFactory.Parameter(
+                                InputFactory.QueryParameter(
                                     "p1",
                                     InputPrimitiveType.String,
-                                    location: InputRequestLocation.None,
                                     isRequired: false),
-                                InputFactory.Parameter(
+                                InputFactory.QueryParameter(
                                     "p2",
                                     InputPrimitiveType.Int64,
-                                    location: InputRequestLocation.None,
                                     isRequired: true),
                             ]),
                         parameters:
                         [
-                            InputFactory.Parameter(
+                            InputFactory.MethodParameter(
                                 "p1",
                                 InputPrimitiveType.String,
-                                location: InputRequestLocation.None,
+                                location: InputRequestLocation.Query,
                                 isRequired: false),
-                            InputFactory.Parameter(
+                            InputFactory.MethodParameter(
                                 "p2",
                                 InputPrimitiveType.Int64,
-                                location: InputRequestLocation.None,
+                                location: InputRequestLocation.Query,
                                 isRequired: true),
                         ]), false, true);
 
@@ -1814,28 +1790,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                             "TestOperation3",
                             parameters:
                             [
-                                InputFactory.Parameter(
+                                InputFactory.QueryParameter(
                                     "p1",
                                     InputPrimitiveType.Int32,
-                                    location: InputRequestLocation.None,
                                     isRequired: false),
-                                InputFactory.Parameter(
+                                InputFactory.QueryParameter(
                                     "p2",
                                     InputPrimitiveType.Int64,
-                                    location: InputRequestLocation.None,
                                     isRequired: true),
                             ]),
                          parameters:
                         [
-                            InputFactory.Parameter(
+                            InputFactory.MethodParameter(
                                 "p1",
                                 InputPrimitiveType.Int32,
-                                location: InputRequestLocation.None,
+                                location: InputRequestLocation.Query,
                                 isRequired: false),
-                            InputFactory.Parameter(
+                            InputFactory.MethodParameter(
                                 "p2",
                                 InputPrimitiveType.Int64,
-                                location: InputRequestLocation.None,
+                                location: InputRequestLocation.Query,
                                 isRequired: true),
                         ]), false, true);
 
@@ -1847,14 +1821,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                             "TestOperation",
                              parameters:
                              [
-                                 InputFactory.Parameter(
+                                 InputFactory.BodyParameter(
                                      "p1",
-                                     InputPrimitiveType.String,
-                                     location: InputRequestLocation.Body),
+                                     InputPrimitiveType.String),
                              ]),
                         parameters:
                         [
-                            InputFactory.Parameter(
+                            InputFactory.MethodParameter(
                                 "p1",
                                 InputPrimitiveType.String,
                                 location: InputRequestLocation.Body),
@@ -1868,25 +1841,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                             "TestOperation",
                            parameters:
                            [
-                                InputFactory.Parameter(
+                                InputFactory.QueryParameter(
                                     "p1",
                                     InputPrimitiveType.String,
-                                    location: InputRequestLocation.None,
                                     isRequired: true),
-                                InputFactory.Parameter(
+                                InputFactory.BodyParameter(
                                     "p2",
                                     InputFactory.Model("SampleModel"),
-                                    location: InputRequestLocation.Body,
                                     isRequired: true),
                            ]),
                         parameters:
                         [
-                            InputFactory.Parameter(
+                            InputFactory.MethodParameter(
                                 "p1",
                                 InputPrimitiveType.String,
-                                location: InputRequestLocation.None,
+                                location: InputRequestLocation.Query,
                                 isRequired: true),
-                            InputFactory.Parameter(
+                            InputFactory.MethodParameter(
                                 "p2",
                                 InputFactory.Model("SampleModel"),
                                 location: InputRequestLocation.Body,
@@ -1902,25 +1873,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                             "TestOperation",
                             parameters:
                             [
-                                InputFactory.Parameter(
+                                InputFactory.QueryParameter(
                                     "p1",
                                     InputPrimitiveType.String,
-                                    location: InputRequestLocation.None,
                                     isRequired: true),
-                                InputFactory.Parameter(
+                                InputFactory.BodyParameter(
                                     "p2",
                                     InputFactory.Model("SampleModel"),
-                                    location: InputRequestLocation.Body,
                                     isRequired: false),
                             ]),
                         parameters:
                         [
-                            InputFactory.Parameter(
+                            InputFactory.MethodParameter(
                                 "p1",
                                 InputPrimitiveType.String,
-                                location: InputRequestLocation.None,
+                                location: InputRequestLocation.Query,
                                 isRequired: true),
-                            InputFactory.Parameter(
+                            InputFactory.MethodParameter(
                                 "p2",
                                 InputFactory.Model("SampleModel"),
                                 location: InputRequestLocation.Body,
@@ -1946,11 +1915,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             {
                 // string primitive type
                 yield return new TestCaseData(
-                    InputFactory.Parameter(
+                    InputFactory.EndpointParameter(
                         "param",
                         InputPrimitiveType.String,
-                        location: InputRequestLocation.None,
-                        kind: InputParameterKind.Client,
+                        scope: InputParameterScope.Client,
                         isEndpoint: true,
                         defaultValue: InputFactory.Constant.String("mockValue")),
                     New.Instance(KnownParameters.Endpoint.Type, Literal("mockvalue")));
@@ -1961,24 +1929,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         {
             get
             {
-                InputParameter endpointParameter = InputFactory.Parameter(
+                InputEndpointParameter endpointParameter = InputFactory.EndpointParameter(
                     "endpoint",
                     InputPrimitiveType.String,
-                    location: InputRequestLocation.Uri,
                     isRequired: true,
-                    kind: InputParameterKind.Client,
+                    scope: InputParameterScope.Client,
                     isEndpoint: true,
                     isApiVersion: false);
 
-                InputParameter stringApiVersionParameter = InputFactory.Parameter(
+                InputParameter stringApiVersionParameter = InputFactory.PathParameter(
                     "apiVersion",
                     InputPrimitiveType.String,
-                    location: InputRequestLocation.Uri,
                     isRequired: true,
-                    kind: InputParameterKind.Client,
+                    scope: InputParameterScope.Client,
                     isApiVersion: true);
 
-                InputParameter enumApiVersionParameter = InputFactory.Parameter(
+                InputParameter enumApiVersionParameter = InputFactory.PathParameter(
                     "apiVersion",
                     InputFactory.StringEnum(
                         "InputEnum",
@@ -1988,9 +1954,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                         ],
                         usage: InputModelTypeUsage.Input,
                         isExtensible: true),
-                    location: InputRequestLocation.Uri,
                     isRequired: true,
-                    kind: InputParameterKind.Client,
+                    scope: InputParameterScope.Client,
                     isApiVersion: true);
 
                 yield return new TestCaseData(

@@ -531,6 +531,51 @@ model Foo {
   });
 });
 
+describe("Anonymous models should be included in library", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("Anonymous enum should be returned", async () => {
+    const program = await typeSpecCompile(
+      `
+          model Animal {
+            name: string;
+            hair?:
+              | string
+              | "orange"
+              | "black"
+              | "white"
+              | null
+        }
+
+          @post
+          op anonymousBody(@body animal: Animal): void;
+          `,
+      runner,
+      { IsVersionNeeded: false, IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    ok(root);
+
+    // validate service method
+    const serviceMethod = root.clients[0].methods[0];
+    ok(serviceMethod);
+
+    // validate the root model
+    const animalModel = root.models.find((m) => m.name === "Animal");
+    ok(animalModel);
+
+    // validate the anonymous enum
+    const anonymousEnum = root.enums.find((m) => m.name === "AnimalHair");
+    ok(anonymousEnum);
+  });
+});
+
 describe("Header property", () => {
   let runner: TestHost;
 
@@ -579,7 +624,7 @@ op testOperation(@bodyRoot body: HeaderModel): void;
 
     const fooParameter = method.operation.parameters.find((p) => p.name === "foo");
     ok(fooParameter);
-    strictEqual(fooParameter.nameInRequest, "x-foo");
+    strictEqual(fooParameter.serializedName, "x-foo");
   });
 
   it("Header property should be included in the model if it's read-only", async () => {
@@ -685,7 +730,7 @@ op testOperation(@bodyRoot body: HeaderModel): void;
 
     const fooParameter = method.operation.parameters.find((p) => p.name === "foo");
     ok(fooParameter);
-    strictEqual(fooParameter.nameInRequest, "x-foo");
+    strictEqual(fooParameter.serializedName, "x-foo");
   });
 });
 

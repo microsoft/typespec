@@ -16,9 +16,9 @@ namespace Sample
             uri.AppendPath("/", false);
             uri.AppendPath(p1, true);
             uri.AppendPath("/", false);
-            uri.AppendPathDelimited(p2, " ", null, true);
+            uri.AppendPathDelimited(p2, ",", null, true);
             uri.AppendPath("/", false);
-            uri.AppendPathDelimited(p3, null, null, true);
+            uri.AppendPathDelimited(p3, ",", null, true);
             global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             message.ResponseClassifier = PipelineMessageClassifier200;
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
