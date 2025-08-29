@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 
 namespace Microsoft.TypeSpec.Generator.Input
@@ -118,6 +119,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public InputType? AdditionalProperties { get; internal set; }
         public bool IsUnknownDiscriminatorModel { get; init; }
         public bool IsPropertyBag { get; init; }
+        public bool IsDynamicModel { get; internal set; }
         public InputSerializationOptions SerializationOptions { get; internal set; }
 
         public IEnumerable<InputModelType> GetSelfAndBaseModels() => EnumerateBase(this);

@@ -470,6 +470,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 Default,
                 parameter.IsRef,
                 parameter.IsOut,
+                parameter.IsIn,
                 parameter.IsParams,
                 parameter.Attributes,
                 parameter.Property,

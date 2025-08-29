@@ -2520,7 +2520,12 @@
       "crossLanguageDefinitionId": "SampleTypeSpec.NotFriend",
       "usage": "Output,Spread,Json",
       "doc": "this is not a friendly model but with a friendly name",
-      "decorators": [],
+      "decorators": [
+        {
+          "name": "TypeSpec.HttpClient.CSharp.@dynamicModel",
+          "arguments": {}
+        }
+      ],
       "properties": [
         {
           "$id": "229",

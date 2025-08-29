@@ -444,6 +444,7 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             AppendRawIf("out ", parameter.IsOut);
+            AppendRawIf("in ", parameter.IsIn);
             AppendRawIf("ref ", parameter.IsRef);
             AppendRawIf("params ", parameter.IsParams);
 

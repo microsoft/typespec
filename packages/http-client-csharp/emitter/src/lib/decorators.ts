@@ -15,6 +15,13 @@ import {
 import type { DynamicModelDecorator } from "../../../generated-defs/TypeSpec.HttpClient.CSharp.js";
 import { ExternalDocs } from "../type/external-docs.js";
 
+/**
+ * The fully qualified decorator name pattern for the dynamicModel decorator.
+ * This is used in SDK context options to ensure the decorator is properly recognized.
+ * @beta
+ */
+export const DYNAMIC_MODEL_DECORATOR_PATTERN = "TypeSpec\\.HttpClient\\.CSharp\\.@dynamicModel";
+
 const externalDocsKey = Symbol("externalDocs");
 export function getExternalDocs(context: SdkContext, entity: Type): ExternalDocs | undefined {
   return context.program.stateMap(externalDocsKey).get(entity);
