@@ -104,7 +104,7 @@ public class FluentProject extends Project {
 
         findPackageVersions();
 
-        // call after findPackageVersions, as findPackageVersions will populate "sdkFolder" variable
+        // call after findPackageVersions, as findPackageVersions will populate the sdkFolder field
         if (FluentStatic.getFluentJavaSettings().getArtifactVersion().isEmpty()) {
             findMyVersion().ifPresent(version -> this.version = version);
         }
