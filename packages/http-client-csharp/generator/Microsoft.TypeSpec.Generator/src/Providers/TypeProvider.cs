@@ -36,9 +36,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
         }
 
-        private protected virtual TypeProvider? BuildCustomCodeView(string? generatedTypeName = null)
+        private protected virtual TypeProvider? BuildCustomCodeView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
             => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
-                BuildNamespace(), // we always use the primary namespace for customization lookups because the only case need to cover is the fullyQualifiedMetadataName match
+                generatedTypeNamespace ?? BuildNamespace(),
                 generatedTypeName ?? BuildName(),
                 // Use the Type.Name so that any customizations to the declaring type are applied for the lookup.
                 DeclaringTypeProvider?.Type.Name);
@@ -496,8 +496,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (name != null)
             {
                 // Reset the custom code view to reflect the new name
-                // Type never got populated so we don't need to update the namespace
-                _customCodeView = new(BuildCustomCodeView(name));
+                _customCodeView = new(BuildCustomCodeView(name, Type.Namespace));
                 _lastContractView = new(BuildLastContractView(name, Type.Namespace));
                 // Give precedence to the custom code view name if it exists
                 Type.Update(name: _customCodeView.Value?.Name ?? name, @namespace: _customCodeView.Value?.Type.Namespace);
@@ -505,8 +504,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (@namespace != null)
             {
+                // Reset the custom code view to reflect the new namespace
+                _customCodeView = new(BuildCustomCodeView(Type.Name, @namespace));
                 _lastContractView = new(BuildLastContractView(Type.Name, @namespace));
-                Type.Update(@namespace: @namespace);
+                Type.Update(@namespace: _customCodeView.Value?.Type.Namespace ?? @namespace);
             }
 
             // Rebuild the canonical view

@@ -231,15 +231,19 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
-        public async Task TestCanCustomizeTypeWithChangedName()
+        public async Task TestCanCustomizePropertyTypeWithChangedNameAndChangedNamespace()
         {
             await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-            var testTypeProvider = new TestTypeProvider();
-            Assert.IsNotNull(testTypeProvider.CustomCodeView);
+            var inputProperty = InputFactory.Property("Prop", InputPrimitiveType.String);
+            var inputModel = InputFactory.Model("Test", properties: [inputProperty]);
+            var property = new PropertyProvider(inputProperty, new TestTypeProvider());
+            var testTypeProvider = new TestTypeProvider(properties: [property]);
 
             testTypeProvider.Update(@namespace: "Random");
-            Assert.IsNotNull(testTypeProvider.CustomCodeView); // custom code always take effect when the name matches
-            Assert.AreEqual("TestTypeProvider", testTypeProvider.Type.Name);
+            testTypeProvider.Update(name: "Foo");
+            Assert.IsNotNull(testTypeProvider.CustomCodeView);
+            Assert.AreEqual(1, testTypeProvider.CanonicalView.Properties.Count);
+            Assert.AreEqual(typeof(System.Int32), testTypeProvider.CanonicalView.Properties[0].Type.FrameworkType);
         }
     }
 }
