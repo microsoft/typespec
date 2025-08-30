@@ -6,6 +6,7 @@ using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
@@ -97,7 +98,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
 
             public override MethodBodyStatement[] CreateMessage(HttpRequestOptionsApi requestOptions,
                 ValueExpression uri,
-                ValueExpression method,
+                ScopedApi<string> method,
                 ValueExpression responseClassifier,
                 out HttpMessageApi message,
                 out HttpRequestApi request)

@@ -27,7 +27,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public abstract MethodBodyStatement[] CreateMessage(
             HttpRequestOptionsApi requestOptions,
             ValueExpression uri,
-            ValueExpression method,
+            ScopedApi<string> method,
             ValueExpression responseClassifier,
             out HttpMessageApi message,
             out HttpRequestApi request);
