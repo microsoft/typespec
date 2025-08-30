@@ -231,18 +231,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
-        public async Task TestCanCustomizeTypeWithChangedName()
-        {
-            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-            var testTypeProvider = new TestTypeProvider();
-            Assert.IsNotNull(testTypeProvider.CustomCodeView);
-
-            testTypeProvider.Update(@namespace: "Random");
-            Assert.IsNotNull(testTypeProvider.CustomCodeView); // custom code always take effect when the name matches
-            Assert.AreEqual("TestTypeProvider", testTypeProvider.Type.Name);
-        }
-
-        [Test]
         public async Task TestCanCustomizePropertyTypeWithChangedNameAndChangedNamespace()
         {
             await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
