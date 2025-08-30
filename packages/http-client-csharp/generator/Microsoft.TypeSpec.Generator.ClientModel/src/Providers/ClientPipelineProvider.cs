@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.Expressions;
@@ -61,7 +60,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public override ClientPipelineApi ToExpression() => this;
 
-        public override MethodBodyStatement[] ProcessMessage(HttpMessageApi message, HttpRequestOptionsApi options)
+        public override MethodBodyStatement[] SendMessage(HttpMessageApi message, HttpRequestOptionsApi options)
             =>
             [
                 Original.Invoke(nameof(ClientPipeline.Send), [message]).Terminate(),
@@ -75,7 +74,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Return(response)
             ];
 
-        public override MethodBodyStatement[] ProcessMessageAsync(HttpMessageApi message, HttpRequestOptionsApi options)
+        public override MethodBodyStatement[] SendMessageAsync(HttpMessageApi message, HttpRequestOptionsApi options)
             =>
             [
                 Original.Invoke(nameof(ClientPipeline.SendAsync), [message], true).Terminate(),

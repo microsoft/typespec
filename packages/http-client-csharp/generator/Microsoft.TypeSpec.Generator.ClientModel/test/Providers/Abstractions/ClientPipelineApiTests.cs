@@ -109,10 +109,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
 
             public override ClientPipelineApi ToExpression() => this;
 
-            public override MethodBodyStatement[] ProcessMessage(HttpMessageApi message, HttpRequestOptionsApi options)
+            public override MethodBodyStatement[] SendMessage(HttpMessageApi message, HttpRequestOptionsApi options)
                 => [Original.Invoke("GetFakeProcessMessage", [message, options]).Terminate()];
 
-            public override MethodBodyStatement[] ProcessMessageAsync(HttpMessageApi message, HttpRequestOptionsApi options)
+            public override MethodBodyStatement[] SendMessageAsync(HttpMessageApi message, HttpRequestOptionsApi options)
                 => [Original.Invoke("GetFakeProcessMessageAsync", [message, options]).Terminate()];
         }
     }
