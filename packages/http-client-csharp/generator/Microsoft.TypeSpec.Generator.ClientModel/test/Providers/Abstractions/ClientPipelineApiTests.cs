@@ -8,6 +8,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
+using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
 {
@@ -85,8 +86,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
             public override ValueExpression Create(ValueExpression options, ValueExpression perRetryPolicies)
                 => Original.Invoke("GetFakeCreate", [options, perRetryPolicies]);
 
-            public override ValueExpression CreateMessage(HttpRequestOptionsApi requestOptions, ValueExpression uri, ValueExpression method, ValueExpression responseClassifier)
-                => Original.Invoke("GetFakeCreateMessage", [requestOptions, uri, method, responseClassifier]);
+            public override MethodBodyStatement[] CreateMessage(HttpRequestOptionsApi requestOptions,
+                ValueExpression uri,
+                ValueExpression method,
+                ValueExpression responseClassifier,
+                out HttpMessageApi message,
+                out HttpRequestApi request)
+            =>
+            [
+               Declare("message", Original.Invoke("GetFakeCreateMessage", [requestOptions, uri, method, responseClassifier]).ToApi<HttpMessageApi>(), out message),
+               Declare("request", message.Request().ToExpression(), out request)
+            ];
 
             public override ClientPipelineApi FromExpression(ValueExpression expression)
                 => new TestClientPipelineApi(expression);
