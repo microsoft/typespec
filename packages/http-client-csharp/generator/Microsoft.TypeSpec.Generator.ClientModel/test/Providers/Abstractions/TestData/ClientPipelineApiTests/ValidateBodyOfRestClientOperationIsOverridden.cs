@@ -4,7 +4,7 @@ if ((fooQuery != null))
 {
     uri.AppendQuery("foo-query", fooQuery, true);
 }
-global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.GetFakeCreateMessage(options, uri.ToUri(), "GET", PipelineMessageClassifier200);
+global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.GetFakeCreateMessage(options, uri, "GET", PipelineMessageClassifier200);
 global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
 if ((fooHeader != null))
 {

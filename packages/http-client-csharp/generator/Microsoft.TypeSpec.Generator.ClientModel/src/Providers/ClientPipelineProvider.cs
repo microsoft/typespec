@@ -42,7 +42,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             out HttpRequestApi request)
             =>
             [
-                Declare("message", new PipelineMessageProvider(Original.Invoke(nameof(ClientPipeline.CreateMessage), [uri, method, responseClassifier])), out message),
+                Declare("message", new PipelineMessageProvider(Original.Invoke(nameof(ClientPipeline.CreateMessage), [uri.Invoke("ToUri"), method, responseClassifier])), out message),
                 Declare("request", message.Request(), out request),
             ];
 
