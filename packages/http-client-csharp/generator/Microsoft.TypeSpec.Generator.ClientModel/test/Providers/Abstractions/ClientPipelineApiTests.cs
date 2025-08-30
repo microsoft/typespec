@@ -4,6 +4,7 @@
 using System.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
+using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
@@ -56,7 +57,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
 
         private static ClientProvider CreateTestClient()
         {
-            var inputServiceMethod = InputFactory.BasicServiceMethod("test", InputFactory.Operation("foo"));
+            var inputServiceMethod = InputFactory.BasicServiceMethod(
+                "test",
+                InputFactory.Operation(
+                    "foo",
+                    parameters:
+                    [
+                        InputFactory.HeaderParameter("foo-header", InputPrimitiveType.String),
+                        InputFactory.QueryParameter("foo-query", InputPrimitiveType.String)
+                    ]));
             var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
             MockHelpers.LoadMockGenerator(clientPipelineApi: TestClientPipelineApi.Instance);
             var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
