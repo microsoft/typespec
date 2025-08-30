@@ -24,7 +24,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import com.microsoft.typespec.http.client.generator.util.FileUtil;
 import com.microsoft.typespec.http.client.generator.util.MetadataUtil;
-import java.io.File;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -131,8 +131,8 @@ public class TypeSpecFluentPlugin extends FluentGen {
 
     @Override
     public void writeFile(String fileName, String content, List<Object> sourceMap) {
-        File outputFile = FileUtil.writeToFile(emitterOptions.getOutputDir(), fileName, content);
-        LOGGER.info("Write file: {}", outputFile.getAbsolutePath());
+        Path outputFile = FileUtil.writeToFile(emitterOptions.getOutputDir(), fileName, content);
+        LOGGER.info("Write file: {}", outputFile.toAbsolutePath());
     }
 
     @Override

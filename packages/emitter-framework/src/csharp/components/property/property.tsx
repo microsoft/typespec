@@ -5,6 +5,7 @@ import { type ModelProperty, resolveEncodedName, type Type } from "@typespec/com
 import { useTsp } from "../../../core/index.js";
 import { TypeExpression } from "../type-expression.jsx";
 import { getDocComments } from "../utils/doc-comments.jsx";
+import { getNullableUnionInnerType } from "../utils/nullable-util.js";
 
 export interface PropertyProps {
   type: ModelProperty;
@@ -47,22 +48,14 @@ function JsonNameAttribute(props: JsonNameAttributeProps): Children {
 function preprocessPropertyType(prop: ModelProperty): { type: Type; nullable: boolean } {
   const type = prop.type;
 
-  if (prop.optional) {
-    return { type, nullable: true };
-  }
-
-  const { $ } = useTsp();
-
   if (type.kind === "Union") {
-    const variants = type.variants;
-    const nonNullVariant = [...variants.values()].find((v) => v.type !== $.intrinsic.null);
-    const nullVariant = [...variants.values()].find((v) => v.type !== $.intrinsic.null);
-    if (nonNullVariant && nullVariant && variants.size === 2) {
-      return { type: nonNullVariant.type, nullable: true };
+    const innerType = getNullableUnionInnerType(type);
+    if (innerType) {
+      return { type: innerType, nullable: true };
     } else {
-      return { type, nullable: false };
+      return { type, nullable: prop.optional };
     }
   } else {
-    return { type, nullable: false };
+    return { type, nullable: prop.optional };
   }
 }
