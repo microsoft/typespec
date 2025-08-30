@@ -5,6 +5,7 @@ import { type ModelProperty, resolveEncodedName, type Type } from "@typespec/com
 import { useTsp } from "../../../core/index.js";
 import { TypeExpression } from "../type-expression.jsx";
 import { getDocComments } from "../utils/doc-comments.jsx";
+import { getNullableUnionInnerType } from "../utils/nullable-util.js";
 
 export interface PropertyProps {
   type: ModelProperty;
@@ -16,7 +17,7 @@ export interface PropertyProps {
  * Create a C# property declaration from a TypeSpec property type.
  */
 export function Property(props: PropertyProps): Children {
-  const result = preprocessPropertyType(props.type.type);
+  const result = preprocessPropertyType(props.type);
   const { $ } = useTsp();
 
   return (
@@ -44,19 +45,17 @@ function JsonNameAttribute(props: JsonNameAttributeProps): Children {
   return <Attribute name="System.Text.Json.JsonPropertyName" args={[JSON.stringify(jsonName)]} />;
 }
 
-function preprocessPropertyType(type: Type): { type: Type; nullable: boolean } {
-  const { $ } = useTsp();
+function preprocessPropertyType(prop: ModelProperty): { type: Type; nullable: boolean } {
+  const type = prop.type;
 
   if (type.kind === "Union") {
-    const variants = type.variants;
-    const nonNullVariant = [...variants.values()].find((v) => v.type !== $.intrinsic.null);
-    const nullVariant = [...variants.values()].find((v) => v.type !== $.intrinsic.null);
-    if (nonNullVariant && nullVariant && variants.size === 2) {
-      return { type: nonNullVariant.type, nullable: true };
+    const innerType = getNullableUnionInnerType(type);
+    if (innerType) {
+      return { type: innerType, nullable: true };
     } else {
-      return { type, nullable: false };
+      return { type, nullable: prop.optional };
     }
   } else {
-    return { type, nullable: false };
+    return { type, nullable: prop.optional };
   }
 }
