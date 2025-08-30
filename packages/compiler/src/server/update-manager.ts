@@ -1,16 +1,14 @@
 import { TextDocumentIdentifier } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import {
-  ENABLE_UPDATE_MANAGER_LOGGING,
-  UPDATE_DEBOUNCE_TIME,
-  UPDATE_PARALLEL_LIMIT,
-} from "./constants.js";
+import { ENABLE_UPDATE_MANAGER_LOGGING, UPDATE_PARALLEL_LIMIT } from "./constants.js";
 import { ServerLog } from "./types.js";
 
 interface PendingUpdate {
   latest: TextDocument | TextDocumentIdentifier;
   latestUpdateTimestamp: number;
 }
+
+export type UpdateType = "opened" | "changed";
 
 type UpdateCallback = (updates: PendingUpdate[]) => Promise<void>;
 /**
@@ -19,9 +17,11 @@ type UpdateCallback = (updates: PendingUpdate[]) => Promise<void>;
 export class UpdateManger {
   #pendingUpdates = new Map<string, PendingUpdate>();
   #updateCb?: UpdateCallback;
-  // overall version which should be bumped for any doc change
-  #version = 0;
+  // overall version which should be bumped for any actual doc change
+  #docChangedVersion = 0;
   #scheduleBatchUpdate: () => void;
+  #docChangedTimesteps: number[] = [];
+
   private _log: (sl: ServerLog) => void;
 
   constructor(log: (sl: ServerLog) => void) {
@@ -36,7 +36,7 @@ export class UpdateManger {
           await this.#update(Array.from(updates.values()));
         }
       },
-      UPDATE_DEBOUNCE_TIME,
+      this.getAdaptiveDebounceDelay,
       this._log,
     );
   }
@@ -45,12 +45,62 @@ export class UpdateManger {
     this.#updateCb = callback;
   }
 
-  public get version() {
-    return this.#version;
+  public get docChangedVersion() {
+    return this.#docChangedVersion;
   }
 
-  public scheduleUpdate(document: TextDocument | TextDocumentIdentifier) {
-    this.#version++;
+  private pushDocChangedTimestamp() {
+    const now = Date.now();
+    this.#docChangedTimesteps = [...this.getWindowedDocChangedTimesteps(), now];
+  }
+
+  private readonly WINDOW = 5000;
+  private readonly DEFAULT_DELAY = 500;
+  // Provider different debounce delay according to whether usr are actively typing, increase the delay if so to avoid unnecessary invoke
+  // The category below is suggested from AI, may adjust as needed in the future
+  private readonly DELAY_CANIDATES = [
+    {
+      // active typing
+      frequencyInWindow: 20,
+      delay: 1000,
+    },
+    {
+      // moderate typing
+      frequencyInWindow: 10,
+      delay: 800,
+    },
+    {
+      // light typing
+      frequencyInWindow: 0,
+      delay: this.DEFAULT_DELAY,
+    },
+  ];
+  private getWindowedDocChangedTimesteps(): number[] {
+    const now = Date.now();
+    return this.#docChangedTimesteps.filter((timestamp) => {
+      const age = now - timestamp;
+      return age < this.WINDOW;
+    });
+  }
+
+  private getAdaptiveDebounceDelay = (): number => {
+    const frequent = this.getWindowedDocChangedTimesteps().length;
+
+    for (const c of this.DELAY_CANIDATES) {
+      if (frequent >= c.frequencyInWindow) {
+        return c.delay;
+      }
+    }
+    return this.DEFAULT_DELAY;
+  };
+
+  public scheduleUpdate(document: TextDocument | TextDocumentIdentifier, UpdateType: UpdateType) {
+    if (UpdateType === "changed") {
+      // only bump this when the file is actually changed
+      // skip open
+      this.#docChangedVersion++;
+      this.pushDocChangedTimestamp();
+    }
     const existing = this.#pendingUpdates.get(document.uri);
     if (existing === undefined) {
       this.#pendingUpdates.set(document.uri, {
@@ -79,11 +129,11 @@ export class UpdateManger {
  */
 export function debounceThrottle(
   fn: () => void | Promise<void>,
-  milliseconds: number,
+  getDelay: () => number,
   log: (sl: ServerLog) => void,
 ): () => void {
   let timeout: any;
-  let lastInvocation = Date.now() - milliseconds;
+  let lastInvocation: number | undefined = undefined;
   let executingCount = 0;
   let debounceExecutionId = 0;
 
@@ -91,7 +141,10 @@ export function debounceThrottle(
     clearTimeout(timeout);
 
     timeout = setTimeout(async () => {
-      if (Date.now() - lastInvocation < milliseconds || executingCount >= UPDATE_PARALLEL_LIMIT) {
+      if (
+        lastInvocation !== undefined &&
+        (Date.now() - lastInvocation < getDelay() || executingCount >= UPDATE_PARALLEL_LIMIT)
+      ) {
         maybeCall();
         return;
       }
@@ -113,7 +166,7 @@ export function debounceThrottle(
         });
       }
       lastInvocation = Date.now();
-    }, milliseconds);
+    }, getDelay());
   }
 
   return maybeCall;

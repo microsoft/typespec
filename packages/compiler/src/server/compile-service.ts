@@ -34,7 +34,7 @@ import {
   ServerCompileOptions,
 } from "./server-compile-manager.js";
 import { CompileResult, ServerHost, ServerLog } from "./types.js";
-import { UpdateManger } from "./update-manager.js";
+import { UpdateManger, UpdateType } from "./update-manager.js";
 
 /**
  * Service managing compilation/caching of different TypeSpec projects
@@ -66,7 +66,7 @@ export interface CompileService {
    * It will recompile after a debounce timer so we don't recompile on every keystroke.
    * @param document Document that changed.
    */
-  notifyChange(document: TextDocument | TextDocumentIdentifier): void;
+  notifyChange(document: TextDocument | TextDocumentIdentifier, updateType: UpdateType): void;
 
   on(event: "compileEnd", listener: (result: CompileResult) => void): void;
 
@@ -109,8 +109,8 @@ export function createCompileService({
     }
   }
 
-  function notifyChange(document: TextDocument | TextDocumentIdentifier) {
-    updateManager.scheduleUpdate(document);
+  function notifyChange(document: TextDocument | TextDocumentIdentifier, updateType: UpdateType) {
+    updateManager.scheduleUpdate(document, updateType);
   }
 
   /**

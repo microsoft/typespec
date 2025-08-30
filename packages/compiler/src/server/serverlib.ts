@@ -176,6 +176,9 @@ export function createServer(
   let isInitialized = false;
   let pendingMessages: ServerLog[] = [];
 
+  /** Track the init version when a doc is opened so that we can distinguish whether the doc is opened or changed */
+  const documentsOpenedInitVersion = new Map<string, number>();
+
   return {
     get pendingMessages() {
       return pendingMessages;
@@ -191,6 +194,7 @@ export function createServer(
     formatDocument,
     gotoDefinition,
     documentClosed,
+    documentOpened,
     complete,
     findReferences,
     findDocumentHighlight,
@@ -234,14 +238,14 @@ export function createServer(
       const lastUpdate = updates.reduce((pre, cur) => {
         return cur.latestUpdateTimestamp > pre.latestUpdateTimestamp ? cur : pre;
       });
-      const curVersion = updateManager.version;
+      const curVersion = updateManager.docChangedVersion;
       const result = await compileService.compile(lastUpdate.latest, undefined, {
         mode: "full",
         // the callback should be or have been triggered for the new version, so this one should be
         // cancelled in this case
-        isCancelled: () => updateManager.version > curVersion,
+        isCancelled: () => updateManager.docChangedVersion > curVersion,
       });
-      if (result && curVersion === updateManager.version) {
+      if (result && curVersion === updateManager.docChangedVersion) {
         await reportDiagnostics(result);
       }
     });
@@ -557,10 +561,6 @@ export function createServer(
   function watchedFilesChanged(params: DidChangeWatchedFilesParams) {
     fileSystemCache.notify(params.changes);
     npmPackageProvider.notify(params.changes);
-    params.changes.forEach((p) => {
-      const doc = host.getOpenDocumentByURL(p.uri);
-      compileService.notifyChange(doc ?? TextDocumentIdentifier.create(p.uri));
-    });
   }
 
   function isTspConfigFile(doc: TextDocument | TextDocumentIdentifier) {
@@ -663,9 +663,29 @@ export function createServer(
   }
 
   async function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
-    if (isTspConfigFile(change.document)) return undefined;
+    const initVersion = documentsOpenedInitVersion.get(change.document.uri);
+    if (!initVersion) {
+      // not expected, log something for troubleshooting
+      log({
+        level: "debug",
+        message: "Document change received for document not in documentsOpened set",
+        detail: change.document.uri,
+      });
+      documentOpened(change);
+    } else if (initVersion < change.document.version) {
+      compileService.notifyChange(change.document, "changed");
+    } else {
+      // do nothing for initVersion === change.document.version which should have been handled by didOpen event
+    }
+  }
 
-    compileService.notifyChange(change.document);
+  function documentOpened(change: TextDocumentChangeEvent<TextDocument>) {
+    if (documentsOpenedInitVersion.has(change.document.uri)) {
+      // not expected, log something for troubleshooting
+      log({ level: "debug", message: "Document already opened", detail: change.document.uri });
+    }
+    documentsOpenedInitVersion.set(change.document.uri, change.document.version);
+    compileService.notifyChange(change.document, "opened");
   }
 
   async function reportDiagnostics({ program, document, optionsFromConfig }: CompileResult) {
@@ -1287,6 +1307,7 @@ export function createServer(
   }
 
   function documentClosed(change: TextDocumentChangeEvent<TextDocument>) {
+    documentsOpenedInitVersion.delete(change.document.uri);
     // clear diagnostics on file close
     void sendDiagnostics(change.document, []);
   }

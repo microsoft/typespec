@@ -63,7 +63,7 @@ export class ServerCompileManager {
     // log where the compiler is triggered, skip the first 2 frame and only log the next 2 if exists
     const stackLines = lines.slice(3, 5).join("\n");
     this.logDebug(
-      `Server compile #${curId}: Triggered, version=${this.updateManager.version}, mode=${serverCompileOptions.mode}, mainFile=${mainFile}, from\n${stackLines}`,
+      `Server compile #${curId}: Triggered, version=${this.updateManager.docChangedVersion}, mode=${serverCompileOptions.mode}, mainFile=${mainFile}, from\n${stackLines}`,
     );
     if (!serverCompileOptions.skipCache) {
       cache = this.trackerCache.get(
@@ -285,7 +285,7 @@ export class CompileTracker {
         : {
             ...options,
           };
-    const version = updateManager.version;
+    const version = updateManager.docChangedVersion;
     const startTime = new Date();
     const p = compileProgram(myhost, mainFile, myOption, oldProgram);
     log(
@@ -351,7 +351,7 @@ export class CompileTracker {
   }
 
   isUpToDate(): boolean {
-    return this.version === this.updateManager.version;
+    return this.version === this.updateManager.docChangedVersion;
   }
 
   getMode(): ServerCompileMode {
