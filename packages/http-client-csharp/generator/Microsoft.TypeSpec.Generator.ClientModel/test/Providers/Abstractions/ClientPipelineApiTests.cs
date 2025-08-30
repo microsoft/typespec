@@ -95,7 +95,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
             =>
             [
                Declare("message", Original.Invoke("GetFakeCreateMessage", [requestOptions, uri, method, responseClassifier]).ToApi<HttpMessageApi>(), out message),
-               Declare("request", message.Request().ToExpression(), out request)
+               Declare("request", message.Request(), out request)
             ];
 
             public override ClientPipelineApi FromExpression(ValueExpression expression)
