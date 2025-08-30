@@ -100,7 +100,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
 
             // Check that exactly one ModelReaderWriterBuildableAttribute exists
             var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
-            Assert.AreEqual(2, buildableAttributes.Count(), "Exactly one ModelReaderWriterBuildableAttribute should be generated for TestModel");
+            Assert.AreEqual(expectedCount, buildableAttributes.Count(), "Exactly one ModelReaderWriterBuildableAttribute should be generated for TestModel");
             Assert.AreEqual(
                 "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.DependencyModel)",
                 buildableAttributes[0].Arguments.First().ToDisplayString());
@@ -567,17 +567,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             var contextDefinition = new ModelReaderWriterContextDefinition();
             var attributes = contextDefinition.Attributes;
 
+            var expectedCount = 3;
             Assert.IsNotNull(attributes);
-            Assert.AreEqual(2, attributes.Count);
+            Assert.AreEqual(expectedCount, attributes.Count);
 
             var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
-            Assert.AreEqual(2, buildableAttributes.Count());
+            Assert.AreEqual(expectedCount, buildableAttributes.Count());
             Assert.AreEqual(
-                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.FrameworkModelWithMRW)",
+                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.ComplexFrameworkType)",
                 buildableAttributes[0].Arguments.First().ToDisplayString());
             Assert.AreEqual(
-                "typeof(global::Sample.Models.ParentModel)",
+                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.FrameworkModelWithMRW)",
                 buildableAttributes[1].Arguments.First().ToDisplayString());
+            Assert.AreEqual(
+                "typeof(global::Sample.Models.ParentModel)",
+                buildableAttributes[2].Arguments.First().ToDisplayString());
         }
 
         [Test]
@@ -684,21 +688,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             var contextDefinition = new ModelReaderWriterContextDefinition();
             var attributes = contextDefinition.Attributes;
 
+            var expectedCount = 4;
             Assert.IsNotNull(attributes);
-            Assert.AreEqual(3, attributes.Count);
+            Assert.AreEqual(expectedCount, attributes.Count);
 
             // Should include both the collection model and the framework type it contains
             var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
-            Assert.AreEqual(3, buildableAttributes.Count());
+            Assert.AreEqual(expectedCount, buildableAttributes.Count());
             Assert.AreEqual(
-                "typeof(global::Sample.Models.ComplexModel)",
+                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.ComplexFrameworkType)",
                 buildableAttributes[0].Arguments.First().ToDisplayString());
             Assert.AreEqual(
-                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.FrameworkModelWithMRW)",
+                "typeof(global::Sample.Models.ComplexModel)",
                 buildableAttributes[1].Arguments.First().ToDisplayString());
             Assert.AreEqual(
-                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.NestedFrameworkType)",
+                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.FrameworkModelWithMRW)",
                 buildableAttributes[2].Arguments.First().ToDisplayString());
+            Assert.AreEqual(
+                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.NestedFrameworkType)",
+                buildableAttributes[3].Arguments.First().ToDisplayString());
         }
 
         // This test validates that the correct attributes are generated for a complex scenario
@@ -715,17 +723,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
 
             Assert.IsNotNull(attributes);
 
-            int expectedCount = 2;
+            int expectedCount = 4;
             Assert.AreEqual(expectedCount, attributes.Count);
 
             var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
             Assert.AreEqual(expectedCount, buildableAttributes.Count);
             Assert.AreEqual(
-                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.FrameworkModelWithMRW)",
+                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.ComplexFrameworkType)",
                 buildableAttributes[0].Arguments.First().ToDisplayString());
             Assert.AreEqual(
-                "typeof(global::Sample.MRWTypeProvider)",
+                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.FrameworkModelWithMRW)",
                 buildableAttributes[1].Arguments.First().ToDisplayString());
+            Assert.AreEqual(
+                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.FrameworkTypeImplementingOtherFrameworkType)",
+                buildableAttributes[2].Arguments.First().ToDisplayString());
+            Assert.AreEqual(
+                "typeof(global::Sample.MRWTypeProvider)",
+                buildableAttributes[3].Arguments.First().ToDisplayString());
         }
 
         // This test validates that the correct attributes are generated for a type provider
@@ -1065,12 +1079,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             public string AnotherProperty { get; set; } = string.Empty;
         }
 
-        public class ComplexFrameworkType
+        public class ComplexFrameworkType : IJsonModel<ComplexFrameworkType>
         {
             public FrameworkModelWithMRW NestedProperty { get; set; } = new();
             internal TestInternalType SomeInternalType { get; set; } = new();
             public string SimpleProperty { get; set; } = string.Empty;
             public List<FrameworkModelWithMRW> ListProperty { get; set; } = new();
+
+            void IJsonModel<ComplexFrameworkType>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+            {
+                throw new NotImplementedException();
+            }
+
+            ComplexFrameworkType? IJsonModel<ComplexFrameworkType>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+            {
+                throw new NotImplementedException();
+            }
+
+            BinaryData IPersistableModel<ComplexFrameworkType>.Write(ModelReaderWriterOptions options)
+            {
+                throw new NotImplementedException();
+            }
+
+            ComplexFrameworkType? IPersistableModel<ComplexFrameworkType>.Create(BinaryData data, ModelReaderWriterOptions options)
+            {
+                throw new NotImplementedException();
+            }
+
+            string IPersistableModel<ComplexFrameworkType>.GetFormatFromOptions(ModelReaderWriterOptions options)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         internal class TestInternalType : IJsonModel<TestInternalType>
