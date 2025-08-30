@@ -17,8 +17,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         public abstract Type UriBuilderType { get; }
-        public abstract MethodBodyStatement SetMethod(string httpMethod);
-        public abstract MethodBodyStatement SetUri(ValueExpression uri);
         public abstract MethodBodyStatement SetHeaders(IReadOnlyList<ValueExpression> arguments);
 
         public abstract ValueExpression Content();
