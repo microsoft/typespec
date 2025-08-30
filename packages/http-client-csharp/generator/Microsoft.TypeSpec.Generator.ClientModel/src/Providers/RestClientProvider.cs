@@ -195,10 +195,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // Create the message
             var uriExpression = uri.Invoke("ToUri");
-            statements.AddRange([
-                .. pipelineField.CreateMessage(options.ToApi<HttpRequestOptionsApi>(), uriExpression, Literal(operation.HttpMethod), classifier, out HttpMessageApi message),
-                Declare("request", message.Request().ToApi<HttpRequestApi>(), out HttpRequestApi request)
-            ]);
+            statements.AddRange(
+            [.. pipelineField.CreateMessage(options.ToApi<HttpRequestOptionsApi>(), uriExpression, Literal(operation.HttpMethod), classifier, out HttpMessageApi message, out HttpRequestApi request)]);
 
             // Handle request modifications
             if (isNextLinkRequest && nextLink != null)
