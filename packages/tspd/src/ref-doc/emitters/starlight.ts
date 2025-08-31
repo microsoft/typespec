@@ -98,18 +98,22 @@ export type DecoratorRenderOptions = {
 
 export function renderDecoratorFile(
   renderer: StarlightRenderer,
-  refDoc: TypeSpecRefDocBase,
+  refDoc: TypeSpecRefDoc,
   options?: DecoratorRenderOptions,
 ): string | undefined {
   if (!refDoc.namespaces.some((x) => x.decorators.length > 0)) {
     return undefined;
   }
   const title = options?.title ?? "Decorators";
+  const name = refDoc.name ?? refDoc.namespaces[0]?.name ?? "";
   const content: MarkdownDoc = [
     "---",
     `title: "${title}"`,
     "toc_min_heading_level: 2",
     "toc_max_heading_level: 3",
+    "llmstxt:",
+    `  title: "${name ? `${name} - ` : ""}${title}"`,
+    `  description: "Decorators ${name ? `exported by ${name}` : ""}"`,
     "---",
   ];
 
@@ -160,7 +164,15 @@ export function renderDataTypes(
     return undefined;
   }
   const title = options?.title ?? "Data types";
-  const content: MarkdownDoc = ["---", `title: "${title}"`, "---"];
+  const name = refDoc.name ?? refDoc.namespaces[0]?.name ?? "";
+  const content: MarkdownDoc = [
+    "---",
+    `title: "${title}"`,
+    "llmstxt:",
+    `  title: "${name ? `${name} - ` : ""}${title}"`,
+    `  description: "Data types ${name ? `exported by ${name}` : ""}"`,
+    "---",
+  ];
 
   content.push(
     groupByNamespace(refDoc.namespaces, (namespace) => {
