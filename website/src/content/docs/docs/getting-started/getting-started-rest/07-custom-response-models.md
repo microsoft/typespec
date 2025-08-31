@@ -1,5 +1,8 @@
 ---
 title: Custom Response Models
+llmstxt:
+  title: TypeSpec and REST - custom response models
+  description: Getting started with REST - 07 customize API response models
 ---
 
 ## Introduction

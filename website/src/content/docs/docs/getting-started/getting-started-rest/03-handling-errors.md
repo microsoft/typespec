@@ -1,5 +1,8 @@
 ---
 title: Handling Errors
+llmstxt:
+  title: TypeSpec and REST - handling errors
+  description: Getting started with REST - 03 handling errors in your API
 ---
 
 ## Introduction
