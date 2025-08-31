@@ -1,5 +1,8 @@
 ---
 title: Encoding of types
+llmstxt:
+  title: "@typespec/http encoding of types"
+  description: How HTTP handles encoding types
 ---
 
 This document describe how the http library interpret TypeSpec built-in types and how to configure

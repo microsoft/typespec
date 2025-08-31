@@ -1,5 +1,8 @@
 ---
 title: Operations
+llmstxt:
+  title: "@typespec/http - endpoints"
+  description: Defining HTTP endpoints
 ---
 
 ## Operation verb
