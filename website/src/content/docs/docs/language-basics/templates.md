@@ -1,6 +1,8 @@
 ---
 id: templates
 title: Templates
+llmstxt:
+  description: "Language basics - reusability with templates"
 ---
 
 Templates are a powerful tool that allow users to customize certain aspects of a type. Similar to generics in other programming languages, templates define template parameters that users can specify when referencing the type.
