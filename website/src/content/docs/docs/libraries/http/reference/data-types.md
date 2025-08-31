@@ -1,5 +1,8 @@
 ---
 title: "Data types"
+llmstxt:
+  title: "@typespec/http - Data types"
+  description: "Data types exported by @typespec/http"
 ---
 
 ## TypeSpec.Http

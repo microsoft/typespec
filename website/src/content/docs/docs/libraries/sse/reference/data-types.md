@@ -1,5 +1,8 @@
 ---
 title: "Data types"
+llmstxt:
+  title: "@typespec/sse - Data types"
+  description: "Data types exported by @typespec/sse"
 ---
 
 ## TypeSpec.SSE

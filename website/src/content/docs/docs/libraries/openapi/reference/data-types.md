@@ -1,5 +1,8 @@
 ---
 title: "Data types"
+llmstxt:
+  title: "@typespec/openapi - Data types"
+  description: "Data types exported by @typespec/openapi"
 ---
 
 ## TypeSpec.OpenAPI

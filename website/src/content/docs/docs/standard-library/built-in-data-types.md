@@ -1,5 +1,8 @@
 ---
 title: "Built-in Data types"
+llmstxt:
+  title: "TypeSpec - Built-in Data types"
+  description: "Data types exported by TypeSpec"
 ---
 ## TypeSpec
 ### `Array` {#Array}

@@ -1,5 +1,8 @@
 ---
 title: "Data types"
+llmstxt:
+  title: "@typespec/json-schema - Data types"
+  description: "Data types exported by @typespec/json-schema"
 ---
 
 ## TypeSpec.JsonSchema
