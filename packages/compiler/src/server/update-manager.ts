@@ -26,7 +26,12 @@ export class UpdateManger {
 
   constructor(log: (sl: ServerLog) => void) {
     // TODO: remove the || true before checkin
-    this._log = process.env[ENABLE_UPDATE_MANAGER_LOGGING] || true ? log : () => {};
+    this._log =
+      process.env[ENABLE_UPDATE_MANAGER_LOGGING] || true
+        ? (sl: ServerLog) => {
+            log({ ...sl, message: `#FromUpdateManager: ${sl.message}` });
+          }
+        : () => {};
 
     this.#scheduleBatchUpdate = debounceThrottle(
       async () => {

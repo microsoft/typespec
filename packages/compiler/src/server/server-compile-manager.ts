@@ -191,8 +191,11 @@ class CompileCacheInternal {
 
   private getCacheKey(entrypoint: string, compileOption: CompilerOptions): string {
     const normalizedEntrypoint = normalizePath(entrypoint);
-    const optionKey = JSON.stringify(compileOption);
-    const key = md5(`${normalizedEntrypoint}:${optionKey}`);
+    const normalizedOptions: CompilerOptions = {
+      ...compileOption,
+      outputDir: undefined,
+    };
+    const key = md5(`${normalizedEntrypoint}\n${normalizedOptions}`);
     return key;
   }
 
