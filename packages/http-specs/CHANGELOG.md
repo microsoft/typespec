@@ -1,5 +1,11 @@
 # @typespec/http-specs
 
+## 0.1.0-preview
+
+### Breaking Changes
+
+- Move to preview version 0.1.0-preview
+
 ## 0.1.0-alpha.25
 
 ### Bump dependencies
