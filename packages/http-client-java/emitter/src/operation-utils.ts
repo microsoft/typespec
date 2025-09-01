@@ -19,6 +19,7 @@ export const SPECIAL_HEADER_NAMES = new Set([
   "x-ms-client-request-id",
   "client-request-id",
   "return-client-request-id",
+  "x-ms-authorization-auxiliary",
 ]);
 
 export const ORIGIN_API_VERSION = "modelerfour:synthesized/api-version";
