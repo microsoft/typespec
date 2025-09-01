@@ -58,7 +58,7 @@ const versionIsSatisfied = (version: string, requirement: string): boolean => {
 
 const parseVersionNumber = (version: string): number => {
   // Parse version like "3.9.0" to a comparable number
-  const parts = version.split('.').map(p => parseInt(p.replace(/[^0-9]/g, ''), 10) || 0);
+  const parts = version.split(".").map((p) => parseInt(p.replace(/[^0-9]/g, ""), 10) || 0);
   return parts[0] * 10000 + (parts[1] || 0) * 100 + (parts[2] || 0);
 };
 

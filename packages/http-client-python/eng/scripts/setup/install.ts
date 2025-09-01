@@ -3,7 +3,7 @@ import { patchPythonPath } from "./system-requirements.js";
 
 async function main() {
   let pythonCommand: string[];
-  
+
   try {
     // First try to resolve Python path
     pythonCommand = await patchPythonPath(["python", "./eng/scripts/setup/install.py"], {
