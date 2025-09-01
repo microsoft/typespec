@@ -219,13 +219,24 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public async Task TestCanCustomizeTypeWithChangedName()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var testTypeProvider = new TestTypeProvider();
+            Assert.IsNull(testTypeProvider.CustomCodeView);
+            testTypeProvider.Update(name: "RenamedType");
+            Assert.IsNotNull(testTypeProvider.CustomCodeView);
+            Assert.AreEqual("RenamedType", testTypeProvider.Type.Name);
+        }
+
+        [Test]
         public async Task TestCanCustomizeTypeWithChangedNamespace()
         {
             await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
             var testTypeProvider = new TestTypeProvider();
             Assert.IsNull(testTypeProvider.CustomCodeView);
 
-            testTypeProvider.Update(name: "Foo"); // custom code only take effect when the name matches
+            testTypeProvider.Update(@namespace: "NewNamespace");
             Assert.IsNotNull(testTypeProvider.CustomCodeView);
             Assert.AreEqual("NewNamespace", testTypeProvider.Type.Namespace);
         }
@@ -239,7 +250,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var property = new PropertyProvider(inputProperty, new TestTypeProvider());
             var testTypeProvider = new TestTypeProvider(properties: [property]);
 
-            testTypeProvider.Update(@namespace: "Random");
+            testTypeProvider.Update(@namespace: "NewNamespace");
             testTypeProvider.Update(name: "Foo");
             Assert.IsNotNull(testTypeProvider.CustomCodeView);
             Assert.AreEqual(1, testTypeProvider.CanonicalView.Properties.Count);

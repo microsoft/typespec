@@ -3,7 +3,7 @@
 using System;
 using SampleTypeSpec;
 
-namespace Random;
+namespace NewNamespace;
 
 public partial class Foo
 {

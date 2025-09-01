@@ -3,8 +3,8 @@
 using System;
 using SampleTypeSpec;
 
-namespace NewNamespace;
+namespace Test;
 
-public partial class TestName
+public partial class RenamedType
 {
 }
