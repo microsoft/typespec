@@ -12,9 +12,9 @@
     "spector-stop": "tsp-spector server stop"
   },
   "dependencies": {
-    "@typespec/spector": "0.1.0-preview",
+    "@typespec/spector": "0.1.0",
     "@typespec/spec-api": "0.1.0-alpha.8",
-    "@typespec/http-specs": "0.1.0-preview",
+    "@typespec/http-specs": "0.1.0",
     "@typespec/json-schema": "1.3.0",
     "@typespec/http-client-java": "file:../../typespec-http-client-java-0.4.3.tgz",
     "@typespec/http-client-java-tests": "file:"
