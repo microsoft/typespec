@@ -26,7 +26,7 @@ except (ImportError, ModuleNotFoundError):
     sys.exit(2)  # Exit code 2 for inadequate environment
 
 
-# Now we have a package manager (uv or pip) and Py >= 3.8, go to work
+# Now we have a package manager (uv or pip) and Py >= 3.9, go to work
 # At this point, both Python and package manager are confirmed to be available
 # Any failures from here should fail the npm install, not fallback to Pyodide
 

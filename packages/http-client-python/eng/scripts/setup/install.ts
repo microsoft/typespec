@@ -7,7 +7,7 @@ async function main() {
   try {
     // First try to resolve Python path
     pythonCommand = await patchPythonPath(["python", "./eng/scripts/setup/install.py"], {
-      version: ">=3.8",
+      version: ">=3.9",
       environmentVariable: "AUTOREST_PYTHON_EXE",
     });
   } catch (error) {
