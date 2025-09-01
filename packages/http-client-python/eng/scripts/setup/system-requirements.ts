@@ -1,5 +1,6 @@
 import { ChildProcess, spawn, SpawnOptions } from "child_process";
-import { coerce, satisfies } from "semver";
+import { coerce } from "semver/functions/coerce.js";
+import { satisfies } from "semver/functions/satisfies.js";
 
 /*
  * Copied from @autorest/system-requirements
