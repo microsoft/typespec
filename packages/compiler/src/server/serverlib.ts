@@ -233,8 +233,6 @@ export function createServer(
         return;
       }
       // we only need to compile the last update, the previous update will be overwritten by the last one anyway
-
-      // TODO: check before check-in, what if tspconfig.yaml and package.json is updated
       const lastUpdate = updates.reduce((pre, cur) => {
         return cur.latestUpdateTimestamp > pre.latestUpdateTimestamp ? cur : pre;
       });
@@ -690,6 +688,7 @@ export function createServer(
 
   async function reportDiagnostics({ program, document, optionsFromConfig }: CompileResult) {
     if (!document) return undefined;
+    if (isTspConfigFile(document)) return undefined;
 
     currentDiagnosticIndex.clear();
     // Group diagnostics by file.

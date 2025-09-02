@@ -1,6 +1,6 @@
 import { TextDocumentIdentifier } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { ENABLE_UPDATE_MANAGER_LOGGING, UPDATE_PARALLEL_LIMIT } from "./constants.js";
+import { ENABLE_UPDATE_MANAGER_LOGGING } from "./constants.js";
 import { ServerLog } from "./types.js";
 
 interface PendingUpdate {
@@ -80,6 +80,7 @@ export class UpdateManger {
       delay: this.DEFAULT_DELAY,
     },
   ];
+
   private getWindowedDocChangedTimesteps(): number[] {
     const now = Date.now();
     return this.#docChangedTimesteps.filter((timestamp) => {
@@ -141,6 +142,7 @@ export function debounceThrottle(
   let lastInvocation: number | undefined = undefined;
   let executingCount = 0;
   let debounceExecutionId = 0;
+  const UPDATE_PARALLEL_LIMIT = 2;
 
   function maybeCall() {
     clearTimeout(timeout);

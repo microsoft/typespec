@@ -130,7 +130,7 @@ export function createCompileService({
     const path = await fileService.getPath(document);
     const mainFile = await getMainFileForDocument(path);
     const mainFileName = getBaseFileName(mainFile);
-    if (mainFileName === "tspconfig.yaml" || mainFileName === "package.json") {
+    if (!mainFileName.endsWith(".tsp") && mainFileName !== "tspconfig.yaml") {
       return undefined;
     }
     const config = await getConfig(mainFile);
@@ -198,31 +198,20 @@ export function createCompileService({
 
     let tracker: CompileTracker;
     try {
-      const skipOldProgramFromCache = serverCompileOptions?.skipOldProgramFromCache === true;
       tracker = await compileManager.compile(mainFile, options, serverCompileOptions);
       let program = await tracker.getCompileResult();
       if (isCancelledOrOutOfDate()) {
         return undefined;
       }
 
-      const originalFileName = getBaseFileName(path);
-      if (
-        mainFile !== path &&
-        originalFileName !== "tspconfig.yaml" &&
-        originalFileName !== "package.json" &&
-        !program.sourceFiles.has(path)
-      ) {
+      if (mainFile !== path && !program.sourceFiles.has(path)) {
         // If the file that changed wasn't imported by anything from the main
         // file, retry using the file itself as the main file.
         log({
           level: "debug",
           message: `target file was not included in compiling, try to compile ${path} as main file directly`,
         });
-        tracker = await compileManager.compile(path, options, {
-          skipCache: false,
-          skipOldProgramFromCache,
-          mode: serverCompileOptions?.mode ?? "full",
-        });
+        tracker = await compileManager.compile(path, options, serverCompileOptions);
         program = await tracker.getCompileResult();
       }
       if (isCancelledOrOutOfDate()) {
