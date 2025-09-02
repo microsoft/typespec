@@ -4,7 +4,6 @@ import {
   RefDocEntity,
   TypeSpecLibraryRefDoc,
   TypeSpecRefDoc,
-  TypeSpecRefDocBase,
 } from "../types.js";
 import {
   MarkdownDoc,

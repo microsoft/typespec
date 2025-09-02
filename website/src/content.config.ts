@@ -21,7 +21,7 @@ export const collections = {
           .describe(
             "A date string or YAML date that is compatible with JavaScript's `new Date()` constructor.",
           ),
-        llmstxt: llmstxtSchema.optional()
+        llmstxt: llmstxtSchema.optional(),
       }),
     }),
   }),
