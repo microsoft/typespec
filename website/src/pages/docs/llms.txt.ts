@@ -1,5 +1,5 @@
-import { processDocsForTypeSpecLlmsTxt } from "../../utils/process-docs-llms-txt";
 import type { APIRoute } from "astro";
+import { processDocsForTypeSpecLlmsTxt } from "../../utils/process-docs-llms-txt";
 
 export const GET: APIRoute = async ({ site }) => {
   const llmsData = await processDocsForTypeSpecLlmsTxt(site);

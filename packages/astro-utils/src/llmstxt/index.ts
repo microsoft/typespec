@@ -7,6 +7,7 @@ export interface DocEntry {
     title: string;
     llmstxt?: z.infer<typeof llmstxtSchema>;
   };
+  body?: string;
 }
 
 export interface ProcessDocsProps {
@@ -120,7 +121,14 @@ function organizeDocsIntoSections(
   return sections;
 }
 
-function mergeSiteWithPath(siteHref: string, path: string): string {
+/**
+ * Merges a site URL with a relative path.
+ * Used when needing to create full URLs when working with astro content collections.
+ * @param siteHref The base URL of the site.
+ * @param path The relative path to merge with the site URL.
+ * @returns The merged URL.
+ */
+export function mergeSiteWithPath(siteHref: string, path: string): string {
   const siteTrailingSlash = siteHref.endsWith("/");
   const pathLeadingSlash = path.startsWith("/");
   if (siteTrailingSlash && pathLeadingSlash) {
