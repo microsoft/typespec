@@ -1,4 +1,3 @@
-import { createHash } from "crypto";
 import { formatLog } from "../core/logger/index.js";
 import {
   compile as compileProgram,
@@ -196,7 +195,7 @@ class CompileCacheInternal {
       outputDir: undefined,
     };
 
-    return createHash("md5").update(`${normalizedEntrypoint}\n${normalizedOptions}`).digest("hex");
+    return `${normalizedEntrypoint}\n${normalizedOptions}`;
   }
 
   /** Get the latest completed compilation */
