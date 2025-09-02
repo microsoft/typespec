@@ -3,16 +3,15 @@ import { code, type Children } from "@alloy-js/core";
 import { Reference } from "@alloy-js/csharp";
 import {
   getTypeName,
-  isNullType,
   isVoidType,
   type IntrinsicType,
   type Scalar,
   type Type,
-  type Union,
 } from "@typespec/compiler";
 import type { Typekit } from "@typespec/compiler/typekit";
 import { useTsp } from "../../core/index.js";
 import { reportTypescriptDiagnostic } from "../../typescript/lib.js";
+import { getNullableUnionInnerType } from "./utils/nullable-util.js";
 import { efRefkey } from "./utils/refkey.js";
 
 export interface TypeExpressionProps {
@@ -54,28 +53,6 @@ export function TypeExpression(props: TypeExpressionProps): Children {
   throw new Error(
     `Unsupported type for TypeExpression: ${props.type.kind} (${getTypeName(props.type)})`,
   );
-}
-
-/** Get the inner type if the union is a nullable, otherwise return undefined */
-function getNullableUnionInnerType(u: Union): Type | undefined {
-  const isNull = (type: Type) => isNullType(type) || isVoidType(type);
-
-  if (Array.from(u.variants.values()).some((v) => isNull(v.type))) {
-    const { $ } = useTsp();
-    const left = Array.from(u.variants.values()).filter((v) => !isNull(v.type));
-    if (left.length === 0) {
-      // a union only has null or void?
-      return $.intrinsic.void;
-    } else if (left.length === 1) {
-      return left[0].type;
-    } else {
-      return $.union.create({
-        name: u.name,
-        variants: left,
-      });
-    }
-  }
-  return undefined;
 }
 
 const intrinsicNameToCSharpType = new Map<string, string | null>([

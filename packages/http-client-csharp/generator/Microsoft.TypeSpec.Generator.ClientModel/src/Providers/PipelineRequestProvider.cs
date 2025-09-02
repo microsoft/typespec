@@ -31,12 +31,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public override MethodBodyStatement SetHeaders(IReadOnlyList<ValueExpression> arguments)
             => Original.Property(nameof(PipelineRequest.Headers)).Invoke(nameof(PipelineRequestHeaders.Set), arguments).Terminate();
 
-        public override MethodBodyStatement SetMethod(string httpMethod)
-            => Original.Property(nameof(PipelineRequest.Method)).Assign(Literal(httpMethod)).Terminate();
-
-        public override MethodBodyStatement SetUri(ValueExpression value)
-            => Original.Property("Uri").Assign(value.As<ClientUriBuilderDefinition>().ToUri()).Terminate();
-
         public override HttpRequestApi ToExpression() => this;
     }
 }

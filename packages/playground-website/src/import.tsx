@@ -5,6 +5,8 @@ import {
   DialogContent,
   DialogSurface,
   DialogTitle,
+  Input,
+  Label,
   Menu,
   MenuItem,
   MenuList,
@@ -14,13 +16,19 @@ import {
   Tooltip,
 } from "@fluentui/react-components";
 import { ArrowUploadFilled } from "@fluentui/react-icons";
-import { Editor, useMonacoModel, usePlaygroundContext } from "@typespec/playground/react";
-import { useState } from "react";
+import { combineProjectIntoFile, createRemoteHost } from "@typespec/pack";
+import {
+  DiagnosticList,
+  Editor,
+  useMonacoModel,
+  usePlaygroundContext,
+} from "@typespec/playground/react";
+import { ReactNode, useState } from "react";
 import { parse } from "yaml";
-import style from "./import-openapi3.module.css";
+import style from "./import.module.css";
 
 export const ImportToolbarButton = () => {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState<"openapi3" | "tsp" | undefined>();
 
   return (
     <>
@@ -36,17 +44,19 @@ export const ImportToolbarButton = () => {
         </MenuTrigger>
         <MenuPopover>
           <MenuList>
-            <MenuItem onClick={() => setOpen(true)}>From OpenAPI 3 spec</MenuItem>
+            <MenuItem onClick={() => setOpen("tsp")}>Remote TypeSpec</MenuItem>
+            <MenuItem onClick={() => setOpen("openapi3")}>From OpenAPI 3 spec</MenuItem>
           </MenuList>
         </MenuPopover>
       </Menu>
 
-      <Dialog open={open} onOpenChange={(event, data) => setOpen(data.open)}>
+      <Dialog open={open !== undefined} onOpenChange={(event, data) => setOpen(undefined)}>
         <DialogSurface>
           <DialogBody>
             <DialogTitle>Settings</DialogTitle>
             <DialogContent>
-              <ImportOpenAPI3 onImport={() => setOpen(false)} />
+              {open === "openapi3" && <ImportOpenAPI3 onImport={() => setOpen(undefined)} />}
+              {open === "tsp" && <ImportTsp onImport={() => setOpen(undefined)} />}
             </DialogContent>
           </DialogBody>
         </DialogSurface>
@@ -85,6 +95,44 @@ const ImportOpenAPI3 = ({ onImport }: { onImport: () => void }) => {
       <Button appearance="primary" className="import-btn" onClick={importSpec}>
         Import
       </Button>
+    </div>
+  );
+};
+
+const ImportTsp = ({ onImport }: { onImport: () => void }) => {
+  const [error, setError] = useState<ReactNode | null>(null);
+  const [value, setValue] = useState("");
+  const context = usePlaygroundContext();
+
+  const importSpec = async () => {
+    const content = value;
+    const result = await combineProjectIntoFile(createRemoteHost(), content);
+    if (result.diagnostics.length > 0) {
+      setError(<DiagnosticList diagnostics={result.diagnostics} />);
+      return;
+    } else if (result.content) {
+      context.setContent(result.content);
+      onImport();
+    }
+  };
+  return (
+    <div>
+      <h3>Import Remote Tsp Document</h3>
+
+      <div>
+        <Label>Url to import</Label>
+      </div>
+      <Input
+        value={value}
+        onChange={(_, data) => setValue(data.value)}
+        className={style["url-input"]}
+      />
+      {error && <div className={style["error"]}>{error}</div>}
+      <div>
+        <Button appearance="primary" className="import-btn" onClick={importSpec}>
+          Import
+        </Button>
+      </div>
     </div>
   );
 };

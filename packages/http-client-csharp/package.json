@@ -48,7 +48,8 @@
   "files": [
     "dist/emitter/src/**",
     "dist/generated-defs/**",
-    "dist/generator/**"
+    "dist/generator/**",
+    "emitter/lib/*.tsp"
   ],
   "peerDependencies": {
     "@azure-tools/typespec-azure-core": ">=0.59.0 <0.60.0 || ~0.60.0-0",
