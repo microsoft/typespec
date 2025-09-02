@@ -4,11 +4,13 @@
 using System.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
+using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
+using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
 {
@@ -56,7 +58,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
 
         private static ClientProvider CreateTestClient()
         {
-            var inputServiceMethod = InputFactory.BasicServiceMethod("test", InputFactory.Operation("foo"));
+            var inputServiceMethod = InputFactory.BasicServiceMethod(
+                "test",
+                InputFactory.Operation(
+                    "foo",
+                    parameters:
+                    [
+                        InputFactory.HeaderParameter("foo-header", InputPrimitiveType.String),
+                        InputFactory.QueryParameter("foo-query", InputPrimitiveType.String)
+                    ]));
             var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
             MockHelpers.LoadMockGenerator(clientPipelineApi: TestClientPipelineApi.Instance);
             var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
@@ -88,10 +98,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
 
             public override MethodBodyStatement[] CreateMessage(HttpRequestOptionsApi requestOptions,
                 ValueExpression uri,
-                ValueExpression method,
+                ScopedApi<string> method,
                 ValueExpression responseClassifier,
-                out HttpMessageApi message)
-            => [Snippet.Declare("message", Original.Invoke("GetFakeCreateMessage", [requestOptions, uri, method, responseClassifier]).ToApi<HttpMessageApi>(), out message)];
+                out HttpMessageApi message,
+                out HttpRequestApi request)
+            =>
+            [
+               Declare("message", Original.Invoke("GetFakeCreateMessage", [requestOptions, uri, method, responseClassifier]).ToApi<HttpMessageApi>(), out message),
+               Declare("request", message.Request(), out request)
+            ];
 
             public override ClientPipelineApi FromExpression(ValueExpression expression)
                 => new TestClientPipelineApi(expression);
@@ -104,10 +119,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
 
             public override ClientPipelineApi ToExpression() => this;
 
-            public override MethodBodyStatement[] ProcessMessage(HttpMessageApi message, HttpRequestOptionsApi options)
+            public override MethodBodyStatement[] SendMessage(HttpMessageApi message, HttpRequestOptionsApi options)
                 => [Original.Invoke("GetFakeProcessMessage", [message, options]).Terminate()];
 
-            public override MethodBodyStatement[] ProcessMessageAsync(HttpMessageApi message, HttpRequestOptionsApi options)
+            public override MethodBodyStatement[] SendMessageAsync(HttpMessageApi message, HttpRequestOptionsApi options)
                 => [Original.Invoke("GetFakeProcessMessageAsync", [message, options]).Terminate()];
         }
     }
