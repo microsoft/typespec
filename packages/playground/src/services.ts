@@ -59,7 +59,7 @@ export async function registerMonacoLanguage(host: BrowserHost) {
       const model = monaco.editor.getModel(monaco.Uri.parse(url));
       return model ? textDocumentForModel(model) : undefined;
     },
-    sendDiagnostics() {},
+    async sendDiagnostics() {},
     log: (log) => {
       switch (log.level) {
         case "error":
