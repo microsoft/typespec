@@ -15,7 +15,7 @@
     "generate-scenarios-summary": "tsp-spector generate-scenarios-summary ./specs",
     "regen-docs": "pnpm generate-scenarios-summary",
     "upload-manifest": "tsp-spector upload-manifest ./specs --setName @typespec/http-specs --containerName manifests-typespec  --storageAccountName typespec",
-    "upload-coverage": "tsp-spector upload-coverage --generatorName @typespec/http-specs --generatorVersion 0.1.0-alpha.4 --containerName coverages --generatorMode standard --storageAccountName typespec",
+    "upload-coverage": "tsp-spector upload-coverage --generatorName @typespec/http-specs --generatorVersion 0.1.0 --containerName coverages --generatorMode standard --storageAccountName typespec",
     "validate-mock-apis": "tsp-spector validate-mock-apis ./specs",
     "check-scenario-coverage": "tsp-spector check-coverage ./specs",
     "validate-client-server": "concurrently \"tsp-spector server start ./specs\" \"pnpm knock\"; tsp-spector server stop",
