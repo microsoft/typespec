@@ -80,13 +80,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var visitedTypes = new HashSet<CSharpType>();
             var visitedTypeProviders = new HashSet<TypeProvider>();
-            var buildableProviders = new HashSet<TypeProvider>(new TypeProviderTypeComparer());
+            var buildableProviders = new HashSet<TypeProvider>(new TypeProviderTypeNameComparer());
             var buildableTypes = new HashSet<CSharpType>();
 
             // Get all providers from the output library that are models or implement MRW interface types
             var providers = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
                 .Where(t => t is ModelProvider || ImplementsModelReaderWriter(t))
-                .ToHashSet();
+                .ToHashSet(new TypeProviderTypeNameComparer());
 
             // Process each provider recursively
             foreach (var provider in providers)
@@ -401,18 +401,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return type.Name.StartsWith("IPersistableModel") || type.Name.StartsWith("IJsonModel");
         }
 
-        private class TypeProviderTypeComparer : IEqualityComparer<TypeProvider>
+        private class TypeProviderTypeNameComparer : IEqualityComparer<TypeProvider>
         {
             public bool Equals(TypeProvider? x, TypeProvider? y)
             {
+                if (x is null && y is null)
+                {
+                    return true;
+                }
                 if (x is null || y is null)
+                {
                     return false;
-                return x.Type.AreNamesEqual(y.Type);
+                }
+                return x.Type.Namespace == y.Type.Namespace && x.Name == y.Name;
             }
 
             public int GetHashCode(TypeProvider obj)
             {
-                return obj.Type is null ? 0 : obj.Type.GetHashCode();
+                HashCode hashCode = new HashCode();
+                hashCode.Add(obj.Type.Namespace);
+                hashCode.Add(obj.Type.Name);
+                return hashCode.ToHashCode();
             }
         }
     }
