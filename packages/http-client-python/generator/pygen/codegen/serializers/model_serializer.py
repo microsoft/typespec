@@ -159,7 +159,7 @@ class MsrestModelSerializer(_ModelSerializer):
                     )
                 )
             for prop in model.properties:
-                if prop.readonly or prop.constant:
+                if prop.readonly:
                     # it will be defined in the __init__ so we need to import it
                     file_import.merge(
                         prop.imports(
