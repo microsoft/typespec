@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Text;
 using System.Text.Json;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
@@ -141,7 +142,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 BuildWriteBase64StringValueMethodProvider(),
                 BuildWriteNumberValueMethodProvider(),
                 BuildWriteObjectValueMethodGeneric(),
-                BuildWriteObjectValueMethodProvider()
+                BuildWriteObjectValueMethodProvider(),
+                .. BuildDynamicModelHelpers()
             ];
         }
 
@@ -574,5 +576,98 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return signature;
         }
         #endregion
+
+        private MethodProvider[] BuildDynamicModelHelpers()
+        {
+            if (!ScmCodeModelGenerator.Instance.TypeFactory.HasDynamicModels)
+            {
+                return [];
+            }
+
+            return
+            [
+                BuildSliceToStartOfPropertyNameMethodProvider(),
+                BuildGetFirstPropertyNameMethodProvider()
+            ];
+        }
+
+        private MethodProvider BuildSliceToStartOfPropertyNameMethodProvider()
+        {
+            var jsonPathParameter = new ParameterProvider("jsonPath", FormattableStringHelpers.Empty, typeof(ReadOnlySpan<byte>));
+            var signature = new MethodSignature(
+                Name: "SliceToStartOfPropertyName",
+                Modifiers: _methodModifiers,
+                Parameters: [jsonPathParameter],
+                ReturnType: typeof(ReadOnlySpan<byte>),
+                Description: null,
+                ReturnDescription: null);
+
+            var declareLocal = Declare("local", typeof(ReadOnlySpan<byte>), jsonPathParameter.AsExpression(),
+                out var local);
+            var indexable = new IndexableExpression(local);
+            var body = new MethodBodyStatement[]
+            {
+                declareLocal,
+                new IfStatement(ReadOnlySpanSnippets.Length(local).LessThan(Int(3)))
+                {
+                    Return(ReadOnlySpanSnippets.Empty())
+                },
+                new IfStatement(indexable[Int(0)].NotEqual(Literal('$')))
+                {
+                    Return(ReadOnlySpanSnippets.Empty())
+                },
+                Return(new TernaryConditionalExpression(
+                    ReadOnlySpanSnippets.Length(local).GreaterThanOrEqual(Int(4))
+                        .And(indexable[Int(1)].Equal(Literal('[')))
+                        .And(indexable[Int(2)].Equal(Literal('\''))
+                            .Or(indexable[Int(2)].Equal(Literal('\"')))),
+                    ReadOnlySpanSnippets.Slice(local, Int(3)),
+                    ReadOnlySpanSnippets.Empty()))
+            };
+
+            return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
+        }
+
+        private MethodProvider BuildGetFirstPropertyNameMethodProvider()
+        {
+            var jsonPathParameter = new ParameterProvider("jsonPath", FormattableStringHelpers.Empty, typeof(ReadOnlySpan<byte>));
+            var bytesConsumedParameter = new ParameterProvider("bytesConsumed", FormattableStringHelpers.Empty, typeof(int), isOut: true);
+            var signature = new MethodSignature(
+                Name: "GetFirstPropertyName",
+                Modifiers: _methodModifiers,
+                Parameters: [jsonPathParameter, bytesConsumedParameter],
+                ReturnType: typeof(string),
+                Description: null,
+                ReturnDescription: null);
+
+            var declareLocal = Declare("local", typeof(ReadOnlySpan<byte>), jsonPathParameter.AsExpression(),
+                out var local);
+            var bytesConsumedInt = bytesConsumedParameter.As<int>();
+            var indexable = new IndexableExpression(local);
+            var body = new MethodBodyStatement[]
+            {
+                declareLocal,
+                new ForStatement(bytesConsumedParameter, bytesConsumedInt.LessThan(ReadOnlySpanSnippets.Length(local)),
+                    bytesConsumedInt.Increment())
+                {
+                    Declare("current", typeof(byte), indexable[bytesConsumedInt], out var current),
+                    new IfElseStatement(new IfStatement(current.Equal(Literal('.'))) { Break },
+                        new IfStatement(current.Equal(Literal('\'')).Or(current.Equal(Literal('\"'))))
+                        {
+                            new IfStatement(bytesConsumedInt.Add(Literal(1))
+                                .LessThan(ReadOnlySpanSnippets.Length(local))
+                                .And(indexable[bytesConsumedInt.Add(Literal(1))].Equal(Literal(']')))) { Break }
+                        })
+                },
+                new IfElsePreprocessorStatement(
+                    "NET6_0_OR_GREATER",
+                    Declare("key", typeof(string), Static<Encoding>().Property("UTF8").Invoke("GetString", ReadOnlySpanSnippets.Slice(local, Int(0), bytesConsumedInt)), out var key),
+                    Declare("key", typeof(string), Static<Encoding>().Property("UTF8").Invoke("GetString", ReadOnlySpanSnippets.Slice(local, Int(0), bytesConsumedInt).Invoke("ToArray")), out key)),
+                bytesConsumedInt.AddAndAssign(ReadOnlySpanSnippets.Length(jsonPathParameter).Minus(ReadOnlySpanSnippets.Length(local))),
+                Return(key)
+            };
+
+            return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
+        }
     }
 }

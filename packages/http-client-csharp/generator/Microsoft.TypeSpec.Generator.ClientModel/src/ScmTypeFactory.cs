@@ -5,6 +5,7 @@ using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text.Json;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
@@ -50,6 +51,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 return _rootInputModels!;
             }
         }
+
+        internal bool HasDynamicModels
+            => _hasDynamicModels ??= ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Models.Any(m => m.IsDynamicModel);
+        private bool? _hasDynamicModels;
 
         private HashSet<InputModelType>? _rootInputModels;
 

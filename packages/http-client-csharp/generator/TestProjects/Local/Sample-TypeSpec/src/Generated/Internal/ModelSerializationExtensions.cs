@@ -254,5 +254,19 @@ namespace SampleTypeSpec
         {
             writer.WriteObjectValue<object>(value, options);
         }
+
+        public static ReadOnlySpan<byte> SliceToStartOfPropertyName(this ReadOnlySpan<byte> jsonPath)
+        {
+            ReadOnlySpan<byte> local = jsonPath;
+            if (local.Length < 3)
+            {
+                return ReadOnlySpan<byte>.Empty;
+            }
+            if (local[0] != '$')
+            {
+                return ReadOnlySpan<byte>.Empty;
+            }
+            return local.Length >= 4 && local[1] == '[' && (local[2] == (byte)'\'' || local[2] == (byte)'"') ? local[3..] : ReadOnlySpan<byte>.Empty;
+        }
     }
 }
