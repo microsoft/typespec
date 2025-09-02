@@ -4063,7 +4063,7 @@ def test_additional_properties_serialization():
     assert json.loads(json.dumps(model, cls=SdkJSONEncoder)) == value
 
 class Animal(Model):
-    __mapping__: Dict[str, Model] = {}
+    __mapping__: dict[str, Model] = {}
     kind: str = rest_discriminator(name="kind")
     name: str = rest_field()
 
@@ -4072,7 +4072,7 @@ class Animal(Model):
 
 
 class AnotherPet(Animal, discriminator='pet'):
-    __mapping__: Dict[str, Model] = {}
+    __mapping__: dict[str, Model] = {}
     kind: Literal["pet"] = rest_discriminator(name="kind")
     trained: bool = rest_field()
 
