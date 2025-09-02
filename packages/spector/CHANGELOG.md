@@ -1,5 +1,11 @@
 # Change Log - @typespec/spector
 
+## 0.1.0
+
+### Breaking Changes
+
+- Move to stable version 0.1.0
+
 ## 0.1.0-preview
 
 ### Breaking Changes
