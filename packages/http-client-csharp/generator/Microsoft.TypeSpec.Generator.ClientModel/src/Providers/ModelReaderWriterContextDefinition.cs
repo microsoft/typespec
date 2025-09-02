@@ -403,6 +403,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private class TypeProviderTypeNameComparer : IEqualityComparer<TypeProvider>
         {
+            private CSharpTypeNameComparer _typeComparer = new CSharpTypeNameComparer();
+
             public bool Equals(TypeProvider? x, TypeProvider? y)
             {
                 if (x is null && y is null)
@@ -413,15 +415,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     return false;
                 }
-                return x.Type.Namespace == y.Type.Namespace && x.Type.Name == y.Type.Name;
+                return _typeComparer.Equals(x.Type, y.Type);
             }
 
             public int GetHashCode(TypeProvider obj)
             {
-                HashCode hashCode = new HashCode();
-                hashCode.Add(obj.Type.Namespace);
-                hashCode.Add(obj.Type.Name);
-                return hashCode.ToHashCode();
+                return _typeComparer.GetHashCode(obj.Type);
             }
         }
 
