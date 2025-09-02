@@ -1,5 +1,14 @@
 # @typespec/http-specs
 
+## 0.1.0
+
+Initial preview release.
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+
 ## 0.1.0-alpha.25
 
 ### Bump dependencies
