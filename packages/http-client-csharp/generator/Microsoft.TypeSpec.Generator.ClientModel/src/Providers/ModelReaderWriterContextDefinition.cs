@@ -78,10 +78,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// </summary>
         private (HashSet<CSharpType> BuildableTypes, HashSet<TypeProvider> BuildableProviders) CollectBuildableTypes()
         {
-            var visitedTypes = new HashSet<CSharpType>();
-            var visitedTypeProviders = new HashSet<TypeProvider>();
+            var visitedTypes = new HashSet<CSharpType>(new CSharpTypeNameComparer());
+            var visitedTypeProviders = new HashSet<TypeProvider>(new TypeProviderTypeNameComparer());
             var buildableProviders = new HashSet<TypeProvider>(new TypeProviderTypeNameComparer());
-            var buildableTypes = new HashSet<CSharpType>();
+            var buildableTypes = new HashSet<CSharpType>(new CSharpTypeNameComparer());
 
             // Get all providers from the output library that are models or implement MRW interface types
             var providers = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
@@ -421,6 +421,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 HashCode hashCode = new HashCode();
                 hashCode.Add(obj.Type.Namespace);
                 hashCode.Add(obj.Type.Name);
+                return hashCode.ToHashCode();
+            }
+        }
+
+        private class CSharpTypeNameComparer : IEqualityComparer<CSharpType>
+        {
+            public bool Equals(CSharpType? x, CSharpType? y)
+            {
+                if (x is null && y is null)
+                {
+                    return true;
+                }
+                if (x is null || y is null)
+                {
+                    return false;
+                }
+                return x.Namespace == y.Namespace && x.Name == y.Name;
+            }
+
+            public int GetHashCode(CSharpType obj)
+            {
+                HashCode hashCode = new HashCode();
+                hashCode.Add(obj.Namespace);
+                hashCode.Add(obj.Name);
                 return hashCode.ToHashCode();
             }
         }
