@@ -2,11 +2,7 @@ import { generateLlmstxt } from "@site/src/utils/generate-llms-txt";
 import { processDocsForLlmsTxt, type DocEntry } from "@typespec/astro-utils/llmstxt";
 import type { APIRoute } from "astro";
 import { getCollection } from "astro:content";
-
-export function getLibraryName(id: string): string | undefined {
-  const match = id.match(/docs\/libraries\/([^/]+)\//);
-  return match ? match[1] : undefined;
-}
+import { getLibraryName } from "../../../../utils/get-library-name-from-slug";
 
 export async function getStaticPaths() {
   const libraryNamesToDocs = new Map<string, DocEntry[]>();

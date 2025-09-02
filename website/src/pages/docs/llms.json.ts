@@ -1,7 +1,7 @@
 import { mergeSiteWithPath } from "@typespec/astro-utils/llmstxt";
 import type { APIRoute } from "astro";
 import { getCollection } from "astro:content";
-import { getLibraryName } from "./libraries/[name]/llms.txt";
+import { getLibraryName } from "../../utils/get-library-name-from-slug";
 
 export const GET: APIRoute = async ({ site }) => {
   const siteHref = site?.href ?? "";

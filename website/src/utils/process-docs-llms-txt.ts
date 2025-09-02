@@ -1,8 +1,37 @@
 import { processDocsForLlmsTxt } from "@typespec/astro-utils/llmstxt";
 import { getCollection } from "astro:content";
+import { getLibraryName } from "./get-library-name-from-slug";
 
 export async function processDocsForTypeSpecLlmsTxt(site?: URL) {
-  const docs = await getCollection("docs", (entry) => !!entry.data.llmstxt);
+  const libraryNames = new Set<string>();
+  const docs = await getCollection("docs", (entry) => {
+    if (!entry.data.llmstxt) return false;
+
+    const libraryName = getLibraryName(entry.id);
+    if (libraryName) {
+      libraryNames.add(libraryName);
+    }
+
+    return true;
+  });
+
+  const llmsSections = [
+    { name: "Language Basics", pattern: "docs/language-basics/**" },
+    { name: "Standard Library", pattern: "docs/standard-library/**" },
+  ];
+
+  for (const libraryName of libraryNames) {
+    llmsSections.push({
+      name: `@typespec/${libraryName}`,
+      pattern: `docs/libraries/${libraryName}/**`,
+    });
+  }
+
+  llmsSections.push({
+    name: "Optional",
+    pattern: "docs/**",
+  });
+
   const result = await processDocsForLlmsTxt({
     title: "TypeSpec Documentation",
     description:
@@ -13,17 +42,3 @@ export async function processDocsForTypeSpecLlmsTxt(site?: URL) {
   });
   return result;
 }
-
-const llmsSections = [
-  { name: "Language Basics", pattern: "docs/language-basics/**" },
-  { name: "Standard Library", pattern: "docs/standard-library/**" },
-  { name: "HTTP Library", pattern: "docs/libraries/http/**" },
-  { name: "OpenAPI Library", pattern: "docs/libraries/openapi/**" },
-  { name: "Other Libraries", pattern: "docs/libraries/**" },
-  { name: "JSON Schema Emitter", pattern: "docs/emitters/json-schema/**" },
-  { name: "OpenAPI Emitter", pattern: "docs/emitters/openapi3/**" },
-  { name: "Protobuf Emitter", pattern: "docs/emitters/protobuf/**" },
-  { name: "Client Emitters", pattern: "docs/emitters/clients/**" },
-  { name: "Server Emitters", pattern: "docs/emitters/servers/**" },
-  { name: "Optional", pattern: "docs/**" },
-];
