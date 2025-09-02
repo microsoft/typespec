@@ -413,7 +413,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     return false;
                 }
-                return x.Type.Namespace == y.Type.Namespace && x.Name == y.Name;
+                return x.Type.Namespace == y.Type.Namespace && x.Type.Name == y.Type.Name;
             }
 
             public int GetHashCode(TypeProvider obj)
