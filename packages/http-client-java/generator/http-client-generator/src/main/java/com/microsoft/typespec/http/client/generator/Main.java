@@ -112,8 +112,11 @@ public class Main {
         // template
         FluentJavaPackage javaPackage = fluentPlugin.processTemplates(codeModel, client);
 
-        // delete generated Java files
-        deleteGeneratedJavaFiles(emitterOptions.getOutputDir(), javaPackage.getJavaFiles(), JavaSettings.getInstance());
+        if (emitterOptions.getClearOutputFolder() == Boolean.TRUE) {
+            // delete generated Java files
+            deleteGeneratedJavaFiles(emitterOptions.getOutputDir(), javaPackage.getJavaFiles(),
+                JavaSettings.getInstance());
+        }
 
         // write java files
         Postprocessor.writeToFiles(
@@ -155,8 +158,10 @@ public class Main {
         LOGGER.info("Count of XML files: {}", javaPackage.getXmlFiles().size());
         LOGGER.info("Count of text files: {}", javaPackage.getTextFiles().size());
 
-        // delete generated Java files
-        deleteGeneratedJavaFiles(outputDir, javaPackage.getJavaFiles(), settings);
+        if (emitterOptions.getClearOutputFolder() == Boolean.TRUE) {
+            // delete generated Java files
+            deleteGeneratedJavaFiles(outputDir, javaPackage.getJavaFiles(), settings);
+        }
 
         Map<String, String> javaFiles = new ConcurrentHashMap<>();
         javaPackage.getJavaFiles()

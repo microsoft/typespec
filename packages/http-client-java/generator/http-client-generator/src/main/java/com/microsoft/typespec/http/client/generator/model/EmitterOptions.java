@@ -40,6 +40,7 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private Boolean useRestProxy;
     private Boolean useDefaultHttpStatusCodeToExceptionTypeMapping = true;
     private DevOptions devOptions;
+    private Boolean clearOutputFolder = false;
 
     // mgmt
     private Boolean premium = false;
@@ -194,6 +195,10 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return useDefaultHttpStatusCodeToExceptionTypeMapping;
     }
 
+    public Boolean getClearOutputFolder() {
+        return clearOutputFolder;
+    }
+
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         // it does not need to be written to JSON
@@ -266,6 +271,8 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                 options.resourceCollectionAssociations = reader.readArray(ResourceCollectionAssociation::fromJson);
             } else if ("premium".equals(fieldName)) {
                 options.premium = reader.getNullable(EmitterOptions::getBoolean);
+            } else if ("clear-output-folder".equals(fieldName)) {
+                options.clearOutputFolder = reader.getNullable(EmitterOptions::getBoolean);
             } else {
                 reader.skipChildren();
             }
