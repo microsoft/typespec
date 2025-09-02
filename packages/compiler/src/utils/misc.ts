@@ -1,4 +1,3 @@
-import { createHash } from "crypto";
 import { isPathAbsolute, isUrl, normalizePath, resolvePath } from "../core/path-utils.js";
 import type {
   MutableSymbolTable,
@@ -480,8 +479,4 @@ class RekeyableMapImpl<K, V> implements RekeyableMap<K, V> {
     this.#keys.set(newKey, keyItem);
     return true;
   }
-}
-
-export function md5(str: string): string {
-  return createHash("md5").update(str).digest("hex");
 }

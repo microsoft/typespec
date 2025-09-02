@@ -1,3 +1,4 @@
+import { createHash } from "crypto";
 import { formatLog } from "../core/logger/index.js";
 import {
   compile as compileProgram,
@@ -8,7 +9,6 @@ import {
   Program,
   ServerLog,
 } from "../index.js";
-import { md5 } from "../utils/misc.js";
 import { ENABLE_SERVER_COMPILE_LOGGING } from "./constants.js";
 import { trackActionFunc } from "./server-track-action-task.js";
 import { UpdateManger } from "./update-manager.js";
@@ -195,8 +195,8 @@ class CompileCacheInternal {
       ...compileOption,
       outputDir: undefined,
     };
-    const key = md5(`${normalizedEntrypoint}\n${normalizedOptions}`);
-    return key;
+
+    return createHash("md5").update(`${normalizedEntrypoint}\n${normalizedOptions}`).digest("hex");
   }
 
   /** Get the latest completed compilation */
