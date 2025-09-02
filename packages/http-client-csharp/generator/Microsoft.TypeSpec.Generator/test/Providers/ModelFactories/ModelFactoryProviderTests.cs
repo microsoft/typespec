@@ -296,6 +296,55 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
                 result);
         }
 
+        [Test]
+        public void ModelWithNestedDiscriminators()
+        {
+            var discriminatorProperty =
+                InputFactory.Property("StringProp", InputPrimitiveType.String, isDiscriminator: true);
+            InputModelProperty[] properties =
+            [
+                discriminatorProperty,
+                InputFactory.Property("ModelProp", InputFactory.Model("Thing")),
+                InputFactory.Property("ListProp", InputFactory.Array(InputPrimitiveType.String)),
+            ];
+            InputModelProperty nestedDiscriminatorProperty =
+                InputFactory.Property("NestedDiscriminator", InputPrimitiveType.String, isDiscriminator: true);
+
+            var grandChildModel = InputFactory.Model(
+                "GrandChildModel",
+                properties: [],
+                discriminatedKind: "nestedPropVal");
+
+            var childModel = InputFactory.Model(
+                "ChildModel",
+                properties: [nestedDiscriminatorProperty],
+                discriminatedKind: "stringPropVal",
+                derivedModels: [grandChildModel],
+                discriminatorProperty: nestedDiscriminatorProperty);
+
+            var baseModel = InputFactory.Model(
+                "BaseModel",
+                properties: properties,
+                discriminatorProperty: discriminatorProperty,
+                derivedModels: [childModel]);
+
+            MockHelpers.LoadMockGenerator(inputModelTypes: [grandChildModel, childModel, baseModel]);
+            var modelFactory = CodeModelGenerator.Instance.OutputLibrary.ModelFactory.Value;
+
+            Assert.IsNotNull(modelFactory);
+            var grandChildMethod = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == "GrandChildModel");
+            Assert.IsNotNull(grandChildMethod);
+            StringAssert.Contains(
+                "return new global::Sample.Models.GrandChildModel(\"stringPropVal\", modelProp, listProp.ToList(), additionalBinaryDataProperties: null, \"nestedPropVal\")",
+                grandChildMethod!.BodyStatements!.ToDisplayString());
+
+            var childMethod = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == "ChildModel");
+            Assert.IsNotNull(childMethod);
+            StringAssert.Contains(
+                "return new global::Sample.Models.ChildModel(\"stringPropVal\", modelProp, listProp.ToList(), additionalBinaryDataProperties: null, default)",
+                childMethod!.BodyStatements!.ToDisplayString());
+        }
+
         private static InputModelType[] GetTestModels()
         {
             InputType additionalPropertiesUnknown = InputPrimitiveType.Any;
