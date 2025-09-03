@@ -17,8 +17,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     public class ModelReaderWriterContextDefinition : TypeProvider
     {
         private const string DefaultObsoleteDiagnosticId = "CS0618";
-        private static CSharpTypeNameComparer s_cSharpTypeNameComparer = new CSharpTypeNameComparer();
-        private static TypeProviderTypeNameComparer s_typeProviderNameComparer = new TypeProviderTypeNameComparer();
+        private static readonly CSharpTypeNameComparer s_cSharpTypeNameComparer = new CSharpTypeNameComparer();
+        private static readonly TypeProviderTypeNameComparer s_typeProviderNameComparer = new TypeProviderTypeNameComparer();
 
         internal static readonly string s_name = $"{RemovePeriods(ScmCodeModelGenerator.Instance.TypeFactory.PrimaryNamespace)}Context";
 
