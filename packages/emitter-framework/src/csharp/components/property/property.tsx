@@ -36,6 +36,7 @@ export function Property(props: PropertyProps): Children {
         } else {
           overrideType = "new";
         }
+        break;
       }
     }
   }
