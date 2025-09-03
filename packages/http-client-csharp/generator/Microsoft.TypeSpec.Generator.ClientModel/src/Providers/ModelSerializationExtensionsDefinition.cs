@@ -669,8 +669,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodProvider BuildWriteDictionaryWithPatchMethodProvider()
         {
-            var writerParameter = new ParameterProvider("writer", FormattableStringHelpers.Empty, typeof(Utf8JsonWriter));
-            var optionsParameter = new ParameterProvider("options", FormattableStringHelpers.Empty, typeof(ModelReaderWriterOptions));
+            var writerParameter = ScmKnownParameters.Utf8JsonWriter;
+            var optionsParameter = ScmKnownParameters.Options;
 #pragma warning disable SCME0001
             var patchParameter = new ParameterProvider("patch", FormattableStringHelpers.Empty, typeof(JsonPatch), isRef: true);
 #pragma warning restore SCME0001
@@ -768,8 +768,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodProvider BuildGetUtf8BytesMethodProvider()
         {
-            var elementParameter =
-                new ParameterProvider("element", FormattableStringHelpers.Empty, typeof(JsonElement));
+            var elementParameter = ScmKnownParameters.JsonElement;
             var signature = new MethodSignature(
                 Name: "GetUtf8Bytes",
                 Modifiers: _methodModifiers,
