@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Input;
@@ -27,6 +28,7 @@ namespace Microsoft.TypeSpec.Generator
         private static CodeModelGenerator? _instance;
         private List<string> _sharedSourceDirectories = [];
         public const string GeneratorMetadataName = "GeneratorName";
+        internal Stopwatch Stopwatch { get; } = new Stopwatch();
         public static CodeModelGenerator Instance
         {
             get
