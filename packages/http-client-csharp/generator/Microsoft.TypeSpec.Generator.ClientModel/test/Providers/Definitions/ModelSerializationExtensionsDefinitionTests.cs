@@ -8,6 +8,7 @@ using System.Text.Json;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.ClientModel.Tests;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -333,11 +334,84 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             var methods = definition.Methods;
 
             Assert.IsNotNull(methods);
-            var sliceToStartOfPropertyMethod = methods.SingleOrDefault(m => m.Signature.Name == "SliceToStartOfPropertyName");
-            Assert.IsNotNull(sliceToStartOfPropertyMethod);
-            Assert.IsNotNull(sliceToStartOfPropertyMethod!.BodyStatements);
+            var method = methods.SingleOrDefault(m => m.Signature.Name == "SliceToStartOfPropertyName");
+            Assert.IsNotNull(method);
 
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), sliceToStartOfPropertyMethod.BodyStatements!.ToDisplayString());
+            var writer = new TypeProviderWriter(new FilteredMethods(definition, method!.Signature.Name));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void ValidateGetUtf8Bytes()
+        {
+            MockHelpers.LoadMockGenerator(inputModels: () => [InputFactory.Model("dynamicModel", isDynamic: true)]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var methods = definition.Methods;
+
+            Assert.IsNotNull(methods);
+            var method = methods.SingleOrDefault(m => m.Signature.Name == "GetUtf8Bytes");
+            Assert.IsNotNull(method);
+
+            var writer = new TypeProviderWriter(new FilteredMethods(definition, method!.Signature.Name));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void ValidateGetFirstPropertyName()
+        {
+            MockHelpers.LoadMockGenerator(inputModels: () => [InputFactory.Model("dynamicModel", isDynamic: true)]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var methods = definition.Methods;
+
+            Assert.IsNotNull(methods);
+            var method = methods.SingleOrDefault(m => m.Signature.Name == "GetFirstPropertyName");
+            Assert.IsNotNull(method);
+
+            var writer = new TypeProviderWriter(new FilteredMethods(definition, method!.Signature.Name));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void ValidateWriteDictionaryWithPatch()
+        {
+            MockHelpers.LoadMockGenerator(inputModels: () => [InputFactory.Model("dynamicModel", isDynamic: true)]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var methods = definition.Methods;
+
+            Assert.IsNotNull(methods);
+            var method = methods.SingleOrDefault(m => m.Signature.Name == "WriteDictionaryWithPatch");
+            Assert.IsNotNull(method);
+
+            var writer = new TypeProviderWriter(new FilteredMethods(definition, method!.Signature.Name));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        private class FilteredMethods : TypeProvider
+        {
+            private readonly string _method;
+            private readonly TypeProvider _provider;
+
+            public FilteredMethods(TypeProvider provider, string methodName)
+            {
+                _provider = provider;
+                _method = methodName;
+            }
+
+            protected override MethodProvider[] BuildMethods()
+            {
+                return _provider.Methods.Where(m => m.Signature.Name == _method).ToArray();
+            }
+
+            protected override string BuildRelativeFilePath() => _provider.RelativeFilePath;
+
+            protected override string BuildName() => _provider.Name;
         }
     }
 }
