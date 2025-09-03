@@ -158,6 +158,16 @@ class MsrestModelSerializer(_ModelSerializer):
                         called_by_property=True,
                     )
                 )
+            for prop in model.properties:
+                if prop.readonly:
+                    # it will be defined in the __init__ so we need to import it
+                    file_import.merge(
+                        prop.imports(
+                            serialize_namespace=self.serialize_namespace,
+                            serialize_namespace_type=NamespaceType.MODEL,
+                            called_by_property=True,
+                        )
+                    )
 
         return file_import
 
