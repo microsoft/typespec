@@ -5,8 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.SourceInput;
 
 namespace Microsoft.TypeSpec.Generator
@@ -17,6 +17,8 @@ namespace Microsoft.TypeSpec.Generator
         private const string CodeModelFileName = "tspCodeModel.json";
 
         private static readonly string[] _filesToKeep = [ConfigurationFileName, CodeModelFileName];
+
+        private static readonly SemaphoreSlim _logGate = new(1, 1);
 
         /// <summary>
         /// Executes the generator task with the <see cref="CodeModelGenerator"/> instance.
@@ -92,18 +94,31 @@ namespace Microsoft.TypeSpec.Generator
 
             await generatedCodeWorkspace.PostProcessAsync();
 
-            // Write the generated files to the output directory
-            await foreach (var file in generatedCodeWorkspace.GetGeneratedFilesAsync())
+            var options = new ParallelOptions
             {
-                if (string.IsNullOrEmpty(file.Text))
+                MaxDegreeOfParallelism = Math.Clamp(Environment.ProcessorCount, 2, 8),
+            };
+
+
+            // Write the generated files to the output directory
+            await Parallel.ForEachAsync(
+                generatedCodeWorkspace.GetGeneratedFilesAsync(),
+                options,
+                async (file, ct) =>
                 {
-                    continue;
-                }
-                var filename = Path.Combine(outputPath, file.Name);
-                CodeModelGenerator.Instance.Emitter.Info($"Writing {Path.GetFullPath(filename)}");
-                Directory.CreateDirectory(Path.GetDirectoryName(filename)!);
-                await File.WriteAllTextAsync(filename, file.Text);
-            }
+                    if (string.IsNullOrEmpty(file.Text))
+                    {
+                        return;
+                    }
+
+                    var filename = Path.Combine(outputPath, file.Name);
+                    Directory.CreateDirectory(Path.GetDirectoryName(filename)!);
+
+                    var fullPath = Path.GetFullPath(filename);
+                    await LogFileWrittenAsync(fullPath, ct);
+
+                    await File.WriteAllTextAsync(filename, file.Text, ct);
+                });
 
             // Write project scaffolding files
             if (CodeModelGenerator.Instance.IsNewProject)
@@ -159,6 +174,19 @@ namespace Microsoft.TypeSpec.Generator
         {
             CodeModelGenerator.Instance.Emitter.Info(
                 $"{message}. Total Elapsed time: {CodeModelGenerator.Instance.Stopwatch.Elapsed}");
+        }
+
+        private static async Task LogFileWrittenAsync(string filePath, CancellationToken cancellationToken)
+        {
+            await _logGate.WaitAsync(cancellationToken);
+            try
+            {
+                CodeModelGenerator.Instance.Emitter.Info($"Writing {filePath}");
+            }
+            finally
+            {
+                _logGate.Release();
+            }
         }
     }
 }
