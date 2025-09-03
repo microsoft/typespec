@@ -23,6 +23,9 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         public async Task ExecuteAsync()
         {
+            CodeModelGenerator.Instance.Emitter.Info("Starting code generation");
+            CodeModelGenerator.Instance.Stopwatch.Start();
+
             GeneratedCodeWorkspace.Initialize();
             var outputPath = CodeModelGenerator.Instance.Configuration.OutputDirectory;
             var generatedSourceOutputPath = CodeModelGenerator.Instance.Configuration.ProjectGeneratedDirectory;
@@ -49,11 +52,21 @@ namespace Microsoft.TypeSpec.Generator
             Directory.CreateDirectory(Path.Combine(generatedSourceOutputPath, "Models"));
             List<Task> generateFilesTasks = new();
 
+            // Build all TypeProviders
+            foreach (var type in output.TypeProviders)
+            {
+                type.EnsureBuilt();
+            }
+
+            CodeModelGenerator.Instance.Emitter.Info($"All generated type providers built. Total Elapsed time: {CodeModelGenerator.Instance.Stopwatch.Elapsed}");
+
             // visit the entire library before generating files
             foreach (var visitor in CodeModelGenerator.Instance.Visitors)
             {
                 visitor.VisitLibrary(output);
             }
+
+            CodeModelGenerator.Instance.Emitter.Info($"All visitors have been applied. Total Elapsed time: {CodeModelGenerator.Instance.Stopwatch.Elapsed}");
 
             foreach (var outputType in output.TypeProviders)
             {
@@ -93,6 +106,8 @@ namespace Microsoft.TypeSpec.Generator
             {
                 await CodeModelGenerator.Instance.TypeFactory.CreateNewProjectScaffolding().Execute();
             }
+
+            CodeModelGenerator.Instance.Emitter.Info($"All files have been written. Total Elapsed time: {CodeModelGenerator.Instance.Stopwatch.Elapsed}");
         }
 
         /// <summary>
