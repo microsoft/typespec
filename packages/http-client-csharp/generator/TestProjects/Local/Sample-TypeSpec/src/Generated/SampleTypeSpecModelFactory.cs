@@ -173,5 +173,13 @@ namespace SampleTypeSpec
                 optionalQuery,
                 additionalBinaryDataProperties: null);
         }
+
+        /// <summary> A sample dynamic model. </summary>
+        /// <param name="name"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.DynamicModel"/> instance for mocking. </returns>
+        public static DynamicModel DynamicModel(string name = default)
+        {
+            return new DynamicModel(name, default);
+        }
     }
 }

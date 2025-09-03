@@ -20,6 +20,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public TypeProvider EnclosingType { get; }
         public IReadOnlyList<AttributeStatement> Attributes { get; private set; }
+        public IReadOnlyList<SuppressionStatement> Suppressions { get; internal set; }
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -36,12 +37,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <param name="enclosingType">The enclosing type.</param>
         /// <param name="xmlDocProvider">The XML documentation provider.</param>
         /// <param name="attributes"> The attributes for the method.</param>
+        /// <param name="suppressions"> The suppressions for the method.</param>
         public ConstructorProvider(
             ConstructorSignature signature,
             MethodBodyStatement bodyStatements,
             TypeProvider enclosingType,
             XmlDocProvider? xmlDocProvider = default,
-            IEnumerable<AttributeStatement>? attributes = default)
+            IEnumerable<AttributeStatement>? attributes = default,
+            IEnumerable<SuppressionStatement>? suppressions = default)
         {
             Signature = signature;
             var paramHash = MethodProviderHelpers.GetParamHash(signature);
@@ -49,6 +52,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature);
             EnclosingType = enclosingType;
             Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [];
+            Suppressions = (suppressions as IReadOnlyList<SuppressionStatement>) ?? [];
         }
 
         /// <summary>
@@ -59,18 +63,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <param name="enclosingType">The enclosing type.</param>
         /// <param name="xmlDocProvider">The XML documentation provider.</param>
         /// <param name="attributes"> The attributes for the method.</param>
+        /// <param name="suppressions"> The suppressions for the method.</param>
         public ConstructorProvider(
             ConstructorSignature signature,
             ValueExpression bodyExpression,
             TypeProvider enclosingType,
             XmlDocProvider? xmlDocProvider = default,
-            IEnumerable<AttributeStatement>? attributes = default)
+            IEnumerable<AttributeStatement>? attributes = default,
+            IEnumerable<SuppressionStatement>? suppressions = default)
         {
             Signature = signature;
             BodyExpression = bodyExpression;
             XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature);
             EnclosingType = enclosingType;
             Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [];
+            Suppressions = (suppressions as IReadOnlyList<SuppressionStatement>) ?? [];
         }
 
         public void Update(
@@ -78,7 +85,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             ConstructorSignature? signature = null,
             ValueExpression? bodyExpression = null,
             XmlDocProvider? xmlDocs = null,
-            IEnumerable<AttributeStatement>? attributes = default)
+            IEnumerable<AttributeStatement>? attributes = default,
+            IEnumerable<SuppressionStatement>? suppressions = default)
         {
             if (signature != null)
             {
@@ -103,6 +111,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (attributes != null)
             {
                 Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [.. attributes];
+            }
+            if (suppressions != null)
+            {
+                Suppressions = (suppressions as IReadOnlyList<SuppressionStatement>) ?? [.. suppressions];
             }
         }
     }

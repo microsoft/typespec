@@ -212,5 +212,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter,
             SerializationFormat serializationFormat)
             => MrwSerializationTypeDefinition.SerializeJsonValueCore(valueType, value, utf8JsonWriter, mrwOptionsParameter, serializationFormat);
+
+        protected override ModelProvider? CreateModelCore(InputModelType model) => new ScmModelProvider(model);
     }
 }

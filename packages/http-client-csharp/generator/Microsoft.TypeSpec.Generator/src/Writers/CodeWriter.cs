@@ -3,8 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Reflection.Metadata;
 using System.Text;
 using Microsoft.CodeAnalysis;
@@ -227,18 +229,38 @@ namespace Microsoft.TypeSpec.Generator
 
                 if (ctor.BodyStatements is { } body)
                 {
+                    foreach (var suppression in ctor.Suppressions)
+                    {
+                        suppression.DisableStatement.Write(this);
+                    }
+
                     using (WriteMethodDeclaration(ctor.Signature))
                     {
                         body.Write(this);
                     }
+
+                    foreach (var suppression in ctor.Suppressions)
+                    {
+                        suppression.RestoreStatement.Write(this);
+                    }
                 }
                 else if (ctor.BodyExpression is { } expression)
                 {
+                    foreach (var suppression in ctor.Suppressions)
+                    {
+                        suppression.DisableStatement.Write(this);
+                    }
+
                     using (WriteMethodDeclarationNoScope(ctor.Signature))
                     {
                         AppendRaw(" => ");
                         expression.Write(this);
                         WriteRawLine(";");
+                    }
+
+                    foreach (var suppression in ctor.Suppressions)
+                    {
+                        suppression.RestoreStatement.Write(this);
                     }
                 }
             }
@@ -311,6 +333,8 @@ namespace Microsoft.TypeSpec.Generator
                 .AppendRawIf("override ", modifiers.HasFlag(MethodSignatureModifiers.Override))
                 .AppendRawIf("static ", modifiers.HasFlag(MethodSignatureModifiers.Static))
                 .AppendRawIf("virtual ", modifiers.HasFlag(MethodSignatureModifiers.Virtual));
+
+            AppendRawIf("ref ", property.IsRef);
 
             Append($"{property.Type} ");
 
@@ -444,6 +468,7 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             AppendRawIf("out ", parameter.IsOut);
+            AppendRawIf("in ", parameter.IsIn);
             AppendRawIf("ref ", parameter.IsRef);
             AppendRawIf("params ", parameter.IsParams);
 

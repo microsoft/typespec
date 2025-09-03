@@ -650,6 +650,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         // IDictionary<string, T> additionalTProperties = new Dictionary<string, T>();
                         propertyDeclarationStatements.Add(Declare(variableRef, new DictionaryExpression(property.Type, New.Instance(property.Type.PropertyInitializationType))));
                     }
+                    else if (property.Name.Equals(ScmModelProvider.JsonPatchPropertyName) &&
+                        _model is ScmModelProvider { HasDynamicModelSupport: true })
+                    {
+                        var jsonPatchDeclaration = new SuppressionStatement(
+                            Declare(variableRef, Default),
+                            Literal(ScmModelProvider.ScmEvaluationTypeDiagnosticId),
+                            ScmModelProvider.ScmEvaluationTypeSuppressionJustification);
+                        propertyDeclarationStatements.Add(jsonPatchDeclaration);
+                    }
                     else
                     {
                         var defaultValue = (property.IsDiscriminator && _model.DiscriminatorValue != null && property.Type.IsFrameworkType)

@@ -30,6 +30,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public ValueExpression? InitializationValue { get; private set; }
         public ParameterValidationType Validation { get; set; } = ParameterValidationType.None;
         public bool IsRef { get; private set; }
+        public bool IsIn { get; private set; }
         public bool IsOut { get; private set; }
         public bool IsParams { get; private set; }
 
@@ -79,6 +80,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             ValueExpression? defaultValue = null,
             bool isRef = false,
             bool isOut = false,
+            bool isIn = false,
             bool isParams = false,
             IEnumerable<AttributeStatement>? attributes = null,
             PropertyProvider? property = null,
@@ -95,6 +97,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             Description = description;
             IsRef = isRef;
             IsOut = isOut;
+            IsIn = isIn;
             IsParams = isParams;
             DefaultValue = defaultValue;
             Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [];
@@ -122,6 +125,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 DefaultValue,
                 IsRef,
                 IsOut,
+                IsIn,
                 IsParams,
                 Attributes,
                 Property,
@@ -229,6 +233,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 true,
                 false,
                 false,
+                false,
                 Attributes,
                 Property,
                 Field,
@@ -251,6 +256,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             ValueExpression? defaultValue = null,
             bool? isRef = null,
             bool? isOut = null,
+            bool? isIn = null,
             bool? isParams = null,
             IEnumerable<AttributeStatement>? attributes = null,
             PropertyProvider? property = null,
@@ -291,6 +297,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (isOut is not null)
             {
                 IsOut = isOut.Value;
+            }
+
+            if (isIn is not null)
+            {
+                IsIn = isIn.Value;
             }
 
             if (isParams is not null)
