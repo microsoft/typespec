@@ -168,5 +168,7 @@ namespace Microsoft.TypeSpec.Generator.Snippets
             => new BinaryOperatorExpression("!=", parameter, other).As<bool>();
 
         public static VariableExpression AsExpression(this ParameterProvider variableExpression) => (VariableExpression)variableExpression;
+
+        public static VariableExpression AsExpression(this ParameterProvider variableExpression, bool includeRef) => ParameterProvider.GetVariableExpression(variableExpression, includeRef);
     }
 }

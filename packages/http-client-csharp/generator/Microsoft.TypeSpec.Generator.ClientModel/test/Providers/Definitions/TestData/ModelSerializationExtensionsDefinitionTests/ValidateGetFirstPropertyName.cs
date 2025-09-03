@@ -12,7 +12,7 @@ namespace Sample
         public static string GetFirstPropertyName(this global::System.ReadOnlySpan<byte> jsonPath, out int bytesConsumed)
         {
             global::System.ReadOnlySpan<byte> local = jsonPath;
-            for (bytesConsumed; (bytesConsumed < local.Length); bytesConsumed++)
+            for (bytesConsumed = 0; (bytesConsumed < local.Length); bytesConsumed++)
             {
                 byte current = local[bytesConsumed];
                 if ((current == '.'))

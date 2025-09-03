@@ -12,6 +12,7 @@ namespace Sample
 {
     public partial class ModelSerializationExtensions
     {
+#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
         public static void WriteDictionaryWithPatch<T>(this global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options, ref global::System.ClientModel.Primitives.JsonPatch patch, global::System.ReadOnlySpan<byte> propertyName, global::System.ReadOnlySpan<byte> prefix, global::System.Collections.Generic.IDictionary<string, T> dictionary, global::System.Action<global::System.Text.Json.Utf8JsonWriter, T, global::System.ClientModel.Primitives.ModelReaderWriterOptions> write, global::System.Func<T, global::System.ClientModel.Primitives.JsonPatch> getPatchFromItem)
         {
             if (!propertyName.IsEmpty)
@@ -39,9 +40,9 @@ namespace Sample
                 bool patchContains;
 #if NET8_0_OR_GREATER
                 int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key, buffer);
-                patchContains = (bytesWritten == maxPropertyNameLength) ? prefix.ContainsChildOf(prefix, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : prefix.ContainsChildOf(prefix, buffer.Slice(0, bytesWritten));
+                patchContains = (bytesWritten == maxPropertyNameLength) ? patch.ContainsChildOf(prefix, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : patch.ContainsChildOf(prefix, buffer.Slice(0, bytesWritten));
 #else
-                patchContains = prefix.ContainsChildOf(prefix, global::System.Text.Encoding.UTF8.GetBytes(item.Key));
+                patchContains = patch.ContainsChildOf(prefix, global::System.Text.Encoding.UTF8.GetBytes(item.Key));
 #endif
                 if (!patchContains)
                 {
@@ -50,8 +51,9 @@ namespace Sample
                 }
             }
 
-            ref patch.WriteTo(writer, prefix);
+            patch.WriteTo(writer, prefix);
             writer.WriteEndObject();
         }
+#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
     }
 }

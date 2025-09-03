@@ -181,11 +181,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
         // https://github.com/microsoft/typespec/issues/3813
         public static implicit operator VariableExpression(ParameterProvider parameter) => GetVariableExpression(parameter);
 
-        private static VariableExpression GetVariableExpression(ParameterProvider parameter)
+        internal static VariableExpression GetVariableExpression(ParameterProvider parameter, bool includeRef = true)
         {
             if (parameter._asVariable == null)
             {
-                parameter._asVariable = new VariableExpression(parameter.Type, parameter.Name.ToVariableName(), parameter.IsRef);
+                parameter._asVariable = new VariableExpression(parameter.Type, parameter.Name.ToVariableName(), includeRef && parameter.IsRef);
             }
 
             return parameter._asVariable;

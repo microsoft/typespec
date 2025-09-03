@@ -636,7 +636,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var body = new MethodBodyStatement[]
             {
                 declareLocal,
-                new ForStatement(bytesConsumedParameter,
+                new ForStatement(bytesConsumedParameter.Assign(Int(0)),
                     bytesConsumedInt.LessThan(ReadOnlySpanSnippets.Length(local)),
                     bytesConsumedInt.Increment())
                 {
@@ -692,6 +692,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ReturnDescription: null,
                 GenericArguments: [tArg]);
             var jsonWriter = writerParameter.As<Utf8JsonWriter>();
+            var patchExpression = patchParameter.AsExpression(includeRef: false);
 
             var body = new MethodBodyStatement[]
             {
@@ -733,13 +734,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                 out var bytesWritten),
                             patchContains.Assign(
                                 new TernaryConditionalExpression(bytesWritten.Equal(maxPropertyNameLength),
-                                    JsonPatchSnippets.ContainsChildOf(prefixParameter,
+                                    JsonPatchSnippets.ContainsChildOf(
+                                        patchExpression,
+                                        prefixParameter,
                                         Utf8Snippets.GetBytes(item.Property("Key").As<string>())),
-                                    JsonPatchSnippets.ContainsChildOf(prefixParameter,
+                                    JsonPatchSnippets.ContainsChildOf(
+                                        patchExpression,
+                                        prefixParameter,
                                         ReadOnlySpanSnippets.Slice(buffer, Int(0), bytesWritten)))).Terminate(),
                         },
                         patchContains.Assign(
-                            JsonPatchSnippets.ContainsChildOf(prefixParameter,
+                            JsonPatchSnippets.ContainsChildOf(
+                                patchExpression,
+                                prefixParameter,
                                 Utf8Snippets.GetBytes(item.Property("Key").As<string>()))).Terminate()
                     ),
                     new IfStatement(Not(patchContains))
@@ -756,7 +763,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 jsonWriter.WriteEndObject()
             };
 
-            return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
+            return new MethodProvider(signature, body, this, XmlDocProvider.Empty, suppressions: [new SuppressionStatement(null, Literal(ScmModelProvider.ScmEvaluationTypeDiagnosticId), ScmModelProvider.ScmEvaluationTypeSuppressionJustification)]);
         }
 
         private MethodProvider BuildGetUtf8BytesMethodProvider()

@@ -22,10 +22,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
         }
 
         public static ScopedApi<bool> ContainsChildOf(
+            ValueExpression patch,
             ValueExpression prefix,
             ValueExpression property)
         {
-            return prefix.Invoke(nameof(JsonPatch.ContainsChildOf), [prefix, property]).As<bool>();
+            return patch.Invoke(nameof(JsonPatch.ContainsChildOf), [prefix, property]).As<bool>();
         }
 #pragma warning restore SCME0001
     }

@@ -10,6 +10,8 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.Json;
 
 namespace SampleTypeSpec
@@ -266,7 +268,92 @@ namespace SampleTypeSpec
             {
                 return ReadOnlySpan<byte>.Empty;
             }
-            return local.Length >= 4 && local[1] == '[' && (local[2] == (byte)'\'' || local[2] == (byte)'"') ? local[3..] : ReadOnlySpan<byte>.Empty;
+            return local.Length >= 4 && local[1] == '[' && (local[2] == '\'' || local[2] == '"') ? local.Slice(3) : ReadOnlySpan<byte>.Empty;
+        }
+
+        public static string GetFirstPropertyName(this ReadOnlySpan<byte> jsonPath, out int bytesConsumed)
+        {
+            ReadOnlySpan<byte> local = jsonPath;
+            for (bytesConsumed = 0; bytesConsumed < local.Length; bytesConsumed++)
+            {
+                byte current = local[bytesConsumed];
+                if (current == '.')
+                {
+                    break;
+                }
+                else
+                {
+                    if (current == '\'' || current == '"')
+                    {
+                        if (bytesConsumed + 1 < local.Length && local[bytesConsumed + 1] == ']')
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            string key;
+#if NET6_0_OR_GREATER
+            key = global::System.Text.Encoding.UTF8.GetString(local.Slice(0, bytesConsumed));
+#else
+            key = Encoding.UTF8.GetString(local.Slice(0, bytesConsumed).ToArray());
+#endif
+            bytesConsumed += jsonPath.Length - local.Length;
+            return key;
+        }
+
+#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+        public static void WriteDictionaryWithPatch<T>(this Utf8JsonWriter writer, ModelReaderWriterOptions options, ref JsonPatch patch, ReadOnlySpan<byte> propertyName, ReadOnlySpan<byte> prefix, IDictionary<string, T> dictionary, Action<Utf8JsonWriter, T, ModelReaderWriterOptions> write, Func<T, JsonPatch> getPatchFromItem)
+        {
+            if (!propertyName.IsEmpty)
+            {
+                writer.WritePropertyName(propertyName);
+            }
+
+            writer.WriteStartObject();
+#if NET8_0_OR_GREATER
+            const int maxPropertyNameLength = 256;
+            global::System.Span<byte> buffer = stackalloc byte[maxPropertyNameLength];
+#endif
+            foreach (var item in dictionary)
+            {
+                if (getPatchFromItem != null && getPatchFromItem(item.Value).TryGetJson("$"u8, out ReadOnlyMemory<byte> patchedJson))
+                {
+                    if (!patchedJson.IsEmpty)
+                    {
+                        writer.WritePropertyName(item.Key);
+                        writer.WriteRawValue(patchedJson.Span);
+                    }
+                    continue;
+                }
+
+                bool patchContains;
+#if NET8_0_OR_GREATER
+                int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key, buffer);
+                patchContains = (bytesWritten == maxPropertyNameLength) ? patch.ContainsChildOf(prefix, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : patch.ContainsChildOf(prefix, buffer.Slice(0, bytesWritten));
+#else
+                patchContains = patch.ContainsChildOf(prefix, Encoding.UTF8.GetBytes(item.Key));
+#endif
+                if (!patchContains)
+                {
+                    writer.WritePropertyName(item.Key);
+                    write(writer, item.Value, options);
+                }
+            }
+
+            patch.WriteTo(writer, prefix);
+            writer.WriteEndObject();
+        }
+#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+
+        public static BinaryData GetUtf8Bytes(this JsonElement element)
+        {
+#if NET9_0_OR_GREATER
+            return new global::System.BinaryData(global::System.Runtime.InteropServices.JsonMarshal.GetRawUtf8Value(element).ToArray());
+#else
+            return BinaryData.FromString(element.GetRawText());
+#endif
         }
     }
 }
