@@ -17,6 +17,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     public class ModelReaderWriterContextDefinition : TypeProvider
     {
         private const string DefaultObsoleteDiagnosticId = "CS0618";
+        private static CSharpTypeNameComparer s_cSharpTypeNameComparer = new CSharpTypeNameComparer();
+        private static TypeProviderTypeNameComparer s_typeProviderNameComparer = new TypeProviderTypeNameComparer();
 
         internal static readonly string s_name = $"{RemovePeriods(ScmCodeModelGenerator.Instance.TypeFactory.PrimaryNamespace)}Context";
 
@@ -78,15 +80,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// </summary>
         private (HashSet<CSharpType> BuildableTypes, HashSet<TypeProvider> BuildableProviders) CollectBuildableTypes()
         {
-            var visitedTypes = new HashSet<CSharpType>(new CSharpTypeNameComparer());
-            var visitedTypeProviders = new HashSet<TypeProvider>(new TypeProviderTypeNameComparer());
-            var buildableProviders = new HashSet<TypeProvider>(new TypeProviderTypeNameComparer());
-            var buildableTypes = new HashSet<CSharpType>(new CSharpTypeNameComparer());
+            var visitedTypes = new HashSet<CSharpType>(s_cSharpTypeNameComparer);
+            var visitedTypeProviders = new HashSet<TypeProvider>(s_typeProviderNameComparer);
+            var buildableProviders = new HashSet<TypeProvider>(s_typeProviderNameComparer);
+            var buildableTypes = new HashSet<CSharpType>(s_cSharpTypeNameComparer);
 
             // Get all providers from the output library that are models or implement MRW interface types
             var providers = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
                 .Where(t => t is ModelProvider || ImplementsModelReaderWriter(t))
-                .ToHashSet(new TypeProviderTypeNameComparer());
+                .ToHashSet(s_typeProviderNameComparer);
 
             // Process each provider recursively
             foreach (var provider in providers)
