@@ -99,7 +99,6 @@ namespace Microsoft.TypeSpec.Generator
                 MaxDegreeOfParallelism = Math.Clamp(Environment.ProcessorCount, 2, 8),
             };
 
-
             // Write the generated files to the output directory
             await Parallel.ForEachAsync(
                 generatedCodeWorkspace.GetGeneratedFilesAsync(),
