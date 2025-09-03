@@ -196,18 +196,34 @@ namespace Microsoft.TypeSpec.Generator
 
                 if (method.BodyStatements is { } body)
                 {
+                    foreach (var suppression in method.Suppressions)
+                    {
+                        suppression.DisableStatement.Write(this);
+                    }
                     using (WriteMethodDeclaration(method.Signature))
                     {
                         body.Write(this);
                     }
+                    foreach (var suppression in method.Suppressions)
+                    {
+                        suppression.RestoreStatement.Write(this);
+                    }
                 }
                 else if (method.BodyExpression is { } expression)
                 {
+                    foreach (var suppression in method.Suppressions)
+                    {
+                        suppression.DisableStatement.Write(this);
+                    }
                     using (WriteMethodDeclarationNoScope(method.Signature))
                     {
                         AppendRaw(" => ");
                         expression.Write(this);
                         WriteRawLine(";");
+                    }
+                    foreach (var suppression in method.Suppressions)
+                    {
+                        suppression.RestoreStatement.Write(this);
                     }
                 }
             }

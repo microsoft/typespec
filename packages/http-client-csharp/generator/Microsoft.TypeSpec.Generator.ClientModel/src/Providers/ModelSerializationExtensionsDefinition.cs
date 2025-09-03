@@ -7,6 +7,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.Json;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
@@ -15,7 +18,6 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
-using static Microsoft.TypeSpec.Generator.ClientModel.Snippets.ModelSerializationExtensionsSnippets;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
@@ -26,13 +28,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string WriteBase64StringValueMethodName = "WriteBase64StringValue";
         private const string WriteNumberValueMethodName = "WriteNumberValue";
         private const string WriteObjectValueMethodName = "WriteObjectValue";
-        private class WriteObjectValueTemplate<T> { }
+
+        private class WriteObjectValueTemplate<T>
+        {
+        }
 
         private readonly CSharpType _t = typeof(WriteObjectValueTemplate<>).GetGenericArguments()[0];
 
-        private readonly MethodSignatureModifiers _methodModifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Extension;
-        private readonly ParameterProvider _formatParameter = new ParameterProvider("format", FormattableStringHelpers.Empty, typeof(string));
-        private readonly ParameterProvider _propertyParameter = new ParameterProvider("property", FormattableStringHelpers.Empty, typeof(JsonProperty));
+        private readonly MethodSignatureModifiers _methodModifiers = MethodSignatureModifiers.Public |
+                                                                     MethodSignatureModifiers.Static |
+                                                                     MethodSignatureModifiers.Extension;
+
+        private readonly ParameterProvider _formatParameter =
+            new ParameterProvider("format", FormattableStringHelpers.Empty, typeof(string));
+
+        private readonly ParameterProvider _propertyParameter =
+            new ParameterProvider("property", FormattableStringHelpers.Empty, typeof(JsonProperty));
 
         public ModelSerializationExtensionsDefinition()
         {
@@ -47,10 +58,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 modifiers: FieldModifiers.Internal | FieldModifiers.Static | FieldModifiers.ReadOnly,
                 type: typeof(JsonDocumentOptions),
                 name: _jsonDocumentOptionsName,
-                initializationValue: New.Instance(typeof(JsonDocumentOptions), new Dictionary<ValueExpression, ValueExpression>
-                {
-                    [Identifier("MaxDepth")] = Int(256)
-                }),
+                initializationValue: New.Instance(typeof(JsonDocumentOptions),
+                    new Dictionary<ValueExpression, ValueExpression> { [Identifier("MaxDepth")] = Int(256) }),
                 enclosingType: this);
         }
 
@@ -76,7 +85,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override MethodProvider[] BuildMethods()
         {
             var writer = ScmKnownParameters.Utf8JsonWriter.As<Utf8JsonWriter>();
-            var dateTimeOffsetValueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(DateTimeOffset));
+            var dateTimeOffsetValueParameter =
+                new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(DateTimeOffset));
             var writeStringDateTimeOffset = new MethodProvider(
                 new MethodSignature(
                     Name: WriteStringValueMethodName,
@@ -84,11 +94,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     ReturnType: null,
                     Parameters: [ScmKnownParameters.Utf8JsonWriter, dateTimeOffsetValueParameter, _formatParameter],
                     Description: null, ReturnDescription: null),
-                writer.WriteStringValue(TypeFormattersSnippets.ToString(dateTimeOffsetValueParameter, _formatParameter)),
+                writer.WriteStringValue(TypeFormattersSnippets.ToString(dateTimeOffsetValueParameter,
+                    _formatParameter)),
                 this,
                 XmlDocProvider.Empty);
 
-            var dateTimeValueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(DateTime));
+            var dateTimeValueParameter =
+                new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(DateTime));
             var writeStringDateTime = new MethodProvider(
                 new MethodSignature(
                     Name: WriteStringValueMethodName,
@@ -100,7 +112,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 this,
                 XmlDocProvider.Empty);
 
-            var timeSpanValueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(TimeSpan));
+            var timeSpanValueParameter =
+                new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(TimeSpan));
             var writeStringTimeSpan = new MethodProvider(
                 new MethodSignature(
                     Name: WriteStringValueMethodName,
@@ -121,7 +134,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     ReturnType: null,
                     Parameters: [ScmKnownParameters.Utf8JsonWriter, charValueParameter],
                     Description: null, ReturnDescription: null),
-                writer.WriteStringValue(value.InvokeToString(new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture)))),
+                writer.WriteStringValue(value.InvokeToString(new MemberExpression(typeof(CultureInfo),
+                    nameof(CultureInfo.InvariantCulture)))),
                 this,
                 XmlDocProvider.Empty);
 
@@ -141,11 +155,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 BuildWriteBase64StringValueMethodProvider(),
                 BuildWriteNumberValueMethodProvider(),
                 BuildWriteObjectValueMethodGeneric(),
-                BuildWriteObjectValueMethodProvider()
+                BuildWriteObjectValueMethodProvider(),
+                .. BuildDynamicModelHelpers()
             ];
         }
 
         #region JsonElementExtensions MethodProvider builders
+
         private const string _getBytesFromBase64MethodName = "GetBytesFromBase64";
         private const string _getCharMethodName = "GetChar";
         private const string _getDateTimeOffsetMethodName = "GetDateTimeOffset";
@@ -167,40 +183,40 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var body = new SwitchStatement(element.ValueKind())
             {
                 new(JsonValueKindSnippets.String, Return(element.GetString())),
-                new(JsonValueKindSnippets.Number, new MethodBodyStatement[]
-                {
-                    new IfStatement(element.TryGetInt32(out var intValue))
+                new(JsonValueKindSnippets.Number,
+                    new MethodBodyStatement[]
                     {
-                        Return(intValue)
-                    },
-                    new IfStatement(element.TryGetInt64(out var longValue))
-                    {
-                        Return(longValue)
-                    },
-                    Return(element.GetDouble())
-                }),
+                        new IfStatement(element.TryGetInt32(out var intValue)) { Return(intValue) },
+                        new IfStatement(element.TryGetInt64(out var longValue)) { Return(longValue) },
+                        Return(element.GetDouble())
+                    }),
                 new(JsonValueKindSnippets.True, Return(True)),
                 new(JsonValueKindSnippets.False, Return(False)),
                 new([JsonValueKindSnippets.Undefined, JsonValueKindSnippets.Null], Return(Null)),
-                new(JsonValueKindSnippets.Object, new MethodBodyStatement[]
-                {
-                    Declare("dictionary", New.Dictionary(typeof(string), typeof(object)), out var dictionary),
-                    new ForEachStatement("jsonProperty", element.EnumerateObject(), out var jsonProperty)
+                new(JsonValueKindSnippets.Object,
+                    new MethodBodyStatement[]
                     {
-                        dictionary.Add(jsonProperty.Property(nameof(JsonProperty.Name)), jsonProperty.Property(nameof(JsonProperty.Value)).Invoke("GetObject"))
-                    },
-                    Return(dictionary)
-                }),
-                new(JsonValueKindSnippets.Array, new MethodBodyStatement[]
-                {
-                    Declare("list", New.List<object>(), out var list),
-                    new ForEachStatement("item", element.EnumerateArray(), out var item)
+                        Declare("dictionary", New.Dictionary(typeof(string), typeof(object)),
+                            out var dictionary),
+                        new ForEachStatement("jsonProperty", element.EnumerateObject(), out var jsonProperty)
+                        {
+                            dictionary.Add(jsonProperty.Property(nameof(JsonProperty.Name)),
+                                jsonProperty.Property(nameof(JsonProperty.Value)).Invoke("GetObject"))
+                        },
+                        Return(dictionary)
+                    }),
+                new(JsonValueKindSnippets.Array,
+                    new MethodBodyStatement[]
                     {
-                        list.Add(item.Invoke("GetObject"))
-                    },
-                    Return(list.ToArray())
-                }),
-                SwitchCaseStatement.Default(Throw(New.NotSupportedException(new FormattableStringExpression("Not supported value kind {0}", [element.ValueKind()]))))
+                        Declare("list", New.List<object>(), out var list),
+                        new ForEachStatement("item", element.EnumerateArray(), out var item)
+                        {
+                            list.Add(item.Invoke("GetObject"))
+                        },
+                        Return(list.ToArray())
+                    }),
+                SwitchCaseStatement.Default(Throw(New.NotSupportedException(
+                    new FormattableStringExpression("Not supported value kind {0}", [element.ValueKind()]))))
             };
             return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
         }
@@ -216,15 +232,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var element = ScmKnownParameters.JsonElement.As<JsonElement>();
             var body = new MethodBodyStatement[]
             {
-                new IfStatement(element.ValueKindEqualsNull())
-                {
-                    Return(Null)
-                },
-                MethodBodyStatement.EmptyLine,
-                Return(new SwitchExpression(_formatParameter,
-                    new SwitchCaseExpression(Literal("U"), TypeFormattersSnippets.FromBase64UrlString(element.GetRequiredString())),
-                    new SwitchCaseExpression(Literal("D"), element.GetBytesFromBase64()),
-                    SwitchCaseExpression.Default(ThrowExpression(New.ArgumentException(_formatParameter, new FormattableStringExpression("Format is not supported: '{0}'", [_formatParameter]))))
+                new IfStatement(element.ValueKindEqualsNull()) { Return(Null) }, MethodBodyStatement.EmptyLine, Return(
+                    new SwitchExpression(_formatParameter,
+                        new SwitchCaseExpression(Literal("U"),
+                            TypeFormattersSnippets.FromBase64UrlString(element.GetRequiredString())),
+                        new SwitchCaseExpression(Literal("D"), element.GetBytesFromBase64()),
+                        SwitchCaseExpression.Default(ThrowExpression(New.ArgumentException(_formatParameter,
+                            new FormattableStringExpression("Format is not supported: '{0}'", [_formatParameter]))))
                     ))
             };
 
@@ -241,10 +255,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Description: null, ReturnDescription: null);
             var element = ScmKnownParameters.JsonElement.As<JsonElement>();
             var body = new SwitchExpression(_formatParameter,
-                SwitchCaseExpression.When(Literal("U"), element.ValueKind().Equal(JsonValueKindSnippets.Number), DateTimeOffsetSnippets.FromUnixTimeSeconds(element.GetInt64())),
+                SwitchCaseExpression.When(Literal("U"), element.ValueKind().Equal(JsonValueKindSnippets.Number),
+                    DateTimeOffsetSnippets.FromUnixTimeSeconds(element.GetInt64())),
                 // relying on the param check of the inner call to throw ArgumentNullException if GetString() returns null
-                SwitchCaseExpression.Default(TypeFormattersSnippets.ParseDateTimeOffset(element.GetString(), _formatParameter))
-                );
+                SwitchCaseExpression.Default(
+                    TypeFormattersSnippets.ParseDateTimeOffset(element.GetString(), _formatParameter))
+            );
 
             return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
         }
@@ -280,12 +296,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Declare("text", element.GetString(), out ScopedApi<string> text),
                     new IfStatement(text.Equal(Null).Or(text.Length().NotEqual(Literal(1))))
                     {
-                        Throw(New.NotSupportedException(new FormattableStringExpression("Cannot convert \\\"{0}\\\" to a char", [text])))
+                        Throw(New.NotSupportedException(
+                            new FormattableStringExpression("Cannot convert \\\"{0}\\\" to a char", [text])))
                     },
                     Return(text.Index(Int(0)))
                 },
-                Throw(New.NotSupportedException(new FormattableStringExpression("Cannot convert {0} to a char", [element.ValueKind()])))
-                );
+                Throw(New.NotSupportedException(new FormattableStringExpression("Cannot convert {0} to a char",
+                    [element.ValueKind()])))
+            );
 
             return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
         }
@@ -303,7 +321,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ],
                 Description: null, ReturnDescription: null);
             var property = _propertyParameter.As<JsonProperty>();
-            var body = Throw(New.JsonException(new FormattableStringExpression("A property '{0}' defined as non-nullable but received as null from the service. This exception only happens in DEBUG builds of the library and would be ignored in the release build", [property.Name()])));
+            var body = Throw(New.JsonException(new FormattableStringExpression(
+                "A property '{0}' defined as non-nullable but received as null from the service. This exception only happens in DEBUG builds of the library and would be ignored in the release build",
+                [property.Name()])));
 
             return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
         }
@@ -322,7 +342,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Declare("value", element.GetString(), out ScopedApi<string> value),
                 new IfStatement(value.Equal(Null))
                 {
-                    Throw(New.InvalidOperationException(new FormattableStringExpression("The requested operation requires an element of type 'String', but the target element has type '{0}'.", [element.ValueKind()])))
+                    Throw(New.InvalidOperationException(new FormattableStringExpression(
+                        "The requested operation requires an element of type 'String', but the target element has type '{0}'.",
+                        [element.ValueKind()])))
                 },
                 Return(value)
             };
@@ -347,24 +369,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var value = (ValueExpression)valueParameter;
             var body = new MethodBodyStatement[]
             {
-                new IfStatement(value.Equal(Null))
-                {
-                    writer.WriteNullValue(),
-                    Return()
-                },
+                new IfStatement(value.Equal(Null)) { writer.WriteNullValue(), Return() },
                 new SwitchStatement(_formatParameter)
                 {
-                    new(Literal("U"), new MethodBodyStatement[]
-                    {
-                        writer.WriteStringValue(TypeFormattersSnippets.ToBase64UrlString(value.As<byte[]>())),
-                        Break
-                    }),
-                    new(Literal("D"), new MethodBodyStatement[]
-                    {
-                        writer.WriteBase64StringValue(value),
-                        Break
-                    }),
-                    SwitchCaseStatement.Default(Throw(New.ArgumentException(_formatParameter, new FormattableStringExpression("Format is not supported: '{0}'", [_formatParameter]))))
+                    new(Literal("U"),
+                        new MethodBodyStatement[]
+                        {
+                            writer.WriteStringValue(
+                                TypeFormattersSnippets.ToBase64UrlString(value.As<byte[]>())),
+                            Break
+                        }),
+                    new(Literal("D"),
+                        new MethodBodyStatement[] { writer.WriteBase64StringValue(value), Break }),
+                    SwitchCaseStatement.Default(Throw(New.ArgumentException(_formatParameter,
+                        new FormattableStringExpression("Format is not supported: '{0}'", [_formatParameter]))))
                 }
             };
 
@@ -386,7 +404,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 new IfStatement(_formatParameter.NotEqual(Literal("U")))
                 {
-                    Throw(New.ArgumentOutOfRangeException(_formatParameter, "Only 'U' format is supported when writing a DateTimeOffset as a Number.")),
+                    Throw(New.ArgumentOutOfRangeException(_formatParameter,
+                        "Only 'U' format is supported when writing a DateTimeOffset as a Number.")),
                 },
                 writer.WriteNumberValue(value.ToUnixTimeSeconds())
             };
@@ -400,12 +419,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ScopedApi<Utf8JsonWriter> writer;
             ValueExpression options;
             MethodSignature signature = GetWriteObjectValueMethodSignature(null, out value, out writer, out options);
-            return new MethodProvider(signature, new MethodBodyStatement[]
-            {
-                writer.WriteObjectValue(value.As<object>(), options)
-            },
-            this,
-            XmlDocProvider.Empty);
+            return new MethodProvider(signature,
+                new MethodBodyStatement[] { writer.WriteObjectValue(value.As<object>(), options) },
+                this,
+                XmlDocProvider.Empty);
         }
 
         private MethodProvider BuildWriteObjectValueMethodGeneric()
@@ -416,50 +433,33 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MethodSignature signature = GetWriteObjectValueMethodSignature(_t, out value, out writer, out options);
             List<SwitchCaseStatement> cases = new List<SwitchCaseStatement>
             {
-                new(Null, new MethodBodyStatement[]
-                {
-                    writer.WriteNullValue(),
-                    Break
-                })
+                new(Null, new MethodBodyStatement[] { writer.WriteNullValue(), Break })
             };
             cases.Add(
-                BuildWriteObjectValueSwitchCase(new CSharpType(typeof(IJsonModel<>), _t), "jsonModel", jsonModel => new MethodBodyStatement[]
-                {
-                    jsonModel.Invoke(nameof(IJsonModel<object>.Write), writer, options.NullCoalesce(ModelSerializationExtensionsSnippets.Wire)).Terminate(),
-                    Break
-                }));
+                BuildWriteObjectValueSwitchCase(new CSharpType(typeof(IJsonModel<>), _t), "jsonModel",
+                    jsonModel => new MethodBodyStatement[]
+                    {
+                        jsonModel.Invoke(nameof(IJsonModel<object>.Write), writer,
+                            options.NullCoalesce(ModelSerializationExtensionsSnippets.Wire)).Terminate(),
+                        Break
+                    }));
             cases.AddRange(new[]
             {
                 // byte[] case
-                BuildWriteObjectValueSwitchCase(typeof(byte[]), "bytes", bytes => new MethodBodyStatement[]
-                {
-                    writer.WriteBase64StringValue(bytes),
-                    Break
-                }),
+                BuildWriteObjectValueSwitchCase(typeof(byte[]), "bytes",
+                    bytes => new MethodBodyStatement[] { writer.WriteBase64StringValue(bytes), Break }),
                 // BinaryData case
-                BuildWriteObjectValueSwitchCase(typeof(BinaryData), "bytes", bytes => new MethodBodyStatement[]
-                {
-                    writer.WriteBase64StringValue(bytes),
-                    Break
-                }),
+                BuildWriteObjectValueSwitchCase(typeof(BinaryData), "bytes",
+                    bytes => new MethodBodyStatement[] { writer.WriteBase64StringValue(bytes), Break }),
                 // JsonElement case
-                BuildWriteObjectValueSwitchCase(typeof(JsonElement), "json", json => new MethodBodyStatement[]
-                {
-                    json.As<JsonElement>().WriteTo(writer),
-                    Break
-                }),
+                BuildWriteObjectValueSwitchCase(typeof(JsonElement), "json",
+                    json => new MethodBodyStatement[] { json.As<JsonElement>().WriteTo(writer), Break }),
                 // int case
-                BuildWriteObjectValueSwitchCase(typeof(int), "i", i => new MethodBodyStatement[]
-                {
-                    writer.WriteNumberValue(i),
-                    Break
-                }),
+                BuildWriteObjectValueSwitchCase(typeof(int), "i",
+                    i => new MethodBodyStatement[] { writer.WriteNumberValue(i), Break }),
                 // decimal case
-                BuildWriteObjectValueSwitchCase(typeof(decimal), "d", dec => new MethodBodyStatement[]
-                {
-                    writer.WriteNumberValue(dec),
-                    Break
-                }),
+                BuildWriteObjectValueSwitchCase(typeof(decimal), "d",
+                    dec => new MethodBodyStatement[] { writer.WriteNumberValue(dec), Break }),
                 // double case
                 BuildWriteObjectValueSwitchCase(typeof(double), "d", d => new MethodBodyStatement[]
                 {
@@ -470,83 +470,65 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Break
                 }),
                 // float case
-                BuildWriteObjectValueSwitchCase(typeof(float), "f", f => new MethodBodyStatement[]
-                {
-                    writer.WriteNumberValue(f),
-                    Break
-                }),
+                BuildWriteObjectValueSwitchCase(typeof(float), "f",
+                    f => new MethodBodyStatement[] { writer.WriteNumberValue(f), Break }),
                 // long case
-                BuildWriteObjectValueSwitchCase(typeof(long), "l", l => new MethodBodyStatement[]
-                {
-                    writer.WriteNumberValue(l),
-                    Break
-                }),
+                BuildWriteObjectValueSwitchCase(typeof(long), "l",
+                    l => new MethodBodyStatement[] { writer.WriteNumberValue(l), Break }),
                 // string case
-                BuildWriteObjectValueSwitchCase(typeof(string), "s", s => new MethodBodyStatement[]
-                {
-                    writer.WriteStringValue(s),
-                    Break
-                }),
+                BuildWriteObjectValueSwitchCase(typeof(string), "s",
+                    s => new MethodBodyStatement[] { writer.WriteStringValue(s), Break }),
                 // bool case
-                BuildWriteObjectValueSwitchCase(typeof(bool), "b", b => new MethodBodyStatement[]
-                {
-                    writer.WriteBooleanValue(b),
-                    Break
-                }),
+                BuildWriteObjectValueSwitchCase(typeof(bool), "b",
+                    b => new MethodBodyStatement[] { writer.WriteBooleanValue(b), Break }),
                 // Guid case
-                BuildWriteObjectValueSwitchCase(typeof(Guid), "g", g => new MethodBodyStatement[]
-                {
-                    writer.WriteStringValue(g),
-                    Break
-                }),
+                BuildWriteObjectValueSwitchCase(typeof(Guid), "g",
+                    g => new MethodBodyStatement[] { writer.WriteStringValue(g), Break }),
                 // DateTimeOffset case
-                BuildWriteObjectValueSwitchCase(typeof(DateTimeOffset), "dateTimeOffset", dateTimeOffset => new MethodBodyStatement[]
-                {
-                    writer.WriteStringValue(dateTimeOffset, "O"),
-                    Break
-                }),
+                BuildWriteObjectValueSwitchCase(typeof(DateTimeOffset), "dateTimeOffset",
+                    dateTimeOffset =>
+                        new MethodBodyStatement[] { writer.WriteStringValue(dateTimeOffset, "O"), Break }),
                 // DateTime case
-                BuildWriteObjectValueSwitchCase(typeof(DateTime), "dateTime", dateTime => new MethodBodyStatement[]
-                {
-                    writer.WriteStringValue(dateTime, "O"),
-                    Break
-                }),
+                BuildWriteObjectValueSwitchCase(typeof(DateTime), "dateTime",
+                    dateTime => new MethodBodyStatement[] { writer.WriteStringValue(dateTime, "O"), Break }),
                 // IEnumerable<KeyValuePair<>> case
-                BuildWriteObjectValueSwitchCase(typeof(IEnumerable<KeyValuePair<string, object>>), "enumerable", enumerable => new MethodBodyStatement[]
-                {
-                    writer.WriteStartObject(),
-                    new ForEachStatement("pair", enumerable.As<IEnumerable<KeyValuePair<string, object>>>(), out var pair)
+                BuildWriteObjectValueSwitchCase(typeof(IEnumerable<KeyValuePair<string, object>>), "enumerable",
+                    enumerable => new MethodBodyStatement[]
                     {
-                        writer.WritePropertyName(pair.Property(nameof(KeyValuePair<string, object>.Key))),
-                        writer.WriteObjectValue(pair.Property(nameof(KeyValuePair<string, object>.Value)).As<object>(), options)
-                    },
-                    writer.WriteEndObject(),
-                    Break
-                }),
+                        writer.WriteStartObject(),
+                        new ForEachStatement("pair", enumerable.As<IEnumerable<KeyValuePair<string, object>>>(),
+                            out var pair)
+                        {
+                            writer.WritePropertyName(pair.Property(nameof(KeyValuePair<string, object>.Key))),
+                            writer.WriteObjectValue(
+                                pair.Property(nameof(KeyValuePair<string, object>.Value)).As<object>(), options)
+                        },
+                        writer.WriteEndObject(), Break
+                    }),
                 // IEnumerable<object> case
-                BuildWriteObjectValueSwitchCase(typeof(IEnumerable<object>), "objectEnumerable", objectEnumerable => new MethodBodyStatement[]
-                {
-                    writer.WriteStartArray(),
-                    new ForEachStatement("item", objectEnumerable.As<IEnumerable<object>>(), out var item)
+                BuildWriteObjectValueSwitchCase(typeof(IEnumerable<object>), "objectEnumerable",
+                    objectEnumerable => new MethodBodyStatement[]
                     {
-                        writer.WriteObjectValue(item.As<object>(), options)
-                    },
-                    writer.WriteEndArray(),
-                    Break
-                }),
+                        writer.WriteStartArray(),
+                        new ForEachStatement("item", objectEnumerable.As<IEnumerable<object>>(), out var item)
+                        {
+                            writer.WriteObjectValue(item.As<object>(), options)
+                        },
+                        writer.WriteEndArray(), Break
+                    }),
                 // TimeSpan case
-                BuildWriteObjectValueSwitchCase(typeof(TimeSpan), "timeSpan", timeSpan => new MethodBodyStatement[]
-                {
-                    writer.WriteStringValue(timeSpan, "P"),
-                    Break
-                }),
+                BuildWriteObjectValueSwitchCase(typeof(TimeSpan), "timeSpan",
+                    timeSpan => new MethodBodyStatement[] { writer.WriteStringValue(timeSpan, "P"), Break }),
                 // default
-                SwitchCaseStatement.Default(Throw(New.NotSupportedException(new FormattableStringExpression("Not supported type {0}", [value.InvokeGetType()]))))
+                SwitchCaseStatement.Default(Throw(New.NotSupportedException(
+                    new FormattableStringExpression("Not supported type {0}", [value.InvokeGetType()]))))
             });
 
             return new MethodProvider(signature, new SwitchStatement(value, cases), this, XmlDocProvider.Empty);
 
-            static SwitchCaseStatement BuildWriteObjectValueSwitchCase(CSharpType type, string varName, Func<VariableExpression, MethodBodyStatement> bodyFunc)
+            static SwitchCaseStatement BuildWriteObjectValueSwitchCase(CSharpType type,
+                string varName,
+                Func<VariableExpression, MethodBodyStatement> bodyFunc)
             {
                 var declaration = new DeclarationExpression(type, varName, out var variable);
                 var body = bodyFunc(variable);
@@ -555,10 +537,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private MethodSignature GetWriteObjectValueMethodSignature(CSharpType? genericArgument, out ValueExpression value, out ScopedApi<Utf8JsonWriter> writer, out ValueExpression options)
+        private MethodSignature GetWriteObjectValueMethodSignature(CSharpType? genericArgument,
+            out ValueExpression value,
+            out ScopedApi<Utf8JsonWriter> writer,
+            out ValueExpression options)
         {
-            var valueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, genericArgument ?? typeof(object));
-            var optionsParameter = new ParameterProvider("options", FormattableStringHelpers.Empty, typeof(ModelReaderWriterOptions), DefaultOf(new CSharpType(typeof(ModelReaderWriterOptions)).WithNullable(true)));
+            var valueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty,
+                genericArgument ?? typeof(object));
+            var optionsParameter = new ParameterProvider("options", FormattableStringHelpers.Empty,
+                typeof(ModelReaderWriterOptions),
+                DefaultOf(new CSharpType(typeof(ModelReaderWriterOptions)).WithNullable(true)));
             var parameters = new[] { ScmKnownParameters.Utf8JsonWriter, valueParameter, optionsParameter };
             var signature = new MethodSignature(
                 Name: WriteObjectValueMethodName,
@@ -573,6 +561,230 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             options = optionsParameter;
             return signature;
         }
+
         #endregion
+
+        private MethodProvider[] BuildDynamicModelHelpers()
+        {
+            if (!ScmCodeModelGenerator.Instance.TypeFactory.HasDynamicModels)
+            {
+                return [];
+            }
+
+            return
+            [
+                BuildSliceToStartOfPropertyNameMethodProvider(),
+                BuildGetFirstPropertyNameMethodProvider(),
+                BuildWriteDictionaryWithPatchMethodProvider(),
+                BuildGetUtf8BytesMethodProvider()
+            ];
+        }
+
+        private MethodProvider BuildSliceToStartOfPropertyNameMethodProvider()
+        {
+            var jsonPathParameter =
+                new ParameterProvider("jsonPath", FormattableStringHelpers.Empty, typeof(ReadOnlySpan<byte>));
+            var signature = new MethodSignature(
+                Name: "SliceToStartOfPropertyName",
+                Modifiers: _methodModifiers,
+                Parameters: [jsonPathParameter],
+                ReturnType: typeof(ReadOnlySpan<byte>),
+                Description: null,
+                ReturnDescription: null);
+
+            var declareLocal = Declare("local", typeof(ReadOnlySpan<byte>), jsonPathParameter.AsExpression(),
+                out var local);
+            var indexable = new IndexableExpression(local);
+            var body = new MethodBodyStatement[]
+            {
+                declareLocal,
+                new IfStatement(ReadOnlySpanSnippets.Length(local).LessThan(Int(3)))
+                {
+                    Return(ReadOnlySpanSnippets.Empty())
+                },
+                new IfStatement(indexable[Int(0)].NotEqual(Literal('$'))) { Return(ReadOnlySpanSnippets.Empty()) },
+                Return(new TernaryConditionalExpression(
+                    ReadOnlySpanSnippets.Length(local).GreaterThanOrEqual(Int(4))
+                        .And(indexable[Int(1)].Equal(Literal('[')))
+                        .And(indexable[Int(2)].Equal(Literal('\''))
+                            .Or(indexable[Int(2)].Equal(Literal('\"')))),
+                    ReadOnlySpanSnippets.Slice(local, Int(3)),
+                    ReadOnlySpanSnippets.Empty()))
+            };
+
+            return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
+        }
+
+        private MethodProvider BuildGetFirstPropertyNameMethodProvider()
+        {
+            var jsonPathParameter =
+                new ParameterProvider("jsonPath", FormattableStringHelpers.Empty, typeof(ReadOnlySpan<byte>));
+            var bytesConsumedParameter = new ParameterProvider("bytesConsumed", FormattableStringHelpers.Empty,
+                typeof(int), isOut: true);
+            var signature = new MethodSignature(
+                Name: "GetFirstPropertyName",
+                Modifiers: _methodModifiers,
+                Parameters: [jsonPathParameter, bytesConsumedParameter],
+                ReturnType: typeof(string),
+                Description: null,
+                ReturnDescription: null);
+
+            var declareLocal = Declare("local", typeof(ReadOnlySpan<byte>), jsonPathParameter.AsExpression(),
+                out var local);
+            var bytesConsumedInt = bytesConsumedParameter.As<int>();
+            var indexable = new IndexableExpression(local);
+            var body = new MethodBodyStatement[]
+            {
+                declareLocal,
+                new ForStatement(bytesConsumedParameter.Assign(Int(0)),
+                    bytesConsumedInt.LessThan(ReadOnlySpanSnippets.Length(local)),
+                    bytesConsumedInt.Increment())
+                {
+                    Declare("current", typeof(byte), indexable[bytesConsumedInt], out var current),
+                    new IfElseStatement(new IfStatement(current.Equal(Literal('.'))) { Break },
+                        new IfStatement(current.Equal(Literal('\'')).Or(current.Equal(Literal('\"'))))
+                        {
+                            new IfStatement(bytesConsumedInt.Add(Literal(1))
+                                .LessThan(ReadOnlySpanSnippets.Length(local))
+                                .And(indexable[bytesConsumedInt.Add(Literal(1))].Equal(Literal(']')))) { Break }
+                        })
+                },
+                MethodBodyStatement.EmptyLine,
+                Declare("key", typeof(string), out var key).Terminate(),
+                new IfElsePreprocessorStatement(
+                    "NET6_0_OR_GREATER",
+                    key.Assign(
+                        Utf8Snippets.GetString(
+                            ReadOnlySpanSnippets.Slice(local, Int(0), bytesConsumedParameter))).Terminate(),
+                    key.Assign(
+                        Utf8Snippets.GetString(
+                            ReadOnlySpanSnippets.Slice(local, Int(0), bytesConsumedParameter).Invoke("ToArray"))).Terminate()),
+                bytesConsumedInt.AddAndAssign(ReadOnlySpanSnippets.Length(jsonPathParameter)
+                    .Minus(ReadOnlySpanSnippets.Length(local))),
+                Return(key)
+            };
+
+            return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
+        }
+
+        private MethodProvider BuildWriteDictionaryWithPatchMethodProvider()
+        {
+            var writerParameter = ScmKnownParameters.Utf8JsonWriter;
+            var optionsParameter = ScmKnownParameters.Options;
+#pragma warning disable SCME0001
+            var patchParameter = new ParameterProvider("patch", FormattableStringHelpers.Empty, typeof(JsonPatch), isRef: true);
+#pragma warning restore SCME0001
+            var propertyNameParameter = new ParameterProvider("propertyName", FormattableStringHelpers.Empty, typeof(ReadOnlySpan<byte>));
+            var prefixParameter = new ParameterProvider("prefix", FormattableStringHelpers.Empty, typeof(ReadOnlySpan<byte>));
+            var tArg = typeof(IList<>).GetGenericArguments()[0];
+            var dictionaryParameter = new ParameterProvider("dictionary", FormattableStringHelpers.Empty, new CSharpType(typeof(IDictionary<,>), typeof(string), tArg));
+            var writeParameter = new ParameterProvider("write", FormattableStringHelpers.Empty, new CSharpType(typeof(Action<,,>), typeof(Utf8JsonWriter), tArg, typeof(ModelReaderWriterOptions)));
+#pragma warning disable SCME0001
+            var getPatchFromItemParameter = new ParameterProvider("getPatchFromItem", FormattableStringHelpers.Empty, new CSharpType(typeof(Func<,>), tArg, typeof(JsonPatch)));
+#pragma warning restore SCME0001
+
+            var signature = new MethodSignature(
+                Name: "WriteDictionaryWithPatch",
+                Modifiers: _methodModifiers,
+                Parameters: [writerParameter, optionsParameter, patchParameter, propertyNameParameter, prefixParameter, dictionaryParameter, writeParameter, getPatchFromItemParameter],
+                ReturnType: null,
+                Description: null,
+                ReturnDescription: null,
+                GenericArguments: [tArg]);
+            var jsonWriter = writerParameter.As<Utf8JsonWriter>();
+            var patchExpression = patchParameter.AsExpression(includeRef: false);
+
+            var body = new MethodBodyStatement[]
+            {
+                new IfStatement(Not(ReadOnlySpanSnippets.IsEmpty(propertyNameParameter)))
+                {
+                    jsonWriter.WritePropertyName(propertyNameParameter)
+                },
+                MethodBodyStatement.EmptyLine, jsonWriter.WriteStartObject(), new IfElsePreprocessorStatement(
+                    "NET8_0_OR_GREATER",
+                    new MethodBodyStatement[]
+                    {
+                        Declare("maxPropertyNameLength", typeof(int), Int(256), isConst: true,
+                            out var maxPropertyNameLength),
+                        Declare("buffer", typeof(Span<byte>),
+                            New.Array(typeof(byte), isStackAlloc: true, size: maxPropertyNameLength),
+                            out var buffer)
+                    }),
+                new ForEachStatement("item", dictionaryParameter.As<IDictionary<string, object>>(), out var item)
+                {
+                    new IfStatement(getPatchFromItemParameter.NotEqual(Null)
+                        .And(JsonPatchSnippets.TryGetJson(getPatchFromItemParameter.InvokeLambda(item.Property("Value")),
+                            LiteralU8("$"), out var patchedJson)))
+                    {
+                        new IfStatement(Not(patchedJson.IsEmpty()))
+                        {
+                            jsonWriter.WritePropertyName(item.Property("Key")),
+                            jsonWriter.WriteRawValue(patchedJson.Span())
+                        },
+                        Continue
+                    },
+                    MethodBodyStatement.EmptyLine,
+                    Declare("patchContains", typeof(bool), out var patchContains).Terminate(),
+                    new IfElsePreprocessorStatement
+                    (
+                        "NET8_0_OR_GREATER",
+                        new MethodBodyStatement[]
+                        {
+                            Declare("bytesWritten", Utf8Snippets.GetBytes(item.Property("Key"), buffer),
+                                out var bytesWritten),
+                            patchContains.Assign(
+                                new TernaryConditionalExpression(bytesWritten.Equal(maxPropertyNameLength),
+                                    JsonPatchSnippets.ContainsChildOf(
+                                        patchExpression,
+                                        prefixParameter,
+                                        Utf8Snippets.GetBytes(item.Property("Key").As<string>())),
+                                    JsonPatchSnippets.ContainsChildOf(
+                                        patchExpression,
+                                        prefixParameter,
+                                        ReadOnlySpanSnippets.Slice(buffer, Int(0), bytesWritten)))).Terminate(),
+                        },
+                        patchContains.Assign(
+                            JsonPatchSnippets.ContainsChildOf(
+                                patchExpression,
+                                prefixParameter,
+                                Utf8Snippets.GetBytes(item.Property("Key").As<string>()))).Terminate()
+                    ),
+                    new IfStatement(Not(patchContains))
+                    {
+                        jsonWriter.WritePropertyName(item.Property("Key")),
+                        writeParameter.InvokeLambda(jsonWriter, item.Property("Value"), optionsParameter)
+                            .Terminate()
+                    },
+                },
+                MethodBodyStatement.EmptyLine,
+#pragma warning disable SCME0001
+                patchParameter.Invoke(nameof(JsonPatch.WriteTo), jsonWriter, prefixParameter).Terminate(),
+#pragma warning restore SCME0001
+                jsonWriter.WriteEndObject()
+            };
+
+            return new MethodProvider(signature, body, this, XmlDocProvider.Empty, suppressions: [new SuppressionStatement(null, Literal(ScmModelProvider.ScmEvaluationTypeDiagnosticId), ScmModelProvider.ScmEvaluationTypeSuppressionJustification)]);
+        }
+
+        private MethodProvider BuildGetUtf8BytesMethodProvider()
+        {
+            var elementParameter = ScmKnownParameters.JsonElement;
+            var signature = new MethodSignature(
+                Name: "GetUtf8Bytes",
+                Modifiers: _methodModifiers,
+                Parameters: [elementParameter],
+                ReturnType: typeof(BinaryData),
+                Description: null,
+                ReturnDescription: null);
+
+            var body = new MethodBodyStatement[]
+            {
+                new IfElsePreprocessorStatement("NET9_0_OR_GREATER",
+                    Return(New.Instance<BinaryData>(Static(typeof(JsonMarshal)).Invoke(nameof(JsonMarshal.GetRawUtf8Value), elementParameter).Invoke("ToArray"))),
+                    Return(BinaryDataSnippets.FromString(elementParameter.As<JsonElement>().GetRawText()))),
+            };
+
+            return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
+        }
     }
 }

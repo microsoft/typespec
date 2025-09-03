@@ -126,6 +126,9 @@ namespace Microsoft.TypeSpec.Generator.Snippets
         public static InvokeMethodExpression Invoke(this ParameterProvider parameter, string methodName, CSharpType? extensionType = null)
             => new InvokeMethodExpression(parameter, methodName, Array.Empty<ValueExpression>()) { ExtensionType = extensionType};
 
+        public static InvokeMethodExpression InvokeLambda(this ParameterProvider parameter, params ValueExpression[] args)
+            => new InvokeMethodExpression(null, parameter.Name, args);
+
         public static ValueExpression Property(this ParameterProvider parameter, string propertyName, bool nullConditional = false)
             => new MemberExpression(nullConditional ? new NullConditionalExpression(parameter) : parameter, propertyName);
 
@@ -165,5 +168,7 @@ namespace Microsoft.TypeSpec.Generator.Snippets
             => new BinaryOperatorExpression("!=", parameter, other).As<bool>();
 
         public static VariableExpression AsExpression(this ParameterProvider variableExpression) => (VariableExpression)variableExpression;
+
+        public static VariableExpression AsExpression(this ParameterProvider variableExpression, bool includeRef) => ParameterProvider.GetVariableExpression(variableExpression, includeRef);
     }
 }

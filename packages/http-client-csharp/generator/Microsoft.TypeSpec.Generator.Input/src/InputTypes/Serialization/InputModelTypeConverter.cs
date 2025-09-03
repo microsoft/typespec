@@ -52,7 +52,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                 discriminatedSubtypes: null!,
                 additionalProperties: null,
                 modelAsStruct: false,
-                serializationOptions: null!);
+                serializationOptions: null!,
+                isDynamicModel: false);
             resolver.AddReference(id, model);
 
             string? @namespace = null;

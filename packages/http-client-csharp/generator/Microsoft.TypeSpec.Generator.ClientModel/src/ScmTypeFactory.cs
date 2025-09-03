@@ -51,6 +51,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             }
         }
 
+        internal bool HasDynamicModels
+            => _hasDynamicModels ??= ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Models.Any(m => m.IsDynamicModel);
+        private bool? _hasDynamicModels;
+
         private HashSet<InputModelType>? _rootInputModels;
 
         internal HashSet<InputModelType> RootOutputModels
