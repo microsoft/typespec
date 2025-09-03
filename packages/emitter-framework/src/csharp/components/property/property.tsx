@@ -1,7 +1,12 @@
 import { type Children } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
 import { Attribute } from "@alloy-js/csharp";
-import { type ModelProperty, resolveEncodedName, type Type } from "@typespec/compiler";
+import {
+  type ModelProperty,
+  resolveEncodedName,
+  type Type,
+  walkPropertiesInherited,
+} from "@typespec/compiler";
 import { useTsp } from "../../../core/index.js";
 import { TypeExpression } from "../type-expression.jsx";
 import { getDocComments } from "../utils/doc-comments.jsx";
@@ -20,10 +25,27 @@ export function Property(props: PropertyProps): Children {
   const result = preprocessPropertyType(props.type);
   const { $ } = useTsp();
 
+  let overrideType: "" | "override" | "new" = "";
+  if (props.type.model && props.type.model.baseModel) {
+    const base = props.type.model.baseModel;
+    for (const baseProperty of walkPropertiesInherited(base)) {
+      if (baseProperty.name === props.type.name) {
+        const baseResult = preprocessPropertyType(baseProperty);
+        if (baseResult.nullable === result.nullable && baseResult.type === result.type) {
+          overrideType = "override";
+        } else {
+          overrideType = "new";
+        }
+      }
+    }
+  }
+
   return (
     <cs.Property
       name={props.type.name}
       type={<TypeExpression type={result.type} />}
+      override={overrideType === "override"}
+      new={overrideType === "new"}
       public
       required={!props.type.optional}
       nullable={result.nullable}
