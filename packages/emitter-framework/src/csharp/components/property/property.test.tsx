@@ -124,15 +124,15 @@ describe("jsonAttributes", () => {
 
   it("inherit prop: override, new", async () => {
     const r = await tester.compile(t.code`
-    model TestModel extends BaseModel {
-      ${t.modelProperty("prop1")}: string;
-      ${t.modelProperty("prop2")}: string | null;
-    }
-    model BaseModel {
-      prop1: string | null;
-      prop2: string | null;
-    }
-  `);
+      model TestModel extends BaseModel {
+        ${t.modelProperty("prop1")}: string;
+        ${t.modelProperty("prop2")}: string | null;
+      }
+      model BaseModel {
+        prop1: string | null;
+        prop2: string | null;
+      }
+    `);
 
     expect(
       <Wrapper>
@@ -142,15 +142,12 @@ describe("jsonAttributes", () => {
         </List>
       </Wrapper>,
     ).toRenderTo(`
-      namespace TestNamespace
+      class Test
       {
-          class Test
-          {
-              public new required string Prop1 { get; set; }
-              public override required string? Prop2 { get; set; }
-          }
+          public new required string Prop1 { get; set; }
+          public override required string? Prop2 { get; set; }
       }
-  `);
+    `);
   });
 
   it("inherit prop: virtual", async () => {
