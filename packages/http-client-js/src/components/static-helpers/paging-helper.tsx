@@ -1,5 +1,6 @@
-import { code, Declaration, refkey } from "@alloy-js/core";
+import { code, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
+import { Declaration } from "@alloy-js/typescript";
 
 export function getPagedAsyncIterableIteratorRefkey() {
   return refkey("PagedAsyncIterableIterator", "interface");
