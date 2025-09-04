@@ -1,4 +1,4 @@
-import { Children, code, namekey, Refkey } from "@alloy-js/core";
+import { Children, code, NamePolicyContext, Refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { ModelProperty } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
@@ -38,10 +38,9 @@ export function JsonModelPropertyTransform(props: JsonModelPropertyTransformProp
 
   if (props.target === "transport") {
     return (
-      <ts.ObjectProperty
-        name={namekey(targetName, { ignoreNamePolicy: true }) as any}
-        value={propertyValue}
-      />
+      <NamePolicyContext.Provider value={{ getName: (n) => n, for: () => (n) => n }}>
+        <ts.ObjectProperty name={targetName} value={propertyValue} />
+      </NamePolicyContext.Provider>
     );
   }
 
