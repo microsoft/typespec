@@ -1217,7 +1217,7 @@ export function createServer(
 
   async function executeCommand(params: ExecuteCommandParams) {
     if (params.command === Commands.APPLY_CODE_FIX) {
-      const [diagId, fixId] = params.arguments ?? [];
+      const [, diagId, fixId] = params.arguments ?? [];
       if (diagId && fixId) {
         const diag = currentDiagnosticIndex.get(diagId);
         const codeFix = diag?.codefixes?.find((x) => x.id === fixId);
@@ -1227,6 +1227,7 @@ export function createServer(
           // Group edits by file and convert to VS Code TextEdit
           const editsByFile = new Map<string, TextEdit[]>();
           for (const edit of edits) {
+            // Regardless of whether the file exists or not, a file path starting with `file:///` can be obtained.
             const uri = fileService.getURL(edit.file.path);
             const textEdits = editsByFile.get(uri) ?? [];
             textEdits.push(convertCodeFixEdit(edit));
@@ -1238,7 +1239,11 @@ export function createServer(
           for (const [uri, vsEdits] of editsByFile) {
             // Ignore creation if the file already exists; if it does not exist, create it first
             documentChanges.push({ kind: "create", uri, options: { ignoreIfExists: true } });
-            documentChanges.push({ textDocument: { uri, version: null }, edits: vsEdits });
+            const document = host.getOpenDocumentByURL(uri);
+            documentChanges.push({
+              textDocument: { uri, version: document ? document.version : null },
+              edits: vsEdits,
+            });
           }
 
           await host.applyEdit({ documentChanges });
