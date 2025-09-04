@@ -58,12 +58,14 @@ class OperationGroupsSerializer(BaseSerializer):
 
     def serialize(self) -> str:
         imports = FileImport(self.code_model)
+        has_operation_named_list = any(o.name.lower() == "list" for og in self.operation_groups for o in og.operations)
         for operation_group in self.operation_groups:
             imports.merge(
                 operation_group.imports(
                     async_mode=self.async_mode,
                     serialize_namespace=self.serialize_namespace,
                     serialize_namespace_type=NamespaceType.OPERATION,
+                    has_operation_named_list=has_operation_named_list,
                 )
             )
 
