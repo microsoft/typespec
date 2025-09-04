@@ -1,12 +1,7 @@
 import { type Children } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
 import { Attribute } from "@alloy-js/csharp";
-import {
-  type ModelProperty,
-  resolveEncodedName,
-  type Type,
-  walkPropertiesInherited,
-} from "@typespec/compiler";
+import { getProperty, type ModelProperty, resolveEncodedName, type Type } from "@typespec/compiler";
 import { useTsp } from "../../../core/index.js";
 import { TypeExpression } from "../type-expression.jsx";
 import { getDocComments } from "../utils/doc-comments.jsx";
@@ -26,18 +21,32 @@ export function Property(props: PropertyProps): Children {
   const { $ } = useTsp();
 
   let overrideType: "" | "override" | "new" = "";
-  if (props.type.model && props.type.model.baseModel) {
-    const base = props.type.model.baseModel;
-    for (const baseProperty of walkPropertiesInherited(base)) {
-      if (baseProperty.name === props.type.name) {
+  let isVirtual = false;
+  if (props.type.model) {
+    if (props.type.model.baseModel) {
+      const base = props.type.model.baseModel;
+      const baseProperty = getProperty(base, props.type.name);
+      if (baseProperty) {
         const baseResult = preprocessPropertyType(baseProperty);
         if (baseResult.nullable === result.nullable && baseResult.type === result.type) {
           overrideType = "override";
         } else {
           overrideType = "new";
         }
-        break;
       }
+    }
+    if (
+      overrideType === "" &&
+      props.type.model.derivedModels &&
+      props.type.model.derivedModels.length > 0
+    ) {
+      isVirtual = props.type.model.derivedModels.some((derived) => {
+        const derivedProperty = derived.properties.get(props.type.name);
+        if (derivedProperty) {
+          const derivedResult = preprocessPropertyType(derivedProperty);
+          return derivedResult.nullable === result.nullable && derivedResult.type === result.type;
+        }
+      });
     }
   }
 
@@ -48,6 +57,7 @@ export function Property(props: PropertyProps): Children {
       override={overrideType === "override"}
       new={overrideType === "new"}
       public
+      virtual={isVirtual}
       required={!props.type.optional}
       nullable={result.nullable}
       doc={getDocComments($, props.type)}
