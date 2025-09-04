@@ -1,12 +1,9 @@
-import { render } from "@alloy-js/core";
-import { d } from "@alloy-js/core/testing";
 import { SourceFile } from "@alloy-js/typescript";
 import type { Operation } from "@typespec/compiler";
 import type { BasicTestRunner } from "@typespec/compiler/testing";
-import { beforeEach, describe, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { Output } from "../../../src/core/components/output.jsx";
 import { FunctionExpression } from "../../../src/typescript/components/function-expression.jsx";
-import { assertFileContents } from "../../utils.js";
 import { createEmitterFrameworkTestRunner } from "../test-host.js";
 
 describe("function expressions with a `type` prop", () => {
@@ -21,22 +18,17 @@ describe("function expressions with a `type` prop", () => {
       @test op getName(id: string): string;
     `)) as { getName: Operation };
 
-    const res = render(
+    expect(
       <Output program={runner.program}>
         <SourceFile path="test.ts">
           <FunctionExpression type={getName}>console.log("Hello!");</FunctionExpression>
         </SourceFile>
       </Output>,
-    );
-
-    assertFileContents(
-      res,
-      d`
+    ).toRenderTo(`
         function (id: string): string {
           console.log("Hello!");
         }
-      `,
-    );
+      `);
   });
 
   it("creates an async function", async () => {
@@ -44,20 +36,15 @@ describe("function expressions with a `type` prop", () => {
       @test op getName(id: string): string;
     `)) as { getName: Operation };
 
-    const res = render(
+    expect(
       <Output program={runner.program}>
         <SourceFile path="test.ts">
           <FunctionExpression async type={getName} />
         </SourceFile>
       </Output>,
-    );
-
-    assertFileContents(
-      res,
-      d`
+    ).toRenderTo(`
         async function (id: string): Promise<string> {}
-      `,
-    );
+      `);
   });
 
   it("can append extra parameters with raw params provided", async () => {
@@ -65,7 +52,7 @@ describe("function expressions with a `type` prop", () => {
       @test op getName(id: string): string;
     `)) as { getName: Operation };
 
-    const res = render(
+    expect(
       <Output program={runner.program}>
         <SourceFile path="test.ts">
           <FunctionExpression
@@ -74,13 +61,8 @@ describe("function expressions with a `type` prop", () => {
           />
         </SourceFile>
       </Output>,
-    );
-
-    assertFileContents(
-      res,
-      d`
+    ).toRenderTo(`
         function (additionalParam: number, id: string): string {}
-      `,
-    );
+      `);
   });
 });

@@ -1,6 +1,6 @@
 import { Tester } from "#test/test-host.js";
 import { type Children } from "@alloy-js/core";
-import { createCSharpNamePolicy, Namespace, SourceFile } from "@alloy-js/csharp";
+import { createCSharpNamePolicy, SourceFile } from "@alloy-js/csharp";
 import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, expect, it } from "vitest";
 import { Output } from "../../../core/index.js";
@@ -16,9 +16,7 @@ function Wrapper(props: { children: Children }) {
   const policy = createCSharpNamePolicy();
   return (
     <Output program={runner.program} namePolicy={policy}>
-      <Namespace name="TestNamespace">
-        <SourceFile path="test.cs">{props.children}</SourceFile>
-      </Namespace>
+      <SourceFile path="test.cs">{props.children}</SourceFile>
     </Output>
   );
 }
@@ -37,14 +35,11 @@ it("renders a basic enum declaration", async () => {
       <EnumDeclaration type={TestEnum} />
     </Wrapper>,
   ).toRenderTo(`
-    namespace TestNamespace
+    enum TestEnum
     {
-        enum TestEnum
-        {
-            Value1,
-            Value2,
-            Value3
-        }
+        Value1,
+        Value2,
+        Value3
     }
   `);
 });
@@ -59,12 +54,9 @@ it("renders an empty enum declaration", async () => {
       <EnumDeclaration type={TestEnum} />
     </Wrapper>,
   ).toRenderTo(`
-    namespace TestNamespace
+    enum TestEnum
     {
-        enum TestEnum
-        {
 
-        }
     }
   `);
 });
@@ -82,13 +74,10 @@ it("can override enum name", async () => {
       <EnumDeclaration type={TestEnum} name="CustomEnumName" />
     </Wrapper>,
   ).toRenderTo(`
-    namespace TestNamespace
+    enum CustomEnumName
     {
-        enum CustomEnumName
-        {
-            Value1,
-            Value2
-        }
+        Value1,
+        Value2
     }
   `);
 });
@@ -106,13 +95,10 @@ it("renders an enum with access modifiers", async () => {
       <EnumDeclaration type={TestEnum} internal />
     </Wrapper>,
   ).toRenderTo(`
-    namespace TestNamespace
+    internal enum TestEnum
     {
-        internal enum TestEnum
-        {
-            Value1,
-            Value2
-        }
+        Value1,
+        Value2
     }
   `);
 });
@@ -128,21 +114,16 @@ it("renders enum with C# naming conventions", async () => {
 
   expect(
     <Output program={runner.program} namePolicy={createCSharpNamePolicy()}>
-      <Namespace name="TestNamespace">
-        <SourceFile path="test.cs">
-          <EnumDeclaration type={TestEnum} />
-        </SourceFile>
-      </Namespace>
+      <SourceFile path="test.cs">
+        <EnumDeclaration type={TestEnum} />
+      </SourceFile>
     </Output>,
   ).toRenderTo(`
-    namespace TestNamespace
+    enum TestEnum
     {
-        enum TestEnum
-        {
-            ValueOne,
-            ValueTwo,
-            ValueThree
-        }
+        ValueOne,
+        ValueTwo,
+        ValueThree
     }
   `);
 });
@@ -159,13 +140,10 @@ it("renders enum with single value", async () => {
       <EnumDeclaration type={TestEnum} />
     </Wrapper>,
   ).toRenderTo(`
-    namespace TestNamespace
-    {
-        enum TestEnum
-        {
-            OnlyValue
-        }
-    }
+      enum TestEnum
+      {
+          OnlyValue
+      }
   `);
 });
 
@@ -184,15 +162,12 @@ it("renders enum with numeric-like member names", async () => {
       <EnumDeclaration type={TestEnum} />
     </Wrapper>,
   ).toRenderTo(`
-    namespace TestNamespace
+    enum TestEnum
     {
-        enum TestEnum
-        {
-            Value0,
-            Value1,
-            Value10,
-            Value100
-        }
+        Value0,
+        Value1,
+        Value10,
+        Value100
     }
   `);
 });
@@ -217,19 +192,16 @@ it("renders multiple enums in the same namespace", async () => {
       <EnumDeclaration type={TestEnum2} />
     </Wrapper>,
   ).toRenderTo(`
-    namespace TestNamespace
+    enum TestEnum1
     {
-        enum TestEnum1
-        {
-            Value1,
-            Value2
-        }
-        enum TestEnum2
-        {
-            OptionA,
-            OptionB,
-            OptionC
-        }
+        Value1,
+        Value2
+    }
+    enum TestEnum2
+    {
+        OptionA,
+        OptionB,
+        OptionC
     }
   `);
 });
@@ -249,19 +221,16 @@ it("renders an enum with doc comments", async () => {
       <EnumDeclaration type={TestEnum} />
     </Wrapper>,
   ).toRenderTo(`
-    namespace TestNamespace
+    enum TestEnum
     {
-        enum TestEnum
-        {
-            /// <summary>
-            /// This is value one
-            /// </summary>
-            Value1,
-            /// <summary>
-            /// This is value two
-            /// </summary>
-            Value2
-        }
+        /// <summary>
+        /// This is value one
+        /// </summary>
+        Value1,
+        /// <summary>
+        /// This is value two
+        /// </summary>
+        Value2
     }
   `);
 });
