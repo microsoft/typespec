@@ -17,12 +17,6 @@ namespace Microsoft.TypeSpec.Generator
     {
         protected internal virtual void VisitLibrary(OutputLibrary library)
         {
-            // Ensure all types are built before visiting them
-            foreach (var type in library.TypeProviders)
-            {
-                type.EnsureBuilt();
-            }
-
             var types = new List<TypeProvider>();
             foreach (var typeProvider in library.TypeProviders)
             {

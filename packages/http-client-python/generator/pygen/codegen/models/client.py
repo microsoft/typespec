@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import Any, Dict, TYPE_CHECKING, TypeVar, Generic, Union, List, Optional
+from typing import Any, TYPE_CHECKING, TypeVar, Generic, Union, Optional
 
 from .base import BaseModel
 from .parameter_list import ClientGlobalParameterList, ConfigGlobalParameterList
@@ -35,7 +35,7 @@ class _ClientConfigBase(Generic[ParameterListType], BaseModel):
 
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         parameters: ParameterListType,
     ):
@@ -54,19 +54,19 @@ class _ClientConfigBase(Generic[ParameterListType], BaseModel):
         return self.yaml_data["name"]
 
 
-class Client(_ClientConfigBase[ClientGlobalParameterList]):  # pylint: disable=too-many-public-methods
+class Client(_ClientConfigBase[ClientGlobalParameterList]):
     """Model representing our service client"""
 
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         parameters: ClientGlobalParameterList,
         *,
         is_subclient: bool = False,
     ):
         super().__init__(yaml_data, code_model, parameters)
-        self.operation_groups: List[OperationGroup] = []
+        self.operation_groups: list[OperationGroup] = []
         self.config = Config.from_yaml(yaml_data, self.code_model)
         self.is_subclient = is_subclient
         self.request_builders = self._build_request_builders()
@@ -108,10 +108,10 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):  # pylint: disable=t
 
     def _build_request_builders(
         self,
-    ) -> List[Union[RequestBuilder, OverloadedRequestBuilder]]:
-        request_builders: List[Union[RequestBuilder, OverloadedRequestBuilder]] = []
+    ) -> list[Union[RequestBuilder, OverloadedRequestBuilder]]:
+        request_builders: list[Union[RequestBuilder, OverloadedRequestBuilder]] = []
 
-        def add_og_request_builder(og: Dict[str, Any]):
+        def add_og_request_builder(og: dict[str, Any]):
             for operation_yaml in og["operations"]:
                 request_builder = get_request_builder(
                     operation_yaml,
@@ -209,7 +209,43 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):  # pylint: disable=t
         except StopIteration as exc:
             raise KeyError(f"No operation with id {operation_id} found.") from exc
 
-    def _imports_shared(self, async_mode: bool, **kwargs) -> FileImport:
+    @property
+    def has_mixin(self) -> bool:
+        """Do we want a mixin ABC class for typing purposes?"""
+        return any(og for og in self.operation_groups if og.is_mixin)
+
+    @property
+    def lro_operations(self) -> list["OperationType"]:
+        """all LRO operations in this SDK?"""
+        return [operation for operation_group in self.operation_groups for operation in operation_group.lro_operations]
+
+    @property
+    def has_public_lro_operations(self) -> bool:
+        """Are there any public LRO operations in this SDK?"""
+        return any(not operation.internal for operation in self.lro_operations)
+
+    @property
+    def has_operations(self) -> bool:
+        return any(operation_group.has_operations for operation_group in self.operation_groups)
+
+    def link_lro_initial_operations(self) -> None:
+        """Link each LRO operation to its initial operation"""
+        for operation_group in self.operation_groups:
+            for operation in operation_group.operations:
+                if isinstance(operation, (LROOperation, LROPagingOperation)):
+                    operation.initial_operation = self.lookup_operation(id(operation.yaml_data["initialOperation"]))
+
+    @property
+    def has_abstract_operations(self) -> bool:
+        """Whether there is abstract operation in any operation group."""
+        return any(og.has_abstract_operations for og in self.operation_groups)
+
+    @property
+    def has_non_abstract_operations(self) -> bool:
+        """Whether there is non-abstract operation in any operation group."""
+        return any(og.has_non_abstract_operations for og in self.operation_groups)
+
+    def imports(self, async_mode: bool, **kwargs) -> FileImport:
         file_import = FileImport(self.code_model)
         file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, TypingSection.CONDITIONAL)
         if self.code_model.options["azure-arm"]:
@@ -265,46 +301,6 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):  # pylint: disable=t
             file_import.add_submodule_import("typing", "cast", ImportType.STDLIB)
             file_import.add_submodule_import("azure.core.settings", "settings", ImportType.SDKCORE)
             file_import.add_submodule_import("azure.mgmt.core.tools", "get_arm_endpoints", ImportType.SDKCORE)
-        return file_import
-
-    @property
-    def has_mixin(self) -> bool:
-        """Do we want a mixin ABC class for typing purposes?"""
-        return any(og for og in self.operation_groups if og.is_mixin)
-
-    @property
-    def lro_operations(self) -> List["OperationType"]:
-        """all LRO operations in this SDK?"""
-        return [operation for operation_group in self.operation_groups for operation in operation_group.lro_operations]
-
-    @property
-    def has_public_lro_operations(self) -> bool:
-        """Are there any public LRO operations in this SDK?"""
-        return any(not operation.internal for operation in self.lro_operations)
-
-    @property
-    def has_operations(self) -> bool:
-        return any(operation_group.has_operations for operation_group in self.operation_groups)
-
-    def link_lro_initial_operations(self) -> None:
-        """Link each LRO operation to its initial operation"""
-        for operation_group in self.operation_groups:
-            for operation in operation_group.operations:
-                if isinstance(operation, (LROOperation, LROPagingOperation)):
-                    operation.initial_operation = self.lookup_operation(id(operation.yaml_data["initialOperation"]))
-
-    @property
-    def has_abstract_operations(self) -> bool:
-        """Whether there is abstract operation in any operation group."""
-        return any(og.has_abstract_operations for og in self.operation_groups)
-
-    @property
-    def has_non_abstract_operations(self) -> bool:
-        """Whether there is non-abstract operation in any operation group."""
-        return any(og.has_non_abstract_operations for og in self.operation_groups)
-
-    def imports(self, async_mode: bool, **kwargs) -> FileImport:
-        file_import = self._imports_shared(async_mode, **kwargs)
         if async_mode:
             file_import.add_submodule_import("typing", "Awaitable", ImportType.STDLIB)
             file_import.add_submodule_import(
@@ -340,32 +336,11 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):  # pylint: disable=t
         if self.code_model.model_types and self.code_model.options["models-mode"] == "msrest":
             path_to_models = ".." if async_mode else "."
             file_import.add_submodule_import(path_to_models, "models", ImportType.LOCAL, alias="_models")
-        elif self.code_model.options["models-mode"] == "msrest":
-            # in this case, we have client_models = {} in the service client, which needs a type annotation
-            # this import will always be commented, so will always add it to the typing section
-            file_import.add_submodule_import("typing", "Dict", ImportType.STDLIB)
         file_import.add_submodule_import("copy", "deepcopy", ImportType.STDLIB)
         return file_import
 
-    def imports_for_multiapi(self, async_mode: bool, **kwargs) -> FileImport:
-        file_import = self._imports_shared(async_mode, **kwargs)
-        file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB, TypingSection.CONDITIONAL)
-        try:
-            mixin_operation = next(og for og in self.operation_groups if og.is_mixin)
-            file_import.add_submodule_import("._operations_mixin", mixin_operation.class_name, ImportType.LOCAL)
-        except StopIteration:
-            pass
-        file_import.add_submodule_import("azure.profiles", "KnownProfiles", import_type=ImportType.SDKCORE)
-        file_import.add_submodule_import("azure.profiles", "ProfileDefinition", import_type=ImportType.SDKCORE)
-        file_import.add_submodule_import(
-            "azure.profiles.multiapiclient",
-            "MultiApiClientMixin",
-            import_type=ImportType.SDKCORE,
-        )
-        return file_import
-
     @property
-    def credential_scopes(self) -> Optional[List[str]]:
+    def credential_scopes(self) -> Optional[list[str]]:
         """Credential scopes for this client"""
 
         if self.credential:
@@ -379,7 +354,7 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):  # pylint: disable=t
     @classmethod
     def from_yaml(
         cls,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         *,
         is_subclient: bool = False,
@@ -419,7 +394,7 @@ class Config(_ClientConfigBase[ConfigGlobalParameterList]):
     def name(self) -> str:
         return f"{super().name}Configuration"
 
-    def _imports_shared(self, async_mode: bool, **kwargs: Any) -> FileImport:
+    def imports(self, async_mode: bool, **kwargs) -> FileImport:
         file_import = FileImport(self.code_model)
         file_import.add_submodule_import(
             "pipeline" if self.code_model.is_azure_flavor else "runtime",
@@ -438,11 +413,6 @@ class Config(_ClientConfigBase[ConfigGlobalParameterList]):
             policy = "AsyncARMChallengeAuthenticationPolicy" if async_mode else "ARMChallengeAuthenticationPolicy"
             file_import.add_submodule_import("azure.mgmt.core.policies", "ARMHttpLoggingPolicy", ImportType.SDKCORE)
             file_import.add_submodule_import("azure.mgmt.core.policies", policy, ImportType.SDKCORE)
-
-        return file_import
-
-    def imports(self, async_mode: bool, **kwargs) -> FileImport:
-        file_import = self._imports_shared(async_mode, **kwargs)
         for gp in self.parameters:
             if gp.method_location == ParameterMethodLocation.KWARG and gp not in self.parameters.kwargs_to_pop:
                 continue
@@ -454,25 +424,8 @@ class Config(_ClientConfigBase[ConfigGlobalParameterList]):
             )
         return file_import
 
-    def imports_for_multiapi(self, async_mode: bool, **kwargs: Any) -> FileImport:
-        file_import = self._imports_shared(async_mode, **kwargs)
-        for gp in self.parameters:
-            if (
-                gp.method_location == ParameterMethodLocation.KWARG
-                and gp not in self.parameters.kwargs_to_pop
-                and gp.client_name == "api_version"
-            ):
-                continue
-            file_import.merge(
-                gp.imports_for_multiapi(
-                    async_mode=async_mode,
-                    **kwargs,
-                )
-            )
-        return file_import
-
     @classmethod
-    def from_yaml(cls, yaml_data: Dict[str, Any], code_model: "CodeModel") -> "Config":
+    def from_yaml(cls, yaml_data: dict[str, Any], code_model: "CodeModel") -> "Config":
         return cls(
             yaml_data=yaml_data,
             code_model=code_model,

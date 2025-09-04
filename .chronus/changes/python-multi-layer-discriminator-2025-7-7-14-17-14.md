@@ -4,4 +4,4 @@ packages:
   - "@typespec/http-client-python"
 ---
 
-Add keyword only signature `cloud_setting` into ARM client
+DPG model supports multi-layer discriminator.
