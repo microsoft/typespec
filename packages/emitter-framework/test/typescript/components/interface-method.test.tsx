@@ -1,12 +1,9 @@
-import { render } from "@alloy-js/core";
-import { d } from "@alloy-js/core/testing";
 import { InterfaceDeclaration, SourceFile } from "@alloy-js/typescript";
 import type { Operation } from "@typespec/compiler";
 import type { BasicTestRunner } from "@typespec/compiler/testing";
-import { beforeEach, describe, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { Output } from "../../../src/core/components/output.jsx";
 import { InterfaceMethod } from "../../../src/typescript/components/interface-method.jsx";
-import { assertFileContents } from "../../utils.js";
 import { createEmitterFrameworkTestRunner, getProgram } from "../test-host.js";
 
 describe("interface methods with a `type` prop", () => {
@@ -21,7 +18,7 @@ describe("interface methods with a `type` prop", () => {
       @test op getName(id: string): string;
     `)) as { getName: Operation };
 
-    const res = render(
+    expect(
       <Output program={runner.program}>
         <SourceFile path="test.ts">
           <InterfaceDeclaration name="basicInterface">
@@ -29,16 +26,11 @@ describe("interface methods with a `type` prop", () => {
           </InterfaceDeclaration>
         </SourceFile>
       </Output>,
-    );
-
-    assertFileContents(
-      res,
-      d`
+    ).toRenderTo(`
         interface basicInterface {
           getName(id: string): string
         }
-      `,
-    );
+      `);
   });
 
   it("creates an async interface function", async () => {
@@ -46,7 +38,7 @@ describe("interface methods with a `type` prop", () => {
       @test op getName(id: string): string;
     `)) as { getName: Operation };
 
-    const res = render(
+    expect(
       <Output program={runner.program}>
         <SourceFile path="test.ts">
           <InterfaceDeclaration name="basicInterface">
@@ -54,16 +46,11 @@ describe("interface methods with a `type` prop", () => {
           </InterfaceDeclaration>
         </SourceFile>
       </Output>,
-    );
-
-    assertFileContents(
-      res,
-      d`
+    ).toRenderTo(`
         interface basicInterface {
           getName(id: string): Promise<string>
         }
-      `,
-    );
+      `);
   });
 
   it("can append extra parameters with raw params provided", async () => {
@@ -71,7 +58,7 @@ describe("interface methods with a `type` prop", () => {
       @test op getName(id: string): string;
     `)) as { getName: Operation };
 
-    const res = render(
+    expect(
       <Output program={runner.program}>
         <SourceFile path="test.ts">
           <InterfaceDeclaration name="basicInterface">
@@ -83,16 +70,11 @@ describe("interface methods with a `type` prop", () => {
           </InterfaceDeclaration>
         </SourceFile>
       </Output>,
-    );
-
-    assertFileContents(
-      res,
-      d`
+    ).toRenderTo(`
         interface basicInterface {
           getName(id: string, foo: string): string
         }
-      `,
-    );
+      `);
   });
 
   it("can prepend extra parameters with raw params provided", async () => {
@@ -100,7 +82,7 @@ describe("interface methods with a `type` prop", () => {
       @test op getName(id: string): string;
     `)) as { getName: Operation };
 
-    const res = render(
+    expect(
       <Output program={runner.program}>
         <SourceFile path="test.ts">
           <InterfaceDeclaration name="basicInterface">
@@ -112,16 +94,11 @@ describe("interface methods with a `type` prop", () => {
           </InterfaceDeclaration>
         </SourceFile>
       </Output>,
-    );
-
-    assertFileContents(
-      res,
-      d`
+    ).toRenderTo(`
         interface basicInterface {
           getName(foo: string, id: string): string
         }
-      `,
-    );
+      `);
   });
 
   it("can replace parameters with raw params provided", async () => {
@@ -129,7 +106,7 @@ describe("interface methods with a `type` prop", () => {
       @test op getName(id: string): string;
     `)) as { getName: Operation };
 
-    const res = render(
+    expect(
       <Output program={runner.program}>
         <SourceFile path="test.ts">
           <InterfaceDeclaration name="basicInterface">
@@ -144,16 +121,11 @@ describe("interface methods with a `type` prop", () => {
           </InterfaceDeclaration>
         </SourceFile>
       </Output>,
-    );
-
-    assertFileContents(
-      res,
-      d`
+    ).toRenderTo(`
         interface basicInterface {
           getName(foo: string, bar: number): string
         }
-      `,
-    );
+      `);
   });
 
   it("can override return type", async () => {
@@ -161,7 +133,7 @@ describe("interface methods with a `type` prop", () => {
       @test op getName(id: string): string;
     `)) as { getName: Operation };
 
-    const res = render(
+    expect(
       <Output program={runner.program}>
         <SourceFile path="test.ts">
           <InterfaceDeclaration name="basicInterface">
@@ -169,16 +141,11 @@ describe("interface methods with a `type` prop", () => {
           </InterfaceDeclaration>
         </SourceFile>
       </Output>,
-    );
-
-    assertFileContents(
-      res,
-      d`
+    ).toRenderTo(`
         interface basicInterface {
           getName(id: string): Promise<Record<string, unknown>>
         }
-      `,
-    );
+      `);
   });
 
   it("can override method name", async () => {
@@ -186,7 +153,7 @@ describe("interface methods with a `type` prop", () => {
       @test op getName(id: string): string;
     `)) as { getName: Operation };
 
-    const res = render(
+    expect(
       <Output program={runner.program}>
         <SourceFile path="test.ts">
           <InterfaceDeclaration name="basicInterface">
@@ -194,23 +161,18 @@ describe("interface methods with a `type` prop", () => {
           </InterfaceDeclaration>
         </SourceFile>
       </Output>,
-    );
-
-    assertFileContents(
-      res,
-      d`
+    ).toRenderTo(`
         interface basicInterface {
           getNameCustom(id: string): string
         }
-      `,
-    );
+      `);
   });
 });
 
 describe("interface methods without a `type` prop", () => {
   it("renders a plain interface method", async () => {
     const program = await getProgram("");
-    const res = render(
+    expect(
       <Output program={program}>
         <SourceFile path="test.ts">
           <InterfaceDeclaration name="basicInterface">
@@ -222,15 +184,10 @@ describe("interface methods without a `type` prop", () => {
           </InterfaceDeclaration>
         </SourceFile>
       </Output>,
-    );
-
-    assertFileContents(
-      res,
-      d`
+    ).toRenderTo(`
         interface basicInterface {
           plainMethod(param1: string): number
         }
-      `,
-    );
+      `);
   });
 });

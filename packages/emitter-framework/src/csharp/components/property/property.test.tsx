@@ -1,6 +1,6 @@
 import { Tester } from "#test/test-host.js";
 import { type Children } from "@alloy-js/core";
-import { ClassDeclaration, createCSharpNamePolicy, Namespace, SourceFile } from "@alloy-js/csharp";
+import { ClassDeclaration, createCSharpNamePolicy, SourceFile } from "@alloy-js/csharp";
 import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { Output } from "../../../core/components/output.jsx";
@@ -16,11 +16,9 @@ function Wrapper(props: { children: Children }) {
   const policy = createCSharpNamePolicy();
   return (
     <Output program={tester.program} namePolicy={policy}>
-      <Namespace name="TestNamespace">
-        <SourceFile path="test.cs">
-          <ClassDeclaration name="Test">{props.children}</ClassDeclaration>
-        </SourceFile>
-      </Namespace>
+      <SourceFile path="test.cs">
+        <ClassDeclaration name="Test">{props.children}</ClassDeclaration>
+      </SourceFile>
     </Output>
   );
 }
@@ -37,12 +35,9 @@ it("maps prop: string | null to nullable property", async () => {
       <Property type={prop1} />
     </Wrapper>,
   ).toRenderTo(`
-      namespace TestNamespace
+      class Test
       {
-          class Test
-          {
-              public required string? Prop1 { get; set; }
-          }
+          public required string? Prop1 { get; set; }
       }
   `);
 });
@@ -59,12 +54,9 @@ it("maps optional properties to nullable properties", async () => {
       <Property type={prop1} />
     </Wrapper>,
   ).toRenderTo(`
-      namespace TestNamespace
+      class Test
       {
-          class Test
-          {
-              public string? Prop1 { get; set; }
-          }
+          public string? Prop1 { get; set; }
       }
   `);
 });
@@ -81,12 +73,9 @@ it("maps optional and nullable properties to nullable properties", async () => {
       <Property type={prop1} />
     </Wrapper>,
   ).toRenderTo(`
-      namespace TestNamespace
+      class Test
       {
-          class Test
-          {
-              public string? Prop1 { get; set; }
-          }
+          public string? Prop1 { get; set; }
       }
   `);
 });
@@ -104,13 +93,10 @@ describe("jsonAttributes", () => {
         <Property type={prop1} jsonAttributes />
       </Wrapper>,
     ).toRenderTo(`
-      namespace TestNamespace
+      class Test
       {
-          class Test
-          {
-              [System.Text.Json.JsonPropertyName("prop1")]
-              public required string Prop1 { get; set; }
-          }
+          [System.Text.Json.JsonPropertyName("prop1")]
+          public required string Prop1 { get; set; }
       }
   `);
   });
@@ -128,14 +114,11 @@ describe("jsonAttributes", () => {
         <Property type={prop1} jsonAttributes />
       </Wrapper>,
     ).toRenderTo(`
-      namespace TestNamespace
-      {
-          class Test
-          {
-              [System.Text.Json.JsonPropertyName("prop_1")]
-              public required string Prop1 { get; set; }
-          }
-      }
+        class Test
+        {
+            [System.Text.Json.JsonPropertyName("prop_1")]
+            public required string Prop1 { get; set; }
+        }
   `);
   });
 });

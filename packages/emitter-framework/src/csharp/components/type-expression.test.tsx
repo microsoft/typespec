@@ -1,11 +1,9 @@
-import { type Children, render } from "@alloy-js/core";
-import { d } from "@alloy-js/core/testing";
-import { Namespace, SourceFile } from "@alloy-js/csharp";
+import { type Children } from "@alloy-js/core";
+import { SourceFile } from "@alloy-js/csharp";
 import type { Model, ModelProperty } from "@typespec/compiler";
 import type { BasicTestRunner } from "@typespec/compiler/testing";
-import { beforeEach, describe, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { createEmitterFrameworkTestRunner } from "../../../test/typescript/test-host.js";
-import { assertFileContents } from "../../../test/utils.js";
 import { Output } from "../../core/index.js";
 import { ClassDeclaration } from "./class/declaration.js";
 import { TypeExpression } from "./type-expression.jsx";
@@ -19,9 +17,7 @@ beforeEach(async () => {
 function Wrapper(props: { children: Children }) {
   return (
     <Output program={runner.program}>
-      <Namespace name="TestNamespace">
-        <SourceFile path="test.ts">{props.children}</SourceFile>
-      </Namespace>
+      <SourceFile path="test.ts">{props.children}</SourceFile>
     </Output>
   );
 }
@@ -43,61 +39,37 @@ describe("map scalar to c# built-in types", () => {
     ["int64", "long"],
   ])("%s => %s", async (tspType, csType) => {
     const type = await compileType(tspType);
-    const res = render(
+    expect(
       <Wrapper>
         <TypeExpression type={type} />
       </Wrapper>,
-    );
-
-    assertFileContents(
-      res,
-      d`
-          namespace TestNamespace
-          {
-              ${csType}
-          }
-        `,
-    );
+    ).toRenderTo(`
+        ${csType}
+        `);
   });
 });
 
 it("maps array to c# array", async () => {
   const type = await compileType("int32[]");
-  const res = render(
+  expect(
     <Wrapper>
       <TypeExpression type={type} />
     </Wrapper>,
-  );
-
-  assertFileContents(
-    res,
-    d`
-          namespace TestNamespace
-          {
-              int[]
-          }
-        `,
-  );
+  ).toRenderTo(`
+    int[]
+  `);
 });
 
 describe("Record map to IDictionary", () => {
   it("for primitive types", async () => {
     const type = await compileType("Record<int32>");
-    const res = render(
+    expect(
       <Wrapper>
         <TypeExpression type={type} />
       </Wrapper>,
-    );
-
-    assertFileContents(
-      res,
-      d`
-          namespace TestNamespace
-          {
-              IDictionary<string, int>
-          }
-        `,
-    );
+    ).toRenderTo(`
+      IDictionary<string, int>
+    `);
   });
 
   it("for models", async () => {
@@ -108,27 +80,19 @@ describe("Record map to IDictionary", () => {
       @test model Pet {}
     `)) as { test: ModelProperty; Pet: Model };
 
-    const res = render(
+    expect(
       <Wrapper>
         <ClassDeclaration type={Pet} />
         <hbr />
         <TypeExpression type={test.type} />
       </Wrapper>,
-    );
-
-    assertFileContents(
-      res,
-      d`
-          namespace TestNamespace
-          {
-              class Pet
-              {
-          
-              }
-              IDictionary<string, Pet>
-          }
-        `,
-    );
+    ).toRenderTo(`
+      class Pet
+      {
+      
+      }
+      IDictionary<string, Pet>
+    `);
   });
 });
 
@@ -140,24 +104,16 @@ describe("Nullable union", () => {
       }
     `)) as { Pet: Model };
 
-    const res = render(
+    expect(
       <Wrapper>
         <ClassDeclaration type={Pet} />
       </Wrapper>,
-    );
-
-    assertFileContents(
-      res,
-      d`
-          namespace TestNamespace
-          {
-              class Pet
-              {
-                  public required bool? name { get; set; }
-              }
-          }
-        `,
-    );
+    ).toRenderTo(`
+      class Pet
+      {
+          public required bool? name { get; set; }
+      }
+    `);
   });
 });
 
@@ -172,26 +128,18 @@ describe("Literal types", () => {
       }
     `)) as { Pet: Model };
 
-    const res = render(
+    expect(
       <Wrapper>
         <ClassDeclaration type={Pet} />
       </Wrapper>,
-    );
-
-    assertFileContents(
-      res,
-      d`
-          namespace TestNamespace
-          {
-              class Pet
-              {
-                  public required bool boolName { get; set; }
-                  public required int intName { get; set; }
-                  public required double doubleName { get; set; }
-                  public required string stringName { get; set; }
-              }
-          }
-        `,
-    );
+    ).toRenderTo(`
+      class Pet
+      {
+          public required bool boolName { get; set; }
+          public required int intName { get; set; }
+          public required double doubleName { get; set; }
+          public required string stringName { get; set; }
+      }
+    `);
   });
 });

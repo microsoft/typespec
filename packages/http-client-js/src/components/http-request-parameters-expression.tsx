@@ -1,4 +1,4 @@
-import { Children, code, For, List, NamePolicyContext, useNamePolicy } from "@alloy-js/core";
+import { Children, code, For, List, namekey, useNamePolicy } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { useTransformNamePolicy } from "@typespec/emitter-framework";
 import { HttpOperation, HttpProperty } from "@typespec/http";
@@ -45,9 +45,10 @@ export function HttpRequestParametersExpression(props: HttpRequestParametersExpr
             </>
           );
           return (
-            <NamePolicyContext.Provider value={{ getName: (n) => n }}>
-              <ts.ObjectProperty name={transportParamName} value={paramValue} />
-            </NamePolicyContext.Provider>
+            <ts.ObjectProperty
+              name={namekey(transportParamName, { ignoreNamePolicy: true }) as any}
+              value={paramValue}
+            />
           );
         }
 
