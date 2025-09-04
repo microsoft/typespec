@@ -2,9 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.SourceInput;
@@ -94,29 +96,47 @@ namespace Microsoft.TypeSpec.Generator
 
             await generatedCodeWorkspace.PostProcessAsync();
 
-            var options = new ParallelOptions
+            var files = new List<(string Name, string Text)>();
+            await foreach (var f in generatedCodeWorkspace.GetGeneratedFilesAsync())
             {
-                MaxDegreeOfParallelism = Math.Clamp(Environment.ProcessorCount, 2, 8),
+                if (!string.IsNullOrEmpty(f.Text))
+                {
+                    files.Add((f.Name, f.Text));
+                }
+            }
+
+            var createdDirs = new ConcurrentDictionary<string, byte>();
+            var encoding = new UTF8Encoding(false);
+            var bufferSize = 1 << 20; // 1 MiB
+            var fsOptions = new FileStreamOptions
+            {
+                Mode = FileMode.Create,
+                Access = FileAccess.Write,
+                Share = FileShare.Read,
+                Options = FileOptions.Asynchronous | FileOptions.SequentialScan,
+                BufferSize = bufferSize // 1 MiB
             };
 
-            // Write the generated files to the output directory
             await Parallel.ForEachAsync(
-                generatedCodeWorkspace.GetGeneratedFilesAsync(),
-                options,
-                async (file, ct) =>
+                files,
+                new ParallelOptions { MaxDegreeOfParallelism = Math.Clamp(Environment.ProcessorCount, 2, 8) },
+                async (f, ct) =>
                 {
-                    if (string.IsNullOrEmpty(file.Text))
+                    var path = Path.Combine(outputPath, f.Name);
+                    var dir = Path.GetDirectoryName(path)!;
+
+                    createdDirs.GetOrAdd(dir, _ =>
                     {
-                        return;
-                    }
+                        Directory.CreateDirectory(dir);
+                        return 0;
+                    });
 
-                    var filename = Path.Combine(outputPath, file.Name);
-                    Directory.CreateDirectory(Path.GetDirectoryName(filename)!);
+                    await LogFileWrittenAsync(Path.GetFullPath(path), ct);
 
-                    var fullPath = Path.GetFullPath(filename);
-                    await LogFileWrittenAsync(fullPath, ct);
-
-                    await File.WriteAllTextAsync(filename, file.Text, ct);
+                    await using var fs = new FileStream(path, fsOptions);
+                    await using var sw = new StreamWriter(fs, encoding, bufferSize: bufferSize, leaveOpen: false);
+                    await sw.WriteAsync(f.Text.AsMemory(), ct);
+                    await sw.FlushAsync(ct); // flush StreamWriter buffer into FileStream
                 });
 
             // Write project scaffolding files
