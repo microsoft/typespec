@@ -238,7 +238,7 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
         ".pytest_cache",
         ".vscode",
         "_build",
-        "build",
+        "/build/",
         "dist",
         ".nox",
         ".svn",
