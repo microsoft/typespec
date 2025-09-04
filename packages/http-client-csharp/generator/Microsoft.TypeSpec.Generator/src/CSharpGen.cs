@@ -23,6 +23,9 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         public async Task ExecuteAsync()
         {
+            CodeModelGenerator.Instance.Emitter.Info("Starting code generation");
+            CodeModelGenerator.Instance.Stopwatch.Start();
+
             GeneratedCodeWorkspace.Initialize();
             var outputPath = CodeModelGenerator.Instance.Configuration.OutputDirectory;
             var generatedSourceOutputPath = CodeModelGenerator.Instance.Configuration.ProjectGeneratedDirectory;
@@ -49,11 +52,21 @@ namespace Microsoft.TypeSpec.Generator
             Directory.CreateDirectory(Path.Combine(generatedSourceOutputPath, "Models"));
             List<Task> generateFilesTasks = new();
 
+            // Build all TypeProviders
+            foreach (var type in output.TypeProviders)
+            {
+                type.EnsureBuilt();
+            }
+
+            LogElapsedTime("All generated type providers built");
+
             // visit the entire library before generating files
             foreach (var visitor in CodeModelGenerator.Instance.Visitors)
             {
                 visitor.VisitLibrary(output);
             }
+
+            LogElapsedTime("All visitors have been applied");
 
             foreach (var outputType in output.TypeProviders)
             {
@@ -70,8 +83,12 @@ namespace Microsoft.TypeSpec.Generator
             // Add all the generated files to the workspace
             await Task.WhenAll(generateFilesTasks);
 
+            LogElapsedTime("All generated types have been written into memory");
+
             // Delete any old generated files
             DeleteDirectory(generatedSourceOutputPath, _filesToKeep);
+
+            LogElapsedTime("All old generated files have been deleted");
 
             await generatedCodeWorkspace.PostProcessAsync();
 
@@ -93,6 +110,8 @@ namespace Microsoft.TypeSpec.Generator
             {
                 await CodeModelGenerator.Instance.TypeFactory.CreateNewProjectScaffolding().Execute();
             }
+
+            LogElapsedTime("All files have been written to disk");
         }
 
         /// <summary>
@@ -134,6 +153,12 @@ namespace Microsoft.TypeSpec.Generator
             {
                 directoryInfo.Delete();
             }
+        }
+
+        private static void LogElapsedTime(string message)
+        {
+            CodeModelGenerator.Instance.Emitter.Info(
+                $"{message}. Total Elapsed time: {CodeModelGenerator.Instance.Stopwatch.Elapsed}");
         }
     }
 }
