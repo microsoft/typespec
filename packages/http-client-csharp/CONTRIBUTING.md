@@ -19,7 +19,7 @@ Before you begin, ensure you have the following installed:
 
 - [Node.js](https://nodejs.org/) (version 20 or higher)
 - [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) (required - see global.json for exact version)
-- [pnpm](https://pnpm.io/) (for workspace management)
+- [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) (for workspace management)
 - [Git](https://git-scm.com/)
 - [PowerShell](https://docs.microsoft.com/powershell/scripting/install/installing-powershell) (version 7.0 or higher, for advanced testing and code generation scenarios)
 
@@ -37,19 +37,10 @@ cd typespec/packages/http-client-csharp
 From the repository root:
 
 ```bash
-cd ../../
 pnpm install
 ```
 
-### 3. Build the Workspace
-
-Build the entire TypeSpec workspace first (this is required for dependencies):
-
-```bash
-pnpm build
-```
-
-### 4. Build the C# Package
+### 3. Build the C# Package
 
 ```bash
 cd packages/http-client-csharp
@@ -62,7 +53,7 @@ This command runs:
 - `npm run build:generator` - Builds the .NET generator
 - `npm run extract-api` - Extracts API documentation
 
-### 5. Verify Installation
+### 4. Verify Installation
 
 After building, you can verify everything is working correctly by running:
 
@@ -81,9 +72,11 @@ The C# HTTP client package consists of two main components:
 
 ### Making Changes
 
-1. **Create a feature branch** from the main branch:
+1. **Create a fork** of the repository and clone it:
 
    ```bash
+   git clone https://github.com/YOUR_USERNAME/typespec.git
+   cd typespec
    git checkout -b feature/your-feature-name
    ```
 
@@ -115,30 +108,11 @@ The C# HTTP client package consists of two main components:
    npm run test
    ```
 
-5. **Add a changeset** (required for all changes):
-
-   ```bash
-   # Navigate to the root of the TypeSpec repository
-   cd ../../
-   pnpm changeset add
-   ```
-
-   Follow the prompts to describe your changes. This helps with automated changelog generation and versioning.
-
 ### Code Style and Linting
 
 - **Format code**: `npm run format`
 - **Run linting**: `npm run lint`
 - **Fix lint issues**: `npm run lint:fix`
-- **Lint TypeSpec library**: `npm run lint-typespec-library`
-
-### Watch Mode
-
-For active development, you can use watch mode to automatically rebuild when files change:
-
-```bash
-npm run watch
-```
 
 ## Testing
 
@@ -210,28 +184,6 @@ To regenerate test projects after making changes:
    ./eng/scripts/Generate.ps1
    ```
 
-2. **Check for differences**:
-   ```bash
-   ./eng/scripts/Check-GitChanges.ps1
-   ```
-
-### Sample Generation
-
-To work with the sample TypeSpec project:
-
-```bash
-# The sample is automatically built during generation
-# Located at: docs/samples/client/csharp/SampleService
-```
-
-### External Signature Generation
-
-Generate external signatures for the TypeSpec definitions:
-
-```bash
-npm run gen-extern-signature
-```
-
 ## Troubleshooting
 
 ### Common Issues
@@ -271,7 +223,6 @@ Before creating a pull request:
 - [ ] Ensure code is properly formatted: `npm run format`
 - [ ] Ensure code is properly linted: `npm run lint:fix`
 - [ ] Generate and test projects: `./eng/scripts/Generate.ps1` (if applicable)
-- [ ] Add a changeset: `pnpm changeset add` (from repo root)
 - [ ] Update documentation if needed
 
 ### 2. Create the PR
@@ -280,15 +231,6 @@ Before creating a pull request:
 2. Create a pull request to the [microsoft/typespec](https://github.com/microsoft/typespec) repository
 3. Provide a clear description of your changes
 4. Link any related issues
-
-### 3. CI/CD Pipeline
-
-The CI pipeline will:
-
-- Run unit tests for both emitter and generator
-- Run integration tests with Spector
-- Validate code generation consistency
-- Check formatting and linting
 
 ## Getting Help
 
