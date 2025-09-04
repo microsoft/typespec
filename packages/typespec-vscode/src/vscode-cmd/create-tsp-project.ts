@@ -289,7 +289,7 @@ export async function createTypeSpecProject(
               {
                 popupMessage,
                 detail: emitterMessage,
-                level: isWhitespaceStringOrUndefined(emitterMessage) ? "info" : "warn",
+                level: isWhitespaceStringOrUndefined(emitterMessage) ? "info" : "warning",
               },
               selectedRootFolder,
             );
@@ -308,7 +308,7 @@ export async function createTypeSpecProject(
             );
             // make sure this is the last one to log so that user can find the message easily to review
             logger.log(
-              isWhitespaceStringOrUndefined(emitterMessage) ? "info" : "warn",
+              isWhitespaceStringOrUndefined(emitterMessage) ? "info" : "warning",
               popupMessage,
               [emitterMessage],
               {
