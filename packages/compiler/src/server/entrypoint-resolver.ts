@@ -60,6 +60,7 @@ export async function resolveEntrypointFile(
     // If there is no configuration, null is passed in vscode while undefined is passed in the compiler.
     if (
       !defaultEntrypoint &&
+      !packageJsonEntrypoint &&
       (entrypoints === null || entrypoints === undefined || entrypoints.length === 0)
     ) {
       defaultEntrypoint = await existingFile(dir, "main.tsp");
