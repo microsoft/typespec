@@ -1,5 +1,5 @@
 import { Tester } from "#test/test-host.js";
-import { type Children } from "@alloy-js/core";
+import { List, type Children } from "@alloy-js/core";
 import { ClassDeclaration, createCSharpNamePolicy, SourceFile } from "@alloy-js/csharp";
 import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
@@ -120,5 +120,64 @@ describe("jsonAttributes", () => {
             public required string Prop1 { get; set; }
         }
   `);
+  });
+
+  it("inherit prop: override, new", async () => {
+    const r = await tester.compile(t.code`
+    model TestModel extends BaseModel {
+      ${t.modelProperty("prop1")}: string;
+      ${t.modelProperty("prop2")}: string | null;
+    }
+    model BaseModel {
+      prop1: string | null;
+      prop2: string | null;
+    }
+  `);
+
+    expect(
+      <Wrapper>
+        <List>
+          <Property type={r.prop1} />
+          <Property type={r.prop2} />
+        </List>
+      </Wrapper>,
+    ).toRenderTo(`
+      namespace TestNamespace
+      {
+          class Test
+          {
+              public new required string Prop1 { get; set; }
+              public override required string? Prop2 { get; set; }
+          }
+      }
+  `);
+  });
+
+  it("inherit prop: virtual", async () => {
+    const r = await tester.compile(t.code`
+      model TestModel extends BaseModel {
+        prop1: string;
+        prop2: string | null;
+      }
+      model BaseModel {
+        ${t.modelProperty("prop1")}: string | null;
+        ${t.modelProperty("prop2")}: string | null;
+      }
+    `);
+
+    expect(
+      <Wrapper>
+        <List>
+          <Property type={r.prop1} />
+          <Property type={r.prop2} />
+        </List>
+      </Wrapper>,
+    ).toRenderTo(`
+      class Test
+      {
+          public required string? Prop1 { get; set; }
+          public virtual required string? Prop2 { get; set; }
+      }
+    `);
   });
 });
