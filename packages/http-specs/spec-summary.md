@@ -1699,9 +1699,9 @@ Content-Type: application/octet-stream
 --abcde12345--
 ```
 
-### Payload_Pageable_listWithNestedPageSize
+### Payload_Pageable_PageSize_listWithNestedPageSize
 
-- Endpoint: `get /payload/pageable/pagesize-nested`
+- Endpoint: `get /payload/pageable/pagesize/nested`
 
 Test case for pagination with a nested @pageSize parameter.
 
@@ -1728,7 +1728,7 @@ Expected response body:
 ```
 
 2. Request with nested pageSize=4:
-   Expected route: /payload/pageable/pagesize-nested
+   Expected route: /payload/pageable/pagesize/nested
 
 Expected request body:
 
@@ -1749,14 +1749,14 @@ Expected response body:
 }
 ```
 
-### Payload_Pageable_listWithoutContinuation
+### Payload_Pageable_PageSize_listWithoutContinuation
 
-- Endpoint: `get /payload/pageable/simple`
+- Endpoint: `get /payload/pageable/pagesize/without-continuation`
 
 Test case for simple pagination without nextlink or continuationToken.
 
 Single request:
-Expected route: /payload/pageable/simple
+Expected route: /payload/pageable/pagesize/without-continuation
 
 Expected response body:
 
@@ -1771,16 +1771,16 @@ Expected response body:
 }
 ```
 
-### Payload_Pageable_listWithPageSize
+### Payload_Pageable_PageSize_listWithPageSize
 
-- Endpoint: `get /payload/pageable/pagesize`
+- Endpoint: `get /payload/pageable/pagesize/list`
 
 Test case for pagination with a regular @pageSize parameter.
 
 Two requests need to be tested:
 
 1. Request with pageSize=2:
-   Expected route: /payload/pageable/pagesize?pageSize=2
+   Expected route: /payload/pageable/pagesize/list?pageSize=2
 
 Expected response body:
 
@@ -1794,7 +1794,7 @@ Expected response body:
 ```
 
 2. Request with pageSize=4:
-   Expected route: /payload/pageable/pagesize?pageSize=4
+   Expected route: /payload/pageable/pagesize/list?pageSize=4
 
 Expected response body:
 

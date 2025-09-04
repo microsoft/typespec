@@ -187,9 +187,9 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestQuery
 Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeaderResponseHeader =
   createTests("header", "header");
 
-Scenarios.Payload_Pageable_listWithoutContinuation = passOnSuccess([
+Scenarios.Payload_Pageable_PageSize_listWithoutContinuation = passOnSuccess([
   {
-    uri: "/payload/pageable/simple",
+    uri: "/payload/pageable/pagesize/without-continuation",
     method: "get",
     request: {},
     response: {
@@ -207,9 +207,9 @@ Scenarios.Payload_Pageable_listWithoutContinuation = passOnSuccess([
   },
 ]);
 
-Scenarios.Payload_Pageable_listWithPageSize = passOnSuccess([
+Scenarios.Payload_Pageable_PageSize_listWithPageSize = passOnSuccess([
   {
-    uri: "/payload/pageable/pagesize",
+    uri: "/payload/pageable/pagesize/list",
     method: "get",
     request: { query: { pageSize: "2" } },
     response: {
@@ -254,7 +254,7 @@ Scenarios.Payload_Pageable_listWithPageSize = passOnSuccess([
     kind: "MockApiDefinition",
   },
   {
-    uri: "/payload/pageable/pagesize",
+    uri: "/payload/pageable/pagesize/list",
     method: "get",
     request: { query: { pageSize: "4" } },
     response: {
@@ -302,9 +302,9 @@ Scenarios.Payload_Pageable_listWithPageSize = passOnSuccess([
   },
 ]);
 
-Scenarios.Payload_Pageable_listWithNestedPageSize = passOnSuccess([
+Scenarios.Payload_Pageable_PageSize_listWithNestedPageSize = passOnSuccess([
   {
-    uri: "/payload/pageable/pagesize-nested",
+    uri: "/payload/pageable/pagesize/nested",
     method: "get",
     request: {
       body: json({ pagination: { maxPageSize: 2 } }),
@@ -352,7 +352,7 @@ Scenarios.Payload_Pageable_listWithNestedPageSize = passOnSuccess([
     kind: "MockApiDefinition",
   },
   {
-    uri: "/payload/pageable/pagesize-nested",
+    uri: "/payload/pageable/pagesize/nested",
     method: "get",
     request: {
       body: json({ pagination: { maxPageSize: 4 } }),
