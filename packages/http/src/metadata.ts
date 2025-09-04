@@ -1,5 +1,6 @@
 import {
   compilerAssert,
+  Enum,
   EnumMember,
   getEffectiveModelType,
   getLifecycleVisibilityEnum,
@@ -11,7 +12,7 @@ import {
   Program,
   Type,
   Union,
-  type VisibilityFilter,
+  VisibilityFilter,
   VisibilityProvider,
 } from "@typespec/compiler";
 import { TwoLevelMap } from "@typespec/compiler/utils";
@@ -225,6 +226,22 @@ function visibilityToFilter(program: Program, visibility: Visibility): Visibilit
 }
 
 /**
+ * Provides a naming suffix to create a unique name for a type with the given
+ * visibility filter applied.
+ *
+ * If the provided VisibilityFilter is equivalent to the canonical visibility filter
+ * (default: Read-only), the suffix will be an empty string. Othwerwise, the visibility
+ * modifiers will be appended in PascalCase, with
+ * @param program
+ * @param visibilityFilter
+ * @param canonicalVisibilityFilter
+ */
+export function getVisibilitySuffix(
+  program: Program,
+  visibilityFilter: VisibilityFilter,
+  canonicalVisibilityFilter?: VisibilityFilter,
+): string;
+/**
  * Provides a naming suffix to create a unique name for a type with this
  * visibility.
  *
@@ -238,23 +255,114 @@ function visibilityToFilter(program: Program, visibility: Visibility): Visibilit
  *  - Visibility.Create | Visibility.Update => "CreateOrUpdate"
  *  - Visibility.Create | Visibility.Item => "CreateItem"
  *  - Visibility.Create | Visibility.Update | Visibility.Item => "CreateOrUpdateItem"
- *  */
+ *
+ * @deprecated Prefer using `getVisibilitySuffix` with a `Program` and `VisibilityFilter` instead.
+ */
 export function getVisibilitySuffix(
   visibility: Visibility,
-  canonicalVisibility: Visibility = Visibility.All,
-) {
-  let suffix = "";
-
-  if ((visibility & ~Visibility.Synthetic) !== canonicalVisibility) {
-    const visibilities = visibilityToArray(visibility);
-    suffix += visibilities.map((v) => v[0].toUpperCase() + v.slice(1)).join("Or");
+  canonicalVisibility?: Visibility,
+): string;
+export function getVisibilitySuffix(
+  programOrVisibility: Program | Visibility,
+  visibilityOrCanonicalVisibility?: Visibility | VisibilityFilter,
+  canonicalVisibilityFilterOrUndefined?: VisibilityFilter,
+): string {
+  if (typeof programOrVisibility === "number") {
+    return getVisibilitySuffixFromFlags(
+      programOrVisibility,
+      (visibilityOrCanonicalVisibility as Visibility | undefined) ?? Visibility.Read,
+    );
   }
 
-  if (visibility & Visibility.Item) {
-    suffix += "Item";
+  const program = programOrVisibility as Program;
+  const visibility = visibilityOrCanonicalVisibility as VisibilityFilter;
+  const canonicalVisibilityFilter =
+    canonicalVisibilityFilterOrUndefined ?? visibilityToFilter(program, Visibility.Read);
+
+  if (
+    VisibilityFilter.toCacheKey(program, visibility) ===
+    VisibilityFilter.toCacheKey(program, canonicalVisibilityFilter)
+  ) {
+    return "";
+  }
+
+  let suffix = "";
+
+  const uniqueClasses = new Set<Enum>();
+
+  addAllClasses(visibility);
+
+  const shouldUseClassName = uniqueClasses.size > 1;
+
+  let and: string = "";
+
+  if (visibility.any) {
+    appendAllModifiers(visibility.any, "Or");
+
+    and = "And";
+  }
+
+  if (visibility.all) {
+    suffix += and;
+    suffix += "AllOf";
+
+    appendAllModifiers(visibility.all, "And");
+
+    and = "And";
+  }
+
+  if (visibility.none) {
+    suffix += and;
+    suffix += "NoneOf";
+
+    appendAllModifiers(visibility.none, "Or");
   }
 
   return suffix;
+
+  function getVisibilitySuffixFromFlags(
+    visibility: Visibility,
+    canonicalVisibility: Visibility,
+  ): string {
+    let suffix = "";
+
+    if ((visibility & ~Visibility.Synthetic) !== canonicalVisibility) {
+      const visibilities = visibilityToArray(visibility);
+      suffix += visibilities.map((v) => v[0].toUpperCase() + v.slice(1)).join("Or");
+    }
+
+    if (visibility & Visibility.Item) {
+      suffix += "Item";
+    }
+
+    return suffix;
+  }
+
+  function addAllClasses(filter: VisibilityFilter) {
+    addClassesForSet(filter.any ?? []);
+    addClassesForSet(filter.all ?? []);
+    addClassesForSet(filter.none ?? []);
+
+    function addClassesForSet(items: Iterable<EnumMember>) {
+      for (const item of items) {
+        uniqueClasses.add(item.enum);
+      }
+    }
+  }
+
+  function appendAllModifiers(modifiers: Iterable<EnumMember>, joiner: string) {
+    let join = "";
+
+    for (const modifier of modifiers) {
+      suffix += join;
+
+      if (shouldUseClassName) suffix += modifier.enum.name;
+
+      suffix += modifier.name;
+
+      join = joiner;
+    }
+  }
 }
 
 /**
@@ -360,6 +468,8 @@ export function HttpVisibilityProvider(
  * @param operation The TypeSpec Operation for the request.
  * @param verb The HTTP verb for the operation.
  * @returns The applicable parameter visibility or visibilities for the request.
+ *
+ * @deprecated Use `VisibilityFilter` instances from "@typespec/compiler" instead.
  */
 export function resolveRequestVisibility(
   program: Program,
@@ -406,8 +516,15 @@ export function isMetadata(program: Program, property: ModelProperty) {
 /**
  * Determines if the given property is visible with the given visibility.
  */
-export function isVisible(program: Program, property: ModelProperty, visibility: Visibility) {
-  return isVisibleCore(program, property, visibilityToFilter(program, visibility));
+export function isVisible(
+  program: Program,
+  property: ModelProperty,
+  visibility: Visibility | VisibilityFilter,
+) {
+  const filter =
+    typeof visibility === "number" ? visibilityToFilter(program, visibility) : visibility;
+
+  return isVisibleCore(program, property, filter);
 }
 
 /**
