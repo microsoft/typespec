@@ -10,7 +10,6 @@ import {
   getAllTags,
   getAnyExtensionFromPath,
   getDoc,
-  getDeprecationDetails,
   getFormat,
   getMaxItems,
   getMaxLength,
@@ -283,21 +282,24 @@ function createOAPIEmitter(
    * Check if an HTTP operation or its container (interface/namespace) is deprecated
    */
   function isOperationDeprecated(httpOp: HttpOperation): boolean {
-    // First check if the operation itself is deprecated
     if (isDeprecated(program, httpOp.operation)) {
       return true;
     }
     
-    // Then check if the container (interface or namespace) is deprecated
-    // Use getDeprecationDetails to check both Type state and Node directives
-    const containerDeprecated = getDeprecationDetails(program, httpOp.container);
-    
-    // For testing: if container is Interface and has "WidgetOperations" name, assume deprecated
-    if (httpOp.container.kind === "Interface" && httpOp.container.name === "WidgetOperations") {
+    if (isDeprecated(program, httpOp.container)) {
       return true;
     }
     
-    return containerDeprecated !== undefined;
+    // Check parent namespaces recursively
+    let current = httpOp.container.namespace;
+    while (current && current.name !== "") {
+      if (isDeprecated(program, current)) {
+        return true;
+      }
+      current = current.namespace;
+    }
+    
+    return false;
   }
 
   async function emitOpenAPI() {
