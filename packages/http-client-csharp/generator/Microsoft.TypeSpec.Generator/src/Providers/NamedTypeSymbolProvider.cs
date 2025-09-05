@@ -26,8 +26,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _namedTypeSymbol = namedTypeSymbol;
         }
 
-        private protected sealed override NamedTypeSymbolProvider? BuildCustomCodeView(string? generatedTypeName = default) => null;
-        private protected sealed override TypeProvider? BuildLastContractView() => null;
+        private protected sealed override NamedTypeSymbolProvider? BuildCustomCodeView(string? generatedTypeName = default, string? generatedTypeNamespace = default) => null;
+        private protected sealed override TypeProvider? BuildLastContractView(string? generatedTypeName = default, string? generatedTypeNamespace = default) => null;
 
         protected override string BuildRelativeFilePath() => throw new InvalidOperationException("This type should not be writing in generation");
 
@@ -164,7 +164,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     GetSymbolXmlDoc(constructorSymbol, "summary"),
                     GetAccessModifier(constructorSymbol.DeclaredAccessibility),
                     [.. constructorSymbol.Parameters.Select(p => ConvertToParameterProvider(constructorSymbol, p))],
-                    Initializer: initializer);
+                    initializer: initializer);
                 constructors.Add(new ConstructorProvider(signature, MethodBodyStatement.Empty, this));
             }
             return [.. constructors];

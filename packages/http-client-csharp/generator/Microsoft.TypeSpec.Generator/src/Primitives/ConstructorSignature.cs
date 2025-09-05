@@ -11,22 +11,55 @@ namespace Microsoft.TypeSpec.Generator.Primitives
     /// <summary>
     /// Represents the signature of a constructor in C#.
     /// </summary>
-    /// <param name="Type">The type of the constructor.</param>
-    /// <param name="Description">The description of the constructor.</param>
-    /// <param name="Modifiers">The modifiers of the constructor.</param>
-    /// <param name="Parameters">The parameters of the constructor.</param>
-    /// <param name="Attributes">The attributes of the constructor.</param>
-    /// <param name="Initializer">The initializer of the constructor.</param>
-    public sealed class ConstructorSignature(
-        CSharpType Type,
-        FormattableString? Description,
-        MethodSignatureModifiers Modifiers,
-        IReadOnlyList<ParameterProvider> Parameters,
-        IReadOnlyList<AttributeStatement>? Attributes = null,
-        ConstructorInitializer? Initializer = null)
-        : MethodSignatureBase(Type.Name, Description, null, Modifiers, Parameters, Attributes ?? Array.Empty<AttributeStatement>(), null)
+    public sealed class ConstructorSignature : MethodSignatureBase
     {
-        public ConstructorInitializer? Initializer { get; } = Initializer;
-        public CSharpType Type { get; } = Type;
+        public ConstructorSignature(
+            CSharpType type,
+            FormattableString? description,
+            MethodSignatureModifiers modifiers,
+            IReadOnlyList<ParameterProvider> parameters,
+            IReadOnlyList<AttributeStatement>? attributes = null,
+            ConstructorInitializer? initializer = null)
+            : base(type.Name, description, null, modifiers, parameters, attributes ?? [], null)
+        {
+            Initializer = initializer;
+            Type = type;
+        }
+        public ConstructorInitializer? Initializer { get; private set; }
+        public CSharpType Type { get; private set; }
+
+        public void Update(
+            CSharpType? type = null,
+            FormattableString? description = null,
+            MethodSignatureModifiers? modifiers = null,
+            IReadOnlyList<ParameterProvider>? parameters = null,
+            IReadOnlyList<AttributeStatement>? attributes = null,
+            ConstructorInitializer? initializer = null)
+        {
+            if (type is not null)
+            {
+                Type = type;
+            }
+            if (description is not null)
+            {
+                Description = description;
+            }
+            if (modifiers is not null)
+            {
+                Modifiers = modifiers.Value;
+            }
+            if (parameters is not null)
+            {
+                Parameters = parameters;
+            }
+            if (attributes is not null)
+            {
+                Attributes = attributes;
+            }
+            if (initializer is not null)
+            {
+                Initializer = initializer;
+            }
+        }
     }
 }

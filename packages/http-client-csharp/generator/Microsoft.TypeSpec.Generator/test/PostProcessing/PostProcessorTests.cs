@@ -142,26 +142,105 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
             var root = await doc.GetSyntaxRootAsync();
             var compilation = (CompilationUnitSyntax)root!;
 
-            var type = compilation
+            var namespaceDeclaration = compilation
                 .DescendantNodes()
-                .OfType<BaseTypeDeclarationSyntax>()
-                .SingleOrDefault(t => t.Identifier.Text == "KeepMe");
-            Assert.IsNotNull(type, "The class 'KeepMe' should still exist.");
+                .OfType<NamespaceDeclarationSyntax>()
+                .SingleOrDefault(t => t.Name.ToString() == "Sample");
+            var output = namespaceDeclaration!.ToString();
 
-            var attributes = type!.AttributeLists.SelectMany(a => a.Attributes).Select(al => al.ToString()).ToList();
+            Assert.AreEqual(Helpers.GetExpectedFromFile().TrimEnd(), output, "The output should match the expected content.");
+        }
 
-            // The invalid attribute should be removed
-            CollectionAssert.DoesNotContain(attributes, "ModelReaderWriterBuildable");
+        [Test]
+        public async Task RemovesInvalidAttributesAndKeepsValidAttributes()
+        {
+            MockHelpers.LoadMockGenerator();
+            var workspace = new AdhocWorkspace();
+            var projectInfo = ProjectInfo.Create(
+                    ProjectId.CreateNewId(),
+                    VersionStamp.Create(),
+                    name: "TestProj",
+                    assemblyName: "TestProj",
+                    language: LanguageNames.CSharp)
+                .WithMetadataReferences(new[]
+                {
+                    MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+                    MetadataReference.CreateFromFile(typeof(ModelReaderWriterBuildableAttribute).Assembly.Location)
+                });
 
-            // The class documentation should be preserved
-            var classDocumentation = compilation.DescendantNodes()
-                .OfType<ClassDeclarationSyntax>()
-                .Single(c => c.Identifier.Text == "KeepMe")
-                .GetLeadingTrivia()
-                .Select(t => t.ToString())
-                .SingleOrDefault(t => t.Trim().Contains("<summary>"));
+            var project = workspace.AddProject(projectInfo);
+            var folder = Helpers.GetAssetFileOrDirectoryPath(false);
+            const string removesInvalidAttributesFileName = "RemovesInvalidAttributesAndKeepsValidAttributes.cs";
+            project = project.AddDocument(
+                removesInvalidAttributesFileName,
+                File.ReadAllText(Path.Join(folder, removesInvalidAttributesFileName))).Project;
+            project = project.AddDocument(
+                "Model.cs",
+                File.ReadAllText(Path.Join(folder, "Model.cs"))).Project;
+            project = project.AddDocument(
+                "RootClass.cs",
+                File.ReadAllText(Path.Join(folder, "RootClass.cs"))).Project;
+            var postProcessor = new TestPostProcessor("RootClass.cs", nonRootTypes: ["Sample.KeepMe"]);
 
-            StringAssert.Contains("Class docs that should be kept.", classDocumentation);
+            var resultProject = await postProcessor.RemoveAsync(project);
+            var doc= resultProject.Documents
+                .Single(d => d.Name == removesInvalidAttributesFileName);
+            var root = await doc.GetSyntaxRootAsync();
+            var compilation = (CompilationUnitSyntax)root!;
+
+            var namespaceDeclaration = compilation
+                .DescendantNodes()
+                .OfType<NamespaceDeclarationSyntax>()
+                .SingleOrDefault(t => t.Name.ToString() == "Sample");
+            var output = namespaceDeclaration!.ToString();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile().TrimEnd(), output, "The output should match the expected content.");
+        }
+
+        [Test]
+        public async Task RemovesInvalidAttributesAndKeepsValidAttributesNoDocs()
+        {
+            MockHelpers.LoadMockGenerator();
+            var workspace = new AdhocWorkspace();
+            var projectInfo = ProjectInfo.Create(
+                    ProjectId.CreateNewId(),
+                    VersionStamp.Create(),
+                    name: "TestProj",
+                    assemblyName: "TestProj",
+                    language: LanguageNames.CSharp)
+                .WithMetadataReferences(new[]
+                {
+                    MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+                    MetadataReference.CreateFromFile(typeof(ModelReaderWriterBuildableAttribute).Assembly.Location)
+                });
+
+            var project = workspace.AddProject(projectInfo);
+            var folder = Helpers.GetAssetFileOrDirectoryPath(false);
+            const string removesInvalidAttributesFileName = "RemovesInvalidAttributesAndKeepsValidAttributesNoDocs.cs";
+            project = project.AddDocument(
+                removesInvalidAttributesFileName,
+                File.ReadAllText(Path.Join(folder, removesInvalidAttributesFileName))).Project;
+            project = project.AddDocument(
+                "Model.cs",
+                File.ReadAllText(Path.Join(folder, "Model.cs"))).Project;
+            project = project.AddDocument(
+                "RootClass.cs",
+                File.ReadAllText(Path.Join(folder, "RootClass.cs"))).Project;
+            var postProcessor = new TestPostProcessor("RootClass.cs", nonRootTypes: ["Sample.KeepMe"]);
+
+            var resultProject = await postProcessor.RemoveAsync(project);
+            var doc= resultProject.Documents
+                .Single(d => d.Name == removesInvalidAttributesFileName);
+            var root = await doc.GetSyntaxRootAsync();
+            var compilation = (CompilationUnitSyntax)root!;
+
+            var namespaceDeclaration = compilation
+                .DescendantNodes()
+                .OfType<NamespaceDeclarationSyntax>()
+                .SingleOrDefault(t => t.Name.ToString() == "Sample");
+            var output = namespaceDeclaration!.ToString();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile().TrimEnd(), output, "The output should match the expected content.");
         }
 
         [Test]
@@ -201,26 +280,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
             var root = await doc.GetSyntaxRootAsync();
             var compilation = (CompilationUnitSyntax)root!;
 
-            var type = compilation
+            var namespaceDeclaration = compilation
                 .DescendantNodes()
-                .OfType<BaseTypeDeclarationSyntax>()
-                .SingleOrDefault(t => t.Identifier.Text == "KeepMe");
-            Assert.IsNotNull(type, "The class 'KeepMe' should still exist.");
+                .OfType<NamespaceDeclarationSyntax>()
+                .SingleOrDefault(t => t.Name.ToString() == "Sample");
+            var output = namespaceDeclaration!.ToString();
 
-            var attributes = type!.AttributeLists.SelectMany(a => a.Attributes).Select(al => al.ToString().Trim()).ToList();
-
-            // The valid attribute should be retained
-            CollectionAssert.Contains(attributes, "ModelReaderWriterBuildable(typeof(Model))");
-
-            // The class documentation should be preserved
-            var classDocumentation = compilation.DescendantNodes()
-                .OfType<ClassDeclarationSyntax>()
-                .Single(c => c.Identifier.Text == "KeepMe")
-                .GetLeadingTrivia()
-                .Select(t => t.ToString())
-                .SingleOrDefault(t => t.Trim().Contains("<summary>"));
-
-            StringAssert.Contains("Class docs that should be kept.", classDocumentation);
+            Assert.AreEqual(Helpers.GetExpectedFromFile().TrimEnd(), output, "The output should match the expected content.");
         }
 
         private class TestPostProcessor : PostProcessor

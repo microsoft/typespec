@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
+using System.Text.Json;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -16,8 +18,9 @@ namespace Microsoft.TypeSpec.Generator
 
         private ChangeTrackingDictionaryDefinition ChangeTrackingDictionaryProvider { get; } = new();
 
-        private Dictionary<InputModelType, ModelProvider?> CSharpToModelProvider { get; } = [];
+        private Dictionary<InputModelType, ModelProvider?> InputTypeToModelProvider { get; } = [];
 
+        public IDictionary<CSharpType, TypeProvider?> CSharpTypeMap { get; } = new Dictionary<CSharpType, TypeProvider?>(CSharpType.IgnoreNullableComparer);
         private Dictionary<EnumCacheKey, EnumProvider?> EnumCache { get; } = [];
 
         private Dictionary<InputType, CSharpType?> TypeCache { get; } = [];
@@ -26,8 +29,6 @@ namespace Microsoft.TypeSpec.Generator
 
         private IReadOnlyList<LibraryVisitor> Visitors => CodeModelGenerator.Instance.Visitors;
         private Dictionary<InputType, IReadOnlyList<TypeProvider>> SerializationsCache { get; } = [];
-
-        private Dictionary<InputLiteralType, InputType> LiteralValueTypeCache { get; } = [];
 
         internal HashSet<string> UnionVariantTypesToKeep { get; } = [];
 
@@ -45,6 +46,19 @@ namespace Microsoft.TypeSpec.Generator
             type = CreateCSharpTypeCore(inputType);
             TypeCache.Add(inputType, type);
             return type;
+        }
+
+        protected internal virtual Type? CreateFrameworkType(string fullyQualifiedTypeName)
+        {
+            return fullyQualifiedTypeName switch
+            {
+                // Special case for types that would not be defined in corlib, but should still be considered framework types.
+                "System.BinaryData" => typeof(BinaryData),
+                "System.Uri" => typeof(Uri),
+                "System.Text.Json.JsonElement" => typeof(JsonElement),
+                "System.Net.IPAddress" => typeof(IPAddress),
+                _ => Type.GetType(fullyQualifiedTypeName)
+            };
         }
 
         protected virtual CSharpType? CreateCSharpTypeCore(InputType inputType)
@@ -146,7 +160,7 @@ namespace Microsoft.TypeSpec.Generator
         /// <returns>An instance of <see cref="TypeProvider"/>.</returns>
         public ModelProvider? CreateModel(InputModelType model)
         {
-            if (CSharpToModelProvider.TryGetValue(model, out var modelProvider))
+            if (InputTypeToModelProvider.TryGetValue(model, out var modelProvider))
                 return modelProvider;
 
             modelProvider = CreateModelCore(model);
@@ -156,7 +170,12 @@ namespace Microsoft.TypeSpec.Generator
                 modelProvider = visitor.PreVisitModel(model, modelProvider);
             }
 
-            CSharpToModelProvider.Add(model, modelProvider);
+            InputTypeToModelProvider.Add(model, modelProvider);
+
+            if (modelProvider != null)
+            {
+                CSharpTypeMap[modelProvider.Type] = modelProvider;
+            }
             return modelProvider;
         }
 
@@ -182,6 +201,12 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             EnumCache.Add(enumCacheKey, enumProvider);
+
+            if (enumProvider != null)
+            {
+                CSharpTypeMap[enumProvider.Type] = enumProvider;
+            }
+
             return enumProvider;
         }
 

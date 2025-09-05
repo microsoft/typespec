@@ -10,8 +10,9 @@ Steps:
 2. Update package versions in `peerDependencies` (keep the semver range) in root "package.json", according to the corresponding package versions in `devDependencies`.
 3. Update package versions in `override` (keep the semver range) in the other 2 "package.json", according to the corresponding package versions in root "package.json".
 4. Save the files, and run `npm install` in root, so that "package-lock.json" would be updated.
-
-Developer may need to run `Generate.ps1` in "generator/http-client-generator-clientcore-test" and "generator/http-client-generator-test" folders, to update the e2e spector tests.
+5. Commit the changes on the "package.json" and "package-lock.json" files to git.
+6. If there is update to `http-specs` or `azure-http-specs` lib, run `Generate.ps1` in "generator/http-client-generator-test". Commit the changes in "generator/http-client-generator-test" to git.
+7. If there is update to `http-specs` lib, run `Generate.ps1` in "generator/http-client-generator-clientcore-test". Commit the changes in "generator/http-client-generator-clientcore-test" to git.
 
 # Prepare for Minor/Patch Release
 

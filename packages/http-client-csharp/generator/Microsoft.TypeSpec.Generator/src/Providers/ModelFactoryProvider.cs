@@ -320,7 +320,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 var factoryParam = factoryMethodSignature.Parameters.FirstOrDefault(p => p.Name.Equals(ctorParam.Name));
-
+                var defaultExpression = ctorParam.DefaultValue ?? Default;
                 if (factoryParam == null)
                 {
                     // Check if the param's property has an auto-property initializer.
@@ -332,13 +332,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     {
                         expressions.Add(initExpression);
                     }
-                    else if (ctorParam.Property?.IsDiscriminator == true && modelProvider.DiscriminatorValueExpression != null)
+                    else if (ctorParam.Property?.IsDiscriminator == true)
                     {
-                        expressions.Add(modelProvider.DiscriminatorValueExpression);
+                        expressions.Add(GetDiscriminatorExpression(ctorParam.Property, modelProvider) ?? defaultExpression);
                     }
                     else
                     {
-                        expressions.Add(ctorParam.DefaultValue ?? Default);
+                        expressions.Add(defaultExpression);
                     }
                 }
                 else
@@ -359,6 +359,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return [.. expressions];
+        }
+
+        private static ValueExpression? GetDiscriminatorExpression(PropertyProvider property, ModelProvider? model)
+        {
+            if (model == null)
+            {
+                return null;
+            }
+
+            // Make sure we are getting the expression for the correct discriminator property as models may have multiple discriminator
+            // from different levels in the hierarchy.
+            // The DiscriminatorValueExpression is based on the direct parent model provider discriminator.
+            if (model.BaseModelProvider?.DiscriminatorProperty == property)
+            {
+                return model.DiscriminatorValueExpression;
+            }
+
+            return GetDiscriminatorExpression(property, model.BaseModelProvider);
         }
 
         private static ModelProvider? GetModelToInstantiateForFactoryMethod(ModelProvider modelProvider)

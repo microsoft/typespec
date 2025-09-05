@@ -152,12 +152,10 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
   }
   if (resolvedOptions["generate-packaging-files"]) {
     commandArgs["package-mode"] = sdkContext.arm ? "azure-mgmt" : "azure-dataplane";
+    commandArgs["keep-setup-py"] = resolvedOptions["keep-setup-py"] === true ? "true" : "false";
   }
   if (sdkContext.arm === true) {
     commandArgs["azure-arm"] = "true";
-  }
-  if ((resolvedOptions as any).flavor === "azure") {
-    commandArgs["emit-cross-language-definition-file"] = "true";
   }
   commandArgs["from-typespec"] = "true";
   commandArgs["models-mode"] = (resolvedOptions as any)["models-mode"] ?? "dpg";
@@ -240,7 +238,7 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
         ".pytest_cache",
         ".vscode",
         "_build",
-        "build",
+        "/build/",
         "dist",
         ".nox",
         ".svn",

@@ -1,6 +1,11 @@
+import {
+  Experimental_ComponentOverrides,
+  Experimental_ComponentOverridesConfig,
+} from "#core/index.js";
 import { Tester } from "#test/test-host.js";
-import { type Children } from "@alloy-js/core";
-import { createCSharpNamePolicy, Namespace, SourceFile } from "@alloy-js/csharp";
+import { List, type Children } from "@alloy-js/core";
+import { d } from "@alloy-js/core/testing";
+import { createCSharpNamePolicy, SourceFile } from "@alloy-js/csharp";
 import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { Output } from "../../../core/index.js";
@@ -16,9 +21,7 @@ function Wrapper(props: { children: Children }) {
   const policy = createCSharpNamePolicy();
   return (
     <Output program={runner.program} namePolicy={policy}>
-      <Namespace name="TestNamespace">
-        <SourceFile path="test.cs">{props.children}</SourceFile>
-      </Namespace>
+      <SourceFile path="test.cs">{props.children}</SourceFile>
     </Output>
   );
 }
@@ -33,12 +36,9 @@ it("renders an empty class declaration", async () => {
       <ClassDeclaration type={TestModel} />
     </Wrapper>,
   ).toRenderTo(`
-    namespace TestNamespace
+    class TestModel
     {
-        class TestModel
-        {
 
-        }
     }
   `);
 });
@@ -56,16 +56,69 @@ it("renders a class declaration with properties", async () => {
       <ClassDeclaration type={TestModel} />
     </Wrapper>,
   ).toRenderTo(`
-    namespace TestNamespace
+    class TestModel
     {
-        class TestModel
-        {
-            public required string Prop1 { get; set; }
-            public required int Prop2 { get; set; }
-        }
+        public required string Prop1 { get; set; }
+        public required int Prop2 { get; set; }
     }
   `);
 });
+
+it("renders a class declaration with properties using component override", async () => {
+  const { TestModel, Foo, Bar } = await runner.compile(t.code`
+    model ${t.model("Foo")} {}
+    model ${t.model("Bar")} {}
+    model ${t.model("TestModel")} {
+      Prop1: string;
+      Prop2: int32;
+      Prop3?: Foo;
+    }
+  `);
+
+  expect(
+    <Wrapper>
+      <TestClientOverrides>
+        <List hardline>
+          <ClassDeclaration type={Foo} />
+          <ClassDeclaration type={Bar} />
+          <ClassDeclaration type={TestModel} />
+        </List>
+      </TestClientOverrides>
+    </Wrapper>,
+  ).toRenderTo(d`
+    class Foo
+    {
+
+    }
+    class Bar
+    {
+
+    }
+    class TestModel
+    {
+        public required string Prop1 { get; set; }
+        public required int Prop2 { get; set; }
+        public Bar? Prop3 { get; set; }
+    }
+  `);
+});
+
+function TestClientOverrides(props: { children?: Children }) {
+  const overrides = Experimental_ComponentOverridesConfig().forTypeKind("Model", {
+    reference: (props) => {
+      if (props.type.name === "Foo") {
+        return "Bar";
+      } else {
+        return props.default;
+      }
+    },
+  });
+  return (
+    <Experimental_ComponentOverrides overrides={overrides}>
+      {props.children}
+    </Experimental_ComponentOverrides>
+  );
+}
 
 it("can override class name", async () => {
   const { TestModel } = await runner.compile(t.code`
@@ -77,12 +130,9 @@ it("can override class name", async () => {
       <ClassDeclaration type={TestModel} name="CustomClassName" />
     </Wrapper>,
   ).toRenderTo(`
-    namespace TestNamespace
+    class CustomClassName
     {
-        class CustomClassName
-        {
 
-        }
     }
   `);
 });
@@ -98,12 +148,9 @@ it("renders a class with access modifiers", async () => {
       <ClassDeclaration type={TestModel} protected />
     </Wrapper>,
   ).toRenderTo(`
-    namespace TestNamespace
+    protected class TestModel
     {
-        protected class TestModel
-        {
 
-        }
     }
   `);
 });
@@ -120,12 +167,9 @@ describe("from an interface", () => {
         <ClassDeclaration type={TestInterface} />
       </Wrapper>,
     ).toRenderTo(`
-      namespace TestNamespace
+      class TestInterface
       {
-          class TestInterface
-          {
 
-          }
       }
     `);
   });
@@ -142,12 +186,9 @@ describe("from an interface", () => {
         <ClassDeclaration type={TestInterface} />
       </Wrapper>,
     ).toRenderTo(`
-      namespace TestNamespace
+      class TestInterface
       {
-          class TestInterface
-          {
-              public abstract string GetName(string id);
-          }
+          public abstract string GetName(string id);
       }
     `);
   });
@@ -168,16 +209,13 @@ it("renders a class with model members", async () => {
       <ClassDeclaration type={TestModel} />
     </Wrapper>,
   ).toRenderTo(`
-    namespace TestNamespace
+    class TestReference
     {
-        class TestReference
-        {
 
-        }
-        class TestModel
-        {
-            public required TestReference Prop1 { get; set; }
-        }
+    }
+    class TestModel
+    {
+        public required TestReference Prop1 { get; set; }
     }
   `);
 });
@@ -200,17 +238,14 @@ it("renders a class with enum members", async () => {
       <ClassDeclaration type={TestModel} />
     </Wrapper>,
   ).toRenderTo(`
-    namespace TestNamespace
+    enum TestEnum
     {
-        enum TestEnum
-        {
-            Value1,
-            Value2
-        }
-        class TestModel
-        {
-            public required TestEnum Prop1 { get; set; }
-        }
+        Value1,
+        Value2
+    }
+    class TestModel
+    {
+        public required TestEnum Prop1 { get; set; }
     }
   `);
 });
@@ -227,12 +262,9 @@ it("maps prop: string | null to nullable property", async () => {
       <ClassDeclaration type={TestModel} />
     </Wrapper>,
   ).toRenderTo(`
-    namespace TestNamespace
+    class TestModel
     {
-        class TestModel
-        {
-            public required string? Prop1 { get; set; }
-        }
+        public required string? Prop1 { get; set; }
     }
   `);
 });
@@ -255,17 +287,14 @@ it("renders a class with string enums", async () => {
       <ClassDeclaration type={TestModel} />
     </Wrapper>,
   ).toRenderTo(`
-    namespace TestNamespace
+    enum TestEnum
     {
-        enum TestEnum
-        {
-            Value1,
-            Value2
-        }
-        class TestModel
-        {
-            public required TestEnum Prop1 { get; set; }
-        }
+        Value1,
+        Value2
+    }
+    class TestModel
+    {
+        public required TestEnum Prop1 { get; set; }
     }
   `);
 });
@@ -286,18 +315,15 @@ describe("with doc comments", () => {
         <ClassDeclaration type={TestModel} />
       </Wrapper>,
     ).toRenderTo(`
-      namespace TestNamespace
+      /// <summary>
+      /// This is a test model
+      /// </summary>
+      class TestModel
       {
           /// <summary>
-          /// This is a test model
+          /// This is a test property
           /// </summary>
-          class TestModel
-          {
-              /// <summary>
-              /// This is a test property
-              /// </summary>
-              public required string Prop1 { get; set; }
-          }
+          public required string Prop1 { get; set; }
       }
     `);
   });
@@ -317,22 +343,19 @@ describe("with doc comments", () => {
         <ClassDeclaration type={TestInterface} />
       </Wrapper>,
     ).toRenderTo(`
-      namespace TestNamespace
+      /// <summary>
+      /// This is a test interface
+      /// </summary>
+      class TestInterface
       {
           /// <summary>
-          /// This is a test interface
+          /// This is a test operation
           /// </summary>
-          class TestInterface
-          {
-              /// <summary>
-              /// This is a test operation
-              /// </summary>
-              ///
-              /// <returns>
-              /// The name of the item
-              /// </returns>
-              public abstract string GetName(string id);
-          }
+          ///
+          /// <returns>
+          /// The name of the item
+          /// </returns>
+          public abstract string GetName(string id);
       }
     `);
   });

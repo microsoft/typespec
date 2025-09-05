@@ -1,5 +1,17 @@
 # Changelog - @typespec/http-client-js
 
+## 0.8.0
+
+### Bump dependencies
+
+- [#8050](https://github.com/microsoft/typespec/pull/8050) Upgrade alloy 0.19
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8056](https://github.com/microsoft/typespec/pull/8056) Fix the missing `main` field issue in package.json
+
+
 ## 0.7.0
 
 ### Bump dependencies
@@ -10,7 +22,6 @@
 ### Bug Fixes
 
 - [#6477](https://github.com/microsoft/typespec/pull/6477) Bypass nested paging compile issue
-
 
 ## 0.6.0
 
@@ -29,13 +40,11 @@
 
 - [#7194](https://github.com/microsoft/typespec/pull/7194) Emit correct diagnostic for unsupported API key auth
 
-
 ## 0.5.0
 
 ### Bump dependencies
 
 - [#7186](https://github.com/microsoft/typespec/pull/7186) Upgrade to alloy 15
-
 
 ## 0.4.0
 
@@ -52,7 +61,6 @@
 ### Bug Fixes
 
 - [#6899](https://github.com/microsoft/typespec/pull/6899) Fix File serialization issue and enable building e2e tests
-
 
 ## 0.3.0
 

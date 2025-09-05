@@ -32,10 +32,10 @@ import {
   InputUnknownExampleValue,
   OperationResponseExample,
 } from "../type/input-examples.js";
-import { InputParameter } from "../type/input-parameter.js";
 import {
   InputArrayType,
   InputDictionaryType,
+  InputHttpParameter,
   InputModelType,
   InputNullableType,
   InputPrimitiveType,
@@ -65,7 +65,9 @@ export function fromSdkHttpExamples(
     parameter: SdkHttpParameterExampleValue,
   ): InputParameterExampleValue {
     return {
-      parameter: sdkContext.__typeCache.properties.get(parameter.parameter) as InputParameter,
+      parameter: sdkContext.__typeCache.operationParameters.get(
+        parameter.parameter,
+      ) as InputHttpParameter,
       value: fromSdkExample(parameter.value),
     };
   }

@@ -71,7 +71,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         public void SubClientSummaryIsPopulatedWithDefaultDocs()
         {
             var mockGenerator = MockHelpers.LoadMockGenerator(
-                clients: () => [new InputClient("test", @namespace: "test", string.Empty, null, null, [], [], InputFactory.Client("parentClient"), null)]);
+                clients: () => [new InputClient("test", @namespace: "test", string.Empty, null, null, [], [], InputFactory.Client("parentClient"), null, null)]);
 
             var client = mockGenerator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().SingleOrDefault();
             Assert.IsNotNull(client);

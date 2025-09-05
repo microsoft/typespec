@@ -15,7 +15,7 @@ import java.util.List;
 import tsptest.armresourceprovider.fluent.models.ChildResourceInner;
 
 /**
- * The response of a ChildResource list operation.
+ * Paged collection of ChildResource items.
  */
 @Immutable
 public final class ChildResourceListResult implements JsonSerializable<ChildResourceListResult> {

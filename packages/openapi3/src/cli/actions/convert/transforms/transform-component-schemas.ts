@@ -24,13 +24,14 @@ export function transformComponentSchemas(context: Context, models: TypeSpecMode
 
   for (const name of Object.keys(schemas)) {
     const schema = schemas[name];
-    transformComponentSchema(models, name, schema);
+    transformComponentSchema(models, name, context, schema);
   }
 
   return;
   function transformComponentSchema(
     types: TypeSpecDataTypes[],
     name: string,
+    context: Context,
     schema: OpenAPI3Schema,
   ): void {
     const kind = getTypeSpecKind(schema);
@@ -40,7 +41,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecMode
       case "enum":
         return populateEnum(types, name, schema);
       case "model":
-        return populateModel(types, name, schema);
+        return populateModel(types, name, context, schema);
       case "union":
         return populateUnion(types, name, schema);
       case "scalar":
@@ -83,11 +84,18 @@ export function transformComponentSchemas(context: Context, models: TypeSpecMode
   function populateModel(
     types: TypeSpecDataTypes[],
     rawName: string,
+    context: Context,
     schema: OpenAPI3Schema,
   ): void {
     const { name, scope } = getScopeAndName(rawName);
     const allOfDetails = getAllOfDetails(schema, scope);
     const isParent = getModelIs(schema, scope);
+    const refName = `#/components/schemas/${rawName}`;
+    const isModelReferencedAsMultipartRequestBody =
+      context.isSchemaReferenceRegisteredForMultipartForm(refName);
+    const encoding = isModelReferencedAsMultipartRequestBody
+      ? context.getMultipartSchemaEncoding(refName)
+      : undefined;
     types.push({
       kind: "model",
       name,
@@ -101,6 +109,8 @@ export function transformComponentSchemas(context: Context, models: TypeSpecMode
       is: isParent,
       type: schema.type,
       spread: allOfDetails.spread,
+      isModelReferencedAsMultipartRequestBody,
+      encoding,
     });
   }
 
@@ -217,7 +227,13 @@ function getTypeSpecKind(schema: OpenAPI3Schema): TypeSpecDataTypes["kind"] {
     return "enum";
   } else if (schema.anyOf || schema.oneOf || schema.enum || schema.nullable) {
     return "union";
-  } else if (schema.type === "object" || schema.type === "array" || schema.allOf) {
+  } else if (
+    schema.type === "object" ||
+    (schema.properties && Object.keys(schema.properties).length > 0) ||
+    schema.type === "array" ||
+    schema.items ||
+    schema.allOf
+  ) {
     return "model";
   }
 

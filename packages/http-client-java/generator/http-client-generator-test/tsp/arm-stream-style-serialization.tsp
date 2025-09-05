@@ -239,7 +239,10 @@ interface TopLevelArmResources {
 @route("/function")
 interface Functions {
   @put
-  createFunction(@body function: Function): Function;
+  createFunction(
+    @header `x-ms-authorization-auxiliary`?: string,
+    @body function: Function,
+  ): Function;
 }
 
 @route("/priority")
@@ -268,6 +271,16 @@ model ListResult {
 
 model Result {
   name: string;
+
+  @visibility(Lifecycle.Read)
+  data: ResultData;
+}
+
+model ResultData {
+  prop1: string;
+
+  @visibility(Lifecycle.Read)
+  prop2: string;
 }
 
 @@flattenProperty(Fish.properties);
@@ -275,3 +288,4 @@ model Result {
 @@flattenProperty(Fish.anotherProperties);
 @@flattenProperty(AnotherFishProperties.eyeProperties);
 @@flattenProperty(FunctionProperties.properties);
+@@flattenProperty(Result.data);

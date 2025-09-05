@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using AutoRest.CSharp.Common.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 
 namespace Microsoft.TypeSpec.Generator.Input
@@ -63,6 +62,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     new InputLongRunningPagingServiceMethodConverter(referenceHandler),
                     new InputServiceMethodResponseConverter(),
                     new InputPropertyConverter(referenceHandler),
+                    new InputEndpointParameterConverter(referenceHandler),
+                    new InputMethodParameterConverter(referenceHandler),
                     new InputHeaderParameterConverter(referenceHandler),
                     new InputQueryParameterConverter(referenceHandler),
                     new InputPathParameterConverter(referenceHandler),

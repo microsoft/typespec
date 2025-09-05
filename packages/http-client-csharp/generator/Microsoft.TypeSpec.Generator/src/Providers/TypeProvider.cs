@@ -25,7 +25,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             _customCodeView = new(() => BuildCustomCodeView());
             _canonicalView = new(BuildCanonicalView);
-            _lastContractView = new(BuildLastContractView);
+            _lastContractView = new(() => BuildLastContractView());
             _inputType = inputType;
         }
 
@@ -36,15 +36,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
         }
 
-        private protected virtual TypeProvider? BuildCustomCodeView(string? generatedTypeName = null)
+        private protected virtual TypeProvider? BuildCustomCodeView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
             => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
-                BuildNamespace(),
+                generatedTypeNamespace ?? BuildNamespace(),
                 generatedTypeName ?? BuildName(),
                 // Use the Type.Name so that any customizations to the declaring type are applied for the lookup.
                 DeclaringTypeProvider?.Type.Name);
 
-        private protected virtual TypeProvider? BuildLastContractView()
-            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(BuildNamespace(), BuildName(), DeclaringTypeProvider?.BuildName());
+        private protected virtual TypeProvider? BuildLastContractView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
+            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
+                generatedTypeNamespace ?? BuildNamespace(),
+                generatedTypeName ?? BuildName(),
+                DeclaringTypeProvider?.Type.Name);
 
         public TypeProvider? CustomCodeView => _customCodeView.Value;
         public TypeProvider? LastContractView => _lastContractView.Value;
@@ -231,8 +234,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProviders();
 
-        private IReadOnlyList<AttributeStatement>? _attributes;
-        public IReadOnlyList<AttributeStatement> Attributes => _attributes ??= BuildAttributes();
+        private IReadOnlyList<MethodBodyStatement>? _attributes;
+
+        public IReadOnlyList<AttributeStatement> Attributes
+        {
+            get
+            {
+                _attributes ??= BuildAttributes();
+                return [.. _attributes
+                    .Select(a => a switch
+                    {
+                        SuppressionStatement suppression => suppression.AsStatement<AttributeStatement>() ??
+                                                            throw new InvalidOperationException(
+                                                                $"Unexpected suppression statement in {Name}."),
+                        AttributeStatement attribute => attribute,
+                        _ => throw new InvalidOperationException($"Unexpected attribute type {a.GetType()} in {Name}.")
+                    })];
+            }
+        }
+
+        internal IReadOnlyList<MethodBodyStatement> GetAttributes() => _attributes ??= BuildAttributes();
 
         protected virtual CSharpType[] GetTypeArguments() => [];
 
@@ -353,7 +374,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected virtual CSharpType BuildEnumUnderlyingType() => throw new InvalidOperationException("Not an EnumProvider type");
 
-        protected virtual IReadOnlyList<AttributeStatement> BuildAttributes() => [];
+        protected virtual IReadOnlyList<MethodBodyStatement> BuildAttributes() => [];
 
         private CSharpType? _enumUnderlyingType;
 
@@ -373,7 +394,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// Resets the type provider to its initial state, clearing all cached properties and fields.
         /// This allows for the type provider to rebuild its state on subsequent calls to its properties.
         /// </summary>
-        public void Reset()
+        public virtual void Reset()
         {
             _methods = null;
             _properties = null;
@@ -386,7 +407,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _relativeFilePath = null;
             _customCodeView = new(() => BuildCustomCodeView());
             _canonicalView = new(BuildCanonicalView);
-            _lastContractView = new(BuildLastContractView);
+            _lastContractView = new(() => BuildLastContractView());
             _enumValues = null;
             _enumUnderlyingType = null;
             _attributes = null;
@@ -475,14 +496,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (name != null)
             {
                 // Reset the custom code view to reflect the new name
-                _customCodeView = new(BuildCustomCodeView(name));
+                _customCodeView = new(BuildCustomCodeView(name, Type.Namespace));
+                _lastContractView = new(BuildLastContractView(name, Type.Namespace));
                 // Give precedence to the custom code view name if it exists
-                Type.Update(_customCodeView.Value?.Name ?? name);
+                Type.Update(name: _customCodeView.Value?.Name ?? name, @namespace: _customCodeView.Value?.Type.Namespace);
             }
 
             if (@namespace != null)
             {
-                Type.Update(@namespace: @namespace);
+                // Reset the custom code view to reflect the new namespace
+                _customCodeView = new(BuildCustomCodeView(Type.Name, @namespace));
+                _lastContractView = new(BuildLastContractView(Type.Name, @namespace));
+                Type.Update(@namespace: _customCodeView.Value?.Type.Namespace ?? @namespace);
             }
 
             // Rebuild the canonical view

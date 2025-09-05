@@ -153,13 +153,15 @@ export async function generateExternDecorators(
   for (const [ns, nsDecorators] of decorators.entries()) {
     const output = generateSignatures(program, nsDecorators, packageName, ns);
     const rawFiles: OutputFile[] = [];
-    traverseOutput(output, {
+    await traverseOutput(output, {
       visitDirectory: () => {},
       visitFile: (file) => rawFiles.push(file),
     });
 
     for (const file of rawFiles) {
-      files[file.path] = await format(file.contents);
+      if ("contents" in file) {
+        files[file.path] = await format(file.contents);
+      }
     }
   }
   return files;

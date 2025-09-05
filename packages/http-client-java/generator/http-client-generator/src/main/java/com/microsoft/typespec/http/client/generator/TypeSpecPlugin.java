@@ -29,8 +29,8 @@ import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import com.microsoft.typespec.http.client.generator.util.FileUtil;
 import com.microsoft.typespec.http.client.generator.util.MetadataUtil;
 import com.microsoft.typespec.http.client.generator.util.ModelUtil;
-import java.io.File;
 import java.io.OutputStream;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
@@ -148,8 +148,8 @@ public class TypeSpecPlugin extends Javagen {
 
     @Override
     public void writeFile(String fileName, String content, List<Object> sourceMap) {
-        File outputFile = FileUtil.writeToFile(emitterOptions.getOutputDir(), fileName, content);
-        LOGGER.info("Write file: {}", outputFile.getAbsolutePath());
+        Path outputFile = FileUtil.writeToFile(emitterOptions.getOutputDir(), fileName, content);
+        LOGGER.info("Write file: {}", outputFile.toAbsolutePath());
     }
 
     private static final Map<String, Object> SETTINGS_MAP = new HashMap<>();
@@ -199,6 +199,7 @@ public class TypeSpecPlugin extends Javagen {
     public TypeSpecPlugin(EmitterOptions options, boolean sdkIntegration) {
         super(new MockConnection(), "dummy", "dummy");
         this.emitterOptions = options;
+
         SETTINGS_MAP.put("namespace", options.getNamespace());
         if (!CoreUtils.isNullOrEmpty(options.getOutputDir())) {
             SETTINGS_MAP.put("output-folder", options.getOutputDir());
@@ -258,6 +259,10 @@ public class TypeSpecPlugin extends Javagen {
         if (options.getUseDefaultHttpStatusCodeToExceptionTypeMapping() != null) {
             SETTINGS_MAP.put("use-default-http-status-code-to-exception-type-mapping",
                 options.getUseDefaultHttpStatusCodeToExceptionTypeMapping());
+        }
+
+        if (options.getRenameModel() != null) {
+            SETTINGS_MAP.put("rename-model", options.getRenameModel());
         }
 
         if (options.getFlavor() != null) {

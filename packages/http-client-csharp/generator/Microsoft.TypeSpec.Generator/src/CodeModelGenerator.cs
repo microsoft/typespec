@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Input;
@@ -27,6 +28,7 @@ namespace Microsoft.TypeSpec.Generator
         private static CodeModelGenerator? _instance;
         private List<string> _sharedSourceDirectories = [];
         public const string GeneratorMetadataName = "GeneratorName";
+        internal Stopwatch Stopwatch { get; } = new Stopwatch();
         public static CodeModelGenerator Instance
         {
             get
@@ -152,11 +154,19 @@ namespace Microsoft.TypeSpec.Generator
         public void AddTypeToKeepPublic(string typeName) => TypesToKeepPublic.Add(typeName);
 
         /// <summary>
-        /// Adds a type to the list of non-root type providers. Non root type providers are types whose
-        /// references do not contribute to usages of the generated code. Therefore if the 'unreferenced-types-handling' property
+        /// Adds a type to the list of non-root type providers. Non-root type providers are types whose
+        /// references do not contribute to usages of the generated code. Therefore, if the 'unreferenced-types-handling' property
         /// is not set to 'keepAll', any types referenced by non-root type providers will not automatically be kept.
         /// </summary>
         /// <param name="typeName">Either a fully qualified type name or simple type name.</param>
         public void AddNonRootType(string typeName) => NonRootTypes.Add(typeName);
+
+        /// <summary>
+        /// Adds a type to the list of non-root type providers. Non-root type providers are types whose
+        /// references do not contribute to usages of the generated code. Therefore, if the 'unreferenced-types-handling' property
+        /// is not set to 'keepAll', any types referenced by non-root type providers will not automatically be kept.
+        /// </summary>
+        /// <param name="type">The type provider representing the type.</param>
+        public void AddNonRootType(TypeProvider type) => AddNonRootType(type.Type.FullyQualifiedName);
     }
 }

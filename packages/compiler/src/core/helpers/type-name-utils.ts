@@ -191,7 +191,7 @@ function getModelName(model: Model, options: TypeNameOptions | undefined) {
 }
 
 function getUnionName(type: Union, options: TypeNameOptions | undefined): string {
-  const nsPrefix = getNamespacePrefix(type.namespace, options);
+  const nsPrefix = type.expression ? "" : getNamespacePrefix(type.namespace, options);
   const typeName = type.name
     ? getIdentifierName(type.name, options)
     : [...type.variants.values()].map((x) => getTypeName(x.type, options)).join(" | ");

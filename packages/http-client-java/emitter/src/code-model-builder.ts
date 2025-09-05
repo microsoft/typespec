@@ -45,7 +45,6 @@ import { KnownMediaType } from "@azure-tools/codegen";
 import {
   InitializedByFlags,
   SdkArrayType,
-  SdkBodyModelPropertyType,
   SdkBodyParameter,
   SdkBuiltInType,
   SdkClientType,
@@ -73,6 +72,7 @@ import {
   getAllModels,
   getClientNameOverride,
   getHttpOperationParameter,
+  isHttpMetadata,
   isSdkBuiltInKind,
   isSdkIntKind,
 } from "@azure-tools/typespec-client-generator-core";
@@ -166,6 +166,9 @@ const { isEqual } = pkg;
 
 export interface EmitterOptionsDev {
   flavor?: string;
+
+  // utility
+  "clear-output-folder"?: boolean;
 
   // service
   namespace?: string;
@@ -1060,15 +1063,6 @@ export class CodeModelBuilder {
       }
     });
 
-    function getLastSegment(
-      segments: SdkModelPropertyType[] | undefined,
-    ): SdkModelPropertyType | undefined {
-      if (segments) {
-        return segments[segments.length - 1];
-      }
-      return undefined;
-    }
-
     // pageItems
     const pageItemsResponseProperty = findResponsePropertySegments(
       op,
@@ -1099,13 +1093,11 @@ export class CodeModelBuilder {
     let continuationTokenResponseHeader: HttpHeader | undefined;
     if (!this.isBranded()) {
       // parameter would either be query or header parameter, so taking the last segment would be enough
-      const continuationTokenParameterSegment = getLastSegment(
-        sdkMethod.pagingMetadata.continuationTokenParameterSegments,
-      );
+      const continuationTokenParameterSegment =
+        sdkMethod.pagingMetadata.continuationTokenParameterSegments?.at(-1);
       // response could be response header, where the last segment would do; or it be json path in the response body, where we use "findResponsePropertySegments" to find them
-      const continuationTokenResponseSegment = getLastSegment(
-        sdkMethod.pagingMetadata.continuationTokenResponseSegments,
-      );
+      const continuationTokenResponseSegment =
+        sdkMethod.pagingMetadata.continuationTokenResponseSegments?.at(-1);
       if (continuationTokenParameterSegment && op.parameters) {
         // for now, continuationToken is either request query or header parameter
         const parameter = getHttpOperationParameter(sdkMethod, continuationTokenParameterSegment);
@@ -1150,6 +1142,7 @@ export class CodeModelBuilder {
             }
           }
         } else if (continuationTokenResponseSegment?.kind === "property") {
+          // continuationToken is response body property
           continuationTokenResponseProperty = findResponsePropertySegments(
             op,
             sdkMethod.pagingMetadata.continuationTokenResponseSegments,
@@ -1169,7 +1162,7 @@ export class CodeModelBuilder {
         nextLinkReInjectedParameters = [];
         for (const parameterSegments of sdkMethod.pagingMetadata
           .nextLinkReInjectedParametersSegments) {
-          const nextLinkReInjectedParameterSegment = getLastSegment(parameterSegments);
+          const nextLinkReInjectedParameterSegment = parameterSegments?.at(-1);
           if (nextLinkReInjectedParameterSegment && op.parameters) {
             const parameter = getHttpOperationParameter(
               sdkMethod,
@@ -1180,7 +1173,10 @@ export class CodeModelBuilder {
               for (const opParam of op.parameters) {
                 if (
                   opParam.protocol.http?.in === parameter.kind &&
-                  opParam.language.default.serializedName === parameter.serializedName
+                  opParam.language.default.serializedName ===
+                    (parameter.kind === "property"
+                      ? getPropertySerializedName(parameter)
+                      : parameter.serializedName)
                 ) {
                   nextLinkReInjectedParameters.push(opParam);
                   break;
@@ -1275,9 +1271,7 @@ export class CodeModelBuilder {
             lroMetadata.finalResponse.resultSegments[
               lroMetadata.finalResponse.resultSegments.length - 1
             ];
-          if (lastSegment.kind === "property") {
-            finalResultPropertySerializedName = getPropertySerializedName(lastSegment);
-          }
+          finalResultPropertySerializedName = getPropertySerializedName(lastSegment);
         }
       }
 
@@ -1538,8 +1532,9 @@ export class CodeModelBuilder {
     request.parameters = [];
     request.signatureParameters = [];
 
+    const thisSdkContext = this.sdkContext;
     function findOperationParameter(
-      parameter: SdkHttpOperationParameterType | SdkBodyParameter | SdkBodyModelPropertyType,
+      parameter: SdkHttpOperationParameterType | SdkBodyParameter | SdkModelPropertyType,
     ): Parameter | undefined {
       let opParameter;
       // ignore constant parameter, usually the "accept" and "content-type" header
@@ -1547,7 +1542,7 @@ export class CodeModelBuilder {
         if (parameter.kind === "body") {
           // there should be only 1 body parameter
           opParameter = requestParameters.find((it) => it.protocol.http?.in === "body");
-        } else if (parameter.kind === "property") {
+        } else if (parameter.kind === "property" && !isHttpMetadata(thisSdkContext, parameter)) {
           // body property
           // if body property appears on method signature, it should already be flattened, hence the check on VirtualParameter
           opParameter = requestParameters.find(
@@ -1560,7 +1555,10 @@ export class CodeModelBuilder {
           opParameter = requestParameters.find(
             (it) =>
               it.protocol.http?.in === parameter.kind &&
-              it.language.default.serializedName === parameter.serializedName,
+              it.language.default.serializedName ===
+                (parameter.kind === "property"
+                  ? getPropertySerializedName(parameter)
+                  : parameter.serializedName),
           );
         }
       }
@@ -2013,7 +2011,7 @@ export class CodeModelBuilder {
         if (bodyParameter) {
           if (bodyParameter.type.kind === "model") {
             for (const bodyProperty of bodyParameter.type.properties) {
-              if (bodyProperty.kind === "property") {
+              if (!isHttpMetadata(this.sdkContext, bodyProperty)) {
                 this.addParameterOrBodyPropertyToCodeModelRequest(
                   bodyProperty,
                   op,
@@ -2032,7 +2030,7 @@ export class CodeModelBuilder {
   }
 
   private addParameterOrBodyPropertyToCodeModelRequest(
-    opParameter: SdkHttpOperationParameterType | SdkBodyModelPropertyType,
+    opParameter: SdkHttpOperationParameterType | SdkModelPropertyType,
     op: CodeModelOperation,
     request: Request,
     schema: ObjectSchema,
@@ -2702,7 +2700,7 @@ export class CodeModelBuilder {
 
     // properties
     for (const prop of type.properties) {
-      if (prop.kind === "property" && !prop.discriminator) {
+      if (!isHttpMetadata(this.sdkContext, prop) && !prop.discriminator) {
         objectSchema.addProperty(this.processModelProperty(prop));
       }
     }
@@ -2732,7 +2730,7 @@ export class CodeModelBuilder {
       // if the property does not return in response, it had to be nullable
       nullable = true;
     }
-    if (modelProperty.kind === "property" && modelProperty.flatten) {
+    if (modelProperty.flatten) {
       extensions = extensions ?? {};
       extensions["x-ms-client-flatten"] = true;
     }
@@ -2742,18 +2740,9 @@ export class CodeModelBuilder {
       extensions["x-ms-mutability"] = mutability;
     }
 
-    if (modelProperty.kind === "property" && modelProperty.serializationOptions.multipart) {
+    if (modelProperty.serializationOptions.multipart) {
       if (modelProperty.serializationOptions.multipart?.isFilePart) {
         schema = this.processMultipartFormDataFilePropertySchema(modelProperty);
-      } else if (
-        modelProperty.type.kind === "model" &&
-        modelProperty.type.properties.some((it) => it.kind === "body")
-      ) {
-        // TODO: this is HttpPart of non-File. TCGC should help handle this.
-        schema = this.processSchema(
-          modelProperty.type.properties.find((it) => it.kind === "body")!.type,
-          "",
-        );
       } else {
         schema = this.processSchema(nonNullType, "");
       }
@@ -2766,13 +2755,12 @@ export class CodeModelBuilder {
       required: !modelProperty.optional,
       nullable: nullable,
       readOnly: this.isReadOnly(modelProperty),
-      serializedName:
-        modelProperty.kind === "property" ? getPropertySerializedName(modelProperty) : undefined,
+      serializedName: getPropertySerializedName(modelProperty),
       extensions: extensions,
     });
 
     // xml
-    if (modelProperty.kind === "property" && modelProperty.serializationOptions.xml) {
+    if (modelProperty.serializationOptions.xml) {
       // property.serializedName is set via getPropertySerializedName
 
       // "serialization" is set to the property in TypeSpec emitter, not in the schema
@@ -2903,7 +2891,7 @@ export class CodeModelBuilder {
     }
   }
 
-  private processMultipartFormDataFilePropertySchema(property: SdkBodyModelPropertyType): Schema {
+  private processMultipartFormDataFilePropertySchema(property: SdkModelPropertyType): Schema {
     const processSchemaFunc = (type: SdkType) => this.processSchema(type, "");
     const processNamespaceFunc = (type: SdkBuiltInType | SdkModelType) => {
       const namespace =
@@ -2969,7 +2957,7 @@ export class CodeModelBuilder {
     if (segment) {
       return true;
     } else {
-      const visibility = target.kind === "property" ? target.visibility : undefined;
+      const visibility = target.visibility;
       if (visibility) {
         return (
           !visibility.includes(Visibility.All) &&
@@ -2985,7 +2973,7 @@ export class CodeModelBuilder {
   }
 
   private isSecret(target: SdkModelPropertyType): boolean {
-    if (target.kind === "property" && target.visibility) {
+    if (target.visibility) {
       return !target.visibility.includes(Visibility.Read);
     } else {
       return false;
@@ -2993,7 +2981,7 @@ export class CodeModelBuilder {
   }
 
   private getMutability(target: SdkModelPropertyType): string[] | undefined {
-    if (target.kind === "property" && target.visibility) {
+    if (target.visibility) {
       const mutability: string[] = [];
       if (target.visibility.includes(Visibility.Create)) {
         mutability.push("create");
