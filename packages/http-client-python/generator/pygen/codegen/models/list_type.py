@@ -42,7 +42,7 @@ class ListType(BaseType):
             return self.element_type.type_annotation(**kwargs)
 
         # if there is a function named `list` we have to make sure there's no conflict with the built-in `list`
-        list_type = "List" if kwargs.get("has_operation_named_list", False) else "list"
+        list_type = "List" if self.code_model.has_operation_named_list and kwargs.get("is_operation_file") else "list"
         return f"{list_type}[{self.element_type.type_annotation(**kwargs)}]"
 
     def description(self, *, is_operation_file: bool) -> str:

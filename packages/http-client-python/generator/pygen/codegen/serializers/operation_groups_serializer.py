@@ -58,16 +58,19 @@ class OperationGroupsSerializer(BaseSerializer):
 
     def serialize(self) -> str:
         imports = FileImport(self.code_model)
-        has_operation_named_list = any(o.name.lower() == "list" for og in self.operation_groups for o in og.operations)
         for operation_group in self.operation_groups:
             imports.merge(
                 operation_group.imports(
                     async_mode=self.async_mode,
                     serialize_namespace=self.serialize_namespace,
                     serialize_namespace_type=NamespaceType.OPERATION,
-                    has_operation_named_list=has_operation_named_list,
                 )
             )
+        # put here since one operation file only need one self-defined list type
+        if self.code_model.has_operation_named_list:
+            # if there is a function named `list` we have to make sure there's no conflict with the built-in `list`
+            # not doing for dict or set yet, though we might have to later
+            imports.define_mypy_type("List", "list")
 
         template = self.env.get_or_select_template("operation_groups_container.py.jinja2")
 
