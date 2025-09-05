@@ -10,6 +10,7 @@ import {
   getAllTags,
   getAnyExtensionFromPath,
   getDoc,
+  getDeprecationDetails,
   getFormat,
   getMaxItems,
   getMaxLength,
@@ -277,6 +278,21 @@ function createOAPIEmitter(
   };
 
   return { emitOpenAPI, getOpenAPI };
+
+  /**
+   * Check if an HTTP operation or its container (interface/namespace) is deprecated
+   */
+  function isOperationDeprecated(httpOp: HttpOperation): boolean {
+    // First check if the operation itself is deprecated
+    if (isDeprecated(program, httpOp.operation)) {
+      return true;
+    }
+    
+    // Then check if the container (interface or namespace) is deprecated
+    // Use getDeprecationDetails to check both Type state and Node directives
+    const containerDeprecated = getDeprecationDetails(program, httpOp.container);
+    return containerDeprecated !== undefined;
+  }
 
   async function emitOpenAPI() {
     const services = await getOpenAPI();
@@ -748,7 +764,7 @@ function createOAPIEmitter(
     for (const op of operations) {
       applyExternalDocs(op.operation, oai3Operation);
       attachExtensions(program, op.operation, oai3Operation);
-      if (isDeprecated(program, op.operation)) {
+      if (isOperationDeprecated(op)) {
         oai3Operation.deprecated = true;
       }
     }
@@ -847,7 +863,7 @@ function createOAPIEmitter(
     if (authReference) {
       oai3Operation.security = getEndpointSecurity(authReference);
     }
-    if (isDeprecated(program, op)) {
+    if (isOperationDeprecated(operation)) {
       oai3Operation.deprecated = true;
     }
     attachExtensions(program, op, oai3Operation);
