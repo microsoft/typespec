@@ -5,6 +5,7 @@ using SampleTypeSpec;
 
 namespace NewNamespace;
 
-public partial class TestName
+public partial class Foo
 {
+    public int Prop { get; }
 }

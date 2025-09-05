@@ -239,7 +239,10 @@ interface TopLevelArmResources {
 @route("/function")
 interface Functions {
   @put
-  createFunction(@body function: Function): Function;
+  createFunction(
+    @header `x-ms-authorization-auxiliary`?: string,
+    @body function: Function,
+  ): Function;
 }
 
 @route("/priority")
