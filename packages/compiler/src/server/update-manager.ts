@@ -25,7 +25,7 @@ export class UpdateManger {
   private _log: (sl: ServerLog) => void;
 
   constructor(log: (sl: ServerLog) => void) {
-    // TODO: remove the || true before checkin
+    // TODO: remove the || true before check-in
     this._log =
       process.env[ENABLE_UPDATE_MANAGER_LOGGING]?.toLowerCase() === "true"
         ? (sl: ServerLog) => {
@@ -67,7 +67,7 @@ export class UpdateManger {
   private readonly DEFAULT_DELAY = 500;
   // Provider different debounce delay according to whether usr are actively typing, increase the delay if so to avoid unnecessary invoke
   // The category below is suggested from AI, may adjust as needed in the future
-  private readonly DELAY_CANIDATES = [
+  private readonly DELAY_CANDIDATES = [
     // IMPORTANT: sort by frequencyInWindow desc, we will pick the first match
     {
       // active typing
@@ -97,7 +97,7 @@ export class UpdateManger {
   private getAdaptiveDebounceDelay = (): number => {
     const frequent = this.getWindowedDocChangedTimesteps().length;
 
-    for (const c of this.DELAY_CANIDATES) {
+    for (const c of this.DELAY_CANDIDATES) {
       if (frequent >= c.frequencyInWindow) {
         return c.delay;
       }

@@ -21,7 +21,7 @@ export type ServerCompileMode = "core" | "full";
 export interface ServerCompileOptions {
   skipCache?: boolean;
   skipOldProgramFromCache?: boolean;
-  /** Make this non-optinal on purpose so that the caller needs to determine the correct mode to compile explicitly */
+  /** Make this non-optional on purpose so that the caller needs to determine the correct mode to compile explicitly */
   mode: ServerCompileMode;
   /** A simple func to check if the compilation is cancelled. After compiler supports cancellation, we may want to change to use it */
   isCancelled?: () => boolean;
@@ -155,7 +155,7 @@ class CompileCache {
       case "full":
         return this.fullCache.get(entrypoint, compileOption, completedOnly);
       default:
-        // not expected, just in case, and we dont want to terminate because of cache in prod
+        // not expected, just in case, and we don't want to terminate because of cache in prod
         if (process.env.NODE_ENV === "development") {
           throw new Error(`Unexpected compile mode: ${mode}`);
         }
@@ -227,7 +227,7 @@ class CompileCacheInternal {
       if (!cur || cur.getVersion() < tracker.getVersion()) {
         // There may be a race condition here when two onComplete occur at the same time(both of them pass the check and try to set the cache)
         // But the chance is very low, the cache status is still good (just set to a newer but not latest version), and the next compile can
-        // likely fix it, so dont do speical handling here for it
+        // likely fix it, so don't do special handling here for it
         this.cacheCompleted.set(key, tracker);
         this.log(
           `Server compile #${tracker.getCompileId()}: Completed Cache updated ( ${cur?.getVersion() ?? "n/a"} -> ${tracker.getVersion()} )`,
@@ -263,7 +263,7 @@ export class CompileTracker {
     // for each compilation to it's own tracker
     // Usually we don't want to send out the log because we are compiling aggressively in the lsp
     // but in some case like the 'emit-code', we will want to send back the logs if there is any
-    const myhost: CompilerHost = {
+    const myHost: CompilerHost = {
       ...host,
       logSink: {
         log: (log: ProcessedLog) => {
@@ -290,7 +290,7 @@ export class CompileTracker {
           };
     const version = updateManager.docChangedVersion;
     const startTime = new Date();
-    const p = compileProgram(myhost, mainFile, myOption, oldProgram);
+    const p = compileProgram(myHost, mainFile, myOption, oldProgram);
     log(
       `Server compile #${id}: Start compilation at ${startTime.toISOString()}, version = ${version}, mainFile = ${mainFile}, mode = ${mode}`,
     );
