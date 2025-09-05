@@ -13,7 +13,7 @@ it("hint by default", async () => {
         }
       `,
   );
-  await testServerHost.server.compileInCoreMode(mainFile);
+  await testServerHost.server.compile(mainFile, undefined, { mode: "full" });
   const diagnostics = testServerHost.getDiagnostics("main.tsp");
   strictEqual(diagnostics.length, 1);
   strictEqual(diagnostics[0].code, "@typespec/compiler/unused-template-parameter");
@@ -38,7 +38,7 @@ it("warning if lint rule enable === true", async () => {
         }
       `,
   );
-  await testServerHost.server.compileInCoreMode(mainFile);
+  await testServerHost.server.compile(mainFile, undefined, { mode: "full" });
   const diagnostics = testServerHost.getDiagnostics("main.tsp");
   strictEqual(diagnostics.length, 1);
   strictEqual(diagnostics[0].code, "@typespec/compiler/unused-template-parameter");
@@ -63,7 +63,7 @@ it("no diagnostic if lint rule enable === false", async () => {
         }
       `,
   );
-  await testServerHost.server.compileInCoreMode(mainFile);
+  await testServerHost.server.compile(mainFile, undefined, { mode: "full" });
   const diagnostics = testServerHost.getDiagnostics("main.tsp");
   strictEqual(diagnostics.length, 0);
 });
@@ -82,7 +82,7 @@ it("no diagnostic if lint rule disabled", async () => {
         }
       `,
   );
-  await testServerHost.server.compileInCoreMode(mainFile);
+  await testServerHost.server.compile(mainFile, undefined, { mode: "full" });
   const diagnostics = testServerHost.getDiagnostics("main.tsp");
   strictEqual(diagnostics.length, 0);
 });

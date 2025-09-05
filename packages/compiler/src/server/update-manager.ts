@@ -8,7 +8,7 @@ interface PendingUpdate {
   latestUpdateTimestamp: number;
 }
 
-export type UpdateType = "opened" | "changed";
+export type UpdateType = "opened" | "changed" | "closed" | "renamed";
 
 type UpdateCallback = (updates: PendingUpdate[]) => Promise<void>;
 /**
@@ -52,6 +52,10 @@ export class UpdateManger {
 
   public get docChangedVersion() {
     return this.#docChangedVersion;
+  }
+
+  private bumpDocChangedVersion() {
+    this.#docChangedVersion++;
   }
 
   private pushDocChangedTimestamp() {
@@ -101,10 +105,10 @@ export class UpdateManger {
   };
 
   public scheduleUpdate(document: TextDocument | TextDocumentIdentifier, UpdateType: UpdateType) {
-    if (UpdateType === "changed") {
+    if (UpdateType === "changed" || UpdateType === "renamed") {
       // only bump this when the file is actually changed
       // skip open
-      this.#docChangedVersion++;
+      this.bumpDocChangedVersion();
       this.pushDocChangedTimestamp();
     }
     const existing = this.#pendingUpdates.get(document.uri);

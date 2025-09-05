@@ -109,6 +109,7 @@ import { createFileSystemCache } from "./file-system-cache.js";
 import { LibraryProvider } from "./lib-provider.js";
 import { NpmPackageProvider } from "./npm-package-provider.js";
 import { getRenameImportEdit, getUpdatedImportValue } from "./rename-file.js";
+import { ServerCompileOptions } from "./server-compile-manager.js";
 import { getSymbolStructure } from "./symbol-structure.js";
 import { provideTspconfigCompletionItems } from "./tspconfig/completion.js";
 import {
@@ -186,7 +187,7 @@ export function createServer(
     get workspaceFolders() {
       return workspaceFolders;
     },
-    compileInCoreMode,
+    compile,
     initialize,
     initialized,
     workspaceFoldersChanged,
@@ -211,6 +212,7 @@ export function createServer(
     getCodeActions,
     executeCommand,
     log,
+    reportDiagnostics,
 
     getInitProjectContext,
     validateInitProjectTemplate,
@@ -377,10 +379,18 @@ export function createServer(
     };
   }
 
-  async function compileInCoreMode(
-    doc: TextDocument | TextDocumentIdentifier,
+  async function compile(
+    document: TextDocument | TextDocumentIdentifier,
+    additionalOptions: CompilerOptions | undefined,
+    serverCompileOptions: ServerCompileOptions,
   ): Promise<CompileResult | undefined> {
-    return compileService.compile(doc, undefined, { mode: "core" });
+    return compileService.compile(document, additionalOptions, serverCompileOptions);
+  }
+
+  async function compileInCoreMode(
+    document: TextDocument | TextDocumentIdentifier,
+  ): Promise<CompileResult | undefined> {
+    return compile(document, undefined, { mode: "core" });
   }
 
   async function validateInitProjectTemplate(param: { template: InitTemplate }): Promise<boolean> {
@@ -497,6 +507,11 @@ export function createServer(
     const mainFile = await compileService.getMainFileForDocument(
       await fileService.getPath({ uri: firstFilePath.newUri }),
     );
+
+    // There will be no event triggered if the renamed file is not opened in vscode, also even when it's opened
+    // there will be only closed and opened event triggered for the old and new file url, so send fire the update
+    // explicitly here to make sure the change is not missed.
+    updateManager.scheduleUpdate({ uri: fileService.getURL(mainFile) }, "renamed");
 
     // Add this method to resolve timing issues between renamed files and `fs.stat`
     // to prevent `fs.stat` from getting the files before modification.
@@ -660,7 +675,7 @@ export function createServer(
     }));
   }
 
-  async function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
+  function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
     const initVersion = documentsOpenedInitVersion.get(change.document.uri);
     if (!initVersion) {
       // not expected, log something for troubleshooting
