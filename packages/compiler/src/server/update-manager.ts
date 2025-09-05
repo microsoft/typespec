@@ -27,7 +27,7 @@ export class UpdateManger {
   constructor(log: (sl: ServerLog) => void) {
     // TODO: remove the || true before checkin
     this._log =
-      process.env[ENABLE_UPDATE_MANAGER_LOGGING] || true
+      process.env[ENABLE_UPDATE_MANAGER_LOGGING]?.toLowerCase() === "true"
         ? (sl: ServerLog) => {
             log({ ...sl, message: `#FromUpdateManager: ${sl.message}` });
           }
@@ -68,6 +68,7 @@ export class UpdateManger {
   // Provider different debounce delay according to whether usr are actively typing, increase the delay if so to avoid unnecessary invoke
   // The category below is suggested from AI, may adjust as needed in the future
   private readonly DELAY_CANIDATES = [
+    // IMPORTANT: sort by frequencyInWindow desc, we will pick the first match
     {
       // active typing
       frequencyInWindow: 20,

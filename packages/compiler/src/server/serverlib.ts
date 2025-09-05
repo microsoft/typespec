@@ -228,8 +228,6 @@ export function createServer(
       tokenModifiers: [],
     };
 
-    // set the callback to send diagnostics proactively if the pull mode is not supported by the lsp client
-    // VS Code has supported the pull mode but Visual Studio hasn't. Remove this after Visual Studio supports pull mode too
     updateManager.setCallback(async (updates) => {
       if (updates.length === 0) {
         return;
@@ -774,6 +772,8 @@ export function createServer(
     }
 
     for (const [document, diagnostics] of diagnosticMap) {
+      // Send diagnostics to client one by one instead of in parallel to avoid giving too much pressure to client side to resolve and
+      // update UI for these diagnostics.
       await sendDiagnostics(document, diagnostics);
     }
   }

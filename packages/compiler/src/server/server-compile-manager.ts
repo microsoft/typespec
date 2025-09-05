@@ -41,7 +41,7 @@ export class ServerCompileManager {
   ) {
     // TODO: remove the || true before check-in
     this.logDebug =
-      process.env[ENABLE_SERVER_COMPILE_LOGGING] || true
+      process.env[ENABLE_SERVER_COMPILE_LOGGING]?.toLowerCase() === "true"
         ? (msg) => this.log({ level: "debug", message: msg })
         : () => {};
   }
@@ -124,14 +124,14 @@ class CompileCache {
   get(
     entrypoint: string,
     compileOption: CompilerOptions,
-    hasCompleted: boolean,
+    completedOnly: boolean,
     mode: ServerCompileMode,
   ) {
     switch (mode) {
       case "core":
         // full cache can also be used for core, just return the latest one
-        const core = this.coreCache.get(entrypoint, compileOption, hasCompleted);
-        const full = this.fullCache.get(entrypoint, compileOption, hasCompleted);
+        const core = this.coreCache.get(entrypoint, compileOption, completedOnly);
+        const full = this.fullCache.get(entrypoint, compileOption, completedOnly);
         // only consider using full when it's already completed, otherwise, full compilation may take longer time
         if (core && full && full.isCompleted()) {
           if (full.getVersion() > core.getVersion()) {
@@ -153,9 +153,9 @@ class CompileCache {
           return undefined;
         }
       case "full":
-        return this.fullCache.get(entrypoint, compileOption, hasCompleted);
+        return this.fullCache.get(entrypoint, compileOption, completedOnly);
       default:
-        // not expected, just in case, and we dont want to terminal because of cache in prod
+        // not expected, just in case, and we dont want to terminate because of cache in prod
         if (process.env.NODE_ENV === "development") {
           throw new Error(`Unexpected compile mode: ${mode}`);
         }
@@ -205,11 +205,12 @@ class CompileCacheInternal {
     /**
      * Whether to only return completed compilations
      */
-    hasCompleted: boolean,
+    completedOnly: boolean,
   ): CompileTracker | undefined {
     const key = this.getCacheKey(entrypoint, compileOption);
     const tracker = this.cacheLatest.get(key);
-    if (!hasCompleted || !tracker) {
+    // completed cache is from latest cache, so if latest is undefined, no need to check completed cache any more
+    if (!completedOnly || !tracker) {
       return tracker;
     }
     if (tracker.isCompleted() === true) {
@@ -305,7 +306,7 @@ export class CompileTracker {
     private startTime: Date,
     private mode: ServerCompileMode,
     private logs: ServerLog[],
-    private log: (msg: string) => void,
+    log: (msg: string) => void,
   ) {
     this.startTime = startTime;
     const onComplete = () => {
