@@ -64,7 +64,7 @@ export interface ServerHost {
   readonly compilerHost: CompilerHost;
   readonly throwInternalErrors?: boolean;
   readonly getOpenDocumentByURL: (url: string) => TextDocument | undefined;
-  readonly sendDiagnostics: (params: PublishDiagnosticsParams) => Promise<void>;
+  readonly sendDiagnostics: (params: PublishDiagnosticsParams) => void;
   readonly log: (log: ServerLog) => void;
   readonly applyEdit: (
     paramOrEdit: ApplyWorkspaceEditParams | WorkspaceEdit,
@@ -74,7 +74,7 @@ export interface ServerHost {
 export interface CompileResult {
   readonly program: Program;
   readonly document: TextDocument | undefined;
-  readonly script: TypeSpecScriptNode;
+  readonly script: TypeSpecScriptNode | undefined;
   readonly optionsFromConfig: CompilerOptions;
   readonly tracker: CompileTracker;
 }
@@ -121,7 +121,7 @@ export interface Server {
   documentOpened(change: TextDocumentChangeEvent<TextDocument>): void;
   getCodeActions(params: CodeActionParams): Promise<CodeAction[]>;
   executeCommand(params: ExecuteCommandParams): Promise<void>;
-  reportDiagnostics({ program, document, optionsFromConfig }: CompileResult): Promise<void>;
+  reportDiagnostics({ program, document, optionsFromConfig }: CompileResult): void;
   log(log: ServerLog): void;
 
   // Following custom capacities are added for supporting tsp init project from IDE (vscode for now) so that IDE can trigger compiler

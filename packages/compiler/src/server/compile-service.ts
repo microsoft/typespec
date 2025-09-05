@@ -4,10 +4,10 @@ import {
   defaultConfig,
   findTypeSpecConfigPath,
   loadTypeSpecConfigFile,
+  TypeSpecConfigFilename,
 } from "../config/config-loader.js";
 import { resolveOptionsFromConfig } from "../config/config-to-options.js";
 import { TypeSpecConfig } from "../config/types.js";
-import { compilerAssert } from "../core/diagnostics.js";
 import { builtInLinterRule_UnusedTemplateParameter } from "../core/linter-rules/unused-template-parameter.rule.js";
 import { builtInLinterRule_UnusedUsing } from "../core/linter-rules/unused-using.rule.js";
 import { builtInLinterLibraryName } from "../core/linter.js";
@@ -128,9 +128,12 @@ export function createCompileService({
     serverCompileOptions: ServerCompileOptions,
   ): Promise<CompileResult | undefined> {
     const path = await fileService.getPath(document);
+    const pathBaseName = getBaseFileName(path);
+    if (!path.endsWith(".tsp") && pathBaseName !== TypeSpecConfigFilename) {
+      return undefined;
+    }
     const mainFile = await getMainFileForDocument(path);
-    const mainFileName = getBaseFileName(mainFile);
-    if (!mainFileName.endsWith(".tsp") && mainFileName !== "tspconfig.yaml") {
+    if (!mainFile.endsWith(".tsp")) {
       return undefined;
     }
     const config = await getConfig(mainFile);
@@ -205,7 +208,11 @@ export function createCompileService({
         return undefined;
       }
 
-      if (mainFile !== path && !program.sourceFiles.has(path)) {
+      if (
+        mainFile !== path &&
+        !program.sourceFiles.has(path) &&
+        pathBaseName !== TypeSpecConfigFilename
+      ) {
         // If the file that changed wasn't imported by anything from the main
         // file, retry using the file itself as the main file.
         log({
@@ -221,7 +228,6 @@ export function createCompileService({
 
       const doc = "version" in document ? document : serverHost.getOpenDocumentByURL(document.uri);
       const script = program.sourceFiles.get(path);
-      compilerAssert(script, "Failed to get script.");
 
       const result: CompileResult = { program, document: doc, script, optionsFromConfig, tracker };
       notify("compileEnd", result);
@@ -253,7 +259,7 @@ export function createCompileService({
         );
       }
 
-      await serverHost.sendDiagnostics({
+      serverHost.sendDiagnostics({
         uri,
         diagnostics: [
           {

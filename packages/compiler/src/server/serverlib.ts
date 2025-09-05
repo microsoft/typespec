@@ -177,9 +177,6 @@ export function createServer(
   let isInitialized = false;
   let pendingMessages: ServerLog[] = [];
 
-  /** Track the init version when a doc is opened so that we can distinguish whether the doc is opened or changed */
-  const documentsOpenedInitVersion = new Map<string, number>();
-
   return {
     get pendingMessages() {
       return pendingMessages;
@@ -657,7 +654,7 @@ export function createServer(
       return [];
     }
     const { program, document, script } = result;
-    if (!document) {
+    if (!document || !script) {
       return [];
     }
 
@@ -674,7 +671,7 @@ export function createServer(
   }
 
   function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
-    const initVersion = documentsOpenedInitVersion.get(change.document.uri);
+    const initVersion = fileService.getOpenDocumentInitVersion(change.document.uri);
     if (!initVersion) {
       // not expected, log something for troubleshooting
       log({
@@ -691,11 +688,7 @@ export function createServer(
   }
 
   function documentOpened(change: TextDocumentChangeEvent<TextDocument>) {
-    if (documentsOpenedInitVersion.has(change.document.uri)) {
-      // not expected, log something for troubleshooting
-      log({ level: "debug", message: "Document already opened", detail: change.document.uri });
-    }
-    documentsOpenedInitVersion.set(change.document.uri, change.document.version);
+    fileService.notifyDocumentOpened(change);
     compileService.notifyChange(change.document, "opened");
   }
 
@@ -713,9 +706,18 @@ export function createServer(
     const diagnosticMap: Map<TextDocument, VSDiagnostic[]> = new Map();
     diagnosticMap.set(document, []);
     for (const each of program.sourceFiles.values()) {
-      const document = (each.file as ServerSourceFile)?.document;
-      if (document) {
-        diagnosticMap.set(document, []);
+      const saved = (each.file as ServerSourceFile)?.document;
+      if (saved) {
+        diagnosticMap.set(saved, []);
+      } else {
+        // The file may be opened later when the compile used as cache
+        // so double check the fileService for opened document. Since
+        // TextDocuments will always return the same TextDocument instance
+        // so we should be good to use the TextDocument as the key here.
+        const opened = fileService.getOpenDocument(each.file.path);
+        if (opened) {
+          diagnosticMap.set(opened, []);
+        }
       }
     }
 
@@ -772,9 +774,7 @@ export function createServer(
     }
 
     for (const [document, diagnostics] of diagnosticMap) {
-      // Send diagnostics to client one by one instead of in parallel to avoid giving too much pressure to client side to resolve and
-      // update UI for these diagnostics.
-      await sendDiagnostics(document, diagnostics);
+      sendDiagnostics(document, diagnostics);
     }
   }
 
@@ -787,7 +787,7 @@ export function createServer(
     }
     const { program, document, script } = result;
 
-    if (!document) {
+    if (!document || !script) {
       return { contents: [] };
     }
 
@@ -841,7 +841,7 @@ export function createServer(
       return undefined;
     }
     const { script, document, program } = result;
-    if (!document) {
+    if (!document || !script) {
       return undefined;
     }
     const data = getSignatureHelpNodeAtPosition(script, document.offsetAt(params.position));
@@ -1059,7 +1059,7 @@ export function createServer(
     if (isTspConfigFile(params.textDocument)) return [];
 
     const result = await compileInCoreMode(params.textDocument);
-    if (result === undefined || result.document === undefined) {
+    if (result === undefined || result.document === undefined || result.script === undefined) {
       return [];
     }
     const node = getNodeAtPosition(result.script, result.document.offsetAt(params.position));
@@ -1126,7 +1126,7 @@ export function createServer(
     const result = await compileInCoreMode(params.textDocument);
     if (result) {
       const { script, document, program } = result;
-      if (!document) {
+      if (!document || !script) {
         return completions;
       }
       const posDetail = getCompletionNodeAtPosition(script, document.offsetAt(params.position));
@@ -1149,7 +1149,7 @@ export function createServer(
     if (isTspConfigFile(params.textDocument)) return [];
 
     const result = await compileInCoreMode(params.textDocument);
-    if (result === undefined || result.document === undefined) {
+    if (result === undefined || result.document === undefined || result.script === undefined) {
       return [];
     }
     const identifiers = findReferenceIdentifiers(
@@ -1164,7 +1164,7 @@ export function createServer(
     if (isTspConfigFile(params.textDocument)) return undefined;
 
     const result = await compileInCoreMode(params.textDocument);
-    if (result === undefined || result.document === undefined) {
+    if (result === undefined || result.document === undefined || result.script === undefined) {
       return undefined;
     }
     const id = getNodeAtPosition(result.script, result.document.offsetAt(params.position));
@@ -1176,7 +1176,7 @@ export function createServer(
 
     const changes: Record<string, TextEdit[]> = {};
     const result = await compileInCoreMode(params.textDocument);
-    if (result && result.document) {
+    if (result && result.document && result.script) {
       const identifiers = findReferenceIdentifiers(
         result.program,
         result.script,
@@ -1321,9 +1321,9 @@ export function createServer(
   }
 
   function documentClosed(change: TextDocumentChangeEvent<TextDocument>) {
-    documentsOpenedInitVersion.delete(change.document.uri);
+    fileService.notifyDocumentClosed(change);
     // clear diagnostics on file close
-    void sendDiagnostics(change.document, []);
+    sendDiagnostics(change.document, []);
   }
 
   function getLocations(targets: readonly DiagnosticTarget[] | undefined): Location[] {
@@ -1362,11 +1362,8 @@ export function createServer(
     host.log(log);
   }
 
-  async function sendDiagnostics(
-    document: TextDocument,
-    diagnostics: VSDiagnostic[],
-  ): Promise<void> {
-    return host.sendDiagnostics({
+  function sendDiagnostics(document: TextDocument, diagnostics: VSDiagnostic[]) {
+    host.sendDiagnostics({
       uri: document.uri,
       version: document.version,
       diagnostics,

@@ -142,7 +142,10 @@
         //"TYPESPEC_VSCODE_TELEMETRY_KEY": "{The instrumentation key of your Application Insights}",
 
         "TYPESPEC_SERVER_NODE_OPTIONS": "--nolazy --inspect-brk=4242",
-        "TYPESPEC_DEVELOPMENT_MODE": "true"
+        "TYPESPEC_DEVELOPMENT_MODE": "true",
+
+        // "ENABLE_SERVER_COMPILE_LOGGING": "true",
+        // "ENABLE_UPDATE_MANAGER_LOGGING": "true"
       },
       "presentation": {
         "hidden": true
@@ -186,7 +189,7 @@
       "configurations": ["VS Code Extension (Client)", "Attach to Language Server"],
       "presentation": {
         "order": 1
-      }
+      } 
     }
   ]
 }
