@@ -824,7 +824,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [TestCase(typeof(sbyte), SerializationFormat.Default, ExpectedResult = "foo.GetSByte()")]
         public string TestIntDeserializeExpression(Type type, SerializationFormat format)
         {
-            var expr = MrwSerializationTypeDefinition.DeserializeJsonValueCore(type, new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "foo")), format);
+            var expr = MrwSerializationTypeDefinition.DeserializeJsonValueCore(
+                type,
+                new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "foo")),
+                new ScopedApi<ModelReaderWriterOptions>(new VariableExpression(typeof(ModelReaderWriterOptions), "options")),
+                format);
             return expr.ToDisplayString();
         }
 

@@ -3,14 +3,13 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import List
 from jinja2 import Environment
 from ..models import CodeModel, ModelType, EnumType
 
 
 class ModelInitSerializer:
     def __init__(
-        self, code_model: CodeModel, env: Environment, *, models: List[ModelType], enums: List[EnumType]
+        self, code_model: CodeModel, env: Environment, *, models: list[ModelType], enums: list[EnumType]
     ) -> None:
         self.code_model = code_model
         self.env = env
