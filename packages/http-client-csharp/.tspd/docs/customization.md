@@ -8,7 +8,7 @@ Define a class with the same namespace and name as generated model and use the d
 
 **Generated code before (Generated/Models/Model.cs):**
 
-``` C#
+```C#
 namespace Azure.Service.Models
 {
     public partial class Model { }
@@ -17,7 +17,7 @@ namespace Azure.Service.Models
 
 **Add customized model (Model.cs)**
 
-``` C#
+```C#
 namespace Azure.Service.Models
 {
     internal partial class Model { }
@@ -26,7 +26,7 @@ namespace Azure.Service.Models
 
 **Generated code after (Generated/Models/Model.cs):**
 
-``` diff
+```diff
 namespace Azure.Service.Models
 {
 -    public partial class Model { }
@@ -44,7 +44,7 @@ Define a class with a desired name and mark it with `[CodeGenType("OriginalName"
 
 **Generated code before (Generated/Models/Model.cs):**
 
-``` C#
+```C#
 namespace Azure.Service.Models
 {
     public partial class Model { }
@@ -53,7 +53,7 @@ namespace Azure.Service.Models
 
 **Add customized model (NewModelClassName.cs)**
 
-``` C#
+```C#
 namespace Azure.Service.Models
 {
     [CodeGenType("Model")]
@@ -63,7 +63,7 @@ namespace Azure.Service.Models
 
 **Generated code after (Generated/Models/NewModelClassName.cs):**
 
-``` diff
+```diff
 namespace Azure.Service.Models
 {
 -    public partial class Model { }
@@ -83,7 +83,7 @@ The same works for a client, if marked with `[CodeGenType("ClientName")]`.
 
 **Generated code before (Generated/Models/Model.cs):**
 
-``` C#
+```C#
 namespace Azure.Service.Models
 {
     public partial class Model { }
@@ -92,7 +92,7 @@ namespace Azure.Service.Models
 
 **Add customized model (NewModelClassName.cs)**
 
-``` C#
+```C#
 namespace Azure.Service
 {
     [CodeGenType("Model")]
@@ -102,7 +102,7 @@ namespace Azure.Service
 
 **Generated code after (Generated/Models/NewModelClassName.cs):**
 
-``` diff
+```diff
 - namespace Azure.Service.Models
 + namespace Azure.Service
 {
@@ -120,7 +120,7 @@ Define a class with a property matching a generated property name but with desir
 
 **Generated code before (Generated/Models/Model.cs):**
 
-``` C#
+```C#
 namespace Azure.Service.Models
 {
     public partial class Model
@@ -132,19 +132,19 @@ namespace Azure.Service.Models
 
 **Add customized model (Model.cs)**
 
-``` C#
+```C#
 namespace Azure.Service.Models
 {
     public partial class Model
     {
-        internal string Property { get; } 
+        internal string Property { get; }
     }
 }
 ```
 
 **Generated code after (Generated/Models/Model.cs):**
 
-``` diff
+```diff
 namespace Azure.Service.Models
 {
     public partial class Model
@@ -166,7 +166,7 @@ Define a partial class with a new property name and mark it with `[CodeGenMember
 
 **Generated code before (Generated/Models/Model.cs):**
 
-``` C#
+```C#
 namespace Azure.Service.Models
 {
     public partial class Model
@@ -178,20 +178,20 @@ namespace Azure.Service.Models
 
 **Add customized model (Model.cs)**
 
-``` C#
+```C#
 namespace Azure.Service.Models
 {
     public partial class Model
     {
         [CodeGenMember("Property")]
-        public string RenamedProperty { get; } 
+        public string RenamedProperty { get; }
     }
 }
 ```
 
 **Generated code after (Generated/Models/Model.cs):**
 
-``` diff
+```diff
 namespace Azure.Service.Models
 {
     public partial class Model
@@ -232,7 +232,7 @@ Define a property with different type than the generated one.
 
 **Generated code before (Generated/Models/Model.cs):**
 
-``` C#
+```C#
 namespace Azure.Service.Models
 {
     public partial class Model
@@ -244,7 +244,7 @@ namespace Azure.Service.Models
 
 **Add customized model (Model.cs)**
 
-``` C#
+```C#
 namespace Azure.Service.Models
 {
     public partial class Model
@@ -256,13 +256,13 @@ namespace Azure.Service.Models
 
 **Generated code after (Generated/Models/Model.Serializer.cs):**
 
-``` diff
+```diff
 namespace Azure.Service.Models
 {
     public partial class Model
     {
 -        public string Property { get; }
-+        // Serialization code now reads and writes DateTime value instead of string  
++        // Serialization code now reads and writes DateTime value instead of string
     }
 }
 ```
@@ -277,7 +277,7 @@ Use the [Change a model property type](#Change-a-model-property-type) approach t
 
 **Generated code before (Generated/Models/Model.cs):**
 
-``` C#
+```C#
 namespace Azure.Service.Models
 {
     public partial class Model
@@ -289,7 +289,7 @@ namespace Azure.Service.Models
 
 **Add customized model (Model.cs)**
 
-``` C#
+```C#
 namespace Azure.Service.Models
 {
     public partial class Model
@@ -301,13 +301,13 @@ namespace Azure.Service.Models
 
 **Generated code after (Generated/Models/Model.Serializer.cs):**
 
-``` diff
+```diff
 namespace Azure.Service.Models
 {
     public partial class Model
     {
 -        public string Property { get; }
-+        // Serialization code now reads and writes JsonElement value instead of string  
++        // Serialization code now reads and writes JsonElement value instead of string
     }
 }
 ```
@@ -322,7 +322,7 @@ Redefine a member in partial class with a new doc comment.
 
 **Generated code before (Generated/Models/Model.cs):**
 
-``` C#
+```C#
 namespace Azure.Service.Models
 {
     public partial class Model
@@ -335,7 +335,7 @@ namespace Azure.Service.Models
 
 **Add customized model (Model.cs)**
 
-``` C#
+```C#
 namespace Azure.Service.Models
 {
     public partial class Model
@@ -348,13 +348,13 @@ namespace Azure.Service.Models
 
 **Generated code after (Generated/Models/Model.cs):**
 
-``` diff
+```diff
 namespace Azure.Service.Models
 {
     public partial class Model
     {
 -        /// Subpar doc comment
--        public string Property { get; }  
+-        public string Property { get; }
     }
 }
 ```
@@ -375,7 +375,7 @@ For instance, we have a model class `Cat` with property `Name` and `Color`:
 
 **Generated code before:**
 
-``` C#
+```C#
 // Generated/Models/Cat.cs
 namespace Azure.Service.Models
 {
@@ -390,7 +390,7 @@ namespace Azure.Service.Models
 
 **Add customized model:**
 
-``` C#
+```C#
 // Cat.cs
 namespace Azure.Service.Models
 {
@@ -403,7 +403,7 @@ namespace Azure.Service.Models
 
 **Generated code after:**
 
-``` diff
+```diff
 // Generated/Models/Cat.cs - no change
 
 // Generated/Models/Cat.Serialization.cs
@@ -460,7 +460,7 @@ For instance, we want to move `Name` property in the model `Cat` to make it seri
 
 **Generated code before:**
 
-``` C#
+```C#
 // Generated/Models/Cat.cs
 namespace Azure.Service.Models
 {
@@ -516,7 +516,7 @@ namespace Azure.Service.Models
 
 **Add customized model:**
 
-``` C#
+```C#
 // Cat.cs
 namespace Azure.Service.Models
 {
@@ -529,7 +529,7 @@ namespace Azure.Service.Models
 
 **Generated code after:**
 
-``` diff
+```diff
 // Generated/Models/Cat.cs - no change
 
 // Generated/Models/Model.Serialization.cs
@@ -595,7 +595,7 @@ The custom serialization method for this property is assigned by the `Serializat
 
 The `SerializationValueHook` and `DeserializationValueHook` here are hook method names, and these methods should have the signature as below:
 
-``` C#
+```C#
 // serialization hook and serialization value hook
 [MethodImpl(MethodImplOptions.AggressiveInlining)]
 internal void SerializationMethodHook(Utf8JsonWriter writer)
@@ -629,7 +629,7 @@ For instance, we have a model class `Cat` with property `Name` and `Color`, and 
 
 **Generated code before:**
 
-``` C#
+```C#
 // Generated/Models/Cat.cs
 namespace Azure.Service.Models
 {
@@ -685,7 +685,7 @@ namespace Azure.Service.Models
 
 **Add customized model:**
 
-``` C#
+```C#
 // Cat.cs
 namespace Azure.Service.Models
 {
@@ -711,7 +711,7 @@ namespace Azure.Service.Models
 
 **Generated code after:**
 
-``` diff
+```diff
 // Generated/Models/Cat.cs - no change
 
 // Generated/Models/Cat.Serialization.cs
@@ -771,7 +771,7 @@ If you want to add a new property to the model and also add the property into th
 
 **Generated code before:**
 
-``` C#
+```C#
 // Generated/Models/Cat.cs
 namespace Azure.Service.Models
 {
@@ -827,7 +827,7 @@ namespace Azure.Service.Models
 
 **Add customized model:**
 
-``` C#
+```C#
 [CodeGenSerialization(nameof(Size), "size")]
 public partial class Cat
 {
@@ -837,7 +837,7 @@ public partial class Cat
 
 **Generated code after:**
 
-``` diff
+```diff
 // Generated/Models/Cat.cs
 namespace Azure.Service.Models
 {
@@ -927,7 +927,7 @@ If you want to replace the entire serialization/deserialization method, please u
 
 **Generated code before:**
 
-``` C#
+```C#
 // Generated/Models/Cat.Serialization.cs
 namespace Azure.Service.Models
 {
@@ -979,7 +979,7 @@ namespace Azure.Service.Models
 
 **Add customized model:**
 
-``` C#
+```C#
 // Cat.cs
 namespace Azure.Service.Models
 {
@@ -994,7 +994,7 @@ namespace Azure.Service.Models
             // WORKAROUND: server never needs color, remove it in the customization code
             writer.WriteEndObject();
         }
-            
+
         internal static Cat DeserializeCat(JsonElement element)
         {
             string color = default;
@@ -1035,7 +1035,7 @@ Redefine an enum with a new name and all the members mark it with `[CodeGenType(
 
 **Generated code before (Generated/Models/Colors.cs):**
 
-``` C#
+```C#
 namespace Azure.Service.Models
 {
     public enum Colors
@@ -1049,7 +1049,7 @@ namespace Azure.Service.Models
 
 **Add customized model (WallColors.cs)**
 
-``` C#
+```C#
 namespace Azure.Service.Models
 {
     [CodeGenType("Colors")]
@@ -1064,7 +1064,7 @@ namespace Azure.Service.Models
 
 **Generated code after (Generated/Models/Model.cs):**
 
-``` diff
+```diff
 -namespace Azure.Service.Models
 -{
 -    public enum Colors
@@ -1089,7 +1089,7 @@ Redefine an enum with the same name and all the members, mark renamed member wit
 
 **Generated code before (Generated/Models/Colors.cs):**
 
-``` C#
+```C#
 namespace Azure.Service.Models
 {
     public enum Colors
@@ -1103,7 +1103,7 @@ namespace Azure.Service.Models
 
 **Add customized model (Colors.cs)**
 
-``` C#
+```C#
 namespace Azure.Service.Models
 {
     public enum Colors
@@ -1118,7 +1118,7 @@ namespace Azure.Service.Models
 
 **Generated code after (Generated/Models/Model.cs):**
 
-``` diff
+```diff
 -namespace Azure.Service.Models
 -{
 -    public enum Colors
@@ -1141,7 +1141,7 @@ Redefine an enum into an extensible enum by creating an empty struct with the sa
 
 **Generated code before (Generated/Models/Colors.cs):**
 
-``` C#
+```C#
 namespace Azure.Service.Models
 {
     public enum Colors
@@ -1154,7 +1154,7 @@ namespace Azure.Service.Models
 
 **Add customized model (Colors.cs)**
 
-``` C#
+```C#
 namespace Azure.Service.Models
 {
     public partial struct Colors
@@ -1165,7 +1165,7 @@ namespace Azure.Service.Models
 
 **Generated code after (Generated/Models/Model.cs):**
 
-``` diff
+```diff
 namespace Azure.Service.Models
 {
 -    public enum Colors
@@ -1202,7 +1202,7 @@ Define a class with the same namespace and name as generated client and use the 
 
 **Generated code before (Generated/Operations/ServiceClient.cs):**
 
-``` C#
+```C#
 namespace Azure.Service.Operations
 {
     public partial class ServiceClient { }
@@ -1211,7 +1211,7 @@ namespace Azure.Service.Operations
 
 **Add customized model (Model.cs)**
 
-``` C#
+```C#
 namespace Azure.Service.Operations
 {
     internal partial class ServiceClient { }
@@ -1220,7 +1220,7 @@ namespace Azure.Service.Operations
 
 **Generated code after (Generated/Operations/ServiceClient.cs):**
 
-``` diff
+```diff
 namespace Azure.Service.Operations
 {
 -    public partial class ServiceClient { }
@@ -1230,7 +1230,6 @@ namespace Azure.Service.Operations
 
 </details>
 
-
 ## Rename a client
 
 Define a partial client class with a new name and mark it with `[CodeGenType("OriginalName")]`
@@ -1239,7 +1238,7 @@ Define a partial client class with a new name and mark it with `[CodeGenType("Or
 
 **Generated code before (Generated/Operations/ServiceClient.cs):**
 
-``` C#
+```C#
 namespace Azure.Service.Operations
 {
     public partial class ServiceClient {}
@@ -1248,7 +1247,7 @@ namespace Azure.Service.Operations
 
 **Add customized model (Model.cs)**
 
-``` C#
+```C#
 namespace Azure.Service.Operations
 {
     [CodeGenType("ServiceClient")]
@@ -1258,7 +1257,7 @@ namespace Azure.Service.Operations
 
 **Generated code after (Generated/Operations/ServiceClient.cs):**
 
-``` diff
+```diff
 namespace Azure.Service.Operations
 {
 -    public partial class ServiceClient { }
@@ -1267,7 +1266,6 @@ namespace Azure.Service.Operations
 ```
 
 </details>
-
 
 ## Replace any generated member
 
@@ -1279,13 +1277,13 @@ Define a partial class with member with the same name and for methods same param
 
 **Generated code before (Generated/Models/Model.cs):**
 
-``` C#
+```C#
 namespace Azure.Service.Models
 {
     public partial class Model
     {
         public Model()
-        {  
+        {
             Property = "a";
         }
 
@@ -1296,7 +1294,7 @@ namespace Azure.Service.Models
 
 **Add customized model (Model.cs)**
 
-``` C#
+```C#
 namespace Azure.Service.Models
 {
     public partial class Model
@@ -1311,13 +1309,13 @@ namespace Azure.Service.Models
 
 **Generated code after (Generated/Models/Model.cs):**
 
-``` diff
+```diff
 namespace Azure.Service.Models
 {
     public partial class Model
     {
 -        public Model()
--        {  
+-        {
 -            Property = "a";
 -        }
     }
@@ -1336,18 +1334,18 @@ Define a partial class with `[CodeGenSuppress("NameOfMember", typeof(Parameter1T
 
 **Generated code before (Generated/Models/Model.cs):**
 
-``` C#
+```C#
 namespace Azure.Service.Models
 {
     public partial class Model
     {
         public Model()
-        {  
+        {
             Property = "a";
         }
 
         public Model(string property)
-        {  
+        {
             Property = property;
         }
 
@@ -1358,7 +1356,7 @@ namespace Azure.Service.Models
 
 **Add customized model (Model.cs)**
 
-``` C#
+```C#
 namespace Azure.Service.Models
 {
     [CodeGenSuppress("Model", typeof(string))]
@@ -1370,13 +1368,13 @@ namespace Azure.Service.Models
 
 **Generated code after (Generated/Models/Model.cs):**
 
-``` diff
+```diff
 namespace Azure.Service.Models
 {
     public partial class Model
     {
 -        public Model(string property)
--        {  
+-        {
 -            Property = property;
 -        }
     }
