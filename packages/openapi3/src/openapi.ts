@@ -285,11 +285,11 @@ function createOAPIEmitter(
     if (isDeprecated(program, httpOp.operation)) {
       return true;
     }
-    
+
     if (isDeprecated(program, httpOp.container)) {
       return true;
     }
-    
+
     // Check parent namespaces recursively
     let current = httpOp.container.namespace;
     while (current && current.name !== "") {
@@ -298,7 +298,7 @@ function createOAPIEmitter(
       }
       current = current.namespace;
     }
-    
+
     return false;
   }
 
