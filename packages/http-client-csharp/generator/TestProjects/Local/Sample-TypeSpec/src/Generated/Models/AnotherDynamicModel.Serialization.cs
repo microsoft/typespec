@@ -23,6 +23,14 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<AnotherDynamicModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
+#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+            if (Patch.Contains("$"u8))
+            {
+                writer.WriteRawValue(Patch.GetJson("$"u8));
+                return;
+            }
+#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+
             writer.WriteStartObject();
             JsonModelWriteCore(writer, options);
             writer.WriteEndObject();
@@ -37,8 +45,15 @@ namespace SampleTypeSpec
             {
                 throw new FormatException($"The model {nameof(AnotherDynamicModel)} does not support writing '{format}' format.");
             }
-            writer.WritePropertyName("bar"u8);
-            writer.WriteStringValue(Bar);
+#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+            if (!Patch.Contains("$.bar"u8))
+            {
+                writer.WritePropertyName("bar"u8);
+                writer.WriteStringValue(Bar);
+            }
+
+            Patch.WriteTo(writer);
+#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
         }
 
         /// <param name="reader"> The JSON reader. </param>

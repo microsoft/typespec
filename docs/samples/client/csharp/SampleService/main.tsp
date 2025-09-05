@@ -273,6 +273,13 @@ model RoundTripModel {
 @dynamicModel
 model DynamicModel {
   name: string;
+  optionalUnknown?: unknown;
+  optionalInt?: int32;
+  optionalNullableList?: int32[] | null;
+  requiredNullableList: int32[] | null;
+  optionalNullableDictionary?: Record<int32> | null;
+  requiredNullableDictionary: Record<int32> | null;
+  primitiveDictionary: Record<int32>;
   foo: AnotherDynamicModel;
   listFoo: AnotherDynamicModel[];
   listOfListFoo: AnotherDynamicModel[][];

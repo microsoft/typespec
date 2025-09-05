@@ -166,6 +166,27 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
         }
 
         [Test]
+        public void IfElseStatementWithMultipleElseIfs()
+        {
+            var x = new VariableExpression(typeof(int), "x");
+            var condition1 = new BinaryOperatorExpression("==", x, Literal(1));
+            var condition2 = new BinaryOperatorExpression("==", x, Literal(2));
+            var condition3 = new BinaryOperatorExpression("==", x, Literal(3));
+
+            var ifStatement = new IfStatement(condition1) { Return(Literal("first")) };
+            var elseIfStatement1 = new IfStatement(condition2) { Return(Literal("second")) };
+            var elseIfStatement2 = new IfStatement(condition3) { Return(Literal("third")) };
+            var elseStatement = Return(Literal("default"));
+
+            var ifElseStatement = new IfElseStatement(ifStatement, [elseIfStatement1, elseIfStatement2], elseStatement);
+
+            using var writer = new CodeWriter();
+            ifElseStatement.Write(writer);
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
+        }
+
+        [Test]
         public void SwitchStatementWithSingleCase()
         {
             var matchExpression = ValueExpression.Empty;

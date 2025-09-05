@@ -3,6 +3,7 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Text.Json;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -23,6 +24,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
             return result;
         }
 
+        public static InvokeMethodExpression GetJson(
+            this ScopedApi<JsonPatch> patch,
+            ValueExpression jsonPath)
+        {
+            return patch.Invoke(nameof(JsonPatch.GetJson), [jsonPath]);
+        }
+
         public static ScopedApi<bool> TryGetEncodedValue(
             this ScopedApi<JsonPatch> patch,
             ValueExpression jsonPath,
@@ -35,6 +43,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
             ValueExpression property)
         {
             return patch.Invoke(nameof(JsonPatch.Contains), [prefix, property]).As<bool>();
+        }
+
+        public static ScopedApi<bool> Contains(
+           this ScopedApi<JsonPatch> patch,
+           ValueExpression jsonPath)
+        {
+            return patch.Invoke(nameof(JsonPatch.Contains), [jsonPath]).As<bool>();
+        }
+
+        public static ScopedApi<bool> IsRemoved(
+           this ScopedApi<JsonPatch> patch,
+           ValueExpression jsonPath)
+        {
+            return patch.Invoke(nameof(JsonPatch.IsRemoved), [jsonPath]).As<bool>();
         }
 
         public static MethodBodyStatement Set(
@@ -51,6 +73,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
             ValueExpression propagateGet)
         {
             return patch.Invoke(nameof(JsonPatch.SetPropagators), [propagateSet, propagateGet, Null]).Terminate();
+        }
+
+        public static InvokeMethodExpression WriteTo(
+            this ScopedApi<JsonPatch> patch,
+            ScopedApi<Utf8JsonWriter> writer)
+        {
+            return patch.Invoke(nameof(JsonPatch.WriteTo), [writer]);
+        }
+
+        public static InvokeMethodExpression WriteTo(
+            this ScopedApi<JsonPatch> patch,
+            ScopedApi<Utf8JsonWriter> writer,
+            ValueExpression jsonPath)
+        {
+            return patch.Invoke(nameof(JsonPatch.WriteTo), [writer, jsonPath]);
         }
 #pragma warning restore SCME0001
 

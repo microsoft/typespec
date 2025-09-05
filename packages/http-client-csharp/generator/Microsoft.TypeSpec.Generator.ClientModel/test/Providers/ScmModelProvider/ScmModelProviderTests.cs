@@ -189,7 +189,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
                     InputFactory.Property("p1",
                         InputFactory.Model(
                             "anotherDynamic",
-                            isDynamic: true,
+                            isDynamicModel: true,
                             properties:
                             [
                                 InputFactory.Property("a1", InputPrimitiveType.String, isRequired: true)
