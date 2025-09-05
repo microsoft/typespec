@@ -131,7 +131,7 @@ export async function createTestServerHost(options?: TestHostOptions & { workspa
     additionalOptions: CompilerOptions | undefined,
     serverCompileOptions: ServerCompileOptions,
   ) => {
-    // Wrap the compile to report diagnstoics after compile in test to make sure existing tests
+    // Wrap the compile to report diagnostics after compile in test to make sure existing tests
     // that rely on diagnostics to work without having to change each of them to call reportDiagnostics explicitly.
     const result = await serverCompile(document, additionalOptions, serverCompileOptions);
     if (result) {
