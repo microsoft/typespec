@@ -144,7 +144,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private FieldProvider? JsonPatchField => _jsonPatchField ??= BuildJsonPatchField();
 
         private PropertyProvider? _jsonPatchProperty;
-        private PropertyProvider? JsonPatchProperty => _jsonPatchProperty ??= BuildJsonPatchProperty();
+        internal PropertyProvider? JsonPatchProperty => _jsonPatchProperty ??= BuildJsonPatchProperty();
 
         private FieldProvider? BuildJsonPatchField()
         {

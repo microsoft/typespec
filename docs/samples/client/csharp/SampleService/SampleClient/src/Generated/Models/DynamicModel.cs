@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 
 namespace SampleTypeSpec
 {
@@ -16,16 +17,20 @@ namespace SampleTypeSpec
 
         /// <summary> Initializes a new instance of <see cref="DynamicModel"/>. </summary>
         /// <param name="name"></param>
+        /// <param name="requiredNullableList"></param>
+        /// <param name="requiredNullableDictionary"></param>
+        /// <param name="primitiveDictionary"></param>
         /// <param name="foo"></param>
         /// <param name="listFoo"></param>
         /// <param name="listOfListFoo"></param>
         /// <param name="dictionaryFoo"></param>
         /// <param name="dictionaryListFoo"></param>
         /// <param name="listOfDictionaryFoo"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="foo"/>, <paramref name="listFoo"/>, <paramref name="listOfListFoo"/>, <paramref name="dictionaryFoo"/>, <paramref name="dictionaryListFoo"/> or <paramref name="listOfDictionaryFoo"/> is null. </exception>
-        public DynamicModel(string name, AnotherDynamicModel foo, IEnumerable<AnotherDynamicModel> listFoo, IEnumerable<IList<AnotherDynamicModel>> listOfListFoo, IDictionary<string, AnotherDynamicModel> dictionaryFoo, IDictionary<string, IList<AnotherDynamicModel>> dictionaryListFoo, IEnumerable<IDictionary<string, AnotherDynamicModel>> listOfDictionaryFoo)
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="primitiveDictionary"/>, <paramref name="foo"/>, <paramref name="listFoo"/>, <paramref name="listOfListFoo"/>, <paramref name="dictionaryFoo"/>, <paramref name="dictionaryListFoo"/> or <paramref name="listOfDictionaryFoo"/> is null. </exception>
+        public DynamicModel(string name, IEnumerable<int> requiredNullableList, IDictionary<string, int> requiredNullableDictionary, IDictionary<string, int> primitiveDictionary, AnotherDynamicModel foo, IEnumerable<AnotherDynamicModel> listFoo, IEnumerable<IList<AnotherDynamicModel>> listOfListFoo, IDictionary<string, AnotherDynamicModel> dictionaryFoo, IDictionary<string, IList<AnotherDynamicModel>> dictionaryListFoo, IEnumerable<IDictionary<string, AnotherDynamicModel>> listOfDictionaryFoo)
         {
             Argument.AssertNotNull(name, nameof(name));
+            Argument.AssertNotNull(primitiveDictionary, nameof(primitiveDictionary));
             Argument.AssertNotNull(foo, nameof(foo));
             Argument.AssertNotNull(listFoo, nameof(listFoo));
             Argument.AssertNotNull(listOfListFoo, nameof(listOfListFoo));
@@ -34,6 +39,11 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(listOfDictionaryFoo, nameof(listOfDictionaryFoo));
 
             Name = name;
+            OptionalNullableList = new ChangeTrackingList<int>();
+            RequiredNullableList = requiredNullableList?.ToList();
+            OptionalNullableDictionary = new ChangeTrackingDictionary<string, int>();
+            RequiredNullableDictionary = requiredNullableDictionary;
+            PrimitiveDictionary = primitiveDictionary;
             Foo = foo;
             ListFoo = listFoo.ToList();
             ListOfListFoo = listOfListFoo.ToList();
@@ -44,6 +54,13 @@ namespace SampleTypeSpec
 
         /// <summary> Initializes a new instance of <see cref="DynamicModel"/>. </summary>
         /// <param name="name"></param>
+        /// <param name="optionalUnknown"></param>
+        /// <param name="optionalInt"></param>
+        /// <param name="optionalNullableList"></param>
+        /// <param name="requiredNullableList"></param>
+        /// <param name="optionalNullableDictionary"></param>
+        /// <param name="requiredNullableDictionary"></param>
+        /// <param name="primitiveDictionary"></param>
         /// <param name="foo"></param>
         /// <param name="listFoo"></param>
         /// <param name="listOfListFoo"></param>
@@ -51,9 +68,16 @@ namespace SampleTypeSpec
         /// <param name="dictionaryListFoo"></param>
         /// <param name="listOfDictionaryFoo"></param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal DynamicModel(string name, AnotherDynamicModel foo, IList<AnotherDynamicModel> listFoo, IList<IList<AnotherDynamicModel>> listOfListFoo, IDictionary<string, AnotherDynamicModel> dictionaryFoo, IDictionary<string, IList<AnotherDynamicModel>> dictionaryListFoo, IList<IDictionary<string, AnotherDynamicModel>> listOfDictionaryFoo, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        internal DynamicModel(string name, BinaryData optionalUnknown, int? optionalInt, IList<int> optionalNullableList, IList<int> requiredNullableList, IDictionary<string, int> optionalNullableDictionary, IDictionary<string, int> requiredNullableDictionary, IDictionary<string, int> primitiveDictionary, AnotherDynamicModel foo, IList<AnotherDynamicModel> listFoo, IList<IList<AnotherDynamicModel>> listOfListFoo, IDictionary<string, AnotherDynamicModel> dictionaryFoo, IDictionary<string, IList<AnotherDynamicModel>> dictionaryListFoo, IList<IDictionary<string, AnotherDynamicModel>> listOfDictionaryFoo, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             Name = name;
+            OptionalUnknown = optionalUnknown;
+            OptionalInt = optionalInt;
+            OptionalNullableList = optionalNullableList;
+            RequiredNullableList = requiredNullableList;
+            OptionalNullableDictionary = optionalNullableDictionary;
+            RequiredNullableDictionary = requiredNullableDictionary;
+            PrimitiveDictionary = primitiveDictionary;
             Foo = foo;
             ListFoo = listFoo;
             ListOfListFoo = listOfListFoo;
@@ -65,6 +89,52 @@ namespace SampleTypeSpec
 
         /// <summary> Gets the Name. </summary>
         public string Name { get; }
+
+        /// <summary>
+        /// Gets or sets the OptionalUnknown.
+        /// <para> To assign an object to this property use <see cref="BinaryData.FromObjectAsJson{T}(T, JsonSerializerOptions?)"/>. </para>
+        /// <para> To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>. </para>
+        /// <para>
+        /// Examples:
+        /// <list type="bullet">
+        /// <item>
+        /// <term> BinaryData.FromObjectAsJson("foo"). </term>
+        /// <description> Creates a payload of "foo". </description>
+        /// </item>
+        /// <item>
+        /// <term> BinaryData.FromString("\"foo\""). </term>
+        /// <description> Creates a payload of "foo". </description>
+        /// </item>
+        /// <item>
+        /// <term> BinaryData.FromObjectAsJson(new { key = "value" }). </term>
+        /// <description> Creates a payload of { "key": "value" }. </description>
+        /// </item>
+        /// <item>
+        /// <term> BinaryData.FromString("{\"key\": \"value\"}"). </term>
+        /// <description> Creates a payload of { "key": "value" }. </description>
+        /// </item>
+        /// </list>
+        /// </para>
+        /// </summary>
+        public BinaryData OptionalUnknown { get; set; }
+
+        /// <summary> Gets or sets the OptionalInt. </summary>
+        public int? OptionalInt { get; set; }
+
+        /// <summary> Gets or sets the OptionalNullableList. </summary>
+        public IList<int> OptionalNullableList { get; set; }
+
+        /// <summary> Gets the RequiredNullableList. </summary>
+        public IList<int> RequiredNullableList { get; }
+
+        /// <summary> Gets or sets the OptionalNullableDictionary. </summary>
+        public IDictionary<string, int> OptionalNullableDictionary { get; set; }
+
+        /// <summary> Gets the RequiredNullableDictionary. </summary>
+        public IDictionary<string, int> RequiredNullableDictionary { get; }
+
+        /// <summary> Gets the PrimitiveDictionary. </summary>
+        public IDictionary<string, int> PrimitiveDictionary { get; }
 
         /// <summary> Gets the Foo. </summary>
         public AnotherDynamicModel Foo { get; }
