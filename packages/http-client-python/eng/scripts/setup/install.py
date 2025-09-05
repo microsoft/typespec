@@ -8,7 +8,9 @@
 import sys
 
 if not sys.version_info >= (3, 9, 0):
-    print("Warning: Autorest for Python extension requires Python 3.9 at least. We will run your code with Pyodide since your Python version isn't adequate.")
+    print(
+        "Warning: Autorest for Python extension requires Python 3.9 at least. We will run your code with Pyodide since your Python version isn't adequate."
+    )
     sys.exit(2)  # Exit code 2 for inadequate environment
 
 try:
@@ -16,13 +18,17 @@ try:
 
     detect_package_manager()  # Just check if we have a package manager
 except (ImportError, ModuleNotFoundError, PackageManagerNotFoundError):
-    print("Warning: Your Python installation doesn't have a suitable package manager (pip or uv) available. We will run your code with Pyodide since your Python environment isn't adequate.")
+    print(
+        "Warning: Your Python installation doesn't have a suitable package manager (pip or uv) available. We will run your code with Pyodide since your Python environment isn't adequate."
+    )
     sys.exit(2)  # Exit code 2 for inadequate environment
 
 try:
     import venv
 except (ImportError, ModuleNotFoundError):
-    print("Warning: Your Python installation doesn't have venv available. We will run your code with Pyodide since your Python version isn't adequate.")
+    print(
+        "Warning: Your Python installation doesn't have venv available. We will run your code with Pyodide since your Python version isn't adequate."
+    )
     sys.exit(2)  # Exit code 2 for inadequate environment
 
 
