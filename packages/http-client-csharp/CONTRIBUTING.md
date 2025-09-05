@@ -19,7 +19,7 @@ Before you begin, ensure you have the following installed:
 
 - [Node.js](https://nodejs.org/) (version 20 or higher)
 - [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) (required - see global.json for exact version)
-- [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) (for workspace management)
+- [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
 - [Git](https://git-scm.com/)
 - [PowerShell](https://docs.microsoft.com/powershell/scripting/install/installing-powershell) (version 7.0 or higher, for advanced testing and code generation scenarios)
 
@@ -37,7 +37,7 @@ cd typespec/packages/http-client-csharp
 From the repository root:
 
 ```bash
-pnpm install
+npm ci
 ```
 
 ### 3. Build the C# Package
@@ -133,9 +133,6 @@ npm run test:generator
 # Run tests with coverage
 npm run test:ci
 
-# Run tests in watch mode (emitter only)
-npm run test:watch
-
 # Run tests with UI (emitter only)
 npm run test:ui
 ```
@@ -183,35 +180,6 @@ To regenerate test projects after making changes:
    ```bash
    ./eng/scripts/Generate.ps1
    ```
-
-## Troubleshooting
-
-### Common Issues
-
-#### .NET SDK Version Mismatch
-
-If you see an error about .NET SDK version, check the `global.json` file for the exact required version:
-
-```bash
-cat global.json
-```
-
-Install the required .NET SDK version from the [official download page](https://dotnet.microsoft.com/download/dotnet).
-
-#### Emitter Build Failures
-
-If the TypeScript emitter fails to build with module resolution errors:
-
-1. Ensure the entire workspace is built first: `cd ../../ && pnpm build`
-2. Try building just the emitter: `npm run build:emitter`
-
-#### Missing Dependencies
-
-If you encounter import errors during testing:
-
-1. Reinstall dependencies: `cd ../../ && pnpm install`
-2. Rebuild the workspace: `pnpm build`
-3. Then rebuild the C# package: `cd packages/http-client-csharp && npm run build`
 
 ## Creating Pull Requests
 
