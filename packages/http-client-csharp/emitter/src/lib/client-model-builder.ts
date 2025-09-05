@@ -6,6 +6,7 @@ import { CSharpEmitterContext } from "../sdk-context.js";
 import { CodeModel } from "../type/code-model.js";
 import { InputEnumType, InputModelType } from "../type/input-type.js";
 import { fromSdkClients } from "./client-converter.js";
+import { fromSdkNamespaces } from "./namespace-converter.js";
 import { processServiceAuthentication } from "./service-authentication.js";
 import { fromSdkType } from "./type-converter.js";
 import { firstLetterToUpperCase, getClientNamespaceString } from "./utils.js";
@@ -19,6 +20,8 @@ import { firstLetterToUpperCase, getClientNamespaceString } from "./utils.js";
 export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   const sdkPackage = sdkContext.sdkPackage;
 
+  // TO-DO: Consider exposing the namespace hierarchy in the code model https://github.com/microsoft/typespec/issues/8332
+  fromSdkNamespaces(sdkContext, sdkPackage.namespaces);
   // TO-DO: Consider using the TCGC model + enum cache once https://github.com/Azure/typespec-azure/issues/3180 is resolved
   navigateModels(sdkContext);
 
