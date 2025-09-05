@@ -1,6 +1,6 @@
-## Customizing the generated code
+# Customizing the generated code
 
-### Make a model internal
+## Make a model internal
 
 Define a class with the same namespace and name as generated model and use the desired accessibility.
 
@@ -36,7 +36,7 @@ namespace Azure.Service.Models
 
 </details>
 
-### Rename a model class
+## Rename a model class
 
 Define a class with a desired name and mark it with `[CodeGenType("OriginalName")]`
 
@@ -73,7 +73,7 @@ namespace Azure.Service.Models
 
 </details>
 
-### Change a model or client namespace
+## Change a model or client namespace
 
 Define a class with a desired namespace and mark it with `[CodeGenType("OriginalName")]`.
 
@@ -112,7 +112,7 @@ namespace Azure.Service
 
 </details>
 
-### Make model property internal
+## Make model property internal
 
 Define a class with a property matching a generated property name but with desired accessibility.
 
@@ -156,7 +156,7 @@ namespace Azure.Service.Models
 
 </details>
 
-### Rename a model property
+## Rename a model property
 
 Define a partial class with a new property name and mark it with `[CodeGenMember("OriginalName")]` attribute.
 
@@ -204,7 +204,7 @@ namespace Azure.Service.Models
 
 </details>
 
-### Change a model property type
+## Change a model property type
 
 :warning:
 
@@ -269,7 +269,7 @@ namespace Azure.Service.Models
 
 </details>
 
-### Preserve raw Json value of a property
+## Preserve raw Json value of a property
 
 Use the [Change a model property type](#Change-a-model-property-type) approach to change property type to `JsonElement`.
 
@@ -314,7 +314,7 @@ namespace Azure.Service.Models
 
 </details>
 
-### Changing member doc comment
+## Changing member doc comment
 
 Redefine a member in partial class with a new doc comment.
 
@@ -361,11 +361,11 @@ namespace Azure.Service.Models
 
 </details>
 
-### Customize serialization/deserialization methods
+## Customize serialization/deserialization methods
 
 Changing how a property serializes or deserializes is done by `CodeGenSerialization` attribute. This attribute can be applied to a class or struct with a property name to change the serialization/deserialization method of the property.
 
-#### Change the serialized name of a property
+### Change the serialized name of a property
 
 If you want to change the property name that serializes into the JSON or deserializes from the JSON, you could define your own partial class with the `CodeGenMemberSerialization` attribute.
 
@@ -450,7 +450,7 @@ namespace Azure.Service.Models
 }
 ```
 
-#### Change the hierarchy of a property in the serialized JSON
+### Change the hierarchy of a property in the serialized JSON
 
 If you want to change the layer of the property in the json, you can add all the elements in the json path of your property to the attribute using an array, the generator will generate the property into the JSON in the correct hierarchy.
 
@@ -587,7 +587,7 @@ namespace Azure.Service.Models
 
 </details>
 
-#### Change the implementation of serialization/deserialization method of a property
+### Change the implementation of serialization/deserialization method of a property
 
 If you want to change the implementation of serialization/deserialization method of a property, you could define your own hook methods and assign them to the `CodeGenSerialization` attribute.
 
@@ -763,7 +763,7 @@ namespace Azure.Service.Models
 
 </details>
 
-#### Add a new property to the model with serialization/deserialization
+### Add a new property to the model with serialization/deserialization
 
 If you want to add a new property to the model and also add the property into the serialization/deserialization methods, you could also use the `CodeGenSerialization` attribute to change its default serialized name, and serialization/deserialization methods.
 
@@ -1025,7 +1025,7 @@ Generated code won't contain the `IUtf8JsonSerializable.Write` or `DeserializeCa
 
 </details>
 
-### Renaming an enum
+## Renaming an enum
 
 Redefine an enum with a new name and all the members mark it with `[CodeGenType("OriginEnumName")]`.
 
@@ -1133,7 +1133,7 @@ namespace Azure.Service.Models
 
 </details>
 
-### Changing an enum to an extensible enum
+## Changing an enum to an extensible enum
 
 Redefine an enum into an extensible enum by creating an empty struct with the same name as original enum.
 
@@ -1194,7 +1194,7 @@ namespace Azure.Service.Models
 
 </details>
 
-### Make a client internal
+## Make a client internal
 
 Define a class with the same namespace and name as generated client and use the desired accessibility.
 
@@ -1231,7 +1231,7 @@ namespace Azure.Service.Operations
 </details>
 
 
-### Rename a client
+## Rename a client
 
 Define a partial client class with a new name and mark it with `[CodeGenType("OriginalName")]`
 
@@ -1269,7 +1269,7 @@ namespace Azure.Service.Operations
 </details>
 
 
-### Replace any generated member
+## Replace any generated member
 
 Works for model and client properties, methods, constructors etc.
 
@@ -1326,7 +1326,7 @@ namespace Azure.Service.Models
 
 </details>
 
-### Remove any generated member
+## Remove any generated member
 
 Works for model and client properties, methods, constructors etc.
 
@@ -1385,115 +1385,7 @@ namespace Azure.Service.Models
 
 </details>
 
-### Change model namespace or accessibility in bulk
-
-<details>
-
-**Generated code before:**
-
-``` C#
-namespace Azure.Service.Models
-{
-    public partial class Model1 {}
-    public partial class Model2 {}
-    public partial class Model3 {}
-    public partial class Model4 {}
-}
-```
-
-**Add autorest.md transformation**
-
-```
-directive:
-  from: swagger-document
-  where: $.definitions.*
-  transform: >
-    $["x-namespace"] = "Azure.Search.Documents.Indexes.Models"
-    $["x-accessibility"] = "internal"
-```
-
-**Generated code after:**
-
-``` diff
--namespace Azure.Service.Models
-+namespace Azure.Search.Documents.Indexes.Models
-{
--    public partial class Model1 {}
-+    internal partial class Model1 {}
--    public partial class Model2 {}
-+    internal partial class Model2 {}
--    public partial class Model3 {}
-+    internal partial class Model3 {}
--    public partial class Model4 {}
-+    internal partial class Model4 {}
-}
-```
-
-</details>
-
-### Change operation accessibility in bulk
-
-<details>
-
-**Generated code before (Generated/Client.cs):**
-
-``` C#
-public virtual Response Operation(string body = null, CancellationToken cancellationToken = default)
-public virtual async Task<Response> OperationAsync(string body = null, CancellationToken cancellationToken = default)
-```
-
-**Add autorest.md transformation**
-
-```
-directive:
-- from: swagger-document
-  where: $..[?(@.operationId=='Operation')]
-  transform: >
-    $["x-accessibility"] = "internal";
-```
-
-**Generated code after (Generated/Client.cs):**
-
-``` C#
-internal virtual Response Operation(string body = null, CancellationToken cancellationToken = default)
-internal virtual async Task<Response> OperationAsync(string body = null, CancellationToken cancellationToken = default)
-```
-
-</details>
-
-### Exclude models from namespace
-
-<details>
-
-**Generated code before (Generated/Models/Model.cs):**
-
-``` C#
-namespace Azure.Service.Models
-{
-    public partial class Model { }
-}
-```
-
-**Add `model-namespace` in autorest.md**
-
-```
-model-namespace: false
-input-file: "swagger-document"
-```
-
-**Generated code after (Generated/Models/Model.cs):**
-
-``` diff
-- namespace Azure.Service.Models
-+ namespace Azure.Service
-{
-    public partial class Model { }
-}
-```
-</details>
-
-
-### Extending a model with additional constructors
+## Extending a model with additional constructors
 
 <details>
 
