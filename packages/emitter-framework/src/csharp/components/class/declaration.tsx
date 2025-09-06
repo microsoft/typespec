@@ -64,7 +64,7 @@ function ClassProperties(props: ClassPropertiesProps): Children {
     ([_, p]) => !isVoidType(p.type),
   );
   return (
-    <For each={properties} hardline>
+    <For each={properties} doubleHardline>
       {([name, property]) => <Property type={property} jsonAttributes={props.jsonAttributes} />}
     </For>
   );
