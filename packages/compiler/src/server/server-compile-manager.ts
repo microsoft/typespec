@@ -27,7 +27,12 @@ export interface ServerCompileOptions {
   isCancelled?: () => boolean;
 }
 
-/** All server compilation should be triggered from me */
+/**
+ * This class purely manages compilations triggered and the caches used underneath. It doesn't have or care about any extra knowledge beyond compile itself.
+ * Instead compiler service would have more knowledge about the lsp scenarios to provide higher level service. It will be responsible to make sure compilation request
+ * is built properly (i.e. figure out the correct entrypoint file, double check whether compilation result covers given document, and so on) and then trigger the actual
+ * compilation with proper options through this class.
+ */
 export class ServerCompileManager {
   // We may want a ttl for this
   private trackerCache = new CompileCache((msg) => this.logDebug(msg));
@@ -39,7 +44,6 @@ export class ServerCompileManager {
     private compilerHost: CompilerHost,
     private log: (log: ServerLog) => void,
   ) {
-    // TODO: remove the || true before check-in
     this.logDebug =
       process.env[ENABLE_SERVER_COMPILE_LOGGING]?.toLowerCase() === "true"
         ? (msg) => this.log({ level: "debug", message: msg })
@@ -49,11 +53,7 @@ export class ServerCompileManager {
   async compile(
     mainFile: string,
     compileOptions: CompilerOptions = {},
-    serverCompileOptions: ServerCompileOptions = {
-      skipCache: false,
-      skipOldProgramFromCache: false,
-      mode: "full",
-    },
+    serverCompileOptions: ServerCompileOptions,
   ): Promise<CompileTracker> {
     let cache = undefined;
     const curId = this.compileId++;
