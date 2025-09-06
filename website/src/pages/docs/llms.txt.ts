@@ -1,24 +1,26 @@
+import { generateLlmstxt, processDocsForLlmsTxt } from "@typespec/astro-utils/llmstxt";
 import type { APIRoute } from "astro";
-import { processDocsForTypeSpecLlmsTxt } from "../../utils/process-docs-llms-txt";
+import { collectLlmsDocs, generateLlmsTopics } from "../../utils/llmstxt";
 
 export const GET: APIRoute = async ({ site }) => {
-  const llmsData = await processDocsForTypeSpecLlmsTxt(site);
+  const { docs, libraryNames } = await collectLlmsDocs();
 
-  const contents: string[] = [];
-  contents.push(`# ${llmsData.title}`);
-  contents.push(`> ${llmsData.description}`);
+  const topics = generateLlmsTopics({ libraryNames, docs });
+  const llmsData = await processDocsForLlmsTxt({
+    title: "TypeSpec Documentation",
+    description:
+      "TypeSpec is an open-source language for designing APIs in a clear, extensible, and reusable way. It enables developers to define APIs as a single source of truth and generate client/server code, documentation, and OpenAPI specifications using emitters.",
+    docs,
+    llmsSections: topics.map((topic) => ({
+      name: topic.title,
+      pathPrefix: topic.pathPrefix,
+    })),
+    site,
+  });
 
-  for (const [name, topic] of Object.entries(llmsData.topics)) {
-    if (!topic.length) continue;
-    const section: string[] = [];
-    section.push(`## ${name}\n`);
-    for (const { title, url, description } of topic) {
-      section.push(`- [${title}](${url}): ${description}`);
-    }
-    contents.push(section.join("\n"));
-  }
+  const llmstxt = generateLlmstxt(llmsData);
 
-  return new Response(contents.join("\n\n"), {
+  return new Response(llmstxt, {
     headers: {
       "Content-Type": "text/markdown; charset=utf-8",
     },

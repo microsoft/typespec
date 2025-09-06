@@ -15,26 +15,33 @@ import {
 } from "../utils/markdown.js";
 import { MarkdownRenderer, groupByNamespace } from "./markdown.js";
 
+export interface RenderToStarlightMarkdownOptions {
+  llmstxt?: boolean;
+}
+
 /**
  * Render doc to a markdown using docusaurus addons.
  */
-export function renderToAstroStarlightMarkdown(refDoc: TypeSpecRefDoc): Record<string, string> {
+export function renderToAstroStarlightMarkdown(
+  refDoc: TypeSpecRefDoc,
+  options: RenderToStarlightMarkdownOptions = {},
+): Record<string, string> {
   const renderer = new StarlightRenderer(refDoc);
   const files: Record<string, string> = {
     "index.mdx": renderIndexFile(renderer, refDoc),
   };
 
-  const decoratorFile = renderDecoratorFile(renderer, refDoc);
+  const decoratorFile = renderDecoratorFile(renderer, refDoc, { llmstxt: options.llmstxt });
   if (decoratorFile) {
     files["decorators.md"] = decoratorFile;
   }
 
-  const interfaceFile = renderInterfacesFile(renderer, refDoc);
+  const interfaceFile = renderInterfacesFile(renderer, refDoc, { llmstxt: options.llmstxt });
   if (interfaceFile) {
     files["interfaces.md"] = interfaceFile;
   }
 
-  const dataTypes = renderDataTypes(renderer, refDoc);
+  const dataTypes = renderDataTypes(renderer, refDoc, { llmstxt: options.llmstxt });
   if (dataTypes) {
     files["data-types.md"] = dataTypes;
   }
@@ -93,6 +100,7 @@ function renderIndexFile(renderer: StarlightRenderer, refDoc: TypeSpecLibraryRef
 
 export type DecoratorRenderOptions = {
   title?: string;
+  llmstxt?: boolean;
 };
 
 export function renderDecoratorFile(
@@ -104,30 +112,49 @@ export function renderDecoratorFile(
     return undefined;
   }
   const title = options?.title ?? "Decorators";
-  const name = refDoc.name ?? refDoc.namespaces[0]?.name ?? "";
   const content: MarkdownDoc = [
     "---",
     `title: "${title}"`,
     "toc_min_heading_level: 2",
     "toc_max_heading_level: 3",
-    "llmstxt:",
-    `  title: "${name ? `${name} - ` : ""}${title}"`,
-    `  description: "Decorators ${name ? `exported by ${name}` : ""}"`,
-    "---",
   ];
+
+  if (options?.llmstxt) {
+    const name = refDoc.name ?? refDoc.namespaces[0]?.name ?? "";
+    content.push("llmstxt:");
+    content.push(`  description: "Decorators ${name ? `exported by ${name}` : ""}"`);
+  }
+
+  content.push("---");
 
   content.push(renderer.decoratorsSection(refDoc));
   return renderMarkdowDoc(content, 2);
 }
 
+export type InterfacesRenderOptions = {
+  llmstxt?: boolean;
+};
+
 function renderInterfacesFile(
   renderer: StarlightRenderer,
   refDoc: TypeSpecRefDoc,
+  options?: InterfacesRenderOptions,
 ): string | undefined {
   if (!refDoc.namespaces.some((x) => x.operations.length > 0 || x.interfaces.length > 0)) {
     return undefined;
   }
-  const content: MarkdownDoc = ["---", `title: "Interfaces and Operations"`, "---"];
+
+  const title = "Interfaces and Operations";
+
+  const content: MarkdownDoc = ["---", `title: "${title}"`];
+
+  if (options?.llmstxt) {
+    const name = refDoc.name ?? refDoc.namespaces[0]?.name ?? "";
+    content.push("llmstxt:");
+    content.push(`  description: "Interfaces and Operations ${name ? `exported by ${name}` : ""}"`);
+  }
+
+  content.push("---");
 
   content.push(
     groupByNamespace(refDoc.namespaces, (namespace) => {
@@ -152,6 +179,7 @@ function renderInterfacesFile(
 
 export type DataTypeRenderOptions = {
   title?: string;
+  llmstxt?: boolean;
 };
 
 export function renderDataTypes(
@@ -163,15 +191,15 @@ export function renderDataTypes(
     return undefined;
   }
   const title = options?.title ?? "Data types";
-  const name = refDoc.name ?? refDoc.namespaces[0]?.name ?? "";
-  const content: MarkdownDoc = [
-    "---",
-    `title: "${title}"`,
-    "llmstxt:",
-    `  title: "${name ? `${name} - ` : ""}${title}"`,
-    `  description: "Data types ${name ? `exported by ${name}` : ""}"`,
-    "---",
-  ];
+  const content: MarkdownDoc = ["---", `title: "${title}"`];
+
+  if (options?.llmstxt) {
+    const name = refDoc.name ?? refDoc.namespaces[0]?.name ?? "";
+    content.push("llmstxt:");
+    content.push(`  description: "Data types ${name ? `exported by ${name}` : ""}"`);
+  }
+
+  content.push("---");
 
   content.push(
     groupByNamespace(refDoc.namespaces, (namespace) => {

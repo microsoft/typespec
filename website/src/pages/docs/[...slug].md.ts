@@ -1,7 +1,6 @@
-import type { APIRoute } from "astro";
 import { getCollection } from "astro:content";
 
-type DocItems = Awaited<ReturnType<typeof getCollection<"docs">>>;
+export { markdownRoute as GET } from "@typespec/astro-utils/llmstxt";
 
 export async function getStaticPaths() {
   const docs = await getCollection("docs");
@@ -13,23 +12,12 @@ export async function getStaticPaths() {
       return true;
     })
     .map((doc) => ({
-      params: { slug: generateMarkdownPath(doc.id) },
+      params: { slug: generateMarkdownSlug(doc.id) },
       props: { doc },
     }));
 }
 
-export const GET: APIRoute<{ doc: DocItems[number] }> = async ({ props }) => {
-  const { doc } = props;
-  const rawContent = doc.body;
-
-  return new Response(rawContent, {
-    headers: {
-      "Content-Type": "text/markdown; charset=utf-8",
-    },
-  });
-};
-
-function generateMarkdownPath(docId: string): string {
+function generateMarkdownSlug(docId: string): string {
   // All of the docs in the collection have `docs` prepended to the path - we need to
   // remove this since it'll be prepended again given this route is in the `docs` folder.
   const path = docId.startsWith("docs") ? docId.slice(5) : docId;

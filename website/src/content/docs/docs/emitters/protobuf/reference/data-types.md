@@ -1,7 +1,6 @@
 ---
 title: "Data types"
 llmstxt:
-  title: "@typespec/protobuf - Data types"
   description: "Data types exported by @typespec/protobuf"
 ---
 

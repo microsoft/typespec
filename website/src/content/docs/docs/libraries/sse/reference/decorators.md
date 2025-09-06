@@ -2,9 +2,6 @@
 title: "Decorators"
 toc_min_heading_level: 2
 toc_max_heading_level: 3
-llmstxt:
-  title: "@typespec/sse - Decorators"
-  description: "Decorators exported by @typespec/sse"
 ---
 
 ## TypeSpec.SSE

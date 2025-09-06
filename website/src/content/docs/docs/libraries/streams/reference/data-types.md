@@ -1,7 +1,6 @@
 ---
 title: "Data types"
 llmstxt:
-  title: "@typespec/streams - Data types"
   description: "Data types exported by @typespec/streams"
 ---
 

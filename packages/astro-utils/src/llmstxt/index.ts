@@ -1,5 +1,10 @@
 import type { z } from "astro:content";
+import { generateMarkdownPath } from "./generators";
 import type { llmstxtSchema } from "./schema";
+
+export * from "./generators";
+export * from "./routes";
+export * from "./topics";
 
 export interface DocEntry {
   id: string;
@@ -8,6 +13,19 @@ export interface DocEntry {
     llmstxt?: z.infer<typeof llmstxtSchema>;
   };
   body?: string;
+}
+
+export interface LlmsTxtAsJson {
+  title: string;
+  description: string;
+  topics: Record<
+    string,
+    {
+      title: string;
+      description?: string;
+      url: string;
+    }[]
+  >;
 }
 
 export interface ProcessDocsProps {
@@ -30,29 +48,14 @@ export interface ProcessDocsProps {
    */
   docs: DocEntry[];
   /**
-   * Name of the llmstxt section and the pattern to match against doc IDs.
-   * If a doc matches multiple patterns, it will be assigned to the first matching section.
+   * Name of the llmstxt section and the pathPrefix to match against doc IDs.
+   * If a doc matches multiple pathPrefixes, it will be assigned to the first matching section.
    */
-  llmsSections: { name: string; pattern: string }[];
-}
-
-export interface LLMsJson {
-  title: string;
-  description: string;
-  topics: Record<
-    string,
-    {
-      title: string;
-      description?: string;
-      url: string;
-    }[]
-  >;
+  llmsSections: { name: string; pathPrefix: string }[];
 }
 
 /**
- * Process documentation entries for LLMs text generation.
- * @param docs - The collection of documentation entries.
- * @returns An array of LLMsJson objects representing the processed documentation.
+ * Processes astro content collection docs and metadata for easy `llms.txt` generation.
  */
 export async function processDocsForLlmsTxt({
   title,
@@ -60,19 +63,17 @@ export async function processDocsForLlmsTxt({
   site,
   docs,
   llmsSections,
-}: ProcessDocsProps): Promise<LLMsJson> {
-  docs.sort((a, b) => (a.id > b.id ? 1 : -1));
+}: ProcessDocsProps) {
   const sections = organizeDocsIntoSections(docs, llmsSections);
-  const result: LLMsJson = { title, description, topics: {} };
+  const result: LlmsTxtAsJson = { title, description, topics: {} };
 
   const siteHref = site?.href ?? "";
-
   for (const [sectionName, sectionDocs] of Object.entries(sections)) {
     if (sectionDocs.length === 0) continue;
 
     const topic = sectionName;
     const topics = sectionDocs.map((doc) => {
-      const title = doc.data.llmstxt?.title ?? doc.data.title;
+      const title = doc.data.title;
       const desc = doc.data.llmstxt?.description ?? "";
       const path = generateMarkdownPath(doc.id);
       const url = mergeSiteWithPath(siteHref, path);
@@ -85,32 +86,18 @@ export async function processDocsForLlmsTxt({
   return result;
 }
 
-export function generateMarkdownPath(docId: string): string {
-  // If the final path fragment does not include a file extension, use `index.html.md`
-  if (docId.endsWith("/")) {
-    return `${docId}index.html.md`;
-  }
-
-  const finalPathFragment = docId.split("/").pop() ?? "";
-  if (!finalPathFragment.includes(".")) {
-    return `${docId}/index.html.md`;
-  }
-
-  return `${docId}.md`;
-}
-
 function organizeDocsIntoSections(
   docs: DocEntry[],
   llmsSections: ProcessDocsProps["llmsSections"],
 ) {
+  docs.sort((a, b) => (a.id > b.id ? 1 : -1));
   const seenDocs = new Set<DocEntry>();
   const sections: Record<string, DocEntry[]> = {};
 
-  for (const { name, pattern } of llmsSections) {
+  for (const { name, pathPrefix } of llmsSections) {
     sections[name] = docs.filter((doc) => {
       if (seenDocs.has(doc)) return false;
-      const regex = new RegExp(`^${pattern.replace(/\*\*/g, ".*")}$`);
-      if (regex.test(doc.id)) {
+      if (doc.id.startsWith(pathPrefix)) {
         seenDocs.add(doc);
         return true;
       }
@@ -122,20 +109,29 @@ function organizeDocsIntoSections(
 }
 
 /**
- * Merges a site URL with a relative path.
+ * Merges a site URL with path parts.
  * Used when needing to create full URLs when working with astro content collections.
  * @param siteHref The base URL of the site.
- * @param path The relative path to merge with the site URL.
+ * @param pathParts The path parts to merge with the site URL.
  * @returns The merged URL.
  */
-export function mergeSiteWithPath(siteHref: string, path: string): string {
-  const siteTrailingSlash = siteHref.endsWith("/");
-  const pathLeadingSlash = path.startsWith("/");
-  if (siteTrailingSlash && pathLeadingSlash) {
-    return `${siteHref}${path.slice(1)}`;
+export function mergeSiteWithPath(siteHref: string, ...pathParts: string[]): string {
+  let result = siteHref;
+
+  for (const part of pathParts) {
+    if (!part) continue; // Skip empty parts
+
+    const resultTrailingSlash = result.endsWith("/");
+    const partLeadingSlash = part.startsWith("/");
+
+    if (resultTrailingSlash && partLeadingSlash) {
+      result = `${result}${part.slice(1)}`;
+    } else if (!resultTrailingSlash && !partLeadingSlash) {
+      result = `${result}/${part}`;
+    } else {
+      result = `${result}${part}`;
+    }
   }
-  if (!siteTrailingSlash && !pathLeadingSlash) {
-    return `${siteHref}/${path}`;
-  }
-  return `${siteHref}${path}`;
+
+  return result;
 }
