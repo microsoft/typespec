@@ -1,5 +1,7 @@
 ---
 title: "Data types"
+llmstxt:
+  description: "Data types exported by @typespec/rest"
 ---
 
 ## TypeSpec.Rest

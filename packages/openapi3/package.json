@@ -48,7 +48,7 @@
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
-    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../website/src/content/docs/docs/emitters/openapi3/reference",
+    "regen-docs": "tspd doc .  --enable-experimental --llmstxt --output-dir ../../website/src/content/docs/docs/emitters/openapi3/reference",
     "regen-specs": "cross-env RECORD=true vitest run",
     "gen-version": "node scripts/generate-version.js",
     "api-extractor": "api-extractor run --local --verbose"

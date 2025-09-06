@@ -10,7 +10,9 @@
     "./components/*": "./src/components/*",
     "./utils/*": "./src/utils/*.ts",
     "./css/*": "./src/css/*",
-    "./expressive-code/*": "./dist/expressive-code/*.js"
+    "./expressive-code/*": "./dist/expressive-code/*.js",
+    "./llmstxt": "./src/llmstxt/index.ts",
+    "./llmstxt/schema": "./src/llmstxt/schema.ts"
   },
   "files": [
     "src",

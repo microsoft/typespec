@@ -1,5 +1,8 @@
 ---
 title: Common Parameters
+llmstxt:
+  title: TypeSpec and REST - reuse parameters
+  description: Getting started with REST - 04 reuse common parameters
 ---
 
 ## Introduction

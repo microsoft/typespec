@@ -1,6 +1,8 @@
 ---
 id: documentation
 title: Documentation
+llmstxt:
+  description: "Language basics - documenting APIs"
 ---
 
 Documentation is a vital aspect of any API. TypeSpec offers several ways to document your API, including doc comments and decorators.

@@ -1,6 +1,8 @@
 ---
 id: interfaces
 title: Interfaces
+llmstxt:
+  description: "Language basics - grouping operations with interfaces"
 ---
 
 Interfaces are useful for grouping and reusing [operations](./operations.md).

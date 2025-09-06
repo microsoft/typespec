@@ -1,6 +1,8 @@
 ---
 id: built-in-types
 title: Built-in types
+llmstxt:
+  description: "Language basics - built-in types"
 ---
 
 TypeSpec Standard Library provide some built-in types that can be used to build more complex types.

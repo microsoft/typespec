@@ -129,6 +129,8 @@ words:
   - LINUXOS
   - LINUXVMIMAGE
   - ljust
+  - llms
+  - llmstxt
   - lmazuel
   - lropaging
   - lstrip
