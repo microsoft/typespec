@@ -32,6 +32,26 @@ export type ApplyMergePatchDecorator = (
 ) => void;
 
 /**
+ * Apply the omit metadata transform.
+ */
+export type OmitMetadataDecorator = (
+  context: DecoratorContext,
+  target: Model,
+  source: Model,
+  nameTemplate: string,
+) => void;
+
+/**
+ * Apply the strip metadata transform.
+ */
+export type StripMetadataDecorator = (
+  context: DecoratorContext,
+  target: Model,
+  source: Model,
+  nameTemplate: string,
+) => void;
+
+/**
  * Specify if inapplicable metadata should be included in the payload for the given entity.
  *
  * @param value If true, inapplicable metadata will be included in the payload.
@@ -67,6 +87,8 @@ export type TypeSpecHttpPrivateDecorators = {
   httpFile: HttpFileDecorator;
   httpPart: HttpPartDecorator;
   applyMergePatch: ApplyMergePatchDecorator;
+  omitMetadata: OmitMetadataDecorator;
+  stripMetadata: StripMetadataDecorator;
   includeInapplicableMetadataInPayload: IncludeInapplicableMetadataInPayloadDecorator;
   mergePatchModel: MergePatchModelDecorator;
   mergePatchProperty: MergePatchPropertyDecorator;

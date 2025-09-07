@@ -643,6 +643,49 @@ model TypeSpec.Http.OkResponse
 | ---------- | ----- | ---------------- |
 | statusCode | `200` | The status code. |
 
+### `OmitMetadata` {#TypeSpec.Http.OmitMetadata}
+
+Omit metadata properties
+
+```typespec
+model TypeSpec.Http.OmitMetadata<T, NameTemplate>
+```
+
+#### Template Parameters
+
+| Name         | Description |
+| ------------ | ----------- |
+| T            |             |
+| NameTemplate |             |
+
+#### Examples
+
+```tsp
+model Foo {
+  @header a: string;
+  @query b: string;
+  @path c: string;
+  headers: {
+    @header foo: string;
+    @header bar: string;
+  };
+  d: string;
+}
+```
+
+will produce a model equivalent to:
+
+```tsp
+{
+  headers: {};
+  d: string;
+}
+```
+
+#### Properties
+
+None
+
 ### `OpenIdConnectAuth` {#TypeSpec.Http.OpenIdConnectAuth}
 
 OpenID Connect (OIDC) is an identity layer built on top of the OAuth 2.0 protocol and supported by some OAuth 2.0 providers, such as Google and Azure Active Directory.
@@ -770,6 +813,25 @@ model TypeSpec.Http.Response<Status>
 | Name       | Type     | Description |
 | ---------- | -------- | ----------- |
 | statusCode | `Status` |             |
+
+### `StripMetadata` {#TypeSpec.Http.StripMetadata}
+
+Strip the metadata decorators
+
+```typespec
+model TypeSpec.Http.StripMetadata<T, NameTemplate>
+```
+
+#### Template Parameters
+
+| Name         | Description |
+| ------------ | ----------- |
+| T            |             |
+| NameTemplate |             |
+
+#### Properties
+
+None
 
 ### `UnauthorizedResponse` {#TypeSpec.Http.UnauthorizedResponse}
 
