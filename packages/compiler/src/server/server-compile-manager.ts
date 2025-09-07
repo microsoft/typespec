@@ -45,7 +45,8 @@ export class ServerCompileManager {
     private log: (log: ServerLog) => void,
   ) {
     this.logDebug =
-      process?.env[ENABLE_SERVER_COMPILE_LOGGING]?.toLowerCase() === "true"
+      typeof process !== "undefined" &&
+      process?.env?.[ENABLE_SERVER_COMPILE_LOGGING]?.toLowerCase() === "true"
         ? (msg) => this.log({ level: "debug", message: msg })
         : () => {};
   }

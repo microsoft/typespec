@@ -26,7 +26,8 @@ export class UpdateManger {
 
   constructor(log: (sl: ServerLog) => void) {
     this._log =
-      process?.env[ENABLE_UPDATE_MANAGER_LOGGING]?.toLowerCase() === "true"
+      typeof process !== "undefined" &&
+      process?.env?.[ENABLE_UPDATE_MANAGER_LOGGING]?.toLowerCase() === "true"
         ? (sl: ServerLog) => {
             log({ ...sl, message: `#FromUpdateManager: ${sl.message}` });
           }
