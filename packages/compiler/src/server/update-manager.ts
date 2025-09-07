@@ -25,9 +25,8 @@ export class UpdateManger {
   private _log: (sl: ServerLog) => void;
 
   constructor(log: (sl: ServerLog) => void) {
-    // TODO: remove the || true before check-in
     this._log =
-      process.env[ENABLE_UPDATE_MANAGER_LOGGING]?.toLowerCase() === "true"
+      process?.env[ENABLE_UPDATE_MANAGER_LOGGING]?.toLowerCase() === "true"
         ? (sl: ServerLog) => {
             log({ ...sl, message: `#FromUpdateManager: ${sl.message}` });
           }
