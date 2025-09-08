@@ -58,6 +58,7 @@ public class FileUtil {
 
     public static List<String> filterForJavaCodeFiles(Stream<String> javaFiles) {
         return javaFiles.filter(filename -> filename.startsWith("src/main/") && filename.endsWith(".java"))
+            .sorted()
             .collect(Collectors.toList());
     }
 
@@ -74,16 +75,18 @@ public class FileUtil {
 
     public static void deleteFilesInDirectory(Path directory) {
         Path path = directory.toAbsolutePath();
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
-            stream.forEach(filePath -> {
-                try {
-                    Files.deleteIfExists(filePath);
-                } catch (IOException e) {
-                    LOGGER.warn("Failed to delete file: {}", filePath, e);
-                }
-            });
-        } catch (IOException e) {
-            LOGGER.warn("Failed to list files in path: {}", path, e);
+        if (Files.isDirectory(path)) {
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
+                stream.forEach(filePath -> {
+                    try {
+                        Files.deleteIfExists(filePath);
+                    } catch (IOException e) {
+                        LOGGER.warn("Failed to delete file: {}", filePath, e);
+                    }
+                });
+            } catch (IOException e) {
+                LOGGER.warn("Failed to list files in path: {}", path, e);
+            }
         }
     }
 
