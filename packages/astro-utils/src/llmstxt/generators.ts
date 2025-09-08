@@ -53,7 +53,7 @@ export function generateLlmstxtFull(title: string, docs: DocEntry[]): string {
     if (!doc.body) continue;
 
     const docTitle = doc.data.title;
-    const docDescription = doc.data.llmstxt?.description ?? "";
+    const docDescription = doc.data.description ?? "";
     contents.push(`# ${docTitle}`);
     if (docDescription) contents.push(docDescription);
     contents.push(doc.body);

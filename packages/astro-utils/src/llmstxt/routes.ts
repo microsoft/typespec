@@ -5,7 +5,7 @@ import {
   processDocsForLlmsTxt,
   type DocEntry,
   type TopicProps,
-} from ".";
+} from "./index";
 
 export type RouteParams = { path: string; llms_type: "llms" | "llms-full" };
 export type RouteProps = Pick<Required<TopicProps>, "title" | "description" | "docs">;

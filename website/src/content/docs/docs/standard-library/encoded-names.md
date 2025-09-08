@@ -1,8 +1,8 @@
 ---
 id: encoded-names
 title: Encoded names
-llmstxt:
-  description: Standard library reference to encoding names sent over the wire
+description: Standard library reference to encoding names sent over the wire
+llmstxt: true
 ---
 
 There is some cases where the name you have in TypeSpec might differ from the name over the wire or for a certain language.

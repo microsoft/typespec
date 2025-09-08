@@ -1,7 +1,7 @@
 ---
 title: Content types
-llmstxt:
-  description: Working with HTTP content-types
+description: Working with HTTP content-types
+llmstxt: true
 ---
 
 ## Default behavior

@@ -1,8 +1,8 @@
 ---
 id: namespaces
 title: Namespaces
-llmstxt:
-  description: "Language basics - grouping declarations with namespaces"
+description: "Language basics - grouping declarations with namespaces"
+llmstxt: true
 ---
 
 Namespaces in TypeSpec allow you to group related types together. This organization makes your types easier to locate and helps avoid naming conflicts. Namespaces are merged across files, enabling you to reference any type from anywhere in your TypeSpec program using its namespace.

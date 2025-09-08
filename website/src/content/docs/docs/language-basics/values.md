@@ -1,8 +1,8 @@
 ---
 id: values
 title: Values
-llmstxt:
-  description: "Language basics - working with values"
+description: "Language basics - working with values"
+llmstxt: true
 ---
 
 TypeSpec can define values in addition to types. Values are useful in an API description to define default values for types or provide example values. They are also useful when passing data to decorators, and for template parameters that are ultimately passed to decorators or used as default values.

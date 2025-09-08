@@ -1,8 +1,8 @@
 ---
 id: overview
 title: Overview
-llmstxt:
-  description: "Language basics - overview"
+description: "Language basics - overview"
+llmstxt: true
 ---
 
 This document provides a concise overview of the language concepts in TypeSpec. It serves as a quick reference guide rather than an in-depth tutorial.

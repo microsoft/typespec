@@ -1,8 +1,7 @@
 ---
 title: Files
-llmstxt:
-  title: "@typespec/http - File"
-  description: Working with Http.File
+description: Working with Http.File
+llmstxt: true
 ---
 
 ## About `Http.File`

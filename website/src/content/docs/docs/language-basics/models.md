@@ -1,8 +1,8 @@
 ---
 id: models
 title: Models
-llmstxt:
-  description: "Language basics - defining schemas with models"
+description: "Language basics - defining schemas with models"
+llmstxt: true
 ---
 
 Models in TypeSpec are utilized to define the structure or schema of data.

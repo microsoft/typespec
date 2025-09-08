@@ -1,8 +1,8 @@
 ---
 id: operations
 title: Operations
-llmstxt:
-  description: "Language basics - defining endpoints with operations"
+description: "Language basics - defining endpoints with operations"
+llmstxt: true
 ---
 
 Operations are essentially service endpoints, characterized by an operation name, parameters, and a return type.

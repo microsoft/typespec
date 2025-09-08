@@ -1,8 +1,7 @@
 ---
 title: Examples
-llmstxt:
-  title: "@typespec/http documenting examples"
-  description: Defining HTTP operation examples
+description: Defining HTTP operation examples
+llmstxt: true
 ---
 
 This document provides examples specific to the HTTP library in TypeSpec. For general information about how examples work in TypeSpec, see the [examples docs](../../standard-library/examples.md).

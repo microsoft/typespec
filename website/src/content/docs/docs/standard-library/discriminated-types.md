@@ -1,7 +1,7 @@
 ---
 title: Discriminated Types
-llmstxt:
-  description: Standard library reference to describing discriminated types
+description: Standard library reference to describing discriminated types
+llmstxt: true
 ---
 
 TypeSpec allows for the expression of unions and inheritance. However, when transmitting types over the network, many languages require a mechanism to distinguish between different union variants or models within an inheritance hierarchy.

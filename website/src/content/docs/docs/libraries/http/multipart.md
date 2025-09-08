@@ -1,7 +1,7 @@
 ---
 title: Multipart requests
-llmstxt:
-  description: Using Http multipart requests
+description: Using Http multipart requests
+llmstxt: true
 ---
 
 Multipart requests combine one or more sets of data into a single body, separated by boundaries. This is commonly used to upload files.

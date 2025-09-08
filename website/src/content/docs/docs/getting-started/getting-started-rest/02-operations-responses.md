@@ -1,9 +1,8 @@
 ---
 id: 02-operations-responses
 title: Operations and Responses
-llmstxt:
-  title: TypeSpec and REST - CRUD operations
-  description: Getting started with REST - 02 defining CRUD operations
+description: Getting started with REST - 02 defining CRUD operations
+llmstxt: true
 ---
 
 ## Introduction

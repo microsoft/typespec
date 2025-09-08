@@ -5,11 +5,11 @@ import type { llmstxtSchema } from "./schema";
 export * from "./generators";
 export * from "./routes";
 export * from "./topics";
-
 export interface DocEntry {
   id: string;
   data: {
     title: string;
+    description?: string;
     llmstxt?: z.infer<typeof llmstxtSchema>;
   };
   body?: string;
@@ -74,7 +74,7 @@ export async function processDocsForLlmsTxt({
     const topic = sectionName;
     const topics = sectionDocs.map((doc) => {
       const title = doc.data.title;
-      const desc = doc.data.llmstxt?.description ?? "";
+      const desc = doc.data.description ?? "";
       const path = generateMarkdownPath(doc.id);
       const url = mergeSiteWithPath(siteHref, path);
       return { title, description: desc, url };

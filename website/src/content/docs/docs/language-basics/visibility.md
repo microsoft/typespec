@@ -1,8 +1,8 @@
 ---
 id: visibility
 title: Visibility
-llmstxt:
-  description: "Language basics - defining views of a model across operations with visibility"
+description: "Language basics - defining views of a model across operations with visibility"
+llmstxt: true
 ---
 
 **Visibility** is a language feature that allows you to share a model between multiple operations and define in which contexts

@@ -1,9 +1,9 @@
 ---
 title: "Decorators"
+description: "Decorators exported by @typespec/protobuf"
 toc_min_heading_level: 2
 toc_max_heading_level: 3
-llmstxt:
-  description: "Decorators exported by @typespec/protobuf"
+llmstxt: true
 ---
 
 ## TypeSpec.Protobuf

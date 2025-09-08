@@ -112,17 +112,17 @@ export function renderDecoratorFile(
     return undefined;
   }
   const title = options?.title ?? "Decorators";
+  const name = refDoc.name ?? refDoc.namespaces[0]?.name ?? "";
   const content: MarkdownDoc = [
     "---",
     `title: "${title}"`,
+    `description: "Decorators ${name ? `exported by ${name}` : ""}"`,
     "toc_min_heading_level: 2",
     "toc_max_heading_level: 3",
   ];
 
   if (options?.llmstxt) {
-    const name = refDoc.name ?? refDoc.namespaces[0]?.name ?? "";
-    content.push("llmstxt:");
-    content.push(`  description: "Decorators ${name ? `exported by ${name}` : ""}"`);
+    content.push("llmstxt: true");
   }
 
   content.push("---");
@@ -145,13 +145,15 @@ function renderInterfacesFile(
   }
 
   const title = "Interfaces and Operations";
-
-  const content: MarkdownDoc = ["---", `title: "${title}"`];
+  const name = refDoc.name ?? refDoc.namespaces[0]?.name ?? "";
+  const content: MarkdownDoc = [
+    "---",
+    `title: "${title}"`,
+    `description: "Interfaces and Operations ${name ? `exported by ${name}` : ""}"`,
+  ];
 
   if (options?.llmstxt) {
-    const name = refDoc.name ?? refDoc.namespaces[0]?.name ?? "";
-    content.push("llmstxt:");
-    content.push(`  description: "Interfaces and Operations ${name ? `exported by ${name}` : ""}"`);
+    content.push("llmstxt: true");
   }
 
   content.push("---");
@@ -191,12 +193,15 @@ export function renderDataTypes(
     return undefined;
   }
   const title = options?.title ?? "Data types";
-  const content: MarkdownDoc = ["---", `title: "${title}"`];
+  const name = refDoc.name ?? refDoc.namespaces[0]?.name ?? "";
+  const content: MarkdownDoc = [
+    "---",
+    `title: "${title}"`,
+    `description: "Data types ${name ? `exported by ${name}` : ""}"`,
+  ];
 
   if (options?.llmstxt) {
-    const name = refDoc.name ?? refDoc.namespaces[0]?.name ?? "";
-    content.push("llmstxt:");
-    content.push(`  description: "Data types ${name ? `exported by ${name}` : ""}"`);
+    content.push("llmstxt: true");
   }
 
   content.push("---");

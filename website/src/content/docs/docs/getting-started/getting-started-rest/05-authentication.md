@@ -1,8 +1,7 @@
 ---
 title: Authentication
-llmstxt:
-  title: TypeSpec and REST - authentication
-  description: Getting started with REST - 05 adding authentication
+description: Getting started with REST - 05 adding authentication
+llmstxt: true
 ---
 
 ## Introduction

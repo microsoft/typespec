@@ -1,8 +1,7 @@
 ---
 title: Tutorial
-llmstxt:
-  title: "Guide to versioning"
-  description: "Guide to versioning APIs authored in TypeSpec"
+description: "Guide to versioning APIs authored in TypeSpec"
+llmstxt: true
 ---
 
 ## Implementing versioned APIs
