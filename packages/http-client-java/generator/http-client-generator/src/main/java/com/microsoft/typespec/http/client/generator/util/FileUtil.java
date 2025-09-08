@@ -7,15 +7,19 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +54,37 @@ public class FileUtil {
             throw new IllegalStateException(e);
         }
         return outputPath;
+    }
+
+    public static List<String> filterForJavaCodeFiles(Stream<String> javaFiles) {
+        return javaFiles.filter(filename -> filename.startsWith("src/main/") && filename.endsWith(".java"))
+            .collect(Collectors.toList());
+    }
+
+    public static void deleteFiles(String directory, Collection<String> filesToDelete) {
+        filesToDelete.forEach(filename -> {
+            Path filePath = Paths.get(directory, filename).toAbsolutePath();
+            try {
+                Files.deleteIfExists(filePath);
+            } catch (IOException e) {
+                LOGGER.warn("Failed to delete file: {}", filePath, e);
+            }
+        });
+    }
+
+    public static void deleteFilesInDirectory(Path directory) {
+        Path path = directory.toAbsolutePath();
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
+            stream.forEach(filePath -> {
+                try {
+                    Files.deleteIfExists(filePath);
+                } catch (IOException e) {
+                    LOGGER.warn("Failed to delete file: {}", filePath, e);
+                }
+            });
+        } catch (IOException e) {
+            LOGGER.warn("Failed to list files in path: {}", path, e);
+        }
     }
 
     /**
@@ -101,26 +136,24 @@ public class FileUtil {
      * (samples and test directories) and which specific Java files to preserve during the deletion process.
      * @throws IllegalStateException if an I/O error occurs while traversing the directory tree.
      */
-    public static void deleteGeneratedJavaFiles(String outputDir,
-        DeleteGeneratedJavaFilesOptions deleteGeneratedJavaFilesOptions) {
+    public static void deleteFiles(String outputDir, DeleteGeneratedJavaFilesOptions deleteGeneratedJavaFilesOptions) {
         Set<String> relativePathOfJavaFilesToKeep = deleteGeneratedJavaFilesOptions.getRelativePathOfJavaFilesToKeep();
         if (deleteGeneratedJavaFilesOptions.isIncludeSamplesDir()
             && deleteGeneratedJavaFilesOptions.isIncludeTestDir()) {
-            deleteGeneratedJavaFiles(outputDir, "src/", relativePathOfJavaFilesToKeep);
+            deleteFiles(outputDir, "src/", relativePathOfJavaFilesToKeep);
         } else {
-            deleteGeneratedJavaFiles(outputDir, "src/main/", relativePathOfJavaFilesToKeep);
+            deleteFiles(outputDir, "src/main/", relativePathOfJavaFilesToKeep);
             if (deleteGeneratedJavaFilesOptions.isIncludeSamplesDir()) {
                 // delete generated files in samples dir, if emitter need to generate samples
-                deleteGeneratedJavaFiles(outputDir, "src/samples/", relativePathOfJavaFilesToKeep);
+                deleteFiles(outputDir, "src/samples/", relativePathOfJavaFilesToKeep);
             } else if (deleteGeneratedJavaFilesOptions.isIncludeTestDir()) {
                 // delete generated files in test dir, if emitter need to generate test
-                deleteGeneratedJavaFiles(outputDir, "src/test/", relativePathOfJavaFilesToKeep);
+                deleteFiles(outputDir, "src/test/", relativePathOfJavaFilesToKeep);
             }
         }
     }
 
-    private static void deleteGeneratedJavaFiles(String outputDir, String subDir,
-        Set<String> relativePathOfJavaFilesToKeep) {
+    private static void deleteFiles(String outputDir, String subDir, Set<String> relativePathOfJavaFilesToKeep) {
         // scope rootPath and relativePathOfJavaFilesToKeep to subDir
         Path rootPath = Paths.get(outputDir).resolve(subDir);
         if (!Files.exists(rootPath) || !Files.isDirectory(rootPath)) {

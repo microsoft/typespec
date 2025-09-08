@@ -12,6 +12,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModelCustomConstructor;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.TypeSpecMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaPackage;
 import com.microsoft.typespec.http.client.generator.core.postprocessor.Postprocessor;
@@ -21,7 +22,10 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.javamodel.FluentJ
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import com.microsoft.typespec.http.client.generator.util.FileUtil;
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -112,11 +116,8 @@ public class Main {
         // template
         FluentJavaPackage javaPackage = fluentPlugin.processTemplates(codeModel, client);
 
-        if (emitterOptions.getClearOutputFolder() == Boolean.TRUE) {
-            // delete generated Java files
-            deleteGeneratedJavaFiles(emitterOptions.getOutputDir(), javaPackage.getJavaFiles(),
-                JavaSettings.getInstance());
-        }
+        // delete generated Java files
+        deleteGeneratedJavaFiles(emitterOptions.getOutputDir(), javaPackage.getJavaFiles(), JavaSettings.getInstance());
 
         // write java files
         Postprocessor.writeToFiles(
@@ -158,10 +159,8 @@ public class Main {
         LOGGER.info("Count of XML files: {}", javaPackage.getXmlFiles().size());
         LOGGER.info("Count of text files: {}", javaPackage.getTextFiles().size());
 
-        if (emitterOptions.getClearOutputFolder() == Boolean.TRUE) {
-            // delete generated Java files
-            deleteGeneratedJavaFiles(outputDir, javaPackage.getJavaFiles(), settings);
-        }
+        // delete generated Java files
+        deleteGeneratedJavaFiles(outputDir, javaPackage.getJavaFiles(), settings);
 
         Map<String, String> javaFiles = new ConcurrentHashMap<>();
         javaPackage.getJavaFiles()
@@ -190,17 +189,47 @@ public class Main {
     }
 
     private static void deleteGeneratedJavaFiles(String outputDir, List<JavaFile> javaFiles, JavaSettings settings) {
-        Set<String> filesToKeep = new HashSet<>();
-        // keep ReadmeSamples.java
-        filesToKeep.add("src/samples/java/" + settings.getPackage().replace(".", "/") + "/ReadmeSamples.java");
-        if (settings.isHandlePartialUpdate()) {
-            // keep files that is known to be generated, as they are candidate for partial update process
-            filesToKeep.addAll(javaFiles.stream().map(JavaFile::getFilePath).collect(Collectors.toSet()));
+        Set<String> filesToDelete = new HashSet<>();
+
+        // clean up source code, based on metadata
+        String metadataFilename = "src/main/resources/META-INF/" + ClientModelUtil.getArtifactId() + "_metadata.json";
+        Path metadataFilePath = Paths.get(outputDir, metadataFilename).toAbsolutePath();
+        if (Files.isRegularFile(metadataFilePath) && metadataFilePath.toFile().canRead()) {
+            try (BufferedReader reader = Files.newBufferedReader(metadataFilePath, StandardCharsets.UTF_8);
+                JsonReader jsonReader = JsonProviders.createReader(reader)) {
+                TypeSpecMetadata metadata = TypeSpecMetadata.fromJson(jsonReader);
+                if (metadata != null && !CoreUtils.isNullOrEmpty(metadata.getGeneratedFiles())) {
+                    filesToDelete.addAll(metadata.getGeneratedFiles()
+                        .stream()
+                        .filter(filename -> filename.startsWith("src/main/") && filename.endsWith(".java"))
+                        .collect(Collectors.toSet()));
+                }
+            } catch (IOException e) {
+                LOGGER.warn("Unable to read file: {}", metadataFilePath.toAbsolutePath(), e);
+            }
         }
-        FileUtil.deleteGeneratedJavaFiles(outputDir,
-            new FileUtil.DeleteGeneratedJavaFilesOptions().setRelativePathOfJavaFilesToKeep(filesToKeep)
-                .setIncludeSamplesDir(settings.isGenerateSamples())
-                .setIncludeTestDir(settings.isGenerateTests()));
+
+        if (!CoreUtils.isNullOrEmpty(filesToDelete)) {
+            // these files are either to be replaced, or to be merged during "partial update"
+            // in latter case, we should not delete them
+            filesToDelete.removeAll(javaFiles.stream().map(JavaFile::getFilePath).collect(Collectors.toSet()));
+
+            FileUtil.deleteFiles(outputDir, filesToDelete);
+        }
+
+        if (JavaSettings.getInstance().isGenerateTests()) {
+            // clean up tests
+            String packageName = settings.getPackage("generated");
+            Path path = Paths.get("src", "test", "java", packageName.replace('.', File.separatorChar));
+            FileUtil.deleteFilesInDirectory(Paths.get(outputDir).resolve(path));
+        }
+
+        if (JavaSettings.getInstance().isGenerateSamples()) {
+            // clean up samples
+            String packageName = settings.getPackage("generated");
+            Path path = Paths.get("src", "samples", "java", packageName.replace('.', File.separatorChar));
+            FileUtil.deleteFilesInDirectory(Paths.get(outputDir).resolve(path));
+        }
     }
 
     private static EmitterOptions loadEmitterOptions(CodeModel codeModel) {

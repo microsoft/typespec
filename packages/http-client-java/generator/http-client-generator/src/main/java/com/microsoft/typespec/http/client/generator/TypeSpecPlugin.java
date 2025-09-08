@@ -18,6 +18,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvenienceMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.TypeSpecMetadata;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaPackage;
 import com.microsoft.typespec.http.client.generator.core.preprocessor.Preprocessor;
 import com.microsoft.typespec.http.client.generator.core.preprocessor.tranformer.Transformer;
@@ -63,7 +64,8 @@ public class TypeSpecPlugin extends Javagen {
                     emitterOptions.getApiVersion() == null
                         ? MetadataUtil.getLatestApiVersionFromClient(codeModel)
                         : emitterOptions.getApiVersion(),
-                    collectCrossLanguageDefinitions(client));
+                    collectCrossLanguageDefinitions(client),
+                    FileUtil.filterForJavaCodeFiles(javaPackage.getJavaFiles().stream().map(JavaFile::getFilePath)));
             javaPackage.addTypeSpecMetadata(metadata);
         }
 
