@@ -167,9 +167,6 @@ const { isEqual } = pkg;
 export interface EmitterOptionsDev {
   flavor?: string;
 
-  // utility
-  "clear-output-folder"?: boolean;
-
   // service
   namespace?: string;
   "service-name"?: string;

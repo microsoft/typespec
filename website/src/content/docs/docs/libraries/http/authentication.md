@@ -1,5 +1,7 @@
 ---
 title: Authentication
+description: Configuring HTTP authentication
+llmstxt: true
 ---
 
 ## Configure

@@ -1,5 +1,7 @@
 ---
 title: "Interfaces and Operations"
+description: "Interfaces and Operations exported by @typespec/rest"
+llmstxt: true
 ---
 
 ## TypeSpec.Rest.Resource

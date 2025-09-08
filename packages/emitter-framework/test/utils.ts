@@ -8,7 +8,9 @@ import { getProgram } from "./typescript/test-host.js";
 export async function getEmitOutput(tspCode: string, cb: (program: Program) => Children) {
   const program = await getProgram(tspCode);
 
-  const res = render(Output().children(SourceFile({ path: "test.ts" }).children(cb(program))));
+  const res = render(Output().children(SourceFile({ path: "test.ts" }).children(cb(program))), {
+    insertFinalNewLine: false,
+  });
   const testFile = res.contents.find((file) => file.path === "test.ts")!;
   assert("contents" in testFile, "test.ts file does not have contents");
   return testFile.contents;

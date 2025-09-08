@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.SourceInput;
+using Microsoft.TypeSpec.Generator.Utilities;
 
 namespace Microsoft.TypeSpec.Generator
 {
@@ -58,7 +59,7 @@ namespace Microsoft.TypeSpec.Generator
                 type.EnsureBuilt();
             }
 
-            LogElapsedTime("All generated type providers built");
+            LoggingHelpers.LogElapsedTime("All generated type providers built");
 
             // visit the entire library before generating files
             foreach (var visitor in CodeModelGenerator.Instance.Visitors)
@@ -66,7 +67,7 @@ namespace Microsoft.TypeSpec.Generator
                 visitor.VisitLibrary(output);
             }
 
-            LogElapsedTime("All visitors have been applied");
+            LoggingHelpers.LogElapsedTime("All visitors have been applied");
 
             foreach (var outputType in output.TypeProviders)
             {
@@ -83,12 +84,12 @@ namespace Microsoft.TypeSpec.Generator
             // Add all the generated files to the workspace
             await Task.WhenAll(generateFilesTasks);
 
-            LogElapsedTime("All generated types have been written into memory");
+            LoggingHelpers.LogElapsedTime("All generated types have been written into memory");
 
             // Delete any old generated files
             DeleteDirectory(generatedSourceOutputPath, _filesToKeep);
 
-            LogElapsedTime("All old generated files have been deleted");
+            LoggingHelpers.LogElapsedTime("All old generated files have been deleted");
 
             await generatedCodeWorkspace.PostProcessAsync();
 
@@ -111,7 +112,7 @@ namespace Microsoft.TypeSpec.Generator
                 await CodeModelGenerator.Instance.TypeFactory.CreateNewProjectScaffolding().Execute();
             }
 
-            LogElapsedTime("All files have been written to disk");
+            LoggingHelpers.LogElapsedTime("All files have been written to disk");
         }
 
         /// <summary>
@@ -153,12 +154,6 @@ namespace Microsoft.TypeSpec.Generator
             {
                 directoryInfo.Delete();
             }
-        }
-
-        private static void LogElapsedTime(string message)
-        {
-            CodeModelGenerator.Instance.Emitter.Info(
-                $"{message}. Total Elapsed time: {CodeModelGenerator.Instance.Stopwatch.Elapsed}");
         }
     }
 }

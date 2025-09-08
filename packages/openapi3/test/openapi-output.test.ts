@@ -145,6 +145,22 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, openApiFor, openapiWithOptions }) 
 
       strictEqual(res.paths["/"].get.deprecated, true);
     });
+
+    it("deprecate operations in deprecated interface", async () => {
+      const res = await openApiFor(
+        `
+      #deprecated "this interface is deprecated"
+      @route("/widgets")
+      interface WidgetOperations {
+        list(): string;
+        read(@path id: string): string;
+      }
+      `,
+      );
+
+      strictEqual(res.paths["/widgets"].get.deprecated, true);
+      strictEqual(res.paths["/widgets/{id}"].get.deprecated, true);
+    });
   });
   it("deprecate inline parameters with #deprecated", async () => {
     const res = await openApiFor(

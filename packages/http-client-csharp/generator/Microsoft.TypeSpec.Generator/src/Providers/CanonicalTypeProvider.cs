@@ -288,21 +288,27 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // ensure literal types are correctly represented in the custom field using the info from the spec property
             customType = EnsureLiteral(specProperty, customType);
 
-            // Ensure the namespace is populated for custom model/enum types
+            // Ensure the namespace is populated for properties that customize generated model/enum types
+            // The namespaces are not able to be resolved by Roslyn since the generated types are not part of the compilation.
             if (string.IsNullOrEmpty(customType.Namespace))
             {
-                var modelType = GetInputModelType(specProperty?.Type);
-                if (modelType != null)
+                InputType? inputType = GetInputModelType(specProperty?.Type);
+                if (inputType == null)
                 {
-                    customType.Namespace = modelType.Namespace;
+                    inputType = GetInputEnumType(specProperty?.Type);
                 }
-                else
+
+                if (inputType == null)
                 {
-                    var enumValueType = GetInputEnumType(specProperty?.Type);
-                    if (enumValueType != null)
-                    {
-                        customType.Namespace = enumValueType.Namespace;
-                    }
+                    return customType;
+                }
+
+                // Use the TypeFactory to get the correct namespace for the type which respects any customizations that have
+                // been applied to the generated types.
+                var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputType);
+                if (type != null)
+                {
+                    customType.Namespace = type.Namespace;
                 }
             }
 
