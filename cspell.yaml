@@ -49,6 +49,7 @@ words:
   - debouncer
   - debugpy
   - Declipse
+  - dedented
   - Dedupes
   - deps
   - destructures
@@ -128,6 +129,8 @@ words:
   - LINUXOS
   - LINUXVMIMAGE
   - ljust
+  - llms
+  - llmstxt
   - lmazuel
   - lropaging
   - lstrip

@@ -1,5 +1,11 @@
+import { ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
 import { $dynamicModel, isDynamicModel } from "../../src/lib/decorators.js";
+import {
+  createCSharpSdkContext,
+  createEmitterContext,
+  createEmitterTestHost,
+} from "./utils/test-util.js";
 
 describe("Test dynamicModel decorator", () => {
   it("should expose dynamicModel decorator function", () => {
@@ -73,5 +79,62 @@ describe("Test dynamicModel decorator", () => {
 
     // Check that the model is not marked as dynamic
     expect(isDynamicModel(mockProgram as any, mockModel as any)).toBe(false);
+  });
+
+  it("should successfully apply decorator to models in TypeSpec code", async () => {
+    // Create a test host
+    const host = await createEmitterTestHost();
+
+    // Add the decorator implementation using our actual decorators
+    host.addJsFile("decorators.js", {
+      $dynamicModel: $dynamicModel as any,
+    });
+
+    // Add a simple TypeSpec file that declares and uses our decorator
+    host.addTypeSpecFile(
+      "main.tsp",
+      `
+      import "./decorators.js";
+      
+      using TypeSpec.Reflection;
+      using TypeSpec.HttpClient.CSharp;
+
+      @dynamicModel
+      model Pet {
+        id: int32;
+        name: string;
+      }
+
+      model Owner {
+        id: int32;
+        name: string;
+        pet?: Pet;
+      }
+    `,
+    );
+
+    // Compile directly using the test host
+    await host.compile("main.tsp");
+    const program = host.program;
+
+    // Create emitter context and SDK context to test integration
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+
+    // Access models from the program's global namespace
+    const globalNamespace = program.getGlobalNamespaceType();
+    const petModelType = globalNamespace.models.get("Pet");
+    const ownerModelType = globalNamespace.models.get("Owner");
+
+    ok(petModelType);
+    ok(ownerModelType);
+
+    // Test that the decorator state is correctly stored and retrievable using our actual helper function
+    strictEqual(isDynamicModel(program, petModelType!), true);
+    strictEqual(isDynamicModel(program, ownerModelType!), false);
+
+    // Verify the decorator integrates properly with the emitter context
+    ok(sdkContext);
+    strictEqual(sdkContext.program, program);
   });
 });
