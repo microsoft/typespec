@@ -406,10 +406,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                     else
                     {
-                        statement = new ForEachStatement("param", valueExpression.As(paramType), out VariableExpression item)
-                        {
-                            uri.AppendQuery(Literal(inputQueryParameter.SerializedName), item, true).Terminate()
-                        };
+                        var forEachStatement = new ForEachStatement("param", valueExpression.As(paramType), out VariableExpression item);
+                        var convertedItem = paramType.ElementType.IsEnum
+                            ? paramType.ElementType.ToSerial(item)
+                            : item;
+                        forEachStatement.Add(uri.AppendQuery(Literal(inputQueryParameter.SerializedName), convertedItem, true).Terminate());
+                        statement = forEachStatement;
                     }
                 }
                 else

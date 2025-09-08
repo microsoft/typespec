@@ -471,6 +471,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         [Test]
         public void TestBuildCreateRequestMethodWithQueryParameters()
         {
+            List<string> stringEnum = ["bar"];
+            List<int> intEnum = [1, 2, 3];
+            var stringEnumValues = stringEnum.Select(a => (a, a));
+            var intEnumValues = intEnum.Select(a => (a.ToString(), a));
+            var inputStringEnum = InputFactory.StringEnum(
+                "foo",
+                stringEnumValues);
+            var inputIntEnum = InputFactory.Int32Enum(
+                "intFoo",
+                intEnumValues);
             List<InputParameter> parameters =
             [
                 InputFactory.QueryParameter("p1Explode", InputFactory.Array(InputPrimitiveType.String), isRequired: true, explode: true),
@@ -480,6 +490,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 InputFactory.QueryParameter("optionalParam", new InputNullableType(InputPrimitiveType.String), isRequired: false, explode: false),
                 InputFactory.QueryParameter("p3Explode", InputFactory.Dictionary(InputPrimitiveType.Int32), isRequired: true, explode: true),
                 InputFactory.QueryParameter("p3", InputFactory.Dictionary(InputPrimitiveType.Int32), isRequired: true),
+                InputFactory.QueryParameter("p4Explode", InputFactory.Array(inputStringEnum), isRequired: true, explode: true),
+                InputFactory.QueryParameter("p5Explode", InputFactory.Array(inputIntEnum), isRequired: true, explode: true),
             ];
             var operation = InputFactory.Operation(
                 "sampleOp",

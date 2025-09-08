@@ -4,12 +4,13 @@
 
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using Sample.Models;
 
 namespace Sample
 {
     public partial class TestClient
     {
-        internal global::System.ClientModel.Primitives.PipelineMessage CreateSampleOpRequest(global::System.Collections.Generic.IEnumerable<string> p1Explode, global::System.Collections.Generic.IEnumerable<string> p1, global::System.Collections.Generic.IEnumerable<int> p2Explode, global::System.Collections.Generic.IEnumerable<int> p2, global::System.Collections.Generic.IDictionary<string, int> p3Explode, global::System.Collections.Generic.IDictionary<string, int> p3, string optionalParam, global::System.ClientModel.Primitives.RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateSampleOpRequest(global::System.Collections.Generic.IEnumerable<string> p1Explode, global::System.Collections.Generic.IEnumerable<string> p1, global::System.Collections.Generic.IEnumerable<int> p2Explode, global::System.Collections.Generic.IEnumerable<int> p2, global::System.Collections.Generic.IDictionary<string, int> p3Explode, global::System.Collections.Generic.IDictionary<string, int> p3, global::System.Collections.Generic.IEnumerable<global::Sample.Models.Foo> p4Explode, global::System.Collections.Generic.IEnumerable<global::Sample.Models.IntFoo> p5Explode, string optionalParam, global::System.ClientModel.Primitives.RequestOptions options)
         {
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
@@ -55,6 +56,20 @@ namespace Sample
                     list.Add(@param.Value);
                 }
                 uri.AppendQueryDelimited("p3", list, ",", null, true);
+            }
+            if (((p4Explode != null) && !((p4Explode is global::Sample.ChangeTrackingList<global::Sample.Models.Foo> changeTrackingList3) && changeTrackingList3.IsUndefined)))
+            {
+                foreach (var @param in p4Explode)
+                {
+                    uri.AppendQuery("p4Explode", @param.ToSerialString(), true);
+                }
+            }
+            if (((p5Explode != null) && !((p5Explode is global::Sample.ChangeTrackingList<global::Sample.Models.IntFoo> changeTrackingList4) && changeTrackingList4.IsUndefined)))
+            {
+                foreach (var @param in p5Explode)
+                {
+                    uri.AppendQuery("p5Explode", ((int)@param), true);
+                }
             }
             global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
