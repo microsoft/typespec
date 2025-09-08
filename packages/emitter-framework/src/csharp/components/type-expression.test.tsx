@@ -136,8 +136,11 @@ describe("Literal types", () => {
       class Pet
       {
           public required bool boolName { get; set; }
+
           public required int intName { get; set; }
+
           public required double doubleName { get; set; }
+      
           public required string stringName { get; set; }
       }
     `);
