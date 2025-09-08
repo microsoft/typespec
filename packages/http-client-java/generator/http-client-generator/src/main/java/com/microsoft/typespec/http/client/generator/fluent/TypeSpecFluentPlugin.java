@@ -124,7 +124,7 @@ public class TypeSpecFluentPlugin extends FluentGen {
         if (emitterOptions.getIncludeApiViewProperties() == Boolean.TRUE) {
             TypeSpecMetadata metadata = new TypeSpecMetadata(FluentUtils.getArtifactId(), emitterOptions.getFlavor(),
                 apiVersion, collectCrossLanguageDefinitions(client),
-                FileUtil.filterForJavaCodeFiles(javaPackage.getJavaFiles().stream().map(JavaFile::getFilePath)));
+                FileUtil.filterForJavaSourceFiles(javaPackage.getJavaFiles().stream().map(JavaFile::getFilePath)));
             javaPackage.addTypeSpecMetadata(metadata);
         }
 

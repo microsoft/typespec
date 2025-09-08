@@ -62,7 +62,7 @@ public class FileUtil {
      * @param javaFiles stream of file paths to filter
      * @return sorted list of Java source file paths
      */
-    public static List<String> filterForJavaCodeFiles(Stream<String> javaFiles) {
+    public static List<String> filterForJavaSourceFiles(Stream<String> javaFiles) {
         return javaFiles.filter(filename -> filename.startsWith("src/main/") && filename.endsWith(".java"))
             .sorted()
             .collect(Collectors.toList());

@@ -65,7 +65,7 @@ public class TypeSpecPlugin extends Javagen {
                         ? MetadataUtil.getLatestApiVersionFromClient(codeModel)
                         : emitterOptions.getApiVersion(),
                     collectCrossLanguageDefinitions(client),
-                    FileUtil.filterForJavaCodeFiles(javaPackage.getJavaFiles().stream().map(JavaFile::getFilePath)));
+                    FileUtil.filterForJavaSourceFiles(javaPackage.getJavaFiles().stream().map(JavaFile::getFilePath)));
             javaPackage.addTypeSpecMetadata(metadata);
         }
 
