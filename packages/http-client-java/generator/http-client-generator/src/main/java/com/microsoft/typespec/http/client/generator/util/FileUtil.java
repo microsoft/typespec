@@ -56,12 +56,24 @@ public class FileUtil {
         return outputPath;
     }
 
+    /**
+     * Filters and returns a sorted list of Java source file paths under 'src/main/'.
+     *
+     * @param javaFiles stream of file paths to filter
+     * @return sorted list of Java source file paths
+     */
     public static List<String> filterForJavaCodeFiles(Stream<String> javaFiles) {
         return javaFiles.filter(filename -> filename.startsWith("src/main/") && filename.endsWith(".java"))
             .sorted()
             .collect(Collectors.toList());
     }
 
+    /**
+     * Deletes the specified files from the given directory if they exist.
+     *
+     * @param directory the directory containing the files
+     * @param filesToDelete collection of file names to delete
+     */
     public static void deleteFiles(String directory, Collection<String> filesToDelete) {
         filesToDelete.forEach(filename -> {
             Path filePath = Paths.get(directory, filename).toAbsolutePath();
@@ -73,6 +85,11 @@ public class FileUtil {
         });
     }
 
+    /**
+     * Deletes all files in the specified directory.
+     *
+     * @param directory the directory whose files will be deleted
+     */
     public static void deleteFilesInDirectory(Path directory) {
         Path path = directory.toAbsolutePath();
         if (Files.isDirectory(path)) {

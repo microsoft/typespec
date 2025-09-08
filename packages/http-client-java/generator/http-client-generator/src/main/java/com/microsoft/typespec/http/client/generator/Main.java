@@ -188,6 +188,13 @@ public class Main {
         }
     }
 
+    /**
+     * Deletes generated Java files. It includes "test" and "samples", if these files are to be generated.
+     *
+     * @param outputDir the absolute path of output directory
+     * @param javaFiles the list of Java files to be generated
+     * @param settings the Java settings
+     */
     private static void deleteGeneratedJavaFiles(String outputDir, List<JavaFile> javaFiles, JavaSettings settings) {
         Set<String> filesToDelete = new HashSet<>();
 
