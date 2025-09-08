@@ -1,3 +1,3 @@
 import { z } from "astro:content";
 
-export const llmstxtSchema = z.boolean().optional()
+export const llmstxtSchema = z.boolean().optional();
