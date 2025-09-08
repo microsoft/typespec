@@ -62,7 +62,10 @@ namespace Microsoft.TypeSpec.Generator.Snippets
             }
             else
             {
-                if (type.UnderlyingEnumType.Equals(typeof(int)) || type.UnderlyingEnumType.Equals(typeof(long)))
+                if (type.UnderlyingEnumType.Equals(typeof(int)) ||
+                    type.UnderlyingEnumType.Equals(typeof(long)) ||
+                    type.UnderlyingEnumType.Equals(typeof(double)) ||
+                    type.UnderlyingEnumType.Equals(typeof(float)))
                 {
                     return variable.CastTo(type.UnderlyingEnumType);
                 }
