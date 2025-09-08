@@ -192,7 +192,8 @@ public class Main {
         Set<String> filesToDelete = new HashSet<>();
 
         // clean up source code, based on metadata
-        String metadataFilename = "src/main/resources/META-INF/" + ClientModelUtil.getArtifactId() + "_metadata.json";
+        String metadataFilename = "src/main/resources/META-INF/"
+            + (settings.isFluent() ? FluentUtils.getArtifactId() : ClientModelUtil.getArtifactId()) + "_metadata.json";
         Path metadataFilePath = Paths.get(outputDir, metadataFilename).toAbsolutePath();
         if (Files.isRegularFile(metadataFilePath) && metadataFilePath.toFile().canRead()) {
             try (BufferedReader reader = Files.newBufferedReader(metadataFilePath, StandardCharsets.UTF_8);
