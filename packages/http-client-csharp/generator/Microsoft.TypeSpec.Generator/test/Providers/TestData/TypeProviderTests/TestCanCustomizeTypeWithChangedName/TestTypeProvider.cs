@@ -3,9 +3,8 @@
 using System;
 using SampleTypeSpec;
 
-namespace Foo;
+namespace Test;
 
-[CodeGenType("TestName")]
-public partial class TestTypeProvider
+public partial class RenamedType
 {
 }

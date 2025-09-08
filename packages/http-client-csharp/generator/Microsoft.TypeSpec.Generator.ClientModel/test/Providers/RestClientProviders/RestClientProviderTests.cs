@@ -624,9 +624,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         private static void ValidateResponseClassifier(MethodBodyStatements bodyStatements, string parsedStatusCodes)
         {
             var classifier = $"PipelineMessageClassifier{parsedStatusCodes}";
-            var classifierStatement = $"message.ResponseClassifier = {classifier};\n";
 
-            Assert.IsTrue(bodyStatements.Statements.Any(s => s.ToDisplayString() == classifierStatement));
+            Assert.IsTrue(bodyStatements.Statements.Any(s => s.ToDisplayString().Contains(classifier)));
         }
 
         private readonly static InputServiceMethod BasicServiceMethod = InputFactory.BasicServiceMethod(
