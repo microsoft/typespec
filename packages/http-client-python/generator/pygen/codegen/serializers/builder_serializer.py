@@ -1042,11 +1042,17 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                         type_annotation = e.type.type_annotation(  # type: ignore
                             is_operation_file=True, skip_quote=True, serialize_namespace=self.serialize_namespace
                         )
+                        if isinstance(e.type, ModelType) and e.type.internal:
+                            pylint_disable = "  # pylint: disable=protected-access"
+                        else:
+                            pylint_disable = ""
                         if self.code_model.options["models-mode"] == "dpg":
-                            retval.append(f"        error = _failsafe_deserialize({type_annotation},  response)")
+                            retval.append(
+                                f"        error = _failsafe_deserialize({type_annotation},{pylint_disable}\n  response)"
+                            )
                         else:
                             retval.append(
-                                f"        error = self._deserialize.failsafe_deserialize({type_annotation}, "
+                                f"        error = self._deserialize.failsafe_deserialize({type_annotation},{pylint_disable}\n "
                                 "pipeline_response)"
                             )
                         # add build-in error type
