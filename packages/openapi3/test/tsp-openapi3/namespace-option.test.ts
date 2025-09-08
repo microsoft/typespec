@@ -2,9 +2,10 @@ import { formatTypeSpec } from "@typespec/compiler";
 import { strictEqual } from "node:assert";
 import { describe, it } from "vitest";
 import { convertOpenAPI3Document } from "../../src/index.js";
+import { OpenAPI3Document } from "../../src/types.js";
 
 describe("namespace option", () => {
-  const testDocument = {
+  const testDocument: OpenAPI3Document = {
     info: {
       title: "My Test Service - With Special Characters!",
       version: "1.0.0",
@@ -14,6 +15,7 @@ describe("namespace option", () => {
       "/ping": {
         get: {
           operationId: "ping",
+          parameters: [],
           responses: {
             "200": {
               description: "Success",
