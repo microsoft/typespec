@@ -360,76 +360,101 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (inputParameter is not InputQueryParameter inputQueryParameter)
                     continue;
 
-                string? format;
-                ValueExpression? valueExpression;
-                GetParamInfo(paramMap, operation, inputQueryParameter, out var paramType, out format, out valueExpression);
-                if (valueExpression == null)
+                var queryStatement = BuildQueryParameterStatement(uri, inputQueryParameter, paramMap, operation);
+                if (queryStatement != null)
                 {
-                    continue;
+                    statements.Add(queryStatement);
                 }
-                var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueExpression, Literal(format));
-                ValueExpression toStringExpression = paramType?.Equals(typeof(string)) == true ? valueExpression : convertToStringExpression;
-                MethodBodyStatement statement;
-
-                if (paramType?.IsCollection == true)
-                {
-                    var delimiter = inputQueryParameter.ArraySerializationDelimiter;
-
-                    if (inputQueryParameter.Type is InputDictionaryType)
-                    {
-                        if (inputQueryParameter.Explode)
-                        {
-                            statement = new ForEachStatement("param", valueExpression.AsDictionary(paramType),
-                                out KeyValuePairExpression item)
-                            {
-                                uri.AppendQuery(item.Key, item.Value, true).Terminate()
-                            };
-                        }
-                        else
-                        {
-                            statement = new[]
-                            {
-                                Declare("list", New.List<object>(), out var list),
-                                new ForEachStatement("param", valueExpression.AsDictionary(paramType), out KeyValuePairExpression item)
-                                {
-                                    list.Add(item.Key),
-                                    list.Add(item.Value)
-                                },
-                                uri.AppendQueryDelimited(Literal(inputQueryParameter.SerializedName), list, format, true)
-                                    .Terminate()
-                            };
-                        }
-                    }
-                    else if (!inputQueryParameter.Explode)
-                    {
-                        statement = uri.AppendQueryDelimited(Literal(inputQueryParameter.SerializedName), valueExpression, format, true, delimiter: delimiter).Terminate();
-                    }
-                    else
-                    {
-                        var forEachStatement = new ForEachStatement("param", valueExpression.As(paramType), out VariableExpression item);
-                        var convertedItem = paramType.ElementType.IsEnum
-                            ? paramType.ElementType.ToSerial(item)
-                            : item;
-                        forEachStatement.Add(uri.AppendQuery(Literal(inputQueryParameter.SerializedName), convertedItem, true).Terminate());
-                        statement = forEachStatement;
-                    }
-                }
-                else
-                {
-                    statement = uri.AppendQuery(Literal(inputQueryParameter.SerializedName), toStringExpression, true)
-                        .Terminate();
-                }
-
-                if (!inputQueryParameter.IsRequired || paramType?.IsNullable == true ||
-                    (paramType is { IsValueType: false, IsFrameworkType: true } && paramType.FrameworkType != typeof(string)))
-                {
-                    statement = BuildQueryOrHeaderOrPathParameterNullCheck(paramType, valueExpression, statement);
-                }
-
-                statements.Add(statement);
             }
 
             return statements;
+        }
+
+        private static MethodBodyStatement? BuildQueryParameterStatement(
+            ScopedApi uri,
+            InputQueryParameter inputQueryParameter,
+            Dictionary<string, ParameterProvider> paramMap,
+            InputOperation operation)
+        {
+            GetParamInfo(paramMap, operation, inputQueryParameter, out var paramType, out var format, out var valueExpression);
+            if (valueExpression == null)
+            {
+                return null;
+            }
+
+            var statement = BuildAppendQueryStatement(uri, inputQueryParameter, paramType, valueExpression, format);
+
+            // Apply null check if needed
+            if (!inputQueryParameter.IsRequired || paramType?.IsNullable == true ||
+                (paramType is { IsValueType: false, IsFrameworkType: true } && paramType.FrameworkType != typeof(string)))
+            {
+                statement = BuildQueryOrHeaderOrPathParameterNullCheck(paramType, valueExpression, statement);
+            }
+
+            return statement;
+        }
+
+        private static MethodBodyStatement BuildAppendQueryStatement(
+            ScopedApi uri,
+            InputQueryParameter inputQueryParameter,
+            CSharpType? paramType,
+            ValueExpression valueExpression,
+            string? format)
+        {
+            // Handle non-collection parameters
+            if (paramType?.IsCollection != true)
+            {
+                var toStringExpression = paramType?.Equals(typeof(string)) == true
+                    ? valueExpression
+                    : TypeFormattersSnippets.ConvertToString(valueExpression, Literal(format));
+
+                return uri.AppendQuery(Literal(inputQueryParameter.SerializedName), toStringExpression, true).Terminate();
+            }
+
+            var delimiter = inputQueryParameter.ArraySerializationDelimiter;
+            if (inputQueryParameter.Type is InputDictionaryType)
+            {
+                if (inputQueryParameter.Explode)
+                {
+                    var forEachStatement = new ForEachStatement(
+                        "param",
+                        valueExpression.AsDictionary(paramType),
+                        out KeyValuePairExpression item);
+                    var convertedItem = paramType.ElementType.IsEnum
+                        ? paramType.ElementType.ToSerial(item)
+                        : item.Value;
+                    forEachStatement.Add(uri.AppendQuery(item.Key, convertedItem, true).Terminate());
+                    return forEachStatement;
+                }
+                else
+                {
+                    return new MethodBodyStatement[]
+                    {
+                        Declare("list", New.List<object>(), out var list),
+                        new ForEachStatement("param", valueExpression.AsDictionary(paramType), out KeyValuePairExpression item)
+                        {
+                            list.Add(item.Key),
+                            list.Add(item.Value)
+                        },
+                        uri.AppendQueryDelimited(Literal(inputQueryParameter.SerializedName), list, format, true).Terminate()
+                    };
+                }
+            }
+
+            // Array handling
+            if (!inputQueryParameter.Explode)
+            {
+                return uri.AppendQueryDelimited(Literal(inputQueryParameter.SerializedName), valueExpression, format, true, delimiter: delimiter).Terminate();
+            }
+            else
+            {
+                var forEachStatement = new ForEachStatement("param", valueExpression.As(paramType), out VariableExpression item);
+                var convertedItem = paramType.ElementType.IsEnum
+                    ? paramType.ElementType.ToSerial(item)
+                    : item;
+                forEachStatement.Add(uri.AppendQuery(Literal(inputQueryParameter.SerializedName), convertedItem, true).Terminate());
+                return forEachStatement;
+            }
         }
 
         private static IfStatement BuildQueryOrHeaderOrPathParameterNullCheck(
