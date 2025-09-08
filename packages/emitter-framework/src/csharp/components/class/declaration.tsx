@@ -41,6 +41,12 @@ export function ClassDeclaration(props: ClassDeclarationProps): Children {
         {...props}
         name={className}
         refkey={refkeys}
+        baseType={
+          props.baseType ??
+          (props.type.kind === "Model" && props.type.baseModel ? (
+            <TypeExpression type={props.type.baseModel} />
+          ) : undefined)
+        }
         doc={getDocComments($, props.type)}
       >
         {props.type.kind === "Model" && (

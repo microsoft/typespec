@@ -53,7 +53,7 @@ public final class FileUtilTests {
 
         // Call method with keep set (use forward slashes for relative path)
         Set<String> keepSet = Set.of("src/main/keepdir/KeepMe.java");
-        FileUtil.deleteGeneratedJavaFiles(root.toString(),
+        FileUtil.deleteFiles(root.toString(),
             new FileUtil.DeleteGeneratedJavaFilesOptions().setRelativePathOfJavaFilesToKeep(keepSet));
 
         // Assertions
