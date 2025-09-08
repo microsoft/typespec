@@ -55,8 +55,11 @@ export function createContext(
   parser: Parser,
   openApi3Doc: OpenAPI3Document,
   logger?: Logger,
+  namespace?: string,
 ): Context {
-  const rootNamespace = generateNamespaceName(openApi3Doc.info.title);
+  const rootNamespace = namespace 
+    ? generateNamespaceName(namespace)
+    : generateNamespaceName(openApi3Doc.info.title);
   const schemaExpressionGenerator = new SchemaToExpressionGenerator(rootNamespace);
 
   // Track schemas that are used in multipart forms with their encoding information
