@@ -11,6 +11,7 @@ using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
@@ -64,6 +65,47 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return [JsonPatchProperty, .. base.BuildProperties()];
+        }
+
+        protected override MethodProvider[] BuildMethods()
+        {
+            if (!IsDynamicModel)
+            {
+                return base.BuildMethods();
+            }
+
+            return [BuildPropagateSetMethod(), BuildPropagateGetMethod(), .. base.BuildMethods()];
+        }
+
+        private MethodProvider BuildPropagateGetMethod()
+        {
+            var jsonPathParameter = new ParameterProvider("jsonPath", $"", typeof(ReadOnlySpan<byte>));
+#pragma warning disable SCME0001
+            var valueParameter = new ParameterProvider("value", $"", typeof(JsonPatch.EncodedValue), isOut: true);
+#pragma warning restore SCME0001
+
+            var signature = new MethodSignature(
+                "PropagateGet",
+                $"",
+                MethodSignatureModifiers.Private,
+                typeof(bool),
+                $"",
+                [jsonPathParameter, valueParameter]);
+
+            var complexProperties = Properties.Where(p => p.Type.IsComplex && !p.Type.IsCollection).ToArray();
+
+            var bodyStatements = new MethodBodyStatement[]
+            {
+                Declare("local", typeof(ReadOnlySpan<byte>), jsonPathParameter.Invoke("SliceToStartOfPropertyName"), out var localVariable),
+                valueParameter.Assign(Default).Terminate(),
+                MethodBodyStatement.EmptyLine,
+
+            };
+        }
+
+        private MethodProvider BuildPropagateSetMethod()
+        {
+            throw new NotImplementedException();
         }
 
         protected override ConstructorProvider[] BuildConstructors()
