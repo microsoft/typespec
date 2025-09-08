@@ -1,5 +1,7 @@
 ---
 title: Examples
+description: Standard library reference to defining API examples
+llmstxt: true
 ---
 
 TypeSpec provide 2 decorators `@example` and `@opExample` to provide some examples for the types and operations.
