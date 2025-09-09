@@ -18,14 +18,12 @@
 - [#8050](https://github.com/microsoft/typespec/pull/8050) Upgrade alloy 0.19
 - [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
 
-
 ## 0.8.0
 
 ### Bump dependencies
 
 - [#7655](https://github.com/microsoft/typespec/pull/7655) Upgrade to alloy 0.18.0
 - [#7674](https://github.com/microsoft/typespec/pull/7674) Upgrade dependencies
-
 
 ## 0.7.0
 
@@ -34,13 +32,11 @@
 - [#7605](https://github.com/microsoft/typespec/pull/7605) Updates alloy to 0.17
 - [#7363](https://github.com/microsoft/typespec/pull/7363) Upgrade alloy 16
 
-
 ## 0.6.0
 
 ### Bump dependencies
 
 - [#7186](https://github.com/microsoft/typespec/pull/7186) Upgrade to alloy 15
-
 
 ## 0.5.0
 
@@ -52,13 +48,11 @@
 
 - [#7017](https://github.com/microsoft/typespec/pull/7017) Alloy 0.11
 
-
 ## 0.4.0
 
 ### Bump dependencies
 
 - [#6595](https://github.com/microsoft/typespec/pull/6595) Upgrade dependencies
-
 
 ## 0.3.0
 
