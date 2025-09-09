@@ -3,7 +3,15 @@ import { compilerAssert } from "../core/diagnostics.js";
 import { getDocData } from "../core/intrinsic-type-state.js";
 import { Program } from "../core/program.js";
 import { isType } from "../core/type-utils.js";
-import { DocContent, Node, Sym, SyntaxKind, TemplateDeclarationNode, Type } from "../core/types.js";
+import {
+  DocContent,
+  Node,
+  Sym,
+  SyntaxKind,
+  TemplateDeclarationNode,
+  TemplateParameterDeclarationNode,
+  Type,
+} from "../core/types.js";
 import { getSymbolSignature } from "./type-signature.js";
 
 interface GetSymbolDetailsOptions {
@@ -22,7 +30,7 @@ interface GetSymbolDetailsOptions {
  * @param program The program
  * @internal
  */
-export function getSymbolDetails(
+export async function getSymbolDetails(
   program: Program,
   symbol: Sym,
   options: GetSymbolDetailsOptions = {
@@ -30,10 +38,16 @@ export function getSymbolDetails(
     includeParameterTags: true,
     includeExpandedDefinition: false,
   },
-): string {
+): Promise<string> {
   const lines = [];
   if (options.includeSignature) {
-    lines.push(getSymbolSignature(program, symbol));
+    const shouldUseFormattedTemplateParams = shouldShowFormattedTemplateParameters(symbol);
+    lines.push(
+      await getSymbolSignature(program, symbol, {
+        includeBody: false,
+        useFormattedTemplateParameters: shouldUseFormattedTemplateParams,
+      }),
+    );
   }
   const doc = getSymbolDocumentation(program, symbol);
   if (doc) {
@@ -58,13 +72,35 @@ export function getSymbolDetails(
   if (options.includeExpandedDefinition) {
     lines.push(`*Full Definition:*`);
     lines.push(
-      getSymbolSignature(program, symbol, {
+      await getSymbolSignature(program, symbol, {
         includeBody: true,
       }),
     );
   }
 
   return lines.join("\n\n");
+}
+
+function shouldShowFormattedTemplateParameters(symbol: Sym): boolean {
+  const node = getSymNode(symbol);
+  if (!node) {
+    return false;
+  }
+
+  // Check if there are template parameters and whether there are default values.
+  const hasTemplateParameters =
+    "templateParameters" in node && node.templateParameters && node.templateParameters.length > 0;
+
+  if (!hasTemplateParameters) {
+    return false;
+  }
+
+  // Check if any template parameters have default values.
+  const hasDefaultValues = node.templateParameters.some(
+    (param: TemplateParameterDeclarationNode) => param.default !== undefined,
+  );
+
+  return hasDefaultValues;
 }
 
 function getSymbolDocumentation(program: Program, symbol: Sym) {

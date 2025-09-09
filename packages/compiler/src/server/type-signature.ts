@@ -1,5 +1,6 @@
 import { getSymNode } from "../core/binder.js";
 import { compilerAssert } from "../core/diagnostics.js";
+import { printTypeSpecNode } from "../core/formatter.js";
 import { printIdentifier } from "../core/helpers/syntax-utils.js";
 import { getEntityName, getTypeName, isStdNamespace } from "../core/helpers/type-name-utils.js";
 import type { Program } from "../core/program.js";
@@ -20,40 +21,41 @@ import {
   UnionVariant,
   Value,
 } from "../core/types.js";
-import { Checker, walkPropertiesInherited } from "../index.js";
+import { walkPropertiesInherited } from "../index.js";
 
 interface GetSymbolSignatureOptions {
   /**
    * Whether to include the body in the signature. Only support Model and Interface type now
    */
   includeBody: boolean;
-
-  checker?: Checker;
+  /**
+   * Whether to use formatted template parameters (including default values)
+   */
+  useFormattedTemplateParameters?: boolean;
 }
 
 /** @internal */
-export function getSymbolSignature(
+export async function getSymbolSignature(
   program: Program,
   sym: Sym,
   options: GetSymbolSignatureOptions = {
     includeBody: false,
   },
-): string {
+): Promise<string> {
   const decl = getSymNode(sym);
   switch (decl?.kind) {
     case SyntaxKind.AliasStatement:
       return fence(`alias ${getAliasSignature(decl)}`);
   }
   const entity = sym.type ?? program.checker.getTypeOrValueForNode(decl);
-  options.checker = program.checker;
-  return getEntitySignature(sym, entity, options);
+  return await getEntitySignature(sym, entity, options);
 }
 
-function getEntitySignature(
+async function getEntitySignature(
   sym: Sym,
   entity: Type | Value | null,
   options: GetSymbolSignatureOptions,
-): string {
+): Promise<string> {
   if (entity === null) {
     return "(error)";
   }
@@ -61,10 +63,10 @@ function getEntitySignature(
     return fence(`const ${sym.name}: ${getTypeName(entity.type)}`);
   }
 
-  return getTypeSignature(entity, options);
+  return await getTypeSignature(entity, options);
 }
 
-function getTypeSignature(type: Type, options: GetSymbolSignatureOptions): string {
+async function getTypeSignature(type: Type, options: GetSymbolSignatureOptions): Promise<string> {
   switch (type.kind) {
     case "Scalar":
     case "Enum":
@@ -74,7 +76,7 @@ function getTypeSignature(type: Type, options: GetSymbolSignatureOptions): strin
     case "Interface":
       return fence(getInterfaceSignature(type, options.includeBody));
     case "Model":
-      return fence(getModelSignature(type, options));
+      return fence(await getModelSignature(type, options));
     case "ScalarConstructor":
       return fence(`init ${getTypeSignature(type.scalar, options)}.${type.name}`);
     case "Decorator":
@@ -143,8 +145,10 @@ function getInterfaceSignature(type: Interface, includeBody: boolean) {
 /**
  * All properties from 'extends' and 'is' will be included if includeBody is true.
  */
-function getModelSignature(type: Model, options: GetSymbolSignatureOptions) {
-  if (options.includeBody) {
+async function getModelSignature(type: Model, options: GetSymbolSignatureOptions): Promise<string> {
+  const { includeBody, useFormattedTemplateParameters } = options;
+
+  if (includeBody) {
     const propDesc = [];
     const INDENT = "  ";
     for (const prop of walkPropertiesInherited(type)) {
@@ -152,7 +156,16 @@ function getModelSignature(type: Model, options: GetSymbolSignatureOptions) {
     }
     return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)}{\n${propDesc.map((d) => `${d};`).join("\n")}\n}`;
   } else {
-    return `${type.kind.toLowerCase()} ${getPrintableTypeName(type, options.checker)}`;
+    if (useFormattedTemplateParameters && type.node) {
+      const formatted = await printTypeSpecNode(type.node);
+      // Extract the head of the model declaration (excluding body)
+      const match = formatted.match(/^(model\s+[^{]+)/);
+      if (match && match.length === 2) {
+        return match[1].trim();
+      }
+    }
+
+    return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)}`;
   }
 }
 
@@ -218,10 +231,9 @@ function getQualifier(parent: (Type & { name?: string | symbol }) | undefined) {
   return parentName + ".";
 }
 
-function getPrintableTypeName(type: Type, checker?: Checker): string {
+function getPrintableTypeName(type: Type): string {
   return getTypeName(type, {
     printable: true,
-    checker: checker,
   });
 }
 

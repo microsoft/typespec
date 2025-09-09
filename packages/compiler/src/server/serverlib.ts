@@ -748,7 +748,7 @@ export function createServer(
         kind: MarkupKind.Markdown,
         value:
           sym && sym.length > 0
-            ? getSymbolDetails(program, sym[0], {
+            ? await getSymbolDetails(program, sym[0], {
                 includeSignature: true,
                 includeParameterTags: true,
                 includeExpandedDefinition,
@@ -789,11 +789,11 @@ export function createServer(
     }
   }
 
-  function getSignatureHelpForTemplate(
+  async function getSignatureHelpForTemplate(
     program: Program,
     node: TypeReferenceNode,
     argumentIndex: number,
-  ): SignatureHelp | undefined {
+  ): Promise<SignatureHelp | undefined> {
     const sym = program.checker.resolveRelatedSymbols(
       node.target.kind === SyntaxKind.MemberExpression ? node.target.id : node.target,
     );
@@ -831,7 +831,7 @@ export function createServer(
       activeParameter: 0,
     };
 
-    const doc = getSymbolDetails(program, sym[0], {
+    const doc = await getSymbolDetails(program, sym[0], {
       includeSignature: false,
       includeParameterTags: false,
     });
@@ -842,11 +842,11 @@ export function createServer(
     return help;
   }
 
-  function getSignatureHelpForDecorator(
+  async function getSignatureHelpForDecorator(
     program: Program,
     node: DecoratorExpressionNode | AugmentDecoratorStatementNode,
     argumentIndex: number,
-  ): SignatureHelp | undefined {
+  ): Promise<SignatureHelp | undefined> {
     const sym = program.checker.resolveRelatedSymbols(
       node.target.kind === SyntaxKind.MemberExpression ? node.target.id : node.target,
     );
@@ -909,7 +909,7 @@ export function createServer(
       activeParameter: 0,
     };
 
-    const doc = getSymbolDetails(program, sym[0], {
+    const doc = await getSymbolDetails(program, sym[0], {
       includeSignature: false,
       includeParameterTags: false,
     });
