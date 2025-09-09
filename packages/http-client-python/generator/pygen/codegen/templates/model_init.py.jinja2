@@ -11,7 +11,7 @@ from .{{ code_model.models_filename }} import (  # type: ignore
     {{ schema }},
     {% endfor %}
 )
-{% else %}
+{% elif code_model.model_types %}
 
 from . import _models
 {% endif %}
@@ -22,7 +22,7 @@ from .{{ code_model.enums_filename }} import (  # type: ignore
     {{ enum }},
 {% endfor %}
 )
-{% else %}
+{% elif code_model.enums %}
 
 from . import _enums
 {% endif %}
