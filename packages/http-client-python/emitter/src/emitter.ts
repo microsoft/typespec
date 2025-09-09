@@ -2,7 +2,6 @@ import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, NoTarget } from "@typespec/compiler";
 import { execSync } from "child_process";
 import fs from "fs";
-import os from "os";
 import path, { dirname } from "path";
 import { loadPyodide } from "pyodide";
 import { fileURLToPath } from "url";
@@ -297,7 +296,7 @@ function checkForPylintIssues(outputDir: string) {
     let fileContent = "";
     fileContent = fs.readFileSync(filePath, "utf-8");
     const pylintDisables: string[] = [];
-    const lines: string[] = fileContent.split(os.EOL);
+    const lines: string[] = fileContent.split("/\r?\n/");
     if (lines.length > 0) {
       if (!lines[0].includes("line-too-long") && lines.some((line) => line.length > 120)) {
         pylintDisables.push("line-too-long", "useless-suppression");
@@ -307,8 +306,8 @@ function checkForPylintIssues(outputDir: string) {
       }
       if (pylintDisables.length > 0) {
         fileContent = lines[0].includes("pylint: disable=")
-          ? [lines[0] + "," + pylintDisables.join(",")].concat(lines.slice(1)).join(os.EOL)
-          : `# pylint: disable=${pylintDisables.join(",")}${os.EOL}` + fileContent;
+          ? [lines[0] + "," + pylintDisables.join(",")].concat(lines.slice(1)).join("\n")
+          : `# pylint: disable=${pylintDisables.join(",")}\n` + fileContent;
       }
     }
 
