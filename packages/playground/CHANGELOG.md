@@ -1,5 +1,16 @@
 # Change Log - @typespec/playground
 
+## 0.11.0
+
+### Features
+
+- [#4383](https://github.com/microsoft/typespec/pull/4383) Add new import from remote typespec functionality
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+
 ## 0.10.0
 
 ### Features
