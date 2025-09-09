@@ -5,4 +5,4 @@ packages:
   - "@typespec/http"
 ---
 
-fix: circular import causing tsp compile --watch breakage
+Fix circular import causing `tsp compile --watch` breakage

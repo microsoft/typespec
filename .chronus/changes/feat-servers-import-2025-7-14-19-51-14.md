@@ -5,4 +5,4 @@ packages:
   - "@typespec/openapi3"
 ---
 
-feat: adds support for importing servers
+[Converter] Add support for importing servers

@@ -4,4 +4,4 @@ packages:
   - "@typespec/openapi3"
 ---
 
-tsp-openapi3 adds support for importing multipart request bodies
+[Converter] Add support for importing multipart request bodies

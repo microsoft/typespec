@@ -5,4 +5,4 @@ packages:
   - typespec-vscode
 ---
 
-Prefill all available emitter options as comments when adding a new emitter
+Provide emitter options as comments when adding a new emitter

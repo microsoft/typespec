@@ -5,4 +5,4 @@ packages:
   - "@typespec/openapi3"
 ---
 
-feat: adds support for importing tags metadata
+[converter] Add support for importing tags metadata

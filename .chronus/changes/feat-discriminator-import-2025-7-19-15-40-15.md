@@ -4,4 +4,4 @@ packages:
   - "@typespec/openapi3"
 ---
 
-adds support for importing discriminator mappings in openAPI
+[Converter] Add support for importing discriminator mappings in openAPI
