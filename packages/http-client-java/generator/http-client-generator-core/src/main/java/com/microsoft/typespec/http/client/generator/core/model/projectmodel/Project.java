@@ -53,19 +53,20 @@ public class Project {
 
     private List<String> apiVersions;
 
+    protected String sdkFolder;
     private boolean integratedWithSdk = false;
 
     public enum Dependency {
         // azure
         AZURE_CLIENT_SDK_PARENT("com.azure", "azure-client-sdk-parent", "1.7.0"),
         AZURE_CLIENT_SDK_PARENT_V2("com.azure.v2", "azure-client-sdk-parent", "2.0.0-beta.1"),
-        AZURE_CORE("com.azure", "azure-core", "1.55.5"),
+        AZURE_CORE("com.azure", "azure-core", "1.56.0"),
         AZURE_CORE_V2("com.azure.v2", "azure-core", "2.0.0-beta.1"),
-        AZURE_CORE_MANAGEMENT("com.azure", "azure-core-management", "1.18.1"),
-        AZURE_CORE_HTTP_NETTY("com.azure", "azure-core-http-netty", "1.15.13"),
-        AZURE_CORE_TEST("com.azure", "azure-core-test", "1.27.0-beta.10"),
-        AZURE_IDENTITY("com.azure", "azure-identity", "1.16.3"),
-        AZURE_CORE_EXPERIMENTAL("com.azure", "azure-core-experimental", "1.0.0-beta.62"),
+        AZURE_CORE_MANAGEMENT("com.azure", "azure-core-management", "1.19.0"),
+        AZURE_CORE_HTTP_NETTY("com.azure", "azure-core-http-netty", "1.16.0"),
+        AZURE_CORE_TEST("com.azure", "azure-core-test", "1.27.0-beta.11"),
+        AZURE_IDENTITY("com.azure", "azure-identity", "1.17.0"),
+        AZURE_CORE_EXPERIMENTAL("com.azure", "azure-core-experimental", "1.0.0-beta.63"),
 
         CLIENTCORE("io.clientcore", "core", "1.0.0-beta.11");
 
@@ -181,18 +182,18 @@ public class Project {
 
     private String findSdkFolder() {
         JavaSettings settings = JavaSettings.getInstance();
-        String sdkFolderOpt = settings.getAutorestSettings().getJavaSdksFolder();
-        if (sdkFolderOpt == null) {
+        String sdkFolder = settings.getAutorestSettings().getJavaSdksFolder();
+        if (sdkFolder == null) {
             LOGGER.info("'java-sdks-folder' parameter not available");
         } else {
-            if (!Paths.get(sdkFolderOpt).isAbsolute()) {
+            if (!Paths.get(sdkFolder).isAbsolute()) {
                 LOGGER.info("'java-sdks-folder' parameter is not an absolute path");
-                sdkFolderOpt = null;
+                sdkFolder = null;
             }
         }
 
         // try to deduct it from "output-folder"
-        if (sdkFolderOpt == null) {
+        if (sdkFolder == null) {
             String outputFolder = settings.getAutorestSettings().getOutputFolder();
             if (outputFolder != null && Paths.get(outputFolder).isAbsolute()) {
                 Path path = Paths.get(outputFolder).normalize();
@@ -214,16 +215,16 @@ public class Project {
                 if (path != null) {
                     LOGGER.info("'azure-sdk-for-java' SDK folder '{}' deduced from 'output-folder' parameter",
                         path.toString());
-                    sdkFolderOpt = path.toString();
+                    sdkFolder = path.toString();
                 }
             }
         }
 
-        if (sdkFolderOpt == null) {
+        if (sdkFolder == null) {
             LOGGER.warn("'azure-sdk-for-java' SDK folder not found, fallback to default versions for dependencies");
         }
 
-        return sdkFolderOpt;
+        return sdkFolder;
     }
 
     private static boolean isRepoSdkFolder(Path path) {
@@ -256,14 +257,14 @@ public class Project {
     }
 
     protected void findPackageVersions() {
-        String sdkFolderOpt = findSdkFolder();
-        this.integratedWithSdk = sdkFolderOpt != null;
-        if (sdkFolderOpt == null) {
+        sdkFolder = findSdkFolder();
+        this.integratedWithSdk = sdkFolder != null;
+        if (sdkFolder == null) {
             return;
         }
 
         // find dependency version from versioning txt
-        Path sdkPath = Paths.get(sdkFolderOpt);
+        Path sdkPath = Paths.get(sdkFolder);
         Path versionClientPath = sdkPath.resolve(Paths.get("eng", "versioning", "version_client.txt"));
         Path versionExternalPath = sdkPath.resolve(Paths.get("eng", "versioning", "external_dependencies.txt"));
         if (Files.isReadable(versionClientPath) && Files.isReadable(versionExternalPath)) {
@@ -287,19 +288,38 @@ public class Project {
             reader.lines().forEach(line -> {
                 for (Dependency dependency : Dependency.values()) {
                     String artifact = getVersionUpdateTag(dependency.getGroupId(), dependency.getArtifactId());
-                    checkArtifact(line, artifact).ifPresent(dependency::setVersion);
+                    checkArtifact(line, artifact, false).ifPresent(dependency::setVersion);
                 }
             });
         }
     }
 
-    public static Optional<String> checkArtifact(String line, String artifact) {
+    public static Optional<String> checkArtifact(String line, String artifact, boolean takeCurrentVersion) {
+        /*
+         * example in version_client.txt
+         * com.azure:azure-core;1.56.0;1.57.0-beta.1
+         * com.azure.resourcemanager:azure-resourcemanager;2.54.0;2.55.0-beta.1
+         *
+         * example in external_dependencies.txt
+         * junit:junit;4.13.2
+         *
+         * dependency-version is the 2nd segment
+         * current-version is the 3rd segment
+         */
         if (line.startsWith(artifact + ";")) {
             String[] segments = line.split(";");
-            if (segments.length >= 2) {
-                String version = segments[1];
-                LOGGER.info("Found version '{}' for artifact '{}'", version, artifact);
-                return Optional.of(version);
+            if (takeCurrentVersion) {
+                if (segments.length >= 3) {
+                    String version = segments[2];
+                    LOGGER.info("Found current version '{}' for artifact '{}'", version, artifact);
+                    return Optional.of(version);
+                }
+            } else {
+                if (segments.length >= 2) {
+                    String version = segments[1];
+                    LOGGER.info("Found dependency version '{}' for artifact '{}'", version, artifact);
+                    return Optional.of(version);
+                }
             }
         }
         return Optional.empty();

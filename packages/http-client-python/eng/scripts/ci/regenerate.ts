@@ -22,11 +22,7 @@ const argv = parseArgs({
 });
 
 // Add this near the top with other constants
-const SKIP_SPECS = [
-  "type/union/discriminated",
-  "client-operation-group",
-  "azure/client-generator-core/hierarchy-building",
-];
+const SKIP_SPECS = ["type/union/discriminated", "client-operation-group"];
 
 // Get the directory of the current file
 const PLUGIN_DIR = argv.values.pluginDir
@@ -67,6 +63,9 @@ const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<stri
   },
   "azure/client-generator-core/override": {
     namespace: "specs.azure.clientgenerator.core.override",
+  },
+  "azure/client-generator-core/hierarchy-building": {
+    namespace: "specs.azure.clientgenerator.core.hierarchybuilding",
   },
   "azure/core/basic": {
     namespace: "specs.azure.core.basic",
@@ -114,7 +113,7 @@ const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<stri
     namespace: "client.structure.twooperationgroup",
   },
   "client/naming": {
-    namespace: "client.naming",
+    namespace: "client.naming.main",
   },
   "client/overload": {
     namespace: "client.overload",

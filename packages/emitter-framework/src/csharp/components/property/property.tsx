@@ -1,10 +1,11 @@
 import { type Children } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
 import { Attribute } from "@alloy-js/csharp";
-import { type ModelProperty, resolveEncodedName, type Type } from "@typespec/compiler";
+import { getProperty, type ModelProperty, resolveEncodedName, type Type } from "@typespec/compiler";
 import { useTsp } from "../../../core/index.js";
 import { TypeExpression } from "../type-expression.jsx";
 import { getDocComments } from "../utils/doc-comments.jsx";
+import { getNullableUnionInnerType } from "../utils/nullable-util.js";
 
 export interface PropertyProps {
   type: ModelProperty;
@@ -16,14 +17,47 @@ export interface PropertyProps {
  * Create a C# property declaration from a TypeSpec property type.
  */
 export function Property(props: PropertyProps): Children {
-  const result = preprocessPropertyType(props.type.type);
+  const result = preprocessPropertyType(props.type);
   const { $ } = useTsp();
+
+  let overrideType: "" | "override" | "new" = "";
+  let isVirtual = false;
+  if (props.type.model) {
+    if (props.type.model.baseModel) {
+      const base = props.type.model.baseModel;
+      const baseProperty = getProperty(base, props.type.name);
+      if (baseProperty) {
+        const baseResult = preprocessPropertyType(baseProperty);
+        if (baseResult.nullable === result.nullable && baseResult.type === result.type) {
+          overrideType = "override";
+        } else {
+          overrideType = "new";
+        }
+      }
+    }
+    if (
+      overrideType === "" &&
+      props.type.model.derivedModels &&
+      props.type.model.derivedModels.length > 0
+    ) {
+      isVirtual = props.type.model.derivedModels.some((derived) => {
+        const derivedProperty = derived.properties.get(props.type.name);
+        if (derivedProperty) {
+          const derivedResult = preprocessPropertyType(derivedProperty);
+          return derivedResult.nullable === result.nullable && derivedResult.type === result.type;
+        }
+      });
+    }
+  }
 
   return (
     <cs.Property
       name={props.type.name}
       type={<TypeExpression type={result.type} />}
+      override={overrideType === "override"}
+      new={overrideType === "new"}
       public
+      virtual={isVirtual}
       required={!props.type.optional}
       nullable={result.nullable}
       doc={getDocComments($, props.type)}
@@ -44,19 +78,17 @@ function JsonNameAttribute(props: JsonNameAttributeProps): Children {
   return <Attribute name="System.Text.Json.JsonPropertyName" args={[JSON.stringify(jsonName)]} />;
 }
 
-function preprocessPropertyType(type: Type): { type: Type; nullable: boolean } {
-  const { $ } = useTsp();
+function preprocessPropertyType(prop: ModelProperty): { type: Type; nullable: boolean } {
+  const type = prop.type;
 
   if (type.kind === "Union") {
-    const variants = type.variants;
-    const nonNullVariant = [...variants.values()].find((v) => v.type !== $.intrinsic.null);
-    const nullVariant = [...variants.values()].find((v) => v.type !== $.intrinsic.null);
-    if (nonNullVariant && nullVariant && variants.size === 2) {
-      return { type: nonNullVariant.type, nullable: true };
+    const innerType = getNullableUnionInnerType(type);
+    if (innerType) {
+      return { type: innerType, nullable: true };
     } else {
-      return { type, nullable: false };
+      return { type, nullable: prop.optional };
     }
   } else {
-    return { type, nullable: false };
+    return { type, nullable: prop.optional };
   }
 }

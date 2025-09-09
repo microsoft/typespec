@@ -5,7 +5,7 @@
 # --------------------------------------------------------------------------
 """The preprocessing autorest plugin."""
 import copy
-from typing import Callable, Dict, Any, List, Optional
+from typing import Callable, Any, Optional
 
 from ..utils import to_snake_case, extract_original_name
 from .helpers import (
@@ -26,8 +26,8 @@ from ..utils import (
 
 
 def update_overload_section(
-    overload: Dict[str, Any],
-    yaml_data: Dict[str, Any],
+    overload: dict[str, Any],
+    yaml_data: dict[str, Any],
     section: str,
 ):
     try:
@@ -42,7 +42,7 @@ def update_overload_section(
         raise ValueError(overload["name"]) from exc
 
 
-def add_overload(yaml_data: Dict[str, Any], body_type: Dict[str, Any], for_flatten_params=False):
+def add_overload(yaml_data: dict[str, Any], body_type: dict[str, Any], for_flatten_params=False):
     overload = copy.deepcopy(yaml_data)
     overload["isOverload"] = True
     overload["bodyParameter"]["type"] = body_type
@@ -80,7 +80,7 @@ def add_overload(yaml_data: Dict[str, Any], body_type: Dict[str, Any], for_flatt
     return overload
 
 
-def add_overloads_for_body_param(yaml_data: Dict[str, Any]) -> None:
+def add_overloads_for_body_param(yaml_data: dict[str, Any]) -> None:
     """If we added a body parameter type, add overloads for that type"""
     body_parameter = yaml_data["bodyParameter"]
     if not (
@@ -121,7 +121,7 @@ def update_operation_group_class_name(prefix: str, class_name: str) -> str:
     return class_name + "Operations"
 
 
-def update_paging_response(yaml_data: Dict[str, Any]) -> None:
+def update_paging_response(yaml_data: dict[str, Any]) -> None:
     yaml_data["discriminator"] = "paging"
 
 
@@ -148,23 +148,35 @@ HEADERS_CONVERT_IN_METHOD = {
         },
     },
 }
+CLOUD_SETTING = {
+    "optional": True,
+    "description": "The cloud setting for which to get the ARM endpoint.",
+    "clientName": "cloud_setting",
+    "implementation": "Client",
+    "location": "keyword",
+    "type": {
+        "type": "sdkcore",
+        "name": "AzureClouds",
+        "isTypingOnly": True,
+    },
+}
 
 
-def get_wire_name_lower(parameter: Dict[str, Any]) -> str:
+def get_wire_name_lower(parameter: dict[str, Any]) -> str:
     return (parameter.get("wireName") or "").lower()
 
 
-def headers_convert(yaml_data: Dict[str, Any], replace_data: Any) -> None:
+def headers_convert(yaml_data: dict[str, Any], replace_data: Any) -> None:
     if isinstance(replace_data, dict):
         for k, v in replace_data.items():
             yaml_data[k] = v
 
 
-def has_json_content_type(yaml_data: Dict[str, Any]) -> bool:
+def has_json_content_type(yaml_data: dict[str, Any]) -> bool:
     return any(ct for ct in yaml_data.get("contentTypes", []) if JSON_REGEXP.match(ct))
 
 
-def has_multi_part_content_type(yaml_data: Dict[str, Any]) -> bool:
+def has_multi_part_content_type(yaml_data: dict[str, Any]) -> bool:
     return any(ct for ct in yaml_data.get("contentTypes", []) if ct == "multipart/form-data")
 
 
@@ -189,8 +201,8 @@ class PreProcessPlugin(YamlUpdatePlugin):
 
     def add_body_param_type(
         self,
-        code_model: Dict[str, Any],
-        body_parameter: Dict[str, Any],
+        code_model: dict[str, Any],
+        body_parameter: dict[str, Any],
     ):
         # only add overload for special content type
         if (  # pylint: disable=too-many-boolean-expressions
@@ -231,7 +243,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
             return name_prefix + name + pad_type
         return name_prefix + name
 
-    def update_types(self, yaml_data: List[Dict[str, Any]]) -> None:
+    def update_types(self, yaml_data: list[dict[str, Any]]) -> None:
         for type in yaml_data:
             for property in type.get("properties", []):
                 property["description"] = update_description(property.get("description", ""))
@@ -268,8 +280,9 @@ class PreProcessPlugin(YamlUpdatePlugin):
         for v in HEADERS_CONVERT_IN_METHOD.values():
             if isinstance(v, dict) and "type" in v:
                 yaml_data.append(v["type"])
+        yaml_data.append(CLOUD_SETTING["type"])  # type: ignore
 
-    def update_client(self, yaml_data: Dict[str, Any]) -> None:
+    def update_client(self, yaml_data: dict[str, Any]) -> None:
         yaml_data["description"] = update_description(yaml_data["description"], default_description=yaml_data["name"])
         yaml_data["legacyFilename"] = to_snake_case(yaml_data["name"].replace(" ", "_"))
         parameters = yaml_data["parameters"]
@@ -325,7 +338,11 @@ class PreProcessPlugin(YamlUpdatePlugin):
                     o["hasEtag"] = True
                     yaml_data["hasEtag"] = True
 
-    def get_operation_updater(self, yaml_data: Dict[str, Any]) -> Callable[[Dict[str, Any], Dict[str, Any]], None]:
+        # add client signature cloud_setting for arm
+        if self.azure_arm and yaml_data["parameters"]:
+            yaml_data["parameters"].append(CLOUD_SETTING)
+
+    def get_operation_updater(self, yaml_data: dict[str, Any]) -> Callable[[dict[str, Any], dict[str, Any]], None]:
         if yaml_data["discriminator"] == "lropaging":
             return self.update_lro_paging_operation
         if yaml_data["discriminator"] == "lro":
@@ -334,7 +351,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
             return self.update_paging_operation
         return self.update_operation
 
-    def update_parameter(self, yaml_data: Dict[str, Any]) -> None:
+    def update_parameter(self, yaml_data: dict[str, Any]) -> None:
         yaml_data["description"] = update_description(yaml_data.get("description", ""))
         if not (yaml_data["location"] == "header" and yaml_data["clientName"] in ("content_type", "accept")):
             yaml_data["clientName"] = self.pad_reserved_words(yaml_data["clientName"].lower(), PadType.PARAMETER)
@@ -358,8 +375,8 @@ class PreProcessPlugin(YamlUpdatePlugin):
 
     def update_operation(
         self,
-        code_model: Dict[str, Any],
-        yaml_data: Dict[str, Any],
+        code_model: dict[str, Any],
+        yaml_data: dict[str, Any],
         *,
         is_overload: bool = False,
     ) -> None:
@@ -390,7 +407,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
             self.add_body_param_type(code_model, body_parameter)
             add_overloads_for_body_param(yaml_data)
 
-    def _update_lro_operation_helper(self, yaml_data: Dict[str, Any]) -> None:
+    def _update_lro_operation_helper(self, yaml_data: dict[str, Any]) -> None:
         for response in yaml_data.get("responses", []):
             response["discriminator"] = "lro"
             response["pollerSync"] = response.get("pollerSync") or "azure.core.polling.LROPoller"
@@ -410,10 +427,10 @@ class PreProcessPlugin(YamlUpdatePlugin):
 
     def update_lro_paging_operation(
         self,
-        code_model: Dict[str, Any],
-        yaml_data: Dict[str, Any],
+        code_model: dict[str, Any],
+        yaml_data: dict[str, Any],
         is_overload: bool = False,
-        item_type: Optional[Dict[str, Any]] = None,
+        item_type: Optional[dict[str, Any]] = None,
     ) -> None:
         self.update_lro_operation(code_model, yaml_data, is_overload=is_overload)
         self.update_paging_operation(code_model, yaml_data, is_overload=is_overload, item_type=item_type)
@@ -430,11 +447,11 @@ class PreProcessPlugin(YamlUpdatePlugin):
 
     def update_lro_operation(
         self,
-        code_model: Dict[str, Any],
-        yaml_data: Dict[str, Any],
+        code_model: dict[str, Any],
+        yaml_data: dict[str, Any],
         is_overload: bool = False,
     ) -> None:
-        def convert_initial_operation_response_type(data: Dict[str, Any]) -> None:
+        def convert_initial_operation_response_type(data: dict[str, Any]) -> None:
             for response in data.get("responses", []):
                 response["type"] = KNOWN_TYPES["binary"]
 
@@ -449,10 +466,10 @@ class PreProcessPlugin(YamlUpdatePlugin):
 
     def update_paging_operation(
         self,
-        code_model: Dict[str, Any],
-        yaml_data: Dict[str, Any],
+        code_model: dict[str, Any],
+        yaml_data: dict[str, Any],
         is_overload: bool = False,
-        item_type: Optional[Dict[str, Any]] = None,
+        item_type: Optional[dict[str, Any]] = None,
     ) -> None:
         self.update_operation(code_model, yaml_data, is_overload=is_overload)
         item_type = item_type or yaml_data["itemType"]["elementType"]
@@ -470,7 +487,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
         for overload in yaml_data.get("overloads", []):
             self.update_paging_operation(code_model, overload, is_overload=True, item_type=item_type)
 
-    def update_operation_groups(self, code_model: Dict[str, Any], client: Dict[str, Any]) -> None:
+    def update_operation_groups(self, code_model: dict[str, Any], client: dict[str, Any]) -> None:
         operation_groups_yaml_data = client.get("operationGroups", [])
         for operation_group in operation_groups_yaml_data:
             operation_group["identifyName"] = self.pad_reserved_words(
@@ -491,7 +508,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
             if operation_group.get("operationGroups"):
                 self.update_operation_groups(code_model, operation_group)
 
-    def update_yaml(self, yaml_data: Dict[str, Any]) -> None:
+    def update_yaml(self, yaml_data: dict[str, Any]) -> None:
         """Convert in place the YAML str."""
         self.update_types(yaml_data["types"])
         yaml_data["types"] += KNOWN_TYPES.values()
