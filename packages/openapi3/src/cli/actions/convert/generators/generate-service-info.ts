@@ -34,7 +34,7 @@ export function generateServiceInformation(
   }
 
   // Use provided namespace name, or fall back to generating from service name
-  const namespace = generateNamespaceName(namespaceName) || generateNamespaceName(name);
+  const namespace = (namespaceName && generateNamespaceName(namespaceName)) || generateNamespaceName(name);
   definitions.push(`namespace ${namespace};`);
 
   return definitions.join("\n");
