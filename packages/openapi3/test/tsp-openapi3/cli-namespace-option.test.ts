@@ -51,7 +51,10 @@ describe("CLI namespace option", () => {
       // Should use custom namespace
       strictEqual(generatedContent.includes("namespace CustomCLINamespace;"), true);
       // Should still preserve original service title
-      strictEqual(generatedContent.includes('title: "CLI Test Service - With Special Characters!"'), true);
+      strictEqual(
+        generatedContent.includes('title: "CLI Test Service - With Special Characters!"'),
+        true,
+      );
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }
@@ -78,7 +81,10 @@ describe("CLI namespace option", () => {
       const generatedContent = await readFile(outputFile, "utf-8");
 
       // Should use generated namespace from title
-      strictEqual(generatedContent.includes("namespace CLITestServiceWithSpecialCharacters;"), true);
+      strictEqual(
+        generatedContent.includes("namespace CLITestServiceWithSpecialCharacters;"),
+        true,
+      );
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }
@@ -106,7 +112,10 @@ describe("CLI namespace option", () => {
       const generatedContent = await readFile(outputFile, "utf-8");
 
       // Should clean up special characters
-      strictEqual(generatedContent.includes("namespace MyCLINamespaceWithSpecialCharacters;"), true);
+      strictEqual(
+        generatedContent.includes("namespace MyCLINamespaceWithSpecialCharacters;"),
+        true,
+      );
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }

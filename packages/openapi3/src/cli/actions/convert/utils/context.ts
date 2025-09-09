@@ -57,7 +57,7 @@ export function createContext(
   logger?: Logger,
   namespace?: string,
 ): Context {
-  const rootNamespace = namespace 
+  const rootNamespace = namespace
     ? generateNamespaceName(namespace)
     : generateNamespaceName(openApi3Doc.info.title);
   const schemaExpressionGenerator = new SchemaToExpressionGenerator(rootNamespace);
