@@ -13,7 +13,6 @@ export async function resolveEntrypointFile(
   fileSystemCache: FileSystemCache | undefined,
   log: (log: ServerLog) => void,
 ): Promise<string | undefined> {
-  let packageJsonEntrypoint: string | undefined;
   let defaultEntrypoint: string | undefined;
   const options = { allowFileNotFound: true };
 
@@ -36,31 +35,33 @@ export async function resolveEntrypointFile(
       }
     }
 
-    if (!packageJsonEntrypoint) {
-      let pkg: any;
-      const pkgPath = joinPaths(dir, "package.json");
-      const cached = await fileSystemCache?.get(pkgPath);
-      if (cached?.data) {
-        pkg = cached.data;
-      } else {
-        [pkg] = await loadFile(host, pkgPath, JSON.parse, logMainFileSearchDiagnostic, options);
-        await fileSystemCache?.setData(pkgPath, pkg ?? {});
-      }
+    let pkg: any;
+    const pkgPath = joinPaths(dir, "package.json");
+    const cached = await fileSystemCache?.get(pkgPath);
+    if (cached?.data) {
+      pkg = cached.data;
+    } else {
+      [pkg] = await loadFile(host, pkgPath, JSON.parse, logMainFileSearchDiagnostic, options);
+      await fileSystemCache?.setData(pkgPath, pkg ?? {});
+    }
 
-      const tspMain = resolveTspMain(pkg);
-      if (typeof tspMain === "string") {
-        log({
-          level: "debug",
-          message: `tspMain resolved from package.json (${pkgPath}) as ${tspMain}`,
-        });
-        packageJsonEntrypoint = await existingFile(dir, tspMain);
+    const tspMain = resolveTspMain(pkg);
+    if (typeof tspMain === "string") {
+      log({
+        level: "debug",
+        message: `tspMain resolved from package.json (${pkgPath}) as ${tspMain}`,
+      });
+
+      const packageJsonEntrypoint = await existingFile(dir, tspMain);
+      if (packageJsonEntrypoint) {
+        log({ level: "debug", message: `entrypoint file found as ${packageJsonEntrypoint}` });
+        return packageJsonEntrypoint;
       }
     }
 
     // If there is no configuration, null is passed in vscode while undefined is passed in the compiler.
     if (
       !defaultEntrypoint &&
-      !packageJsonEntrypoint &&
       (entrypoints === null || entrypoints === undefined || entrypoints.length === 0)
     ) {
       defaultEntrypoint = await existingFile(dir, "main.tsp");
@@ -72,11 +73,6 @@ export async function resolveEntrypointFile(
     }
 
     dir = parentDir;
-  }
-
-  if (packageJsonEntrypoint) {
-    log({ level: "debug", message: `entrypoint file found as ${packageJsonEntrypoint}` });
-    return packageJsonEntrypoint;
   }
 
   if (defaultEntrypoint) {
