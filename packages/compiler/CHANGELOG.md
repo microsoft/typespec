@@ -1,5 +1,21 @@
 # Change Log - @typespec/compiler
 
+## 1.4.0
+
+### Features
+
+- [#4383](https://github.com/microsoft/typespec/pull/4383) Expose `createSourceLoader` via `@typespec/compiler/ast`
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8386](https://github.com/microsoft/typespec/pull/8386) fixed a bug where max/min Items could not be used in combination with a nullable type
+- [#8152](https://github.com/microsoft/typespec/pull/8152) Remove incorrect example of service option model from documents
+
+
 ## 1.3.0
 
 ### Features

@@ -297,7 +297,8 @@ function checkForPylintIssues(outputDir: string) {
     let fileContent = "";
     fileContent = fs.readFileSync(filePath, "utf-8");
     const pylintDisables: string[] = [];
-    const lines: string[] = fileContent.split(os.EOL);
+    const lineEnding = fileContent.includes("\r\n") && os.platform() === "win32" ? "\r\n" : "\n";
+    const lines: string[] = fileContent.split(lineEnding);
     if (lines.length > 0) {
       if (!lines[0].includes("line-too-long") && lines.some((line) => line.length > 120)) {
         pylintDisables.push("line-too-long", "useless-suppression");
@@ -307,8 +308,8 @@ function checkForPylintIssues(outputDir: string) {
       }
       if (pylintDisables.length > 0) {
         fileContent = lines[0].includes("pylint: disable=")
-          ? [lines[0] + "," + pylintDisables.join(",")].concat(lines.slice(1)).join(os.EOL)
-          : `# pylint: disable=${pylintDisables.join(",")}${os.EOL}` + fileContent;
+          ? [lines[0] + "," + pylintDisables.join(",")].concat(lines.slice(1)).join(lineEnding)
+          : `# pylint: disable=${pylintDisables.join(",")}${lineEnding}` + fileContent;
       }
     }
 
