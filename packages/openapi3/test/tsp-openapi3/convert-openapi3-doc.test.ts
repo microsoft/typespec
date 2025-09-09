@@ -99,10 +99,7 @@ describe("OpenAPI 3.1 anyOf with null conversion", () => {
             required: ["bar"],
             properties: {
               bar: {
-                anyOf: [
-                  { $ref: "#/components/schemas/Foo" },
-                  { type: "null" as any },
-                ],
+                anyOf: [{ $ref: "#/components/schemas/Foo" }, { type: "null" as any }],
               },
             },
           },
@@ -120,8 +117,16 @@ describe("OpenAPI 3.1 anyOf with null conversion", () => {
     } as any);
 
     // Should contain "bar: Foo | null;" instead of "bar: Foo | unknown;"
-    strictEqual(tsp.includes("bar: Foo | null;"), true, "Expected 'bar: Foo | null;' but got: " + tsp);
-    strictEqual(tsp.includes("bar: Foo | unknown;"), false, "Should not contain 'bar: Foo | unknown;'");
+    strictEqual(
+      tsp.includes("bar: Foo | null;"),
+      true,
+      "Expected 'bar: Foo | null;' but got: " + tsp,
+    );
+    strictEqual(
+      tsp.includes("bar: Foo | unknown;"),
+      false,
+      "Should not contain 'bar: Foo | unknown;'",
+    );
   });
 
   it("should convert plain null type to null", async () => {
@@ -151,6 +156,10 @@ describe("OpenAPI 3.1 anyOf with null conversion", () => {
     } as any);
 
     // Should contain proper null handling
-    strictEqual(tsp.includes("scalar NullOnly extends null;"), true, "Expected 'scalar NullOnly extends null;' but got: " + tsp);
+    strictEqual(
+      tsp.includes("scalar NullOnly extends null;"),
+      true,
+      "Expected 'scalar NullOnly extends null;' but got: " + tsp,
+    );
   });
 });
