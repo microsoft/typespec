@@ -26,10 +26,10 @@ The path to the OpenAPI3 yaml or json file **must** be passed as a position argu
 
 The named arguments are:
 
-| Name       | Type    | Required | Description                                                                              |
-| ---------- | ------- | -------- | ---------------------------------------------------------------------------------------- |
-| output-dir | string  | required | The output directory for generated TypeSpec files. Will be created if it does not exist. |
-| help       | boolean | optional | Show help.                                                                               |
+| Name       | Type    | Required | Description                                                                                                                           |
+| ---------- | ------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| output-dir | string  | required | The output directory for generated TypeSpec files. Will be created if it does not exist.                                              |
+| help       | boolean | optional | Show help.                                                                                                                            |
 | namespace  | string  | optional | The namespace to use for the generated TypeSpec files. Defaults to a sanitized version of the description info title if not provided. |
 
 ## Examples
