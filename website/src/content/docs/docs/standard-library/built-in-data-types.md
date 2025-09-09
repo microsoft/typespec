@@ -1,5 +1,6 @@
 ---
 title: "Built-in Data types"
+description: "Data types exported by TypeSpec"
 ---
 ## TypeSpec
 ### `Array` {#Array}

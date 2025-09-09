@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.Expressions;
@@ -34,8 +33,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public override ValueExpression Create(ValueExpression options, ValueExpression perRetryPolicies)
             => Static<ClientPipeline>().Invoke(nameof(ClientPipeline.Create), [options, New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType), perRetryPolicies, New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType)]).As<ClientPipeline>();
 
-        public override ValueExpression CreateMessage(HttpRequestOptionsApi requestOptions, ValueExpression responseClassifier)
-            => new PipelineMessageProvider(Original.Invoke(nameof(ClientPipeline.CreateMessage)));
+        public override MethodBodyStatement[] CreateMessage(
+            HttpRequestOptionsApi requestOptions,
+            ValueExpression uri,
+            ScopedApi<string> method,
+            ValueExpression responseClassifier,
+            out HttpMessageApi message,
+            out HttpRequestApi request)
+            =>
+            [
+                Declare("message", new PipelineMessageProvider(Original.Invoke(nameof(ClientPipeline.CreateMessage), [uri.Invoke("ToUri"), method, responseClassifier])), out message),
+                Declare("request", message.Request(), out request),
+            ];
 
         public override ClientPipelineApi FromExpression(ValueExpression expression)
             => new ClientPipelineProvider(expression);
@@ -51,7 +60,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public override ClientPipelineApi ToExpression() => this;
 
-        public override MethodBodyStatement[] ProcessMessage(HttpMessageApi message, HttpRequestOptionsApi options)
+        public override MethodBodyStatement[] SendMessage(HttpMessageApi message, HttpRequestOptionsApi options)
             =>
             [
                 Original.Invoke(nameof(ClientPipeline.Send), [message]).Terminate(),
@@ -65,7 +74,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Return(response)
             ];
 
-        public override MethodBodyStatement[] ProcessMessageAsync(HttpMessageApi message, HttpRequestOptionsApi options)
+        public override MethodBodyStatement[] SendMessageAsync(HttpMessageApi message, HttpRequestOptionsApi options)
             =>
             [
                 Original.Invoke(nameof(ClientPipeline.SendAsync), [message], true).Terminate(),

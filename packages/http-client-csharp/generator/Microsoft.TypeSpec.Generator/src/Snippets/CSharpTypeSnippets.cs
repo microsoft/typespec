@@ -41,26 +41,37 @@ namespace Microsoft.TypeSpec.Generator.Snippets
                 invokeVariable = variable.NullConditional();
             }
 
+            return ToSerial(type, invokeVariable);
+        }
+
+        public static ValueExpression ToSerial(this CSharpType type, ValueExpression variable)
+        {
+            if (!type.IsEnum)
+                throw new InvalidOperationException($"Can't call ToSerial on non-enum type {type.Name}");
+
             if (type.IsStruct) //extensible
             {
                 if (type.UnderlyingEnumType.Equals(typeof(string)))
                 {
-                    return invokeVariable.Invoke("ToString");
+                    return variable.Invoke("ToString");
                 }
                 else
                 {
-                    return invokeVariable.Invoke($"ToSerial{type.UnderlyingEnumType.Name}", [], null, false, extensionType: type);
+                    return variable.Invoke($"ToSerial{type.UnderlyingEnumType.Name}", [], null, false, extensionType: type);
                 }
             }
             else
             {
-                if (type.UnderlyingEnumType.Equals(typeof(int)) || type.UnderlyingEnumType.Equals(typeof(long)))
+                if (type.UnderlyingEnumType.Equals(typeof(int)) ||
+                    type.UnderlyingEnumType.Equals(typeof(long)) ||
+                    type.UnderlyingEnumType.Equals(typeof(double)) ||
+                    type.UnderlyingEnumType.Equals(typeof(float)))
                 {
                     return variable.CastTo(type.UnderlyingEnumType);
                 }
                 else
                 {
-                    return invokeVariable.Invoke($"ToSerial{type.UnderlyingEnumType.Name}", [], null, false, extensionType: type);
+                    return variable.Invoke($"ToSerial{type.UnderlyingEnumType.Name}", [], null, false, extensionType: type);
                 }
             }
         }

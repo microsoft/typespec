@@ -23,6 +23,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 return new InputEnumTypeValue(name, value, InputPrimitiveType.Float32, "", $"{name} description", enumType);
             }
 
+            public static InputEnumTypeValue Float64(string name, double value, InputEnumType enumType)
+            {
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.Float64, "", $"{name} description", enumType);
+            }
+
             public static InputEnumTypeValue String(string name, string value, InputEnumType enumType)
             {
                 return new InputEnumTypeValue(name, value, InputPrimitiveType.String, "", $"{name} description", enumType);
@@ -155,6 +160,32 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             foreach (var (valueName, value) in values)
             {
                 enumValues.Add(EnumMember.Float32(valueName, value, enumType));
+            }
+
+            return enumType;
+        }
+
+        public static InputEnumType Float64Enum(
+            string name,
+            IEnumerable<(string Name, double Value)> values,
+            string access = "public",
+            InputModelTypeUsage usage = InputModelTypeUsage.Input | InputModelTypeUsage.Output,
+            bool isExtensible = false,
+            string clientNamespace = "Sample.Models")
+        {
+            var enumValues = new List<InputEnumTypeValue>();
+            var enumType = Enum(
+                name,
+                InputPrimitiveType.Float64,
+                enumValues,
+                access: access,
+                usage: usage,
+                isExtensible: isExtensible,
+                clientNamespace: clientNamespace);
+
+            foreach (var (valueName, value) in values)
+            {
+                enumValues.Add(EnumMember.Float64(valueName, value, enumType));
             }
 
             return enumType;

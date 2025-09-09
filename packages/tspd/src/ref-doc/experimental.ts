@@ -18,6 +18,7 @@ import { readPackageJson } from "./utils/misc.js";
 export interface GenerateLibraryDocsOptions {
   typekits?: boolean;
   skipJSApi?: boolean;
+  llmstxt?: boolean;
 }
 /**
  * @experimental this is for experimental and is for internal use only. Breaking change to this API can happen at anytime.
@@ -30,7 +31,7 @@ export async function generateLibraryDocs(
   const diagnostics = createDiagnosticCollector();
   const pkgJson = await readPackageJson(libraryPath);
   const refDoc = diagnostics.pipe(await extractLibraryRefDocs(libraryPath));
-  const files = renderToAstroStarlightMarkdown(refDoc);
+  const files = renderToAstroStarlightMarkdown(refDoc, options);
   await mkdir(outputDir, { recursive: true });
   const config = await prettier.resolveConfig(libraryPath);
   for (const [name, content] of Object.entries(files)) {

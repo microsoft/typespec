@@ -484,3 +484,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
 
         # No generation-subdir specified, use the namespace path directly
         return Path(*namespace.split("."))
+
+    @property
+    def has_operation_named_list(self) -> bool:
+        return any(o.name.lower() == "list" for c in self.clients for og in c.operation_groups for o in og.operations)
