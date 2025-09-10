@@ -2,11 +2,14 @@
 
 ---
 
+- The directory is under `packages/http-client-java`. For example, root is folder `<repository-root>/packages/http-client-java`, directory `generator/http-client-generator-test` is folder `<repository-root>/packages/http-client-java/generator/http-client-generator-test`.
+- Always use absolute path when change directory.
+
 # Update Node.JS Package for Latest Dependencies
 
 Steps:
 
-1. Run `ncu -u` on "package.json" in root and in both "generator/http-client-generator-clientcore-test" and "generator/http-client-generator-test" folders.
+1. Run `ncu -u` on "package.json" in root, and on the 2 "package.json" in `generator/http-client-generator-clientcore-test` and `generator/http-client-generator-test` folders.
 2. Update package versions in `peerDependencies` (keep the semver range) in root "package.json", according to the corresponding package versions in `devDependencies`.
 3. Update package versions in `override` (keep the semver range) in the other 2 "package.json", according to the corresponding package versions in root "package.json".
 4. Save the files, and run `npm install` in root, so that "package-lock.json" would be updated.
