@@ -97,8 +97,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var dynamicProperties = _model.Properties.Where(p =>
                 ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(p.Type, out var provider) &&
-                provider is ScmModelProvider { IsDynamicModel: true }).ToArray();
-            var statements = new List<MethodBodyStatement>(dynamicProperties.Length + 1);
+                provider is ScmModelProvider { IsDynamicModel: true });
+            var statements = new List<MethodBodyStatement>();
 
             foreach (var property in dynamicProperties)
             {
@@ -168,7 +168,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var statements = new List<MethodBodyStatement>();
             var currentType = property.Type;
-            var accessorChain = new ValueExpression[] { new IndexableExpression(property) };
+            var accessorChain = new List<ValueExpression> { new IndexableExpression(property) };
             ValueExpression? remainderSlice = null;
 
             statements.Add(Declare("propertyLength", typeof(int),
@@ -195,7 +195,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         Return(False)
                     });
 
-                    accessorChain = accessorChain.Append(new IndexerExpression(accessorChain.Last(), indexVariable)).ToArray();
+                    accessorChain.Add(new IndexerExpression(accessorChain.Last(), indexVariable));
 
                     if (hasNestedCollection)
                     {
@@ -222,7 +222,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         Return(False)
                     });
 
-                    accessorChain = accessorChain.Append(itemVariable).ToArray();
+                    accessorChain.Add(itemVariable);
 
                     if (hasNestedCollection)
                     {
@@ -259,7 +259,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 statements.Add(Return(True));
             }
 
-            return statements.ToArray();
+            return [.. statements];
         }
     }
 }
