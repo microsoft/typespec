@@ -133,7 +133,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var dynamicCollectionProperties = _model.Properties
                 .Where(p => p.Type.IsCollection)
                 .Where(p => ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
-                    GetElementType(p.Type),
+                    p.Type.GetNestedElementType(),
                     out var provider) &&
                     provider is ScmModelProvider { IsDynamicModel: true });
 
@@ -260,11 +260,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return statements.ToArray();
-        }
-
-        private static CSharpType GetElementType(CSharpType type)
-        {
-            return type.IsCollection ? GetElementType(type.ElementType) : type;
         }
     }
 }
